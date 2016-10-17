@@ -11,6 +11,7 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.methods.USBSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
@@ -327,12 +328,24 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new PPPSetup(protocolLink, getObjectReference(PPPSETUP, protocolLink.getMeterConfig().getPPPSetupSN()));
     }
 
+    public PPPSetup getPPPSetup(final ObisCode obisCode) throws NotInObjectListException {
+        return new PPPSetup(protocolLink, getObjectReference(obisCode));
+    }
+
     public GPRSModemSetup getGPRSModemSetup() throws NotInObjectListException {
         return new GPRSModemSetup(protocolLink, getObjectReference(GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
     }
 
     public GPRSModemSetup getGPRSModemSetup(final ObisCode obisCode) throws NotInObjectListException {
         return new GPRSModemSetup(protocolLink, getObjectReference(obisCode));
+    }
+
+    public USBSetup getUSBSetup() throws NotInObjectListException {
+        return new USBSetup(protocolLink, getObjectReference(USBSETUP, protocolLink.getMeterConfig().getUSBSetupSN()));
+    }
+
+    public USBSetup getUSBSetup(final ObisCode obisCode) throws NotInObjectListException {
+        return new USBSetup(protocolLink, getObjectReference(obisCode));
     }
 
     public SFSKPhyMacSetup getSFSKPhyMacSetup() throws NotInObjectListException {

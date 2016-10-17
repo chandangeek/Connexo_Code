@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import com.elster.us.protocolimplv2.sel.SELProperties;
 import com.elster.us.protocolimplv2.sel.profiles.structure.Event;
 import com.elster.us.protocolimplv2.sel.profiles.structure.SERData;
+import com.elster.us.protocolimplv2.sel.utility.DateFormatHelper;
 import com.elster.us.protocolimplv2.sel.utility.EventMapper;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.protocol.LogBookReader;
@@ -39,7 +40,7 @@ public class EventFormatter {
   
   private MeterEvent createEvent(Event event) {
     Date eventDate = getTimeStamp(event.getYear(),event.getJulianDay(),event.getTenthsMillSecSinceMidnight());
-    Date eventDateMeterTz = adjustTimeUsingMeterTz(eventDate, properties.getDeviceTimezone());
+    Date eventDateMeterTz = DateFormatHelper.convertTimeZone(eventDate, properties.getDeviceTimezone(), properties.getTimezone());
     MeterEvent meterEvent = new MeterEvent(
         eventDateMeterTz, 
         mapEventToEICode(event.getMeterWordBit()), 
@@ -61,15 +62,6 @@ public class EventFormatter {
     
     return meterEvent;
   }
-  
-  private Date adjustTimeUsingMeterTz(Date endTimeStamp, String deviceTimezone) {
-    if(endTimeStamp == null)
-      return null;
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(endTimeStamp);
-    cal.setTimeZone(TimeZone.getTimeZone(deviceTimezone));
-    return cal.getTime();
-  }
 
   private Date getTimeStamp(int year, int julianDay, long tenthsMillisSinceMidnight) {
     Calendar cal = Calendar.getInstance();
@@ -87,23 +79,6 @@ public class EventFormatter {
     
   }
   
-
-  
-//  private void buildEventData(LittleEndianInputStream is) throws IOException {
-//    int count = is.readUnsignedByte();
-//    for (int t = 0; t < count; t++) {
-//        long seconds80 = is.readLEUnsignedInt();
-//        int code = is.readLEUnsignedShort();
-//        int length = is.readUnsignedByte();
-//        String description = is.readString(length);
-//        profileData.addEvent(
-//                new MeterEvent(
-//                        new Date((seconds80 + EIWebConstants.SECONDS10YEARS) * TimeConstants.MILLISECONDS_IN_SECOND),
-//                        mapEventCode(code),
-//                        code,
-//                        description));
-//    }
-//  }
   
   private int mapEventToEICode(int event) {
     if(event >= 0 && event <= 15) // Harmonic Threshold Events

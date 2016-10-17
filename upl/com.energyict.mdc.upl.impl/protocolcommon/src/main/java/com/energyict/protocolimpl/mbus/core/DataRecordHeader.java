@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.mbus.core;
 
 import java.io.IOException;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,10 +23,13 @@ public class DataRecordHeader {
     
     private DataInformationBlock dataInformationBlock;
     private ValueInformationBlock valueInformationBlock;
-    
+
+    private final Logger logger;
+
     /** Creates a new instance of DataRecordHeader */
-    public DataRecordHeader(byte[] data, int offset, TimeZone timeZone) throws IOException {
-        setDataInformationBlock(new DataInformationBlock(data, offset, timeZone));
+    public DataRecordHeader(byte[] data, int offset, TimeZone timeZone, final Logger logger) throws IOException {
+        this.logger = logger;
+        setDataInformationBlock(new DataInformationBlock(data, offset, timeZone, this.logger));
         offset+=getDataInformationBlock().size();
         
         // We could leave out this condition !isTYPE_NODATA() but then, there is a VIF that does not contain any data!
@@ -36,7 +40,7 @@ public class DataRecordHeader {
                 valueInformationBlock = null;
             }
             else {
-                setValueInformationBlock(new ValueInformationBlock(data, offset, timeZone, dataInformationBlock.getDataInformationfield().getDataFieldCoding().getId()));
+                setValueInformationBlock(new ValueInformationBlock(data, offset, timeZone, dataInformationBlock.getDataInformationfield().getDataFieldCoding().getId(), logger));
                 offset+=getValueInformationBlock().size();
             }
         }

@@ -19,6 +19,7 @@ public enum SecurityRelationTypeName {
     PASSWORD_AND_LEVEL("LevelAndPassword"),
     PASSWORD_AND_USER("UserAndPassword"),
     DLMS_SECURITY("DlmsSecurity"),
+    DLMS_SUITE_1_AND_2_SECURITY("DlmsSuite1And2Security"),
     CRYPTO_DLMS_SECURITY("CryptoDlmsSecurity"),
     DLMS_SECURITY_PER_CLIENT("DlmsSecurityPerClient"),
     WAVENIS_SECURITY("WavenisSecurity"),
@@ -31,7 +32,7 @@ public enum SecurityRelationTypeName {
 
     private final String securityRelationTypeName;
 
-    private SecurityRelationTypeName(String securityRelationTypeName) {
+    SecurityRelationTypeName(String securityRelationTypeName) {
         this.securityRelationTypeName = securityRelationTypeName;
     }
 

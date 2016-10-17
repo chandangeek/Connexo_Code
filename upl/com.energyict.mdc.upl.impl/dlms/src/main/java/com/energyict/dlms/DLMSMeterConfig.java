@@ -242,6 +242,10 @@ public class DLMSMeterConfig {
         return config.getGPRSModemSetupSN(IOL);
     }
 
+    public int getUSBSetupSN() throws NotInObjectListException {
+        return config.getUSBSetupSN(IOL);
+    }
+
     public UniversalObject getEventLogObject() throws NotInObjectListException {
         return config.getEventLogObject(IOL, manuf);
     }

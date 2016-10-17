@@ -34,7 +34,7 @@ public class Event {
     parseSerData(serData);
   }
   private void parseSerData(int serEventId) {
-    String hex = Integer.toHexString(serEventId);
+    String hex = String.format("%04X", serEventId);
     char assertionBit = hex.charAt(0);
     if(assertionBit == '1') {
       setAsserted(false);

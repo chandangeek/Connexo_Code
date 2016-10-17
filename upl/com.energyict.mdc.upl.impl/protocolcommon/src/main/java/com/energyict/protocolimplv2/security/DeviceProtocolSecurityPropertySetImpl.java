@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 
 import java.util.List;
@@ -13,10 +13,13 @@ import java.util.List;
  * Date: 22/01/13
  * Time: 15:05
  */
-public class DeviceProtocolSecurityPropertySetImpl implements DeviceProtocolSecurityPropertySet {
+public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProtocolSecurityPropertySet {
 
     private int authenticationDeviceAccessLevel;
     private int encryptionDeviceAccessLevel;
+    private int securitySuite;
+    private int requestSecurityLevel;
+    private int responseSecurityLevel;
     private TypedProperties securityProperties;
 
     public DeviceProtocolSecurityPropertySetImpl(List<SecurityProperty> securityProperties) {
@@ -25,15 +28,22 @@ public class DeviceProtocolSecurityPropertySetImpl implements DeviceProtocolSecu
             this.securityProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }
         if (!securityProperties.isEmpty()) {
-            authenticationDeviceAccessLevel = securityProperties.get(0).getSecurityPropertySet().getAuthenticationDeviceAccessLevelId();
-            encryptionDeviceAccessLevel = securityProperties.get(0).getSecurityPropertySet().getEncryptionDeviceAccessLevelId();
+            SecurityProperty firstProperty = securityProperties.get(0);
+            authenticationDeviceAccessLevel = firstProperty.getSecurityPropertySet().getAuthenticationDeviceAccessLevelId();
+            encryptionDeviceAccessLevel = firstProperty.getSecurityPropertySet().getEncryptionDeviceAccessLevelId();
+            securitySuite = firstProperty.getSecurityPropertySet().getSecuritySuiteId();
+            requestSecurityLevel = firstProperty.getSecurityPropertySet().getRequestSecurityLevelId();
+            responseSecurityLevel = firstProperty.getSecurityPropertySet().getResponseSecurityLevelId();
         }
     }
 
-    public DeviceProtocolSecurityPropertySetImpl(int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, TypedProperties securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
         this.encryptionDeviceAccessLevel = encryptionDeviceAccessLevel;
         this.securityProperties = securityProperties;
+        this.securitySuite = securitySuite;
+        this.requestSecurityLevel = requestSecurityLevel;
+        this.responseSecurityLevel = responseSecurityLevel;
     }
 
     @Override
@@ -51,4 +61,18 @@ public class DeviceProtocolSecurityPropertySetImpl implements DeviceProtocolSecu
         return securityProperties;
     }
 
+    @Override
+    public int getSecuritySuite() {
+        return securitySuite;
+    }
+
+    @Override
+    public int getRequestSecurityLevel() {
+        return requestSecurityLevel;
+    }
+
+    @Override
+    public int getResponseSecurityLevel() {
+        return responseSecurityLevel;
+    }
 }

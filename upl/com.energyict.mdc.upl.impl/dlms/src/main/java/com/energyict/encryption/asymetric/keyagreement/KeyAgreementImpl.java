@@ -1,8 +1,8 @@
 package com.energyict.encryption.asymetric.keyagreement;
 
 
-import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
+import com.energyict.mdw.core.ECCCurve;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -24,7 +24,7 @@ public final class KeyAgreementImpl implements KeyAgreement {
     /**
      * The public key.
      */
-    private final PublicKey publicKey;
+    private final PublicKey ephemeralPublicKey;
 
     /**
      * The agreement itself.
@@ -35,14 +35,14 @@ public final class KeyAgreementImpl implements KeyAgreement {
      * Create a new instance.
      *
      * @param curve   The curve to be used.
-     * @param keyPair The key pair, this is only passed by unit tests, otherwise the key pair
-     *                gets generated. This is because we want to be able to test against known vectors.
+     * @param keyPair for encryption at the client side: null. An ephemeral key pair will be generated here.
+     *                for decryption at the client side: the static client key agreement key pair
      */
-    KeyAgreementImpl(final ECCCurve curve, KeyPair keyPair) {
+    public KeyAgreementImpl(final ECCCurve curve, KeyPair keyPair) {
         try {
             final KeyPair ephemeralKeys = (keyPair != null ? keyPair : KeyUtils.generateECCKeyPair(curve));
 
-            this.publicKey = ephemeralKeys.getPublic();
+            this.ephemeralPublicKey = ephemeralKeys.getPublic();
 
             this.agreement = javax.crypto.KeyAgreement.getInstance(ECDH);
             this.agreement.init(ephemeralKeys.getPrivate());
@@ -52,7 +52,7 @@ public final class KeyAgreementImpl implements KeyAgreement {
     }
 
     /**
-     * Create a new instance.
+     * Create a new instance that will generate and use an ephemeral key pair.
      *
      * @param curve The curve to use.
      */
@@ -64,8 +64,8 @@ public final class KeyAgreementImpl implements KeyAgreement {
      * {@inheritDoc}
      */
     @Override
-    public final PublicKey getPublicKey() {
-        return this.publicKey;
+    public final PublicKey getEphemeralPublicKey() {
+        return this.ephemeralPublicKey;
     }
 
     /**

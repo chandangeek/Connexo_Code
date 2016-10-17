@@ -16,6 +16,8 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.util.AXDRTime;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ImageTransfer;
@@ -64,6 +66,13 @@ public class RegisterFactory {
     public static final ObisCode USB_STATE = ObisCode.fromString("0.2.128.0.28.255");
     public static final ObisCode USB_ACTIVITY = ObisCode.fromString("0.3.128.0.28.255");
     public static final ObisCode LAST_ACTIVITY_TIMESTAMP = ObisCode.fromString("0.4.128.0.28.255");
+
+    public static final boolean DISABLED = false;
+    public static final boolean ENABLED = true;
+    public static final boolean IDLE = false;
+    public static final boolean ACTIVE = true;
+
+    public static final ObisCode GPRS_MODEM_SETUP = ObisCode.fromString("0.0.25.4.0.255");
 
     public static final ObisCode INSTANTANEOUS_VOLTAGE_L1 = ObisCode.fromString("1.0.32.7.0.255");
     public static final ObisCode INSTANTANEOUS_VOLTAGE_L2 = ObisCode.fromString("1.0.52.7.0.255");
@@ -143,20 +152,8 @@ public class RegisterFactory {
                 } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
                     DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(memoryStatisticsAttribute);
-                } else if (universalObject.getClassID() == DLMSClassId.GPRS_SETUP.getClassId()) {
-                    DLMSAttribute gprsSetupAttribute = new DLMSAttribute(register.getObisCode(), GprsModemSetupAttributes.NETWORK_SELECTION_MODE.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(gprsSetupAttribute);
                 } else if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
                     DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(USB_STATE)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(USB_SETUP_OBISCODE, UsbSetupAttribute.USB_STATE.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(USB_ACTIVITY)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(USB_SETUP_OBISCODE, UsbSetupAttribute.USB_ACTIVITY.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(LAST_ACTIVITY_TIMESTAMP)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(USB_SETUP_OBISCODE, UsbSetupAttribute.LAST_ACTIVITY_TIMESTAMP.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(valueAttribute);
                 } else if (register.getObisCode().equals(CONNECT_CONTROL_MODE)) {
                     DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), universalObject.getClassID());
@@ -202,7 +199,7 @@ public class RegisterFactory {
                 }
 
                 try {
-                    RegisterValue registerValue;
+                    RegisterValue registerValue = null;
 
                     if (g3Mapping != null) {
                         registerValue = g3Mapping.parse(composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute()));
@@ -216,72 +213,15 @@ public class RegisterFactory {
                                     "Used space: " + memoryManagementAttribute.getStructure().getDataType(0).toBigDecimal() + " " + unit +
                                             ", free space: " + memoryManagementAttribute.getStructure().getDataType(1).toBigDecimal() + " " + unit +
                                             ", total space: " + memoryManagementAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
-                        } else if (memoryManagementAttribute.isStructure() && memoryManagementAttribute.getStructure().nrOfDataTypes() == 8) {
-                            //Special parsing for flash statistics
+                        } else if (memoryManagementAttribute.isArray()) {
+                            //flash devices
                             registerValue = new RegisterValue(offlineRegister.getObisCode(),
-                                    "Erase block size: " + memoryManagementAttribute.getStructure().getDataType(0).toBigDecimal() +
-                                            ", Average erase count: " + memoryManagementAttribute.getStructure().getDataType(1).toBigDecimal() +
-                                            ", Bad erase block count: " + memoryManagementAttribute.getStructure().getDataType(2).toBigDecimal() +
-                                            ", Maximum erase count: " + memoryManagementAttribute.getStructure().getDataType(3).toBigDecimal() +
-                                            ", Minimum erase count: " + memoryManagementAttribute.getStructure().getDataType(4).toBigDecimal() +
-                                            ", Total erase block count: " + memoryManagementAttribute.getStructure().getDataType(5).toBigDecimal() +
-                                            ", Total erase count: " + memoryManagementAttribute.getStructure().getDataType(6).toBigDecimal() +
-                                            ", Valid erase block count: " + memoryManagementAttribute.getStructure().getDataType(7).toBigDecimal());
+                                    "Flash devices: " + memoryManagementAttribute.getArray().toString());
                         } else {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse memory management register, should be a structure with 4 or 8 elements"));
                             continue;
                         }
-                    } else if (universalObject.getClassID() == DLMSClassId.GPRS_SETUP.getClassId()) {
-
-                        AbstractDataType gprsModemSetupAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-
-                        if (gprsModemSetupAttribute.isOctetString()) {
-                            OctetString apn = gprsModemSetupAttribute.getOctetString();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), apn.stringValue());
-                        } else if (gprsModemSetupAttribute.isInteger64()) {
-                            Integer64 pinCode = gprsModemSetupAttribute.getInteger64();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), pinCode.toString());
-                        } else if (gprsModemSetupAttribute.isStructure() && gprsModemSetupAttribute.getStructure().nrOfDataTypes() == 2) {
-                            //Special parsing for quality of service
-
-                            Structure defaultNetworkSpecs = gprsModemSetupAttribute.getStructure().getDataType(0).getStructure();
-
-                            String defNetworkSpecs = "Precedence: " + defaultNetworkSpecs.getStructure().getDataType(0).toBigDecimal() +
-                                    ", delay: " + defaultNetworkSpecs.getStructure().getDataType(1).toBigDecimal() +
-                                    ", reliability: " + defaultNetworkSpecs.getStructure().getDataType(2).toBigDecimal() +
-                                    ", peak throughput: " + defaultNetworkSpecs.getStructure().getDataType(3).toBigDecimal() +
-                                    ", mean throughput: " + defaultNetworkSpecs.getStructure().getDataType(4).toBigDecimal();
-
-                            Structure requestedNetworkSpecs = gprsModemSetupAttribute.getStructure().getDataType(1).getStructure();
-
-                            String reqNetworkSpecs = "Precedence: " + requestedNetworkSpecs.getStructure().getDataType(0).toBigDecimal() +
-                                    ", delay: " + requestedNetworkSpecs.getStructure().getDataType(1).toBigDecimal() +
-                                    ", reliability: " + requestedNetworkSpecs.getStructure().getDataType(2).toBigDecimal() +
-                                    ", peak throughput: " + requestedNetworkSpecs.getStructure().getDataType(3).toBigDecimal() +
-                                    ", mean throughput: " + requestedNetworkSpecs.getStructure().getDataType(4).toBigDecimal();
-
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(),
-                                    "Default network characteristics: " + defNetworkSpecs + "\nRequested network characteristics: " + reqNetworkSpecs);
-                        } else if (gprsModemSetupAttribute.isTypeEnum()) {
-                            TypeEnum networkSelectionMode = gprsModemSetupAttribute.getTypeEnum();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), networkSelectionMode.toString());
-                        } else if (gprsModemSetupAttribute.isArray()) {
-                            Array preferredOperatorList = gprsModemSetupAttribute.getArray();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), preferredOperatorList.toString());
-                        } else if (gprsModemSetupAttribute.isBooleanObject()) {
-                            BooleanObject intlRoamingAllowed = gprsModemSetupAttribute.getBooleanObject();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), intlRoamingAllowed.toString());
-                        } else if (gprsModemSetupAttribute.isUnsigned32()) {
-                            Unsigned32 minimumRssi = gprsModemSetupAttribute.getUnsigned32();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), minimumRssi.toString());
-                        } else if (gprsModemSetupAttribute.isFloat32()) {
-                            Float32 maximumBer = gprsModemSetupAttribute.getFloat32();
-                            registerValue = new RegisterValue(offlineRegister.getObisCode(), maximumBer.toString());
-                        } else {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse modem setup register"));
-                            continue;
-                        }
-                    } else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+                    }  else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
                         //read out upgrade_state, attribute -1
                         AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
                         if (attributeValue instanceof TypeEnum) {
@@ -340,7 +280,6 @@ public class RegisterFactory {
                 }
             }
         }
-
         return result;
     }
 

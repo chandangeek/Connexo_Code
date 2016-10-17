@@ -4,6 +4,8 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestPreparationConsumer;
+import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestPreparationHandler;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -22,7 +24,7 @@ import java.util.logging.Logger;
  *         Class that implements the TCPIP transport layer wrapper protocol.
  */
 
-public class TCPIPConnection extends Connection implements DLMSConnection {
+public class TCPIPConnection extends Connection implements DLMSConnection, RetryRequestPreparationConsumer {
 
     private final Logger logger;
 
@@ -41,6 +43,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
     private long forceDelay;
 
     private int iskraWrapper = 0;
+    private boolean incrementFrameCounterForRetries;
 
     /**
      * The current retry count - 0 = first try / 1 = first retry / ...
@@ -48,6 +51,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
     private int currentRetryCount = 0;
 
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
+    private RetryRequestPreparationHandler retryRequestPreparationHandler;
 
     public TCPIPConnection(InputStream inputStream,
                            OutputStream outputStream,
@@ -56,6 +60,18 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
                            int maxRetries,
                            int clientAddress,
                            int serverAddress,
+                           Logger logger) throws IOException {
+        this(inputStream, outputStream, timeout, forceDelay, maxRetries, clientAddress, serverAddress, false, logger);
+    }
+
+    public TCPIPConnection(InputStream inputStream,
+                           OutputStream outputStream,
+                           int timeout,
+                           int forceDelay,
+                           int maxRetries,
+                           int clientAddress,
+                           int serverAddress,
+                           boolean incrementFrameCounterForRetries,
                            Logger logger) throws IOException {
         super(inputStream, outputStream);
         this.logger = logger != null ? logger : Logger.getLogger(TCPIPConnection.class.getName());
@@ -66,7 +82,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
         this.forceDelay = forceDelay;
         this.boolTCPIPConnected = false;
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
-
+        this.incrementFrameCounterForRetries = incrementFrameCounterForRetries;
     }
 
     public long getForceDelay() {
@@ -290,6 +306,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
                 this.logger.warning(e.getMessage());
                 if (this.currentRetryCount++ >= this.maxRetries) {
                     throw new NestedIOException(e, "sendRequest, IOException");
+                } else {
+                    retryRequest = getRetryRequestPreparationHandler().prepareRetryRequest(retryRequest);
                 }
             }
         }
@@ -309,6 +327,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
                 this.logger.warning(e.getMessage());
                 if (this.currentRetryCount++ >= this.maxRetries) {
                     throw new NestedIOException(e, "sendRawBytes, IOException");
+                } else {
+                    data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
             }
         }
@@ -338,6 +358,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
                 this.logger.warning(e.getMessage());
                 if (this.currentRetryCount++ >= this.maxRetries) {
                     throw new NestedIOException(e, "sendRequest, IOException");
+                } else {
+                    data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
             }
         }
@@ -360,7 +382,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void sendUnconfirmedRequest(final byte[] request) throws IOException {
+    public void sendUnconfirmedRequest(byte[] request) throws IOException {
         resetCurrentRetryCount();
 
         // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
@@ -376,6 +398,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
                 this.logger.log(Level.WARNING, e.getMessage(), e);
                 if (this.currentRetryCount++ >= this.maxRetries) {
                     throw new NestedIOException(e, "sendRequest, IOException");
+                } else {
+                    request = getRetryRequestPreparationHandler().prepareRetryRequest(request);
                 }
 
                 this.logger.log(Level.WARNING, "Sleeping for [" + timeout + " ms] until next try ...");
@@ -504,6 +528,27 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
     private void resetCurrentRetryCount() {
         this.currentRetryCount = 0;
+    }
+
+    @Override
+    public boolean incrementFrameCounterForRetries() {
+        return incrementFrameCounterForRetries;
+    }
+
+    public void setRetryRequestPreparationHandler(RetryRequestPreparationHandler retryRequestPreparationHandler) {
+        this.retryRequestPreparationHandler = retryRequestPreparationHandler;
+    }
+
+    public RetryRequestPreparationHandler getRetryRequestPreparationHandler() {
+        if (this.retryRequestPreparationHandler == null) {
+            this.retryRequestPreparationHandler = new RetryRequestPreparationHandler() {
+                @Override
+                public byte[] prepareRetryRequest(byte[] originalRequest) throws IOException {
+                    return originalRequest; // Return the original request as-is
+                }
+            };
+        }
+        return retryRequestPreparationHandler;
     }
 
     /**

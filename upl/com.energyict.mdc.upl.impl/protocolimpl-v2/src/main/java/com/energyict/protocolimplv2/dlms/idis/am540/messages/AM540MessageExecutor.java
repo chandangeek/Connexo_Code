@@ -1,24 +1,39 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
+import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
+import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
@@ -30,6 +45,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thres
 public class AM540MessageExecutor extends AM130MessageExecutor {
 
     private static final int MAX_MBUS_SLAVES = 4;
+    private static final ObisCode LOAD_PROFILE_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.5.255");
+    private static final ObisCode LOAD_PROFILE_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.109.255");
+
+    private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.9.255");
+    private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.113.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -51,10 +71,13 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 collectedMessage = verifyAndActivateFirmware(pendingMessage, collectedMessage);
             } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER)) {
                 collectedMessage = enableImageTransfer(collectedMessage, pendingMessage);
-            }  else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR)) {
+            } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR)) {
                 collectedMessage = updateSupervisionMonitor(collectedMessage, pendingMessage);
-            }
-            else {
+            } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT)) {
+                loadProfileOptInOUT(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.SET_DISPLAY_ON_OFF)) {
+                setDiplayOnOff(pendingMessage);
+            } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
         }
@@ -138,5 +161,30 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getDeviceMessageAttributeValue()).intValue();
         long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
         return updateThresholds(collectedMessage, offlineDeviceMessage, monitorInstance, threshold);
+    }
+
+    private void loadProfileOptInOUT(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String scriptName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.loadProfileOptInOutModeAttributeName).getDeviceMessageAttributeValue();
+
+        int scriptId = LoadProfileOptInOut.fromScriptName(scriptName);
+
+        final Structure scriptStruct = new Structure();
+        scriptStruct.addDataType(new OctetString(LOAD_PROFILE_CONTROL_SCRIPT_TABLE.getLN()));
+        scriptStruct.addDataType(new Unsigned16(scriptId));
+
+        SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(LOAD_PROFILE_CONTROL_SCHEDULE_OBISCODE);
+        sas.writeExecutedScript(scriptStruct);
+    }
+
+    private void setDiplayOnOff(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String modeName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.setDisplayOnOffModeAttributeName).getDeviceMessageAttributeValue();
+        int modeId = SetDisplayMode.fromModeName(modeName);
+
+        final Structure scriptStruct = new Structure();
+        scriptStruct.addDataType(new OctetString(LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE.getLN()));
+        scriptStruct.addDataType(new Unsigned16(modeId));
+
+        SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE);
+        sas.writeExecutedScript(scriptStruct);
     }
 }

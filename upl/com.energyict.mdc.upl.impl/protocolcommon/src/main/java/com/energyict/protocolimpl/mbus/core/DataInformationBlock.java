@@ -11,9 +11,12 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -26,7 +29,8 @@ public class DataInformationBlock {
     private List dataInformationfieldExtensions;
     
     /** Creates a new instance of DataInformationBlock */
-    public DataInformationBlock(byte[] data, int offset, TimeZone timeZone) throws IOException {
+    public DataInformationBlock(byte[] data, int offset, TimeZone timeZone, final Logger logger) throws IOException {
+        final int startDifPos = offset;
         setDataInformationfield(new DataInformationfield(ProtocolUtils.getInt(data,offset++,1)));
         setDataInformationfieldExtensions(new ArrayList());
         if (getDataInformationfield().isExtension()) {
@@ -36,6 +40,9 @@ public class DataInformationBlock {
                 de = new DataInformationfieldExtension(ProtocolUtils.getInt(data,offset++,1));
                 getDataInformationfieldExtensions().add(de);
             }
+        }
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "[DataInformationBlock] data [" + startDifPos + "] : " + ParseUtils.asHex(new byte[] {data[startDifPos]}) + "] [" + this.toString() + "]");
         }
     }
     
@@ -99,7 +106,7 @@ public class DataInformationBlock {
         
         try {
         byte[] data = new byte[]{(byte)0x85,(byte)0x91,(byte)0x11,(byte)0x08,(byte)0x2c,(byte)0x1e,(byte)0x30,(byte)0x53};
-        DataInformationBlock o = new DataInformationBlock(data,0, TimeZone.getTimeZone("ECT"));
+        DataInformationBlock o = new DataInformationBlock(data,0, TimeZone.getTimeZone("ECT"), Logger.getLogger(DataInformationBlock.class.getName()));
         System.out.println(Long.toHexString(o.getStorageNumber()));
         System.out.println(Integer.toHexString(o.getTariffNumber()));
         }

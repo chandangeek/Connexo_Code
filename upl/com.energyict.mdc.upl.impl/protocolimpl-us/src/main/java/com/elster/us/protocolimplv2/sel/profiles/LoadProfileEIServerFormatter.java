@@ -1,6 +1,8 @@
 package com.elster.us.protocolimplv2.sel.profiles;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,6 +12,7 @@ import java.util.TimeZone;
 import com.elster.us.protocolimplv2.sel.SELProperties;
 import com.elster.us.protocolimplv2.sel.profiles.structure.Interval;
 import com.elster.us.protocolimplv2.sel.profiles.structure.LPData;
+import com.elster.us.protocolimplv2.sel.utility.DateFormatHelper;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 
@@ -24,40 +27,21 @@ public class LoadProfileEIServerFormatter {
   }
   
   public List<IntervalData> getIntervalData(List<Integer> channelIndexes) {
-    boolean EOIFirstIntvlFlag = true;
-    Number[] previousEOIValues = new Number[]{0,0,0,0,0,0,0,0};
     List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
     for (LPData lpdata : data.getLpData()) {
       for (Interval interval : lpdata.getIntervals()) {
         Date endTimeStamp = getTimeStamp(interval.getYear(),interval.getJulianDay(),interval.getTenthsMillSecSinceMidnight());
-        Date endTimeMeterTz = adjustTimeUsingMeterTz(endTimeStamp, properties.getDeviceTimezone());
+        Date endTimeMeterTz = DateFormatHelper.convertTimeZone(endTimeStamp, properties.getDeviceTimezone(), properties.getTimezone()); 
         IntervalData intervalData = new IntervalData(endTimeMeterTz);
         addMeterStatuses(intervalData, interval.getStatus());
         for(int i : channelIndexes) {
-          if(data.getMeterConfig().getRecorderNames().get(0).equalsIgnoreCase("EOI")) {
-            intervalData.addValue(getCOI(previousEOIValues[i], interval.getChannelValues()[i]));
-            previousEOIValues[i] = interval.getChannelValues()[i];
-          } else {
-            intervalData.addValue(interval.getChannelValues()[i]);
-          }
+          intervalData.addValue(interval.getChannelValues()[i]);
         }
-        if(!EOIFirstIntvlFlag) {
-          intervalDatas.add(intervalData);
-        }
-        EOIFirstIntvlFlag = false;
+        intervalDatas.add(intervalData);
       }
     }
     
     return intervalDatas;
-  }
-  
-  private Date adjustTimeUsingMeterTz(Date endTimeStamp, String deviceTimezone) {
-    if(endTimeStamp == null)
-      return null;
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(endTimeStamp);
-    cal.setTimeZone(TimeZone.getTimeZone(deviceTimezone));
-    return cal.getTime();
   }
 
   public Date getTimeStamp(int year, int julianDay, long tenthsMillisSinceMidnight) {
@@ -76,11 +60,6 @@ public class LoadProfileEIServerFormatter {
     
   }
   
-  public BigDecimal getCOI(Number previous, Number current) {
-    BigDecimal curr = new BigDecimal(current.longValue());
-    BigDecimal prev = new BigDecimal(previous.longValue());
-    return curr.subtract(prev);
-  }
   
   private void addMeterStatuses(IntervalData intervalData, int status) {
     if(status == 0) {

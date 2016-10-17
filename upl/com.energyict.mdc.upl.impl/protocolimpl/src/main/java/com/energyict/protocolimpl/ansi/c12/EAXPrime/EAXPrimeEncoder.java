@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.ansi.c12.EAXPrime;
 
-import com.energyict.encryption.AesGcm128;
+import com.energyict.encryption.AesGcm;
 import com.energyict.encryption.BitVector;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -34,7 +34,7 @@ import java.io.IOException;
  *  For usage examples, please see test class EAXPrimeEncoderTest *
  *
  * This implementation is based the EAX' implementation, as documented in the NIST standard "EAX' Cipher Mode (May 2011)".
- * Note: Under the hood, this algorithm uses an AES-128 encryption algorithm - the one used here is the AES Galois/Counter mode of Operation(GCM)(com.energyict.encryption.AesGcm128).
+ * Note: Under the hood, this algorithm uses an AES-128 encryption algorithm - the one used here is the AES Galois/Counter mode of Operation(GCM)(com.energyict.encryption.AesGcm).
  *
  * WARNING: the implementation provided in ANSI standard 'C12.22-2008 Protocol specification For Interfacing to Data Communication Networks standard' - Annex I is slightly different from the NIST one!
  * >> DO NOT USE IT!
@@ -53,7 +53,7 @@ public class EAXPrimeEncoder {
     private byte[] mac = new byte[4];
 
     private byte[] encryptionKey;
-    private AesGcm128 aesEngine;
+    private AesGcm aesEngine;
 
     public EAXPrimeEncoder(byte[] encryptionKey) {
         this.encryptionKey = encryptionKey;
@@ -66,7 +66,7 @@ public class EAXPrimeEncoder {
      */
     private void init() {
         // A. Initialize the AES encryption engine
-        aesEngine = new AesGcm128(new BitVector(encryptionKey));
+        aesEngine = new AesGcm(new BitVector(encryptionKey));
 
         // B. Derive key dependent constants
         d_value = new byte[16];
@@ -294,7 +294,7 @@ public class EAXPrimeEncoder {
         return out;
     }
 
-    private AesGcm128 getAESEngine() {
+    private AesGcm getAESEngine() {
         return aesEngine;
     }
 

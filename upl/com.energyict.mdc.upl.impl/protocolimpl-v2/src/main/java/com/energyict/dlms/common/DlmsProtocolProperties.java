@@ -42,7 +42,6 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String WAKE_UP = "WakeUp";
     public static final String IP_PORT_NUMBER = "IpPortNumber";
     public static final String CIPHERING_TYPE = "CipheringType";
-    public static final String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
     public static final String NTA_SIMULATION_TOOL = "NTASimulationTool";
     public static final String BULK_REQUEST = "BulkRequest";
     public static final String CONFORMANCE_BLOCK_VALUE = "ConformanceBlockValue";

@@ -17,7 +17,7 @@ public class ProfileLimiter {
     private final Date originalFromDate;
     private final Date originalToDate;
     private final int limitMaxNrOfDays;
-
+    private final TimeZone timeZone;
     /**
      * <p>
      * The protocol should read the following part of the profileData:
@@ -45,13 +45,13 @@ public class ProfileLimiter {
      * @param to, the date as the original fromDate used to call the getProfileData method
      * @param limitMaxNrOfDays, the LimitMaxNrOfDays property of the protocol
      */
-    public ProfileLimiter(Date from, Date to, int limitMaxNrOfDays) {
+    public ProfileLimiter(Date from, Date to, int limitMaxNrOfDays, TimeZone timeZone) {
         this.originalFromDate = from;
         this.originalToDate = to;
         this.limitMaxNrOfDays = limitMaxNrOfDays;
-
-        Calendar fromCalendar = Calendar.getInstance();
-        Calendar toCalendar = Calendar.getInstance();
+        this.timeZone = timeZone;
+        Calendar fromCalendar = Calendar.getInstance(timeZone);
+        Calendar toCalendar = Calendar.getInstance(timeZone);
 
         if (limitMaxNrOfDays > 0) {
             fromCalendar.setTime(from);
@@ -101,7 +101,7 @@ public class ProfileLimiter {
      * The Calendar containing the new fromDate, calculated using the limitMaxNrOfDays value given in the constructor and rounded to midnight
      * @return
      */
-    public Calendar getFromCalendar(TimeZone timeZone) {
+    public Calendar getFromCalendar() {
         Calendar toCalendar = Calendar.getInstance(timeZone);
         toCalendar.setTime(getFromDate());
         return toCalendar;
@@ -115,7 +115,7 @@ public class ProfileLimiter {
         return toDate;
     }
 
-    public Calendar getToCalendar(TimeZone timeZone) {
+    public Calendar getToCalendar() {
         Calendar toCalendar = Calendar.getInstance(timeZone);
         toCalendar.setTime(getToDate());
         return toCalendar;

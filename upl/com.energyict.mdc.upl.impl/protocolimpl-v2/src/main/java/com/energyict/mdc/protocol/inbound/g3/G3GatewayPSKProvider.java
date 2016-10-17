@@ -15,6 +15,7 @@ import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
@@ -172,7 +173,6 @@ public class G3GatewayPSKProvider {
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
-        context.logOnAllLoggerHandlers("Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
         createTcpComChannel();
         context.logOnAllLoggerHandlers("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
         gatewayProtocol.setDeviceCache(dummyCache);
@@ -206,12 +206,19 @@ public class G3GatewayPSKProvider {
     }
 
     private void createTcpComChannel() {
+        boolean tlsConnection = false;
         TypedProperties connectionProperties = context.getInboundDAO().getOutboundConnectionTypeProperties(getDeviceIdentifier());
+        if(connectionProperties.getProperty(TLSConnectionType.TLS_VERSION_PROPERTY_NAME) != null){
+            tlsConnection = true;
+            context.logOnAllLoggerHandlers("Setting up a new TLS connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
+        }
+        context.logOnAllLoggerHandlers("Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
         List<ConnectionTaskProperty> connectionTaskProperties = toPropertySpecs(new Date(), connectionProperties);
 
         try {
             InboundComPort comPort = context.getComPort();         //Note that this is indeed the INBOUND comport, it is only used for logging purposes in the ComChannel
-            tcpComChannel = new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
+            tcpComChannel = tlsConnection ? new TLSConnectionType().connect(comPort, connectionTaskProperties) :
+                                            new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
         } catch (ConnectionException e) {
             throw ConnectionSetupException.connectionSetupFailed(e);
         }

@@ -33,6 +33,7 @@ public class EventMapper {
   public final static int HARM13 = 11;
   public final static int HARM14 = 10;
   public final static int HARM15 = 9;
+  public final static String EVENT_UNDEFINED = "UNDEFINED_EVENT";
 
   private static Map<Integer, String> map = new HashMap<Integer, String>();
 
@@ -67,7 +68,8 @@ public class EventMapper {
   private EventMapper() {}
   
   public static String mapEventId(int eventId) {
-    return map.get(eventId);
+    String event = map.get(eventId);
+    return event != null ? event : EVENT_UNDEFINED;
 }
 
 }

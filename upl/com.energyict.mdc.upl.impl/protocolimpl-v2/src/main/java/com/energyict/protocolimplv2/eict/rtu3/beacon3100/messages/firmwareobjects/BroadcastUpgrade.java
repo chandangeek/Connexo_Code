@@ -159,7 +159,7 @@ public class BroadcastUpgrade {
         securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
         securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);
-        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(0, encryptionLevel, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
+        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
         blockTransferProperties.setSecurityPropertySet(securityPropertySet);
         blockTransferProperties.addProperties(securityPropertySet.getSecurityProperties());
         blockTransferProperties.getSecurityProvider().setInitialFrameCounter(highestFrameCounter + 1);
@@ -256,7 +256,7 @@ public class BroadcastUpgrade {
         } else {
             long blockSize = image.length - (blockIndex * broadcastBlockSize);
             blockData = new byte[(int) blockSize];
-            System.arraycopy(image, (int) (blockIndex * broadcastBlockSize), blockData, 0, (int) blockSize);
+            System.arraycopy(image, blockIndex * broadcastBlockSize, blockData, 0, (int) blockSize);
         }
         Structure blockStructure = new Structure();
         blockStructure.addDataType(new Unsigned32(blockIndex));
@@ -279,7 +279,7 @@ public class BroadcastUpgrade {
         try {
             dlmsSession.disconnect();
         } catch (Throwable e) {
-            ; //Move on, not interested in release failures
+            //Move on, not interested in release failures
         }
     }
 

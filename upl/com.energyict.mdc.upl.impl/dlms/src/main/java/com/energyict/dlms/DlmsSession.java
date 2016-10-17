@@ -11,7 +11,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -240,6 +239,7 @@ public class DlmsSession implements ProtocolLink {
                         getProperties().getRetries(),
                         getProperties().getClientMacAddress(),
                         getProperties().getDestinationWPortNumber(),
+                        getProperties().incrementFrameCounterForRetries(),
                         getLogger()
                 );
                 break;
@@ -324,7 +324,7 @@ public class DlmsSession implements ProtocolLink {
      * @return
      */
     protected ApplicationServiceObject buildAso(String calledSystemTitle){
-        return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null);
+        return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null, null);
     }
 
     /**
@@ -378,7 +378,7 @@ public class DlmsSession implements ProtocolLink {
         return new SecurityContext(
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
-                0, // TODO: check what this means
+                0, // Suite 0: AES-GCM-128
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
                 getProperties().getCipheringType().getType()

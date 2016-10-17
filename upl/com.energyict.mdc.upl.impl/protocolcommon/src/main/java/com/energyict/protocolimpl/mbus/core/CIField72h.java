@@ -15,6 +15,7 @@ import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -101,7 +102,7 @@ public class CIField72h extends AbstractCIField {
         // build the data records
         setDataRecords(new ArrayList());
         while(offset<data.length) {
-            DataRecord dataRecord = new DataRecord(data,offset,timeZone);
+            DataRecord dataRecord = new DataRecord(data,offset,timeZone, Logger.getLogger(CIField72h.class.getName()));
             getDataRecords().add(dataRecord);
             offset+=dataRecord.size();
 

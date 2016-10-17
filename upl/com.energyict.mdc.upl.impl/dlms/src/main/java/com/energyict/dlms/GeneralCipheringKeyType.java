@@ -95,4 +95,19 @@ public enum GeneralCipheringKeyType {
             return id;
         }
     }
+
+    public enum AgreedKeyTypes {
+        ECC_CDH_1E1S(1),
+        ECC_CDH_0E2S(2);
+
+        private final int id;
+
+        AgreedKeyTypes(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
 }

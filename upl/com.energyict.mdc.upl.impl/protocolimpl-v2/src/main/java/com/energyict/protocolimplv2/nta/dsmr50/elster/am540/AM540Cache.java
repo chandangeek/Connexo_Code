@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
+import com.energyict.protocol.support.FrameCounterCache;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
@@ -16,7 +17,7 @@ import java.io.Serializable;
  * @author khe
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
-public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, Serializable {
+public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, Serializable, FrameCounterCache {
 
     UniversalObject[] mirrorObjectList;
     UniversalObject[] gatewayObjectList;
@@ -25,14 +26,6 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
 
     public AM540Cache(boolean connectionToBeaconMirror) {
         this.connectionToBeaconMirror = connectionToBeaconMirror;
-    }
-
-    public long getFrameCounter() {
-        return frameCounter;
-    }
-
-    public void setFrameCounter(long frameCounter) {
-        this.frameCounter = frameCounter;
     }
 
     @Override
@@ -68,5 +61,15 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
     @Deprecated // The AM540 meter doesn't have this counter - so method should not be used
     public void setConfProgChange(int confProgChange) {
         super.setConfProgChange(confProgChange);
+    }
+
+    @Override
+    public void setTXFrameCounter(int clientId, long frameCounter) {
+        this.frameCounter = frameCounter;
+    }
+
+    @Override
+    public long getTXFrameCounter(int clientId) {
+        return frameCounter;
     }
 }

@@ -10,11 +10,9 @@ import java.security.PublicKey;
 public interface KeyAgreement {
 
     /**
-     * Returns the public key to be used in the exchange.
-     *
-     * @return The public key to be used in the exchange.
+     * Returns our ephemeral public key that the server should use for the key agreement.
      */
-    PublicKey getPublicKey();
+    PublicKey getEphemeralPublicKey();
 
     /**
      * Generates the secret.

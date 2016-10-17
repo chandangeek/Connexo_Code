@@ -8,6 +8,8 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.DataValueMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
+import com.energyict.protocolimpl.dlms.g3.registers.LoadProfileControlStatusMapping;
+import com.energyict.protocolimpl.dlms.g3.registers.LoadProfileDisplayControlStatusMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.PLCG3KeepAliveDataValueMapping;
 
 import java.io.IOException;
@@ -21,7 +23,8 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
 
     private static final ObisCode PLC_G3_TIMEOUT = ObisCode.fromString("0.0.94.33.10.255");
     private static final ObisCode PLC_G3_KEEP_ALIVE = ObisCode.fromString("0.0.94.33.11.255");
-
+    private static final ObisCode LOAD_PROFILE_CONTROL_STATUS = ObisCode.fromString("0.0.96.5.3.255");
+    private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_STATUS = ObisCode.fromString("0.0.96.5.4.255");
 
     private final DlmsSession dlmsSession;
 
@@ -40,6 +43,8 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
         final List<G3Mapping> mappings = new ArrayList<>();
         mappings.add(new DataValueMapping(PLC_G3_TIMEOUT, Unit.get(BaseUnit.MINUTE)));
         mappings.add(new PLCG3KeepAliveDataValueMapping(PLC_G3_KEEP_ALIVE));
+        mappings.add(new LoadProfileControlStatusMapping(LOAD_PROFILE_CONTROL_STATUS));
+        mappings.add(new LoadProfileDisplayControlStatusMapping(LOAD_PROFILE_DISPLAY_CONTROL_STATUS));
         return mappings;
     }
 

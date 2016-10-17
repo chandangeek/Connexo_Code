@@ -1,7 +1,15 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.DlmsSessionProperties;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
@@ -43,6 +51,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
+    public static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES = "IncrementFrameCounterForRetries";
 
     public static final String DEFAULT_CONNECTION = ConnectionMode.TCPIP.getModeAsString();
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
@@ -68,6 +77,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEFAULT_ROUND_TRIP_CORRECTION = "0";
     public static final String DEFAULT_ISKRA_WRAPPER = "1";
     public static final String DEFAULT_DEVICE_BUFFER_SIZE = "-1";
+    public static final String DEFAULT_INCREMENT_FRAMECOUNTER_FOR_RETRIES = "1";
 
     protected SecurityProvider securityProvider;
 
@@ -279,6 +289,11 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     @ProtocolProperty
     public int getDeviceBufferSize() {
         return getIntProperty(DEVICE_BUFFER_SIZE, DEFAULT_DEVICE_BUFFER_SIZE);
+    }
+
+    @Override
+    public boolean incrementFrameCounterForRetries() {
+        return getBooleanProperty(INCREMENT_FRAMECOUNTER_FOR_RETRIES, DEFAULT_INCREMENT_FRAMECOUNTER_FOR_RETRIES);  // Protocols who don't want the frame counter to be increased for retries, can override this method
     }
 
     public SecurityProvider getSecurityProvider() {

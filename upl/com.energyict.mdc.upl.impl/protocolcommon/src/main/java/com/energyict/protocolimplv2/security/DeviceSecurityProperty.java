@@ -52,6 +52,17 @@ public enum DeviceSecurityProperty {
             getPossibleClientMacAddressValues(1, 0x7F))),
 
     /**
+     * The certificate that matches the private key of the server (the DLMS device) used for digital signature.
+     * The protocols can use this certificate to verify that a received DLMS signature is valid.
+     */
+    SERVER_SIGNATURE_CERTIFICATE(PropertySpecFactory.certificateAliasPropertySpec(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString())),
+
+    /**
+     * The certificate that matches the private key of the server (the DLMS device) used for key agreement.
+     */
+    SERVER_KEY_AGREEMENT_CERTIFICATE(PropertySpecFactory.certificateAliasPropertySpec(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString())),
+
+    /**
      * Defines the phase of Cryptoserver usage.
      * 0: No Cryptoserver usage.
      * 1: Phase 1 communication. The keys are decrypted at runtime using the Cryptoserver. The resulting plain text keys are used for the communication session but are never stored or visible.
@@ -126,7 +137,7 @@ public enum DeviceSecurityProperty {
 
     private final PropertySpec propertySpec;
 
-    private DeviceSecurityProperty(PropertySpec propertySpec) {
+    DeviceSecurityProperty(PropertySpec propertySpec) {
         this.propertySpec = propertySpec;
     }
 

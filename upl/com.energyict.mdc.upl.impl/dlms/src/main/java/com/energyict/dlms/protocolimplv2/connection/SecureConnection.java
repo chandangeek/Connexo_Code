@@ -4,9 +4,11 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationConsumer;
+import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationHandler;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
@@ -21,16 +23,22 @@ import java.io.IOException;
  *
  * @author gna, khe
  */
-public class SecureConnection implements DLMSConnection, DlmsV2Connection {
+public class SecureConnection implements DLMSConnection, DlmsV2Connection, RetryRequestV2PreparationHandler {
 
     private static final int LOCATION_SECURED_XDLMS_APDU_TAG = 3;
 
     private final ApplicationServiceObject aso;
     private final DlmsV2Connection transportConnection;
 
+    private byte[] requestBeforeApplyOfSecurity;
+    private boolean isAlreadyEncrypted;
+
     public SecureConnection(final ApplicationServiceObject aso, final DlmsV2Connection transportConnection) {
         this.aso = aso;
         this.transportConnection = transportConnection;
+        if (transportConnection instanceof RetryRequestV2PreparationConsumer) {
+            ((RetryRequestV2PreparationConsumer) transportConnection).setRetryRequestPreparationHandler(this);
+        }
     }
 
     /**
@@ -79,15 +87,15 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
     /**
      * {@inheritDoc}
      */
-    public byte[] sendRequest(final byte[] byteRequestBuffer) {
-        return sendRequest(byteRequestBuffer, false);
+    public byte[] sendRequest(final byte[] request) {
+        return sendRequest(request, false);
     }
 
     /**
      * {@inheritDoc}
      */
-    public byte[] sendRequest(final byte[] byteRequestBuffer, boolean isAlreadyEncrypted) {
-        return secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, true, true);
+    public byte[] sendRequest(final byte[] retryRequest, boolean isAlreadyEncrypted) {
+        return secureCommunicate(retryRequest, isAlreadyEncrypted, true, true);
     }
 
     /**
@@ -101,12 +109,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
      * {@inheritDoc}
      */
     public byte[] readResponseWithRetries(byte[] byteRequestBuffer, boolean isAlreadyEncrypted) {
-        //framecounter out of sync (it was already incremented in sendRequest, so decrement it)
+        // frame counter was already incremented in sendRequest, so decrement it
+        // this way we leave the choice whether or not the frame counter should be incremented for retry requests still open
         aso.getSecurityContext().decrementFrameCounter();
-        byte[] response = secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, false, true);
-        //response sent, increment the framecounter
-        aso.getSecurityContext().incFrameCounter();
-        return response;
+        return secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, false, true);
     }
 
     /**
@@ -117,12 +123,14 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
     }
 
     /**
-     * First apply DLMS encryption, authentication and signing, then communicate with the device.
+     * First apply (if applicable) the required DLMS encryption, authentication and signing, then communicate with the device.
+     * The response (if applicable) can then be decrypted, authenticated and its signature can be verified.
      * <p/>
      * 3 scenario's are possible:
      * - normal case: send the secured request, read, decrypt and return the response
      * - unconfirmed request (no response): only send the secured request, do not wait for a response
-     * - invokeId use case: don't send the request, only read and decrypt the response. Sending of (re)tries is handled in the application layer.
+     * - read use case: don't send the request, only read and decrypt the response.
+     * Examples for the read use case is InvokeId and GBT.
      *
      * @param send    whether or not to send out the given request to the meter
      * @param receive whether or not to read a response from the meter
@@ -131,50 +139,20 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         /* dataTransport security is only applied after we made an established association */
         if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
 
-            /* If no security is applied, then just forward the requests and responses */
-            if (this.aso.getSecurityContext().getSecurityPolicy() == SecurityContext.SECURITYPOLICY_NONE) {
-                return communicate(byteRequestBuffer, send, receive);
-            } else if (byteRequestBuffer[3] == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+            if (byteRequestBuffer[3] == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                // The 'request next blocks' command.
                 // As ComServer doesn't send any content, but only request next blocks, no encryption has to be applied
                 // If ComServer would send actual content, then this content should be encrypted!
                 return communicate(byteRequestBuffer, send, receive);
             } else {
-
-                // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
                 final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
-                byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
-
-                if (!isAlreadyEncrypted) {     //Don't encrypt the request again if it's already encrypted
-                    if (useGeneralGloOrGeneralDedCiphering()) {
-                        //General global or general dedicated tags
-                        final byte tag = (this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_GLOBAL.getType())
-                                ? DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING
-                                : DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING;
-                        securedRequest = encryptGeneralGloOrDedCiphering(securedRequest);
-                        securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
-                    } else if (useGeneralCiperhing()) {
-                        //General ciphering tag
-                        securedRequest = encryptGeneralCiphering(securedRequest);
-                        securedRequest = ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, securedRequest);
-                    } else {
-                        //Service specific tags
-                        final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
-                        securedRequest = encrypt(securedRequest);
-                        securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
-                    }
-                } else {
-                    //No encryption, only increase the frame counter
-                    aso.getSecurityContext().incFrameCounter();
-                }
-
-                // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
-                securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);
+                this.requestBeforeApplyOfSecurity = byteRequestBuffer;
+                this.isAlreadyEncrypted = isAlreadyEncrypted;
+                byte[] securedRequest = applySecurity(byteRequestBuffer, isAlreadyEncrypted);
 
                 // send the encrypted request to the DLMSConnection
                 byte[] securedResponse = communicate(securedRequest, send, receive);
-
                 byte[] decryptedResponse = null;
-                byte cipheredTag;
 
                 /**
                  * Decrypt the received APDU.
@@ -190,29 +168,48 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                             return null;
                         } else {
 
-                            // check if the response tag is know and decrypt the data if necessary
-                            cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                            // If it's a general-signing APDU, check its signature and unwrap it.
+                            // Note that its contents can still be a ciphered APDU, it will be decrypted below.
+                            byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
 
+                            if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
+                                securedResponse = unwrapGeneralSigning(ProtocolUtils.getSubArray(securedResponse, 3));
+                                securedResponse = ProtocolUtils.concatByteArrays(leading, securedResponse);
+                                cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                            }
+
+                            //Check if the response tag is know and decrypt the data if necessary
                             if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
                                 //Return any errors as-is
                                 return securedResponse;
-                            } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
-                                // Return as-is, content can only be decrypted once all blocks are received
-                                // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
-                                return securedResponse;
+                            } else if (XdlmsApduTags.isPlainTag(cipheredTag)) {
+                                if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
+                                    return securedResponse;
+                                } else {
+                                    ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
+                                    throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+                                }
                             } else if (XdlmsApduTags.contains(cipheredTag)) {
                                 //Service specific ciphering
+                                // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
+                                // Strip the 3 leading bytes before decrypting
                                 decryptedResponse = decrypt(ProtocolUtils.getSubArray(securedResponse, 3));
                             } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
                                 //General global/dedicated ciphering
+                                // Strip the 3 leading bytes before decrypting
                                 decryptedResponse = decryptGeneralGloOrDedCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
                             } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
                                 //General ciphering
                                 decryptedResponse = decryptGeneralCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
+                            } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                                // Return as-is, content can only be decrypted once all blocks are received
+                                // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
+                                return securedResponse;
                             } else {
                                 IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
                                 throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                             }
+
                         }
                     } catch (DLMSConnectionException e) {
                         //Received an invalid frame counter (not greater than the previous frame counter)
@@ -236,6 +233,56 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         }
     }
 
+    /**
+     * Apply DLMS encryption, authentication and signing to the given plain text request
+     *
+     * @param plainTextRequest the request, given as plain text byte[]
+     * @param isAlreadyEncrypted
+     * @return the encrypted/authenticated/... request byte[]
+     */
+    private byte[] applySecurity(byte[] plainTextRequest, boolean isAlreadyEncrypted) {
+        // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
+        final byte[] leading = ProtocolUtils.getSubArray(plainTextRequest, 0, 2);
+        byte[] securedRequest = ProtocolUtils.getSubArray(plainTextRequest, 3);
+
+        //The APDU can be digitally signed in a general-signing APDU.
+        //The result can then be wrapped again in a general-ciphering APDU, see below.
+        if (isRequestSigned()) {
+            securedRequest = applyGeneralSigning(securedRequest);
+            securedRequest = ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, securedRequest);
+        }
+
+        if (!this.aso.getSecurityContext().getSecurityPolicy().isRequestPlain()) {
+            if (!isAlreadyEncrypted) {     //Don't encrypt the request again if it's already encrypted
+                if (useGeneralGloOrGeneralDedCiphering()) {
+                    //General global or general dedicated tags
+                    final byte tag = (this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_GLOBAL.getType())
+                            ? DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING
+                            : DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING;
+                    securedRequest = encryptGeneralGloOrDedCiphering(securedRequest);
+                    securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                } else if (useGeneralCiperhing()) {
+                    //General ciphering tag
+                    securedRequest = encryptGeneralCiphering(securedRequest);
+                    securedRequest = ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, securedRequest);
+                } else {
+                    //Service specific tags
+                    final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
+                    securedRequest = encrypt(securedRequest);
+                    securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                }
+
+            } else {
+                //No encryption, only increase the frame counter
+                aso.getSecurityContext().incFrameCounter();
+            }
+        }
+
+        // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
+        securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);
+        return securedRequest;
+    }
+
     private boolean useGeneralGloOrGeneralDedCiphering() {
         int cipheringType = this.aso.getSecurityContext().getCipheringType();
         return cipheringType == CipheringType.GENERAL_GLOBAL.getType() || cipheringType == CipheringType.GENERAL_DEDICATED.getType();
@@ -243,6 +290,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
     private boolean useGeneralCiperhing() {
         return this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_CIPHERING.getType();
+    }
+
+    private boolean isRequestSigned() {
+        return this.aso.getSecurityContext().getSecurityPolicy().isRequestSigned();
     }
 
     /**
@@ -256,15 +307,33 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
      * @param receive whether or not to read a response from the meter
      */
     private byte[] communicate(byte[] byteRequestBuffer, boolean send, boolean receive) {
-        if (send) {
-            if (receive) {
-                return getTransportConnection().sendRequest(byteRequestBuffer);
+        try {
+            if (send) {
+                if (receive) {
+                    return getTransportConnection().sendRequest(byteRequestBuffer);
+                } else {
+                    getTransportConnection().sendUnconfirmedRequest(byteRequestBuffer);
+                    return null;
+                }
             } else {
-                getTransportConnection().sendUnconfirmedRequest(byteRequestBuffer);
-                return null;
+                return getTransportConnection().readResponseWithRetries(byteRequestBuffer);
             }
+        } finally {
+            this.requestBeforeApplyOfSecurity = null; // Make sure to clear this field, as this field is only relevant for retries made in the transportConnection
+            this.isAlreadyEncrypted = false;
+        }
+    }
+
+    @Override
+    public byte[] prepareRetryRequest(byte[] originalRequest) {
+        if (requestBeforeApplyOfSecurity != null && incrementFrameCounterForRetries()) {
+            // Re-apply security
+            // Note that after applying of security to the original request the frame counter was automatically increased;
+            // So, if we here re-apply the security, we are automatically taking into account the increased frame counter!
+            return applySecurity(requestBeforeApplyOfSecurity, isAlreadyEncrypted);
         } else {
-            return getTransportConnection().readResponseWithRetries(byteRequestBuffer);
+            // Else there is no security applied and/or the frame counter should not be increased, thus return the original request as-is
+            return originalRequest;
         }
     }
 
@@ -275,6 +344,14 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
     protected byte[] decrypt(byte[] securedResponse) throws DLMSConnectionException {
         return SecurityContextV2EncryptionHandler.dataTransportDecryption(this.aso.getSecurityContext(), securedResponse);
+    }
+
+    private byte[] applyGeneralSigning(byte[] securedRequest) {
+        return SecurityContextV2EncryptionHandler.applyGeneralSigning(this.aso.getSecurityContext(), securedRequest);
+    }
+
+    private byte[] unwrapGeneralSigning(byte[] securedResponse) {
+        return SecurityContextV2EncryptionHandler.unwrapGeneralSigning(this.aso.getSecurityContext(), securedResponse);
     }
 
     private byte[] encryptGeneralGloOrDedCiphering(byte[] request) {
@@ -330,6 +407,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
     @Override
     public int getGeneralBlockTransferWindowSize() {
         return getTransportConnection().getGeneralBlockTransferWindowSize();
+    }
+
+    public boolean incrementFrameCounterForRetries() {
+        return getTransportConnection() instanceof RetryRequestV2PreparationConsumer && ((RetryRequestV2PreparationConsumer) getTransportConnection()).incrementFrameCounterForRetries();
     }
 
     @Override

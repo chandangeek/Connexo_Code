@@ -117,7 +117,6 @@ public class DataPushNotificationParser {
         }
     }
 
-
     public ByteBuffer readInboundFrame() {
         byte[] header = new byte[8];
         getComChannel().startReading();
@@ -136,6 +135,12 @@ public class DataPushNotificationParser {
         return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
     }
 
+    /**
+     * Data-Notification ::= SEQUENCE
+     * - long-invoke-id-and-priority
+     * - date-time (OCTET STRING)
+     * - notification-body
+     */
     protected void parseAPDU(ByteBuffer inboundFrame) {
         // 1. long-invoke-id-and-priority
         byte[] invokeIdAndPriority = new byte[4];   // 32-bits long format used
@@ -243,7 +248,7 @@ public class DataPushNotificationParser {
     protected void parseRegisters(Structure structure) {
         while (structure.hasMoreElements()) {
             AbstractDataType logicalName = structure.getNextDataType();
-            if (!(logicalName instanceof OctetString)){
+            if (!(logicalName instanceof OctetString)) {
                 throw DataParseException.ioException(new ProtocolException("Failed to parse the register data from the Data-notification body: Expected an element of type OctetString (~ the logical name of the object), but was an element of type '" + logicalName.getClass().getSimpleName() + "'"));
             }
             AbstractDataType valueData = structure.getNextDataType();
@@ -287,7 +292,7 @@ public class DataPushNotificationParser {
 
             addCollectedRegister(obisCode, value, scalerUnit, eventTime, text);
         } catch (IndexOutOfBoundsException | ProtocolException e) {
-           throw DataParseException.ioException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
+            throw DataParseException.ioException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
         }
     }
 
@@ -329,7 +334,7 @@ public class DataPushNotificationParser {
     }
 
     public CollectedRegisterList getCollectedRegisters() {
-        if (this.collectedRegisters == null)  {
+        if (this.collectedRegisters == null) {
             this.collectedRegisters = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
         }
         return this.collectedRegisters;

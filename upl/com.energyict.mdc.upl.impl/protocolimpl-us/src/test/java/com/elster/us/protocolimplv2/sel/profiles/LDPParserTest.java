@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.elster.us.protocolimplv2.sel.utility.EventMapper;
+
 public class LDPParserTest {
   @Test
   @Ignore
@@ -90,9 +92,39 @@ public class LDPParserTest {
     assertEquals(results.getLpData().get(1).getIntervals().get(4).getTenthsMillSecSinceMidnight(), 555000000);
     assertEquals(results.getLpData().get(1).getIntervals().get(4).getChannelValues()[0].floatValue(), 5.467003, .01);
     assertEquals(results.getLpData().get(1).getIntervals().get(4).getChannelValues()[1].floatValue(), 2.835624, .01);
-    //checksum is 20 cf
+    assertEquals(results.getLpData().get(1).getCheckSum(), 8558);
+    assertEquals(results.getLpData().get(1).getCalCheckSum(), 8557);
+    //checksum is 21 6e
     
    
+  }
+  
+  @Test
+  public void testChecksum() throws IOException {
+    File lpFile = new File("src/test/files/LDP_DATA_FEEDER1.BIN");
+    LDPParser ldpParser = new LDPParser();
+    LDPData results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));
+    
+    assertEquals(results.getLpData().get(0).getCheckSum(), 1986);
+    assertEquals(results.getLpData().get(0).getCalCheckSum(), 1985);
+    
+    //assertEquals(results.getLpData().get(1).getCheckSum(), 36338);
+    //assertEquals(results.getLpData().get(1).getCalCheckSum(), 36337);
+    
+    //assertEquals(results.getLpData().get(2).getCheckSum(), 5);
+    //assertEquals(results.getLpData().get(2).getCalCheckSum(), 5);
+    
+   
+  }
+  
+  @Test
+  public void testSERData() throws IOException {
+    File lpFile = new File("src/test/files/LDP_DATA_SER.BIN");
+    LDPParser ldpParser = new LDPParser();
+    LDPData results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));
+    assertEquals(results.getSerData().size(), 7);
+    assertEquals(EventMapper.mapEventId(results.getSerData().get(0).getEvents().get(0).getMeterWordBit()), "SALARM");
+    assertEquals(EventMapper.mapEventId(results.getSerData().get(0).getEvents().get(1).getMeterWordBit()), EventMapper.EVENT_UNDEFINED);
   }
 
 }

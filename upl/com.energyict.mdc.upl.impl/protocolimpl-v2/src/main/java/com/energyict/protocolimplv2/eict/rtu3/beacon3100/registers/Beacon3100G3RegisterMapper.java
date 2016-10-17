@@ -29,5 +29,9 @@ public class Beacon3100G3RegisterMapper extends G3RegisterMapper {
         this.mappings.addAll(getPLCStatisticsMappings());
         this.mappings.addAll(getBeaconPushEventNotificationAttibutesMappings());
         this.mappings.addAll(getIPv4SetupMappings());
+        this.mappings.addAll(getUsbSetupRegistering());
+        this.mappings.addAll(getDisconnectControlRegistering());
+        this.mappings.addAll(getGprsModemSetupRegistering());
+        this.mappings.addAll(getPPPSetupRegistering());
     }
 }

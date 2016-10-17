@@ -115,4 +115,10 @@ public interface CommunicationSessionProperties {
      * Default is true, specific protocols can override this.
      */
     boolean timeoutMeansBrokenConnection();
+
+    /**
+     * Getter for boolean indicating whether the frame counter should be increased for each retry request
+     * or whether the same frame counter should be used for all retries
+     */
+    boolean incrementFrameCounterForRetries();
 }
