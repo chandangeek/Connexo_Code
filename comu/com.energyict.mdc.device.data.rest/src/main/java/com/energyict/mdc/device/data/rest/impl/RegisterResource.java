@@ -92,8 +92,8 @@ public class RegisterResource {
                     .filter(register -> registerTypes.contains(register.getRegisterSpecId()))
                     .map(Register::getReadingType)
                     .collect(Collectors.toList());
-        } else if (jsonQueryFilter.hasProperty("group")) {
-            List<Long> groups = jsonQueryFilter.getLongList("group").stream()
+        } else if (jsonQueryFilter.hasProperty("groups")) {
+            List<Long> groups = jsonQueryFilter.getLongList("groups").stream()
                     .collect(Collectors.toList());
             final List<Long> finalGroups = groups;
             List<ReadingType> allowedReadingTypes = masterDataService.findAllRegisterGroups().find().stream()
