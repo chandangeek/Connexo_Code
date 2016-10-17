@@ -20,6 +20,7 @@ import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
 import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
+import com.elster.jupiter.demo.impl.templates.DataValidationKpiTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -145,7 +146,8 @@ public class CreateCollectRemoteDataSetupCommand {
         createCreationRules();
         createAssignmentRules();
         createDeviceGroups();
-        createKpi();
+        createDataCollectionKpi();
+        createDataValidationKpi();
     }
 
     private void parametersCheck() {
@@ -310,11 +312,14 @@ public class CreateCollectRemoteDataSetupCommand {
         Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get()).get();
     }
 
-    private void createKpi() {
+    private void createDataCollectionKpi() {
         Builders.from(DataCollectionKpiTpl.NORTH_REGION).get();
         Builders.from(DataCollectionKpiTpl.SOUTH_REGION).get();
     }
 
+    private void createDataValidationKpi() {
+        Builders.from(DataValidationKpiTpl.ALL_ELECTRICITY_DEVICES).get();
+    }
 
     private Location createLocation() {
         LocationBuilder builder = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get().newMeter(String.valueOf(KnownAmrSystem.MDC.getId())).newLocationBuilder();

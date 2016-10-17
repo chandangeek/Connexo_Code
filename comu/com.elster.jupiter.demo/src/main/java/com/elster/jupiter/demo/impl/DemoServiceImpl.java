@@ -53,6 +53,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -160,6 +161,7 @@ public class DemoServiceImpl {
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CalendarService calendarService;
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
+    private volatile DataValidationKpiService dataValidationKpiService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -209,7 +211,8 @@ public class DemoServiceImpl {
             CustomPropertySetService customPropertySetService,
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             CalendarService calendarService,
-            com.elster.jupiter.tasks.TaskService platformTaskService) {
+            com.elster.jupiter.tasks.TaskService platformTaskService,
+            DataValidationKpiService dataValidationKpiService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -252,6 +255,7 @@ public class DemoServiceImpl {
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setCalendarService(calendarService);
         setPlatformTaskService(platformTaskService);
+        setDataCollectionKpiService(dataCollectionKpiService);
         activate();
         reThrowEx = true;
     }
@@ -306,6 +310,7 @@ public class DemoServiceImpl {
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
+                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
             }
         });
         Builders.initWith(this.injector);
@@ -557,6 +562,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setPlatformTaskService(com.elster.jupiter.tasks.TaskService platformTaskService) {
         this.platformTaskService = platformTaskService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService) {
+        this.dataValidationKpiService = dataValidationKpiService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
