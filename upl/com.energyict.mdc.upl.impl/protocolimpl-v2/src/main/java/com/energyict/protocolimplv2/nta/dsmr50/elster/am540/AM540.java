@@ -83,6 +83,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        getLogger().info("AM540 protocol init");
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
@@ -116,15 +117,24 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if (this.am540Cache == null) {
             am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         }
-        this.am540Cache.setTXFrameCounter(1, getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+        if (getDlmsSession() != null) { // this is called in init(), where we don't have a DLMS Session yet
+            try {
+                this.am540Cache.setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(),
+                                                    getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+            } catch (Exception ex) {
+                getLogger().severe(ex.getCause() + ex.getMessage());
+            }
+        }
         return this.am540Cache;
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        getLogger().info("AM540 - setDeviceCace");
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
             am540Cache = (AM540Cache) deviceProtocolCache;
             this.initialFrameCounter = this.am540Cache.getTXFrameCounter(1);
+            getLogger().info(" - saving frameCounter: "+this.initialFrameCounter);
         }
     }
 
