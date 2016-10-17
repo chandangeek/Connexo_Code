@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -11,10 +14,15 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.configuration.rest.impl.RegisterGroupInfoFactory;
+import com.energyict.mdc.device.configuration.rest.impl.RegisterGroupResource;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
 
 import com.google.common.collect.Range;
 
@@ -48,10 +56,11 @@ public class RegisterResource {
     private final ValidationInfoHelper validationInfoHelper;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final TopologyService topologyService;
+    private final MasterDataService masterDataService;
     private final Clock clock;
 
     @Inject
-    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService) {
+    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService, MasterDataService masterDataService) {
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
@@ -59,6 +68,7 @@ public class RegisterResource {
         this.validationInfoHelper = validationInfoHelper;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.topologyService = topologyService;
+        this.masterDataService = masterDataService;
     }
 
     @GET
@@ -106,6 +116,33 @@ public class RegisterResource {
         registerUpdater.setObisCode(registerInfo.overruledObisCode);
         registerUpdater.update();
         return Response.ok().build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/registergroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getRegisterGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<Register> registers = device.getRegisters();
+        Finder<RegisterGroup> allRegisterGroups = masterDataService.findAllRegisterGroups().find();
+        List<IdWithNameInfo> filteredRegisterGroups = allRegisterGroups.stream()
+                .filter(registerGroup -> registerGroupContainsAtLeastOneReadingType(registerGroup.getRegisterTypes(), registers))
+                .map(registerGroup -> new IdWithNameInfo(registerGroup.getId(), registerGroup.getName()))
+                .collect(Collectors.toList());
+
+        return Response.ok(filteredRegisterGroups).build();
+    }
+
+    private boolean registerGroupContainsAtLeastOneReadingType(List<RegisterType> registerTypes, List<Register> registers) {
+        List<ReadingType> readingTypesInGroup = registerTypes.stream().map(RegisterType::getReadingType)
+                .collect(Collectors.toList());
+        List<ReadingType> readingTypesOnDevice = registers.stream()
+                .map(Register::getReadingType)
+                .collect(Collectors.toList());
+
+        return !Collections.disjoint(readingTypesInGroup, readingTypesOnDevice);
     }
 
     @GET
