@@ -27,7 +27,6 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                 xtype: 'form',
                 itemId: 'frm-add-user-directory',
                 ui: 'large',
-                //width: '100%',
                 defaults: {
                     labelWidth: 250,
                     width: 600,
@@ -38,7 +37,6 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         itemId: 'form-errors',
                         xtype: 'uni-form-error-message',
                         name: 'form-errors',
-                        width: 400,
                         margin: '0 0 10 0',
                         hidden: true
                     },
