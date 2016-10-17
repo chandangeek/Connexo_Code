@@ -362,9 +362,10 @@ final class ExportTaskImpl implements IExportTask {
         Save.UPDATE.save(dataModel, this);
     }
 
+    //TODO: use dynamicac application name
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication(application)
+                .setApplication("MultiSense")
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
