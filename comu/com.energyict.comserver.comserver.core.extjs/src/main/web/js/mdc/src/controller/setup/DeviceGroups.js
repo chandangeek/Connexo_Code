@@ -323,7 +323,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         reportFilter['GROUPNAME'] = groupName;
 
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('generatereport').forward(null, {
+        router.getRoute('workspace/generatereport').forward(null, {
             category: 'MDC',
             filter: Ext.JSON.encode(reportFilter)
         });

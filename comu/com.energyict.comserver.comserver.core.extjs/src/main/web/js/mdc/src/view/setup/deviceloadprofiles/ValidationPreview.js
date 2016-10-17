@@ -16,8 +16,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
 
         me.items = [
             {
-                fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
+                fieldLabel: Uni.I18n.translate('device.registerData.deviceValidationStatus', 'MDC', 'Device validation status'),
                 name: 'validationInfo_validationActive'
+            },
+            {
+                fieldLabel: Uni.I18n.translate('device.registerData.loadProfileValidationStatus', 'MDC', 'Load profile validation status'),
+                name: 'validationInfo_channelValidationStatus'
             },
             {
                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
