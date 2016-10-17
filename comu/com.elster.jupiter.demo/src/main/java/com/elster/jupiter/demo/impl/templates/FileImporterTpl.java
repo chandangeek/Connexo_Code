@@ -84,7 +84,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    CALENDAR_IMPORTER("Calendar", "CalendarImporterFactory", "calendar") {
+    CALENDAR_IMPORTER("Calendar", "CalendarImporterFactory", "Calendar") {
         @Override
         protected Map<String, Object> getImporterProperties() {
             return Collections.emptyMap();
