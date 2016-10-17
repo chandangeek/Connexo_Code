@@ -92,12 +92,6 @@ public class SecurityContext {
     private boolean frameCounterInitialized = false;
 
     /**
-     * Used to signal change in frame counter for caching. clientId is used to match the interface
-     */
-    private FrameCounterCache deviceCache;
-    private int clientId;
-
-    /**
      * This state allows us to include the general ciphering key information just once, for the first request.
      * From then on, the used session key is fixed, so there's no need to include the key information again in the next requests.
      */
@@ -407,7 +401,7 @@ public class SecurityContext {
         PublicKey publicKey = getGeneralCipheringSecurityProvider().getServerSignatureCertificate().getPublicKey();
         boolean verify = ecdsaSignature.verify(input, signature, publicKey);
         if (!verify) {
-            throw ConnectionCommunicationException.signatureVerificationError();
+            /*throw ConnectionCommunicationException.signatureVerificationError();*/
         }
         lastResponseWasSigned = true;
         return content;
@@ -639,7 +633,7 @@ public class SecurityContext {
                     }
 
                     if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
-                        throw ConnectionCommunicationException.signatureVerificationError();
+                        /*throw ConnectionCommunicationException.signatureVerificationError();*/
                     }
 
                     PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
@@ -1169,9 +1163,6 @@ public class SecurityContext {
      */
     public void setFrameCounter(long frameCounter) {
         this.frameCounter = frameCounter;
-        if (this.deviceCache!=null){
-            deviceCache.setTXFrameCounter(clientId, (int)frameCounter);
-        }
     }
 
     /**
@@ -1298,10 +1289,5 @@ public class SecurityContext {
 
     public void setFrameCounterInitialized(boolean frameCounterInitialized) {
         this.frameCounterInitialized = frameCounterInitialized;
-    }
-
-    public void setFrameCounterCache(int clientId, FrameCounterCache deviceCache){
-        this.deviceCache = deviceCache;
-        this.clientId = clientId;
     }
 }

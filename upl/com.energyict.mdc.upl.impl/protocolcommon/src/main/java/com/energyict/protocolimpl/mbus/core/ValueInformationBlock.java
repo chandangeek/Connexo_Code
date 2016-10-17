@@ -11,10 +11,13 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -26,10 +29,11 @@ public class ValueInformationBlock {
     private ValueInformationfieldCoding valueInformationfieldCoding; // VIF
     private List valueInformationfieldCodings; // VIFEs
     private String plainTextVIF;
+    private final Logger logger;
     int padding=0;
     /** Creates a new instance of ValueInformationBlock */
-    public ValueInformationBlock(byte[] data, int offset, TimeZone timeZone, int dataField) throws IOException {
-    	
+    public ValueInformationBlock(byte[] data, int offset, TimeZone timeZone, int dataField, final Logger logger) throws IOException {
+        this.logger = logger;
         // plain text VIF
         if ((data[offset] == 0x7C) || (((int)data[offset]&0xff) == 0xFC)) {
             offset++;
@@ -48,12 +52,25 @@ public class ValueInformationBlock {
             padding++;
             setValueInformationfieldCoding(ValueInformationfieldCoding.findFDExtensionValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
         }
-        else if ((data[offset] == 0x7F) || (((int)data[offset]&0xff) == 0xFF)) {
+        else if (((int)data[offset]&0xff) == 0xFF) {
         	// manufacturer specific
             offset++;
             padding++;
             setValueInformationfieldCoding(ValueInformationfieldCoding.findCombinableExtensionValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
-        }        
+        } else if (data[offset] == 0x7F) {
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "[ValueInformationBlock] data [" + offset + "] : " + ParseUtils.asHex(new byte[] {data[offset]}) + "] (manufacturer specific)");
+            }
+            // manufacturer specific
+            // After a VIF with extension bit set to 0, the value information block is closed according the spec
+            // It is up to the manufacturer to encode the data
+            // The Data information block gives enough information to parse the data that follows
+            // We fill in fixed
+            setValueInformationfieldCoding(ValueInformationfieldCoding.findCombinableExtensionValueInformationfieldCoding(0x00,dataField));
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "[ValueInformationBlock] manufacturer specific ; dataField [" + dataField + "] [" + this.valueInformationfieldCoding + "]");
+            }
+        }
         else {
             setValueInformationfieldCoding(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
         }

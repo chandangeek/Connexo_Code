@@ -4,6 +4,10 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by astor on 18.09.2016.
  */
@@ -24,6 +28,7 @@ public enum GprsModemSetupAttributes implements DLMSClassAttributes {
     private final int attributeNumber;
     private final int shortName;
 
+    
     private GprsModemSetupAttributes(int attrNr, int sn) {
         this.attributeNumber = attrNr;
         this.shortName = sn;
@@ -31,6 +36,19 @@ public enum GprsModemSetupAttributes implements DLMSClassAttributes {
 
     public int getAttributeNumber() {
         return attributeNumber;
+    }
+
+    private static final Map<Integer, GprsModemSetupAttributes> VALUE_TO_ENUM_MAP;
+
+    static {
+        VALUE_TO_ENUM_MAP = new HashMap<>();
+        for (GprsModemSetupAttributes type : EnumSet.allOf(GprsModemSetupAttributes.class)) {
+            VALUE_TO_ENUM_MAP.put(type.attributeNumber, type);
+        }
+    }
+
+    public static GprsModemSetupAttributes forValue(int value) {
+        return VALUE_TO_ENUM_MAP.get(value);
     }
 
     public DLMSClassId getDlmsClassId() {

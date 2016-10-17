@@ -96,4 +96,6 @@ public interface DlmsSessionProperties {
 
     int getDeviceBufferSize();
 
+    boolean incrementFrameCounterForRetries();
+
 }

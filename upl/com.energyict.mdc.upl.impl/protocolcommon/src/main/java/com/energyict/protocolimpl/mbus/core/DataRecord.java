@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -21,6 +22,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -36,11 +39,11 @@ public class DataRecord {
     private Date date;
     
     /** Creates a new instance of DataRecord */
-    public DataRecord(byte[] data, int offset, TimeZone timeZone) throws IOException {
+    public DataRecord(byte[] data, int offset, TimeZone timeZone, final Logger logger) throws IOException {
 
         if (DEBUG>=1) System.out.println("KV_DEBUG> DataRecord, offset="+offset);
 
-        setDataRecordHeader(new DataRecordHeader(data, offset, timeZone));
+        setDataRecordHeader(new DataRecordHeader(data, offset, timeZone, logger));
         offset += getDataRecordHeader().size();
         
         if (dataRecordHeader.getValueInformationBlock()==null)
@@ -48,6 +51,11 @@ public class DataRecord {
 
         if (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding() != null) {
             if (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeFormat()) {
+                final int dataFieldCodingTypeId = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType();
+                final DataFieldCoding.DataFieldCodingType dataFieldCodingType = DataFieldCoding.DataFieldCodingType.fromId(dataFieldCodingTypeId);
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Parsing the value of data type [" + dataFieldCodingType + "] with VIF type [format]");
+                }
                 switch(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getType()) {
                     case ValueInformationfieldCoding.TYPE_A: {
                         long val = ParseUtils.getBCD2LongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
@@ -61,6 +69,17 @@ public class DataRecord {
                     case ValueInformationfieldCoding.TYPE_C:
                     case ValueInformationfieldCoding.TYPE_B: {
                         long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        final int nrBytesToRead = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        if (!hasSufficientData(data, offset,nrBytesToRead )) {
+                            if (logger.isLoggable(Level.SEVERE)) {
+                                logger.log(Level.SEVERE, "Trying to parse the data at offset [" + offset +
+                                        "] , but the buffer has no bytes left. The DIF type [" + dataFieldCodingType + "] with VIF type [" + dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getType() + "] indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                        "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                            }
+                            throw new IOException("Trying to parse the data at offset [" + offset +
+                                    "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                    "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                        }
                         offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
                         BigDecimal bd = BigDecimal.valueOf(val);
                         bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
@@ -88,6 +107,17 @@ public class DataRecord {
                     } break; // TYPE_G
 
                     case ValueInformationfieldCoding.TYPE_H: {
+                        final int nrBytesToRead = 4;
+                        if (!hasSufficientData(data, offset,nrBytesToRead )) {
+                            if (logger.isLoggable(Level.SEVERE)) {
+                                logger.log(Level.SEVERE, "Trying to parse the data at offset [" + offset +
+                                        "] , but the buffer has no bytes left. The DIF type H indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                        "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                            }
+                            throw new IOException("Trying to parse the data at offset [" + offset +
+                                    "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                    "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                        }
                         float val = Float.intBitsToFloat((int)ProtocolUtils.getLongLE(data,offset,4));
                         offset+=4;
                         BigDecimal bd = new BigDecimal(""+val);
@@ -127,6 +157,10 @@ public class DataRecord {
             }
             else if ((dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeUnit()) ||
                      (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeDuration())) {
+                final int dataFieldCodingType = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType();
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Parsing the value of data type [" + DataFieldCoding.DataFieldCodingType.fromId(dataFieldCodingType) + "]");
+                }
                 switch(dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType()) {
                     case DataFieldCoding.TYPE_BCD: {
                         long val = ParseUtils.getBCD2LongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
@@ -137,7 +171,28 @@ public class DataRecord {
                     } break; // DataFieldCoding.TYPE_BCD
 
                     case DataFieldCoding.TYPE_BINARY: {
+                        final int nrBytesToRead = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        if (!hasSufficientData(data, offset,nrBytesToRead )) {
+                            if (logger.isLoggable(Level.SEVERE)) {
+                                logger.log(Level.SEVERE, "Trying to parse the Binary data at offset [" + offset +
+                                        "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                        "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                            }
+                            throw new IOException("Trying to parse the Binary data at offset [" + offset +
+                                    "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                    "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                        }
                         long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        final BigDecimal multiplier = dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier();
+                        final Unit originalUnit = dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit();
+                        if (logger.isLoggable(Level.FINE)) {
+                            logger.log(Level.FINE, "Converting Binary data [" + val + "] at offset [" + offset +
+                                    "] with multiplier [" + multiplier + "] [" + originalUnit + "]");
+                        }
+                        if (logger.isLoggable(Level.FINE)) {
+                            logger.log(Level.FINE, "Converted Binary data [" + val + "] into value [" + val + "] at offset [" + offset +
+                                    "] with multiplier [" + multiplier + "] [" + originalUnit + "]");
+                        }
                         offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
                         BigDecimal bd = BigDecimal.valueOf(val);
                         bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
@@ -145,6 +200,17 @@ public class DataRecord {
                     } break; // DataFieldCoding.TYPE_BINARY
 
                     case DataFieldCoding.TYPE_REAL: {
+                        final int nrBytesToRead = 4;
+                        if (!hasSufficientData(data, offset,nrBytesToRead )) {
+                            if (logger.isLoggable(Level.SEVERE)) {
+                                logger.log(Level.SEVERE, "Trying to parse the Binary data at offset [" + offset +
+                                        "] , but the buffer has no bytes left. The DIF type real indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                        "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                            }
+                            throw new IOException("Trying to parse the Binary data at offset [" + offset +
+                                    "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                    "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                        }
                         float val = Float.intBitsToFloat((int)ProtocolUtils.getLongLE(data,offset,4));
                         offset+=4;
                         BigDecimal bd = new BigDecimal(""+val);
@@ -272,5 +338,19 @@ public class DataRecord {
     public void setText(String text) {
         this.text = text;
     }
-    
+
+    /**
+     * Validates whether the buffer to read from has enough bytes left to read "nrOfBytesToRead", starting at position "offset"
+     * @param buffer			The buffer to read from
+     * @param offset			The starting position
+     * @param nrOfBytesToRead	The number of bytes to read from the buffer
+     * @return					true if the buffer to read from has enough bytes left to read "nrOfBytesToRead", starting at position "offset"; False otherwise
+     */
+    private final boolean hasSufficientData(final byte[] buffer, final int offset, final int nrOfBytesToRead) {
+        if ((buffer.length - offset) < nrOfBytesToRead) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

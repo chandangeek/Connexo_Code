@@ -11,7 +11,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -240,6 +239,7 @@ public class DlmsSession implements ProtocolLink {
                         getProperties().getRetries(),
                         getProperties().getClientMacAddress(),
                         getProperties().getDestinationWPortNumber(),
+                        getProperties().incrementFrameCounterForRetries(),
                         getLogger()
                 );
                 break;

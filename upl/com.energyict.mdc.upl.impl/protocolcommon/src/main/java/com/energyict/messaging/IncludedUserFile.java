@@ -370,4 +370,8 @@ final class IncludedUserFile implements UserFile {
 	public final long getFileSize() throws SQLException {
 		return this.contents.getBytes().length;
 	}
+
+    @Override
+    public void lock() {
+    }
 }
