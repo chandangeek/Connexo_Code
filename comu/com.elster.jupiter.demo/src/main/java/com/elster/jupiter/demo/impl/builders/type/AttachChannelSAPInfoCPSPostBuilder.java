@@ -15,7 +15,10 @@ public class AttachChannelSAPInfoCPSPostBuilder implements Consumer<DeviceType> 
     private final CustomPropertySetService customPropertySetService;
     private List<String> loadProfileTypes = Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getName(),
             LoadProfileTypeTpl.DAILY_ELECTRICITY.getName(),
-            LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName());
+            LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName(),
+            LoadProfileTypeTpl._15_MIN_ELECTRICITY_A_PLUS.getName(),
+            LoadProfileTypeTpl.DAILY_ELECTRICITY_A_PLUS.getName(),
+            LoadProfileTypeTpl.MONTHLY_ELECTRICITY_A_PLUS.getName());
 
     @Inject
     public AttachChannelSAPInfoCPSPostBuilder(CustomPropertySetService customPropertySetService) {
