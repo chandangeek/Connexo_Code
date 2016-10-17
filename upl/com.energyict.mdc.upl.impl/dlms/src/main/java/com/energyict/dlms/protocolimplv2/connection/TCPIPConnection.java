@@ -1,9 +1,5 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ServerComChannel;
-
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSUtils;
@@ -585,9 +581,6 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        if (comChannel instanceof ServerComChannel) {
-            ((ServerComChannel) comChannel).sessionCountersStartWriting();
-        }
     }
 
     @Override

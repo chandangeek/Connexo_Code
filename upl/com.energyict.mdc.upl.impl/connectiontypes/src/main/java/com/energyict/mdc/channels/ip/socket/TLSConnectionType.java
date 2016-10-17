@@ -1,11 +1,9 @@
 package com.energyict.mdc.channels.ip.socket;
 
-import com.energyict.mdc.protocol.ComChannel;
-
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.protocol.ServerLoggableComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdw.core.DLMSKeyStoreParameters;
 import com.energyict.mdw.core.DLMSKeyStoreUserFile;
 import com.energyict.mdw.crypto.DLMSKeyStoreUserFileProviderImpl;
@@ -18,7 +16,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.*;
-import java.security.cert.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -90,7 +89,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     }
 
     @Override
-    protected ServerLoggableComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
+    protected ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
         System.setProperty("jdk.tls.client.protocols", getTLSVersionPropertyValue());
 
         try {
