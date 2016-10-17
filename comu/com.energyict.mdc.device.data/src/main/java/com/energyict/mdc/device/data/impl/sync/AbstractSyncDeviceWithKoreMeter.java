@@ -194,7 +194,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
      * @param newUsagePoint the UsagePoint for the new meterActivation. If not given the meterActivation's UsagePoint is used
      * @return the new MeterActivation
      */
-    MeterActivation endMeterActivationAndRestart(Instant end, Optional<MeterActivation> meterActivation, Optional<UsagePoint> newUsagePoint) {
+    MeterActivation endMeterActivationAndRestart(Instant end, Optional<? extends MeterActivation> meterActivation, Optional<UsagePoint> newUsagePoint) {
         meterActivation.ifPresent(ma -> ma.endAt(end));
         MeterActivation newMeterActivation;
 

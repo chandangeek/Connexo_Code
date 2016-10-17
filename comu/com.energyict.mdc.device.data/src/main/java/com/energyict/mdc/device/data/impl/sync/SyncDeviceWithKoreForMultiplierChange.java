@@ -14,12 +14,12 @@ import java.util.Optional;
 /**
  * Additional behaviour related to 'Kore' objects when the Device's multiplier is changed
  */
-public class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWithKoreMeter {
+public class SyncDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWithKoreMeter {
 
     private ServerDevice device;
     private BigDecimal multiplier;
 
-    public SynchDeviceWithKoreForMultiplierChange(ServerDevice device, Instant start, BigDecimal multiplier, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
+    public SyncDeviceWithKoreForMultiplierChange(ServerDevice device, Instant start, BigDecimal multiplier, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
         super(deviceService, readingTypeUtilService, eventService, start);
         this.device = device;
         this.multiplier = multiplier;
@@ -43,20 +43,19 @@ public class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWi
     }
 
     protected MeterActivation doActivateMeter(Instant generalizedStartDate) {
-        Optional<MeterActivation> meterActivation;
-        // If the devices current meter activation starts at start, we just have to update this one!
-        if (device.getKoreHelper().getCurrentMeterActivation().isPresent() && device.getKoreHelper()
-                .getCurrentMeterActivation()
-                .get()
-                .getStart()
-                .equals(generalizedStartDate)) {
-            meterActivation = device.getKoreHelper().getCurrentMeterActivation();
-        } else {
-            meterActivation = Optional.of(getDevice().getMeter().get().getMeterActivation(generalizedStartDate).get());
+        Optional<? extends MeterActivation> optionalMeterActivation = getDevice().getMeter().get().getMeterActivation(generalizedStartDate);
+        if (optionalMeterActivation.isPresent()) {
+
+            MeterActivation meterActivation;
+            if (!optionalMeterActivation.get().getStart().equals(generalizedStartDate)) {
+                meterActivation = endMeterActivationAndRestart(generalizedStartDate, optionalMeterActivation, Optional.empty());
+            } else {
+                meterActivation = optionalMeterActivation.get();
+            }
+            setMultiplier(meterActivation, multiplier);
+            device.getKoreHelper().setCurrentMeterActivation(Optional.of(meterActivation));
+            return meterActivation;
         }
-        meterActivation = Optional.of(endMeterActivationAndRestart(generalizedStartDate, meterActivation, Optional.empty()));
-        setMultiplier(meterActivation.get(), multiplier);
-        device.getKoreHelper().setCurrentMeterActivation(meterActivation);
-        return meterActivation.get();
+        return device.getKoreHelper().getCurrentMeterActivation().get();
     }
 }

@@ -417,6 +417,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             if (this.kpi.isPresent()) {
                 DestinationSpec destination = messageService.getDestinationSpec(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTask recurrentTask = taskService.newBuilder()
+                        //TODO: make this dynamic in 10.3
                         .setApplication("MultiSense")
                         .setName(taskName())
                         .setScheduleExpression(this.toScheduleExpression(this.kpi.get()))

@@ -32,8 +32,8 @@ public class MultiplierConfigurationException extends LocalizedException {
      * @param thesaurus the Thesaurus ...
      * @return the newly created exception
      */
-    public static MultiplierConfigurationException canNotConfigureMultiplierWithStartDateOutOfCurrentMeterActivation(Thesaurus thesaurus) {
-        return new MultiplierConfigurationException(thesaurus, MessageSeeds.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION);
+    public static MultiplierConfigurationException multiplierMustHaveMeterActivation(Thesaurus thesaurus) {
+        return new MultiplierConfigurationException(thesaurus, MessageSeeds.MULTIPLIER_MUST_HAVE_METERACTIVATION);
     }
 
     /**
