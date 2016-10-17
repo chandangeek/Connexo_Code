@@ -2,7 +2,8 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bpm-start-processes-panel',
     requires: [
-        'Bpm.startprocess.store.AvailableProcesses'
+        'Bpm.startprocess.store.AvailableProcesses',
+        'Uni.util.FormErrorMessage'
     ],
     items: [
         {
@@ -18,12 +19,15 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                         type: 'vbox',
                         align: 'left'
                     },
+                    defaults: {
+                        labelWidth: 150,
+                        width: 500
+                    },
                     items: [
                         {
                             itemId: 'form-errors',
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
-                            width: 600,
                             margin: '0 0 10 0',
                             hidden: true
                         },
@@ -37,8 +41,6 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                             valueField: 'processId',
                             itemId: 'processes-definition-combo',
                             allowBlank: false,
-                            width: 500,
-                            labelWidth: 150,
                             queryMode: 'local',
                             name: 'startProcessCombo',
                             required: true,
