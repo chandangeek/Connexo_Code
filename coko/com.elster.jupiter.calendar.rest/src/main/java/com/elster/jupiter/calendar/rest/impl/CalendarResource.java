@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +40,6 @@ public class CalendarResource {
     }
 
     @GET
-    @Path("/timeofusecalendars")
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<CalendarInfo> getAllTimeOfUseCalendars() {
@@ -52,7 +50,7 @@ public class CalendarResource {
     }
 
     @GET
-    @Path("/timeofusecalendars/{id}")
+    @Path("/{id}")
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
@@ -70,7 +68,7 @@ public class CalendarResource {
     }
 
     @DELETE
-    @Path("/timeofusecalendars/{id}")
+    @Path("/{id}")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
