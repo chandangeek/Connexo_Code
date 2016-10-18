@@ -13,6 +13,7 @@ import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -92,8 +93,8 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
     public CalendarInfo detailedWeekFromCalendar(Calendar calendar, LocalDate localDate) {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);
-        Map<Long, PeriodTransition> periodTransistions = new HashMap<>();
-        Map<LocalDate, DayType> dayTypesPerDay = calculateWeekInfo(calendar, localDate, periodTransistions);
+        Map<Long, PeriodTransition> periodTransitions = new HashMap<>();
+        Map<LocalDate, DayType> dayTypesPerDay = calculateWeekInfo(calendar, localDate, periodTransitions);
         calendarInfo.weekTemplate = new ArrayList<>();
         Map<Long, DayType> dayTypes = new HashMap<>();
         Map<Long, Event> events = new HashMap<>();
@@ -122,7 +123,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         addEvents(calendarInfo, eventList);
 
         List<PeriodTransition> periodList = new ArrayList<>();
-        periodList.addAll(periodTransistions.values());
+        periodList.addAll(periodTransitions.values());
         addPeriods(calendarInfo, periodList);
 
         return calendarInfo;
@@ -187,6 +188,8 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         calendarInfo.description = calendar.getDescription();
         calendarInfo.startYear = calendar.getStartYear().getValue();
         calendarInfo.timeZone = calendar.getTimeZone() == null ? "" : calendar.getTimeZone().getDisplayName();
+        calendarInfo.status = new IdWithDisplayValueInfo<>(calendar.getStatus(), calendar.getStatus().getDisplayName(thesaurus));
+        calendarInfo.version = calendar.getVersion();
     }
 
     private void addPeriods(CalendarInfo calendarInfo, List<PeriodTransition> transitions) {
