@@ -52,6 +52,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
     public static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES = "IncrementFrameCounterForRetries";
+    public static final String READCACHE_PROPERTY = "ReadCache";
 
     public static final String DEFAULT_CONNECTION = ConnectionMode.TCPIP.getModeAsString();
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;

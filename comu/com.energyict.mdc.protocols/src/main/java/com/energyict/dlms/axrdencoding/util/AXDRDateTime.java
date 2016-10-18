@@ -1,13 +1,18 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.OctetString;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * @author gna
@@ -74,7 +79,7 @@ public class AXDRDateTime extends AbstractDataType {
     private static final int INVALID_STATUS_MASK = 0x01;
 
     protected static final byte[] NO_DEVIATION = new byte[]{(byte) 0x80, (byte) 0x00};
-    private static final int SIZE = 12;
+    public static final int SIZE = 12;
 
     protected Calendar dateTime;
     protected int status;
