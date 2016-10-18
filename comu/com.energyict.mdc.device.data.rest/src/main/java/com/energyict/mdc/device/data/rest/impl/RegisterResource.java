@@ -205,7 +205,10 @@ public class RegisterResource {
         long registerId = firstRegister.getRegisterSpec().getId();
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
 
-        Range<Instant> intervalReg = Range.openClosed(jsonQueryFilter.getInstant("intervalStart"), jsonQueryFilter.getInstant("intervalEnd"));
+        Instant intervalStart = jsonQueryFilter.getInstant("intervalStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("intervalStart");
+        Instant intervalEnd = jsonQueryFilter.getInstant("intervalEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("intervalEnd");
+
+        Range<Instant> intervalReg = Range.openClosed(intervalStart, intervalEnd);
 
         List<Pair<Register, Range<Instant>>> registerTimeLine = topologyService.getDataLoggerRegisterTimeLine(register, intervalReg);
 
