@@ -11,6 +11,8 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
@@ -21,6 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -43,6 +48,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
     private boolean allCollectedDataWasProcessed = true;
+    private List<Handler> loggerExtraHandlers = new ArrayList<>();
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -62,6 +68,33 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     @Override
     public Logger getLogger() {
         return logger;
+    }
+
+    public void logOnAllLoggerHandlers(String info, Level level) {
+        attachAllExtraHandlersToLogger();
+        logger.log(level, info);
+        detachAllExtraHandlersToLogger();
+    }
+
+    @Override
+    public Optional<OfflineDevice> getOfflineDevice(DeviceIdentifier deviceIdentifier, DeviceOfflineFlags deviceOfflineFlags) {
+        return this.inboundDAO.findOfflineDevice(deviceIdentifier);
+    }
+
+    private void attachAllExtraHandlersToLogger() {
+        for (Handler handler : loggerExtraHandlers) {
+            logger.addHandler(handler);
+        }
+    }
+
+    private void detachAllExtraHandlersToLogger() {
+        for (Handler handler : loggerExtraHandlers) {
+            logger.removeHandler(handler);
+        }
+    }
+
+    public void addLoggerExtraHandler(Handler publisher) {
+        this.loggerExtraHandlers.add(publisher);
     }
 
     @Override
