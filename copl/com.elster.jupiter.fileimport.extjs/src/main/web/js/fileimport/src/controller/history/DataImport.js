@@ -30,6 +30,7 @@ Ext.define('Fim.controller.history.DataImport', {
                             title: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
                             route: '{importServiceId}',
                             controller: 'Fim.controller.ImportServices',
+                            privileges: Fim.privileges.DataImport.canView,
                             action: 'showImportService',
                             callback: function (route) {
                                 this.getApplication().on('importserviceload', function (record) {

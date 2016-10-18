@@ -94,7 +94,10 @@ Ext.define('Fim.controller.History', {
         var me = this,
             page = me.getPage(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
-            store = me.getStore('Fim.store.ImportServicesHistory');
+            store = me.getStore('Fim.store.ImportServicesHistory'),
+            sorting,
+            menuItem,
+            cls;
 
         sortContainer.removeAll();
         sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
@@ -157,7 +160,8 @@ Ext.define('Fim.controller.History', {
         var me = this,
             name = item.name,
             store = me.getStore('Fim.store.ImportServicesHistory'),
-            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            sortingItem;
 
         if (Ext.isArray(sorting)) {
             sortingItem = Ext.Array.findBy(sorting, function (item) {
@@ -186,7 +190,8 @@ Ext.define('Fim.controller.History', {
 
     clearAllSorting: function (btn) {
         var me = this,
-            store = me.getStore('Fim.store.ImportServicesHistory');
+            store = me.getStore('Fim.store.ImportServicesHistory'),
+            sorting;
 
         sorting = [];
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
