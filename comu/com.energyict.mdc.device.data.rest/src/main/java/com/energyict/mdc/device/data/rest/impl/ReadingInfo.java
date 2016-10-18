@@ -36,6 +36,7 @@ public abstract class ReadingInfo {
     @JsonProperty("editedInApp")
     public IdWithNameInfo editedInApp;
     public SlaveRegisterInfo slaveRegister;
+    public IdWithNameInfo register;
 
     public ReadingInfo() {
     }

@@ -9,11 +9,13 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -38,6 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -84,7 +87,7 @@ public class RegisterResource {
 
     private List<ReadingType> getElegibleReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, Device device) {
         List<ReadingType> filteredReadingTypes = new ArrayList<>();
-        if(jsonQueryFilter.hasProperty("registers")) {
+        if (jsonQueryFilter.hasProperty("registers")) {
             List<Long> registerTypes = jsonQueryFilter.getLongList("registers").stream()
                     .collect(Collectors.toList());
             filteredReadingTypes = device.getRegisters()
@@ -189,6 +192,42 @@ public class RegisterResource {
                 .collect(Collectors.toList());
 
         return !Collections.disjoint(readingTypesInGroup, readingTypesOnDevice);
+    }
+
+    @GET
+    @Transactional
+    @Path("/registerreadings")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public PagedInfoList getRegisterReadings(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Register firstRegister = device.getRegisters().get(0);
+        long registerId = firstRegister.getRegisterSpec().getId();
+        Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+
+        Range<Instant> intervalReg = Range.openClosed(jsonQueryFilter.getInstant("intervalStart"), jsonQueryFilter.getInstant("intervalEnd"));
+
+        List<Pair<Register, Range<Instant>>> registerTimeLine = topologyService.getDataLoggerRegisterTimeLine(register, intervalReg);
+
+        List<ReadingInfo> readingInfos = registerTimeLine.stream().
+                flatMap(registerRangePair -> {
+                    Register<?, ?> register1 = registerRangePair.getFirst();
+                    List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()));
+                    List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
+                            .isValidationActive(register1, this.clock.instant()), register.equals(register1) ? null : register1.getDevice());
+                    Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
+                    return infoList.stream();
+                }).collect(Collectors.toList());
+
+        readingInfos.stream()
+                .forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(registerId, firstRegister.getReadingType().getFullAliasName()));
+        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
+        return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
+    }
+
+    private void calculateDelta(NumericalReadingInfo current, BigDecimal previousVale, BigDecimal currentValue) {
+        current.deltaValue = currentValue.subtract(previousVale);
+        current.deltaValue = current.deltaValue.setScale(currentValue.scale(), BigDecimal.ROUND_UP);
     }
 
     @GET
