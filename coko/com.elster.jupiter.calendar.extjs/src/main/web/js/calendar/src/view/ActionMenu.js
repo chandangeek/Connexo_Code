@@ -6,6 +6,14 @@ Ext.define('Cal.view.ActionMenu', {
     shadow: false,
     items: [
         {
+            itemId: 'activateDeactivate',
+            text: Uni.I18n.translate('general.deActivate', 'CAL', 'Deactivate'),
+            action: 'activateDeactivate',
+            activateDeactivate: function(){
+                return this.record.get('status');
+            }
+        },
+        {
             itemId: 'view-preview-cal',
             text: Uni.I18n.translate('general.viewPreview', 'CAL', 'View preview'),
             action: 'viewpreview'
@@ -28,6 +36,9 @@ Ext.define('Cal.view.ActionMenu', {
                     item.show();
                 } else {
                     item.visible.call(me) ? item.show() : item.hide();
+                }
+                if(item.activateDeactivate !== undefined){
+                    item.text = item.activateDeactivate.call(me)==='active'?Uni.I18n.translate('general.deActivate', 'CAL', 'Deactivate'):Uni.I18n.translate('general.activate', 'CAL', 'Activate');
                 }
             })
         }

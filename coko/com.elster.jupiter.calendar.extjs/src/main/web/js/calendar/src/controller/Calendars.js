@@ -85,6 +85,10 @@ Ext.define('Cal.controller.Calendars', {
                 break;
             case 'remove':
                 me.removeCalendar(menu.record);
+                break;
+            case 'activateDeactivate':
+                me.activateDeactivateCalendar(menu.record);
+                break;
         }
     },
 
@@ -121,13 +125,13 @@ Ext.define('Cal.controller.Calendars', {
         record.getProxy().setUrl('/api/cal/calendars/timeofusecalendars');
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('tou.remove.msg', 'CAL', 'This time of use calendar will no longer be available.'),
+                msg: Uni.I18n.translate('calendar.remove.msg', 'CAL', 'This calendar will no longer be available.'),
                 title: Uni.I18n.translate('general.removeX', 'CAL', "Remove '{0}'?", [record.data.name]),
                 fn: function (state) {
                     if (state === 'confirm') {
                         record.destroy({
                             success: function () {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.remove.success.msg', 'CAL', 'Time of use calendar removed'));
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('calendar.remove.success.msg', 'CAL', 'Calendar removed'));
                                 store.load( {
                                     callback: function (records, operation, success) {
                                         if(success === true) {
@@ -142,10 +146,14 @@ Ext.define('Cal.controller.Calendars', {
             });
     },
 
+    activateDeactivateCalendar: function(){
+        debugger;
+    },
+
     updateCalendarsCounter: function () {
         var me = this;
         me.getTimeOfUseGrid().down('pagingtoolbartop #displayItem').setText(
-            Uni.I18n.translatePlural('general.timeOfUseCalendarCount', me.getTimeOfUseGrid().getStore().getCount(), 'CAL', 'No time of use caldendars', '{0} time of use calendar', '{0} time of use calendars')
+            Uni.I18n.translatePlural('general.timeOfUseCalendarCount', me.getTimeOfUseGrid().getStore().getCount(), 'CAL', 'No caldendars', '{0} calendar', '{0} calendars')
         );
     }
 });

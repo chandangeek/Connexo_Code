@@ -43,8 +43,8 @@ Ext.define('Cal.controller.Main', {
                 portal: 'administration',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.timeOfUseCalendars', 'CAL', 'Time of use calendars'),
-                        href: '#/administration/timeofusecalendars',
+                        text: Uni.I18n.translate('general.calendars', 'CAL', 'Calendars'),
+                        href: '#/administration/calendars',
                         hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.touCalendars')),
                         route: 'timeofusecalendars'
                     }

@@ -11,19 +11,19 @@ Ext.define('Cal.view.TimeOfUsePreviewContainer', {
     emptyComponent: {
         xtype: 'uni-form-empty-message',
         itemId: 'no-tou-cals',
-        text: Uni.I18n.translate('calendars.tou.empty', 'CAL', 'No time of use calendars have been defined yet.')
+        text: Uni.I18n.translate('calendar.empty', 'CAL', 'No calendars have been defined yet.')
     },
 
     initComponent: function () {
         var me = this;
         me.grid = {
             xtype: 'tou-grid',
-            itemId: 'grd-time-of-use',
+            itemId: 'grd-time-of-use'
         };
 
         me.previewComponent = {
             xtype: 'tou-preview',
-            itemId: 'pnl-tou-preview',
+            itemId: 'pnl-tou-preview'
         };
 
         me.callParent(arguments);

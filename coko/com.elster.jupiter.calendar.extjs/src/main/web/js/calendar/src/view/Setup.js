@@ -13,7 +13,7 @@ Ext.define('Cal.view.Setup', {
 
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('general.timeOfUseCalendars', 'CAL', 'Time of use calendars'),
+            title: Uni.I18n.translate('general.calendars', 'CAL', 'Calendars'),
             items: [
                 {
                     xtype: 'tou-preview-container',

@@ -10,14 +10,14 @@ Ext.define('Cal.controller.history.Calendar', {
             disabled: true,
             items: {
                 timeofusecalendars: {
-                    title: Uni.I18n.translate('general.timeOfUseCalendars', 'CAL', 'Time of use calendars'),
+                    title: Uni.I18n.translate('general.calendars', 'CAL', 'Calendars'),
                     privileges: Cal.privileges.Calendar.admin,
-                    route: 'timeofusecalendars',
+                    route: 'calendars',
                     controller: 'Cal.controller.Calendars',
                     action: 'showTimeOfUseOverview',
                     items: {
                         preview: {
-                            title: Uni.I18n.translate('general.previewTOUCalendar', 'CAL', 'Preview time of use calendar'),
+                            title: Uni.I18n.translate('general.calendar', 'CAL', 'Preview calendar'),
                             route: '{id}',
                             controller: 'Cal.controller.Calendars',
                             action: 'viewPreviewOfCalendar',

@@ -32,7 +32,7 @@ Ext.define('Cal.view.PreviewForm', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.tariffs', 'CAL', 'Tariffs'),
+                    fieldLabel: Uni.I18n.translate('general.eventTypes', 'CAL', 'Event types'),
                     itemId: 'tariffsField'
                 }
             ]

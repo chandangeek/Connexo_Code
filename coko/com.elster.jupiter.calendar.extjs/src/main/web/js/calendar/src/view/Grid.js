@@ -18,9 +18,19 @@ Ext.define('Cal.view.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.category', 'CAL', 'Category'),
+                dataIndex: 'category',
+                flex: 2
+            },
+            {
                 header: Uni.I18n.translate('general.Description', 'CAL', 'Description'),
                 dataIndex: 'description',
                 flex: 5
+            },
+            {
+                header: Uni.I18n.translate('general.status', 'CAL', 'Status'),
+                dataIndex: 'status',
+                flex: 2
             },
             {
                 xtype: 'uni-actioncolumn',
@@ -38,10 +48,16 @@ Ext.define('Cal.view.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('calendars.timeOfUse.pagingtoolbartop.displayMsg', 'CAL', '{0} time of use calendars'),
-                emptyMsg: Uni.I18n.translate('calendars.timeOfUse.pagingtoolbartop.emptyMsg', 'CAL', 'There are no time of use calendars to display'),
+                displayMsg: Uni.I18n.translate('calendar.pagingtoolbartop.displayMsg', 'CAL', '{0} calendars'),
+                emptyMsg: Uni.I18n.translate('calendar.pagingtoolbartop.emptyMsg', 'CAL', 'There are no calendars to display'),
                 usesExactCount: true,
                 noBottomPaging: true
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                itemsPerPageMsg: Uni.I18n.translate('calendar.pagingtoolbarbottom.displayMsg', 'MDC', 'Calendars per page'),
+                store: me.store,
+                dock: 'bottom'
             }
         ];
 
