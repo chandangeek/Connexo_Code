@@ -106,10 +106,7 @@ public class CreateDemoDataCommand {
         createValidationSetupCommand();
         createEstimationSetupCommand();
         createNtaConfigCommand();
-        createMockedDataDeviceCommand();
         createDeliverDataSetupCommand();
-
-        uploadAllData();
     }
 
     private void validateStartDateCommand() {

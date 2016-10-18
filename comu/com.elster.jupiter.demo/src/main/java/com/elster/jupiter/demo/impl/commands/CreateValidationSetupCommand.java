@@ -50,7 +50,6 @@ public class CreateValidationSetupCommand {
     public void run() {
         createValidationTask();
         createValidationRuleSet();
-        createValidationDevice();
         addValidationToDeviceConfigurations();
         addValidationToDevices();
     }
@@ -92,8 +91,7 @@ public class CreateValidationSetupCommand {
     }
 
     private void addValidationToDevices() {
-        List<Device> devices = deviceService.deviceQuery().select(where("mRID").like(MOCKED_VALIDATION_DEVICE_MRID_PREFIX + "*")
-                .or(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*")));
+        List<Device> devices = deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
         System.out.println("==> Validation will be activated for " + devices.size() + " devices");
         DeviceType elsterA1800DeviceType = Builders.from(DeviceTypeTpl.Elster_A1800).get();
         Instant now = this.clock.instant();
