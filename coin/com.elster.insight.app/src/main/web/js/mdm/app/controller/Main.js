@@ -18,7 +18,8 @@ Ext.define('MdmApp.controller.Main', {
         'Dbp.controller.Main',
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
-        'Fim.controller.Main'
+        'Fim.controller.Main',
+        'Fim.privileges.DataImport'
     ],
 
     applicationTitle: 'Connexo Insight',
@@ -35,7 +36,8 @@ Ext.define('MdmApp.controller.Main', {
         Imt.privileges.ServiceCategory.all(),
         Imt.privileges.UsagePoint.all(),
         Bpm.privileges.BpmManagement.all(),
-        Dbp.privileges.DeviceProcesses.all()
+        Dbp.privileges.DeviceProcesses.all(),
+        Fim.privileges.DataImport.all()
     ),
 
     controllers: [
