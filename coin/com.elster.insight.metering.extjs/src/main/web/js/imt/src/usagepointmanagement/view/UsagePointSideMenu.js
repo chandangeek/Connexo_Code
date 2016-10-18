@@ -59,6 +59,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                         text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                         itemId: 'usage-point-metrology-configuration-link',                        
                         href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('general.label.calendars', 'IMT', 'Calendars'),
+                        itemId: 'usage-point-calendar-configuration-link',
+                        href: me.router.getRoute('usagepoints/view/calendars').buildUrl()
                     }
                 ]
             }

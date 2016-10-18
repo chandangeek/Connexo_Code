@@ -175,6 +175,22 @@ Ext.define('Imt.controller.History', {
                                 }
                             }
                         },
+                        calendars: {
+                            title: Uni.I18n.translate('general.label.calendars', 'IMT', 'Calendars'),
+                            route: 'calendars',
+                            controller: 'Imt.usagepointmanagement.controller.Calendars',
+                            action: 'showCalendars',
+                           // privileges: Imt.privileges.UsagePoint.view,
+                            items: {
+                                addcalendar: {
+                                    title: Uni.I18n.translate('general.label.addCalendar', 'IMT', 'Add calendar'),
+                                    route: 'add',
+                                    controller: 'Imt.usagepointmanagement.controller.Calendars',
+                                    action: 'addCalendar',
+                                  //  privileges: Imt.privileges.UsagePoint.admin
+                                }
+                            }
+                        },
                         definemetrology: {
                             title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
