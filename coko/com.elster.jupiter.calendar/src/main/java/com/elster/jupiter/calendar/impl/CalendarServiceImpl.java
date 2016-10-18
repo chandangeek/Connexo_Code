@@ -3,6 +3,7 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarResolver;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.CalendarStatusTranslationKeys;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
@@ -123,7 +124,8 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 3), UpgraderV10_3.class
                 ));
     }
 
@@ -157,7 +159,8 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
-                Stream.of(Privileges.values()))
+                Stream.of(Privileges.values()),
+                Stream.of(CalendarStatusTranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

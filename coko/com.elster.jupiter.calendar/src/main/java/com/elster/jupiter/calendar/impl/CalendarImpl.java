@@ -15,6 +15,7 @@ import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
+import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -61,7 +62,8 @@ class CalendarImpl implements Calendar {
         PERIODS("periods"),
         EXCEPTIONAL_OCCURRENCES("exceptionalOccurrences"),
         PERIOD_TRANSITION_SPECS("periodTransitionSpecs"),
-        EVENTS("events");
+        EVENTS("events"),
+        STATUS("status");
 
         private final String javaFieldName;
 
@@ -89,6 +91,7 @@ class CalendarImpl implements Calendar {
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Integer startYear;
     private Integer endYear;
+    private Status status;
 
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
@@ -432,6 +435,15 @@ class CalendarImpl implements Calendar {
 
     public boolean isAbstract() {
         return abstractCalendar;
+    }
+
+    @Override
+    public Status getStatus() {
+        return status;
+    }
+
+    void setStatus(Status status) {
+        this.status = status;
     }
 
     void setmRID(String mRID) {

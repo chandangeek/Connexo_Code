@@ -8,10 +8,12 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
+import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -47,6 +49,7 @@ public enum TableSpecs {
             table.column("ABSTRACT_CALENDAR").bool().notNull().map(CalendarImpl.Fields.ABSTRACT_CALENDAR.fieldName()).add();
             table.column("TIMEZONENAME").varChar().map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
+            table.column("STATUS").number().notNull().map(CalendarImpl.Fields.STATUS.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).since(Version.version(10, 3)).installValue(String.valueOf(Status.INACTIVE.ordinal())).add();
             table.setJournalTableName("CAL_CALENDARJRNL");
             table.addAuditColumns();
             table.primaryKey("CAL_PK_CALENDAR").on(idColumn).add();

@@ -137,4 +137,5 @@ public interface Calendar extends HasId, HasName {
 
     boolean isAbstract();
 
+    Status getStatus();
 }

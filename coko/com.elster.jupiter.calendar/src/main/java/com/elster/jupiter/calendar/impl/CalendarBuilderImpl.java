@@ -3,6 +3,7 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.orm.DataModel;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
     public CalendarBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
         this.calendarImpl = this.dataModel.getInstance(CalendarImpl.class);
+        this.calendarImpl.setStatus(Status.INACTIVE);
     }
 
      CalendarBuilderImpl(DataModel dataModel, CalendarImpl calendarImpl) {
