@@ -1,9 +1,6 @@
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
@@ -20,10 +17,8 @@ public class CreateDemoDataCommand {
     private final Provider<CreateUserManagementCommand> createUserManagementCommandProvider;
     private final Provider<CreateApplicationServerCommand> createApplicationServerCommandProvider;
     private final Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider;
-    private final Provider<UploadAllCommand> uploadAllCommandProvider;
     private final Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider;
     private final Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider;
-    private final Provider<CreateDeviceCommand> createDeviceCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
     private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
     private final Provider<CreateDemoUserCommand> createDemoUserCommandProvider;
@@ -43,10 +38,8 @@ public class CreateDemoDataCommand {
             Provider<CreateUserManagementCommand> createUserManagementCommandProvider,
             Provider<CreateApplicationServerCommand> createApplicationServerCommandProvider,
             Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider,
-            Provider<UploadAllCommand> uploadAllCommandProvider,
             Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
             Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider,
-            Provider<CreateDeviceCommand> createDeviceCommandProvider,
             Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
             Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
             Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
@@ -56,10 +49,8 @@ public class CreateDemoDataCommand {
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
         this.createApplicationServerCommandProvider = createApplicationServerCommandProvider;
         this.createNtaConfigCommandProvider = createNtaConfigCommandProvider;
-        this.uploadAllCommandProvider = uploadAllCommandProvider;
         this.createValidationSetupCommandProvider = createValidationSetupCommandProvider;
         this.createEstimationSetupCommandProvider = createEstimationSetupCommandProvider;
-        this.createDeviceCommandProvider = createDeviceCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
         this.validateStartDateCommandProvider = validateStartDateCommandProvider;
         this.createDemoUserCommandProvider = createDemoUserCommandProvider;
@@ -171,19 +162,6 @@ public class CreateDemoDataCommand {
 
     private void createNtaConfigCommand() {
         CreateNtaConfigCommand command = this.createNtaConfigCommandProvider.get();
-        command.run();
-    }
-
-    private void createMockedDataDeviceCommand() {
-        CreateDeviceCommand command = this.createDeviceCommandProvider.get();
-        command.setSerialNumber("093000020359");
-        command.setMridPrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
-        command.run();
-    }
-
-    private void uploadAllData() {
-        UploadAllCommand command = this.uploadAllCommandProvider.get();
-        command.setStartDate(this.startDate);
         command.run();
     }
 
