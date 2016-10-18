@@ -280,6 +280,11 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     }
 
     @Override
+    public void setTimeout(long millis) {
+        comChannel.setTimeout(millis);
+    }
+
+    @Override
     public void flush() throws IOException {
         comChannel.flush();
     }

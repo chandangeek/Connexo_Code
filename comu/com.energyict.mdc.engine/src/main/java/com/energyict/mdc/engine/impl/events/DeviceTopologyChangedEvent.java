@@ -1,10 +1,13 @@
 package com.energyict.mdc.engine.impl.events;
 
+import com.energyict.mdc.protocol.api.LastSeenDateInfo;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DeviceTopologyChangedEvent {
@@ -14,15 +17,15 @@ public class DeviceTopologyChangedEvent {
     private final String slaveIdentifiers;
     private final List<DeviceIdentifier> slaveDevices;
 
-    public DeviceTopologyChangedEvent(DeviceIdentifier masterDeviceIdentifier, List<DeviceIdentifier> slaveIdentifiers) {
+    public DeviceTopologyChangedEvent(DeviceIdentifier masterDeviceIdentifier, Map<DeviceIdentifier, LastSeenDateInfo> slaveIdentifiers) {
         super();
         masterDevice = masterDeviceIdentifier;
         this.masterDeviceId = masterDeviceIdentifier.getIdentifier();
-        slaveDevices = ImmutableList.copyOf(slaveIdentifiers);
-        this.slaveIdentifiers = asString(slaveIdentifiers);
+        slaveDevices = ImmutableList.copyOf(slaveIdentifiers.keySet());
+        this.slaveIdentifiers = asString(slaveIdentifiers.keySet());
     }
 
-    private String asString(List<DeviceIdentifier> slaveIdentifiers) {
+    private String asString(Set<DeviceIdentifier> slaveIdentifiers) {
         return slaveIdentifiers
                 .stream()
                 .map(DeviceIdentifier::getIdentifier)
