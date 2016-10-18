@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.deviceregisterconfiguration.Grid',
+        'Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter',
         'Uni.view.container.PreviewContainer',
         'Uni.view.container.PreviewContainer',
         'Uni.util.FormEmptyMessage'
@@ -36,6 +37,16 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                 xtype: 'panel',
                 ui: 'large',
                 title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
+                dockedItems: [
+                    {
+                        dock: 'top',
+                        xtype: 'mdc-registers-overview-topfilter',
+                        deviceMRID: me.device.get('mRID')
+                    }
+                ]
+            },
+            {
+                xtype: 'panel',
                 items: [
                     {
                         xtype: 'preview-container',
