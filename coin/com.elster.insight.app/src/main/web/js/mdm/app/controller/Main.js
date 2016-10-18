@@ -17,6 +17,7 @@ Ext.define('MdmApp.controller.Main', {
         'Bpm.controller.Main',
         'Dbp.controller.Main',
         'Bpm.privileges.BpmManagement',
+        'Dxp.privileges.DataExport',
         'Dbp.privileges.DeviceProcesses'
     ],
 
@@ -34,6 +35,7 @@ Ext.define('MdmApp.controller.Main', {
         Imt.privileges.ServiceCategory.all(),
         Imt.privileges.UsagePoint.all(),
         Bpm.privileges.BpmManagement.all(),
+        Dxp.privileges.DataExport.all(),
         Dbp.privileges.DeviceProcesses.all()
     ),
 
@@ -43,6 +45,7 @@ Ext.define('MdmApp.controller.Main', {
         'Cfg.controller.Main',
         'Imt.controller.Main',
         'Bpm.controller.Main',
+        'Dxp.controller.Main',
         'Dbp.controller.Main'
     ],
     init: function () {

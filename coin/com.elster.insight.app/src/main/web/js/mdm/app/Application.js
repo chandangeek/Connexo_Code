@@ -10,6 +10,7 @@ Ext.define('MdmApp.Application', {
         'Imt.privileges.ServiceCategory',
         'Imt.privileges.MetrologyConfig',
         'Bpm.privileges.BpmManagement',
+        'Dxp.privileges.DataExport',
         'Dbp.privileges.DeviceProcesses'
     ],
 

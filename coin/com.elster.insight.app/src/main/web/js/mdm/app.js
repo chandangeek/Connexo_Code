@@ -27,6 +27,14 @@ Ext.onReady(function () {
             path: '../../apps/bpm/src'
         },
         {
+            name: 'Tme',
+            path: '../../apps/tme/src'
+        },
+        {
+            name: 'Dxp',
+            path: '../../apps/dxp/src'
+        },
+        {
             name: 'Dbp',
             path: '../../apps/dbp/src'
         }

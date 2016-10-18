@@ -106,6 +106,10 @@ public class MdmAppInstaller {
 
                     com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
 
+                    //Export
+                    com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                    com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
+
                     //Relative periods
                     com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD
             };

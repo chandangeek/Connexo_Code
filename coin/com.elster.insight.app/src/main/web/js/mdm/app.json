@@ -9,6 +9,7 @@
         "com.elster.jupiter.config.extjs",
         "com.elster.jupiter.mdm.metering.extjs",
         "com.elster.jupiter.bpm.extjs",
+        "com.elster.jupiter.export.extjs",
         "com.energyict.mdc.bpm.extjs"
     ],
 
