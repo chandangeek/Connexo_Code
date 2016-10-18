@@ -107,7 +107,10 @@ public class MdmAppInstaller {
                     com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
 
                     //Relative periods
-                    com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD
+                    com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
+
+                    //Import services
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
             };
         }
     }
