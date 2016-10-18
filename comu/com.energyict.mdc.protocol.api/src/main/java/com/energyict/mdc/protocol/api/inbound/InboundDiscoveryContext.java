@@ -4,12 +4,16 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -80,4 +84,7 @@ public interface InboundDiscoveryContext {
 
     public void markNotAllCollectedDataWasProcessed();
 
+    void logOnAllLoggerHandlers(String loggingMessage, Level info);
+
+    Optional<OfflineDevice> getOfflineDevice(DeviceIdentifier deviceIdentifier, DeviceOfflineFlags deviceOfflineFlags);
 }
