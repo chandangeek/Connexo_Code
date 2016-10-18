@@ -225,11 +225,6 @@ public class RegisterResource {
         return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
     }
 
-    private void calculateDelta(NumericalReadingInfo current, BigDecimal previousVale, BigDecimal currentValue) {
-        current.deltaValue = currentValue.subtract(previousVale);
-        current.deltaValue = current.deltaValue.setScale(currentValue.scale(), BigDecimal.ROUND_UP);
-    }
-
     @GET
     @Transactional
     @Path("/{registerId}/customproperties")
