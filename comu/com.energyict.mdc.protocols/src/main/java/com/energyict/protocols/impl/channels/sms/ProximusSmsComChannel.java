@@ -4,7 +4,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.CommunicationException;
-
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayInputStream;
@@ -109,6 +108,11 @@ public class ProximusSmsComChannel implements ComChannel {
     @Override
     public ComChannelType getComChannelType() {
         return ComChannelType.PROXIMUS_SMS_COM_CHANNEL;
+    }
+
+    @Override
+    public void setTimeout(long millis) {
+        // currently not timeout to set
     }
 
     @Override

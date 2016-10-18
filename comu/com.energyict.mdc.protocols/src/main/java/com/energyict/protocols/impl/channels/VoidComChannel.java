@@ -80,6 +80,11 @@ public class VoidComChannel implements ComChannel {
     }
 
     @Override
+    public void setTimeout(long millis) {
+        // no timeout to set
+    }
+
+    @Override
     public void addProperties(TypedProperties typedProperties) {
         this.connectionTaskProperties.setAllProperties(typedProperties);
     }

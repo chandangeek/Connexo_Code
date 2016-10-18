@@ -6,6 +6,7 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -15,11 +16,14 @@ import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceBasicSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
@@ -40,7 +44,7 @@ import java.util.logging.Level;
  * Date: 21/03/12
  * Time: 10:32
  */
-public class AS330D extends AbstractDlmsSessionProtocol {
+public class AS330D extends AbstractDlmsSessionProtocol implements DeviceBasicSupport {
 
     @Override
     public String getProtocolDescription() {
@@ -88,10 +92,19 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     protected void doInit() {
         this.clock = new G3Clock(getSession());
         this.info = new G3DeviceInfo(getSession());
-        this.registerMapper = new G3RegisterMapper(this);
+        this.registerMapper = new G3RegisterMapper(getSession().getCosemObjectFactory(), getSession().getTimeZone(), getSession().getLogger());
         this.profile = new G3Profile(getSession(), getProperties().getProfileType(), cache);
         this.events = new G3Events(getSession());
         initMessaging();
+    }
+
+    @Override
+    public String getSerialNumber() {
+        try {
+            return readSerialNumber().trim();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getProperties().getRetries() + 1);
+        }
     }
 
     @Override
@@ -103,7 +116,6 @@ public class AS330D extends AbstractDlmsSessionProtocol {
             throw new NestedIOException(e, "Exception occurred while connection DLMSStream");
         }
         connectWithRetries();
-        validateSerialNumber();
     }
 
     private void connectWithRetries() throws IOException {
@@ -114,9 +126,10 @@ public class AS330D extends AbstractDlmsSessionProtocol {
                 getSession().getDLMSConnection().setRetries(0);   //AARQ retries are handled here
                 getSession().createAssociation(getProperties().getAARQTimeout());
                 return;
-            } catch (DataAccessResultException e) {
-                throw e;
             } catch (IOException e) {
+                if (e instanceof DataAccessResultException) {
+                    throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
+                }
                 exception = e;
             } finally {
                 getSession().getDLMSConnection().setRetries(getProperties().getRetries());
@@ -181,8 +194,12 @@ public class AS330D extends AbstractDlmsSessionProtocol {
         return getProperties().getProfileInterval();   //Skip this check. This can be fixed though, by making this protocol a smartmeter protocol
     }
 
-    public Date getTime() throws IOException {
-        return this.clock.getTime();
+    public Date getTime() {
+        try {
+            return this.clock.getTime();
+        } catch (IOException e) {
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+        }
     }
 
     public void setTime() throws IOException {

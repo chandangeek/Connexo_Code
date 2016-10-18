@@ -48,7 +48,6 @@ import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.ActivityCalendar;
@@ -60,7 +59,8 @@ import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.g3.common.G3Topology;
+import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
+import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.logbooks.Dsmr50LogBookFactory;
@@ -92,7 +92,7 @@ import java.util.logging.Level;
  */
 public class AM540 extends AbstractDlmsProtocol {
 
-    private G3Topology g3Topology;
+    private AbstractMeterTopology g3Topology;
     private AM540Messaging am540Messaging;
     private long initialFrameCounter = -1;
     private AM540LoadProfileBuilder loadProfileBuilder;
@@ -247,12 +247,7 @@ public class AM540 extends AbstractDlmsProtocol {
         if (e.getMessage() != null &&
                 e.getMessage().contains("Application Association Establishment Failed, ACSE_SERVICE_USER, no reason given")) {
             if (getDlmsSession().getAso() != null) {
-                try {
-                    getDlmsSession().getAso().releaseAssociation();
-                } catch (IOException | DLMSConnectionException e1) {
-                    // just log it
-                    getLogger().fine(e1::getMessage);
-                }
+                getDlmsSession().getAso().releaseAssociation();
             }
         }
     }
@@ -385,12 +380,12 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return getG3Topology().collectTopology();
+        return getG3Topology().getDeviceTopology();
     }
 
-    public G3Topology getG3Topology() {
+    public AbstractMeterTopology getG3Topology() {
         if (g3Topology == null) {
-            g3Topology = new AM540Topology(this.offlineDevice.getDeviceIdentifier(), getIdentificationService(), getIssueService(), getPropertySpecService(), getDlmsSession(), getDlmsProperties(), getCollectedDataFactory());
+            g3Topology = new IDISMeterTopology(this);
         }
         return g3Topology;
     }

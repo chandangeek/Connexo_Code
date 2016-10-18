@@ -2,12 +2,9 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 
 import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
@@ -59,17 +56,6 @@ public class Beacon3100Properties extends DlmsProperties {
             securityProvider = new Beacon3100SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
         }
         return securityProvider;
-    }
-
-    public GeneralCipheringKeyType getGeneralCipheringKeyType() {
-        String keyTypeDescription = getProperties().getStringProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
-
-        if (keyTypeDescription == null && getCipheringType().equals(CipheringType.GENERAL_CIPHERING)) {
-            //In the case of general-ciphering, the key type is a required property
-            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
-        } else {
-            return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
-        }
     }
 
     public boolean getRequestAuthenticatedFrameCounter() {

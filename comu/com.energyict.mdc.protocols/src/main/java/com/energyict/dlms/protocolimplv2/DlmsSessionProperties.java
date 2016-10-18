@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 
@@ -176,5 +177,7 @@ public interface DlmsSessionProperties extends HasDynamicProperties, Communicati
      * Return true if digital signing is to be used (only possible for DLMS suite 1 and 2)
      */
     boolean isGeneralSigning();
+
+    GeneralCipheringKeyType getGeneralCipheringKeyType();
 
 }

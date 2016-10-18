@@ -1,8 +1,9 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.protocol.api.NotInObjectListException;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 /**
  *
@@ -19,7 +20,7 @@ public class LoadProfile {
         this.cof=cof;
     }
 
-    protected void retrieve() throws ProtocolException {
+    protected void retrieve() throws NotInObjectListException {
         profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.LOAD_PROFILE_LN,protocolLink.getMeterConfig().getProfileSN()));
     }
 

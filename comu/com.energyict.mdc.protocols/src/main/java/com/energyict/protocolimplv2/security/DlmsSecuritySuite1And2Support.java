@@ -44,22 +44,22 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         this.thesaurus = thesaurus;
     }
 
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-        propertySpecs.add(getClientMacAddressPropertySpec());
-        return propertySpecs;
-    }
+//    @Override
+//    public List<PropertySpec> getSecurityProperties() {
+//        List<PropertySpec> propertySpecs = new ArrayList<>();
+//        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+//        propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//        propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//        propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//        propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//        propertySpecs.add(getClientMacAddressPropertySpec());
+//        return propertySpecs;
+//    }
 
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.DLMS_SUITE_1_AND_2_SECURITY.toString();
-    }
+//    @Override
+//    public String getSecurityRelationTypeName() {
+//        return SecurityRelationTypeName.DLMS_SUITE_1_AND_2_SECURITY.toString();
+//    }
 
     /**
      * A list of all possible authentication levels.
@@ -68,8 +68,8 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>(new DlmsSecuritySupport(propertySpecService, thesaurus).getAuthenticationAccessLevels());
-        authenticationAccessLevels.add(new Sha256Authentication());
-        authenticationAccessLevels.add(new ECDSAAuthentication());
+//        authenticationAccessLevels.add(new Sha256Authentication());
+//        authenticationAccessLevels.add(new ECDSAAuthentication());
         return authenticationAccessLevels;
     }
 
@@ -79,14 +79,14 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     @Override
     public List<RequestSecurityLevel> getRequestSecurityLevels() {
         ArrayList<RequestSecurityLevel> requestSecurityLevels = new ArrayList<>();
-        requestSecurityLevels.add(new NoSecurityForRequests());
-        requestSecurityLevels.add(new RequestsAuthenticated());
-        requestSecurityLevels.add(new RequestsEncrypted());
-        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticated());
-        requestSecurityLevels.add(new RequestsSigned());
-        requestSecurityLevels.add(new RequestsAuthenticatedAndSigned());
-        requestSecurityLevels.add(new RequestsEncryptedAndSigned());
-        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticatedAndSigned());
+//        requestSecurityLevels.add(new NoSecurityForRequests());
+//        requestSecurityLevels.add(new RequestsAuthenticated());
+//        requestSecurityLevels.add(new RequestsEncrypted());
+//        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticated());
+//        requestSecurityLevels.add(new RequestsSigned());
+//        requestSecurityLevels.add(new RequestsAuthenticatedAndSigned());
+//        requestSecurityLevels.add(new RequestsEncryptedAndSigned());
+//        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticatedAndSigned());
         return requestSecurityLevels;
     }
 
@@ -96,14 +96,14 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     @Override
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
         ArrayList<ResponseSecurityLevel> responseSecurityLevels = new ArrayList<>();
-        responseSecurityLevels.add(new NoSecurityForResponses());
-        responseSecurityLevels.add(new ResponsesAuthenticated());
-        responseSecurityLevels.add(new ResponsesEncrypted());
-        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticated());
-        responseSecurityLevels.add(new ResponsesSigned());
-        responseSecurityLevels.add(new ResponsesAuthenticatedAndSigned());
-        responseSecurityLevels.add(new ResponsesEncryptedAndSigned());
-        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticatedAndSigned());
+//        responseSecurityLevels.add(new NoSecurityForResponses());
+//        responseSecurityLevels.add(new ResponsesAuthenticated());
+//        responseSecurityLevels.add(new ResponsesEncrypted());
+//        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticated());
+//        responseSecurityLevels.add(new ResponsesSigned());
+//        responseSecurityLevels.add(new ResponsesAuthenticatedAndSigned());
+//        responseSecurityLevels.add(new ResponsesEncryptedAndSigned());
+//        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticatedAndSigned());
         return responseSecurityLevels;
     }
 
@@ -121,15 +121,15 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         return null;
     }
 
-    @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return null;
-    }
-
-    @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return getSecurityProperties().stream().filter(propertySpec -> propertySpec.getName().equals(name)).findAny();
-    }
+//    @Override
+//    public List<PropertySpec> getSecurityPropertySpecs() {
+//        return null;
+//    }
+//
+//    @Override
+//    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
+//        return getSecurityProperties().stream().filter(propertySpec -> propertySpec.getName().equals(name)).findAny();
+//    }
 
     protected PropertySpec getClientMacAddressPropertySpec() {
         return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus);
@@ -256,8 +256,8 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
                     dlmsSecuritySupport.new LowLevelAuthentication(),
                     dlmsSecuritySupport.new Md5Authentication(),
                     dlmsSecuritySupport.new Sha1Authentication(),
-                    dlmsSecuritySupport.new GmacAuthentication(),
-                    new Sha256Authentication()
+                    dlmsSecuritySupport.new GmacAuthentication()
+//                    new Sha256Authentication()
             );
         }
 
@@ -302,9 +302,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
                     dlmsSecuritySupport.new LowLevelAuthentication(),
                     dlmsSecuritySupport.new Md5Authentication(),
                     dlmsSecuritySupport.new Sha1Authentication(),
-                    dlmsSecuritySupport.new GmacAuthentication(),
-                    new Sha256Authentication(),
-                    new ECDSAAuthentication());
+                    dlmsSecuritySupport.new GmacAuthentication()
+//                    new Sha256Authentication(),
+//                    new ECDSAAuthentication()
+            );
         }
 
         @Override
@@ -371,394 +372,395 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
             return propertySpecs;
         }
     }
 
-    private class RequestsEncrypted implements RequestSecurityLevel {
+//    private class RequestsEncrypted implements RequestSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return RequestSecurityLevels.RequestsEncrypted.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-        @Override
-        public int getId() {
-            return RequestSecurityLevels.RequestsEncrypted.getId();
-        }
+//    private class RequestsEncryptedAndAuthenticated implements RequestSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return RequestSecurityLevels.RequestsEncryptedAndAuthenticated.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-        @Override
-        public String getTranslationKey() {
-            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
+//    private class RequestsSigned implements RequestSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return RequestSecurityLevels.RequestsSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
+//    private class RequestsAuthenticatedAndSigned implements RequestSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return RequestSecurityLevels.RequestsAuthenticatedAndSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-    private class RequestsEncryptedAndAuthenticated implements RequestSecurityLevel {
+//    private class RequestsEncryptedAndSigned implements RequestSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return RequestSecurityLevels.RequestsEncryptedAndSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-        @Override
-        public int getId() {
-            return RequestSecurityLevels.RequestsEncryptedAndAuthenticated.getId();
-        }
+//    private class RequestsEncryptedAndAuthenticatedAndSigned implements RequestSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return RequestSecurityLevels.RequestsEncryptedAndAuthenticatedAndSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-        @Override
-        public String getTranslationKey() {
-            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
+//    private class NoSecurityForResponses implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.NoSecurityForResponses.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
+//    private class ResponsesAuthenticated implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.ResponsesAuthenticated.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    private class ResponsesEncrypted implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.ResponsesEncrypted.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    private class ResponsesEncryptedAndAuthenticated implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.ResponsesEncryptedAndAuthenticated.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    private class ResponsesSigned implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.ResponsesSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    private class ResponsesAuthenticatedAndSigned implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.ResponsesAuthenticatedAndSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    private class ResponsesEncryptedAndSigned implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.ResponsesEncryptedAndSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    private class ResponsesEncryptedAndAuthenticatedAndSigned implements ResponseSecurityLevel {
+//
+//        @Override
+//        public int getId() {
+//            return ResponseSecurityLevels.ResponsesEncryptedAndAuthenticatedAndSigned.getId();
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    /**
+//     * An authentication level specifying that a SHA256 hashing algorithm will be
+//     * used together with the specific challenge to authenticate ourselves with
+//     * the device.
+//     */
+//    protected class Sha256Authentication implements AuthenticationDeviceAccessLevel {
+//
+//        @Override
+//        public int getId() {
+//            return AuthenticationAccessLevelIds.SHA256_AUTHENTICATION.accessLevel;
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return authenticationTranslationKeyConstant + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
+//
+//    /**
+//     * An authentication level specifying that ECDSA (digital signature) will be used
+//     * to authenticate ourselves with the device.
+//     * <p/>
+//     * For the digital signing, the following general properties are additionally used:
+//     * - our private signing key
+//     * - our signing certificate
+//     * This client private key and client certificate is ours and is the same for every DLMS communication.
+//     */
+//    protected class ECDSAAuthentication implements AuthenticationDeviceAccessLevel {
+//
+//        @Override
+//        public int getId() {
+//            return AuthenticationAccessLevelIds.ECDSA_AUTHENTICATION.accessLevel;
+//        }
+//
+//        @Override
+//        public String getTranslationKey() {
+//            return authenticationTranslationKeyConstant + getId();
+//        }
+//
+//        @Override
+//        public List<PropertySpec> getSecurityProperties() {
+//            List<PropertySpec> propertySpecs = new ArrayList<>();
+//            propertySpecs.add(getClientMacAddressPropertySpec());
+//            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+//            return propertySpecs;
+//        }
+//    }
 
-    private class RequestsSigned implements RequestSecurityLevel {
-
-        @Override
-        public int getId() {
-            return RequestSecurityLevels.RequestsSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class RequestsAuthenticatedAndSigned implements RequestSecurityLevel {
-
-        @Override
-        public int getId() {
-            return RequestSecurityLevels.RequestsAuthenticatedAndSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class RequestsEncryptedAndSigned implements RequestSecurityLevel {
-
-        @Override
-        public int getId() {
-            return RequestSecurityLevels.RequestsEncryptedAndSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class RequestsEncryptedAndAuthenticatedAndSigned implements RequestSecurityLevel {
-
-        @Override
-        public int getId() {
-            return RequestSecurityLevels.RequestsEncryptedAndAuthenticatedAndSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class NoSecurityForResponses implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.NoSecurityForResponses.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class ResponsesAuthenticated implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.ResponsesAuthenticated.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class ResponsesEncrypted implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.ResponsesEncrypted.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class ResponsesEncryptedAndAuthenticated implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.ResponsesEncryptedAndAuthenticated.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class ResponsesSigned implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.ResponsesSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class ResponsesAuthenticatedAndSigned implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.ResponsesAuthenticatedAndSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class ResponsesEncryptedAndSigned implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.ResponsesEncryptedAndSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    private class ResponsesEncryptedAndAuthenticatedAndSigned implements ResponseSecurityLevel {
-
-        @Override
-        public int getId() {
-            return ResponseSecurityLevels.ResponsesEncryptedAndAuthenticatedAndSigned.getId();
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    /**
-     * An authentication level specifying that a SHA256 hashing algorithm will be
-     * used together with the specific challenge to authenticate ourselves with
-     * the device.
-     */
-    protected class Sha256Authentication implements AuthenticationDeviceAccessLevel {
-
-        @Override
-        public int getId() {
-            return AuthenticationAccessLevelIds.SHA256_AUTHENTICATION.accessLevel;
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-            return propertySpecs;
-        }
-    }
-
-    /**
-     * An authentication level specifying that ECDSA (digital signature) will be used
-     * to authenticate ourselves with the device.
-     * <p/>
-     * For the digital signing, the following general properties are additionally used:
-     * - our private signing key
-     * - our signing certificate
-     * This client private key and client certificate is ours and is the same for every DLMS communication.
-     */
-    protected class ECDSAAuthentication implements AuthenticationDeviceAccessLevel {
-
-        @Override
-        public int getId() {
-            return AuthenticationAccessLevelIds.ECDSA_AUTHENTICATION.accessLevel;
-        }
-
-        @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
-        }
-
-        @Override
-        public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            return propertySpecs;
-        }
-    }
 }

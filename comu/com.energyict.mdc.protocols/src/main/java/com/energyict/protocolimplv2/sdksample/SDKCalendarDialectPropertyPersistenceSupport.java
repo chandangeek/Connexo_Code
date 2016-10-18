@@ -50,7 +50,7 @@ class SDKCalendarDialectPropertyPersistenceSupport implements PersistenceSupport
 
     @Override
     public String componentName() {
-        return CustomPropertySetComponentName.P01.name();
+        return CustomPropertySetComponentName.P32.name();
     }
 
     @Override

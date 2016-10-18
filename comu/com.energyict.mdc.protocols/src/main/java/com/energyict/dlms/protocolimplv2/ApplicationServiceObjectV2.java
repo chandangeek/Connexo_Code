@@ -1,12 +1,16 @@
 package com.energyict.dlms.protocolimplv2;
 
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.protocols.exception.ProtocolAuthenticationException;
 import com.energyict.protocols.exception.ProtocolEncryptionException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.DLMSConnectionException;
@@ -23,16 +27,26 @@ import com.energyict.dlms.cosem.AssociationSN;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
+import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 /**
  * This V2 version of the ApplicationServiceObject does not throw IOExceptions. Error handling is already done in the connection layer.
  * If there is a problem, a proper ComServer runtime exception is thrown.
- * <p/>
+ * <p>
  * The applicationServiceObject has three main objectives.
  * - Establish/maintain/release application associations
  * - Data transfer
@@ -99,17 +113,17 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         } catch (ConnectionException e) {                        //Decryption failed
             throw new ProtocolEncryptionException(MessageSeeds.ENCRYPTION_ERROR);
         } catch (IOException e) {                                //Association failed
-                    if (e.getMessage().contains(AssociationControlServiceElement.REFUSED_BY_THE_VDE_HANDLER)
+            if (e.getMessage().contains(AssociationControlServiceElement.REFUSED_BY_THE_VDE_HANDLER)
                     || e.getMessage().contains(AssociationControlServiceElement.ACSE_SERVICE_PROVIDER_NO_REASON_GIVEN)
                     || e.getMessage().contains(AssociationControlServiceElement.ACSE_SERVICE_USER_NO_REASON_GIVEN)
                     ) {
                 //Association already open, retry mechanism in the protocols will be used
-                throw CommunicationException.unexpectedResponse(e);
+                throw DLMSIOExceptionHandler.handle(e, 0);
             } else {
                 //Association failed, abort
-                throw CommunicationException.protocolConnectFailed(e);
+                throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
             }
-           // throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
+            // throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
         } catch (DLMSConnectionException e) {                    //Invalid frame counter
             throw new CommunicationException(MessageSeeds.INCORRECT_FRAMECOUNTER_RECEIVED);
         }
@@ -118,7 +132,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
 
     /**
      * The (optional) responding-AE-qualifier is the certificate of the server for digital signature.
-     * <p/>
+     * <p>
      * If we received the server signing certificate, there's two possible scenario's:
      * - if it was already configured as a general property, compare the certificates, they should match.
      * - if it was not yet configured as a general property, start using the received certificate in this session.
@@ -135,13 +149,13 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                         configuredCertificate = generalCipheringSecurityProvider.getServerSignatureCertificate().getEncoded();
                     } catch (CertificateEncodingException e) {
                         silentDisconnect();
-                        throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString(), "x", "Should be a valid X.509 v3 certificate");
+                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
                     }
 
                     if (!Arrays.equals(acse.getRespondingApplicationEntityQualifier(), configuredCertificate)) {
                         silentDisconnect();
                         ProtocolException protocolException = new ProtocolException("The received server signing certificate does not match the certificate that is configured in the general properties.");
-                        throw ConnectionCommunicationException.protocolConnectFailed(protocolException);
+                        throw new ConnectionCommunicationException(MessageSeeds.AUTHENTICATION_FAILED, protocolException);
                     }
                 }
             }
@@ -156,7 +170,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         } catch (CertificateException e) {
             silentDisconnect();
             ProtocolException protocolException = new ProtocolException("Received an invalid server signing certificate, should be an ASN.1 DER encoded X.509 v3 certificate.");
-            throw ConnectionCommunicationException.unexpectedResponse(protocolException);
+            throw new ConnectionCommunicationException(MessageSeeds.AUTHENTICATION_FAILED, protocolException);
         }
     }
 
@@ -185,7 +199,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             silentDisconnect();
             ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                     ") requires the server to respond with a challenge.");
-            throw CommunicationException.protocolConnectFailed(connectionException);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, connectionException);
         }
 
         switch (this.securityContext.getAuthenticationType()) {
@@ -199,28 +213,28 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 } catch (UnsupportedException e) {
                     throw new ProtocolAuthenticationException(e, MessageSeeds.UNSUPPORTED_AUTHENTICATION_TYPE);
                 } catch (IOException e) {
-                    throw ConnectionCommunicationException.cipheringException(e);
+                    throw new ConnectionCommunicationException(MessageSeeds.AUTHENTICATION_FAILED, e);
                 }
                 // the association object will fail if we don't get a proper response.
                 this.associationStatus = ASSOCIATION_CONNECTED;
                 break;
             case HLS3_MD5: {
-                    plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+                plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
                 decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
-                    analyzeDecryptedResponse(decryptedResponse);
+                analyzeDecryptedResponse(decryptedResponse);
             }
 
             break;
             case HLS4_SHA1: {
-                    plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+                plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
                 decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
-                    analyzeDecryptedResponse(decryptedResponse);
+                analyzeDecryptedResponse(decryptedResponse);
             }
 
             break;
             case HLS5_GMAC: {
-                    decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
-                    analyzeDecryptedResponse(decryptedResponse);
+                decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
+                analyzeDecryptedResponse(decryptedResponse);
             }
             break;
             case HLS6_SHA256: {
@@ -267,17 +281,17 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
 
     private GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
         if (!(this.securityContext.getSecurityProvider() instanceof GeneralCipheringSecurityProvider)) {
-            throw CodingException.protocolImplementationError("General ciphering is not yet supported in the protocol you are using");
+            throw new DeviceConfigurationException(MessageSeeds.UNKNOWN_DEVICE_SECURITY_SUPPORT_CLASS,GeneralCipheringSecurityProvider.class);
         }
         return (GeneralCipheringSecurityProvider) this.securityContext.getSecurityProvider();
     }
 
     private byte[] associationEncryption(byte[] plainText) {
-            try {
+        try {
             return this.securityContext.associationEncryption(plainText);
-            } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw DataEncryptionException.dataEncryptionException(e);
-            }
+        }
     }
 
     /**
@@ -321,17 +335,17 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             if (signing.verify(plainText, serverDigest, serverSignatureCertificate.getPublicKey())) {
                 this.associationStatus = ASSOCIATION_CONNECTED;
                 return;
-        } else {
+            } else {
                 silentDisconnect();
                 ProtocolException protocolException = new ProtocolException("Verification of the received digital signature (HLS7 using ECDSA) using the server signing certificate failed.");
-                throw ConnectionCommunicationException.protocolConnectFailed(protocolException);
-        }
+                throw new ConnectionCommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, protocolException);
+            }
         }
 
         if (!Arrays.equals(calculatedServerDigest, serverDigest)) {
             silentDisconnect();
             IOException ioException = new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
-            throw CommunicationException.protocolConnectFailed(ioException);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, ioException);
         } else {
             this.associationStatus = ASSOCIATION_CONNECTED;
         }
@@ -354,13 +368,13 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 berEncodedData = aln.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
                 silentDisconnect();
-                throw CommunicationException.protocolConnectFailed(e);
+                throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
             } catch (IOException e) {
-                throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
+                throw new ConnectionCommunicationException(getDlmsV2Connection().getMaxTries()+1);
             } catch (ConnectionCommunicationException e) {
-                if (e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_RESPONSE) || e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_PROTOCOL_ERROR)) {
+                if(e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_IO_EXCEPTION) || e.getMessageSeed().equals(com.energyict.mdc.protocol.api.MessageSeeds.UNEXPECTED_PROTOCOL_ERROR)){
                     silentDisconnect();
-            }
+                }
                 throw e;
             }
 
@@ -368,7 +382,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 decryptedResponse = new OctetString(berEncodedData, 0);
             } catch (IOException e) {
                 silentDisconnect();
-                throw CommunicationException.protocolConnectFailed(e);
+                throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
             }
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING)) {    // reply with AssociationSN
@@ -378,9 +392,9 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 response = asn.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
                 silentDisconnect();
-                throw CommunicationException.protocolConnectFailed(e);
+                throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
             } catch (IOException e) {
-                throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
+                throw new ConnectionCommunicationException(getDlmsV2Connection().getMaxTries());
             }
             if (response.length == 0) {
                 return new byte[0];
@@ -389,7 +403,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 decryptedResponse = new OctetString(response, 0);
             } catch (IOException e) {
                 silentDisconnect();
-                throw CommunicationException.protocolConnectFailed(e);
+                throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
             }
         } else {
             throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());
@@ -430,6 +444,6 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             getDlmsV2Connection().disconnectMAC();
         } catch (Exception e) {
             // Absorb exception
-}
+        }
     }
 }

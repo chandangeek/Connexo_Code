@@ -191,7 +191,7 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        // skipping this for now, should be covered by the universal protocol layer ...
+        // TODO skipping this for now, should be covered by the universal protocol layer ...
 //        if (comChannel instanceof ServerComChannel) {
 //            ((ServerComChannel) comChannel).sessionCountersStartWriting();
 //        }

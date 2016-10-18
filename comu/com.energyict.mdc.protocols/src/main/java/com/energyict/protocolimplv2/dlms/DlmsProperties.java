@@ -4,14 +4,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
@@ -43,6 +46,10 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     public static final String SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
     public static final String DEVICE_ID = "DeviceId";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
+    public static final String USE_GBT = "Use-GBT";
+    public static final String GBT_WINDOW_SIZE = "GBT-windowSize";
+    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
+
 
     public static final BigDecimal DEFAULT_UPPER_SERVER_MAC_ADDRESS = BigDecimal.ONE;
     public static final BigDecimal DEFAULT_LOWER_SERVER_MAC_ADDRESS = BigDecimal.ZERO;
@@ -65,6 +72,8 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     public static final Boolean DEFAULT_REQUEST_TIMEZONE = false;
     public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = BigDecimal.ZERO;
     public static final Boolean DEFAULT_FIX_MBUS_HEX_SHORT_ID = false;
+    public static final boolean DEFAULT_ENABLE_GBT = false;
+    public static final BigDecimal DEFAULT_GBT_WINDOW_SIZE = BigDecimal.valueOf(-1);
 
     public enum TranslationKeys implements TranslationKey {
         SERVER_UPPER_MAC_ADDRESS_TK(SERVER_UPPER_MAC_ADDRESS, "Server upper mac address"),
@@ -307,6 +316,31 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     }
 
     @Override
+    public boolean useGeneralBlockTransfer() {
+        return properties.<Boolean>getTypedProperty(USE_GBT, DEFAULT_ENABLE_GBT);
+    }
+
+    @Override
+    public int getGeneralBlockTransferWindowSize() {
+        return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE).intValue();
+    }
+
+    @Override
+    public TimeDuration getPollingDelay() {
+        return new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
+        return true;
+    }
+
+    @Override
+    public boolean incrementFrameCounterForRetries() {
+        return true;    // Protocols who don't want the frame counter to be increased for retries, can override this method
+    }
+
+    @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null && securityPropertySet != null) {
             securityProvider = new NTASecurityProvider(properties, securityPropertySet.getAuthenticationDeviceAccessLevel());
@@ -415,6 +449,17 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     @Override
     public boolean isGeneralSigning() {
         return false;
+    }
+
+    public GeneralCipheringKeyType getGeneralCipheringKeyType() {
+        String keyTypeDescription = properties.getStringProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
+
+        if (keyTypeDescription == null && getCipheringType().equals(CipheringType.GENERAL_CIPHERING)) {
+            //In the case of general-ciphering, the key type is a required property
+            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
+        } else {
+            return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
+        }
     }
 
 }

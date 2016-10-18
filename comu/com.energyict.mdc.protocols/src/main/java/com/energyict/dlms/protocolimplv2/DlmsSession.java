@@ -23,6 +23,7 @@ import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.HDLCConnection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
+import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -193,11 +194,11 @@ public class DlmsSession implements ProtocolLink {
 
                         return clientSigningCertificate.getEncoded();
                     } catch (CertificateEncodingException e) {
-                        throw DeviceConfigurationException.invalidPropertyFormat(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE, "x", "Should be a valid X.509 v3 certificate");
+                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
                     }
                 }
             } else {
-                throw CodingException.protocolImplementationError("General signing is not yet supported in the protocol you are using");
+                throw new DeviceConfigurationException(MessageSeeds.PROTOCOL_IO_PARSE_ERROR);
             }
         }
         return null;
@@ -251,7 +252,7 @@ public class DlmsSession implements ProtocolLink {
         return new SecurityContext(
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
-                getProperties().getSecuritySuite(),
+                0, // security suite 0
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
                 getProperties().getCipheringType().getType(),

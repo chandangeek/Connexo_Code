@@ -71,6 +71,10 @@ abstract public class AbstractDataType {
 		return isFloat64() ? (Float64) this : null;
 	}
 
+	public Float32 getFloat32() {
+		return isFloat32() ? (Float32) this : null;
+	}
+
 	public BooleanObject getBooleanObject() {
 		return isBooleanObject() ? (BooleanObject) this : null;
 	}
@@ -137,6 +141,10 @@ abstract public class AbstractDataType {
 
 	public boolean isInteger16() {
 		return this instanceof Integer16;
+	}
+
+	public boolean isFloat32() {
+		return this instanceof Float32;
 	}
 
 	public boolean isFloat64() {

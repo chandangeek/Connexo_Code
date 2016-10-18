@@ -1,5 +1,6 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 
 /**

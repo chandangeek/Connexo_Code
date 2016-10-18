@@ -31,6 +31,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
@@ -136,7 +137,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return readingTypeUtilService;
     }
 
-    protected CollectedDataFactory getCollectedDataFactory() {
+    public CollectedDataFactory getCollectedDataFactory() {
         return collectedDataFactory;
     }
 
@@ -238,7 +239,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return meterTopology;
     }
 
-    protected Dsmr23RegisterFactory getRegisterFactory() {
+    protected DeviceRegisterSupport getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new Dsmr23RegisterFactory(this, this.issueService, this.readingTypeUtilService, collectedDataFactory, getDlmsProperties().isBulkRequest());
         }

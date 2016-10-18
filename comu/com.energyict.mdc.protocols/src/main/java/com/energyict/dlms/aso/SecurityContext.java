@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
+import com.energyict.mdc.protocol.api.security.ECCCurve;
 import com.energyict.mdc.protocol.api.security.FrameCounterCache;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -18,11 +19,17 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.encryption.AesGcm;
+import com.energyict.encryption.AlgorithmID;
 import com.energyict.encryption.BitVector;
+import com.energyict.encryption.asymetric.keyagreement.KeyAgreement;
+import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
+import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
+import com.energyict.encryption.asymetric.util.KeyUtils;
+import com.energyict.encryption.kdf.KDF;
+import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.sun.org.apache.xml.internal.security.keys.KeyUtils;
 
-import javax.crypto.KeyAgreement;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -32,6 +39,7 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**

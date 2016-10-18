@@ -1,13 +1,14 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 
@@ -19,9 +20,9 @@ import java.io.IOException;
 public class SAPAssignmentItem {
 
     private final int sap;
-    private final String logicalDeviceName;
+    private final byte[] logicalDeviceName;
 
-    public SAPAssignmentItem(int sap, String logicalDeviceName) {
+    public SAPAssignmentItem(int sap, byte[] logicalDeviceName) {
         this.sap = sap;
         this.logicalDeviceName = logicalDeviceName;
     }
@@ -30,14 +31,21 @@ public class SAPAssignmentItem {
         return sap;
     }
 
+    /**
+     * Only use this if the bytes represent ASCII characters
+     */
     public String getLogicalDeviceName() {
+        return new String(logicalDeviceName);
+    }
+
+    public byte[] getLogicalDeviceNameBytes() {
         return logicalDeviceName;
     }
 
     public Structure toStructure() {
         return new Structure(
                 new Unsigned16(sap),
-                OctetString.fromString(logicalDeviceName)
+                OctetString.fromByteArray(logicalDeviceName)
         );
     }
 
@@ -67,7 +75,7 @@ public class SAPAssignmentItem {
         }
         return new SAPAssignmentItem(
                 ((Unsigned16) abstractSapAddress).getValue(),
-                ((OctetString) abstractLogicalDeviceName).stringValue()
+                ((OctetString) abstractLogicalDeviceName).getOctetStr()
         );
     }
 
@@ -76,7 +84,7 @@ public class SAPAssignmentItem {
         final StringBuilder sb = new StringBuilder();
         sb.append("SAPAssignmentItem");
         sb.append("{sap=").append(sap);
-        sb.append(", logicalDeviceName='").append(logicalDeviceName).append('\'');
+        sb.append(", logicalDeviceName='").append(getLogicalDeviceName()).append('\'');
         sb.append('}');
         return sb.toString();
     }
