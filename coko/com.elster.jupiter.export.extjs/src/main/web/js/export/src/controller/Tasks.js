@@ -1119,11 +1119,13 @@ Ext.define('Dxp.controller.Tasks', {
                     destinationsGrid = page.down('#task-destinations-grid'),
                     destinationsStore = destinationsGrid.getStore(),
                     emptyDestinationsLabel = page.down('#noDestinationsLabel');
+                Ext.suspendLayouts();
                 destinationsStore.remove(menu.record);
                 if (destinationsStore.count() === 0) {
                     emptyDestinationsLabel.show();
                     destinationsGrid.hide();
                 }
+                Ext.resumeLayouts(true);
                 break;
             case 'editDestination':
                 me.destinationToEdit = menu.record;
@@ -2123,6 +2125,9 @@ Ext.define('Dxp.controller.Tasks', {
         if (destinationsStore.count() > 0) {
             emptyDestinationsLabel.hide();
             destinationsGrid.show();
+        } else {
+            emptyDestinationsLabel.show();
+            destinationsGrid.hide();
         }
 
         var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
