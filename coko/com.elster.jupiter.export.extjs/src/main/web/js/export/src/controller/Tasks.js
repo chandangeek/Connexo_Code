@@ -267,6 +267,7 @@ Ext.define('Dxp.controller.Tasks', {
 
     showTaskDetailsView: function (currentTaskId) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Dxp.model.DataExportTask'),
             view = Ext.widget('data-export-tasks-details', {
@@ -278,6 +279,7 @@ Ext.define('Dxp.controller.Tasks', {
         me.fromDetails = true;
         me.getApplication().fireEvent('changecontentevent', view);
 
+        mainView.setLoading();
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var detailsForm = view.down('dxp-tasks-preview-form'),
@@ -356,6 +358,9 @@ Ext.define('Dxp.controller.Tasks', {
                     }
                 }
                 Ext.resumeLayouts(true);
+            },
+            callback: function () {
+                mainView.setLoading(false);
             }
         });
     },
