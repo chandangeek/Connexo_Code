@@ -17,11 +17,6 @@ Ext.define('Fim.view.importservices.ActionMenu', {
             privileges: Fim.privileges.DataImport.getAdmin,
             action: 'removeImportService'
         },
-        {
-            itemId: 'view-import-service',
-            text: Uni.I18n.translate('general.viewDetails', 'FIM', 'View details'),
-            action: 'viewImportService'
-        },
 		{
             itemId: 'view-history-import-service',
             text: Uni.I18n.translate('general.viewHistory', 'FIM', 'View history'),

@@ -91,7 +91,10 @@ Ext.define('Fim.controller.Log', {
         var me = this,
             page = me.getPage(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
-            store = me.getStore('Fim.store.Logs');
+            store = me.getStore('Fim.store.Logs'),
+            sorting,
+            menuItem,
+            cls;
 
         sortContainer.removeAll();
         sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
@@ -144,7 +147,8 @@ Ext.define('Fim.controller.Log', {
             router = me.getController('Uni.controller.history.Router'),
             filter = router.filter,
             store = me.getStore('Fim.store.Logs'),
-            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            sortingItem;
 
 
         if (Ext.isArray(sorting)) {
@@ -178,7 +182,8 @@ Ext.define('Fim.controller.Log', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             filter = router.filter,
-            store = me.getStore('Fim.store.Logs');
+            store = me.getStore('Fim.store.Logs'),
+            sorting;
 
         sorting = [];
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));

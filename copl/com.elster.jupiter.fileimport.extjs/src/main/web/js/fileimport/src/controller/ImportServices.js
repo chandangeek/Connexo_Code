@@ -251,7 +251,7 @@ Ext.define('Fim.controller.ImportServices', {
     remove: function (record) {
         var me = this;
 
-        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+        Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.remove', 'FIM', 'Remove')
         }).show({
             title: Ext.String.format(Uni.I18n.translate('importService.remove.title', 'FIM', 'Remove \'{0}\'?'), record.get('name')),
@@ -298,27 +298,25 @@ Ext.define('Fim.controller.ImportServices', {
             deactivate = menu.down('#deactivate-import-service'),
             edit = menu.down('#edit-import-service'),
             remove = menu.down('#remove-import-service'),
-            view = menu.down('#view-import-service'),
+            history = menu.down('#view-history-import-service'),
             active = menu.record.get('active');
 
 
         if (menu.record.get('deleted')) {
             edit && edit.setVisible(false);
             remove && remove.setVisible(false);
-            view && view.setVisible(false);
             activate && activate.setVisible(false);
             deactivate && deactivate.setVisible(false);
         }
         else if (!menu.record.get('importerAvailable')) {
             edit && edit.setVisible(false);
-            view && view.setVisible(false);
             activate && activate.setVisible(false);
             deactivate && deactivate.setVisible(false);
         }
         else {
             edit && edit.setVisible(true);
             remove && remove.setVisible(true);
-            view && view.setVisible(!me.getDetailsImportService());
+            history && history.setVisible(!me.getDetailsImportService());
             activate && activate.setVisible(!active);
             deactivate && deactivate.setVisible(active);
         }
@@ -418,12 +416,6 @@ Ext.define('Fim.controller.ImportServices', {
                 }
             })
         }
-
-/*
-
-*/
-
-
     },
 
     showAddImportService: function () {
@@ -471,7 +463,7 @@ Ext.define('Fim.controller.ImportServices', {
 
     displayInfo: function (panel) {
 
-        infoDialog = Ext.create('widget.window', {
+        var infoDialog = Ext.create('widget.window', {
             title: Uni.I18n.translate('importService.filePatternInfo', 'FIM', 'File pattern info'),
             closable: true,
             overflowY: 'auto',
