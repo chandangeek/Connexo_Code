@@ -7,7 +7,7 @@ Ext.define('Dxp.model.DataExportTask', {
         'Dxp.model.Destination'
     ],
     fields: [
-        'id', 'name', 'dataProcessor', 'dataSelector', 'destinations', 'exportComplete','validatedDataOption', 'application',
+        'id', 'name', 'dataProcessor', 'dataSelector', 'destinations', 'exportComplete', 'validatedDataOption',
         {
             name: 'standardDataSelector',
             defaultValue: null
