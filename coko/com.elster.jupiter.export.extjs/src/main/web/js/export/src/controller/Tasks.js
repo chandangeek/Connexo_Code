@@ -138,7 +138,7 @@ Ext.define('Dxp.controller.Tasks', {
     destinationToEdit: null,
     destinationIndexToEdit: -1,
 
-    requiredFieldText: Uni.I18n.translate('dataExport.requiredField','DES','This field is required'),
+    requiredFieldText: Uni.I18n.translate('dataExport.requiredField', 'DES', 'This field is required'),
 
     deviceTypesStore: null,
     deviceDomainsStore: null,
@@ -294,6 +294,7 @@ Ext.define('Dxp.controller.Tasks', {
                     updatedValuesData = detailsForm.down('#updated-values');
 
                 actionsMenu.record = record;
+                Ext.suspendLayouts();
                 view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
@@ -321,34 +322,40 @@ Ext.define('Dxp.controller.Tasks', {
                     updatedValuesData.setVisible(false);
                     selectorPropertyForm.loadRecord(record.getDataSelector());
 
-                } else if (record.getDataSelector().get('selectorType')==='DEFAULT_READINGS'){
-                    selectorPropertyForm.setVisible(false);
-                    deviceGroup.setVisible(true);
-                    exportPeriod.setVisible(true);
-                    readingTypes.setVisible(true);
-                    eventTypes.setVisible(false);
-                    dataValidation.setVisible(true);
-                    missingData.setVisible(true);
-                    updatedData.setVisible(true);
-                    continuousDataPreview.setVisible(true);
-                    if(record.getData().exportUpdate==='false'){
-                        updatedValuesData.setVisible(false);
-                    } else {
-                        updatedValuesData.setVisible(true);
+                } else {
+                    switch (record.getDataSelector().get('selectorType')) {
+                        case 'DEFAULT_READINGS':
+                            selectorPropertyForm.setVisible(false);
+                            deviceGroup.setVisible(true);
+                            exportPeriod.setVisible(true);
+                            readingTypes.setVisible(true);
+                            eventTypes.setVisible(false);
+                            dataValidation.setVisible(true);
+                            missingData.setVisible(true);
+                            updatedData.setVisible(true);
+                            continuousDataPreview.setVisible(true);
+                            if (record.getData().exportUpdate === 'false') {
+                                updatedValuesData.setVisible(false);
+                            } else {
+                                updatedValuesData.setVisible(true);
+                            }
+                            break;
+                        case 'DEFAULT_EVENTS':
+                            selectorPropertyForm.setVisible(false);
+                            deviceGroup.setVisible(false);
+                            exportPeriod.setVisible(true);
+                            continuousDataPreview.setVisible(false);
+                            readingTypes.setVisible(false);
+                            eventTypes.setVisible(true);
+                            dataValidation.setVisible(false);
+                            missingData.setVisible(false);
+                            updatedData.setVisible(false);
+                            updatedValuesData.setVisible(false);
+                            view.down('#tasks-view-menu').removeDataSourcesMenuItem();
+                            break;
                     }
-                } else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
-                    selectorPropertyForm.setVisible(false);
-                    deviceGroup.setVisible(false);
-                    exportPeriod.setVisible(true);
-                    continuousDataPreview.setVisible(false);
-                    readingTypes.setVisible(false);
-                    eventTypes.setVisible(true);
-                    dataValidation.setVisible(false);
-                    missingData.setVisible(false);
-                    updatedData.setVisible(false);
-                    updatedValuesData.setVisible(false);
-                    view.down('#tasks-view-menu').removeDataSourcesMenuItem();
                 }
+                Ext.resumeLayouts(true);
             }
         });
     },
@@ -373,11 +380,11 @@ Ext.define('Dxp.controller.Tasks', {
             success: function (record) {
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
-                if(record.get('dataSelector').selectorType==='CUSTOM'){
+                if (record.get('dataSelector').selectorType === 'CUSTOM') {
                     view.down('#export-period-column').hide();
                 } else {
                     view.down('#export-period-column').show();
-                    if (record.get('dataSelector').selectorType==='DEFAULT_EVENTS') {
+                    if (record.get('dataSelector').selectorType === 'DEFAULT_EVENTS') {
                         view.down('#tasks-view-menu').removeDataSourcesMenuItem();
                     }
                 }
@@ -427,40 +434,42 @@ Ext.define('Dxp.controller.Tasks', {
                 //updatedData.hide();
                 //updatedValuesData.hide();
                 previewForm.down('#data-selector-properties-preview').loadRecord(record.getTask().getDataSelector());
-            } else if (record.getTask().getDataSelector().get('selectorType')==='DEFAULT_READINGS') {
-                previewForm.down('#data-selector-properties-preview').hide();
-                previewForm.down('#data-selector-deviceGroup-preview').show();
-                previewForm.down('#data-selector-readingTypes-preview').show();
-                previewForm.down('#data-selector-eventTypes-preview').hide();
-                previewForm.down('#data-selector-exportPeriod-preview').show();
-                previewForm.down('#continuousData-preview').show();
-                previewForm.down('#updated-data').show();
-                if(record.getData().task.standardDataSelector.exportUpdate===false){
-                    previewForm.down('#updated-values').hide();
-                } else {
-                    previewForm.down('#updated-values').show();
+            } else {
+                switch (record.getTask().getDataSelector().get('selectorType')) {
+                    case 'DEFAULT_READINGS':
+                        previewForm.down('#data-selector-properties-preview').hide();
+                        previewForm.down('#data-selector-deviceGroup-preview').show();
+                        previewForm.down('#data-selector-readingTypes-preview').show();
+                        previewForm.down('#data-selector-eventTypes-preview').hide();
+                        previewForm.down('#data-selector-exportPeriod-preview').show();
+                        previewForm.down('#continuousData-preview').show();
+                        previewForm.down('#updated-data').show();
+                        if (record.getData().task.standardDataSelector.exportUpdate === false) {
+                            previewForm.down('#updated-values').hide();
+                        } else {
+                            previewForm.down('#updated-values').show();
+                        }
+                        previewForm.down('#data-selector-export-complete').show();
+                        previewForm.down('#data-selector-validated-data').show();
+                        //dataValidation.show();
+                        //missingData.show();
+                        //updatedData.show();
+                        //updatedValuesData.show();
+                        break;
+                    case 'DEFAULT_EVENTS':
+                        previewForm.down('#data-selector-properties-preview').hide();
+                        previewForm.down('#data-selector-deviceGroup-preview').show();
+                        previewForm.down('#data-selector-readingTypes-preview').hide();
+                        previewForm.down('#data-selector-eventTypes-preview').show();
+                        previewForm.down('#data-selector-exportPeriod-preview').show();
+                        previewForm.down('#continuousData-preview').hide();
+                        previewForm.down('#updated-data').hide();
+                        previewForm.down('#updated-values').hide();
+                        previewForm.down('#data-selector-export-complete').hide();
+                        previewForm.down('#data-selector-validated-data').hide();
+                        break;
                 }
-                previewForm.down('#data-selector-export-complete').show();
-                previewForm.down('#data-selector-validated-data').show();
-                //dataValidation.show();
-                //missingData.show();
-                //updatedData.show();
-                //updatedValuesData.show();
-            } else if (record.getTask().getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
-                previewForm.down('#data-selector-properties-preview').hide();
-                previewForm.down('#data-selector-deviceGroup-preview').show();
-                previewForm.down('#data-selector-readingTypes-preview').hide();
-                previewForm.down('#data-selector-eventTypes-preview').show();
-                previewForm.down('#data-selector-exportPeriod-preview').show();
-                previewForm.down('#continuousData-preview').hide();
-                previewForm.down('#updated-data').hide();
-                previewForm.down('#updated-values').hide();
-                previewForm.down('#data-selector-export-complete').hide();
-                previewForm.down('#data-selector-validated-data').hide();
             }
-
-
-
 
             previewForm.loadRecord(record);
 
@@ -489,7 +498,7 @@ Ext.define('Dxp.controller.Tasks', {
         router.getRoute(addReadingTypesRoute).forward();
     },
 
-    populateStores: function() {
+    populateStores: function () {
         var me = this;
         if (me.deviceTypesStore) { // store(s) was/were already loaded previously
             return;
@@ -502,27 +511,27 @@ Ext.define('Dxp.controller.Tasks', {
         me.deviceDomainsStore = Ext.getStore('Dxp.store.DeviceDomains');
         me.deviceSubDomainsStore = Ext.getStore('Dxp.store.DeviceSubDomains');
         me.deviceEventOrActionsStore = Ext.getStore('Dxp.store.DeviceEventOrActions');
-        me.deviceTypesStore.load(function() {
+        me.deviceTypesStore.load(function () {
             me.deviceTypesStore.insert(0, modelEntry);
         });
-        me.deviceDomainsStore.load(function() {
+        me.deviceDomainsStore.load(function () {
             me.deviceDomainsStore.insert(0, modelEntry);
         });
-        me.deviceSubDomainsStore.load(function() {
+        me.deviceSubDomainsStore.load(function () {
             me.deviceSubDomainsStore.insert(0, modelEntry);
         });
-        me.deviceEventOrActionsStore.load(function() {
+        me.deviceEventOrActionsStore.load(function () {
             me.deviceEventOrActionsStore.insert(0, modelEntry);
         });
     },
 
-    showAddEventTypePopUp: function() {
+    showAddEventTypePopUp: function () {
         Ext.create('Dxp.view.tasks.EventTypeWindow', {
             title: Uni.I18n.translate('general.addEventType', 'DES', 'Add event type')
         });
     },
 
-    addEventTypeToTask: function(button){
+    addEventTypeToTask: function (button) {
         if (!this.getEventTypeWindow().isFormValid(this.getEventTypesGrid().getStore())) {
             return;
         }
@@ -552,11 +561,11 @@ Ext.define('Dxp.controller.Tasks', {
         this.doShowAddOrEditDestination(false);
     },
 
-    showEditDestination: function() {
+    showEditDestination: function () {
         this.doShowAddOrEditDestination(true);
     },
 
-    doShowAddOrEditDestination: function(edit) {
+    doShowAddOrEditDestination: function (edit) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             addDestinationRoute = router.currentRoute + '/destination',
@@ -579,49 +588,56 @@ Ext.define('Dxp.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
 
         if (me.destinationToEdit) {
+            Ext.suspendLayouts();
             view.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
             view.down('#save-destination-button').setDisabled(false);
             view.down('#add-destination-form').setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
             me.showAllDestinationAttributes(false);
             var type = me.destinationToEdit.get('type');
-            if (type === 'FILE') {
-                me.showFileDestinationAttributes(true);
-                view.down('#destination-methods-combo').setValue('FILE');
-                view.down('#destination-methods-combo').setDisabled(true);
-                view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
-                view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
-                view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
-            } else if (type === 'EMAIL') {
-                me.showMailDestinationAttributes(true);
-                view.down('#destination-methods-combo').setValue('EMAIL');
-                view.down('#destination-methods-combo').setDisabled(true);
-                view.down('#destination-recipients').setValue(me.destinationToEdit.get('recipients'));
-                view.down('#destination-subject').setValue(me.destinationToEdit.get('subject'));
-                view.down('#destination-attachment-name').setValue(me.destinationToEdit.get('fileName'));
-                view.down('#destination-attachment-extension').setValue(me.destinationToEdit.get('fileExtension'));
-            } else if (type === 'FTP'){
-                me.showFtpDestinationAttributes(true);
-                view.down('#destination-methods-combo').setValue('FTP');
-                view.down('#destination-methods-combo').setDisabled(true);
-                view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
-                view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
-                view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
-                view.down('#hostname').setValue(me.destinationToEdit.get('server'));
-                view.down('#user-field').setValue(me.destinationToEdit.get('user'));
-                view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
-                view.down('#password-field').setValue(me.destinationToEdit.get('password'));
-            }  else if (type === 'FTPS'){
-                me.showFtpDestinationAttributes(true);
-                view.down('#destination-methods-combo').setValue('FTPS');
-                view.down('#destination-methods-combo').setDisabled(true);
-                view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
-                view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
-                view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
-                view.down('#hostname').setValue(me.destinationToEdit.get('server'));
-                view.down('#user-field').setValue(me.destinationToEdit.get('user'));
-                view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
-                view.down('#password-field').setValue(me.destinationToEdit.get('password'));
+            switch (me.destinationToEdit.get('type')) {
+                case 'FILE':
+                    me.showFileDestinationAttributes(true);
+                    view.down('#destination-methods-combo').setValue('FILE');
+                    view.down('#destination-methods-combo').setDisabled(true);
+                    view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                    view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                    view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+                    break;
+                case 'EMAIL':
+                    me.showMailDestinationAttributes(true);
+                    view.down('#destination-methods-combo').setValue('EMAIL');
+                    view.down('#destination-methods-combo').setDisabled(true);
+                    view.down('#destination-recipients').setValue(me.destinationToEdit.get('recipients'));
+                    view.down('#destination-subject').setValue(me.destinationToEdit.get('subject'));
+                    view.down('#destination-attachment-name').setValue(me.destinationToEdit.get('fileName'));
+                    view.down('#destination-attachment-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                    break;
+                case 'FTP':
+                    me.showFtpDestinationAttributes(true);
+                    view.down('#destination-methods-combo').setValue('FTP');
+                    view.down('#destination-methods-combo').setDisabled(true);
+                    view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                    view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                    view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+                    view.down('#hostname').setValue(me.destinationToEdit.get('server'));
+                    view.down('#user-field').setValue(me.destinationToEdit.get('user'));
+                    view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
+                    view.down('#password-field').setValue(me.destinationToEdit.get('password'));
+                    break;
+                case 'FTPS':
+                    me.showFtpDestinationAttributes(true);
+                    view.down('#destination-methods-combo').setValue('FTPS');
+                    view.down('#destination-methods-combo').setDisabled(true);
+                    view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                    view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                    view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+                    view.down('#hostname').setValue(me.destinationToEdit.get('server'));
+                    view.down('#user-field').setValue(me.destinationToEdit.get('user'));
+                    view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
+                    view.down('#password-field').setValue(me.destinationToEdit.get('password'));
+                    break;
             }
+            Ext.resumeLayouts(true);
         } else {
             me.destinationIndexToEdit = -1;
             me.showAllDestinationAttributes(false);
@@ -630,14 +646,17 @@ Ext.define('Dxp.controller.Tasks', {
 
 
     showAllDestinationAttributes: function (visible) {
+        Ext.suspendLayouts();
         this.showFileDestinationAttributes(visible);
         this.showMailDestinationAttributes(visible);
         this.showFtpDestinationAttributes(visible);
+        Ext.resumeLayouts(true);
     },
 
     showFileDestinationAttributes: function (visible) {
         var me = this,
             page = me.getAddDestinationPage();
+        Ext.suspendLayouts();
         page.down('#dxp-file-name-container').setVisible(visible);
         page.down('#destination-file-extension').setVisible(visible);
         page.down('#dxp-file-location-container').setVisible(visible);
@@ -645,11 +664,13 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#dxp-file-name-container').disabled = !visible;
         page.down('#destination-file-extension').disabled = !visible;
         page.down('#dxp-file-location-container').disabled = !visible;
+        Ext.resumeLayouts(true);
     },
 
     showMailDestinationAttributes: function (visible) {
         var me = this,
             page = me.getAddDestinationPage();
+        Ext.suspendLayouts();
         page.down('#dxp-destination-recipients-container').setVisible(visible);
         page.down('#destination-subject').setVisible(visible);
         page.down('#dxp-attachment-name-container').setVisible(visible);
@@ -659,11 +680,13 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#destination-subject').disabled = !visible;
         page.down('#dxp-attachment-name-container').disabled = !visible;
         page.down('#destination-attachment-extension').disabled = !visible;
+        Ext.resumeLayouts(true);
     },
 
-    showFtpDestinationAttributes: function (visible){
+    showFtpDestinationAttributes: function (visible) {
         var me = this,
             page = me.getAddDestinationPage();
+        Ext.suspendLayouts();
         page.down('#dxp-file-name-container').setVisible(visible);
         page.down('#destination-file-extension').setVisible(visible);
         page.down('#dxp-file-location-container').setVisible(visible);
@@ -679,23 +702,30 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#user-field').disabled = !visible;
         page.down('#dxp-port-field').disabled = !visible;
         page.down('#password-field').disabled = !visible;
+        Ext.resumeLayouts(true);
     },
 
     updateDestinationAttributes: function () {
         var me = this,
             page = me.getAddDestinationPage(),
             method = page.down('#destination-methods-combo').getValue();
+        Ext.suspendLayouts();
         me.showAllDestinationAttributes(false);
-        if (method === 'FILE') {
-            me.showFileDestinationAttributes(true);
-            page.down('#destination-file-name').focus(false, 200);
-        } else if (method === 'EMAIL') {
-            me.showMailDestinationAttributes(true);
-            page.down('#destination-recipients').focus(false, 200);
-        } else if (method === 'FTP' || method === 'FTPS') {
-            me.showFtpDestinationAttributes(true);
-            page.down('#hostname').focus(false, 200);
+        switch (method) {
+            case 'FILE':
+                me.showFileDestinationAttributes(true);
+                page.down('#destination-file-name').focus(false, 200);
+                break;
+            case 'EMAIL':
+                me.showMailDestinationAttributes(true);
+                page.down('#destination-recipients').focus(false, 200);
+                break;
+            case 'FTP':
+                me.showFtpDestinationAttributes(true);
+                page.down('#hostname').focus(false, 200);
+                break;
         }
+        Ext.resumeLayouts(true);
     },
 
     showAddExportTask: function () {
@@ -747,7 +777,7 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         dataSelectorCombo.store.load(function () {
-            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name','months'));
+            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name', 'months'));
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
             }
@@ -794,10 +824,11 @@ Ext.define('Dxp.controller.Tasks', {
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
             timeFrameRadioGroup = view.down('#export-updated'),
-            continuousDataRadioGroup =  view.down('#continuous-data-radiogroup')
+            continuousDataRadioGroup = view.down('#continuous-data-radiogroup')
 
         // --- Begin --- Take privileges update vs. update.schedule into account:
         if (Dxp.privileges.DataExport.canUpdateSchedule() && !Dxp.privileges.DataExport.canUpdateFull()) {
+            Ext.suspendLayouts();
             view.down('#task-name').setDisabled(true);
             view.down('#dxp-data-selector-container').setDisabled(true);
             view.down('#device-group-container').setDisabled(true);
@@ -815,6 +846,7 @@ Ext.define('Dxp.controller.Tasks', {
             view.down('grouped-property-form').setDisabled(true);
             view.down('#destinationsFieldcontainer').setDisabled(true);
             view.down('#task-destinations-grid').setDisabled(true);
+            Ext.resumeLayouts(true);
         }
         // ---  End  ---
 
@@ -831,6 +863,7 @@ Ext.define('Dxp.controller.Tasks', {
                 taskModel.load(taskId, {
                     success: function (record) {
                         var destinations = record.get('destinations');
+                        Ext.suspendLayouts();
                         if (record.destinationsStore.count() > 0) {
                             emptyDestinationsLabel.hide();
                             destinationsGrid.store.add(record.destinations().data.items);
@@ -842,7 +875,7 @@ Ext.define('Dxp.controller.Tasks', {
                         dataSelectorCombo.store.load({
                             callback: function () {
                                 dataSelectorCombo.setValue(dataSelectorCombo.store.getById(record.getDataSelector().data.name));
-                                if (record.getDataSelector().get('selectorType')==='CUSTOM') {
+                                if (record.getDataSelector().get('selectorType') === 'CUSTOM') {
                                     taskForm.down('#data-selector-properties').loadRecord(record.getDataSelector());
                                 }
                             }
@@ -850,101 +883,109 @@ Ext.define('Dxp.controller.Tasks', {
                         var schedule = record.get('schedule');
                         me.taskModel = record;
                         me.getApplication().fireEvent('dataexporttaskload', record);
-                        taskForm.setTitle(Uni.I18n.translate('general.editx', 'DES', "Edit '{0}'",[record.get('name')]));
+                        taskForm.setTitle(Uni.I18n.translate('general.editx', 'DES', "Edit '{0}'", [record.get('name')]));
                         if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                             me.setFormValues(view);
                         } else {
                             taskForm.loadRecord(record);
 
-                            if (record.getDataSelector().get('selectorType')==='DEFAULT_READINGS') {
+                            switch (record.getDataSelector().get('selectorType')) {
+                                case 'DEFAULT_READINGS':
+                                    var taskReadingTypes = record.getStandardDataSelector().get('readingTypes'),
+                                        readingTypesGrid = view.down('#readingTypesGridPanel');
 
-                                var taskReadingTypes = record.getStandardDataSelector().get('readingTypes'),
-                                    readingTypesGrid = view.down('#readingTypesGridPanel');
+                                    readingTypesGrid.getStore().removeAll();
+                                    Ext.each(taskReadingTypes, function (readingType) {
+                                        readingTypesGrid.getStore().add({readingType: readingType})
+                                    });
+                                    view.updateReadingTypesGrid();
 
-                                readingTypesGrid.getStore().removeAll();
-                                Ext.each(taskReadingTypes, function (readingType) {
-                                    readingTypesGrid.getStore().add({readingType: readingType})
-                                });
-                                view.updateReadingTypesGrid();
-
-                                exportPeriodCombo.store.load({
-                                    params: {
-                                        category: 'relativeperiod.category.dataExport'
-                                    },
-                                    callback: function () {
-                                        exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
-                                    }
-                                });
-                                updateWindowCombo.store.load({
-                                    params: {
-                                        category: 'relativeperiod.category.updateWindow'
-                                    },
-                                    callback: function () {
-                                        if(record.getStandardDataSelector().data.updatePeriod && record.getStandardDataSelector().data.updatePeriod.id!==0){
-                                            updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
-                                            updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
+                                    exportPeriodCombo.store.load({
+                                        params: {
+                                            category: 'relativeperiod.category.dataExport'
+                                        },
+                                        callback: function () {
+                                            exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
                                         }
-                                    }
-                                });
-                                timeframeCombo.store.load({
-                                    params: {
-                                        category: 'relativeperiod.category.updateTimeframe'
-                                    },
-                                    callback: function () {
-                                        if(record.getStandardDataSelector().data.updateWindow){
-                                            timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updateWindow.id));
-                                            timeFrameRadioGroup.setValue({updatedDataAndOrAdjacentData: true});
+                                    });
+                                    updateWindowCombo.store.load({
+                                        params: {
+                                            category: 'relativeperiod.category.updateWindow'
+                                        },
+                                        callback: function () {
+                                            if (record.getStandardDataSelector().data.updatePeriod && record.getStandardDataSelector().data.updatePeriod.id !== 0) {
+                                                Ext.suspendLayouts();
+                                                updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
+                                                updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
+                                                Ext.resumeLayouts(true);
+                                            }
                                         }
+                                    });
+                                    timeframeCombo.store.load({
+                                        params: {
+                                            category: 'relativeperiod.category.updateTimeframe'
+                                        },
+                                        callback: function () {
+                                            if (record.getStandardDataSelector().data.updateWindow) {
+                                                Ext.suspendLayouts();
+                                                timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updateWindow.id));
+                                                timeFrameRadioGroup.setValue({updatedDataAndOrAdjacentData: true});
+                                                Ext.resumeLayouts(true);
+                                            }
 
 
-                                    }
-                                });
-
-                                deviceGroupCombo.store.load({
-                                    callback: function () {
-                                        if (this.getCount() === 0) {
-                                            deviceGroupCombo.allowBlank = true;
-                                            deviceGroupCombo.hide();
-                                            view.down('#no-device').show();
                                         }
-                                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
-                                    }
-                                });
-                                missingData.setValue({exportComplete: record.getStandardDataSelector().get('exportComplete')});
+                                    });
 
-                                continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
-
-                            }
-                            else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS'){
-                                var eventTypes = record.getStandardDataSelector().get('eventTypeCodes'),
-                                    eventTypesGrid = view.down('#eventTypesGridPanel');
-
-                                eventTypesGrid.getStore().removeAll();
-                                Ext.each(eventTypes, function (eventType) {
-                                    me.fillInDisplayNames(eventType);
-                                    eventTypesGrid.getStore().add(eventType);
-                                });
-                                view.updateEventTypesGrid();
-
-                                exportPeriodCombo.store.load({
-                                    params: {
-                                        category: 'relativeperiod.category.dataExport'
-                                    },
-                                    callback: function () {
-                                        exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
-                                    }
-                                });
-                                deviceGroupCombo.store.load({
-                                    callback: function () {
-                                        if (this.getCount() === 0) {
-                                            deviceGroupCombo.allowBlank = true;
-                                            deviceGroupCombo.hide();
-                                            view.down('#no-device').show();
+                                    deviceGroupCombo.store.load({
+                                        callback: function () {
+                                            Ext.suspendLayouts();
+                                            if (this.getCount() === 0) {
+                                                deviceGroupCombo.allowBlank = true;
+                                                deviceGroupCombo.hide();
+                                                view.down('#no-device').show();
+                                            }
+                                            deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
+                                            Ext.resumeLayouts(true);
                                         }
-                                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
-                                    }
-                                });
-                                continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
+                                    });
+                                    missingData.setValue({exportComplete: record.getStandardDataSelector().get('exportComplete')});
+
+                                    continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
+                                    break;
+                                case 'DEFAULT_EVENTS':
+                                    var eventTypes = record.getStandardDataSelector().get('eventTypeCodes'),
+                                        eventTypesGrid = view.down('#eventTypesGridPanel');
+
+                                    eventTypesGrid.getStore().removeAll();
+                                    Ext.each(eventTypes, function (eventType) {
+                                        me.fillInDisplayNames(eventType);
+                                        eventTypesGrid.getStore().add(eventType);
+                                    });
+                                    view.updateEventTypesGrid();
+
+                                    exportPeriodCombo.store.load({
+                                        params: {
+                                            category: 'relativeperiod.category.dataExport'
+                                        },
+                                        callback: function () {
+                                            exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
+                                        }
+                                    });
+                                    deviceGroupCombo.store.load({
+                                        callback: function () {
+                                            if (this.getCount() === 0) {
+                                                deviceGroupCombo.allowBlank = true;
+                                                Ext.suspendLayouts();
+                                                deviceGroupCombo.hide();
+                                                view.down('#no-device').show();
+                                                Ext.resumeLayouts(true);
+                                            }
+                                            deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
+                                        }
+                                    });
+                                    continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
+                                    break;
                             }
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                             if (record.data.nextRun && (record.data.nextRun !== 0)) {
@@ -960,12 +1001,11 @@ Ext.define('Dxp.controller.Tasks', {
                             if (record.getDataProcessor().properties() && record.getDataProcessor().properties().count()) {
                                 taskForm.down('grouped-property-form').loadRecord(record.getDataProcessor());
                             }
-
-
                         }
                         me.recurrenceEnableDisable();
                         me.updatedDataEnableDisable();
                         me.exportUpdatedEnableDisabled();
+                        Ext.resumeLayouts(true);
                         view.setLoading(false);
                     }
 
@@ -1035,7 +1075,7 @@ Ext.define('Dxp.controller.Tasks', {
             updatedData.hide();
             updatedValuesData.hide();
             selectorPropertyForm.loadRecord(record.getDataSelector());
-        } else if (record.getDataSelector().get('selectorType')==='DEFAULT_READINGS') {
+        } else if (record.getDataSelector().get('selectorType') === 'DEFAULT_READINGS') {
             selectorPropertyForm.hide();
             deviceGroup.show();
             exportPeriod.show();
@@ -1045,12 +1085,12 @@ Ext.define('Dxp.controller.Tasks', {
             dataValidation.show();
             missingData.show();
             updatedData.show();
-            if(record.getData().standardDataSelector.exportUpdate===false){
+            if (record.getData().standardDataSelector.exportUpdate === false) {
                 updatedValuesData.hide();
             } else {
                 updatedValuesData.show();
             }
-        } else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
+        } else if (record.getDataSelector().get('selectorType') === 'DEFAULT_EVENTS') {
             selectorPropertyForm.hide();
             deviceGroup.show();
             exportPeriod.show();
@@ -1063,8 +1103,7 @@ Ext.define('Dxp.controller.Tasks', {
             updatedValuesData.hide();
         }
 
-
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     },
 
     chooseDestinationAction: function (menu, item) {
@@ -1154,7 +1193,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('dataExportTasks.runMsg', 'DES', 'The data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runDataExportTaskx', 'DES', "Run data export task {0}?",[record.data.name])
+            title: Uni.I18n.translate('general.runDataExportTaskx', 'DES', "Run data export task {0}?", [record.data.name])
         });
     },
 
@@ -1218,7 +1257,7 @@ Ext.define('Dxp.controller.Tasks', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?',[record.data.name]),
+            title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?', [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -1303,82 +1342,94 @@ Ext.define('Dxp.controller.Tasks', {
 
         if (!me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues') ||
             me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')['readingTypeDataSelector.value.dataSelector'] != newValue) {
-                me.getStore('Dxp.store.Clipboard').removeAll(true);
-                formatterCombo.store.load({
-                    scope: me,
-                    params: {
-                        selector: newValue
-                    },
-                    callback: function (record) {
-                        if (!page.edit) {
-                            formatterCombo.setValue(formatterCombo.store.getCount() == 1 ? formatterCombo.store.getAt(0) : null);
-                        }
+            me.getStore('Dxp.store.Clipboard').removeAll(true);
+            formatterCombo.store.load({
+                scope: me,
+                params: {
+                    selector: newValue
+                },
+                callback: function (record) {
+                    if (!page.edit) {
+                        formatterCombo.setValue(formatterCombo.store.getCount() == 1 ? formatterCombo.store.getAt(0) : null);
                     }
-                });
-        };
+                }
+            });
+        }
+
+        Ext.suspendLayouts();
         formatterContainer.show();
         formatterTitle.show();
         formatterCombo.show();
-        if (record.get('selectorType')==='DEFAULT_READINGS') {
-            me.showReadingTypeDataSelectorProperties();
-        } else if (record.get('selectorType')==='DEFAULT_EVENTS') {
-            me.showEventTypeDataSelectorProperties();
-        } else {
-            me.hideDefaultDataSelectorProperties(true);
-            if (record && record.properties() && record.properties().count()) {
-                propertyForm.addEditPage = true;
-                propertyForm.loadRecord(record);
-                propertyForm.show();
-            } else {
-                propertyForm.hide();
-            }
+        switch (record.get('selectorType')) {
+            case 'DEFAULT_READINGS':
+                me.showReadingTypeDataSelectorProperties();
+                break;
+            case 'DEFAULT_EVENTS':
+                me.showEventTypeDataSelectorProperties();
+                break;
+            default:
+                me.hideDefaultDataSelectorProperties(true);
+                if (record && record.properties() && record.properties().count()) {
+                    propertyForm.addEditPage = true;
+                    propertyForm.loadRecord(record);
+                    propertyForm.show();
+                } else {
+                    propertyForm.hide();
+                }
         }
+        Ext.resumeLayouts(true);
     },
 
-    xOrFunction: function(a,b) {
+    xOrFunction: function (a, b) {
         return ( a || b ) && !( a && b );
     },
 
-    changeFormatterTooltip: function(tooltip, formatterType) {
-        if (formatterType === 'standardCsvDataProcessorFactory') {
-            tooltip.setVisible(true);
-            tooltip.setTooltip(
-                Ext.String.format(
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip', 'DES', 'The export file contains 5 columns')
-                    + ':<br>'
-                    + '<div style="text-indent: 40px">{0}</div>'
-                    + '<div style="text-indent: 40px">{1}</div>'
-                    + '<div style="text-indent: 40px">{2}</div>'
-                    + '<div style="text-indent: 40px">{3}</div>'
-                    + '<div style="text-indent: 40px">{4}</div>',
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col1', 'DES', 'Interval timestamp (YYYY-MM-DDThh:mm:ss.sTZD)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'Device MRID (text)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')));
-        } else if (formatterType === 'standardCsvEventDataProcessorFactory') {
-            tooltip.setVisible(true);
-            tooltip.setTooltip(
-                Ext.String.format(
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip2', 'DES', 'The export file contains 3 columns')
-                    + ':<br>'
-                    + '<div style="text-indent: 40px">{0}</div>'
-                    + '<div style="text-indent: 40px">{1}</div>'
-                    + '<div style="text-indent: 40px">{2}</div>'
-                    + '<div style="text-indent: 40px">{3}</div>'
-                    + '<div style="text-indent: 40px">{4}</div>',
-                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col1', 'DES', 'Event date (YYYY-MM-DDThh:mm:ss.sTZD)'),
-                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col2', 'DES', 'Event type (text)'),
-                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device MRID (text)')));
-        } else {
-            tooltip.setTooltip('');
-            tooltip.setVisible(false);
+    changeFormatterTooltip: function (tooltip, formatterType) {
+        Ext.suspendLayouts();
+        switch (formatterType) {
+            case 'standardCsvDataProcessorFactory':
+                tooltip.setVisible(true);
+                tooltip.setTooltip(
+                    Ext.String.format(
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip', 'DES', 'The export file contains 5 columns')
+                        + ':<br>'
+                        + '<div style="text-indent: 40px">{0}</div>'
+                        + '<div style="text-indent: 40px">{1}</div>'
+                        + '<div style="text-indent: 40px">{2}</div>'
+                        + '<div style="text-indent: 40px">{3}</div>'
+                        + '<div style="text-indent: 40px">{4}</div>',
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col1', 'DES', 'Interval timestamp (YYYY-MM-DDThh:mm:ss.sTZD)'),
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'Device MRID (text)'),
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')));
+                break;
+            case 'standardCsvEventDataProcessorFactory':
+                tooltip.setVisible(true);
+                tooltip.setTooltip(
+                    Ext.String.format(
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip2', 'DES', 'The export file contains 3 columns')
+                        + ':<br>'
+                        + '<div style="text-indent: 40px">{0}</div>'
+                        + '<div style="text-indent: 40px">{1}</div>'
+                        + '<div style="text-indent: 40px">{2}</div>'
+                        + '<div style="text-indent: 40px">{3}</div>'
+                        + '<div style="text-indent: 40px">{4}</div>',
+                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col1', 'DES', 'Event date (YYYY-MM-DDThh:mm:ss.sTZD)'),
+                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col2', 'DES', 'Event type (text)'),
+                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device MRID (text)')));
+                break;
+            default:
+                tooltip.setTooltip('');
+                tooltip.setVisible(false);
         }
+        Ext.resumeLayouts(true);
     },
 
     showReadingTypeDataSelectorProperties: function () {
         var me = this;
         var page = me.getAddPage();
+        Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
         page.down('#readingTypesFieldContainer').setVisible(true);
         page.down('#eventTypesFieldContainer').setVisible(false);
@@ -1391,11 +1442,13 @@ Ext.define('Dxp.controller.Tasks', {
 
         me.updatedDataEnableDisable();
         me.exportUpdatedEnableDisabled();
+        Ext.resumeLayouts(true);
     },
 
     showEventTypeDataSelectorProperties: function (hidden) {
         var me = this;
         var page = me.getAddPage();
+        Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
         page.down('#readingTypesFieldContainer').setVisible(false);
         page.down('#eventTypesFieldContainer').setVisible(true);
@@ -1405,11 +1458,13 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-export-complete').setVisible(false);
         page.down('#updated-data-container').setVisible(false);
         page.down('#continuous-data-container').setVisible(false);
+        Ext.resumeLayouts(true);
     },
 
     hideDefaultDataSelectorProperties: function () {
         var me = this;
         var page = me.getAddPage();
+        Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(false);
         page.down('#readingTypesFieldContainer').setVisible(false);
         page.down('#eventTypesFieldContainer').setVisible(false);
@@ -1419,6 +1474,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-export-complete').setVisible(false);
         page.down('#updated-data-container').setVisible(false);
         page.down('#continuous-data-container').setVisible(false);
+        Ext.resumeLayouts(true);
     },
 
 
@@ -1429,8 +1485,8 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = page.down('grouped-property-form'),
             tooltip = page.down('#file-formatter-info');
 
-        if(record!==null){
-            me.changeFormatterTooltip(tooltip,record.get('name'));
+        if (record !== null) {
+            me.changeFormatterTooltip(tooltip, record.get('name'));
         }
 
         if (record && record.properties() && record.properties().count()) {
@@ -1465,14 +1521,14 @@ Ext.define('Dxp.controller.Tasks', {
             return;
         }
 
-        if(me.destinationToEdit){
+        if (me.destinationToEdit) {
             id = me.destinationToEdit.get('id');
         }
         me.destinationToEdit = null;
-        me.doAddDestinationToGrid(button,id);
+        me.doAddDestinationToGrid(button, id);
     },
 
-    doAddDestinationToGrid: function (button,id) {
+    doAddDestinationToGrid: function (button, id) {
         var me = this;
 
         if (me.destinationToEdit) { //edit destination was cancelled, add the old one again
@@ -1487,44 +1543,47 @@ Ext.define('Dxp.controller.Tasks', {
                 destinationModel,
                 formValues = form.getForm().getValues();
 
-                if (methodComboBoxValue === 'FILE') {
+            switch (methodComboBoxValue) {
+                case 'FILE':
                     //tooltip & method duplicated from destination model, have not found another way!
                     destinationModel = Ext.create('Dxp.model.Destination', {
-                        id: id?id:undefined,
+                        id: id ? id : undefined,
                         type: 'FILE',
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
                         fileLocation: formValues['fileLocation'],
-                        method: Uni.I18n.translate('destination.file','DES','Save file'),
+                        method: Uni.I18n.translate('destination.file', 'DES', 'Save file'),
                         destination: formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
                         tooltiptext: Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation'])) + '<br>'
-                            + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
-                            + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
-                            + ': ' + formValues['fileExtension']
-                    })
-                } else if (methodComboBoxValue === 'EMAIL') {
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation'])) + '<br>'
+                        + Uni.I18n.translate('general.fileName', 'DES', 'File name')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
+                        + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
+                        + ': ' + formValues['fileExtension']
+                    });
+                    break;
+                case 'EMAIL':
                     destinationModel = Ext.create('Dxp.model.Destination', {
-                        id: id?id:undefined,
+                        id: id ? id : undefined,
                         type: 'EMAIL',
                         fileName: formValues['attachmentName'],
                         fileExtension: formValues['attachmentExtension'],
                         recipients: formValues['recipients'],
                         subject: formValues['subject'],
-                        method: Uni.I18n.translate('destination.email','DES','Mail'),
+                        method: Uni.I18n.translate('destination.email', 'DES', 'Mail'),
                         destination: formValues['recipients'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients')
-                            + ': ' + formValues['recipients'] + '<br>'
-                            + Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '<br>'
-                            + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['attachmentName'])) + '<br>'
-                            + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
-                            + ': ' + formValues['attachmentExtension']
-                    })
-                } else if (methodComboBoxValue === 'FTP') {
+                        + ': ' + formValues['recipients'] + '<br>'
+                        + Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '<br>'
+                        + Uni.I18n.translate('general.fileName', 'DES', 'File name')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['attachmentName'])) + '<br>'
+                        + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
+                        + ': ' + formValues['attachmentExtension']
+                    });
+                    break;
+                case 'FTP':
                     destinationModel = Ext.create('Dxp.model.Destination', {
-                        id: id?id:undefined,
+                        id: id ? id : undefined,
                         type: 'FTP',
                         server: formValues['server'],
                         user: formValues['user'],
@@ -1533,22 +1592,23 @@ Ext.define('Dxp.controller.Tasks', {
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
                         fileLocation: formValues['fileLocation'],
-                        method: Uni.I18n.translate('destination.ftp','DES','FTP'),
+                        method: Uni.I18n.translate('destination.ftp', 'DES', 'FTP'),
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server')
-                            + ': ' + formValues['server'] + '<br>'
-                            + Uni.I18n.translate('general.port', 'DES', 'Port') + ': ' + formValues['port'] + '<br>'
-                            + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
-                            + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
-                            + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
-                            + ': ' + formValues['fileExtension'] + '<br>'
-                            + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation']))
-                    })
-                } else if (methodComboBoxValue === 'FTPS') {
+                        + ': ' + formValues['server'] + '<br>'
+                        + Uni.I18n.translate('general.port', 'DES', 'Port') + ': ' + formValues['port'] + '<br>'
+                        + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
+                        + Uni.I18n.translate('general.fileName', 'DES', 'File name')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
+                        + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
+                        + ': ' + formValues['fileExtension'] + '<br>'
+                        + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation']))
+                    });
+                    break;
+                case 'FTPS':
                     destinationModel = Ext.create('Dxp.model.Destination', {
-                        id: id?id:undefined,
+                        id: id ? id : undefined,
                         type: 'FTPS',
                         server: formValues['server'],
                         user: formValues['user'],
@@ -1557,7 +1617,7 @@ Ext.define('Dxp.controller.Tasks', {
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
                         fileLocation: formValues['fileLocation'],
-                        method: Uni.I18n.translate('destination.ftps','DES','FTPS'),
+                        method: Uni.I18n.translate('destination.ftps', 'DES', 'FTPS'),
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpsServer', 'DES', 'FTPS server')
                         + ': ' + formValues['server'] + '<br>'
@@ -1569,10 +1629,12 @@ Ext.define('Dxp.controller.Tasks', {
                         + ': ' + formValues['fileExtension'] + '<br>'
                         + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
                         + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation']))
-                    })
-                }
-                me.destinationsArray.push(destinationModel);
-                me.forwardToPreviousPage();
+                    });
+                    break;
+            }
+
+            me.destinationsArray.push(destinationModel);
+            me.forwardToPreviousPage();
 
         }
     },
@@ -1580,6 +1642,7 @@ Ext.define('Dxp.controller.Tasks', {
 
     addTask: function (button) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             page = me.getAddPage(),
             form = page.down('#add-data-export-task-form'),
             formErrorsPanel = form.down('#form-errors'),
@@ -1595,8 +1658,13 @@ Ext.define('Dxp.controller.Tasks', {
             minutes;
 
         propertyForm.updateRecord();
+
         var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
-        var emptyReadingTypes = (selectedDataSelector) && (selectedDataSelector.get('selectorType')==='DEFAULT_READINGS') && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
+        var emptyReadingTypes = (selectedDataSelector)
+            && (selectedDataSelector.get('selectorType') === 'DEFAULT_READINGS')
+            && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
+
+        Ext.suspendLayouts();
         if (emptyReadingTypes) {
             form.down('#readingTypesFieldContainer').setActiveError(me.requiredFieldText);
         } else {
@@ -1605,7 +1673,9 @@ Ext.define('Dxp.controller.Tasks', {
         form.down('#readingTypesFieldContainer').doComponentLayout();
 
 
-        var emptyEventTypes = (selectedDataSelector) && (selectedDataSelector.get('selectorType')==='DEFAULT_EVENTS') && (page.down('#eventTypesGridPanel').getStore().data.items.length == 0);
+        var emptyEventTypes = (selectedDataSelector)
+            && (selectedDataSelector.get('selectorType') === 'DEFAULT_EVENTS')
+            && (page.down('#eventTypesGridPanel').getStore().data.items.length == 0);
         me.validateEventsGrid(emptyEventTypes);
         form.down('#eventTypesFieldContainer').doComponentLayout();
 
@@ -1650,12 +1720,12 @@ Ext.define('Dxp.controller.Tasks', {
             form.down('#export-periods-container').doComponentLayout();
         }
         form.down('#dxp-data-selector-container').doComponentLayout();
+        Ext.resumeLayouts(true);
 
-
-        if ( form.isValid() && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) &&
-             (!noFormatterChosen) && (!noDataSelectorChosen) &&
-             (!selectedExportWindow || selectedDataSelector.get('selectorType')==='CUSTOM') &&
-             (!noDeviceGroupChosen || selectedDataSelector.get('selectorType')==='CUSTOM')
+        if (form.isValid() && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) &&
+            (!noFormatterChosen) && (!noDataSelectorChosen) &&
+            (!selectedExportWindow || selectedDataSelector.get('selectorType') === 'CUSTOM') &&
+            (!noDeviceGroupChosen || selectedDataSelector.get('selectorType') === 'CUSTOM')
         ) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
@@ -1668,8 +1738,6 @@ Ext.define('Dxp.controller.Tasks', {
                 formErrorsPanel.hide();
                 form.down('#readingTypesGridPanel').removeCls('error-border');
             }
-
-
 
             record.set('name', form.down('#task-name').getValue());
 
@@ -1776,8 +1844,6 @@ Ext.define('Dxp.controller.Tasks', {
                 record.getDataProcessor().propertiesStore = propertyForm.getRecord().properties();
             }
 
-
-
             //record.set('dataProcessor', {
             //    name: form.down('#file-formatter-combo').getValue()
             //});
@@ -1788,67 +1854,69 @@ Ext.define('Dxp.controller.Tasks', {
             });
             record.setDataSelector(selectorModel);
 
-            if (selectedDataSelector.get('selectorType')==='DEFAULT_READINGS') {
+            switch (selectedDataSelector.get('selectorType')) {
+                case 'DEFAULT_READINGS':
+                    record.setStandardDataSelector(null);
+                    readingTypesStore.each(function (record) {
+                        arrReadingTypes.push(record.getData().readingType);
+                    });
+                    var timeFrameValue = form.down('#export-updated').getValue().updatedDataAndOrAdjacentData;
 
-                record.setStandardDataSelector(null);
-                readingTypesStore.each(function (record) {
-                    arrReadingTypes.push(record.getData().readingType);
-                });
-                var timeFrameValue = form.down('#export-updated').getValue().updatedDataAndOrAdjacentData;
-
-                record.set('standardDataSelector', {
-                    deviceGroup: {
-                        id: form.down('#device-group-combo').getValue(),
-                        name: form.down('#device-group-combo').getRawValue()
-                    },
-                    exportPeriod: {
-                        id: form.down('#export-period-combo').getValue(),
-                        name: form.down('#export-period-combo').getRawValue()
-                    },
-                    exportComplete: form.down('#data-selector-export-complete').getValue().exportComplete,
-                    validatedDataOption: form.down('#data-selector-validated-data').getValue().validatedDataOption,
-                    exportUpdate: form.down('#updated-data-trigger').getValue().exportUpdate,
-                    updatePeriod: {
-                        id: form.down('#update-window').getValue(),
-                        name: form.down('#update-window').getRawValue()
-                    },
-                    exportAdjacentData: timeFrameValue,
-                    updateWindow: timeFrameValue?{
-                        id: form.down('#timeFrame').getValue(),
-                        name: form.down('#timeFrame').getRawValue()
-                    }:{},
-                    exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
-                    readingTypes: arrReadingTypes
-                });
-            } else if (selectedDataSelector.get('selectorType')==='DEFAULT_EVENTS'){
-                record.setStandardDataSelector(null);
-                eventTypesStore.each(function (record) {
-                    arrEventTypes.push({eventFilterCode: record.getData().eventFilterCode});
-                });
-                record.set('standardDataSelector', {
-                    deviceGroup: {
-                        id: form.down('#device-group-combo').getValue(),
-                        name: form.down('#device-group-combo').getRawValue()
-                    },
-                    exportPeriod: {
-                        id: form.down('#export-period-combo').getValue(),
-                        name: form.down('#export-period-combo').getRawValue()
-                    },
-                    exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
-                    eventTypeCodes: arrEventTypes
-                });
-            } else {
-                record.set('standardDataSelector', null);
-                selectorPropertyForm.updateRecord();
-                record.getDataSelector().propertiesStore = selectorPropertyForm.getRecord().properties();
+                    record.set('standardDataSelector', {
+                        deviceGroup: {
+                            id: form.down('#device-group-combo').getValue(),
+                            name: form.down('#device-group-combo').getRawValue()
+                        },
+                        exportPeriod: {
+                            id: form.down('#export-period-combo').getValue(),
+                            name: form.down('#export-period-combo').getRawValue()
+                        },
+                        exportComplete: form.down('#data-selector-export-complete').getValue().exportComplete,
+                        validatedDataOption: form.down('#data-selector-validated-data').getValue().validatedDataOption,
+                        exportUpdate: form.down('#updated-data-trigger').getValue().exportUpdate,
+                        updatePeriod: {
+                            id: form.down('#update-window').getValue(),
+                            name: form.down('#update-window').getRawValue()
+                        },
+                        exportAdjacentData: timeFrameValue,
+                        updateWindow: timeFrameValue ? {
+                            id: form.down('#timeFrame').getValue(),
+                            name: form.down('#timeFrame').getRawValue()
+                        } : {},
+                        exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
+                        readingTypes: arrReadingTypes
+                    });
+                    break;
+                case 'DEFAULT_EVENTS':
+                    record.setStandardDataSelector(null);
+                    eventTypesStore.each(function (record) {
+                        arrEventTypes.push({eventFilterCode: record.getData().eventFilterCode});
+                    });
+                    record.set('standardDataSelector', {
+                        deviceGroup: {
+                            id: form.down('#device-group-combo').getValue(),
+                            name: form.down('#device-group-combo').getRawValue()
+                        },
+                        exportPeriod: {
+                            id: form.down('#export-period-combo').getValue(),
+                            name: form.down('#export-period-combo').getRawValue()
+                        },
+                        exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
+                        eventTypeCodes: arrEventTypes
+                    });
+                    break;
+                default:
+                    record.set('standardDataSelector', null);
+                    selectorPropertyForm.updateRecord();
+                    record.getDataSelector().propertiesStore = selectorPropertyForm.getRecord().properties();
             }
+
             record.destinations();
             record.destinationsStore.removeAll();
             record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
 
-            record.set('application', Uni.util.Application.getAppName());
-
             record.endEdit();
+            mainView.setLoading();
             record.save({
                 backUrl: button.action === 'editTask' && me.fromDetails
                     ? me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: record.getId()})
@@ -1868,9 +1936,14 @@ Ext.define('Dxp.controller.Tasks', {
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
+                        Ext.suspendLayouts();
                         form.getForm().markInvalid(json.errors);
                         formErrorsPanel.show();
+                        Ext.resumeLayouts(true);
                     }
+                },
+                callback: function () {
+                    mainView.setLoading(false);
                 }
             })
         } else {
@@ -1878,16 +1951,18 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    validateEventsGrid: function(emptyEventTypes) {
+    validateEventsGrid: function (emptyEventTypes) {
         var me = this,
             page = me.getAddPage(),
             form = page.down('#add-data-export-task-form');
+        Ext.suspendLayouts();
         if (emptyEventTypes) {
             form.down('#eventTypesFieldContainer').setActiveError(me.requiredFieldText);
         } else {
             form.down('#eventTypesFieldContainer').unsetActiveError();
         }
         form.down('#eventTypesFieldContainer').doComponentLayout();
+        Ext.resumeLayouts(true);
     },
 
     forwardToPreviousPage: function () {
@@ -1957,7 +2032,7 @@ Ext.define('Dxp.controller.Tasks', {
             storeDestinations.push(record);
         });
 
-        eventTypesStore.each(function(record){
+        eventTypesStore.each(function (record) {
             eventTypes.push(record);
         });
 
@@ -1973,7 +2048,7 @@ Ext.define('Dxp.controller.Tasks', {
             obj = me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues'),
             page = me.getAddPage(),
             readingTypesArray = obj.readingTypes,
-            destinationsArray = obj.destinations
+            destinationsArray = obj.destinations,
             eventTypesArray = obj.eventTypes,
             readingTypesGrid = page.down('#readingTypesGridPanel'),
             destinationsGrid = page.down('#task-destinations-grid'),
@@ -1985,7 +2060,7 @@ Ext.define('Dxp.controller.Tasks', {
             evenTypesStore = eventTypesGrid.getStore(),
             formatterStore = page.down('#file-formatter-combo').getStore();
 
-
+        Ext.suspendLayouts();
         gridStore.removeAll();
         destinationsStore.removeAll();
         evenTypesStore.removeAll();
@@ -2062,12 +2137,11 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#updated-data-trigger').setValue({exportUpdate: formModel.get('exportUpdate')});
         view.down('#update-window').setValue(formModel.get('updateWindow'));
         view.down('#export-updated').setValue({updatedDataAndOrAdjacentData: formModel.get('updatedDataAndOrAdjacentData')});
-        if(formModel.get('updateTimeFrame')){
+        if (formModel.get('updateTimeFrame')) {
             view.down('#timeFrame').setValue(formModel.get('updateTimeFrame'));
         }
-        view.down('#continuous-data-radiogroup').setValue({exportContinuousData:formModel.get('exportContinuousData')});
+        view.down('#continuous-data-radiogroup').setValue({exportContinuousData: formModel.get('exportContinuousData')});
 
-        Ext.suspendLayouts();
         Ext.Array.each(view.down('#data-selector-properties').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {
                 formItem.setValue(obj[formItem.name]);
@@ -2158,17 +2232,17 @@ Ext.define('Dxp.controller.Tasks', {
             method: 'PUT',
             jsonData: sendingData,
             success: function (response1) {
-                if(page.down('#updated-data-trigger').getValue().exportUpdate && updatePeriodId !== null && updatePeriodId!=''){
+                if (page.down('#updated-data-trigger').getValue().exportUpdate && updatePeriodId !== null && updatePeriodId != '') {
                     Ext.Ajax.request({
                         url: '/api/tmr/relativeperiods/' + updatePeriodId + '/preview',
                         method: 'PUT',
                         jsonData: sendingData,
                         success: function (response2) {
-                            me.populatePreview(i,scheduleRecords,response1,response2, fieldEventParams);
+                            me.populatePreview(i, scheduleRecords, response1, response2, fieldEventParams);
                         }
                     });
                 } else {
-                    me.populatePreview(i,scheduleRecords,response1, undefined, fieldEventParams);
+                    me.populatePreview(i, scheduleRecords, response1, undefined, fieldEventParams);
                 }
             }
         });
@@ -2195,7 +2269,7 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    populatePreview: function(i,scheduleRecords,response1,response2, fieldEventParams){
+    populatePreview: function (i, scheduleRecords, response1, response2, fieldEventParams) {
         var me = this,
             obj = Ext.decode(response1.responseText, true),
             scheduleRecord = Ext.create('Dxp.model.SchedulePeriod'),
@@ -2216,7 +2290,7 @@ Ext.define('Dxp.controller.Tasks', {
             startUpdateLong,
             zoneUpdateOffset,
             endUpdateLong;
-        if(response2){
+        if (response2) {
             obj2 = Ext.decode(response2.responseText, true);
             startUpdateLong = obj2.start.date;
             zoneUpdateOffset = obj2.start.zoneOffset || obj2.end.zoneOffset;
@@ -2247,11 +2321,13 @@ Ext.define('Dxp.controller.Tasks', {
                 endUpdateDateUtc = endUpdateDate.getTime() + (endUpdateDate.getTimezoneOffset() * 60000);
             endZonedUpdateDate = endUpdateDateUtc - (60000 * zoneUpdateOffset);
         }
+        scheduleRecord.beginEdit();
         scheduleRecord.set('schedule', moment(startOnDate).add(everyAmount * i, everyTimeKey).valueOf());
         scheduleRecord.set('start', startZonedDate);
         scheduleRecord.set('end', endZonedDate);
         scheduleRecord.set('updateStart', startZonedUpdateDate);
         scheduleRecord.set('updateEnd', endZonedUpdateDate);
+        scheduleRecord.endEdit();
         scheduleRecords.push(scheduleRecord);
         if (i < 4) {
             i++;
@@ -2262,7 +2338,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    fillInDisplayNames: function(eventType /*type: EventTypeForAddTaskGrid*/ ) {
+    fillInDisplayNames: function (eventType /*type: EventTypeForAddTaskGrid*/) {
         eventType.deviceTypeName = this.getEventTypePartDisplayName(1, eventType.eventFilterCode);
         eventType.deviceDomainName = this.getEventTypePartDisplayName(2, eventType.eventFilterCode);
         eventType.deviceSubDomainName = this.getEventTypePartDisplayName(3, eventType.eventFilterCode);
@@ -2270,21 +2346,29 @@ Ext.define('Dxp.controller.Tasks', {
         return eventType;
     },
 
-    getEventTypePartDisplayName: function(partNr, eventTypeAsString) {
+    getEventTypePartDisplayName: function (partNr, eventTypeAsString) {
         var me = this,
             store,
             parts = eventTypeAsString.split('.'),
             selectedValue;
 
-        if (parts[partNr-1] === '*') {
+        if (parts[partNr - 1] === '*') {
             return '*';
         }
-        selectedValue = parseInt(parts[partNr-1]);
+        selectedValue = parseInt(parts[partNr - 1]);
         switch (partNr) {
-            case 1: store = me.deviceTypesStore; break;
-            case 2: store = me.deviceDomainsStore; break;
-            case 3: store = me.deviceSubDomainsStore; break;
-            case 4: store = me.deviceEventOrActionsStore; break;
+            case 1:
+                store = me.deviceTypesStore;
+                break;
+            case 2:
+                store = me.deviceDomainsStore;
+                break;
+            case 3:
+                store = me.deviceSubDomainsStore;
+                break;
+            case 4:
+                store = me.deviceEventOrActionsStore;
+                break;
         }
         var index = store.findExact('value', selectedValue);
         if (index === -1) { // shouldn't be the case, though
@@ -2297,49 +2381,49 @@ Ext.define('Dxp.controller.Tasks', {
         return record.get('displayName');
     },
 
-    exportUpdatedEnableDisabled: function() {
+    exportUpdatedEnableDisabled: function () {
         var me = this,
             page = me.getAddPage();
-        if(!page.down('#export-updated').getValue().updatedDataAndOrAdjacentData) {
+        if (!page.down('#export-updated').getValue().updatedDataAndOrAdjacentData) {
             page.down('#timeFrame').disable();
         } else {
             page.down('#timeFrame').enable();
         }
     },
 
-    updatedDataEnableDisable: function() {
+    updatedDataEnableDisable: function () {
         var me = this,
             page = me.getAddPage();
-        if(!page.down('#updated-data-trigger').getValue().exportUpdate) {
+        if (!page.down('#updated-data-trigger').getValue().exportUpdate) {
             page.down('#update-window').disable();
         } else {
             page.down('#update-window').enable();
         }
     },
 
-    recurrenceEnableDisable: function() {
+    recurrenceEnableDisable: function () {
         var me = this,
             page = me.getAddPage();
-        if(!page.down('#recurrence-trigger').getValue().recurrence) {
+        if (!page.down('#recurrence-trigger').getValue().recurrence) {
             page.down('#recurrence-values').disable();
         } else {
             page.down('#recurrence-values').enable();
         }
     },
 
-    recurrenceChange: function(field, newValue, oldValue) {
+    recurrenceChange: function (field, newValue, oldValue) {
         var me = this;
         me.onRecurrenceTriggerChange(field, newValue, oldValue);
         me.recurrenceEnableDisable();
     },
 
-    updatedDataChange: function() {
+    updatedDataChange: function () {
         var me = this;
         me.updatedDataEnableDisable();
         me.fillScheduleGridOrNot();
     },
 
-    showSelectedReadingTypes: function(){
+    showSelectedReadingTypes: function () {
         var me = this;
         var widget = Ext.widget('dataExportSelectedReadingTypes');
         widget.setTitle(me.setCountOfSelectedReadingTypes());
@@ -2350,7 +2434,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             grid = me.getAddReadingTypesToTaskBulk();
         cmp.getSelectionCounter().setText(me.setCountOfSelectedReadingTypes());
-        if(grid.hiddenSelection.length){
+        if (grid.hiddenSelection.length) {
             cmp.getuncheckAllBtn().setDisabled(false);
             cmp.getInfoBtn().show();
         } else {
@@ -2359,15 +2443,15 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    setCountOfSelectedReadingTypes: function(){
+    setCountOfSelectedReadingTypes: function () {
         var me = this,
             grid = me.getAddReadingTypesToTaskBulk();
         return grid.counterTextFn(grid.hiddenSelection.length)
     },
 
-    uncheckAll: function(){
+    uncheckAll: function () {
         var me = this,
             grid = me.getAddReadingTypesToTaskBulk();
-        grid.getUncheckAllButton().fireEvent('click',grid.getUncheckAllButton());
+        grid.getUncheckAllButton().fireEvent('click', grid.getUncheckAllButton());
     }
 });
