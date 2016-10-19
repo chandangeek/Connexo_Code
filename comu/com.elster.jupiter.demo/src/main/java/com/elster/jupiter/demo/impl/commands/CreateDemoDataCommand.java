@@ -106,7 +106,6 @@ public class CreateDemoDataCommand {
         command.setComServerName(this.comServerName);
         command.setHost(this.host);
         command.setDevicesPerType(this.devicesPerType);
-        command.setSpatialCoordinates(geoCoordinates);
         command.run();
     }
 

@@ -1,0 +1,108 @@
+package com.elster.jupiter.demo.impl.commands;
+
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.Constants;
+import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.MetrologyConfigurationTpl;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.util.units.Unit;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+
+import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+
+public class CreateUsagePointsForDevicesCommand {
+
+    private final DeviceService deviceService;
+    private final MeteringService meteringService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final Clock clock;
+
+    private static int newUsagePointId = 0;
+    private List<Device> devices;
+
+    @Inject
+    public CreateUsagePointsForDevicesCommand(DeviceService deviceService,
+                                              MeteringService meteringService,
+                                              MetrologyConfigurationService metrologyConfigurationService,
+                                              Clock clock) {
+        this.deviceService = deviceService;
+        this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
+        this.clock = clock;
+    }
+
+    public void setDevices(List<Device> devices) {
+        this.devices = Collections.unmodifiableList(devices);
+    }
+
+    public void run() {
+        getDeviceList().forEach(this::accept);
+    }
+
+    private List<Device> getDeviceList() {
+        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+    }
+
+    private void accept(Device device) {
+        UsagePoint usagePoint = device.getUsagePoint().isPresent() ? device.getUsagePoint().get() :
+                Builders.from(UsagePointBuilder.class)
+                        .withMRID(newMRID()).withName(device.getName())
+                        .withInstallationTime(clock.instant())
+                        .withLocation(device.getLocation().orElse(null))
+                        .withGeoCoordinates(device.getSpatialCoordinates().orElse(null)).get();
+        usagePoint.forCustomProperties().getPropertySetsOnServiceCategory().stream()
+                .filter(cps -> "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension".equals(cps.getCustomPropertySet().getId()))
+                .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant())));
+        usagePoint.forCustomProperties().getAllPropertySets().stream()
+                .filter(cps -> "com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE".equals(cps.getCustomPropertySet().getId()))
+                .forEach(cps -> cps.setValues(getUsagePointTechnicalInstallationDomainExtensionValues()));
+        if (device.getDeviceConfiguration().getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
+            usagePoint.apply(Builders.from(MetrologyConfigurationTpl.CONSUMER).get());
+        } else {
+            usagePoint.apply(Builders.from(MetrologyConfigurationTpl.PROSUMER).get());
+        }
+        setUsagePoint(device, usagePoint);
+    }
+
+    private CustomPropertySetValues getUsagePointGeneralDomainExtensionValues(Instant from) {
+        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(from);
+        values.setProperty("prepay", false);
+        values.setProperty("marketCodeSector", "Domestic");
+        values.setProperty("meteringPointType", "E17 - Consumption");
+        return values;
+    }
+
+    private CustomPropertySetValues getUsagePointTechnicalInstallationDomainExtensionValues() {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty("substationDistance", Unit.METER.amount(BigDecimal.ZERO));
+        return values;
+    }
+
+    private String newMRID() {
+        return String.format("UP_%04d", ++newUsagePointId);
+    }
+
+    private void setUsagePoint(Device device, UsagePoint usagePoint) {
+        if (!device.getUsagePoint().isPresent()) {
+            this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
+                    .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()))
+                    .ifPresent(mtr -> usagePoint.linkMeters()
+                            .activate(mtr, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                            .complete());
+        }
+    }
+}

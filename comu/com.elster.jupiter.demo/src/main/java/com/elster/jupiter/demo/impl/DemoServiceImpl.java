@@ -3,6 +3,7 @@ package com.elster.jupiter.demo.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
 import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
@@ -51,7 +52,6 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -116,6 +116,7 @@ import java.time.Clock;
         "osgi.command.function=createDemoUser",
         "osgi.command.function=createDataLogger",
         "osgi.command.function=importCalendar",
+        "osgi.command.function=setDeviceLocations",
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -746,9 +747,6 @@ public class DemoServiceImpl {
             CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
-            if (!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")) {
-                command.setGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue("40.7922408:-74.4462162:0"));
-            }
             if (numberOfDevicesPerType != null) {
                 command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
             }
@@ -934,5 +932,10 @@ public class DemoServiceImpl {
                 throw new UnableToCreate("Import failed with error: " + e.getLocalizedMessage());
             }
         });
+    }
+
+    @SuppressWarnings("unused")
+    public void setDeviceLocations() {
+        executeTransaction(() -> this.injector.getInstance(AddLocationInfoToDevicesCommand.class).run());
     }
 }
