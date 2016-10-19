@@ -5,7 +5,6 @@ import com.elster.jupiter.calendar.Calendar;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
@@ -23,8 +22,6 @@ public class CodeObject implements Serializable {
     private int interval;
     private boolean verified;
     private boolean rebuilt;
-    private TimeZone destinationTimeZone;
-    private TimeZone definitionTimeZone;
     private SeasonSetObject seasonSet;
 
     private List<CodeDayTypeObject> dayTypes = new ArrayList<>();
@@ -43,8 +40,6 @@ public class CodeObject implements Serializable {
         co.setInterval(900);
         co.setVerified(true);
         co.setRebuilt(true);
-        co.setDestinationTimeZone(calendar.getTimeZone());
-        co.setDefinitionTimeZone(calendar.getTimeZone());
         co.setSeasonSet(SeasonSetObject.from(calendar));
         co.setDayTypes(calendar.getDayTypes().stream().map(CodeDayTypeObject::from).collect(Collectors.toList()));
         co.setCalendars(CodeCalendarObject.allFrom(calendar));
@@ -122,22 +117,6 @@ public class CodeObject implements Serializable {
 
     public void setDayTypes(List<CodeDayTypeObject> dayTypes) {
         this.dayTypes = dayTypes;
-    }
-
-    public TimeZone getDefinitionTimeZone() {
-        return definitionTimeZone;
-    }
-
-    public void setDefinitionTimeZone(TimeZone definitionTimeZone) {
-        this.definitionTimeZone = definitionTimeZone;
-    }
-
-    public TimeZone getDestinationTimeZone() {
-        return destinationTimeZone;
-    }
-
-    public void setDestinationTimeZone(TimeZone destinationTimeZone) {
-        this.destinationTimeZone = destinationTimeZone;
     }
 
     public String getExternalName() {
@@ -238,8 +217,6 @@ public class CodeObject implements Serializable {
                ", interval=" + interval +
                ", verified=" + verified +
                ", rebuilt=" + rebuilt +
-               ", destinationTimeZone=" + destinationTimeZone +
-               ", definitionTimeZone=" + definitionTimeZone +
                ", seasonSet=" + seasonSet +
                ", dayTypes=" + dayTypes +
                '}';

@@ -18,7 +18,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.time.ZoneId;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -120,8 +123,8 @@ public class CodeTableXmlParsing {
              This way we can track the calendars in the devices
               */
             root.appendChild(createSingleElement(document, rootActCalendarName, name));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calendar.getTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calendar.getTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, ZoneId.systemDefault().getDisplayName(TextStyle.FULL, Locale.getDefault())));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, ZoneId.systemDefault().getDisplayName(TextStyle.FULL, Locale.getDefault())));
             /* Todo: Extract the hard code 15 min to a parameter for this method.
                      Calling context, i.e. the protocol or a protocol adapater
                      may need to access the available reading types,
