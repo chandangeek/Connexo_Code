@@ -256,6 +256,7 @@ public class DemoServiceImpl {
         setCalendarService(calendarService);
         setPlatformTaskService(platformTaskService);
         setDataCollectionKpiService(dataCollectionKpiService);
+        setDataValidationKpiService(dataValidationKpiService);
         activate();
         reThrowEx = true;
     }

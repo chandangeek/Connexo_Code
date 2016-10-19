@@ -42,7 +42,10 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -50,14 +53,20 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class CreateCollectRemoteDataSetupCommand {
     public static final int VALIDATION_STRICT_DEVICE_COUNT = 21;
     private final LicenseService licenseService;
     private final MeteringService meteringService;
+    private final DeviceService deviceService;
     private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
@@ -96,6 +105,7 @@ public class CreateCollectRemoteDataSetupCommand {
     public CreateCollectRemoteDataSetupCommand(
             LicenseService licenseService,
             MeteringService meteringService,
+            DeviceService deviceService,
             Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
@@ -105,6 +115,7 @@ public class CreateCollectRemoteDataSetupCommand {
             Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider) {
         this.licenseService = licenseService;
         this.meteringService = meteringService;
+        this.deviceService = deviceService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
@@ -148,6 +159,23 @@ public class CreateCollectRemoteDataSetupCommand {
         createDeviceGroups();
         createDataCollectionKpi();
         createDataValidationKpi();
+        corruptDeviceSettingsForIssueManagement();
+    }
+
+    private void corruptDeviceSettingsForIssueManagement() {
+        List<Device> devices = deviceService.deviceQuery()
+                .select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*")
+                        .and(where("deviceConfiguration.name").in(Arrays.asList(DeviceConfigurationTpl.PROSUMERS.getName(), DeviceConfigurationTpl.CONSUMERS.getName()))));
+        Set<String> devicesWithCorruptedConnectionSettings = new HashSet<>();
+        for (int i = 0; i < 5; i++) {
+            int devicePosition = (int) ((devices.size() - 1) * Math.random());
+            devices.get(devicePosition).getScheduledConnectionTasks().forEach(connectionTask -> {
+                connectionTask.setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "UNKNOWN");
+                connectionTask.save();
+            });
+            devicesWithCorruptedConnectionSettings.add(devices.get(devicePosition).getmRID());
+        }
+        System.out.println("=> Devices with corrupted connection settings: " + devicesWithCorruptedConnectionSettings.stream().collect(Collectors.joining(", ")));
     }
 
     private void parametersCheck() {
