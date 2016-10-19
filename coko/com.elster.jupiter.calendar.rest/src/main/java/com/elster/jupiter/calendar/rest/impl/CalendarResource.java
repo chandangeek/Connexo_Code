@@ -55,7 +55,7 @@ public class CalendarResource {
             calendarFilter.setStatus(status);
         }
         if (filter.hasProperty("category")) {
-            Category category = calendarService.findCategoryByName(filter.getString("status"))
+            Category category = calendarService.findCategoryByName(filter.getString("category"))
                     .orElseThrow(IllegalArgumentException::new);
             calendarFilter.setCategory(category);
         }
