@@ -1,9 +1,6 @@
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
@@ -20,15 +17,14 @@ public class CreateDemoDataCommand {
     private final Provider<CreateUserManagementCommand> createUserManagementCommandProvider;
     private final Provider<CreateApplicationServerCommand> createApplicationServerCommandProvider;
     private final Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider;
-    private final Provider<UploadAllCommand> uploadAllCommandProvider;
     private final Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider;
     private final Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider;
-    private final Provider<CreateDeviceCommand> createDeviceCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
     private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
     private final Provider<CreateDemoUserCommand> createDemoUserCommandProvider;
     private final Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider;
     private final Provider<CreateImportersCommand> createImportersCommandProvider;
+    private final Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider;
 
     private String comServerName;
     private String host;
@@ -43,28 +39,26 @@ public class CreateDemoDataCommand {
             Provider<CreateUserManagementCommand> createUserManagementCommandProvider,
             Provider<CreateApplicationServerCommand> createApplicationServerCommandProvider,
             Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider,
-            Provider<UploadAllCommand> uploadAllCommandProvider,
             Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
             Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider,
-            Provider<CreateDeviceCommand> createDeviceCommandProvider,
             Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
             Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
             Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
             Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
+            Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider,
             Provider<CreateImportersCommand> createImportersCommandProvider) {
         this.createCollectRemoteDataSetupCommandProvider = createCollectRemoteDataSetupCommandProvider;
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
         this.createApplicationServerCommandProvider = createApplicationServerCommandProvider;
         this.createNtaConfigCommandProvider = createNtaConfigCommandProvider;
-        this.uploadAllCommandProvider = uploadAllCommandProvider;
         this.createValidationSetupCommandProvider = createValidationSetupCommandProvider;
         this.createEstimationSetupCommandProvider = createEstimationSetupCommandProvider;
-        this.createDeviceCommandProvider = createDeviceCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
         this.validateStartDateCommandProvider = validateStartDateCommandProvider;
         this.createDemoUserCommandProvider = createDemoUserCommandProvider;
         this.setupFirmwareManagementCommandProvider = setupFirmwareManagementCommandProvider;
         this.createImportersCommandProvider = createImportersCommandProvider;
+        this.createDataLoggerSetupCommandProvider = createDataLoggerSetupCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -106,10 +100,8 @@ public class CreateDemoDataCommand {
         createValidationSetupCommand();
         createEstimationSetupCommand();
         createNtaConfigCommand();
-        createMockedDataDeviceCommand();
         createDeliverDataSetupCommand();
-
-        uploadAllData();
+        createDataLoggerSetupCommand();
     }
 
     private void validateStartDateCommand() {
@@ -177,19 +169,6 @@ public class CreateDemoDataCommand {
         command.run();
     }
 
-    private void createMockedDataDeviceCommand() {
-        CreateDeviceCommand command = this.createDeviceCommandProvider.get();
-        command.setSerialNumber("093000020359");
-        command.setMridPrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
-        command.run();
-    }
-
-    private void uploadAllData() {
-        UploadAllCommand command = this.uploadAllCommandProvider.get();
-        command.setStartDate(this.startDate);
-        command.run();
-    }
-
     private void createDeliverDataSetupCommand() {
         CreateDeliverDataSetupCommand createDeliverDataSetupCommand = this.createDeliverDataSetupCommandProvider.get();
         createDeliverDataSetupCommand.run();
@@ -206,5 +185,13 @@ public class CreateDemoDataCommand {
         CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
         importersCommand.setAppServerName(this.comServerName);
         importersCommand.run();
+    }
+
+    private void createDataLoggerSetupCommand() {
+        CreateDataLoggerSetupCommand createDataLoggerSetupCommand = this.createDataLoggerSetupCommandProvider.get();
+        createDataLoggerSetupCommand.setDataLoggerMrid("DL099000000000");
+        createDataLoggerSetupCommand.setDataLoggerSerial("099000000000");
+        createDataLoggerSetupCommand.setNumberOfSlaves(1);
+        createDataLoggerSetupCommand.run();
     }
 }

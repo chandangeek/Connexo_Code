@@ -25,12 +25,10 @@ import java.util.List;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class CreateValidationSetupCommand {
-    public static final String MOCKED_VALIDATION_DEVICE_MRID_PREFIX = Constants.Device.MOCKED_VALIDATION_DEVICE;
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
     private final Clock clock;
-    private final Provider<CreateValidationDeviceCommand> createValidationDeviceCommandProvider;
 
     private ValidationRuleSet validationRuleSet;
     private ValidationRuleSet strictValidationRuleSet;
@@ -44,13 +42,11 @@ public class CreateValidationSetupCommand {
         this.deviceConfigurationService = deviceConfigurationService;
         this.clock = clock;
         this.deviceService = deviceService;
-        this.createValidationDeviceCommandProvider = createValidationDeviceCommandProvider;
     }
 
     public void run() {
         createValidationTask();
         createValidationRuleSet();
-        createValidationDevice();
         addValidationToDeviceConfigurations();
         addValidationToDevices();
     }
@@ -70,13 +66,6 @@ public class CreateValidationSetupCommand {
                 .get();
     }
 
-    private void createValidationDevice() {
-        CreateValidationDeviceCommand command = this.createValidationDeviceCommandProvider.get();
-        command.setMridPrefix(MOCKED_VALIDATION_DEVICE_MRID_PREFIX);
-        command.setSerialNumber("085600010352"); // TODO
-        command.run();
-    }
-
     private void addValidationToDeviceConfigurations() {
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet)
                 .stream()
@@ -92,8 +81,7 @@ public class CreateValidationSetupCommand {
     }
 
     private void addValidationToDevices() {
-        List<Device> devices = deviceService.deviceQuery().select(where("mRID").like(MOCKED_VALIDATION_DEVICE_MRID_PREFIX + "*")
-                .or(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*")));
+        List<Device> devices = deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
         System.out.println("==> Validation will be activated for " + devices.size() + " devices");
         DeviceType elsterA1800DeviceType = Builders.from(DeviceTypeTpl.Elster_A1800).get();
         Instant now = this.clock.instant();
