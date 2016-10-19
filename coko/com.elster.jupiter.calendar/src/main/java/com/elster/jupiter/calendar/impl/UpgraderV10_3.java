@@ -19,5 +19,16 @@ class UpgraderV10_3 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 3));
+
+        createNewCategories();
     }
+
+    private void createNewCategories() {
+        for (OutOfTheBoxCategory outOfTheBoxCategory : new OutOfTheBoxCategory[] {OutOfTheBoxCategory.WORKFORCE, OutOfTheBoxCategory.COMMANDS}) {
+            CategoryImpl category = this.dataModel.getInstance(CategoryImpl.class);
+            category.init(outOfTheBoxCategory.getDefaultDisplayName());
+            category.save();
+        }
+    }
+
 }

@@ -5,7 +5,6 @@
 package com.elster.jupiter.calendar.impl.importers;
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.impl.xmlbinding.DayType;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
 import com.elster.jupiter.calendar.impl.xmlbinding.FixedOccurrence;
@@ -19,23 +18,20 @@ import com.elster.jupiter.nls.Thesaurus;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TimeZone;
 
 /**
  * Created by igh on 10/05/2016.
  */
 public class CalendarFactory {
 
-    private final CalendarService service;
+    private final CalendarService calendarService;
     private final Thesaurus thesaurus;
 
     private com.elster.jupiter.calendar.impl.xmlbinding.Calendar calendar;
@@ -44,24 +40,25 @@ public class CalendarFactory {
     private Map<BigInteger, String> periods;
 
     @Inject
-    public CalendarFactory(CalendarService service, Thesaurus thesaurus) {
-        this.service = service;
+    public CalendarFactory(CalendarService calendarService, Thesaurus thesaurus) {
+        this.calendarService = calendarService;
         this.thesaurus = thesaurus;
     }
 
     public com.elster.jupiter.calendar.Calendar getCalendar(com.elster.jupiter.calendar.impl.xmlbinding.Calendar calendar) {
         this.calendar = calendar;
 
-        CalendarService.CalendarBuilder builder = service.findCalendarByMRID(calendar.getMRID())
+        calendarService.findCategoryByName(calendar.getCategory())
+                .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory()));
+
+        CalendarService.CalendarBuilder builder = calendarService.findCalendarByMRID(calendar.getMRID())
                 .map(c -> c.redefine()
                         .name(getCalendarName())
-                        .timeZone(getTimeZone())
                         .startYear(getStartYear())
                         .description(getDescription())
                         .mRID(getMRID()))
-                .orElseGet(() -> service.newCalendar(
+                .orElseGet(() -> calendarService.newCalendar(
                         getCalendarName(),
-                        getTimeZone(),
                         getStartYear())
                         .description(getDescription()).mRID(getMRID()));
 
@@ -111,10 +108,10 @@ public class CalendarFactory {
         boolean recurring = transitions.isRecurring();
         for (Transition transition : transitions.getTransition()) {
             if (recurring && (transition.getYear() != null)) {
-                throw new CalendarParserException(thesaurus, MessageSeeds.YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS);
+                throw new YearNotAllowedForRecurringTransitions(thesaurus);
             }
             if (!recurring && (transition.getYear() == null)) {
-                throw new CalendarParserException(thesaurus, MessageSeeds.YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS);
+                throw new YearRequiredForNotRecurringTransitions(thesaurus);
             }
             if (transition.getYear() != null) {
                 builder.on(LocalDate.of(transition.getYear().intValue(), transition.getMonth().intValue(), transition.getDay().intValue()))
@@ -153,20 +150,18 @@ public class CalendarFactory {
 
     private int getEventCode(Event event) {
         Object code = findProperty(event, "code");
-        try {
+        if (code instanceof BigInteger) {
             return ((BigInteger) code).intValue();
-        } catch (ClassCastException e) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.INVALID_EVENT_CODE, code);
         }
+        throw new InvalidEventCode(thesaurus, code);
     }
 
     private BigInteger getEventId(Event event) {
-        Object code = findProperty(event, "id");
-        try {
-            return (BigInteger) code;
-        } catch (ClassCastException e) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.INVALID_EVENT_ID, code);
+        Object id = findProperty(event, "id");
+        if (id instanceof BigInteger) {
+            return (BigInteger) id;
         }
+        throw new InvalidEventId(thesaurus, id);
     }
 
     private Object findProperty(Event event, String name) {
@@ -174,7 +169,7 @@ public class CalendarFactory {
                 .filter(e -> ((JAXBElement) e).getName().toString().equals(name))
                 .map(e -> ((JAXBElement) e).getValue()).findFirst();
         if (!result.isPresent()) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.PROPERTY_NOT_FOUND_ON_EVENT, name);
+            throw new PropertyNotFoundOnEvent(thesaurus, name);
         }
         return result.get();
     }
@@ -186,30 +181,18 @@ public class CalendarFactory {
     private String getCalendarName() {
         String calendarName = calendar.getName();
         if (isEmpty(calendarName)) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.MISSING_CALENAR_NAME);
+            throw new MissingCalendarName(thesaurus);
         }
         return calendarName;
-    }
-
-    private TimeZone getTimeZone() {
-        String timeZoneName = calendar.getTimezone();
-        if (isEmpty(timeZoneName)) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.MISSING_TIMEZONE);
-        }
-        try {
-            return TimeZone.getTimeZone(ZoneId.of(timeZoneName));
-        } catch (DateTimeException e) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.NO_TIMEZONE_FOUND_WITH_ID, timeZoneName);
-        }
     }
 
     private Year getStartYear() {
         BigInteger startYear = calendar.getStartYear();
         if (startYear == null)  {
-            throw new CalendarParserException(thesaurus, MessageSeeds.MISSING_STARTYEAR);
+            throw new MissingStartYear(thesaurus);
         }
         if (startYear.equals(BigInteger.ZERO)) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.STARTYEAR_CANNOT_BE_ZERO);
+            throw new StartYearCannotBeZero(thesaurus);
         }
         return Year.of(startYear.intValue());
     }
@@ -225,7 +208,7 @@ public class CalendarFactory {
     private String getDayTypeNameById(BigInteger id) {
         String dayTypeName = dayTypes.get(id);
         if (dayTypeName == null) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.NO_DAYTYPE_DEFINED_WITH_ID, id.intValue());
+            throw new NoDayTypeForId(thesaurus, id.intValue());
         }
         return dayTypeName;
     }
@@ -233,7 +216,7 @@ public class CalendarFactory {
     private String getPeriodNameById(BigInteger id) {
         String periodName = periods.get(id);
         if (periodName == null) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.NO_PERIOD_DEFINED_WITH_ID, id.intValue());
+            throw new NoPeriodForId(thesaurus, id.intValue());
         }
         return periodName;
     }
@@ -241,7 +224,7 @@ public class CalendarFactory {
     private String getEventNameById(BigInteger id) {
         String eventName = events.get(id);
         if (eventName == null) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.NO_EVENT_DEFINED_WITH_ID, id.intValue());
+            throw new NoEventWithId(thesaurus, id.intValue());
         }
         return eventName;
     }

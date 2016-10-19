@@ -1,0 +1,11 @@
+package com.elster.jupiter.calendar.impl.importers;
+
+import com.elster.jupiter.calendar.MessageSeeds;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+
+class NoPeriodForId extends LocalizedException {
+    NoPeriodForId(Thesaurus thesaurus, int id) {
+        super(thesaurus, MessageSeeds.NO_PERIOD_DEFINED_WITH_ID, id);
+    }
+}

@@ -23,7 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     JAXB_FAILED(2002, Constants.JAXB_FAILED, "JAXB error occurred."),
     PROPERTY_NOT_FOUND_ON_EVENT(2003, Constants.PROPERTY_NOT_FOUND_ON_EVENT, "Missing property \"{0}\" on event."),
     INVALID_EVENT_CODE(2003, Constants.INVALID_EVENT_CODE, "Event code \"{0}\" should be numeric."),
-    MISSING_CALENAR_NAME(2004, Constants.MISSING_CALENDAR_NAME, "Calendar name is missing."),
+    MISSING_CALENDAR_NAME(2004, Constants.MISSING_CALENDAR_NAME, "Calendar name is missing."),
     MISSING_TIMEZONE(2005, Constants.MISSING_TIMEZONE, "Calendar timezone is missing."),
     MISSING_STARTYEAR(2006, Constants.MISSING_STARTYEAR, "Calendar start year is missing."),
     STARTYEAR_CANNOT_BE_ZERO(2007, Constants.STARTYEAR_CANNOT_BE_ZERO, "Calendar start year cannot be zero."),
@@ -50,6 +50,7 @@ public enum MessageSeeds implements MessageSeed {
     CAL_TIMEZONE_FIELD_TOO_LONG(2029, Constants.CAL_TIMEZONE_FIELD_TOO_LONG, "Calendar timezone id is too long, it must not exceed 80 characters.", Level.SEVERE),
     VALID_TRANSITIONS(2030, Constants.VALID_TRANSITIONS, "In case of non recurring transitions, a transition at or before the first day of the start year is required.", Level.SEVERE),
     DUPLICATE_CATEGORY_NAME(2031, Constants.DUPLICATE_CATEGORY_NAME, "The category name must be unique.", Level.SEVERE),
+    CATEGORY_NOT_FOUND(2032, Constants.CATEGORY_NOT_FOUND, "The category {0} does not exist."),
     ;
 
     private final int number;
@@ -141,6 +142,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAL_MRID_FIELD_TOO_LONG = "calendar.mrid.too.long";
         public static final String CAL_TIMEZONE_FIELD_TOO_LONG = "calendar.timezone.too.long";
         public static final String VALID_TRANSITIONS = "calendar.valid.transitions";
-
+        public static final String CATEGORY_NOT_FOUND = "calendar.category.not.found";
     }
 }

@@ -47,7 +47,7 @@ public enum TableSpecs {
             table.column("STARTYEAR").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.STARTYEAR.fieldName()).add();
             table.column("ENDYEAR").number().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.ENDYEAR.fieldName()).add();
             table.column("ABSTRACT_CALENDAR").bool().notNull().map(CalendarImpl.Fields.ABSTRACT_CALENDAR.fieldName()).add();
-            table.column("TIMEZONENAME").varChar().map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
+            table.column("TIMEZONENAME").varChar().map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).upTo(version(10, 3)).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
             table.column("STATUS").number().notNull().map(CalendarImpl.Fields.STATUS.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).since(Version.version(10, 3)).installValue(String.valueOf(Status.INACTIVE.ordinal())).add();
             table.setJournalTableName("CAL_CALENDARJRNL");

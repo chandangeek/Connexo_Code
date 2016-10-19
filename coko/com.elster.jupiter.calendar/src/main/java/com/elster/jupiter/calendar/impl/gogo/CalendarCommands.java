@@ -14,7 +14,6 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Component(name = "com.elster.jupiter.calendar.impl.gogo", service = CalendarCommands.class,
         property = {"osgi.command.scope=cal",
@@ -91,7 +90,7 @@ public class CalendarCommands {
     public void createCalendar(String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            calendarService.newCalendar(name, TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+            calendarService.newCalendar(name, Year.of(2010))
                     .endYear(Year.of(2020))
                     .description("Description remains to be completed :-)")
                     .mRID(name)
@@ -146,7 +145,7 @@ public class CalendarCommands {
     public void createEiserverActivityCalendar(String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            calendarService.newCalendar(name, TimeZone.getTimeZone("Europe/Brussels"), Year.of(2009))
+            calendarService.newCalendar(name, Year.of(2009))
                     .description("Conforms to typical old style eiServer Code, as expected by legacy protocols")
                     .addEvent("One", 1)
                     .addEvent("Three", 3)

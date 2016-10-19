@@ -8,7 +8,6 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 import java.time.Year;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Models a timeline that can be configured to produce {@link Event}s
@@ -53,17 +52,6 @@ public interface Calendar extends HasId, HasName {
      * @return The start of this Calendar
      */
     Year getEndYear();
-
-    /**
-     * Gets the TimeZone that was used to defined the occurrences
-     * of the {@link Event}s. Note that this is mostly for
-     * reference purposes. The occurrence of each Event
-     * is calculated to UTC and should therefore no longer
-     * need the TimeZone once the occurrences have been calculated.
-     *
-     * @return The TimeZone
-     */
-    TimeZone getTimeZone();
 
     /**
      * Gets the {@link Category} to which this Calendar belongs.

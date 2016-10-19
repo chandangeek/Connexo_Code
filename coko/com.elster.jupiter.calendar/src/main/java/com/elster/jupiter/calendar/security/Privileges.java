@@ -7,11 +7,11 @@ import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
     //Resources
-    RESOURCE_TOU_CALENDARS("calendars.timeOfUse", "Time of use calendars"),
-    RESOURCE_TOU_CALENDARS_DESCRIPTION("calendars.timeOfUse.description", "Manage time of use calendars"),
+    RESOURCE_TOU_CALENDARS("calendars.timeOfUse", "Calendars"),
+    RESOURCE_TOU_CALENDARS_DESCRIPTION("calendars.timeOfUse.description", "Manage calendars"),
 
     //Privileges
-    MANAGE_TOU_CALENDARS(Constants.MANAGE_TOU_CALENDARS, "Manage time of use calendars");
+    MANAGE_TOU_CALENDARS(Constants.MANAGE_TOU_CALENDARS, "Manage calendars");
 
     private final String key;
     private final String description;

@@ -29,12 +29,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.Year;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
@@ -102,7 +100,6 @@ class CalendarImpl implements Calendar {
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
-    private TimeZone timeZone;
     private Reference<Category> category = ValueReference.absent();
     @Valid
     private List<Event> events = new ArrayList<>();
@@ -124,7 +121,6 @@ class CalendarImpl implements Calendar {
     CalendarImpl(ServerCalendarService calendarService, EventService eventService) {
         this.calendarService = calendarService;
         this.eventService = eventService;
-        this.category.set(calendarService.findTimeOfUseCategory().get());
     }
 
     @Override
@@ -174,6 +170,11 @@ class CalendarImpl implements Calendar {
     void setName(String name) {
         this.name = name;
     }
+
+    void setCategory(Category category) {
+        this.category.set(category);
+    }
+
 
     @Override
     public final boolean equals(Object o) {
@@ -304,17 +305,6 @@ class CalendarImpl implements Calendar {
         }
         calendarService.getDataModel().remove(this);
         eventService.postEvent(EventType.CALENDAR_DELETE.topic(), this);
-    }
-
-    @Override
-    public TimeZone getTimeZone() {
-        if (timeZoneName == null) {
-            return null;
-        }
-        if (timeZone == null) {
-            timeZone =  TimeZone.getTimeZone(ZoneId.of(timeZoneName));
-        }
-        return timeZone;
     }
 
     @Override
@@ -458,13 +448,6 @@ class CalendarImpl implements Calendar {
 
     void setEndYear(Year endYear) {
         this.endYear = endYear.getValue();
-    }
-
-    void setTimeZone(TimeZone timeZone) {
-        if (timeZone != null) {
-            this.timeZone = timeZone;
-            this.timeZoneName = timeZone.getID();
-        }
     }
 
 }

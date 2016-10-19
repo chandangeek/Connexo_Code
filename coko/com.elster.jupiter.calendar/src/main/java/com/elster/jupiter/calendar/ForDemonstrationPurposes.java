@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
-import java.util.TimeZone;
 
 /**
  * Demonstrates the usage of the {@link CalendarService.CalendarBuilder} API.
@@ -16,7 +15,7 @@ public class ForDemonstrationPurposes {
     public static void main(String[] args) {
         CalendarService service = null;
         Calendar robsExample = service
-            .newCalendar("Test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+            .newCalendar("Test", Year.of(2010))
             .description("Description remains to be completed :-)")
             .mRID("Sample-TOU-rates")
             .addEvent("On peak", 3)

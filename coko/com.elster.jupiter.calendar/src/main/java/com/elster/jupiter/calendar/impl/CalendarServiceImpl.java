@@ -171,9 +171,9 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
-    public CalendarBuilder newCalendar(String name, TimeZone timeZone, Year start) {
+    public CalendarBuilder newCalendar(String name, Year start) {
         CalendarBuilderImpl builder = new CalendarBuilderImpl(getDataModel());
-        builder.init(name, timeZone, start);
+        builder.init(name, start);
         return builder;
     }
 
@@ -199,11 +199,6 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     @Override
     public Optional<Calendar> findCalendarByMRID(String mRID) {
         return this.getDataModel().mapper(Calendar.class).getUnique("mRID", mRID);
-    }
-
-    @Override
-    public Optional<Category> findTimeOfUseCategory() {
-        return this.getDataModel().mapper(Category.class).getUnique("name", TIME_OF_USE_CATEGORY_NAME);
     }
 
     @Override

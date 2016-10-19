@@ -8,7 +8,6 @@ import java.time.MonthDay;
 import java.time.Year;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 
 /**
  * Provides services for {@link Calendar}s.
@@ -25,11 +24,10 @@ public interface CalendarService {
      * Starts the building process for a new {@link Calendar}.
      *
      * @param name The required name for the new Calendar
-     * @param timeZone The required TimeZone
      * @param start The year from which any timeline will start
      * @return The CalendarBuilder
      */
-    CalendarBuilder newCalendar(String name, TimeZone timeZone, Year start);
+    CalendarBuilder newCalendar(String name, Year start);
 
     List<Calendar> findAllCalendars();
 
@@ -45,8 +43,8 @@ public interface CalendarService {
 
     @ProviderType
     interface CalendarBuilder {
+        CalendarBuilder category(Category category);
         CalendarBuilder name(String name);
-        CalendarBuilder timeZone(TimeZone timeZone);
         CalendarBuilder startYear(Year start);
         CalendarBuilder endYear(Year setStartYear);
         CalendarBuilder mRID(String mRID);

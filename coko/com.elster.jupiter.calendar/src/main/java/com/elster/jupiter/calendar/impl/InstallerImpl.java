@@ -41,29 +41,31 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry(
-            "Create default Calendar categories.",
-            this::createTOUCategory,
-            logger
+                "Create default Calendar categories.",
+                this::createCategories,
+                logger
         );
         doTry(
-            "Create event types for CAL.",
-            this::createEventTypes,
-            logger
+                "Create event types for CAL.",
+                this::createEventTypes,
+                logger
         );
         userService.addModulePrivileges(this);
         if (!messageService.getDestinationSpec(CalendarImporterMessageHandler.DESTINATION_NAME).isPresent()) {
             doTry(
-                "Create TOU Calendar import queue",
-                this::createQueue,
-                logger
+                    "Create TOU Calendar import queue",
+                    this::createQueue,
+                    logger
             );
         }
     }
 
-    private void createTOUCategory() {
-        CategoryImpl category = this.dataModel.getInstance(CategoryImpl.class);
-        category.init(CalendarServiceImpl.TIME_OF_USE_CATEGORY_NAME);
-        category.save();
+    private void createCategories() {
+        for (OutOfTheBoxCategory outOfTheBoxCategory : OutOfTheBoxCategory.values()) {
+            CategoryImpl category = this.dataModel.getInstance(CategoryImpl.class);
+            category.init(outOfTheBoxCategory.getDefaultDisplayName());
+            category.save();
+        }
     }
 
     private void createEventTypes() {

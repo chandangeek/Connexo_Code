@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.impl.TranslationKeys;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.nls.LocalizedException;
 
 import org.xml.sax.SAXException;
 
@@ -18,6 +19,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.time.LocalDate;
 
 /**
  * Created by igh on 27/04/2016.
@@ -47,7 +49,7 @@ class TimeOfUseCalendarImporter implements FileImporter {
         } catch (JAXBException e) {
             logValidationFailed(fileImportOccurrence, e);
             markFailure(fileImportOccurrence);
-        } catch (CalendarParserException e) {
+        } catch (LocalizedException e) {
             logImportFailed(fileImportOccurrence, e);
             markFailure(fileImportOccurrence);
         } catch (ConstraintViolationException e) {
@@ -96,7 +98,7 @@ class TimeOfUseCalendarImporter implements FileImporter {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             return sf.newSchema(getClass().getClassLoader().getResource("calendar-import-format.xsd"));
         } catch (SAXException e) {
-            throw new CalendarParserException(context.getThesaurus(), MessageSeeds.SCHEMA_FAILED, e);
+            throw new SchemaFailed(context.getThesaurus(), e);
         }
     }
 

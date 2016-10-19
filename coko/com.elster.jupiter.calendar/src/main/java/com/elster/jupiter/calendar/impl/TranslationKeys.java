@@ -11,7 +11,10 @@ public enum TranslationKeys implements TranslationKey {
     CALENDAR_IMPORTER(CalendarImporterFactory.NAME, "Calendar importer"),
     CALENDAR_IMPORTED_SUCCESSFULLY("calendar.import.summary.succeeded", "Finished successfully."),
     CALENDAR_IMPORT_FAILED("calendar.import.summary.failed", "Failed to complete, no calendar has been processed."),
-    CALENDAR_IMPORTER_MESSAGE_HANDLER_DISPLAYNAME(CalendarImporterMessageHandler.SUBSCRIBER_NAME, "Handle calendar import")
+    CALENDAR_IMPORTER_MESSAGE_HANDLER_DISPLAYNAME(CalendarImporterMessageHandler.SUBSCRIBER_NAME, "Handle calendar import"),
+    CALENDAR_CATEGORY_TOU("calendar.category.tou", OutOfTheBoxCategory.TOU.getDefaultDisplayName()),
+    CALENDAR_CATEGORY_WORKFORCE("calendar.category.workforce", OutOfTheBoxCategory.WORKFORCE.getDefaultDisplayName()),
+    CALENDAR_CATEGORY_COMMANDS("calendar.category.commands", OutOfTheBoxCategory.COMMANDS.getDefaultDisplayName())
     ;
 
     private final String key;

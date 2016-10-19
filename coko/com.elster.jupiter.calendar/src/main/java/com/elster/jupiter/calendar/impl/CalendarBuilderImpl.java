@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.orm.DataModel;
@@ -10,7 +11,6 @@ import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.Optional;
-import java.util.TimeZone;
 
 /**
  * Created by igh on 21/04/2016.
@@ -31,21 +31,20 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
         this.calendarImpl = calendarImpl;
     }
 
-    void init(String name, TimeZone timeZone, Year start) {
+    void init(String name, Year start) {
         this.calendarImpl.setName(name);
-        this.calendarImpl.setTimeZone(timeZone);
         this.calendarImpl.setStartYear(start);
+    }
+
+    @Override
+    public CalendarService.CalendarBuilder category(Category category) {
+        this.calendarImpl.setCategory(category);
+        return this;
     }
 
     @Override
     public CalendarService.CalendarBuilder name(String name) {
         this.calendarImpl.setName(name);
-        return this;
-    }
-
-    @Override
-    public CalendarService.CalendarBuilder timeZone(TimeZone timeZone) {
-        this.calendarImpl.setTimeZone(timeZone);
         return this;
     }
 
