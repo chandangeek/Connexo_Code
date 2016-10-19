@@ -24,6 +24,7 @@ public class CreateDemoDataCommand {
     private final Provider<CreateDemoUserCommand> createDemoUserCommandProvider;
     private final Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider;
     private final Provider<CreateImportersCommand> createImportersCommandProvider;
+    private final Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider;
 
     private String comServerName;
     private String host;
@@ -44,6 +45,7 @@ public class CreateDemoDataCommand {
             Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
             Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
             Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
+            Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider,
             Provider<CreateImportersCommand> createImportersCommandProvider) {
         this.createCollectRemoteDataSetupCommandProvider = createCollectRemoteDataSetupCommandProvider;
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
@@ -56,6 +58,7 @@ public class CreateDemoDataCommand {
         this.createDemoUserCommandProvider = createDemoUserCommandProvider;
         this.setupFirmwareManagementCommandProvider = setupFirmwareManagementCommandProvider;
         this.createImportersCommandProvider = createImportersCommandProvider;
+        this.createDataLoggerSetupCommandProvider = createDataLoggerSetupCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -98,6 +101,7 @@ public class CreateDemoDataCommand {
         createEstimationSetupCommand();
         createNtaConfigCommand();
         createDeliverDataSetupCommand();
+        createDataLoggerSetupCommand();
     }
 
     private void validateStartDateCommand() {
@@ -181,5 +185,13 @@ public class CreateDemoDataCommand {
         CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
         importersCommand.setAppServerName(this.comServerName);
         importersCommand.run();
+    }
+
+    private void createDataLoggerSetupCommand() {
+        CreateDataLoggerSetupCommand createDataLoggerSetupCommand = this.createDataLoggerSetupCommandProvider.get();
+        createDataLoggerSetupCommand.setDataLoggerMrid("DL099000000000");
+        createDataLoggerSetupCommand.setDataLoggerSerial("099000000000");
+        createDataLoggerSetupCommand.setNumberOfSlaves(1);
+        createDataLoggerSetupCommand.run();
     }
 }
