@@ -922,8 +922,7 @@ sub uninstall_tomcat_for_upgrade() {
 		print "Stop and remove ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION service";
 		system("/sbin/service ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION stop");
 		sleep 3;
-		system("userdel -r tomcat");
-        system("/sbin/chkconfig --del ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+		system("/sbin/chkconfig --del ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
 	}
 }
@@ -1198,7 +1197,6 @@ sub perform_upgrade {
 			sleep 3;
 			system("pgrep -u connexo | xargs kill -9");
 			sleep 3;
-			system("userdel -r connexo");
 			system("/sbin/chkconfig --del Connexo$UPGRADE_OLD_SERVICE_VERSION");
 			unlink("/etc/init.d/Connexo$UPGRADE_OLD_SERVICE_VERSION");
 		}
@@ -1293,10 +1291,12 @@ sub perform_upgrade {
             dircopy("$UPGRADE_PATH/temp/partners","$CONNEXO_DIR/partners");
 
             print "Starting upgrade of partners\n";
-            my $upgrade_params = "$JAVA_HOME $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
+            my $upgrade_params = "\"$JAVA_HOME\" $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
             my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
             if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                 $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
+            } else {
+                chmod 0755,"$UPGRADE_PATH/temp/partners/upgrade.pl";
             }
             if (-e "$upgrade_exe") {
                 system("$upgrade_exe $upgrade_params") == 0 or die "Could not execute partners upgrade script!";
