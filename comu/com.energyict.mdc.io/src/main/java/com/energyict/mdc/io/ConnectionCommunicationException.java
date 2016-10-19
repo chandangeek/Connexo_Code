@@ -1,8 +1,7 @@
 package com.energyict.mdc.io;
 
-import com.energyict.mdc.io.impl.MessageSeeds;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.io.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -62,4 +61,11 @@ public class ConnectionCommunicationException extends CommunicationException {
         super(messageSeed, cause);
     }
 
+    public static ConnectionCommunicationException numberOfRetriesReached(IOException e, int numberOfRetries) {
+        return new ConnectionCommunicationException(numberOfRetries);
+    }
+
+    public static ConnectionCommunicationException unExpectedProtocolError(IOException protocolException) {
+        return new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, protocolException);
+    }
 }
