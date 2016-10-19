@@ -4,6 +4,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 
+import java.io.IOException;
+
 /**
  * Provides functionality to create exceptions based on the configuration of a Device
  *
@@ -58,5 +60,13 @@ public class DeviceConfigurationException extends ComServerRuntimeException {
 
     public static DeviceConfigurationException unsupportedPropertyValue(String key, String value) {
         return new DeviceConfigurationException(MessageSeeds.INVALID_PROPERTY_VALUE, key, value);
+    }
+
+    public static DeviceConfigurationException invalidPropertyFormat(String key, String value, String s) {
+        return unsupportedPropertyValue(key, value);
+    }
+
+    public static DeviceConfigurationException notAllowedToExecuteCommand(String s, IOException cause) {
+        return new DeviceConfigurationException(MessageSeeds.COMMAND_NOT_SUPPORTED, s);
     }
 }
