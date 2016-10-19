@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * @author gna
  */
 public class LoadProfile extends AbstractActarisObject {
 

@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 
@@ -108,5 +109,14 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec fixMbusHexShortIdPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(FIX_MBUS_HEX_SHORT_ID);
+    }
+    
+    /**
+     * Property that can be used to indicate whether or not the public client has a pre-established association.
+     * 
+     * @return	The property specification.
+     */
+    protected final PropertySpec<Boolean> publicClientPreEstablishedPropertySpec() {
+    	return PropertySpecFactory.notNullableBooleanPropertySpec(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED);
     }
 }

@@ -305,7 +305,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @deprecated use {@link #getMbusClient(com.energyict.obis.ObisCode, int)} instead
      */
     public MBusClient getMbusClient(ObisCode obisCode) throws NotInObjectListException {
-        return getMbusClient(obisCode, MbusClientAttributes.VERSION9);
+        return getMbusClient(obisCode, MbusClientAttributes.VERSION10);
     }
 
     /**

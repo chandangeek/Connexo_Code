@@ -69,6 +69,16 @@
 	public *;
 }
 
+-keepnames class com.energyict.protocolimpl.dlms.g3.registers.LoadProfileDisplayControlStatusMapping {
+	public *;
+	protected *;
+}
+
+-keepnames class com.energyict.protocolimpl.dlms.g3.registers.LoadProfileControlStatusMapping {
+	public *;
+	protected *;
+}
+
 -keepnames class com.energyict.protocolimpl.metcom.Metcom2
 
 -keepnames class com.energyict.protocolimpl.rtuplusbus.rtuplusbus

@@ -27,7 +27,47 @@ public class DataFieldCoding {
     static public final int TYPE_NODATA=3;
     static public final int TYPE_VARIABLELENGTH=4;
     static public final int TYPE_SPECIALFUNCTIONS=5;
-    
+
+    public enum DataFieldCodingType {
+        TYPE_BINARY(0),
+        TYPE_BCD(1),
+        TYPE_REAL(2),
+        TYPE_NODATA(3),
+        TYPE_VARIABLELENGTH(4),
+        TYPE_SPECIALFUNCTIONS(5),
+        UNKNOWN(-1);
+
+        /** Id of the type */
+        private final int id;
+
+        /** Returns the id of the type */
+        public int getId() {
+            return id;
+        }
+
+        /**
+         * Creates an instance of DataFieldCodingType
+         * @param id    The idf of the type
+         */
+        DataFieldCodingType(final int id) {
+            this.id = id;
+        }
+
+        /**
+         * Returns the DataFieldCodingType for the given id
+         * @param id    the lookup value
+         * @return      the DataFieldCodingType for the given id
+         */
+        public static final DataFieldCodingType fromId(final int id) {
+            for (final DataFieldCodingType type : values()) {
+                if (type.getId() == id) {
+                    return type;
+                }
+            }
+
+            return UNKNOWN;
+        }
+    }
     
     static List list = new ArrayList();
     static {

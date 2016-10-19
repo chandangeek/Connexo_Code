@@ -43,11 +43,14 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(clientSigningCertificate());
         optionalProperties.add(serverTLSCertificate());
         optionalProperties.add(callingAPTitlePropertySpec());
+        optionalProperties.add(publicClientPreEstablishedPropertySpec());
+        
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
         optionalProperties.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
         optionalProperties.remove(deviceId());
+        
         return optionalProperties;
     }
 
