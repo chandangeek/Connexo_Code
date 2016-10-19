@@ -137,7 +137,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     private PropertySpec initialFrameCounter() {
-        return PropertySpecFactory.bigDecimalPropertySpec(INITIAL_FRAME_COUNTER);
+        return PropertySpecFactory.positiveDecimalPropertySpec(INITIAL_FRAME_COUNTER);
     }
 
     private PropertySpec useMeterInTransparentMode() {

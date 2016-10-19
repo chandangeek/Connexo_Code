@@ -62,7 +62,7 @@ public enum MbusClientAttributes implements DLMSClassAttributes {
         this.attributeNumber = attrNr;
         this.shortNameV9 = sn9;
         this.shortNameV10 = sn10;
-        this.version = VERSION9;
+        this.version = VERSION10;
     }
 
     /**

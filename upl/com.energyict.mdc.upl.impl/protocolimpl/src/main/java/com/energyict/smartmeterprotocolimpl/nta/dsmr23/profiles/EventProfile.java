@@ -68,14 +68,20 @@ public class EventProfile {
             eventList.addAll(mbusControlLog.getMeterEvents());
             }
 
-            UniversalObject mbusClient = getMeterConfig().getMbusClient(mbusDevices.getPhysicalAddress() - 1);
-            long mbusStatus = getCosemObjectFactory().getGenericRead(new DLMSAttribute(mbusClient.getObisCode(), MbusClientAttributes.STATUS)).getValue();
+            int channel = mbusDevices.getPhysicalAddress() - 1;
+            UniversalObject mbusClient = getMeterConfig().getMbusClient(channel);
+            DLMSAttribute attribute = new DLMSAttribute(mbusClient.getObisCode(), MbusClientAttributes.STATUS);
+            long mbusStatus = getCosemObjectFactory().getGenericRead(attribute).getValue();
             if ((mbusStatus & 0x10) == 0x10) {
                 int eventId = Integer.parseInt("1" + (mbusDevices.getPhysicalAddress() - 1) + "5");
                 eventList.add(mbusLogs.createNewMbusEventLogbookEvent(new Date(), eventId));
             }
         }
         return eventList;
+    }
+
+    protected void log(Level level, String message) {
+        this.protocol.getLogger().log(level, message);
     }
 
     protected PowerFailureLog getPowerFailureLog(DataContainer dcPowerFailure) {
