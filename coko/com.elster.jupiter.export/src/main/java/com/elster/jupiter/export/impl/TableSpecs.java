@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
@@ -27,21 +28,18 @@ enum TableSpecs {
             table.map(ExportTaskImpl.class);
             table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            //Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("DATAFORMATTER").varChar(NAME_LENGTH).notNull().map("dataFormatter").add();
             table.column("DATASELECTOR").varChar(NAME_LENGTH).notNull().map("dataSelector").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
 
             table.foreignKey("DES_FK_RTET_RECURRENTTASK")
                     .on(recurrentTaskId)
-                    .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
+                    .references(RecurrentTask.class)
                     .map("recurrentTask")
                     .add();
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
-            //table.unique("DES_UQ_TASK_NAME").on(nameColumn).add();
         }
     },
     DES_RTDATASELECTOR(IStandardDataSelector.class) {

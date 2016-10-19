@@ -120,7 +120,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ExportTaskImplIT {
 
-    public static final String NAME = "NAME";
+    private static final String NAME = "NAME";
+    private static final String APPLICATION = "Admin";
+
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
     @Mock
     private Group group;
@@ -148,11 +150,11 @@ public class ExportTaskImplIT {
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
+
     private Injector injector;
 
     @Mock
     private BundleContext bundleContext;
-
     @Mock
     private EventAdmin eventAdmin;
     @Mock
@@ -448,6 +450,7 @@ public class ExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().isExportUpdate()).isTrue();
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(readingType);
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
+        assertThat(((ExportTaskImpl) readingTypeDataExportTask).getApplication()).isEqualTo(APPLICATION);
     }
 
     @Test
@@ -459,7 +462,7 @@ public class ExportTaskImplIT {
                     .scheduleImmediately()
                     .setDataFormatterFactoryName(FORMATTER)
                     .setName(NAME)
-                    .setApplication("Admin")
+                    .setApplication(APPLICATION)
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                     .selectingEventTypes()
                     .fromExportPeriod(lastYear)
@@ -620,6 +623,7 @@ public class ExportTaskImplIT {
         assertThat(found.get().getProperties().get("propy")).isEqualTo(BigDecimal.valueOf(20000, 2));
         assertThat(found.get().getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(anotherReadingType);
         assertThat(found.get().getName()).isEqualTo("New name!");
+        assertThat(((ExportTaskImpl) found.get()).getApplication()).isEqualTo(APPLICATION);
     }
 
     private ExportTask createAndSaveTask() {
@@ -646,7 +650,7 @@ public class ExportTaskImplIT {
                 .scheduleImmediately()
                 .setDataFormatterFactoryName(FORMATTER)
                 .setName(name)
-                .setApplication("Admin")
+                .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingReadingTypes()
                 .fromExportPeriod(lastYear)
@@ -752,7 +756,6 @@ public class ExportTaskImplIT {
         Optional<IDataExportOccurrence> lastOccurrence = task.getLastOccurrence();
         assertThat(lastOccurrence).isPresent().contains(dataExportOccurrence);
     }
-
 
     private ExportTaskImpl createDataExportTask() {
         ExportTaskImpl exportTask;
