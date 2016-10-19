@@ -69,16 +69,20 @@ public class CreateValidationSetupCommand {
     private void addValidationToDeviceConfigurations() {
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet)
                 .stream()
+                .filter(configuration -> !DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName()))
                 .forEach(configuration -> {
-                    if (DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName())) {
-                        configuration.addValidationRuleSet(this.strictValidationRuleSet);
-                        configuration.save();
-                    } else {
-                        configuration.addValidationRuleSet(this.validationRuleSet);
-                        configuration.save();
-                    }
+                    configuration.addValidationRuleSet(this.validationRuleSet);
+                    configuration.save();
+                });
+        this.deviceConfigurationService.getLinkableDeviceConfigurations(this.strictValidationRuleSet)
+                .stream()
+                .filter(configuration -> DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName()))
+                .forEach(configuration -> {
+                    configuration.addValidationRuleSet(this.strictValidationRuleSet);
+                    configuration.save();
                 });
     }
+
 
     private void addValidationToDevices() {
         List<Device> devices = deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));

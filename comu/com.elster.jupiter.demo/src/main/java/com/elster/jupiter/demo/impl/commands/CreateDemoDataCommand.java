@@ -1,16 +1,10 @@
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.io.InputStream;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
 public class CreateDemoDataCommand {
     private final Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider;
@@ -28,10 +22,9 @@ public class CreateDemoDataCommand {
 
     private String comServerName;
     private String host;
-    private String startDate;
     private Integer devicesPerType = null;
     private SpatialCoordinates geoCoordinates;
-    private boolean skipFirmwareMamanagementData;
+    private boolean skipFirmwareManagementData;
 
     @Inject
     public CreateDemoDataCommand(
@@ -74,15 +67,7 @@ public class CreateDemoDataCommand {
     }
 
     public void setSkipFirmwareManagementData(boolean skipFirmwareData) {
-        this.skipFirmwareMamanagementData = skipFirmwareData;
-    }
-
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(this.startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
-        if (zonedDateTime.getDayOfMonth() != 1) {
-            throw new UnableToCreate("Please specify the first day of month as a start date");
-        }
+        this.skipFirmwareManagementData = skipFirmwareData;
     }
 
     public void setDevicesPerType(Integer devicesPerType) {
@@ -90,7 +75,6 @@ public class CreateDemoDataCommand {
     }
 
     public void run() {
-        validateStartDateCommand();
         createUserManagementCommand();
         createDemoUserCommand("DemoUser1", "DemoUser2", "DemoUser3", "DemoUser4", "DemoUser5");
         createApplicationServerCommand();
@@ -102,28 +86,6 @@ public class CreateDemoDataCommand {
         createNtaConfigCommand();
         createDeliverDataSetupCommand();
         createDataLoggerSetupCommand();
-    }
-
-    private void validateStartDateCommand() {
-        String[] resourceFiles = {
-                "realisticChannelData - Interval.csv",
-                "realisticChannelData - Daily.csv",
-                "realisticChannelData - Monthly.csv",
-                "realisticRegisterData.csv",
-                "realisticChannelData - Interval - Validation.csv",
-                "realisticChannelData - Daily - Validation.csv",
-                "realisticRegisterData - Validation.csv"
-        };
-        for (String resourceFile : resourceFiles) {
-            ValidateStartDateCommand command = this.validateStartDateCommandProvider.get();
-            command.setStartDate(this.startDate);
-            command.setSource(getResourceAsStream(resourceFile));
-            command.run();
-        }
-    }
-
-    private InputStream getResourceAsStream(String name) {
-        return getClass().getClassLoader().getResourceAsStream(name);
     }
 
     private void createUserManagementCommand() {
@@ -175,7 +137,7 @@ public class CreateDemoDataCommand {
     }
 
     private void setupFirmwareManagementCommand() {
-        if (!skipFirmwareMamanagementData) {
+        if (!skipFirmwareManagementData) {
             SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
             setupFirmwareManagementCommand.run();
         }

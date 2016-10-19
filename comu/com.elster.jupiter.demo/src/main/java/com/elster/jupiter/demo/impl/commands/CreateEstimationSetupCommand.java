@@ -62,14 +62,17 @@ public class CreateEstimationSetupCommand {
     private void addEstimationToDeviceConfigurations() {
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.estimationRuleSet)
                 .stream()
+                .filter(configuration -> !DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName()))
                 .forEach(configuration -> {
-                    if (DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName())) {
-                        configuration.addEstimationRuleSet(this.strictEstimationRuleSet);
-                        configuration.save();
-                    } else {
-                        configuration.addEstimationRuleSet(this.estimationRuleSet);
-                        configuration.save();
-                    }
+                    configuration.addEstimationRuleSet(this.estimationRuleSet);
+                    configuration.save();
+                });
+        this.deviceConfigurationService.getLinkableDeviceConfigurations(this.strictEstimationRuleSet)
+                .stream()
+                .filter(configuration -> DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName()))
+                .forEach(configuration -> {
+                    configuration.addEstimationRuleSet(this.strictEstimationRuleSet);
+                    configuration.save();
                 });
     }
 

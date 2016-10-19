@@ -726,34 +726,30 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createDemoData(String comServerName, String host, String startDate) {
-        this.createDemoData(comServerName, host, startDate, null);
+        this.createDemoData(comServerName, host, null, null);
     }
 
     @SuppressWarnings("unused")
     public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType) {
-        this.createDemoData(comServerName, host, startDate, numberOfDevicesPerType, false);
+        this.createDemoData(comServerName, host, null, numberOfDevicesPerType, false);
     }
 
     /**
      * @param comServerName
      * @param host
-     * @param startDate
      * @param numberOfDevicesPerType
      * @param skipFirmwareManagementData in case you don't want the firmware management data is created
      */
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
+    public void createDemoData(String comServerName, String host, String ignored, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
         executeTransaction(() -> {
             CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
-            command.setStartDate(startDate);
             if (!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")) {
                 command.setGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue("40.7922408:-74.4462162:0"));
             }
-            if (numberOfDevicesPerType == null) {
-                command.setDevicesPerType(null);
-            } else {
+            if (numberOfDevicesPerType != null) {
                 command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
             }
             command.setSkipFirmwareManagementData(skipFirmwareManagementData);
