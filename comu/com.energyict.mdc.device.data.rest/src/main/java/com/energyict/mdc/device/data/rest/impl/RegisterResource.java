@@ -44,10 +44,12 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RegisterResource {
 
@@ -201,29 +203,31 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public PagedInfoList getRegisterReadings(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register firstRegister = device.getRegisters().get(0);
-        long registerId = firstRegister.getRegisterSpec().getId();
-        Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
+        List<Register> registers = device.getRegisters().stream()
+                .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
+                .collect(Collectors.toList());
 
         Instant intervalStart = jsonQueryFilter.getInstant("intervalStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("intervalStart");
         Instant intervalEnd = jsonQueryFilter.getInstant("intervalEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("intervalEnd");
 
         Range<Instant> intervalReg = Range.openClosed(intervalStart, intervalEnd);
 
-        List<Pair<Register, Range<Instant>>> registerTimeLine = topologyService.getDataLoggerRegisterTimeLine(register, intervalReg);
-
-        List<ReadingInfo> readingInfos = registerTimeLine.stream().
-                flatMap(registerRangePair -> {
+        List<ReadingInfo> readingInfos = registers.stream()
+                .map(register -> topologyService.getDataLoggerRegisterTimeLine(register, intervalReg))
+                .flatMap(Collection::stream)
+                .map(registerRangePair -> {
                     Register<?, ?> register1 = registerRangePair.getFirst();
                     List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()));
                     List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
-                            .isValidationActive(register1, this.clock.instant()), register.equals(register1) ? null : register1.getDevice());
-                    Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
-                    return infoList.stream();
-                }).collect(Collectors.toList());
+                            .isValidationActive(register1, this.clock.instant()), registers.contains(register1) ? null : register1.getDevice());
+                    infoList.stream().forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(register1.getRegisterSpecId(), register1.getReadingType().getFullAliasName()));
+                    return infoList;
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
 
-        readingInfos.stream()
-                .forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(registerId, firstRegister.getReadingType().getFullAliasName()));
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
     }
