@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.util.conditions.Condition;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -33,7 +34,9 @@ public interface CalendarService {
 
     List<Calendar> findAllCalendars();
 
-    Finder<Calendar> getCalendarFinder();
+    Finder<Calendar> getCalendarFinder(Condition condition);
+
+    CalendarFilter newCalendarFilter();
 
     Optional<Category> findCategoryByName(String name);
 

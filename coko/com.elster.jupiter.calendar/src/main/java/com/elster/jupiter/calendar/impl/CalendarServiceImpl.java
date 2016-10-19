@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarFilter;
 import com.elster.jupiter.calendar.CalendarResolver;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.CalendarStatusTranslationKeys;
@@ -179,8 +180,13 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
-    public Finder<Calendar> getCalendarFinder() {
-        return DefaultFinder.of(Calendar.class, Condition.TRUE, dataModel);
+    public Finder<Calendar> getCalendarFinder(Condition condition) {
+        return DefaultFinder.of(Calendar.class, condition, dataModel);
+    }
+
+    @Override
+    public CalendarFilter newCalendarFilter() {
+        return new CalendarFilterImpl();
     }
 
     public List<Calendar> findAllCalendars() {
