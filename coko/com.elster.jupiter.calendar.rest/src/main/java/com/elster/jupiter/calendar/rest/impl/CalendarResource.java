@@ -2,10 +2,14 @@ package com.elster.jupiter.calendar.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.Status;
+import com.elster.jupiter.calendar.CalendarFilter;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 
@@ -44,12 +48,22 @@ public class CalendarResource {
     @GET
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public List<CalendarInfo> getAllCalendars(@BeanParam JsonQueryParameters queryParameters) {
-       return calendarService.getCalendarFinder()
-               .from(queryParameters)
-               .stream()
-               .map(calendar -> calendarInfoFactory.summaryForOverview(calendar, calendarService.isCalendarInUse(calendar)))
-               .collect(Collectors.toList());
+    public List<CalendarInfo> getAllCalendars(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        CalendarFilter calendarFilter = calendarService.newCalendarFilter();
+        if (filter.hasProperty("status")) {
+            Status status = Status.valueOf(filter.getString("status"));
+            calendarFilter.setStatus(status);
+        }
+        if (filter.hasProperty("category")) {
+            Category category = calendarService.findCategoryByName(filter.getString("status"))
+                    .orElseThrow(IllegalArgumentException::new);
+            calendarFilter.setCategory(category);
+        }
+        return calendarService.getCalendarFinder(calendarFilter.toCondition())
+                .from(queryParameters)
+                .stream()
+                .map(calendar -> calendarInfoFactory.summaryForOverview(calendar, calendarService.isCalendarInUse(calendar)))
+                .collect(Collectors.toList());
     }
 
     @GET
@@ -57,8 +71,8 @@ public class CalendarResource {
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public CalendarInfo getCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
-        if(milliseconds <= 0) {
-            return  calendarService.findCalendar(id)
+        if (milliseconds <= 0) {
+            return calendarService.findCalendar(id)
                     .map(calendarInfoFactory::detailedFromCalendar)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
         } else {
@@ -77,8 +91,9 @@ public class CalendarResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     public Response removeCalendar(@PathParam("id") long id) {
-        Calendar calendar = calendarService.findCalendar(id).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
-        if(!calendarService.isCalendarInUse(calendar)) {
+        Calendar calendar = calendarService.findCalendar(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
+        if (!calendarService.isCalendarInUse(calendar)) {
             calendar.delete();
             return Response.ok().build();
         } else {
