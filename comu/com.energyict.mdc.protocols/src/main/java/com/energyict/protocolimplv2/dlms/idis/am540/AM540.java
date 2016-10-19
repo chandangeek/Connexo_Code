@@ -57,6 +57,7 @@ import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFacto
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -91,10 +92,10 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
     protected static final int PUBLIC_CLIENT = 16;
     protected static final int EVN_CLIENT_CUSTOMER_INFORMATION_PUSH = 103;
 
-
     private AM540Cache am540Cache;
     private HHUSignOnV2 hhuSignOn;
 
+    @Inject
     public AM540(Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
         super(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory, dsmrSecuritySupportProvider);
     }

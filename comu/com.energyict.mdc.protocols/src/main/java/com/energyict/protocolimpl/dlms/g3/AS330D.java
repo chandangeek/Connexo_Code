@@ -46,18 +46,14 @@ import java.util.logging.Level;
  */
 public class AS330D extends AbstractDlmsSessionProtocol implements DeviceBasicSupport {
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS330D DLMS (G3 Linky)";
-    }
-
     private static final String TIMEOUT = "timeout";
 
     private final OrmClient ormClient;
+
     private final CalendarService calendarService;
     protected G3Properties properties;
-
     private G3Clock clock;
+
     private G3DeviceInfo info;
     private G3RegisterMapper registerMapper;
     private G3Profile profile;
@@ -70,6 +66,11 @@ public class AS330D extends AbstractDlmsSessionProtocol implements DeviceBasicSu
         super(propertySpecService);
         this.calendarService = calendarService;
         this.ormClient = ormClient;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS330D DLMS (G3 Linky)";
     }
 
     protected CalendarService getCalendarService() {

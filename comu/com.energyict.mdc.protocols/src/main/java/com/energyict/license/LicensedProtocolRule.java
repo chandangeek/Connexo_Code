@@ -226,7 +226,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P2),
     AM540_MBUS_DEVICE(229, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.MBusDevice", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P2),
 
-    G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", ProtocolFamily.G3_LINKY_DLMS, ProtocolFamily.G3_PLC),
+//    G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", ProtocolFamily.G3_LINKY_DLMS, ProtocolFamily.G3_PLC),
     G3_BEACON_3100(260, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100", ProtocolFamily.G3_PLC, ProtocolFamily.ELSTER_IDIS_P2),
     AM540_IDIS_P2_DEVICE(264, "com.energyict.protocolimplv2.dlms.idis.am540.AM540", ProtocolFamily.ELSTER_IDIS_P2, ProtocolFamily.G3_PLC),
     AM540_IDIS_P2_MBUS_DEVICE(265, "com.energyict.protocolimplv2.dlms.idis.am540.MBusDevice", ProtocolFamily.ELSTER_IDIS_P2),
