@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -14,6 +15,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
@@ -89,19 +91,20 @@ public class RegisterResource {
     }
 
     private List<ReadingType> getElegibleReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, Device device) {
-        List<ReadingType> filteredReadingTypes = new ArrayList<>();
+        List<Register> registers = device.getRegisters()
+                .stream()
+                .filter(register -> !(jsonQueryFilter.hasProperty("toTimeStart") || jsonQueryFilter.hasProperty("toTimeEnd")) || register instanceof BillingRegister)
+                .collect(Collectors.toList());
         if (jsonQueryFilter.hasProperty("registers")) {
             List<Long> registerTypes = jsonQueryFilter.getLongList("registers").stream()
                     .collect(Collectors.toList());
-            filteredReadingTypes = device.getRegisters()
+            registers = registers
                     .stream()
                     .filter(register -> registerTypes.contains(register.getRegisterSpecId()))
-                    .map(Register::getReadingType)
                     .collect(Collectors.toList());
         } else if (jsonQueryFilter.hasProperty("groups")) {
-            List<Long> groups = jsonQueryFilter.getLongList("groups").stream()
+            final List<Long> finalGroups = jsonQueryFilter.getLongList("groups").stream()
                     .collect(Collectors.toList());
-            final List<Long> finalGroups = groups;
             List<ReadingType> allowedReadingTypes = masterDataService.findAllRegisterGroups().find().stream()
                     .filter(registerGroup -> finalGroups.contains(registerGroup.getId()))
                     .flatMap(registerGroup -> registerGroup.getRegisterTypes().stream())
@@ -109,13 +112,12 @@ public class RegisterResource {
                     .distinct()
                     .collect(Collectors.toList());
 
-            filteredReadingTypes = device.getRegisters()
+            registers = registers
                     .stream()
-                    .map(Register::getReadingType)
-                    .filter(allowedReadingTypes::contains)
+                    .filter(register -> allowedReadingTypes.contains(register.getReadingType()))
                     .collect(Collectors.toList());
         }
-        return filteredReadingTypes;
+        return registers.stream().map(Register::getReadingType).collect(Collectors.toList());
     }
 
     private int compareRegisters(Register r1, Register r2) {
@@ -209,17 +211,29 @@ public class RegisterResource {
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
                 .collect(Collectors.toList());
 
-        Instant intervalStart = jsonQueryFilter.getInstant("intervalStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("intervalStart");
-        Instant intervalEnd = jsonQueryFilter.getInstant("intervalEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("intervalEnd");
+        Instant measurementTimeStart = jsonQueryFilter.getInstant("measurementTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("measurementTimeStart");
+        Instant measurementTimeEnd = jsonQueryFilter.getInstant("measurementTimeEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("measurementTimeEnd");
+        Instant toTimeStart = jsonQueryFilter.getInstant("toTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("toTimeStart");
+        Instant toTimeEnd = jsonQueryFilter.getInstant("toTimeEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("toTimeEnd");
 
-        Range<Instant> intervalReg = Range.openClosed(intervalStart, intervalEnd);
+        Range<Instant> intervalReg = Range.openClosed(measurementTimeStart, measurementTimeEnd);
+        Range<Instant> toTimeRange = Range.openClosed(toTimeStart, toTimeEnd);
 
         List<ReadingInfo> readingInfos = registers.stream()
                 .map(register -> topologyService.getDataLoggerRegisterTimeLine(register, intervalReg))
                 .flatMap(Collection::stream)
                 .map(registerRangePair -> {
                     Register<?, ?> register1 = registerRangePair.getFirst();
-                    List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()));
+                    List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()))
+                            .stream()
+                            .filter(reading -> {
+                                if (!(register1 instanceof BillingRegister)) {
+                                    return true;
+                                }
+                                BillingReading billingReading = (BillingReading) reading;
+                                return billingReading.getRange().isPresent() && toTimeRange.contains(billingReading.getRange().get().upperEndpoint());
+                            })
+                            .collect(Collectors.toList());
                     List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
                             .isValidationActive(register1, this.clock.instant()), registers.contains(register1) ? null : register1.getDevice());
                     infoList.stream().forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(register1.getRegisterSpecId(), register1.getReadingType().getFullAliasName()));
