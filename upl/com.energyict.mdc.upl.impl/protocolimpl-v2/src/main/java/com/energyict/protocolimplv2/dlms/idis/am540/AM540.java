@@ -93,7 +93,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     private void initDlmsSession(ComChannel comChannel) {
         setMeterToTransparentMode(comChannel);
-        readFrameCounter(comChannel);
+        handleFC(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
@@ -152,7 +152,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-13 18:28:35 +0300 (Thu, 13 Oct 2016)$";
+        return "$Date: 2016-10-19 13:39:27 +0200 (Wed, 19 Oct 2016)$";
     }
 
     /**
@@ -205,14 +205,13 @@ public class AM540 extends AM130 implements SerialNumberSupport {
      * First read out the frame counter for the management client, using the public client.
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
-    protected void readFrameCounter(ComChannel comChannel) {
-        boolean weHaveValidCachedFrameCounter = false;
+    protected void handleFC(ComChannel comChannel) {
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
-
         validateFCProperties(clientId);
 
+        boolean weHaveValidCachedFrameCounter = false;
         if (getDlmsSessionProperties().useCachedFrameCounter()) {
-            weHaveValidCachedFrameCounter = readAndTestCachedFrameCounter(comChannel, clientId);
+            weHaveValidCachedFrameCounter = getCachedFrameCounter(comChannel, clientId);
         }
 
         if (!weHaveValidCachedFrameCounter) {
@@ -233,43 +232,44 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     }
 
     private void validateFCProperties(int clientId) {
-        if (clientId == EVN_CLIENT_MANAGEMENT && getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()
+        if (clientId == EVN_CLIENT_MANAGEMENT
+                && getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()
                 && !getDlmsSessionProperties().useCachedFrameCounter()) {
-            getLogger().info("When Client 1 is configured and " + AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER +
-                    " is active, we also need " + AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER + " to be active");
-            throw DeviceConfigurationException.unsupportedPropertyValue(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, "false");
+
+            String msg = "When Client 1 is configured and "
+                    + AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER
+                    + " is active, we also need "
+                    + AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER
+                    + " to be active";
+            getLogger().info(msg);
+
+            throw DeviceConfigurationException.unsupportedPropertyValueWithReason(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, "false", msg);
         }
     }
 
-
     /**
-     * Before using an cached frame counter, test it first to see if it's still good
-     * If not, we shall resume back to public client initialization
-     *
-     * @return
+     * Get the frame counter from the cache, for the given clientId.
+     * If no frame counter is available in the cache (value -1), use the configured InitialFC property.
+     * <p/>
+     * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
      */
-    protected boolean readAndTestCachedFrameCounter(ComChannel comChannel, int clientId) {
+    protected boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
         getLogger().info("Will try to use a cached frame counter");
-        boolean frameCounterSet = false;
+        boolean weHaveAFrameCounter = false;
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
-        //Value -1 means that no FC was present in the cache for the given client.
-        if (cachedFrameCounter == -1) {
-            return false;
-        }
-
-        if (initialFrameCounter > cachedFrameCounter) {
-            getLogger().info("Use initial frame counter: " + initialFrameCounter + " because has a higher value than cached frame counter");
+        if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1)
+            getLogger().info("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(initialFrameCounter);
-            frameCounterSet = true;
+            weHaveAFrameCounter = true;
         } else if (cachedFrameCounter > 0) {
-            getLogger().info(" - cached frame counter: " + cachedFrameCounter);
+            getLogger().info("Using cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(cachedFrameCounter + 1);
-            frameCounterSet = true;
+            weHaveAFrameCounter = true;
         }
 
-        if (frameCounterSet) {
+        if (weHaveAFrameCounter) {
             if (getDlmsSessionProperties().validateCachedFrameCounter()) {
                 return testConnectionAndRetryWithFrameCounterIncrements(comChannel);
             } else {
@@ -278,7 +278,6 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                 return true;
             }
         }
-
 
         return false;
     }
@@ -531,7 +530,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     /**
      * Set the initial frame counter to be used when starting this DLMS session.
      */
-    public void setTXFrameCounter(long frameCounter) {
+    private void setTXFrameCounter(long frameCounter) {
         this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
     }
 
