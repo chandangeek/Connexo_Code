@@ -3,16 +3,11 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetCustomAttributeValuesToDevicePostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
+import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
 import com.elster.jupiter.demo.impl.templates.CalendarTpl;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
@@ -43,7 +38,6 @@ import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -60,12 +54,10 @@ public class CreateCollectRemoteDataSetupCommand {
     private final DeviceService deviceService;
     private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
-    private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
     private final Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider;
-    private final Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider;
     private final Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider;
     private final Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider;
+    private final Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider;
 
     private String comServerName;
     private String host;
@@ -78,21 +70,18 @@ public class CreateCollectRemoteDataSetupCommand {
             DeviceService deviceService,
             Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-            Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
-            Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
             Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider,
-            Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider,
-            Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider, Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider) {
+            Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
+            Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider,
+            Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider) {
         this.licenseService = licenseService;
         this.deviceService = deviceService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
-        this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
-        this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
         this.attachDeviceTypeCPSPostBuilderProvider = attachDeviceTypeCPSPostBuilderProvider;
-        this.setCustomAttributeValuesToDevicePostBuilderProvider = setCustomAttributeValuesToDevicePostBuilderProvider;
         this.addLocationInfoToDevicesCommandProvider = addLocationInfoToDevicesCommandProvider;
         this.createUsagePointsForDevicesCommandProvider = createUsagePointsForDevicesCommandProvider;
+        this.createSPEDeviceCommandProvider = createSPEDeviceCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -258,25 +247,17 @@ public class CreateCollectRemoteDataSetupCommand {
         for (int i = 0; i < deviceCount; i++) {
             this.deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
-            String mrid = Constants.Device.STANDARD_PREFIX + serialNumber;
-            createDevice(configuration, mrid, serialNumber, deviceTypeTpl);
+            createDevice(configuration, serialNumber, deviceTypeTpl);
         }
     }
 
-    private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl) {
-        Builders.from(DeviceBuilder.class)
-                .withMrid(mrid)
-                .withSerialNumber(serialNumber)
-                .withDeviceConfiguration(configuration)
-                .withComSchedules(Collections.singletonList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
-                .withPostBuilder(this.connectionsDevicePostBuilderProvider.get()
-                        .withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get())
-                        .withHost(this.host))
-                .withPostBuilder(new SecurityPropertiesDevicePostBuilder())
-                .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
-                .withPostBuilder(this.setDeviceInActiveLifeCycleStatePostBuilderProvider.get())
-                .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get())
-                .get();
+    private void createDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceTypeTpl) {
+        CreateSPEDeviceCommand createDeviceCommand = this.createSPEDeviceCommandProvider.get();
+        createDeviceCommand.setDeviceTypeTpl(deviceTypeTpl);
+        createDeviceCommand.setDeviceConfiguration(configuration);
+        createDeviceCommand.setSerialNumber(serialNumber);
+        createDeviceCommand.setHost(this.host);
+        createDeviceCommand.run();
     }
 
     private void createDeviceGroups() {

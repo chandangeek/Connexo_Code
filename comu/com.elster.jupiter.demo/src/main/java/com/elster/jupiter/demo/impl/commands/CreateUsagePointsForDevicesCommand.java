@@ -31,7 +31,6 @@ public class CreateUsagePointsForDevicesCommand {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final Clock clock;
 
-    private static int newUsagePointId = 0;
     private List<Device> devices;
 
     @Inject
@@ -60,7 +59,7 @@ public class CreateUsagePointsForDevicesCommand {
     private void accept(Device device) {
         UsagePoint usagePoint = device.getUsagePoint().isPresent() ? device.getUsagePoint().get() :
                 Builders.from(UsagePointBuilder.class)
-                        .withMRID(newMRID()).withName(device.getName())
+                        .withMRID(newMRID(device.getSerialNumber())).withName(device.getName())
                         .withInstallationTime(clock.instant())
                         .withLocation(device.getLocation().orElse(null))
                         .withGeoCoordinates(device.getSpatialCoordinates().orElse(null)).get();
@@ -92,8 +91,8 @@ public class CreateUsagePointsForDevicesCommand {
         return values;
     }
 
-    private String newMRID() {
-        return String.format("UP_%04d", ++newUsagePointId);
+    private String newMRID(String serialNumber) {
+        return "UP_" + serialNumber;
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint) {

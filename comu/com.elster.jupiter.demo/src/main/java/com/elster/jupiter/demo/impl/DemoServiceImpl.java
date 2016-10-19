@@ -26,6 +26,7 @@ import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
@@ -117,6 +118,7 @@ import java.time.Clock;
         "osgi.command.function=createDataLogger",
         "osgi.command.function=importCalendar",
         "osgi.command.function=setDeviceLocations",
+        "osgi.command.function=createSPEDevice",
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -937,5 +939,33 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setDeviceLocations() {
         executeTransaction(() -> this.injector.getInstance(AddLocationInfoToDevicesCommand.class).run());
+    }
+
+    @SuppressWarnings("unused")
+    public void createSPEDevice() {
+        System.err.println("Usage: createSPEDevice <serialNumber, without SPE prefix> [<deviceTypeName>, <deviceConfigurationName] [<host>]");
+    }
+
+    public void createSPEDevice(String serialNumber) {
+        createSPEDevice(serialNumber, null, null, null);
+    }
+
+    public void createSPEDevice(String serialNumber, String deviceTypeName, String deviceConfigurationName) {
+        createSPEDevice(serialNumber, deviceTypeName, deviceConfigurationName, null);
+    }
+
+    public void createSPEDevice(String serialNumber, String deviceTypeName, String deviceConfigurationName, String host) {
+        executeTransaction(() -> {
+            CreateSPEDeviceCommand deviceCommand = this.injector.getInstance(CreateSPEDeviceCommand.class);
+            deviceCommand.setSerialNumber(serialNumber);
+            deviceCommand.setDeviceTypeTpl(deviceTypeName);
+            deviceCommand.setDeviceConfiguration(deviceConfigurationName);
+            if (host != null) {
+                deviceCommand.setHost(host);
+            }
+            deviceCommand.withLocation();
+            deviceCommand.withUsagePoint();
+            deviceCommand.run();
+        });
     }
 }

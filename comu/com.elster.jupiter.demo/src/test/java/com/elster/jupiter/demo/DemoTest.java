@@ -749,7 +749,12 @@ public class DemoTest {
         assertThat(user.isPresent()).isTrue();
         assertThat(user.get().getGroups()).hasSize(1);
         assertThat(user.get().isMemberOf("Demo Users")).isTrue();
+    }
 
+    @Test
+    public void testCreateSPEDevice() {
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        demoService.createSPEDevice("123");
     }
 
     protected void doPreparations() {
