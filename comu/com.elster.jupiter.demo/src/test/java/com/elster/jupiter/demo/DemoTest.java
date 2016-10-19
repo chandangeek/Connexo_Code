@@ -754,6 +754,7 @@ public class DemoTest {
     @Test
     public void testCreateSPEDevice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "1", true);
         demoService.createSPEDevice("123");
     }
 

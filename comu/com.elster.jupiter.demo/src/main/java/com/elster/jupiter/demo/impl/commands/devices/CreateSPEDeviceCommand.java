@@ -119,6 +119,9 @@ public class CreateSPEDeviceCommand {
         }
         if (this.deviceConfiguration == null) {
             List<DeviceConfiguration> configurations = Builders.from(this.deviceTypeTpl).get().getConfigurations();
+            if (configurations.isEmpty()) {
+                throw new UnableToCreate("This device type has no device configurations");
+            }
             this.deviceConfiguration = configurations.get(new Random().nextInt(configurations.size()));
         }
         String mrid = Constants.Device.STANDARD_PREFIX + this.serialNumber;
