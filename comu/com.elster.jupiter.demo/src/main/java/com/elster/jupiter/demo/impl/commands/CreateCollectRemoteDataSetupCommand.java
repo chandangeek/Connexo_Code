@@ -175,7 +175,7 @@ public class CreateCollectRemoteDataSetupCommand {
             });
             devicesWithCorruptedConnectionSettings.add(devices.get(devicePosition).getmRID());
         }
-        System.out.println("=> Devices with corrupted connection settings: " + devicesWithCorruptedConnectionSettings.stream().collect(Collectors.joining(", ")));
+        System.out.println("==> Devices with corrupted connection settings: " + devicesWithCorruptedConnectionSettings.stream().collect(Collectors.joining(", ")));
     }
 
     private void parametersCheck() {

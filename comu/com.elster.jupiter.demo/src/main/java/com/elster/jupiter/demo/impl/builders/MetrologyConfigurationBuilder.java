@@ -81,7 +81,7 @@ public class MetrologyConfigurationBuilder extends NamedBuilder<UsagePointMetrol
     }
 
     private void setReadingTypes(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingType> readingTypes) {
-        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new UnableToCreate("Default metrology purpose not found"));
         MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new UnableToCreate("Default meter role not found"));

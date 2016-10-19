@@ -8,17 +8,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum MetrologyConfigurationTpl implements Template<UsagePointMetrologyConfiguration, MetrologyConfigurationBuilder> {
-    CONSUMER("C&I 3-phased consumer with smart meter with 2 ToU", "C&I 3-phased consumer with smart meter 2 ToU", ServiceKind.ELECTRICITY,
-            Arrays.<String>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getMrid(),
-                    RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getMrid(),
-                    RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getMrid())),
+    CONSUMER("Residential net metering (consumption)", "Residential consumer", ServiceKind.ELECTRICITY,
+            Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                    "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                    "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")),
     PROSUMER("Residential prosumer with 1 meter", "Typical installation for residential prosumers with smart meter", ServiceKind.ELECTRICITY,
-            Arrays.<String>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getMrid(),
-                    RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getMrid(),
-                    RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getMrid(),
-                    RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getMrid(),
-                    RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1.getMrid(),
-                    RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2.getMrid()));
+            Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                    "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                    "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                    "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                    "11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                    "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"));
 
     private String name;
     private String description;
