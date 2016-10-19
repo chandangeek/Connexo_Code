@@ -6,10 +6,12 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -42,8 +44,9 @@ public class CalendarResource {
     @GET
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public List<CalendarInfo> getAllTimeOfUseCalendars() {
-       return calendarService.findAllCalendars()
+    public List<CalendarInfo> getAllCalendars(@BeanParam JsonQueryParameters queryParameters) {
+       return calendarService.getCalendarFinder()
+               .from(queryParameters)
                .stream()
                .map(calendar -> calendarInfoFactory.summaryForOverview(calendar, calendarService.isCalendarInUse(calendar)))
                .collect(Collectors.toList());
@@ -53,7 +56,7 @@ public class CalendarResource {
     @Path("/{id}")
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
+    public CalendarInfo getCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
         if(milliseconds <= 0) {
             return  calendarService.findCalendar(id)
                     .map(calendarInfoFactory::detailedFromCalendar)
