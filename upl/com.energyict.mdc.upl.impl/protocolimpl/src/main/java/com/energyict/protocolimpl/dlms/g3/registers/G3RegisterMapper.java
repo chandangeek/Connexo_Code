@@ -456,10 +456,10 @@ public class G3RegisterMapper {
 
     protected final List<G3Mapping> getDisconnectControlRegistering() {
         final List<G3Mapping> disconnectControlMappings = new ArrayList<G3Mapping>();
-        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR1));
-        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR2));
-        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR3));
-        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR4));
+        disconnectControlMappings.add(new DisconnectControlMapping(DISCONNECT_CONTROL_ATTR1));
+        disconnectControlMappings.add(new DisconnectControlMapping(DISCONNECT_CONTROL_ATTR2));
+        disconnectControlMappings.add(new DisconnectControlMapping(DISCONNECT_CONTROL_ATTR3));
+        disconnectControlMappings.add(new DisconnectControlMapping(DISCONNECT_CONTROL_ATTR4));
         return disconnectControlMappings;
     }
 
