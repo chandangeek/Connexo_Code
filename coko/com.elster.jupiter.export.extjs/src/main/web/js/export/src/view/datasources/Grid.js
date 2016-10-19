@@ -6,11 +6,27 @@ Ext.define('Dxp.view.datasources.Grid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Uni.util.Application'
     ],
-    initComponent: function () {
-        var me = this;
-        me.columns = [
+    commonColumns: [
+        {
+            xtype: 'reading-type-column',
+            header: Uni.I18n.translate('general.readingType', 'DES', 'Reading type'),
+            dataIndex: 'readingType',
+            flex: 2
+        },
+        {
+            header: Uni.I18n.translate('general.lastExportedDate', 'DES', 'Last exported date'),
+            dataIndex: 'lastExportedDate',
+            renderer: function (value) {
+                return value ? Uni.DateTime.formatDateTimeShort(value) : Uni.I18n.translate('general.neverExported', 'DES', 'Never exported');
+            },
+            flex: 1
+        }
+    ],
+    columnsPerApp: {
+        MultiSense: [
             {
                 header: Uni.I18n.translate('general.mrid', 'DES', 'MRID'),
                 dataIndex: 'mRID',
@@ -20,22 +36,26 @@ Ext.define('Dxp.view.datasources.Grid', {
                 header: Uni.I18n.translate('general.serialNumber', 'DES', 'Serial number'),
                 dataIndex: 'serialNumber',
                 flex: 1
+            }
+        ],
+        MdmApp: [
+            {
+                header: Uni.I18n.translate('general.name', 'DES', 'Name'),
+                dataIndex: 'name',
+                flex: 1
             },
             {
-                xtype: 'reading-type-column',
-                header: Uni.I18n.translate('general.readingType', 'DES', 'Reading type'),
-                dataIndex: 'readingType',
-                flex: 2
-            },
-            {
-                header: Uni.I18n.translate('general.lastExportedDate', 'DES', 'Last exported date'),
-                dataIndex: 'lastExportedDate',
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : Uni.I18n.translate('general.neverExported', 'DES', 'Never exported');
-                },
+                header: Uni.I18n.translate('general.connectionState', 'DES', 'Connection state'),
+                dataIndex: 'connectionState',
                 flex: 1
             }
-        ];
+        ]
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.columns = Ext.Array.merge(me.columnsPerApp[Uni.util.Application.getAppName()] || [], me.commonColumns);
 
         me.dockedItems = [
             {
