@@ -5,7 +5,6 @@ import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
-import com.elster.jupiter.calendar.rest.impl.CalendarApplication;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONArray;
@@ -20,13 +19,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 public class CalendarResourceTest extends CalendarApplicationTest {
@@ -75,8 +72,6 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         Category category = mock(Category.class);
         when(category.getName()).thenReturn("ToU");
         when(calendar.getCategory()).thenReturn(category);
-
-        when(calendar.getTimeZone()).thenReturn(TimeZone.getDefault());
 
         Event event = mock(Event.class);
         when(event.getId()).thenReturn(2L);

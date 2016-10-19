@@ -16,7 +16,6 @@ public class CalendarInfo {
     public String category;
     public String mRID;
     public String description;
-    public String timeZone;
     public int startYear;
     public List<EventInfo> events;
     public List<DayTypeInfo> dayTypes;
