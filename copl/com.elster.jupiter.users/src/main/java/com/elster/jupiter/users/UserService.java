@@ -133,4 +133,8 @@ public interface UserService {
     void addLoggedInUser(User user);
 
     void removeLoggedUser(User user);
+
+    Optional<WorkGroup> getWorkGroup(long id);
+
+    WorkGroup createWorkGroup(String name, String description);
 }

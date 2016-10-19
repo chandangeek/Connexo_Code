@@ -33,6 +33,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -164,26 +165,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     public Optional<User> authenticate(String domain, String userName, String password, String ipAddr) {
         UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain, userName, ipAddr);
         return userDirectory.authenticate(userName, password);
-    }
-
-    private void setTrustStore(BundleContext bundleContext) {
-        String trustStorePath = bundleContext.getProperty(TRUSTSTORE_PATH);
-        String trustStorePass = bundleContext.getProperty(TRUSTSTORE_PASS);
-        if ((trustStorePath != null) && (trustStorePass != null)) {
-            System.setProperty("javax.net.ssl.trustStore", trustStorePath);
-            System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
-        }
-    }
-
-    private UserDirectory getUserDirectory(String domain, String userName, String ipAddr) {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class)
-                .select(Operator.EQUALIGNORECASE.compare("name", domain));
-        if (found.isEmpty()) {
-            logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
-            throw new NoDomainFoundException(thesaurus, domain);
-        }
-
-        return found.get(0);
     }
 
     @Override
@@ -326,11 +307,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
     }
 
-    private Resource createResource(String component, String name, String description) {
-        ResourceImpl result = ResourceImpl.from(dataModel, component, name, description);
-        result.persist();
-        return result;
-    }
+
 
     @Override
     public Optional<Group> findGroup(String name) {
@@ -446,10 +423,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return resourceFactory().getOptional(resourceName);
     }
 
-    private DataMapper<Privilege> privilegeFactory() {
-        return dataModel.mapper(Privilege.class);
-    }
-
     @Override
     public List<Privilege> getPrivileges(String applicationName) {
         List<String> applicationPrivileges = applicationPrivilegesProviders
@@ -468,10 +441,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public List<Privilege> getPrivileges() {
         return privilegeFactory().find();
-    }
-
-    private DataMapper<Resource> resourceFactory() {
-        return dataModel.mapper(Resource.class);
     }
 
     @Override
@@ -692,6 +661,74 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
     }
 
+    @Override
+    public ResourceDefinition createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges) {
+        return ResourceDefinitionImpl.createResourceDefinition(moduleName, resourceName, resourceDescription, privileges);
+    }
+
+    @Override
+    public Optional<Group> getGroup(String name) {
+        return getGroupsQuery()
+                .select(where("name").isEqualTo(name))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public List<User> getGroupMembers(String groupName) {
+        QueryExecutor<UserInGroup> queryExecutor = dataModel.query(UserInGroup.class, Group.class);
+        List<UserInGroup> membership = queryExecutor.select(where("group.name").isEqualTo(groupName));
+        return membership.stream().map(UserInGroup::getUser).collect(Collectors.toList());
+    }
+
+    @Override
+    public Query<Group> getGroupsQuery() {
+        return queryService.wrap(dataModel.query(Group.class));
+    }
+
+    @Override
+    public Optional<User> getLoggedInUser(long userId) {
+        Optional<User> found = this.loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
+        if (!found.isPresent()) {
+            found = this.getUser(userId);
+        }
+
+        return found;
+    }
+
+    @Override
+    public void addLoggedInUser(User user) {
+        if (!this.loggedInUsers.contains(user)) {
+            this.loggedInUsers.add(user);
+        }
+    }
+
+
+    @Override
+    public void removeLoggedUser(User user) {
+        this.loggedInUsers.remove(user);
+    }
+
+    @Override
+    public Optional<WorkGroup> getWorkGroup(long id){
+        return dataModel.mapper(WorkGroup.class).getOptional(id);
+    }
+
+    @Override
+    public WorkGroup createWorkGroup(String name, String description) {
+        WorkGroupImpl workGroup = WorkGroupImpl.from(dataModel, name, description);
+        workGroup.update();
+        return workGroup;
+    }
+
+    private DataMapper<Privilege> privilegeFactory() {
+        return dataModel.mapper(Privilege.class);
+    }
+
+    private DataMapper<Resource> resourceFactory() {
+        return dataModel.mapper(Resource.class);
+    }
+
     private void doInstallPrivileges(PrivilegesProvider privilegesProvider) {
         for (ResourceDefinition resource : privilegesProvider.getModuleResources()) {
             saveResourceWithPrivileges(resource.getComponentName(),
@@ -742,61 +779,13 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 ).collect(Collectors.toList());
     }
 
-    private List<Resource> getApplicationResources() {
-        return applicationPrivilegesProviders.stream()
-                .flatMap(a -> getApplicationResources(a.getApplicationName()).stream()).collect(Collectors.toList());
-    }
-
-    @Override
-    public ResourceDefinition createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges) {
-        return ResourceDefinitionImpl.createResourceDefinition(moduleName, resourceName, resourceDescription, privileges);
-    }
-
     private DataMapper<User> userFactory() {
         return dataModel.mapper(User.class);
     }
 
-    @Override
-    public Optional<Group> getGroup(String name) {
-        return getGroupsQuery()
-                .select(where("name").isEqualTo(name))
-                .stream()
-                .findFirst();
-    }
-
-    @Override
-    public List<User> getGroupMembers(String groupName) {
-        QueryExecutor<UserInGroup> queryExecutor = dataModel.query(UserInGroup.class, Group.class);
-        List<UserInGroup> membership = queryExecutor.select(where("group.name").isEqualTo(groupName));
-        return membership.stream().map(UserInGroup::getUser).collect(Collectors.toList());
-    }
-
-    @Override
-    public Query<Group> getGroupsQuery() {
-        return queryService.wrap(dataModel.query(Group.class));
-    }
-
-    @Override
-    public Optional<User> getLoggedInUser(long userId) {
-        Optional<User> found = this.loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
-        if (!found.isPresent()) {
-            found = this.getUser(userId);
-        }
-
-        return found;
-    }
-
-    @Override
-    public void addLoggedInUser(User user) {
-        if (!this.loggedInUsers.contains(user)) {
-            this.loggedInUsers.add(user);
-        }
-    }
-
-
-    @Override
-    public void removeLoggedUser(User user) {
-        this.loggedInUsers.remove(user);
+    private List<Resource> getApplicationResources() {
+        return applicationPrivilegesProviders.stream()
+                .flatMap(a -> getApplicationResources(a.getApplicationName()).stream()).collect(Collectors.toList());
     }
 
     private void logMessage(String message, String userName, String domain, String ipAddr) {
@@ -839,5 +828,31 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     private Principal getPrincipal() {
         return () -> "Authentication process";
+    }
+
+    private void setTrustStore(BundleContext bundleContext) {
+        String trustStorePath = bundleContext.getProperty(TRUSTSTORE_PATH);
+        String trustStorePass = bundleContext.getProperty(TRUSTSTORE_PASS);
+        if ((trustStorePath != null) && (trustStorePass != null)) {
+            System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+            System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
+        }
+    }
+
+    private UserDirectory getUserDirectory(String domain, String userName, String ipAddr) {
+        List<UserDirectory> found = dataModel.query(UserDirectory.class)
+                .select(Operator.EQUALIGNORECASE.compare("name", domain));
+        if (found.isEmpty()) {
+            logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
+            throw new NoDomainFoundException(thesaurus, domain);
+        }
+
+        return found.get(0);
+    }
+
+    private Resource createResource(String component, String name, String description) {
+        ResourceImpl result = ResourceImpl.from(dataModel, component, name, description);
+        result.persist();
+        return result;
     }
 }
