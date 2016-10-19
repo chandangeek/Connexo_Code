@@ -14,6 +14,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
@@ -179,9 +180,9 @@ public class RegisterResource {
     public Response getRegistersForGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
-        List<IdWithNameInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
+        List<SummarizedRegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
-                .map(register -> new IdWithNameInfo(register.getRegisterSpecId(), register.getReadingType().getFullAliasName()))
+                .map(register -> new SummarizedRegisterInfo(register.getRegisterSpecId(), register.getReadingType().getFullAliasName(), register instanceof BillingRegister))
                 .collect(Collectors.toList());
         return Response.ok(registerInfos).build();
     }
