@@ -1,9 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -15,11 +12,20 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
@@ -30,8 +36,9 @@ import java.util.List;
 
 /**
  * Copyrights EnergyICT
- * Date: 29.09.15
- * Time: 12:00
+ *
+ * @author khe
+ * @since 6/01/2015 - 15:31
  */
 public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
 
@@ -44,6 +51,7 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
         super(protocol, issueService, readingTypeUtilService, collectedDataFactory);
     }
 
+
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
@@ -51,29 +59,29 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_OPEN)) {
+                if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
                     remoteDisconnect(pendingMessage);
-                } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_CLOSE)) {
+                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
                     remoteConnect(pendingMessage);
-                } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
+                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
                     timedAction(pendingMessage, 1);
-                } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
+                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
                     timedAction(pendingMessage, 2);
-                } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.MBUS_SETUP_DECOMMISSION)) {
-                    decomission(pendingMessage);
-                } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS)) {
-                    setEncryptionKeys(pendingMessage);
-                } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.MBUS_SETUP_WRITE_CAPTURE_DEFINITION_FOR_ALL_INSTANCES)) {
-                    writeCaptureDefinition(pendingMessage);
-                } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.MBUS_SETUP_WRITE_CAPTURE_PERIOD)) {
-                    writeMBusCapturePeriod(pendingMessage);
+//                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Decommission)) {
+//                    decomission(pendingMessage);
+//                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.SetEncryptionKeys)) {
+//                    setEncryptionKeys(pendingMessage);
+//                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.WriteCaptureDefinitionForAllInstances)) {
+//                    writeCaptureDefinition(pendingMessage);
+//                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.WriteMBusCapturePeriod)) {
+//                    writeMBusCapturePeriod(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession().getProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());

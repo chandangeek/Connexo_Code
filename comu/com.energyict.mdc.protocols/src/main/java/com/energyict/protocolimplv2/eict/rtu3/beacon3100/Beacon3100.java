@@ -108,11 +108,11 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getDlmsProperties().setSerialNumber(offlineDevice.getSerialNumber());
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: " + getVersion());
         readFrameCounter(comChannel);
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+        setDlmsSession(new DlmsSession(comChannel, getDlmsProperties()));
     }
 
 
@@ -128,7 +128,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
             return;
         }
         // construct a temporary session with 0:0 security and clientId=16 (public)
-        final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
+        final TypedProperties publicProperties = getDlmsProperties().getProperties().clone();
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         final Beacon3100Properties publicClientProperties = new Beacon3100Properties(propertySpecService, thesaurus);
         publicClientProperties.addProperties(publicProperties);
@@ -149,11 +149,11 @@ public class Beacon3100 extends AbstractDlmsProtocol {
             }
         });    //SecurityLevel 0:0
 
-        final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
-        final ObisCode frameCounterObisCode = this.getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress());
+        final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsProperties().getSerialNumber());
+        final ObisCode frameCounterObisCode = this.getFrameCounterObisCode(getDlmsProperties().getClientMacAddress());
         final long frameCounter;
 
-        if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
+        if (getDlmsProperties().getRequestAuthenticatedFrameCounter()) {
             getLogger().finest("Requesting authenticated frame counter");
             try {
                 publicDlmsSession.getDlmsV2Connection().connectMAC();
@@ -183,10 +183,10 @@ public class Beacon3100 extends AbstractDlmsProtocol {
             }
             //frameCounter = new SecureRandom().nextInt();
         }
-        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+        this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
-    public Beacon3100Properties getDlmsSessionProperties() {
+    public Beacon3100Properties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new Beacon3100Properties(propertySpecService, thesaurus);
         }
@@ -197,8 +197,8 @@ public class Beacon3100 extends AbstractDlmsProtocol {
      * General ciphering (wrapped-key and agreed-key) are sessions keys
      */
     private boolean usesSessionKey() {
-        return getDlmsSessionProperties().getCipheringType()
-                .equals(CipheringType.GENERAL_CIPHERING) && getDlmsSessionProperties().getGeneralCipheringKeyType() != GeneralCipheringKeyType.IDENTIFIED_KEY;
+        return getDlmsProperties().getCipheringType()
+                .equals(CipheringType.GENERAL_CIPHERING) && getDlmsProperties().getGeneralCipheringKeyType() != GeneralCipheringKeyType.IDENTIFIED_KEY;
     }
 
     /**
@@ -474,7 +474,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
             setDeviceCache(new DLMSCache());
         }
         DLMSCache dlmsCache = (DLMSCache) getDeviceCache();
-        if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().isReadCache()) {
+        if (dlmsCache.getObjectList() == null || getDlmsProperties().isReadCache()) {
             readObjectList();
             dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
         } else {

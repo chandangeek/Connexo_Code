@@ -146,7 +146,7 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public AM540Cache getDeviceCache() {
         if (this.am540Cache == null) {
-            am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
+            am540Cache = new AM540Cache(getDlmsProperties().useBeaconMirrorDeviceDialect());
         }
         this.am540Cache.setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
         return this.am540Cache;
@@ -163,14 +163,14 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         super.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
+        this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
     }
 
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
     protected void checkCacheObjects() {
-        boolean readCache = getDlmsSessionProperties().isReadCache();
+        boolean readCache = getDlmsProperties().isReadCache();
         if ((getDeviceCache().getObjectList() == null) || (readCache)) {
             if (readCache) {
                 getLogger().fine("ForcedToReadCache property is true, reading cache!");
@@ -187,13 +187,6 @@ public class AM540 extends AbstractDlmsProtocol {
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
-    public DSMR50Properties getDlmsSessionProperties() {
-        if (dlmsProperties == null) {
-            dlmsProperties = new DSMR50Properties(getPropertySpecService(), this.getThesaurus());
-        }
-        return (DSMR50Properties) dlmsProperties;
-    }
-
     /**
      * Add extra retries to the association request.
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
@@ -204,7 +197,7 @@ public class AM540 extends AbstractDlmsProtocol {
             ComServerRuntimeException exception;
             try {
                 getDlmsSession().getDLMSConnection().setRetries(0);   //AARQ retries are handled here
-                getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+                getDlmsSession().createAssociation((int) getDlmsProperties().getAARQTimeout());
                 return;
             } catch (ComServerRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
@@ -214,23 +207,23 @@ public class AM540 extends AbstractDlmsProtocol {
 
                 exception = e;
             } finally {
-                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
+                getDlmsSession().getDLMSConnection().setRetries(getDlmsProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
-            if (++tries > getDlmsSessionProperties().getAARQRetries()) {
+            if (++tries > getDlmsProperties().getAARQRetries()) {
                 if (getLogger().isLoggable(Level.SEVERE)) {
-                    getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
+                    getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsProperties().getAARQRetries() + 1) + "] tries.");
                 }
                 throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, tries);
             } else {
                 if (exception instanceof CommunicationException) {
                     if (getLogger().isLoggable(Level.INFO)) {
-                        getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries, due to timeout. Retrying.");
+                        getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsProperties().getAARQRetries() + 1) + "] tries, due to timeout. Retrying.");
                     }
                 } else {
                     if (getLogger().isLoggable(Level.INFO)) {
-                        getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                        getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                     }
                     try {
                         ((ApplicationServiceObjectV2) getDlmsSession().getAso()).releaseAssociation();
@@ -283,7 +276,7 @@ public class AM540 extends AbstractDlmsProtocol {
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new AM540LoadProfileBuilder(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory());
-            loadProfileBuilder.setCumulativeCaptureTimeChannel(getDlmsSessionProperties().isCumulativeCaptureTimeChannel());
+            loadProfileBuilder.setCumulativeCaptureTimeChannel(getDlmsProperties().isCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
     }
@@ -352,7 +345,7 @@ public class AM540 extends AbstractDlmsProtocol {
      */
     @Override
     public String getSerialNumber() {
-        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || !getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
+        if (getDlmsProperties().useBeaconMirrorDeviceDialect() || !getDlmsProperties().useEquipmentIdentifierAsSerialNumber()) {
             return getMeterInfo().getSerialNr();
         } else {
             return getMeterInfo().getEquipmentIdentifier();
@@ -361,7 +354,7 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public Date getTime() {
-        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+        if (getDlmsProperties().useBeaconMirrorDeviceDialect()) {
             return new Date();  //Don't read out the clock of the mirror logical device, it does not know the actual meter time.
         } else {
             return super.getTime();
@@ -370,7 +363,7 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public void setTime(Date timeToSet) {
-        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+        if (getDlmsProperties().useBeaconMirrorDeviceDialect()) {
             IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
             throw new CommunicationException(MessageSeeds.NOT_ALLOWED_TO_DO_SET_TIME, cause);
         } else {
@@ -398,7 +391,6 @@ public class AM540 extends AbstractDlmsProtocol {
     /**
      * Class that holds all DLMS device properties (general, dialect & security related)
      */
-    @Override
     public DSMR50Properties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new DSMR50Properties(getPropertySpecService(), this.getThesaurus());

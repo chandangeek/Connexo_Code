@@ -391,6 +391,19 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
         return properties.getTypedProperty(key, defaultValue).intValue();
     }
 
+    /**
+     * Parse a BigDecimal property that has no default value.
+     * Throw an error if no value was configured for this property.
+     */
+    protected int parseBigDecimalProperty(String key) {
+        final BigDecimal value = properties.getTypedProperty(key);
+        if (value != null) {
+            return value.intValue();
+        } else {
+            throw DeviceConfigurationException.missingProperty(key);
+        }
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());

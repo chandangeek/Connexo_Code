@@ -17,29 +17,37 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public class DLMSCache implements DeviceProtocolCache, Serializable {
-    private UniversalObject[] objectList;
-    private int confProgChange;
-    private boolean dirty;
+    UniversalObject[] objectList;
+    int confProgChange;
+    boolean changed;
 
+    /**
+     * Creates a new instance of DLMSCache
+     */
     public DLMSCache() {
         this(null, -1);
     }
 
-    public DLMSCache(UniversalObject[] objectList, int confProgChange, boolean dirty) {
+    // constructor for the
+    public DLMSCache(UniversalObject[] objectList, int confProgChange, boolean changed) {
         this.objectList = objectList;
         this.confProgChange = confProgChange;
-        this.dirty = dirty;
+        this.changed = changed;
     }
 
     public DLMSCache(UniversalObject[] objectList, int confProgChange) {
         this.objectList = objectList;
         this.confProgChange = confProgChange;
-        markClean();
+        setChanged(false);
+    }
+
+    public void setChanged(boolean changed) {
+        this.changed = changed;
     }
 
     public void saveObjectList(UniversalObject[] objectList) {
         this.objectList = objectList;
-        markDirty();
+        setChanged(true);
     }
 
     public UniversalObject[] getObjectList() {
@@ -48,26 +56,28 @@ public class DLMSCache implements DeviceProtocolCache, Serializable {
 
     public void setConfProgChange(int confProgChange) {
         this.confProgChange = confProgChange;
-        markDirty();
+        setChanged(true);
     }
 
     public int getConfProgChange() {
         return confProgChange;
     }
 
+
     @Override
     public boolean isDirty() {
-        return dirty;
+        return changed;
     }
 
     @Override
     public void markClean() {
-        this.dirty = false;
+        this.changed = false;
+
     }
 
     @Override
     public void markDirty() {
-        this.dirty = true;
-    }
+        this.changed = true;
 
+    }
 }

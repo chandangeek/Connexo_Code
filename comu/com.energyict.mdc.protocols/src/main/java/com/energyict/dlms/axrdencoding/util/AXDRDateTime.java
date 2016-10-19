@@ -53,7 +53,7 @@ import java.util.TimeZone;
  *                deviation highbyte;
  *                defiation lowbyte;
  *                clock status;
- * 
+ *
  *
  *               day of week is ignored: calendar knows this
  *               deviation is ignored: protocol configuration provides timezone
@@ -82,7 +82,9 @@ public class AXDRDateTime extends AbstractDataType {
     public static final int SIZE = 12;
 
     protected Calendar dateTime;
+    protected boolean useUnspecifiedAsDeviation;
     protected int status;
+    private boolean setHSByte = true;
 
     public AXDRDateTime() {
     }
@@ -287,9 +289,11 @@ public class AXDRDateTime extends AbstractDataType {
         int hour = v.get(Calendar.HOUR_OF_DAY);
         int minute = v.get(Calendar.MINUTE);
         int second = v.get(Calendar.SECOND);
-        int hs = v.get(Calendar.MILLISECOND) / MS_PER_HS;
+        int hs = isSetHSByte() ? (v.get(Calendar.MILLISECOND) / MS_PER_HS) : 255;
 
-        int deviation = -((v.getTimeZone().getRawOffset() / 60000) + (v.getTimeZone().inDaylightTime(v.getTime()) ? 60 : 0));
+        int deviation = useUnspecifiedAsDeviation
+                ? 0x8000
+                : -((v.getTimeZone().getRawOffset() / 60000) + (v.getTimeZone().inDaylightTime(v.getTime()) ? 60 : 0));
 
         return
                 new byte[]{
@@ -362,4 +366,19 @@ public class AXDRDateTime extends AbstractDataType {
         return getValue().getTime().toString() + " [" + rawData + "]";
     }
 
+    /**
+     * Indicate whether deviation should (not) be specified, but left at 0x800 (~ undefined)
+     * @param useUnspecifiedAsDeviation
+     */
+    public void useUnspecifiedAsDeviation(boolean useUnspecifiedAsDeviation) {
+        this.useUnspecifiedAsDeviation = useUnspecifiedAsDeviation;
+    }
+
+    public boolean isSetHSByte() {
+        return setHSByte;
+    }
+
+    public void setSetHSByte(boolean setHSByte) {
+        this.setHSByte = setHSByte;
+    }
 }
