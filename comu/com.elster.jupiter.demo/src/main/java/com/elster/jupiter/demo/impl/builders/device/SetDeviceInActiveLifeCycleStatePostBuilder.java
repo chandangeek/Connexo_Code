@@ -61,7 +61,6 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
             }
         }
         if (!authorizedActions.isEmpty()) {
-            Long now = Clock.systemDefaultZone().millis();
             AuthorizedTransitionAction authorizedActionToExecute = authorizedActions.get(0);
             List<ExecutableActionProperty> properties =
                     DecoratedStream
@@ -70,7 +69,6 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
                             .distinct(PropertySpec::getName)
                             .map(ps -> this.toExecutableActionProperty(ps, clock.instant().plus(1, ChronoUnit.MINUTES)))
                             .collect(Collectors.toList());
-            System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
             executeAuthorizedAction(authorizedActionToExecute, device, properties);
         }
     }
@@ -103,10 +101,8 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     }
 
     private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
-        long now = Clock.systemDefaultZone().millis();
         try {
             deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant().plus(1, ChronoUnit.MINUTES), properties);
-            System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();
         }

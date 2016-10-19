@@ -90,7 +90,6 @@ public class CreateDefaultDeviceLifeCycleCommand {
                         .filter(action -> action.getStateTransition().getTo().getName().equals(DefaultState.ACTIVE.getKey()))
                         .collect(Collectors.toList());
         if (!authorizedActions.isEmpty()) {
-            now = Clock.systemDefaultZone().millis();
             AuthorizedTransitionAction authorizedActionToExecute = authorizedActions.get(0);
             List<ExecutableActionProperty> properties =
                     DecoratedStream
@@ -99,17 +98,13 @@ public class CreateDefaultDeviceLifeCycleCommand {
                             .distinct(PropertySpec::getName)
                             .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
                             .collect(Collectors.toList());
-
-            System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
             devices.stream().forEach(x -> executeAuthorizedAction(authorizedActionToExecute, x, properties));
         }
     }
 
     private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
-        long now = Clock.systemDefaultZone().millis();
         try {
             deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant(), properties);
-            System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();
         }
