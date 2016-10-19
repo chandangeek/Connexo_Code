@@ -1,19 +1,20 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

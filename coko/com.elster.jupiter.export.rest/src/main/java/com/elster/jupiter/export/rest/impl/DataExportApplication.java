@@ -127,6 +127,8 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 bind(appService).to(AppService.class);
                 bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
                 bind(DataSourceInfoFactory.class).to(DataSourceInfoFactory.class);
+                bind(DataExportTaskInfoFactory.class).to(DataExportTaskInfoFactory.class);
+                bind(DataExportTaskHistoryInfoFactory.class).to(DataExportTaskHistoryInfoFactory.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

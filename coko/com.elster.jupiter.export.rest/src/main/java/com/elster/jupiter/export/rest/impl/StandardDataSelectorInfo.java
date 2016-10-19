@@ -61,7 +61,6 @@ public class StandardDataSelectorInfo {
 
     void populateFrom(StandardDataSelector selector, Thesaurus thesaurus) {
         id = selector.getId();
-
         deviceGroup = new MeterGroupInfo(selector.getEndDeviceGroup());
         exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
         DataExportStrategy strategy = selector.getStrategy();

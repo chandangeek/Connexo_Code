@@ -3,11 +3,13 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 
 import javax.inject.Inject;
-import java.util.List;
+import java.time.Instant;
 
 public class DataSourceInfoFactory {
 
@@ -18,32 +20,36 @@ public class DataSourceInfoFactory {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
-    public DataSourceInfos asInfoList(List<? extends ReadingTypeDataExportItem> exportItems) {
-        DataSourceInfos infos = new DataSourceInfos();
-        for (ReadingTypeDataExportItem item : exportItems) {
-            infos.dataSources.add(this.asInfo(item));
-            infos.total++;
-        }
-        return infos;
-    }
-
-
-
     public DataSourceInfo asInfo(ReadingTypeDataExportItem item) {
         DataSourceInfo info = new DataSourceInfo();
         info.occurrenceId = item.getLastOccurrence().map(DataExportOccurrence::getId).orElse(null);
-
-        item.getLastRun().ifPresent(instant -> {
-            item.getReadingContainer().getMeter(instant)
-                    .ifPresent(meter -> {
-                        info.mRID = meter.getMRID();
-                        info.serialNumber = meter.getSerialNumber();
-                    });
-        });
+        item.getLastRun().ifPresent(instant ->
+                info.details = getDataSourceDetails(item.getReadingContainer(), instant)
+        );
         info.readingType = readingTypeInfoFactory.from(item.getReadingType());
-        item.getLastExportedDate().ifPresent(instant -> {
-            info.lastExportedDate = instant.toEpochMilli();
-        });
+        item.getLastExportedDate().ifPresent(instant -> info.lastExportedDate = instant);
         return info;
+    }
+
+    private DataSourceInfo.DataSource getDataSourceDetails(ReadingContainer readingContainer, Instant instant) {
+        if (readingContainer instanceof Meter) {
+            return readingContainer.getMeter(instant).map(this::asDataSource).orElse(null);
+        } else {
+            return readingContainer.getUsagePoint(instant).map(this::asDataSource).orElse(null);
+        }
+    }
+
+    private DataSourceInfo.MeterDataSource asDataSource(Meter meter) {
+        DataSourceInfo.MeterDataSource meterDataSource = new DataSourceInfo.MeterDataSource();
+        meterDataSource.mRID = meter.getMRID();
+        meterDataSource.serialNumber = meter.getSerialNumber();
+        return meterDataSource;
+    }
+
+    private DataSourceInfo.UsagePointDataSource asDataSource(UsagePoint usagePoint) {
+        DataSourceInfo.UsagePointDataSource usagePointDataSource = new DataSourceInfo.UsagePointDataSource();
+        usagePointDataSource.name = usagePoint.getName();
+        usagePointDataSource.connectionState = usagePoint.getConnectionStateDisplayName();
+        return usagePointDataSource;
     }
 }

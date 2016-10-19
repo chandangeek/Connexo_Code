@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
@@ -8,6 +7,7 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.security.Privileges;
@@ -16,15 +16,16 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -32,7 +33,6 @@ import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
@@ -46,6 +46,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -67,8 +68,9 @@ import java.util.stream.Collectors;
 @Path("/dataexporttask")
 public class DataExportTaskResource {
 
+    static final String X_CONNEXO_APPLICATION_NAME = "X-CONNEXO-APPLICATION-NAME";
+
     private final DataExportService dataExportService;
-    private final RestQueryService queryService;
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
@@ -76,10 +78,14 @@ public class DataExportTaskResource {
     private final PropertyValueInfoService propertyValueInfoService;
     private final DataSourceInfoFactory dataSourceInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final DataExportTaskInfoFactory dataExportTaskInfoFactory;
+    private final DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory, DataSourceInfoFactory dataSourceInfoFactory) {
-        this.queryService = queryService;
+    public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService,
+                                  Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService,
+                                  ConcurrentModificationExceptionFactory conflictFactory, DataSourceInfoFactory dataSourceInfoFactory,
+                                  DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory) {
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
@@ -88,33 +94,42 @@ public class DataExportTaskResource {
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
         this.dataSourceInfoFactory = dataSourceInfoFactory;
+        this.dataExportTaskInfoFactory = dataExportTaskInfoFactory;
+        this.dataExportTaskHistoryInfoFactory = dataExportTaskHistoryInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
-    public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends ExportTask> list = queryTasks(params);
-
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyValueInfoService, false);
-        infos.total = params.determineTotal(list.size());
-
-        return infos;
+    public PagedInfoList getDataExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        String applicationName = getApplicationNameFromCode(appCode);
+        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
+        queryParameters.getStart().ifPresent(finder::setStart);
+        queryParameters.getLimit().ifPresent(finder::setLimit);
+        List<DataExportTaskInfo> infos = finder.stream()
+                .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("dataExportTasks", infos, queryParameters);
     }
 
-    private List<? extends ExportTask> queryTasks(QueryParameters queryParameters) {
-        Query<? extends ExportTask> query = dataExportService.getReadingTypeDataExportTaskQuery();
-        RestQuery<? extends ExportTask> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast());
+    private String getApplicationNameFromCode(String appCode) {
+        String applicationName;
+        if ("MDC".equals(appCode)) {
+            applicationName = "MultiSense";
+        } else if ("INS".equals(appCode)) {
+            applicationName = "Insight";
+        } else {
+            applicationName = appCode;
+        }
+        return applicationName;
     }
 
     @GET
-    @Path("/{id}/")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
-    public DataExportTaskInfo getDataExportTask(@PathParam("id") long id) {
-        return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService, propertyValueInfoService);
+    public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        return dataExportTaskInfoFactory.asInfo(findTaskOrThrowException(id, appCode));
     }
 
     @PUT
@@ -136,13 +151,13 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK)
-    public Response addExportTask(DataExportTaskInfo info) {
+    public Response addExportTask(DataExportTaskInfo info, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
-                .setApplication(info.application)
+                .setApplication(getApplicationNameFromCode(appCode))
                 .setDataFormatterFactoryName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
-                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+                .setNextExecution(info.nextRun);
 
         if (info.standardDataSelector == null) {
             builder.selectingCustom(info.dataSelector.name).endSelection();
@@ -186,7 +201,6 @@ public class DataExportTaskResource {
                         .map(r -> r.eventFilterCode)
                         .forEach(selectorBuilder::fromEventType);
                 selectorBuilder.endSelection();
-
             }
         }
 
@@ -206,11 +220,11 @@ public class DataExportTaskResource {
                     .forEach(destinationInfo -> destinationInfo.type.create(exportTask, destinationInfo));
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService, propertyValueInfoService)).build();
+        return Response.status(Response.Status.CREATED).entity(dataExportTaskInfoFactory.asInfo(dataExportTask)).build();
     }
 
     @DELETE
-    @Path("/{id}/")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
@@ -232,7 +246,7 @@ public class DataExportTaskResource {
     }
 
     @PUT
-    @Path("/{id}/")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
     public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
@@ -242,7 +256,7 @@ public class DataExportTaskResource {
 
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
-            task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+            task.setNextExecution(info.nextRun);
 
             if (info.standardDataSelector != null) {
                 if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
@@ -256,7 +270,7 @@ public class DataExportTaskResource {
                 }
                 String selectorString = task.getDataSelectorFactory().getName();
                 SelectorType selectorType = SelectorType.forSelector(selectorString);
-                if(selectorType.equals(SelectorType.DEFAULT_READINGS)){
+                if (selectorType.equals(SelectorType.DEFAULT_READINGS)) {
                     StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
                     selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
                     selector.setExportUpdate(info.standardDataSelector.exportUpdate);
@@ -268,7 +282,7 @@ public class DataExportTaskResource {
                     selector.setExportContinuousData(info.standardDataSelector.exportContinuousData);
                     selector.save();
                     updateReadingTypes(info, task);
-                } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)){
+                } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)) {
                     EventDataSelector selector = task.getEventDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
                     selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
                     selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
@@ -281,7 +295,7 @@ public class DataExportTaskResource {
 
             task.update();
             context.commit();
-            return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyValueInfoService)).build();
+            return Response.status(Response.Status.CREATED).entity(dataExportTaskInfoFactory.asInfo(task)).build();
         }
     }
 
@@ -309,13 +323,12 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
-    public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
-                                                               @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        ExportTask task = fetchDataExportTask(id);
+    public PagedInfoList getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+                                                  @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        ExportTask task = findTaskOrThrowException(id, appCode);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-                .setStart(queryParameters.getStartInt())
-                .setLimit(queryParameters.getLimit() + 1);
+                .setStart(queryParameters.getStart().orElse(0))
+                .setLimit(queryParameters.getLimit().orElse(0) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
@@ -333,47 +346,45 @@ public class DataExportTaskResource {
             occurrencesFinder.withExportPeriodContaining(filter.getInstant("exportPeriodContains"));
         }
 
-        List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
+        History<ExportTask> history = task.getHistory();
+        List<DataExportTaskHistoryInfo> infos = occurrencesFinder.stream()
+                .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(history, occurrence))
+                .collect(Collectors.toList());
 
-        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService, propertyValueInfoService);
-        infos.total = queryParameters.determineTotal(occurrences.size());
-        return infos;
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
     @GET
     @Path("/{id}/datasources")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
-    public DataSourceInfos getDataSources(@PathParam("id") long id, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
-        ExportTask task = fetchDataExportTask(id);
-        return task.getReadingTypeDataSelector()
-                .map(readingTypeDataSelector -> buildDataSourceInfos(readingTypeDataSelector, uriInfo))
-                .orElse(dataSourceInfoFactory.asInfoList(Collections.emptyList()));
+    public PagedInfoList getDataSources(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        ExportTask task = findTaskOrThrowException(id, appCode);
+        List<DataSourceInfo> infos = task.getReadingTypeDataSelector()
+                .map(readingTypeDataSelector -> getDataSources(readingTypeDataSelector, queryParameters))
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(dataSourceInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("dataSources", infos, queryParameters);
     }
 
-    private DataSourceInfos buildDataSourceInfos(StandardDataSelector standardDataSelector, @Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends ReadingTypeDataExportItem> allExportItems = standardDataSelector.getExportItems();
-        List<ReadingTypeDataExportItem> activeExportItems = allExportItems.stream()
+    private List<? extends ReadingTypeDataExportItem> getDataSources(StandardDataSelector standardDataSelector, JsonQueryParameters queryParameters) {
+        List<ReadingTypeDataExportItem> activeExportItems = standardDataSelector.getExportItems().stream()
                 .filter(ReadingTypeDataExportItem::isActive)
                 .filter(item -> item.getLastRun().isPresent())
                 .collect(Collectors.toList());
-        List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(activeExportItems).paged(queryParameters.getStartInt(), queryParameters.getLimit()).find();
-        DataSourceInfos dataSourceInfos = dataSourceInfoFactory.asInfoList(exportItems.subList(0, Math.min(queryParameters.getLimit(), exportItems.size())));
-        dataSourceInfos.total = activeExportItems.size();
-
-        return dataSourceInfos;
+        return ListPager.of(activeExportItems).from(queryParameters).find();
     }
-
 
     @GET
     @Path("/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-                                                                 @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+                                                                 @Context SecurityContext securityContext, @Context UriInfo uriInfo, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        ExportTask task = fetchDataExportTask(id);
+        ExportTask task = findTaskOrThrowException(id, appCode);
         DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder()
                 .setStart(queryParameters.getStartInt())
@@ -386,8 +397,11 @@ public class DataExportTaskResource {
         return infos;
     }
 
-    private ExportTask findTaskOrThrowException(long id) {
-        return dataExportService.findExportTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    private ExportTask findTaskOrThrowException(long id, String appCode) {
+        String application = getApplicationNameFromCode(appCode);
+        return dataExportService.findExportTask(id)
+                .filter(exportTask -> application.equals(exportTask.getApplication()))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private ExportTask findAndLockExportTask(DataExportTaskInfo info) {
@@ -466,10 +480,6 @@ public class DataExportTaskResource {
             return null;
         }
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
-    }
-
-    private ExportTask fetchDataExportTask(long id) {
-        return findTaskOrThrowException(id);
     }
 
     private DataExportOccurrence fetchDataExportOccurrence(long id, ExportTask task) {

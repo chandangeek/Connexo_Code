@@ -1,17 +1,34 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import java.time.Instant;
-import java.util.Optional;
 
 public class DataSourceInfo {
 
-    public String mRID;
-    public String serialNumber;
+    @JsonUnwrapped
+    public DataSource details;
     public ReadingTypeInfo readingType;
-    public Long lastExportedDate;
+    public Instant lastExportedDate;
     public Long occurrenceId;
+
+    public static class DataSource {
+
+    }
+
+    public static class MeterDataSource extends DataSource {
+
+        public String mRID;
+        public String serialNumber;
+
+    }
+
+    public static class UsagePointDataSource extends DataSource {
+
+        public String name;
+        public String connectionState;
+
+    }
 }

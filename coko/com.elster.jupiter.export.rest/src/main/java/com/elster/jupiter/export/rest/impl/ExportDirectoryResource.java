@@ -4,8 +4,6 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
