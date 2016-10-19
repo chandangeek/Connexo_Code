@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -21,6 +22,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableMap;
@@ -38,7 +40,6 @@ import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -175,6 +176,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         CalendarBuilderImpl builder = new CalendarBuilderImpl(getDataModel());
         builder.init(name, start);
         return builder;
+    }
+
+    @Override
+    public Finder<Calendar> getCalendarFinder() {
+        return DefaultFinder.of(Calendar.class, Condition.TRUE, dataModel);
     }
 
     public List<Calendar> findAllCalendars() {

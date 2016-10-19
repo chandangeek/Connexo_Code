@@ -1,5 +1,7 @@
 package com.elster.jupiter.calendar;
 
+import com.elster.jupiter.domain.util.Finder;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.LocalDate;
@@ -30,6 +32,8 @@ public interface CalendarService {
     CalendarBuilder newCalendar(String name, Year start);
 
     List<Calendar> findAllCalendars();
+
+    Finder<Calendar> getCalendarFinder();
 
     Optional<Category> findCategoryByName(String name);
 
