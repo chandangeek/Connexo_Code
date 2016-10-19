@@ -50,7 +50,7 @@ public class ConnexoRestProxyManager {
             return httpConnection.getHeaderField("X-AUTH-TOKEN");
 
         } catch (Exception e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException(e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
