@@ -8,7 +8,7 @@ import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationT
 import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetCustomAttributeValuesToDevicePostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUsagePointsForDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
@@ -30,7 +30,7 @@ public class CreateSPEDeviceCommand {
 
     private final DeviceService deviceService;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
+    private final Provider<ActivateDevicesCommand> activateDevicesCommandProvider;
     private final Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider;
     private final Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider;
     private final Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider;
@@ -41,17 +41,18 @@ public class CreateSPEDeviceCommand {
     private String host = "localhost";
     private boolean withUsagePoint;
     private boolean withLocation;
+    private boolean shouldBeActive;
 
     @Inject
     public CreateSPEDeviceCommand(DeviceService deviceService,
                                   Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
-                                  Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
+                                  Provider<ActivateDevicesCommand> activateDevicesCommandProvider,
                                   Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider,
                                   Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
                                   Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider) {
         this.deviceService = deviceService;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
-        this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
+        this.activateDevicesCommandProvider = activateDevicesCommandProvider;
         this.setCustomAttributeValuesToDevicePostBuilderProvider = setCustomAttributeValuesToDevicePostBuilderProvider;
         this.addLocationInfoToDevicesCommandProvider = addLocationInfoToDevicesCommandProvider;
         this.createUsagePointsForDevicesCommandProvider = createUsagePointsForDevicesCommandProvider;
@@ -110,6 +111,10 @@ public class CreateSPEDeviceCommand {
         this.withLocation = true;
     }
 
+    public void deviceShouldBeActive() {
+        this.shouldBeActive = true;
+    }
+
     public void run() {
         if (this.serialNumber == null) {
             throw new UnableToCreate("Please specify the serial number for device");
@@ -135,10 +140,9 @@ public class CreateSPEDeviceCommand {
                         .withHost(this.host))
                 .withPostBuilder(new SecurityPropertiesDevicePostBuilder())
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
-                .withPostBuilder(this.setDeviceInActiveLifeCycleStatePostBuilderProvider.get())
                 .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get())
                 .get();
-        if (this.withLocation || this.withUsagePoint) {
+        if (this.withLocation || this.withUsagePoint || this.shouldBeActive) {
             device = deviceService.findByUniqueMrid(mrid).get();
         }
         if (this.withLocation) {
@@ -150,6 +154,11 @@ public class CreateSPEDeviceCommand {
             CreateUsagePointsForDevicesCommand createUsagePointsForDevicesCommand = this.createUsagePointsForDevicesCommandProvider.get();
             createUsagePointsForDevicesCommand.setDevices(Collections.singletonList(device));
             createUsagePointsForDevicesCommand.run();
+        }
+        if (this.shouldBeActive) {
+            ActivateDevicesCommand activateDevicesCommand = activateDevicesCommandProvider.get();
+            activateDevicesCommand.setDevices(Collections.singletonList(device));
+            activateDevicesCommand.run();
         }
     }
 }

@@ -5,7 +5,6 @@ import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerSlaveCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
@@ -35,7 +34,7 @@ public class CreateDataLoggerSetupCommand {
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder;
+    private final Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder;
 
     private String dataLoggerMrid;
     private String dataLoggerSerial;
@@ -47,7 +46,7 @@ public class CreateDataLoggerSetupCommand {
                                         ConnectionTaskService connectionTaskService,
                                         Provider<DeviceBuilder> deviceBuilderProvider,
                                         Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                        Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder) {
+                                        Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder) {
 
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;

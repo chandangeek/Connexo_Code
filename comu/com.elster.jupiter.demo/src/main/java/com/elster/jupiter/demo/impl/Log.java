@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public final class Log {
-    private static final boolean IS_PRODUCTION = true;
+    private static final boolean IS_PRODUCTION = false;
 
     public static <T extends Builder<?>> void write(T factory) {
         if (!IS_PRODUCTION && factory != null) {

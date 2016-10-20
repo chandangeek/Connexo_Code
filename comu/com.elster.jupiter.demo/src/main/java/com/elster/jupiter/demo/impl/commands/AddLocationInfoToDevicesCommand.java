@@ -53,8 +53,9 @@ public class AddLocationInfoToDevicesCommand {
         this.meteringService = meteringService;
     }
 
-    public void setDevices(List<Device> devices) {
+    public AddLocationInfoToDevicesCommand setDevices(List<Device> devices) {
         this.devices = Collections.unmodifiableList(devices);
+        return this;
     }
 
     public void run() {

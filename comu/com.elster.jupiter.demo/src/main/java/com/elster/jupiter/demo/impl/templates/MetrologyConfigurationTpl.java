@@ -9,16 +9,16 @@ import java.util.List;
 
 public enum MetrologyConfigurationTpl implements Template<UsagePointMetrologyConfiguration, MetrologyConfigurationBuilder> {
     CONSUMER("Residential net metering (consumption)", "Residential consumer", ServiceKind.ELECTRICITY,
-            Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                    "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                    "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")),
+            Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                    "11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0",
+                    "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0")),
     PROSUMER("Residential prosumer with 1 meter", "Typical installation for residential prosumers with smart meter", ServiceKind.ELECTRICITY,
-            Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                    "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                    "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                    "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                    "11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                    "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"));
+            Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                    "11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0",
+                    "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0",
+                    "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                    "11.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0",
+                    "13.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
 
     private String name;
     private String description;

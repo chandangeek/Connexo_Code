@@ -6,6 +6,7 @@ import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.MetrologyConfigurationTpl;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,8 +46,9 @@ public class CreateUsagePointsForDevicesCommand {
         this.clock = clock;
     }
 
-    public void setDevices(List<Device> devices) {
+    public CreateUsagePointsForDevicesCommand setDevices(List<Device> devices) {
         this.devices = Collections.unmodifiableList(devices);
+        return this;
     }
 
     public void run() {
@@ -96,9 +99,11 @@ public class CreateUsagePointsForDevicesCommand {
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint) {
-        if (!device.getUsagePoint().isPresent()) {
+        if (!device.getUsagePoint().isPresent()
+                && !device.getState(this.clock.instant().plus(10, ChronoUnit.MINUTES)).map(State::isInitial).orElse(true)) {
+            // +10m to be sure that we get the latest state and skip all devices with initial state
             this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
-                    .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()))
+                    .flatMap(amrSystem -> amrSystem.findMeter(String.valueOf(device.getId())))
                     .ifPresent(mtr -> usagePoint.linkMeters()
                             .activate(mtr, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                             .complete());

@@ -965,6 +965,7 @@ public class DemoServiceImpl {
             }
             deviceCommand.withLocation();
             deviceCommand.withUsagePoint();
+            deviceCommand.deviceShouldBeActive();
             deviceCommand.run();
         });
     }

@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,6 +59,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private final Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider;
     private final Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider;
     private final Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider;
+    private final Provider<ActivateDevicesCommand> activateDevicesCommandProvider;
 
     private String comServerName;
     private String host;
@@ -73,7 +75,8 @@ public class CreateCollectRemoteDataSetupCommand {
             Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider,
             Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
             Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider,
-            Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider) {
+            Provider<CreateSPEDeviceCommand> createSPEDeviceCommandProvider,
+            Provider<ActivateDevicesCommand> activateDevicesCommandProvider) {
         this.licenseService = licenseService;
         this.deviceService = deviceService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
@@ -82,6 +85,7 @@ public class CreateCollectRemoteDataSetupCommand {
         this.addLocationInfoToDevicesCommandProvider = addLocationInfoToDevicesCommandProvider;
         this.createUsagePointsForDevicesCommandProvider = createUsagePointsForDevicesCommandProvider;
         this.createSPEDeviceCommandProvider = createSPEDeviceCommandProvider;
+        this.activateDevicesCommandProvider = activateDevicesCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -114,8 +118,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createDeviceGroups();
         createDataCollectionKpi();
         createDataValidationKpi();
-        setLocationForDevices();
-        createUsagePoints();
+        processDevices();
         corruptDeviceSettingsForIssueManagement();
     }
 
@@ -275,12 +278,19 @@ public class CreateCollectRemoteDataSetupCommand {
         Builders.from(DataValidationKpiTpl.ALL_ELECTRICITY_DEVICES).get();
     }
 
-    private void setLocationForDevices() {
-        this.addLocationInfoToDevicesCommandProvider.get().run();
-    }
-
-    private void createUsagePoints() {
-        this.createUsagePointsForDevicesCommandProvider.get().run();
+    private void processDevices() {
+        List<Device> devices = this.deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+        int deviceCount = devices.size();
+        Predicate<Device> skipActivationFilter = device -> { // skip 5% of devices
+            if (deviceCount <= 20) {
+                return device.getId() % deviceCount != 0;
+            }
+            return device.getId() % (deviceCount / (1 + (int) (deviceCount * 0.05))) != 0;
+        };
+        this.activateDevicesCommandProvider.get().setDevices(devices).setDeviceTransitionFilter(skipActivationFilter).run();
+        devices = this.deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+        this.addLocationInfoToDevicesCommandProvider.get().setDevices(devices).run();
+        this.createUsagePointsForDevicesCommandProvider.get().setDevices(devices).run();
     }
 
     private void corruptDeviceSettingsForIssueManagement() {

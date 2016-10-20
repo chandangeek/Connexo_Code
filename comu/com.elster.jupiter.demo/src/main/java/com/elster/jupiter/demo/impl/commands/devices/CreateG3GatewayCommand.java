@@ -4,7 +4,7 @@ import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -30,6 +30,7 @@ import com.energyict.protocols.naming.SecurityPropertySpecName;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,7 +47,7 @@ public class CreateG3GatewayCommand {
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
+    private final Provider<ActivateDevicesCommand> lifecyclePostBuilder;
 
     private Map<ComTaskTpl, ComTask> comTasks;
     private String mRID = GATEWAY_MRID;
@@ -58,7 +59,7 @@ public class CreateG3GatewayCommand {
                                   ConnectionTaskService connectionTaskService,
                                   Provider<DeviceBuilder> deviceBuilderProvider,
                                   Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                  Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
+                                  Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
@@ -98,7 +99,9 @@ public class CreateG3GatewayCommand {
         DeviceConfiguration configuration = createG3DeviceConfiguration(deviceType);
 
         // 5. Create the gateway device (and set it to the 'Active' life cycle state)
-        lifecyclePostBuilder.get().accept(createG3GatewayDevice(configuration));
+        lifecyclePostBuilder.get()
+                .setDevices(Collections.singletonList(createG3GatewayDevice(configuration)))
+                .run();
     }
 
     private DeviceConfiguration createG3DeviceConfiguration(DeviceType deviceType) {

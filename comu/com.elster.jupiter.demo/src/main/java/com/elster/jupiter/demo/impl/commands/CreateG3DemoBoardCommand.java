@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
 
@@ -25,7 +24,7 @@ public class CreateG3DemoBoardCommand {
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder;
+    private final Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder;
 
     private String gatewayMrid = "Demo_board_RTU_Server_G3";
 
@@ -35,7 +34,7 @@ public class CreateG3DemoBoardCommand {
                                      ConnectionTaskService connectionTaskService,
                                      Provider<DeviceBuilder> deviceBuilderProvider,
                                      Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                     Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder){
+                                     Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;

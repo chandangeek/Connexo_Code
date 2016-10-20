@@ -3,7 +3,7 @@ package com.elster.jupiter.demo.impl.commands.devices;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.common.Password;
@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
@@ -99,7 +100,7 @@ public class CreateG3SlaveCommand {
 
     }
 
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
+    private final Provider<ActivateDevicesCommand> lifecyclePostBuilder;
 
     private String mrId;
     private MeterConfig meterConfig;
@@ -107,7 +108,7 @@ public class CreateG3SlaveCommand {
 
 
     @Inject
-    public CreateG3SlaveCommand(Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
+    public CreateG3SlaveCommand(Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.lifecyclePostBuilder = lifecyclePostBuilder;;
     }
 
@@ -130,7 +131,9 @@ public class CreateG3SlaveCommand {
         if (mrId != null){
             meterConfig.setProperty("MRID", mrId);
         }
-        lifecyclePostBuilder.get().accept(deviceFrom(meterConfig));
+        lifecyclePostBuilder.get()
+                .setDevices(Collections.singletonList(deviceFrom(meterConfig)))
+                .run();
     }
 
     private Device deviceFrom(MeterConfig config) {
