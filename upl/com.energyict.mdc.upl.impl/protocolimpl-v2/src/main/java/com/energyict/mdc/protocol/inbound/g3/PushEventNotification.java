@@ -100,7 +100,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                         logMessage.append(collectedEvent.getMessage());
                         logMessage.append("', protocol code: '");
                         logMessage.append(collectedEvent.getProtocolCode());
-                        logMessage.append("' ");
+                        logMessage.append("'.");
                     } else {
                         logMessage.append("NULL.'");
                     }
