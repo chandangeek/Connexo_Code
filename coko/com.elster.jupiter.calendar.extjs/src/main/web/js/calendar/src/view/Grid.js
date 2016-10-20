@@ -30,13 +30,15 @@ Ext.define('Cal.view.Grid', {
             {
                 header: Uni.I18n.translate('general.status', 'CAL', 'Status'),
                 dataIndex: 'status',
-                flex: 2
+                flex: 2,
+                renderer: function(value){
+                    return value.displayValue;
+                }
             },
             {
                 xtype: 'uni-actioncolumn',
-                //privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
-                    xtype: 'tou-action-menu',
+                    xtype: 'tou-action-menu'
                     //itemId: me.menuItemId
                 },
                 flex: 0.5
@@ -55,7 +57,7 @@ Ext.define('Cal.view.Grid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                itemsPerPageMsg: Uni.I18n.translate('calendar.pagingtoolbarbottom.displayMsg', 'MDC', 'Calendars per page'),
+                itemsPerPageMsg: Uni.I18n.translate('calendar.pagingtoolbarbottom.displayMsg', 'CAL', 'Calendars per page'),
                 store: me.store,
                 dock: 'bottom'
             }

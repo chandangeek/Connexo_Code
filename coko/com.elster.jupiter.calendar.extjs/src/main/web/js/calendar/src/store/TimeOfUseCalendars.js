@@ -4,7 +4,7 @@ Ext.define('Cal.store.TimeOfUseCalendars', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/cal/calendars/timeofusecalendars',
+        url: '/api/cal/calendars',
         timeout: 120000,
         reader: {
             type: 'json'

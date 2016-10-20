@@ -40,13 +40,7 @@ Ext.define('Cal.controller.Calendars', {
             view,
             store = me.getStore('Cal.store.TimeOfUseCalendars');
 
-        store.load({
-            callback: function (records, operation, success) {
-                if(success === true) {
-                    me.updateCalendarsCounter();
-                }
-            }
-        });
+       // store.load();
 
         view = Ext.widget('tou-setup');
         me.getApplication().fireEvent('changecontentevent', view);
@@ -60,7 +54,7 @@ Ext.define('Cal.controller.Calendars', {
             previewForm = preview.down('tou-preview-form'),
             model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
 
-        model.getProxy().setUrl('/api/cal/calendars/timeofusecalendars');
+        model.getProxy().setUrl('/api/cal/calendars');
         previewForm.setLoading(true);
         Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar').load(record.get('id'), {
            success: function (calendar) {
@@ -107,7 +101,7 @@ Ext.define('Cal.controller.Calendars', {
 
 
         view = Ext.widget('timeOfUseCalendar', {
-            url: '/api/cal/calendars/timeofusecalendars',
+            url: '/api/cal/calendars',
             calendarId: id
         });
         view.on('timeofusecalendarloaded', function (newRecord) {
@@ -122,7 +116,7 @@ Ext.define('Cal.controller.Calendars', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
             store = me.getStore('Cal.store.TimeOfUseCalendars');
 
-        record.getProxy().setUrl('/api/cal/calendars/timeofusecalendars');
+        record.getProxy().setUrl('/api/cal/calendars');
         confirmationWindow.show(
             {
                 msg: Uni.I18n.translate('calendar.remove.msg', 'CAL', 'This calendar will no longer be available.'),
@@ -135,7 +129,7 @@ Ext.define('Cal.controller.Calendars', {
                                 store.load( {
                                     callback: function (records, operation, success) {
                                         if(success === true) {
-                                            me.updateCalendarsCounter();
+             //                               me.updateCalendarsCounter();
                                         }
                                     }
                                 });
@@ -146,14 +140,21 @@ Ext.define('Cal.controller.Calendars', {
             });
     },
 
-    activateDeactivateCalendar: function(){
-        debugger;
-    },
-
-    updateCalendarsCounter: function () {
-        var me = this;
-        me.getTimeOfUseGrid().down('pagingtoolbartop #displayItem').setText(
-            Uni.I18n.translatePlural('general.timeOfUseCalendarCount', me.getTimeOfUseGrid().getStore().getCount(), 'CAL', 'No caldendars', '{0} calendar', '{0} calendars')
-        );
+    activateDeactivateCalendar: function(calendar){
+        var me=this,
+            store = me.getStore('Cal.store.TimeOfUseCalendars');
+        calendar.set('status',{id:calendar.get('status').id==='INACTIVE'?'ACTIVE':'INACTIVE'});
+        calendar.save({
+            success: function(){
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('calendar.save.success.msg', 'CAL', 'Calendar saved'));
+                store.load( {
+                    callback: function (records, operation, success) {
+                        if(success === true) {
+                            //me.updateCalendarsCounter();
+                        }
+                    }
+                });
+            }
+        });
     }
 });
