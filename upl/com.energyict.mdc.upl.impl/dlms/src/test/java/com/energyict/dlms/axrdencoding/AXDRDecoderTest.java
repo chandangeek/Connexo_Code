@@ -200,9 +200,13 @@ public class AXDRDecoderTest {
 	 */
 	@Test
 	public final void testDecodeByteArrayInvalidDataTypes() {
+		byte[] testArray = {64, -101, 4, -79, 12, -78, -107, -22};
 		for (int i = 0; i < 255; i++) {
-			byte[] testArray = new byte[1 + OFFSET];
-			Arrays.fill(testArray, (byte) i);
+			if (i != AxdrType.FLOAT64.getTag()) {
+				testArray = new byte[1 + OFFSET];
+				Arrays.fill(testArray, (byte) i);
+			}
+
 			if (!isTypeIdSupportedByAXDRDecoder(i)) {
 				try {
 					AXDRDecoder.decode(testArray);
