@@ -14,6 +14,7 @@ import com.energyict.protocol.exceptions.CommunicationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -82,23 +83,32 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     protected String getLoggingMessage() {
         StringBuilder logMessage = new StringBuilder();
+        try {
+            logMessage.append("Received inbound event notification from [");
+            if (getDeviceIdentifier() != null) {
+                logMessage.append(getDeviceIdentifier().toString());
+            } else {
+                logMessage.append("unknown");
+            }
 
-        logMessage.append("Received inbound event notification from [");
-        if (getDeviceIdentifier() != null) {
-            logMessage.append(getDeviceIdentifier().toString());
-        } else {
-            logMessage.append("unknown");
+            if (collectedLogBook.getCollectedMeterEvents() != null) {
+                logMessage.append("].  Message: '");
+                Iterator<MeterProtocolEvent> iterator = collectedLogBook.getCollectedMeterEvents().iterator();
+                while (iterator.hasNext()) {
+                    MeterProtocolEvent collectedEvent = iterator.next();
+                    if (collectedEvent != null) {
+                        logMessage.append(collectedEvent.getMessage());
+                        logMessage.append("', protocol code: '");
+                        logMessage.append(collectedEvent.getProtocolCode());
+                        logMessage.append("' ");
+                    } else {
+                        logMessage.append("NULL.'");
+                    }
+                }
+            }
+        } catch (Exception ex){
+            logMessage.append(ex.getCause()).append(ex.getMessage());
         }
-        logMessage.append("].  Message: '");
-        if (getMeterProtocolEvent() != null) {
-            logMessage.append(getMeterProtocolEvent().getMessage());
-            logMessage.append("', protocol code: '");
-            logMessage.append(getMeterProtocolEvent().getProtocolCode());
-            logMessage.append("'");
-        } else {
-            logMessage.append("NULL.'");
-        }
-
         return logMessage.toString();
     }
 

@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -565,22 +566,31 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         byte[] header = new byte[8];
         getComChannel().startReading();
         int readBytes = getComChannel().read(header);
+
+        log("Received frame header ["+readBytes+"]: " + ProtocolTools.getHexStringFromBytes(header));
+
         if (readBytes != 8) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
         }
 
         setSourceSAP(ProtocolTools.getIntFromBytes(header, 2, 2));
         setDestinationSAP(ProtocolTools.getIntFromBytes(header, 4, 2));
+        log(" - sourceSAP="+getSourceSAP()+", destinationSAP:"+getDestinationSAP());
         if (getSourceSAP() == 1) {
             setNotificatioType(INTERNAL_EVENT);
+            log(" - this frame is an internal event");
         } else {
             setNotificatioType(RELAYED_EVENT);
+            log(" - this frame is a relayed event");
         }
 
         int length = ProtocolTools.getIntFromBytes(header, 6, 2);
 
         byte[] frame = new byte[length];
         readBytes = getComChannel().read(frame);
+
+        log("Received frame ["+readBytes+"]: " + ProtocolTools.getHexStringFromBytes(frame));
+
         if (readBytes != length) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
         }
