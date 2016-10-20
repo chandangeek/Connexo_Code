@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -10,7 +9,6 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
@@ -43,7 +41,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -52,7 +49,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RegisterResource {
 
@@ -213,6 +209,7 @@ public class RegisterResource {
 
         Instant measurementTimeStart = jsonQueryFilter.getInstant("measurementTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("measurementTimeStart");
         Instant measurementTimeEnd = jsonQueryFilter.getInstant("measurementTimeEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("measurementTimeEnd");
+        boolean toTimeFilterAvailable = jsonQueryFilter.getInstant("toTimeStart") != null || jsonQueryFilter.getInstant("toTimeEnd") != null;
         Instant toTimeStart = jsonQueryFilter.getInstant("toTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("toTimeStart");
         Instant toTimeEnd = jsonQueryFilter.getInstant("toTimeEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("toTimeEnd");
 
@@ -227,7 +224,7 @@ public class RegisterResource {
                     List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()))
                             .stream()
                             .filter(reading -> {
-                                if (!(register1 instanceof BillingRegister)) {
+                                if (!toTimeFilterAvailable || !(register1 instanceof BillingRegister)) {
                                     return true;
                                 }
                                 BillingReading billingReading = (BillingReading) reading;
@@ -241,10 +238,16 @@ public class RegisterResource {
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-        Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
+
+        Collections.sort(readingInfos, this::compareReadingInfos);
 
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
+    }
+
+    private int compareReadingInfos(ReadingInfo ri1, ReadingInfo ri2) {
+        int result = ri2.timeStamp.compareTo(ri1.timeStamp);
+        return result != 0 ? result : ri1.register.name.compareTo(ri2.register.name);
     }
 
     @GET

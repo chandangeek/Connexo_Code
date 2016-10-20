@@ -84,7 +84,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
     @Mock
     Meter meter;
     @Mock
-    ReadingRecord actualReading1, actualReading2, actualReading3;
+    ReadingRecord actualReading1, actualReading2, actualReading3, actualReading4;
     @Mock
     Channel meteringChannel;
     @Mock
@@ -121,6 +121,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         when(device.getRegisters()).thenReturn(Arrays.asList(register, billingRegister));
         when(numericalRegisterSpec.getRegisterType()).thenReturn(registerType);
         when(numericalRegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
+        when(readingType.getFullAliasName()).thenReturn("NumericalReadingType");
         when(register.getRegisterSpec()).thenReturn(numericalRegisterSpec);
         when(register.getReadingType()).thenReturn(readingType);
         when(register.getCalculatedReadingType(any())).thenReturn(Optional.empty());
@@ -131,6 +132,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         when(billingRegisterSpec.getRegisterType()).thenReturn(billingRegisterType);
         when(billingRegister.getRegisterSpec()).thenReturn(billingRegisterSpec);
         when(billingRegisterType.getReadingType()).thenReturn(billingReadingType);
+        when(billingReadingType.getFullAliasName()).thenReturn("BillingReadingType");
         when(billingRegister.getReadingType()).thenReturn(billingReadingType);
         when(billingRegister.getCalculatedReadingType(any())).thenReturn(Optional.empty());
         when(billingRegister.getMultiplier(any())).thenReturn(Optional.empty());
@@ -140,8 +142,13 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
 
         BillingReading billingReading = mockBillingReading(actualReading1, BILLING_READING_INTERVAL_END);
         when(actualReading1.edited()).thenReturn(true);
-        doReturn(Arrays.asList(mockReadingQuality("2.7.1"))).when(actualReading1).getReadingQualities();
+        doReturn(Collections.singletonList(mockReadingQuality("2.7.1"))).when(actualReading1).getReadingQualities();
         when(billingReading.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+
+        BillingReading billingReading2 = mockBillingReading(actualReading4, BILLING_READING_INTERVAL_END.plusSeconds(63113851));
+        when(actualReading4.edited()).thenReturn(false);
+        doReturn(Collections.singletonList(mockReadingQuality("2.7.1"))).when(actualReading4).getReadingQualities();
+        when(billingReading2.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
 
         NumericalReading numericalReading = mockNumericalReading(actualReading2);
         when(numericalReading.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
@@ -155,7 +162,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         doReturn(Collections.singletonList(readingQualityConfirmed)).when(actualReading3).getReadingQualities();
 
         when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(numericalReading, numericalReadingConfirmed));
-        when(billingRegister.getReadings(any())).thenReturn(Collections.singletonList(billingReading));
+        when(billingRegister.getReadings(any())).thenReturn(Arrays.asList(billingReading, billingReading2));
 
         doReturn(Collections.singletonList(channelsContainer)).when(meter).getChannelsContainers();
         when(registerType.getReadingType()).thenReturn(readingType);
@@ -213,7 +220,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetRegisterData() throws Exception {
-        when(clock.instant()).thenReturn(Instant.now());
+        when(clock.instant()).thenReturn(NOW);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
@@ -235,12 +242,16 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
                 .request().get(Map.class);
 
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(4);
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[2].type")).isEqualTo("numerical");
+        assertThat(jsonModel.<String>get("$.data[3].type")).isEqualTo("numerical");
     }
 
     @Test
     public void testGetRegisterDataWithToTime() throws Exception {
-        when(clock.instant()).thenReturn(Instant.now());
+        when(clock.instant()).thenReturn(NOW);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
@@ -268,7 +279,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetRegisterFilterRegisters() throws Exception {
-        when(clock.instant()).thenReturn(Instant.now());
+        when(clock.instant()).thenReturn(NOW);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
@@ -290,5 +301,6 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
     }
 }
