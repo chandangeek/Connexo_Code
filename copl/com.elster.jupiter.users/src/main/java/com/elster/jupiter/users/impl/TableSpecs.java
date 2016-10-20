@@ -173,7 +173,7 @@ public enum TableSpecs {
             table.since(version(10,3));
             Column workGroupIdColumn = table.column("WORKGROUPID").number().notNull().conversion(NUMBER2LONG).map("workGroupId").add();
             Column userIdColumn = table.column("USERID").number().notNull().conversion(NUMBER2LONG).map("userId").add();
-            table.addAuditColumns().stream().filter(column -> !"CREATETIME".equals(column.getName())).forEach(column -> column.since(version(10, 2)));
+            table.addAuditColumns();
             table.primaryKey("USR_PK_USERINWORKGROUP")
                     .on(workGroupIdColumn, userIdColumn)
                     .add();
