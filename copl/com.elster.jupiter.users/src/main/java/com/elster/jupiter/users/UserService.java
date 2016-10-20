@@ -136,5 +136,9 @@ public interface UserService {
 
     Optional<WorkGroup> getWorkGroup(long id);
 
+    Optional<WorkGroup> getWorkGroup(String name);
+
     WorkGroup createWorkGroup(String name, String description);
+
+    Query<WorkGroup> getWorkGroupsQuery();
 }

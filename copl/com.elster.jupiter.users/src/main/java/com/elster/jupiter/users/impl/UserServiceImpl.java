@@ -715,10 +715,23 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public Optional<WorkGroup> getWorkGroup(String name){
+        return getWorkGroupsQuery()
+                .select(where("name").isEqualTo(name))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
     public WorkGroup createWorkGroup(String name, String description) {
         WorkGroupImpl workGroup = WorkGroupImpl.from(dataModel, name, description);
         workGroup.update();
         return workGroup;
+    }
+
+    @Override
+    public Query<WorkGroup> getWorkGroupsQuery() {
+        return queryService.wrap(dataModel.query(WorkGroup.class));
     }
 
     private DataMapper<Privilege> privilegeFactory() {

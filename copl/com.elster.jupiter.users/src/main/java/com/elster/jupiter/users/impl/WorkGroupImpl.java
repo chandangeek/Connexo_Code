@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
-
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_WORKGROUP_NAME + "}")
 public class WorkGroupImpl implements WorkGroup {
 
     @SuppressWarnings("unused")
