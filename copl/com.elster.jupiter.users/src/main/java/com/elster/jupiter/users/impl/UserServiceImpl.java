@@ -37,6 +37,7 @@ import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableMap;
@@ -732,6 +733,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public Query<WorkGroup> getWorkGroupsQuery() {
         return queryService.wrap(dataModel.query(WorkGroup.class));
+    }
+
+    @Override
+    public List<WorkGroup> getWorkGroups(){
+        return dataModel.mapper(WorkGroup.class).find();
     }
 
     private DataMapper<Privilege> privilegeFactory() {

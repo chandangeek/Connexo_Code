@@ -141,4 +141,6 @@ public interface UserService {
     WorkGroup createWorkGroup(String name, String description);
 
     Query<WorkGroup> getWorkGroupsQuery();
+
+    List<WorkGroup> getWorkGroups();
 }
