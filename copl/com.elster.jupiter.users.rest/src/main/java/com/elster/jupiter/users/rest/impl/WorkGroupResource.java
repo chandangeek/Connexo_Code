@@ -53,7 +53,7 @@ public class WorkGroupResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
-    public PagedInfoList getGroups(@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getWorkGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<WorkGroupInfo> infos = userService.getWorkGroups()
                 .stream()
                 .map(WorkGroupInfo::new)
