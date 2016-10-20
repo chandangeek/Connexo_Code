@@ -1,13 +1,94 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.cbo.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlow;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSap;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCycles;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZone;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSize;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnable;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerify;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateAliasAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateEntityAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commonNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.CertificateAlias;
+import com.energyict.cbo.Password;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.ConcentratorSetup;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
@@ -26,7 +107,11 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.DLMSKeyStoreUserFile;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.ECCCurve;
+import com.energyict.mdw.core.Group;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
@@ -38,7 +123,12 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastMeterState;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProperty;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProtocolConfiguration;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastSerializer;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastUpgradeState;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
@@ -47,7 +137,17 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurat
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
@@ -55,26 +155,6 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.util.function.Consumer;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -86,109 +166,111 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
-    private final static List<DeviceMessageSpec> supportedMessages;
     private static final String TEMP_DIR = "java.io.tmpdir";
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+    
+    /** The set of supported messages (which, ironically, is not a Set). */
+    private static final List<DeviceMessageSpec> SUPPORTED_MESSAGES = new ArrayList<>();
+    
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
-    private static final Lock firmwareFileLock = new ReentrantLock();
+    private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
 
     static {
-        supportedMessages = new ArrayList<>();
-        supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
 
-        supportedMessages.add(DeviceActionMessage.SyncMasterdataForDC);
-        supportedMessages.add(DeviceActionMessage.SyncDeviceDataForDC);
-        supportedMessages.add(DeviceActionMessage.PauseDCScheduler);
-        supportedMessages.add(DeviceActionMessage.ResumeDCScheduler);
-        supportedMessages.add(DeviceActionMessage.SyncOneConfigurationForDC);
-        supportedMessages.add(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncMasterdataForDC);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncDeviceDataForDC);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.PauseDCScheduler);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.ResumeDCScheduler);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneConfigurationForDC);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL);
 
-        supportedMessages.add(PLCConfigurationDeviceMessage.PingMeter);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.PingMeter);
 
         // supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
-        supportedMessages.add(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade);
-        supportedMessages.add(FirmwareDeviceMessage.ReadMulticastProgress);
-        supportedMessages.add(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR);
-        supportedMessages.add(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
-        supportedMessages.add(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.ReadMulticastProgress);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
 
-        supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-        supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
-        supportedMessages.add(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY);
-        supportedMessages.add(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY);
-        supportedMessages.add(SecurityMessage.CHANGE_SECURITY_SUITE);
-        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
-        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
-        supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
-        supportedMessages.add(SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE);
-        supportedMessages.add(SecurityMessage.EXPORT_SUB_CA_CERTIFICATES);
-        supportedMessages.add(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE);
-        supportedMessages.add(SecurityMessage.IMPORT_CERTIFICATE);
-        supportedMessages.add(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER);
-        supportedMessages.add(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE);
-        supportedMessages.add(SecurityMessage.GENERATE_KEY_PAIR);
-        supportedMessages.add(SecurityMessage.GENERATE_CSR);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
+        SUPPORTED_MESSAGES.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
+        SUPPORTED_MESSAGES.add(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY);
+        SUPPORTED_MESSAGES.add(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_SECURITY_SUITE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
+        SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_SUB_CA_CERTIFICATES);
+        SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER);
+        SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.GENERATE_KEY_PAIR);
+        SUPPORTED_MESSAGES.add(SecurityMessage.GENERATE_CSR);
 
-        supportedMessages.add(UplinkConfigurationDeviceMessage.EnableUplinkPing);
-        supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress);
-        supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval);
-        supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.EnableUplinkPing);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout);
         //supportedMessages.add(PPPConfigurationDeviceMessage.SetPPPIdleTime);
         //supportedMessages.add(NetworkConnectivityMessage.PreferGPRSUpstreamCommunication);
-        supportedMessages.add(NetworkConnectivityMessage.EnableModemWatchdog);
-        supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
-        supportedMessages.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
-        supportedMessages.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
-        supportedMessages.add(NetworkConnectivityMessage.EnableNetworkInterfaces);
-        supportedMessages.add(NetworkConnectivityMessage.SetHttpPort);
-        supportedMessages.add(NetworkConnectivityMessage.SetHttpsPort);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetLockoutDuration);
-        supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
-        supportedMessages.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
-        supportedMessages.add(DeviceActionMessage.RebootApplication);
-        supportedMessages.add(FirewallConfigurationMessage.ActivateFirewall);
-        supportedMessages.add(FirewallConfigurationMessage.DeactivateFirewall);
-        supportedMessages.add(FirewallConfigurationMessage.ConfigureFWGPRS);
-        supportedMessages.add(FirewallConfigurationMessage.ConfigureFWLAN);
-        supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
-        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
-        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
-        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetPanId);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacA);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacK);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxBe);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableModemWatchdog);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfaces);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpPort);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpsPort);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.EnableSSL);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetLockoutDuration);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetDeviceName);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.RebootApplication);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ActivateFirewall);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.DeactivateFirewall);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWGPRS);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWLAN);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWWAN);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMetricType);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetPanId);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetTMRTTL);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMacA);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMacK);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxBe);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMinBe);
 
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
         //supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
@@ -196,11 +278,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
-        supportedMessages.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
-        supportedMessages.add(PLCConfigurationDeviceMessage.KickMeter);
-        supportedMessages.add(PLCConfigurationDeviceMessage.AddMetersToBlackList);
-        supportedMessages.add(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList);
-        supportedMessages.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.KickMeter);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.AddMetersToBlackList);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
+        
+        // Logbook resets.
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetMainLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetSecurityLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetCoverLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetCommunicationLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetVoltageCutLogbook);
     }
 
     private MasterDataSync masterDataSync;
@@ -212,10 +301,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return supportedMessages;
+        return SUPPORTED_MESSAGES;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
@@ -317,7 +407,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
 
         try {
-            firmwareFileLock.lock();
+            FIRMWARE_FILE_LOCK.lock();
 
             final File tempFile = new File(tempDirectory, fileName);
 
@@ -385,7 +475,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
             throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
         } finally {
-            firmwareFileLock.unlock();
+            FIRMWARE_FILE_LOCK.unlock();
         }
     }
 
@@ -554,6 +644,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = readMulticastProgress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfaces)) {
                         enableNetworkInterfaces(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetMainLogbook)) {
+                    	this.resetLogbook(Beacon3100LogBookFactory.MAIN_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityLogbook)) {
+                    	this.resetLogbook(Beacon3100LogBookFactory.SECURITY_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetCoverLogbook)) {
+                    	this.resetLogbook(Beacon3100LogBookFactory.COVER_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetCommunicationLogbook)) {
+                    	this.resetLogbook(Beacon3100LogBookFactory.COMMUNICATION_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetVoltageCutLogbook)) {
+                    	this.resetLogbook(Beacon3100LogBookFactory.VOLTAGE_LOGBOOK);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -1704,6 +1804,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getDeviceMessageAttributeValue();
         int auth = AuthenticationMechanism.fromAuthName(authName);
         getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
+    }
+    
+    /**
+     * Performs a reset on a {@link ProfileGeneric}.
+     * 
+     * @param 		obisCode				The OBIS code.
+     * 
+     * @throws 		IOException				If an IO error occurs.
+     */
+    private final void resetLogbook(final ObisCode obisCode) throws IOException {
+    	this.getCosemObjectFactory().getProfileGeneric(obisCode).reset();
     }
 
     /**

@@ -43,7 +43,8 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     ResetCommunicationLogbook(15),
     ResetLQILogbook(16),
     ResetVoltageCutLogbook(17),
-    ReadLogBook(18);
+    ReadLogBook(18),
+    ResetSecurityLogbook(19);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.LOG_BOOKS;
 
