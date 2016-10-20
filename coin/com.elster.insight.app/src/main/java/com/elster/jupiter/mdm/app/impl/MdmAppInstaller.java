@@ -10,14 +10,16 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.elster.jupiter.mdm.app.install", service = {MdmAppInstaller.class}, property = "name=" + MdmAppService.COMPONENTNAME, immediate = true)
 @SuppressWarnings("unused")
@@ -38,7 +40,7 @@ public class MdmAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Insight","DMA"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Insight","DMA"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
     }
 
     static class Installer implements FullInstaller {
@@ -64,29 +66,29 @@ public class MdmAppInstaller {
         }
 
         private void createDefaultRoles() {
-            userService.createGroup(MdmAppService.Roles.METER_EXPERT.value(), MdmAppService.Roles.METER_EXPERT.description());
-            userService.createGroup(MdmAppService.Roles.METER_OPERATOR.value(), MdmAppService.Roles.METER_OPERATOR.description());
+            userService.createGroup(MdmAppService.Roles.DATA_EXPERT.value(), MdmAppService.Roles.DATA_EXPERT.description());
+            userService.createGroup(MdmAppService.Roles.DATA_OPERATOR.value(), MdmAppService.Roles.DATA_OPERATOR.description());
         }
 
         private void assignPrivilegesToDefaultRoles() {
-            userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdmAppService.APPLICATION_KEY, getPrivilegesMeterExpert());
-            userService.grantGroupWithPrivilege(MdmAppService.Roles.METER_EXPERT.value(), MdmAppService.APPLICATION_KEY, getPrivilegesMeterExpert());
-            userService.grantGroupWithPrivilege(MdmAppService.Roles.METER_OPERATOR.value(), MdmAppService.APPLICATION_KEY, getPrivilegesMeterOperator());
+            userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdmAppService.APPLICATION_KEY, getPrivilegesDataExpert());
+            userService.grantGroupWithPrivilege(MdmAppService.Roles.DATA_EXPERT.value(), MdmAppService.APPLICATION_KEY, getPrivilegesDataExpert());
+            userService.grantGroupWithPrivilege(MdmAppService.Roles.DATA_OPERATOR.value(), MdmAppService.APPLICATION_KEY, getPrivilegesDataOperator());
 
             //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
             userService.getUser(1)
                     .ifPresent(u -> u.join(userService.getGroups()
                             .stream()
-                            .filter(e -> e.getName().equals(MdmAppService.Roles.METER_EXPERT.value()))
+                            .filter(e -> e.getName().equals(MdmAppService.Roles.DATA_EXPERT.value()))
                             .findFirst()
                             .get()));
         }
 
-        private String[] getPrivilegesMeterExpert() {
+        private String[] getPrivilegesDataExpert() {
             return MdmAppPrivileges.getApplicationAllPrivileges().stream().toArray(String[]::new);
         }
 
-        private String[] getPrivilegesMeterOperator() {
+        private String[] getPrivilegesDataOperator() {
             return new String[]{
                     //usage point
                     com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
