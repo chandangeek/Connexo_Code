@@ -146,7 +146,6 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         List<PropertyDescriptionInfo> infos = new ArrayList<>(21);
         infos.add(createDescription("batch", String.class));
         infos.add(createDescription("hasOpenDataCollectionIssues", Boolean.class));
-        infos.add(createDescription("serviceCategory", String.class));
         infos.add(createDescription("usagePoint", String.class));
         infos.add(createDescription("yearOfCertification", Integer.class));
         infos.add(createDescription("estimationActive", String.class));

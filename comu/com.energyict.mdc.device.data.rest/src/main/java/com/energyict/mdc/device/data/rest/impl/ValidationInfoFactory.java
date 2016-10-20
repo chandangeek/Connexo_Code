@@ -373,7 +373,7 @@ public class ValidationInfoFactory {
     }
 
     private boolean isDataCompletelyValidated(List<DataValidationStatus> dataValidationStatuses) {
-        return dataValidationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
+        return !dataValidationStatuses.isEmpty() && dataValidationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
     }
 
     private Map<ValidationRuleInfo, Long> getSuspectReasonMap(List<DataValidationStatus> dataValidationStatuses) {
