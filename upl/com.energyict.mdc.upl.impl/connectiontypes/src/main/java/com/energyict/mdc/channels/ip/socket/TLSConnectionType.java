@@ -34,6 +34,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     public static final String TLS_VERSION_PROPERTY_NAME = "TLSVersion";
     private static final String TLS_DEFAULT_VERSION = "TLSv1.2";
     private static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
+    private static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     private static final String SEPARATOR = ",";
     private Logger logger;
 
@@ -52,11 +53,20 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         return PropertySpecFactory.stringPropertySpec(PREFERRED_CIPHER_SUITES_PROPERTY_NAME);
     }
 
+    /**
+     * The alias of the TLS private key.
+     *
+     */
+    private PropertySpec tlsAliasPropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(CLIENT_TLS_ALIAS);
+    }
+
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> optionalProperties = super.getOptionalProperties();
         optionalProperties.add(tlsVersionPropertySpec());
         optionalProperties.add(preferredCipheringSuitesPropertySpec());
+        optionalProperties.add(tlsAliasPropertySpec());
         return optionalProperties;
     }
 
@@ -68,6 +78,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         return (String) this.getProperty(PREFERRED_CIPHER_SUITES_PROPERTY_NAME);
     }
 
+    private String getClientTLSAliasPropertyValue() {
+        return (String) this.getProperty(CLIENT_TLS_ALIAS);
+    }
+
     @Override
     public PropertySpec getPropertySpec(String name) {
         switch (name) {
@@ -75,6 +89,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
                 return tlsVersionPropertySpec();
             case PREFERRED_CIPHER_SUITES_PROPERTY_NAME:
                 return preferredCipheringSuitesPropertySpec();
+            case CLIENT_TLS_ALIAS:
+                return tlsAliasPropertySpec();
             default:
                 return super.getPropertySpec(name);
         }
@@ -103,8 +119,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             SSLSocketFactory socketFactory = sslContext.getSocketFactory();
 
             SSLSocket socket = (SSLSocket) socketFactory.createSocket();
-            socket.setNeedClientAuth(true);
-            socket.setWantClientAuth(true);
             handlePreferredCipherSuites(socket);
             socket.connect(new InetSocketAddress(host, port), timeOut);
 
@@ -191,13 +205,9 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          * @throws CertificateException if the certificate chain is not trusted by this TrustManager.
          */
         public void checkClientTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException, IllegalArgumentException {
-            try {
-                x509TrustManager.checkClientTrusted(chain, authType);
-            } catch (CertificateException e) {
-                String pattern = Environment.getDefault().getTranslation("clientNotTrusted", "Based on provided certificate chain and authentication type, the client cannot be trusted.");
-                throw new CertificateException(pattern, e);
-            }
+                throws UnsupportedOperationException {
+            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
+            throw new UnsupportedOperationException(pattern);
         }
 
         /**
@@ -273,8 +283,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
-            String alias = x509KeyManager.chooseClientAlias(keyType, issuers, socket);
-            return alias != null ? alias : getAlias(keyType, issuers);
+            String tlsAlias = getClientTLSAliasPropertyValue();
+            return tlsAlias != null ? tlsAlias : getAlias(keyType, issuers);
         }
 
         /**
@@ -285,7 +295,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String[] getServerAliases(String keyType, Principal[] issuers) {
-            return x509KeyManager.getServerAliases(keyType, issuers);
+            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
+            throw new UnsupportedOperationException(pattern);
         }
 
         /**
@@ -297,7 +308,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-            return x509KeyManager.chooseServerAlias(keyType, issuers, socket);
+            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
+            throw new UnsupportedOperationException(pattern);
         }
 
         /**
@@ -393,7 +405,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-07 13:23:09 +0300 (Fri, 07 Oct 2016)$";
+        return "$Date: 2016-10-17 15:37:07 +0300 (Mon, 17 Oct 2016)$";
     }
 
 }

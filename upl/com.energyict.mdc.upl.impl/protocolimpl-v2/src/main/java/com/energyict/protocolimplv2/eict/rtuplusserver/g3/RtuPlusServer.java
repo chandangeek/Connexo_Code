@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cbo.LastSeenDateInfo;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
@@ -226,10 +227,9 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                     //Always include the slave information if it is present in the SAP assignment list and the G3 node list.
                     //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
 
-                    //getLogger().log(Level.FINEST, "hasNewerLastSeenDate returns true");
-                    //getLogger().log(Level.FINEST, "g3node macAddress = "+g3Node.getMacAddressString() +" g3node lastSeenDate = "+ g3Node.getLastSeenDate().toString() +" configuredLastSeenDate = "+configuredLastSeenDate);
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
-                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
+                    LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, g3Node.getLastSeenDate());
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
                     deviceTopology.addAdditionalCollectedDeviceInfo(
                             MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                     slaveDeviceIdentifier,

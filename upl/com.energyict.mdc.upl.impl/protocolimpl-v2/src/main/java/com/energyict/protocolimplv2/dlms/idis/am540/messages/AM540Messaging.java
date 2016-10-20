@@ -1,12 +1,15 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
 import com.energyict.mdc.messages.DeviceMessageSpec;
+
+import com.energyict.protocolimplv2.ace4000.objects.LoadProfile;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 
 import java.util.ArrayList;
@@ -46,6 +49,8 @@ public class AM540Messaging extends AM130Messaging {
         addPLCConfigurationDeviceMessages(supportedMessages);
         addAdditionalDeviceMessages(supportedMessages);
         supportedMessages.add(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR);
+        supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT);
+        supportedMessages.add(LoadProfileMessage.SET_DISPLAY_ON_OFF);
     }
 
     private void addAdditionalDeviceMessages(List<DeviceMessageSpec> supportedMessages) {

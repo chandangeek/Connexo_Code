@@ -7,6 +7,8 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
+import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
+import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,8 +42,9 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
     ),
     READ_PROFILE_DATA(9,
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(toDateAttributeName)
-    );
+            PropertySpecFactory.dateTimePropertySpec(toDateAttributeName)),
+    LOAD_PROFILE_OPT_IN_OUT(10,PropertySpecFactory.stringPropertySpecWithValues(loadProfileOptInOutModeAttributeName, LoadProfileOptInOut.getScriptNames())),
+    SET_DISPLAY_ON_OFF(11,PropertySpecFactory.stringPropertySpecWithValues(setDisplayOnOffModeAttributeName, SetDisplayMode.getModeNames()));
 
     private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILES;
 
