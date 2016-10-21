@@ -203,9 +203,7 @@ public class SchedulingResource {
         Set<Long> alreadyAssignedComTaskIds = new HashSet<>();
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             if (!comTaskExecution.isAdHoc()) {
-                for (ComTask comTask : comTaskExecution.getComTasks()) {
-                    alreadyAssignedComTaskIds.add(comTask.getId());
-                }
+                alreadyAssignedComTaskIds.add(comTaskExecution.getComTask().getId());
             }
         }
         return alreadyAssignedComTaskIds;
