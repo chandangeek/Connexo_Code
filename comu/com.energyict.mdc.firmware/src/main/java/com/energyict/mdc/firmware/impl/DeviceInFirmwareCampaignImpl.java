@@ -297,8 +297,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
     private ComTaskExecution getFirmwareComTaskExec() {
         ComTask firmwareComTask = taskService.findFirmwareComTask().get();
-        Predicate<ComTask> comTaskIsFirmwareComTask = comTask -> comTask.getId() == firmwareComTask.getId();
-        Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTasks().stream().filter(comTaskIsFirmwareComTask).count() > 0;
+        Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.getId();
         return getDevice().getComTaskExecutions().stream()
                 .filter(executionContainsFirmwareComTask)
                 .findFirst()

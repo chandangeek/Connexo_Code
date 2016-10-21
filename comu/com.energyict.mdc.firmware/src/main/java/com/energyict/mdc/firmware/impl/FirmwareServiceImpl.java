@@ -400,10 +400,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (fwComTask.isPresent()) {
             ComTask firmwareComTask = fwComTask.get();
             return device.getComTaskExecutions().stream()
-                    .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
-                            .filter(comTask -> comTask.getId() == firmwareComTask.getId())
-                            .findAny()
-                            .isPresent())
+                    .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == firmwareComTask.getId())
                     .findAny();
         } else {
             return Optional.empty();
