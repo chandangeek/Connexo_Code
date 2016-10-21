@@ -175,6 +175,11 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        return this.getInboundDAO().getOutboundConnectionTypeProperties(deviceIdentifier);
+    }
+
+    @Override
     public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         return this.getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
     }
