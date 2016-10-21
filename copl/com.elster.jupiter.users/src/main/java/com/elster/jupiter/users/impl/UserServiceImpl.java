@@ -18,6 +18,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUserDirectory;
@@ -157,7 +158,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class
+                    version(10, 2), UpgraderV10_2.class, version(10, 3), V10_3SimpleUpgrader.class
             ));
         }
 
