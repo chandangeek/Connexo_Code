@@ -18,7 +18,6 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private final DeviceService deviceService;
     private final Clock clock;
 
-    private String mrid;
     private String serialNumber;
     private DeviceConfiguration deviceConfiguration;
     private List<ComSchedule> comSchedules;
@@ -34,12 +33,6 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         this.deviceService = deviceService;
         this.clock = clock;
         this.yearOfCertification = 2013;
-    }
-
-    public DeviceBuilder withMrid(String mrid){
-        this.mrid = mrid;
-        super.withName(mrid);
-        return this;
     }
 
     public DeviceBuilder withLocation(Location location){
@@ -74,13 +67,13 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
 
     @Override
     public Optional<Device> find() {
-        return deviceService.findByUniqueMrid(this.mrid);
+        return deviceService.findDeviceByName(getName());
     }
 
     @Override
     public Device create() {
         Log.write(this);
-        Device device = deviceService.newDevice(deviceConfiguration, getName(), mrid, clock.instant());
+        Device device = deviceService.newDevice(deviceConfiguration, getName(), clock.instant());
         device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {
@@ -94,5 +87,4 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         applyPostBuilders(device);
         return device;
     }
-
 }

@@ -4,7 +4,7 @@ import com.elster.jupiter.demo.impl.builders.DataValidationTaskBuilder;
 import com.elster.jupiter.demo.impl.builders.DeviceGroupBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.search.SearchService;
@@ -13,7 +13,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -50,17 +49,12 @@ public class SetValidateOnStorePostBuilder implements Consumer<Device> {
                 initDeviceGroup();
             }
        }
-       Optional<EndDevice> endDevice = meteringService.findEndDevice(device.getmRID());
-       if (endDevice.isPresent()) {
-           Optional<Meter> meter = endDevice.get().getAmrSystem().findMeter("" + endDevice.get().getId());
-           if (meter.isPresent()) {
-               if (!device.getDeviceType().getName().equals(DeviceTypeTpl.Elster_A1800.getLongName())){
-                   validationService.enableValidationOnStorage(meter.get());
-               }
-               validationService.activateValidation(meter.get());
+       meteringService.findMeterByMRID(device.getmRID()).ifPresent(meter -> {
+           if (!device.getDeviceType().getName().equals(DeviceTypeTpl.Elster_A1800.getLongName())){
+               validationService.enableValidationOnStorage(meter);
            }
-       }
-
+           validationService.activateValidation(meter);
+       });
     }
 
     private void initDeviceGroup(){

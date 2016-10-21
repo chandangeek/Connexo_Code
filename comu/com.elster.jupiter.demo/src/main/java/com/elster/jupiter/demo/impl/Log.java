@@ -72,7 +72,7 @@ public final class Log {
                     readableOutput.append(obj.getClass().getSimpleName());
                 }
                 if (obj instanceof ArrayList){
-                    ((ArrayList) obj).stream().forEach(o -> readableOutput.append(objToReadableString(o)).append(" ,"));
+                    ((ArrayList<?>) obj).forEach(o -> readableOutput.append(objToReadableString(o)).append(" ,"));
                     readableOutput.setLength(readableOutput.length()-2);
                 }
                 if (obj instanceof HasId){

@@ -26,7 +26,7 @@ public class CreateDataLoggerSlaveCommand extends CreateDeviceCommand {
         this.setDeviceTypeTpl(DeviceTypeTpl.EIMETER_FLEX);
         super.run();
         if (this.activeLifeCyclestatePostBuilder != null) {
-            this.activeLifeCyclestatePostBuilder.get().accept(Builders.from(DeviceBuilder.class).withMrid(getMrid()).get());
+            this.activeLifeCyclestatePostBuilder.get().accept(Builders.from(DeviceBuilder.class).withName(getDeviceName()).get());
         }
     }
 }

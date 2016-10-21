@@ -370,7 +370,7 @@ public class DemoTest {
         // Business method
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
     }
 
@@ -382,7 +382,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
     }
 
@@ -403,18 +403,18 @@ public class DemoTest {
 
     @Test
     public void testCreateG3Devices() {
-        String MRID_GATEWAY = "123-4567-89";
-        String MRID_SLAVE1 = "Demo board AS3000";
-        String MRID_SLAVE2 = "Demo board AS220";
+        String GATEWAY_NAME = "123-4567-89";
+        String SLAVE1_NAME = "Demo board AS3000";
+        String SLAVE2_NAME = "Demo board AS220";
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveAS3000(MRID_SLAVE1);
-        demoService.createG3SlaveAS220(MRID_SLAVE2);
+        demoService.createG3Gateway(GATEWAY_NAME);
+        demoService.createG3SlaveAS3000(SLAVE1_NAME);
+        demoService.createG3SlaveAS220(SLAVE2_NAME);
 
         this.setPrincipal();
-        checkCreatedG3Gateway(MRID_GATEWAY);
-        checkCreatedG3SlaveDevice(MRID_SLAVE1);
-        checkCreatedG3SlaveDevice(MRID_SLAVE2);
+        checkCreatedG3Gateway(GATEWAY_NAME);
+        checkCreatedG3SlaveDevice(SLAVE1_NAME);
+        checkCreatedG3SlaveDevice(SLAVE2_NAME);
     }
 
     private void setPrincipal() {
@@ -425,13 +425,13 @@ public class DemoTest {
         return new ConsoleUser();
     }
 
-    private void checkCreatedG3Gateway(String mridGateway) {
+    private void checkCreatedG3Gateway(String gatewayName) {
         String DEVICE_CONFIG_NAME = "Default";
         String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
         String CONNECTION_METHOD_NAME = "Outbound TCP";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> gatewayOptional = deviceService.findByUniqueMrid(mridGateway);
+        Optional<Device> gatewayOptional = deviceService.findDeviceByName(gatewayName);
         assertThat(gatewayOptional.isPresent()).isTrue();
         Device gateway = gatewayOptional.get();
         DeviceType deviceType = gateway.getDeviceType();
@@ -493,19 +493,19 @@ public class DemoTest {
         assertThat(gateway.getComTaskExecutions()).hasSize(1);
     }
 
-    private void checkCreatedG3SlaveDevice(String mridDevice) {
-        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "E0023000520685414" : "123457S";
-        String MAC_ADDRESS = "Demo board AS3000".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
+    private void checkCreatedG3SlaveDevice(String deviceName) {
+        String SERIAL_NUMBER = "Demo board AS3000".equals(deviceName) ? "E0023000520685414" : "123457S";
+        String MAC_ADDRESS = "Demo board AS3000".equals(deviceName) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> deviceOptional = deviceService.findByUniqueMrid(mridDevice);
+        Optional<Device> deviceOptional = deviceService.findDeviceByName(deviceName);
         assertThat(deviceOptional.isPresent()).isTrue();
         Device device = deviceOptional.get();
         assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
 
         DeviceType deviceType = device.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getLongName() : DeviceTypeTpl.AS220.getLongName());
+        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(deviceName) ? DeviceTypeTpl.AS3000.getLongName() : DeviceTypeTpl.AS220.getLongName());
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
         assertThat(loadProfileTypes).hasSize(3);
         for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -525,7 +525,7 @@ public class DemoTest {
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getRegisterTypes()).containsExactly(
                         RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
             } else {
-                fail("The device type of device with MRID = " + mridDevice + " contains an unwanted loadprofile: " + loadProfileType.getName());
+                fail("The device type of device with name = " + deviceName + " contains an unwanted loadprofile: " + loadProfileType.getName());
             }
         }
         List<RegisterType> registerTypes = deviceType.getRegisterTypes();
@@ -537,7 +537,7 @@ public class DemoTest {
                     !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString()) &&
                     !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
                     !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString())) {
-                fail("The device type of device with MRID = " + mridDevice + " contains an unwanted register type: " + registerType.getObisCode());
+                fail("The device type of device with name = " + deviceName + " contains an unwanted register type: " + registerType.getObisCode());
             }
         }
         assertThat(deviceType.getLogBookTypes()).hasSize(1);
@@ -571,7 +571,7 @@ public class DemoTest {
                 assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isFalse();
                 assertThat(enablement.getPriority() == 100).isTrue();
             } else {
-                fail("The device type of device with MRID = " + mridDevice + " contains an unwanted com task configuration : " + enablement.getComTask().getName());
+                fail("The device type of device with name = " + deviceName + " contains an unwanted com task configuration : " + enablement.getComTask().getName());
             }
         }
 
@@ -585,7 +585,7 @@ public class DemoTest {
             } else if (LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName().equals(loadProfile.getLoadProfileSpec().getLoadProfileType().getName())) {
                 assertThat(loadProfile.getChannels()).hasSize(4);
             } else {
-                fail("The device with MRID = " + mridDevice + " contains an unwanted loadprofile: " + loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
+                fail("The device with name = " + deviceName + " contains an unwanted loadprofile: " + loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
             }
         }
         assertThat(device.getLogBooks()).hasSize(1);
@@ -601,7 +601,7 @@ public class DemoTest {
                     !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
                     !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
                     !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString())) {
-                fail("The device with MRID = " + mridDevice + " contains an unwanted register : " + register.getRegisterSpecObisCode());
+                fail("The device with name = " + deviceName + " contains an unwanted register : " + register.getRegisterSpecObisCode());
             }
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

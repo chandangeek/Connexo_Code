@@ -62,7 +62,7 @@ public class CreateG3SlaveCommand {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS3000 [AM540]")
-                        .setProperty("MRID", "Demo board AS3000")
+                        .setProperty("name", "Demo board AS3000")
                         .setProperty("propertyID", "E0023000520685414")
                         .setProperty("serialNumber", "E0023000520685414")
                         .setProperty("MAC_address", "02237EFFFEFD835B")
@@ -80,7 +80,7 @@ public class CreateG3SlaveCommand {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS220 [AM540]")
-                        .setProperty("MRID", "Demo board AS220")
+                        .setProperty("name", "Demo board AS220")
                         .setProperty("propertyID", "123457S")
                         .setProperty("serialNumber", "123457S")
                         .setProperty("MAC_address", "02237EFFFEFD82F4")
@@ -101,7 +101,7 @@ public class CreateG3SlaveCommand {
 
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
 
-    private String mrId;
+    private String name;
     private MeterConfig meterConfig;
     private DeviceTypeTpl deviceTypeTemplate;
 
@@ -111,8 +111,8 @@ public class CreateG3SlaveCommand {
         this.lifecyclePostBuilder = lifecyclePostBuilder;;
     }
 
-    public void setMrId(String mrId) {
-        this.mrId = mrId;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setConfig(String meterConfigName){
@@ -127,8 +127,8 @@ public class CreateG3SlaveCommand {
         meterConfig.setDeviceConfiguration(deviceConfiguration);
         meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get());
 
-        if (mrId != null){
-            meterConfig.setProperty("MRID", mrId);
+        if (name != null){
+            meterConfig.setProperty("name", name);
         }
         lifecyclePostBuilder.get().accept(deviceFrom(meterConfig));
     }
@@ -196,7 +196,7 @@ public class CreateG3SlaveCommand {
 
         Device getDevice() {
             return Builders.from(DeviceBuilder.class)
-                    .withMrid((String) props.getProperty("MRID"))
+                    .withName((String) props.getProperty("name"))
                     .withDeviceConfiguration(deviceConfiguration)
                     .withSerialNumber((String) props.getProperty("serialNumber"))
                     .withPostBuilder(new SecurityPropertyPostBuilder(this))
