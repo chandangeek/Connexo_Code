@@ -21,6 +21,7 @@ import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.DemoDataUpgrade10_1_Command;
 import com.elster.jupiter.demo.impl.commands.FileImportCommand;
 import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
@@ -119,6 +120,7 @@ import java.time.Clock;
         "osgi.command.function=importCalendar",
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
+        "osgi.command.function=upgradeDemoData",
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -968,5 +970,9 @@ public class DemoServiceImpl {
             deviceCommand.deviceShouldBeActive();
             deviceCommand.run();
         });
+    }
+
+    public void upgradeDemoData() {
+        executeTransaction(() -> this.injector.getInstance(DemoDataUpgrade10_1_Command.class).run());
     }
 }

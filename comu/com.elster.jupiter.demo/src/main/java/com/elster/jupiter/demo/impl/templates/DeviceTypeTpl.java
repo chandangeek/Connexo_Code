@@ -26,7 +26,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY, LoadProfileTypeTpl._15_MIN_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.DAILY_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.MONTHLY_ELECTRICITY_A_PLUS),
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)) {
         @Override
-        protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
+        public List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
             return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
         }
 
