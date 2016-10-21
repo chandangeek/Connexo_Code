@@ -13,6 +13,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.rest.WorkGroupInfo;
 import com.elster.jupiter.users.rest.actions.CreateWorkGroupTransaction;
+import com.elster.jupiter.users.rest.actions.DeleteWorkGroupTransaction;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -20,6 +21,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -76,6 +78,16 @@ public class WorkGroupResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public WorkGroupInfo createWorkGroup(WorkGroupInfo info) {
         return new WorkGroupInfo(transactionService.execute(new CreateWorkGroupTransaction(info, userService)));
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
+    public Response deleteWorkGroup(WorkGroupInfo info, @PathParam("id") long id) {
+        info.id = id;
+        transactionService.execute(new DeleteWorkGroupTransaction(info, userService));
+        return Response.status(Response.Status.OK).build();
     }
 
 }
