@@ -1398,24 +1398,28 @@ Ext.define('Dxp.controller.Tasks', {
                 tooltip.setVisible(true);
                 tooltip.setTooltip(
                     Ext.String.format(
-                        Uni.I18n.translate('addDataExportTask.formatter.tooltip', 'DES', 'The export file contains 5 columns')
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip', 'DES', 'The export file contains 6 columns')
                         + ':<br>'
                         + '<div style="text-indent: 40px">{0}</div>'
                         + '<div style="text-indent: 40px">{1}</div>'
                         + '<div style="text-indent: 40px">{2}</div>'
                         + '<div style="text-indent: 40px">{3}</div>'
                         + '<div style="text-indent: 40px">{4}</div>',
+                        + '<div style="text-indent: 40px">{5}</div>',
                         Uni.I18n.translate('addDataExportTask.formatter.tooltip.col1', 'DES', 'Interval timestamp (YYYY-MM-DDThh:mm:ss.sTZD)'),
                         Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'Device MRID (text)'),
-                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
-                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
-                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')));
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Device name (text)'),
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Reading type (text)'),
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Value (number)'),
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip.col6', 'DES', 'Validation result (text)')
+                    )
+                );
                 break;
             case 'standardCsvEventDataProcessorFactory':
                 tooltip.setVisible(true);
                 tooltip.setTooltip(
                     Ext.String.format(
-                        Uni.I18n.translate('addDataExportTask.formatter.tooltip2', 'DES', 'The export file contains 3 columns')
+                        Uni.I18n.translate('addDataExportTask.formatter.tooltip2', 'DES', 'The export file contains 4 columns')
                         + ':<br>'
                         + '<div style="text-indent: 40px">{0}</div>'
                         + '<div style="text-indent: 40px">{1}</div>'
@@ -1424,7 +1428,10 @@ Ext.define('Dxp.controller.Tasks', {
                         + '<div style="text-indent: 40px">{4}</div>',
                         Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col1', 'DES', 'Event date (YYYY-MM-DDThh:mm:ss.sTZD)'),
                         Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col2', 'DES', 'Event type (text)'),
-                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device MRID (text)')));
+                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device MRID (text)'),
+                        Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col4', 'DES', 'Device name (text)')
+                    )
+                );
                 break;
             default:
                 tooltip.setTooltip('');
