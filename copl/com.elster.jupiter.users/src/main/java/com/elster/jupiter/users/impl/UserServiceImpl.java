@@ -741,6 +741,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
+    public List<User> getUsers(){
+        return dataModel.mapper(User.class).find();
+    }
+
+    @Override
     public Optional<WorkGroup> findAndLockWorkGroupByIdAndVersion(long id, long version) {
         return dataModel.mapper(WorkGroup.class).lockObjectIfVersion(version, id);
     }
