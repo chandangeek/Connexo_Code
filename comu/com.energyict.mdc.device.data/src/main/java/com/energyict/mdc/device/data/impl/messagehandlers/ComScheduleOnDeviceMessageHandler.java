@@ -69,7 +69,11 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
 
     private void addSchedule(ComSchedule comSchedule, Device device, ComScheduleOnDeviceQueueMessage queueMessage) {
         try {
-            device.newScheduledComTaskExecution(comSchedule).add();
+            device.getDeviceConfiguration().getComTaskEnablements()
+                    .stream()
+                    .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
+                    .forEach(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule).add());
+
             LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage());

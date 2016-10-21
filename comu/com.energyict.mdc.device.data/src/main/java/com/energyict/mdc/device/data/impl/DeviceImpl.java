@@ -2043,8 +2043,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule) {
-        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, comSchedule);
+    public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ComSchedule comSchedule) {
+        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, comTaskEnablement, comSchedule);
     }
 
     @Override
@@ -2233,7 +2233,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .findFirst();
 
         if (bestComTaskExecution.isPresent() && bestComTaskEnablement.isPresent()) {
-            if (bestComTaskExecution.get().getComTasks().contains(bestComTaskEnablement.get().getComTask())) {
+            if (bestComTaskExecution.get().getComTask().equals(bestComTaskEnablement.get().getComTask())) {
                 comTaskExecution = bestComTaskExecution;
             } else {
                 comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
@@ -2678,17 +2678,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
         private Set<ComTaskExecution> executionsToDelete;
 
-        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
+        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
             this.initExecutionsToDelete(comSchedule);
-            this.getComTaskExecution().initialize(DeviceImpl.this, comSchedule);
+            this.getComTaskExecution().initialize(DeviceImpl.this, comTaskEnablement, comSchedule);
         }
 
         private void initExecutionsToDelete(ComSchedule comSchedule) {
             Set<Long> comScheduleComTasks = comSchedule.getComTasks().stream().map(ComTask::getId).collect(Collectors.toSet());
             this.executionsToDelete = DeviceImpl.this.getComTaskExecutionImpls()
                     .filter(Predicates.not(ComTaskExecution::usesSharedSchedule))
-                    .filter(cte -> comScheduleComTasks.contains(cte.getComTasks().get(0).getId()))
+                    .filter(cte -> comScheduleComTasks.contains(cte.getComTask().getId()))
                     .collect(Collectors.toSet());
         }
 

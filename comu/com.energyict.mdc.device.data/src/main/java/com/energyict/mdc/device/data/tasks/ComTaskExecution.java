@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -342,8 +343,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
     List<ProtocolTask> getProtocolTasks();
 
-    List<ComTask> getComTasks();
-
     /**
      * Tests if this ComTaskExecution is configured to execute the ComSchedule.
      * Note that only {@link ScheduledComTaskExecution} can be configured to do this.
@@ -382,4 +381,17 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     void addNewComTaskExecutionTrigger(Instant triggerTimeStamp);
 
     long getConnectionTaskId(); // for performance reasons, approved by program architect
+
+    /**
+     * Gets the {@link ComTask} that specifies
+     * the details of this ComTaskExecution.
+     *
+     * @return The ComTask
+     */
+    ComTask getComTask();
+
+    /**
+     * Gets the {@link ProtocolDialectConfigurationProperties}.
+     */
+    ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 }

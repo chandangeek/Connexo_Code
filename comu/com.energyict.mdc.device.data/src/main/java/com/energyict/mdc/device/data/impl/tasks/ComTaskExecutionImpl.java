@@ -12,6 +12,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
@@ -60,7 +61,7 @@ import java.util.TimeZone;
  * Provides code and structural reuse opportunities for
  * components that intend to provide an implementation
  * for the {@link ComTaskExecution} interface.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 11/04/14
  * Time: 15:09
@@ -84,6 +85,10 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
+    //    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_IS_REQUIRED + "}")
+    protected Reference<ComTask> comTask = ValueReference.absent();
+    //    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    protected Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
 
     private long connectionTaskId;  // Required for performance of ComTaskExecution query to avoid loading the ConnectionTask to only get the id
     private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
@@ -179,13 +184,13 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public boolean isExecuting() {
         return this.comPort.isPresent()
-            || (   this.connectionTask.isPresent()
+                || (this.connectionTask.isPresent()
                 && (this.connectionTask.get().getExecutingComServer() != null)
-                && (   (   this.getNextExecutionTimestamp() != null
-                        && this.getNextExecutionTimestamp().isBefore(this.clock.instant()))
-                    || (   this.getNextExecutionTimestamp() == null
-                        && this.isIgnoreNextExecutionSpecsForInbound()
-                        && this.connectionTask.get() instanceof InboundConnectionTask))
+                && ((this.getNextExecutionTimestamp() != null
+                && this.getNextExecutionTimestamp().isBefore(this.clock.instant()))
+                || (this.getNextExecutionTimestamp() == null
+                && this.isIgnoreNextExecutionSpecsForInbound()
+                && this.connectionTask.get() instanceof InboundConnectionTask))
         );
     }
 
@@ -845,6 +850,20 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public long getConnectionTaskId() {
         return connectionTaskId;
+    }
+
+    @Override
+    public ComTask getComTask() {
+        return this.comTask.get();
+    }
+
+    protected void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        this.protocolDialectConfigurationProperties.set(protocolDialectConfigurationProperties);
+    }
+
+    @Override
+    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
+        return protocolDialectConfigurationProperties.orNull();
     }
 
     public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {

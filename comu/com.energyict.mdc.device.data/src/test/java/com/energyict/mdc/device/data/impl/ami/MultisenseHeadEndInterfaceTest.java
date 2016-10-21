@@ -207,7 +207,7 @@ public class MultisenseHeadEndInterfaceTest {
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(COMTASK_ID);
         when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
-        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class, Mockito.RETURNS_DEEP_STUBS);

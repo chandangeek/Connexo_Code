@@ -367,7 +367,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param comSchedule The ComSchedule
      * @see ManuallyScheduledComTaskExecution
      */
-    ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule);
+    ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ComSchedule comSchedule);
 
     ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression);
 

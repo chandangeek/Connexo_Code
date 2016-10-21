@@ -55,7 +55,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
 
         ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device, serviceCall);
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
+                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).scheduleNow();
     }

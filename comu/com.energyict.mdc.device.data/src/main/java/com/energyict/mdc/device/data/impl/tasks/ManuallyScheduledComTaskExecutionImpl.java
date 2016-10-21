@@ -32,7 +32,6 @@ import com.energyict.mdc.tasks.TopologyTask;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -45,10 +44,6 @@ import java.util.Optional;
  */
 public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implements ManuallyScheduledComTaskExecution {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_IS_REQUIRED + "}")
-    private Reference<ComTask> comTask = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
-    private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
     @IsPresent(groups = {SaveScheduled.class}, message = "{" + MessageSeeds.Keys.NEXTEXECUTIONSPEC_IS_REQUIRED + "}")
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
@@ -143,28 +138,8 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
         return getComTask().getMaxNumberOfTries();
     }
 
-    @Override
-    public ComTask getComTask() {
-        // we do an explicit get because ComTask is required and should not be null
-        return comTask.get();
-    }
-
     private void setComTask(ComTask comTask) {
         this.comTask.set(comTask);
-    }
-
-    @Override
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
-        return protocolDialectConfigurationProperties.orNull();
-    }
-
-    @Override
-    public List<ComTask> getComTasks() {
-        return Arrays.asList(getComTask());
-    }
-
-    void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        this.protocolDialectConfigurationProperties.set(protocolDialectConfigurationProperties);
     }
 
     @Override

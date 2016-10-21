@@ -4,14 +4,10 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
@@ -25,7 +21,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,11 +31,6 @@ import java.util.Optional;
  */
 @ComTaskMustBeFirmwareManagement(groups = {Save.Create.class, Save.Update.class})
 public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implements FirmwareComTaskExecution {
-
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_IS_REQUIRED + "}")
-    private Reference<ComTask> comTask = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
-    private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
 
     @Inject
     public FirmwareComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
@@ -131,28 +121,13 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
     }
 
     @Override
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
-        return this.protocolDialectConfigurationProperties.orNull();
-    }
-
-    @Override
     public FirmwareComTaskExecutionUpdater getUpdater() {
         return new FirmwareComTaskExecutionUpdaterImpl(this);
     }
 
     @Override
-    public ComTask getComTask() {
-        return this.comTask.get();
-    }
-
-    @Override
     public List<ProtocolTask> getProtocolTasks() {
         return this.comTask.get().getProtocolTasks();
-    }
-
-    @Override
-    public List<ComTask> getComTasks() {
-        return Collections.singletonList(this.comTask.get());
     }
 
     @Override
@@ -212,9 +187,5 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
             this.getComTaskExecution().setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
             return self();
         }
-    }
-
-    private void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        this.protocolDialectConfigurationProperties.set(protocolDialectConfigurationProperties);
     }
 }

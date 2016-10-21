@@ -7,9 +7,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksInComScheduleMustHaveSameConfigurationSettings;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComSchedulePerDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 
 @UniqueComSchedulePerDevice(groups = {Save.Create.class, Save.Update.class})
-@ComTasksInComScheduleMustHaveSameConfigurationSettings(groups = {Save.Create.class, Save.Update.class})
 public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implements ScheduledComTaskExecution {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMSCHEDULE_IS_REQUIRED + "}")
@@ -40,12 +40,14 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         super(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService);
     }
 
-    public ScheduledComTaskExecutionImpl initialize(Device device, ComSchedule comSchedule) {
+    public ScheduledComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement, ComSchedule comSchedule) {
         this.initializeDevice(device);
         this.setIgnoreNextExecutionSpecsForInbound(true);
         this.setExecutingPriority(ComTaskExecution.DEFAULT_PRIORITY);
         this.setPlannedPriority(ComTaskExecution.DEFAULT_PRIORITY);
         this.setUseDefaultConnectionTask(true);
+        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties());
+        this.comTask.set(comTaskEnablement.getComTask());
         this.comSchedule.set(comSchedule);
         nextExecutionSpecs.set(comSchedule.getNextExecutionSpecs());
         return this;
@@ -150,11 +152,6 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     @Override
-    public List<ComTask> getComTasks() {
-        return getComSchedule().getComTasks();
-    }
-
-    @Override
     public boolean executesComSchedule(ComSchedule comSchedule) {
         return comSchedule != null && this.comSchedule.get().getId() == comSchedule.getId();
     }
@@ -162,6 +159,11 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     @Override
     public boolean executesComTask(ComTask comTask) {
         return comTask != null && this.getComSchedule().containsComTask(comTask);
+    }
+
+    @Override
+    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
+        return null;
     }
 
     public static class ScheduledComTaskExecutionBuilderImpl

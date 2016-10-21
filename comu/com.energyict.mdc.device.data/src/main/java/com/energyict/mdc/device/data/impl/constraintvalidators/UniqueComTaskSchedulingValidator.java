@@ -27,14 +27,12 @@ public class UniqueComTaskSchedulingValidator implements ConstraintValidator<Uni
         boolean valid = true;   // Optimistic approach ;-)
         Set<Long> comTaskIds = new HashSet<>();
         for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-            for (ComTask comTask : comTaskExecution.getComTasks()) {
-                if (comTaskIds.contains(comTask.getId())) {
-                    valid = false;
-                }
-                else {
-                    comTaskIds.add(comTask.getId());
-                }
+            if (comTaskIds.contains(comTaskExecution.getComTask().getId())) {
+                valid = false;
+            } else {
+                comTaskIds.add(comTaskExecution.getComTask().getId());
             }
+
         }
         return valid;
     }

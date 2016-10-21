@@ -628,7 +628,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
 
     private ComTaskExecution mockComTaskExecution(ComTask comTask, Progress progress, RunMode runMode, List<ComTaskExecution> comTaskExecutions) {
         ComTaskExecution mock = mock(runMode.clazz());
-        when(mock.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(mock.getComTask()).thenReturn(comTask);
         when(mock.isOnHold()).thenReturn(progress.onHold());
         when(mock.isAdHoc()).thenReturn(runMode.adHoc());
         when(mock.isScheduledManually()).thenReturn(runMode.scheduledManually());

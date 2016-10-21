@@ -245,9 +245,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
 
                 Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                        .filter(cte -> cte.getComTasks()
-                                .stream()
-                                .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
+                        .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                         .findFirst();
                 comTaskExecutions.add(existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)));
             }
@@ -256,10 +254,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                             .getComTaskEnablements()
                             .stream()
                             .filter(comTaskEnablement -> !comTaskExecutions.stream()
-                                    .anyMatch(cte -> cte.getComTasks()
-                                            .stream()
-                                            .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask()
-                                                    .getId())))
+                                    .anyMatch(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId()))
                             .map(comTaskEnablement -> createAdHocComTaskExecution(device, comTaskEnablement))
                             .collect(Collectors.toList())
                     , readingTypes));
@@ -370,7 +365,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         deviceMessages.forEach(msg -> deviceMessageIds.add(msg.getDeviceMessageId()));
         getComTaskEnablementsForDeviceMessages(device, deviceMessageIds).forEach(comTaskEnablement -> {
             Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                    .filter(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
+                    .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                     .findFirst();
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
             deviceMessages.stream()

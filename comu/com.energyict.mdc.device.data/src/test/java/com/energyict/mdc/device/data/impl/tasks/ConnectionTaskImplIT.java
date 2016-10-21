@@ -495,7 +495,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comTaskEnablement, comSchedule);
         ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return comTaskExecution;
