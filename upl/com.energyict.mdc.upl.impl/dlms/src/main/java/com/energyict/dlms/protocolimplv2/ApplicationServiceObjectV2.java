@@ -5,11 +5,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.AuthenticationTypes;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.AssociationSN;
@@ -61,6 +57,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         super(xDlmsAse, protocolLink, securityContext);
     }
 */
+
     /**
      * Create an ApplicationAssociation.
      * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server
@@ -132,12 +129,25 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
      * - if it was already configured as a general property, compare the certificates, they should match.
      * - if it was not yet configured as a general property, start using the received certificate in this session.
      */
-    private void handleRespondingAEQualifier() {
+    private void handleRespondingAEQualifier() throws ProtocolException {
         if (acse.getRespondingApplicationEntityQualifier() != null) {
             if (getSecurityContext().getSecurityProvider() instanceof GeneralCipheringSecurityProvider) {
                 GeneralCipheringSecurityProvider generalCipheringSecurityProvider = (GeneralCipheringSecurityProvider) getSecurityContext().getSecurityProvider();
                 if (generalCipheringSecurityProvider.getServerSignatureCertificate() == null) {
-                    generalCipheringSecurityProvider.setServerSignatureCertificate(parseEncodedCertificate());
+                    X509Certificate serverSignatureCertificate = parseEncodedCertificate();
+
+                    //TODO COMMUNICATION-1815
+                    silentDisconnect();
+                    throw new ProtocolException("Received the server signing certificate (subjectDN = '"
+                            + serverSignatureCertificate.getSubjectDN().getName()
+                            + "', serial number = '"
+                            + serverSignatureCertificate.getSerialNumber().toString()
+                            + "' and issuerDN = '"
+                            + serverSignatureCertificate.getIssuerDN().getName()
+                            + "'), but could not trust it since no trust store is available yet to the protocols. Aborting.");
+
+                    //generalCipheringSecurityProvider.setServerSignatureCertificate(serverSignatureCertificate);
+
                 } else {
                     byte[] configuredCertificate;
                     try {
