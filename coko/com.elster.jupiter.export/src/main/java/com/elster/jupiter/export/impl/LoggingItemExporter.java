@@ -8,7 +8,6 @@ import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -19,6 +18,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -48,8 +48,7 @@ class LoggingItemExporter implements ItemExporter {
     @Override
     public List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
         ReadingTypeDataExportItem item = meterReadingData.getItem();
-        String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
-        String readingType = item.getReadingType().getFullAliasName();
+        String itemDescription = item.getDescription(occurrence.getTriggerTime());
         try {
             Range<Instant> range = ((IStandardDataSelector) occurrence.getTask().getReadingTypeDataSelector().get()).adjustedExportPeriod(occurrence, item);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
@@ -57,13 +56,13 @@ class LoggingItemExporter implements ItemExporter {
 
             List<FormattedExportData> data = decorated.exportItem(occurrence, meterReadingData);
 
-            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, mrid, readingType, fromDate, toDate)));
+            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, itemDescription, fromDate, toDate)));
             return data;
         } catch (DataExportException e) {
-            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FAILED.log(logger, thesaurus, e.getCause(), mrid, readingType)));
+            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FAILED.log(logger, thesaurus, e.getCause(), itemDescription)));
             throw e;
         } catch (FatalDataExportException e) {
-            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, e.getCause(), mrid, readingType)));
+            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, e.getCause(), itemDescription)));
             throw e;
         }
     }

@@ -329,7 +329,6 @@ public class ExportTaskImplIT {
         assertThat(ftpsDestination.getFileLocation()).isEqualTo("ftpsLocation");
         assertThat(ftpsDestination.getFileName()).isEqualTo("ftpsFile");
         assertThat(ftpsDestination.getFileExtension()).isEqualTo("csv");
-
     }
 
     @Test
@@ -361,7 +360,6 @@ public class ExportTaskImplIT {
         taskFromDB = found.get();
 
         assertThat(taskFromDB.getDestinations()).hasSize(1);
-
     }
 
     @Test
@@ -426,7 +424,6 @@ public class ExportTaskImplIT {
 
     @Test
     public void testCreation() {
-
         ExportTask exportTask = createAndSaveTask();
 
         Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
@@ -455,7 +452,6 @@ public class ExportTaskImplIT {
 
     @Test
     public void testCreationForEvents() {
-
         ExportTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = dataExportService.newBuilder()
@@ -496,7 +492,6 @@ public class ExportTaskImplIT {
     @Test
     @Ignore
     public void testHistory() throws InterruptedException {
-
         clock.setTicker(new Supplier<Instant>() {
             private ZonedDateTime last = NOW.plusSeconds(1);
 
@@ -585,7 +580,6 @@ public class ExportTaskImplIT {
 
     @Test
     public void testUpdate() {
-
         ExportTask exportTask = createAndSaveTask();
 
         Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
@@ -675,7 +669,7 @@ public class ExportTaskImplIT {
         RecurrentTask recurrentTask = task.getRecurrentTask();
         try (TransactionContext context = transactionService.getContext()) {
             recurrentTask.triggerNow();
-            TaskOccurrence test = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
+            TaskOccurrence test = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.all()).stream().findFirst().get();
 
             dataExportService.createExportOccurrence(test).persist();
             context.commit();
@@ -693,8 +687,11 @@ public class ExportTaskImplIT {
 
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
+                    .orElseThrow(IllegalArgumentException::new)
+                    .newMeter("test", "myName")
+                    .create();
+            task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
             task.update();
             context.commit();
         }
@@ -718,8 +715,11 @@ public class ExportTaskImplIT {
 
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            IReadingTypeDataExportItem item = ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
+                    .orElseThrow(IllegalArgumentException::new)
+                    .newMeter("test", "myName")
+                    .create();
+            IReadingTypeDataExportItem item = task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
             item.deactivate();
             item.update();
             context.commit();

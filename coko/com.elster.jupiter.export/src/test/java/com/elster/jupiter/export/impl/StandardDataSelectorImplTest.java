@@ -7,6 +7,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -41,7 +42,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -130,7 +130,7 @@ public class StandardDataSelectorImplTest {
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
-        doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, clock, validationService, thesaurus))
+        doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, thesaurus))
                 .when(dataModel).getInstance(ReadingTypeDataSelector.class);
         doAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService))
                 .when(dataModel).getInstance(DefaultItemDataSelector.class);
@@ -182,10 +182,6 @@ public class StandardDataSelectorImplTest {
         doReturn(validationEvaluator).when(validationService).getEvaluator();
         doReturn(Optional.of(occurrence)).when(occurrence).getDefaultSelectorOccurrence();
         doReturn(true).when(validationEvaluator).isValidationEnabled(any(), any());
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test
@@ -493,6 +489,17 @@ public class StandardDataSelectorImplTest {
         MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(2);
         assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
         assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
+    }
+
+    @Test
+    public void testItemDescription() {
+        ReadingTypeDataExportItem item = ReadingTypeDataExportItemImpl.from(
+                dataModel, dataModel.getInstance(StandardDataSelectorImpl.class), meter1, readingType);
+        when(meter1.getName()).thenReturn("PeriMeter");
+        when(readingType.getFullAliasName()).thenReturn("Odium humani generis");
+        assertThat(item.getDescription(Instant.EPOCH)).isEqualTo("PeriMeter:Odium humani generis");
+        when(meter1.getMeter(any(Instant.class))).thenReturn(Optional.empty());
+        assertThat(item.getDescription(Instant.EPOCH)).isEqualTo("Odium humani generis");
     }
 
     private static class FakeRefAny implements RefAny {

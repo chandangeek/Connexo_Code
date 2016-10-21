@@ -19,6 +19,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -94,12 +95,12 @@ class EventSelector implements DataSelector {
     }
 
     private Stream<ExportData> getExportDataStream(Range<Instant> range) {
-        Stream<ExportData> stream = selector.getEndDeviceGroup()
+        List<ExportData> result = selector.getEndDeviceGroup()
                 .getMembers(range)
                 .stream()
                 .map(EndDeviceMembership::getEndDevice)
-                .map(endDevice -> buildEventData(endDevice, range));
-        List<ExportData> result = stream.collect(Collectors.toList());
+                .map(endDevice -> buildEventData(endDevice, range))
+                .collect(Collectors.toList());
         return result.stream();
     }
 
@@ -110,7 +111,8 @@ class EventSelector implements DataSelector {
     }
 
     private StructureMarker buildStructureMarker(EndDevice endDevice, Range<Instant> range) {
-        return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range);
+        return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range)
+                .child(endDevice.getName()); // structure of both device identifiers to form two columns in the exported file
     }
 
     private MeterReadingImpl buildMeterReading(EndDevice endDevice, Range<Instant> range) {

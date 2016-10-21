@@ -16,11 +16,10 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -36,19 +35,15 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 class ReadingTypeDataSelector implements DataSelector {
     private final DataModel dataModel;
     private final TransactionService transactionService;
-    private final Clock clock;
-    private final ValidationService validationService;
     private final Thesaurus thesaurus;
 
     private Logger logger;
     private StandardDataSelectorImpl selector;
 
     @Inject
-    ReadingTypeDataSelector(DataModel dataModel, TransactionService transactionService, Clock clock, ValidationService validationService, Thesaurus thesaurus) {
+    ReadingTypeDataSelector(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
-        this.clock = clock;
-        this.validationService = validationService;
         this.thesaurus = thesaurus;
     }
 
@@ -75,8 +70,7 @@ class ReadingTypeDataSelector implements DataSelector {
                     .forEach(IReadingTypeDataExportItem::update);
             lastRuns = activeItems.stream()
                     .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
-            activeItems.stream()
-                    .forEach(IReadingTypeDataExportItem::activate);
+            activeItems.forEach(IReadingTypeDataExportItem::activate);
             warnIfDevicesHaveNoneOfTheReadingTypes(logger, occurrence);
             context.commit();
         }
@@ -85,7 +79,7 @@ class ReadingTypeDataSelector implements DataSelector {
         try {
             Map<IReadingTypeDataExportItem, Optional<MeterReadingData>> selectedData = activeItems.stream()
                     .collect(Collectors.toMap(
-                            Function.<IReadingTypeDataExportItem>identity(),
+                            Function.identity(),
                             activeItem -> defaultItemDataSelector.selectData(occurrence, activeItem)
                     ));
             long numberOfItemsExported = selectedData.values()
@@ -117,7 +111,7 @@ class ReadingTypeDataSelector implements DataSelector {
     private void warnIfDevicesHaveNoneOfTheReadingTypes(Logger logger, DataExportOccurrence occurrence) {
         Range<Instant> range = occurrence.getDefaultSelectorOccurrence()
                 .map(DefaultSelectorOccurrence::getExportedDataInterval)
-                .orElse(Range.<Instant>all());
+                .orElse(Range.all());
         boolean hasMismatchedMeters = decorate(getEndDeviceGroup()
                 .getMembers(range)
                 .stream())
@@ -143,7 +137,6 @@ class ReadingTypeDataSelector implements DataSelector {
     private Set<ReadingType> getReadingTypes() {
         return selector.getReadingTypes();
     }
-
 
     public RelativePeriod getExportPeriod() {
         return selector.getExportPeriod();
