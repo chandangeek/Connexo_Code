@@ -633,10 +633,8 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ComTask comTask1 = mock(ComTask.class);
         when(comTask1.getId()).thenReturn(1111L);
         when(comTask1.getName()).thenReturn("Read all");
-        ComTask comTask2 = mock(ComTask.class);
-        when(comTask2.getName()).thenReturn("Basic check");
         ComSchedule comSchedule = mockComSchedule();
-        ScheduledComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(lastExecStart, lastSuccess, plannedNext, connectionTask, comSchedule, Arrays.asList(comTask1, comTask2));
+        ScheduledComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(lastExecStart, lastSuccess, plannedNext, connectionTask, comSchedule, comTask1);
 
         ComTaskExecutionSession comTaskExecutionSession1 = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession1.getComTaskExecution()).thenReturn(comTaskExecution1);
@@ -655,7 +653,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.communications")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.communications[0].name")).isEqualTo("Read all + Basic check");
+        assertThat(jsonModel.<String>get("$.communications[0].name")).isEqualTo("Read all");
         assertThat(jsonModel.<String>get("$.communications[0].device.id")).isEqualTo("1234-5678-9012");
         assertThat(jsonModel.<String>get("$.communications[0].device.name")).isEqualTo("some device");
         assertThat(jsonModel.<Integer>get("$.communications[0].deviceType.id")).isEqualTo(1010);
@@ -700,9 +698,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
-    private ScheduledComTaskExecution mockScheduledComTaskExecution(Instant lastExecStart, Instant lastSuccess, Instant plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, List<ComTask> comTasks) {
+    private ScheduledComTaskExecution mockScheduledComTaskExecution(Instant lastExecStart, Instant lastSuccess, Instant plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, ComTask comTask) {
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
-        when(comTaskExecution1.getComTasks()).thenReturn(comTasks);
+        when(comTaskExecution1.getComTask()).thenReturn(comTask);
         when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);

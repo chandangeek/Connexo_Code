@@ -302,9 +302,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(Instant.now());
         ComTask comTask1 = mock(ComTask.class);
         when(comTask1.getName()).thenReturn("Read all");
-        ComTask comTask2 = mock(ComTask.class);
-        when(comTask2.getName()).thenReturn("Basic check");
-        when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(comTaskExecution1.getComTask()).thenReturn(comTask1);
         ScheduledConnectionTask connectionTask = mockConnectionTask();
         doReturn(Optional.of(connectionTask)).when(comTaskExecution1).getConnectionTask();
         Map<String, Object> map = target("/communications").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);

@@ -35,7 +35,7 @@ public abstract class BaseComTaskExecutionInfoFactory <T extends BaseComTaskExec
         if (comTaskExecution.usesSharedSchedule()) {
             info.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
         } else {
-            info.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
+            info.name = comTaskExecution.getComTask().getName();
         }
 
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
