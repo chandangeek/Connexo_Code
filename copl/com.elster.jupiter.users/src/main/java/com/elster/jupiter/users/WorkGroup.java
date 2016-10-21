@@ -30,4 +30,8 @@ public interface WorkGroup {
 
     void delete();
 
+    void update();
+
+    void setDescription(String description);
+
 }

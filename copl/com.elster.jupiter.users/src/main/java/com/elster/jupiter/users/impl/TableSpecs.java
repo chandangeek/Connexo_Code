@@ -77,7 +77,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            table.addAuditColumns().get(3);
+            table.addAuditColumns();
             table.primaryKey("USR_PK_WORKGROUP").on(idColumn).add();
             table.unique("IDS_U_WORKGROUP").on(nameColumn).add();
         }

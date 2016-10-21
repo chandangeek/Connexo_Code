@@ -55,8 +55,14 @@ public class WorkGroupImpl implements WorkGroup {
         return dataModel.getInstance(WorkGroupImpl.class).init(name, description);
     }
 
+    @Override
     public void update() {
         Save.action(this.id).save(this.dataModel, this);
+    }
+
+    @Override
+    public void setDescription(String description){
+        this.description = description;
     }
 
     @Override
