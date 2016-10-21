@@ -1,13 +1,8 @@
-package com.elster.jupiter.metering.impl.upgraders;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.impl.CreateLocationMemberTableOperation;
-import com.elster.jupiter.metering.impl.DefaultTranslationKey;
-import com.elster.jupiter.metering.impl.GeoCoordinatesSpatialMetaDataTableOperation;
-import com.elster.jupiter.metering.impl.InstallerV10_2Impl;
-import com.elster.jupiter.metering.impl.MeteringDataModelService;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -101,6 +96,7 @@ public class UpgraderV10_2 implements Upgrader {
         meteringService.createLocationTemplate();
 
         installNewEventTypes();
+        meteringService.createAllReadingTypes(new ReadingTypeGeneratorForDataLogger().generateReadingTypes());
         new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext);
         installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
         this.upgradeSubscriberSpecs();

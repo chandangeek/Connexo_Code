@@ -37,7 +37,6 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
-import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
