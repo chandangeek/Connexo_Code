@@ -16,7 +16,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.*;
-import java.security.cert.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -55,7 +56,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     /**
      * The alias of the TLS private key.
-     *
      */
     private PropertySpec tlsAliasPropertySpec() {
         return PropertySpecFactory.stringPropertySpec(CLIENT_TLS_ALIAS);
@@ -105,10 +105,9 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     protected ServerLoggableComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
-        System.setProperty("jdk.tls.client.protocols", getTLSVersionPropertyValue());
+        System.setProperty("jdk.tls.client.protocols", getTLSVersionPropertyValue());       //Workaround to get TLS fully working on java 1.7
 
         try {
-
             final SSLContext sslContext = SSLContext.getInstance(getTLSVersionPropertyValue());
             DLMSKeyStoreUserFile dlmsKeyStoreUserFile = new DLMSKeyStoreUserFileProviderImpl().getKeyStoreUserFile();
 
@@ -152,26 +151,33 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    private TrustManager[] getTrustManagers(KeyStore keyStore) throws ConnectionException{
-        TrustManager[] trustManagers = null;
+    /**
+     * Create a TrustManager based on the persisted trust store of EIServer. This contains sub-CA and root-CA certificates.
+     */
+    private TrustManager[] getTrustManagers(KeyStore trustStore) throws ConnectionException {
         try {
-            trustManagers = new TrustManager[]{new X509TrustManagerImpl(keyStore)};
+            return new TrustManager[]{new X509TrustManagerImpl(trustStore)};
         } catch (Exception e) {
             String pattern = Environment.getDefault().getTranslation("failedToSetupTrustManager", "Failed to setup a Trust Manager, TLS connection will not be setup.");
             throw new ConnectionException(pattern, e);
         }
-        return trustManagers;
     }
 
+    /**
+     * Create a KeyManager based on the persisted key store of EIServer. This contains the private key for TLS and its matching certificate.
+     */
     private KeyManager[] getKeyManagers(KeyStore keyStore) throws ConnectionException {
-        KeyManager[] keyManagers = null;
         try {
-            keyManagers = new KeyManager[]{new X509KeyManagerImpl(keyStore)};
+            return new KeyManager[]{new X509KeyManagerImpl(keyStore)};
         } catch (Exception e) {
             String pattern = Environment.getDefault().getTranslation("failedToSetupKeyManager", "Failed to setup a Key Manager, TLS connection will not be setup.");
             throw new ConnectionException(pattern, e);
         }
-        return keyManagers;
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2016-10-21 17:29:55 +0200 (Fri, 21 Oct 2016)$";
     }
 
     private class X509TrustManagerImpl implements X509TrustManager {
@@ -182,14 +188,14 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
-            TrustManager trustManagers [] = trustManagerFactory.getTrustManagers();
+            TrustManager trustManagers[] = trustManagerFactory.getTrustManagers();
 
-         /*
-          * Search for a X509TrustManager and use it as default
-          */
-            for (int i = 0; i < trustManagers.length; i++) {
-                if (trustManagers[i] instanceof X509TrustManager) {
-                    x509TrustManager = (X509TrustManager) trustManagers[i];
+            /*
+             * Search for a X509TrustManager and use it as default
+             */
+            for (TrustManager trustManager : trustManagers) {
+                if (trustManager instanceof X509TrustManager) {
+                    x509TrustManager = (X509TrustManager) trustManager;
                     return;
                 }
             }
@@ -199,25 +205,21 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
 
         /**
-         * Given the partial or complete certificate chain provided by the peer, build a certificate path to a trusted root and return if it can be validated and is trusted for client SSL authentication based on the authentication type.
-         * @param chain the peer certificate chain
-         * @param authType the authentication type based on the client certificate
-         * @throws CertificateException if the certificate chain is not trusted by this TrustManager.
+         * Not supported at the client side
          */
-        public void checkClientTrusted(X509Certificate[] chain, String authType)
-                throws UnsupportedOperationException {
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws UnsupportedOperationException {
             String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
             throw new UnsupportedOperationException(pattern);
         }
 
         /**
          * Given the partial or complete certificate chain provided by the peer, build a certificate path to a trusted root and return if it can be validated and is trusted for server SSL authentication based on the authentication type.
-         * @param chain the peer certificate chain
+         *
+         * @param chain    the peer certificate chain
          * @param authType he key exchange algorithm used
          * @throws CertificateException if the certificate chain is not trusted by this TrustManager.
          */
-        public void checkServerTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
             try {
                 x509TrustManager.checkServerTrusted(chain, authType);
             } catch (CertificateException e) {
@@ -232,8 +234,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         public X509Certificate[] getAcceptedIssuers() {
             return x509TrustManager.getAcceptedIssuers();
         }
-
-
     }
 
     private class X509KeyManagerImpl implements X509KeyManager {
@@ -245,14 +245,14 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             this.keyStore = keyStore;
             KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmfactory.init(keyStore, DLMSKeyStoreParameters.PARAMETERS);
-            KeyManager[] keymanagers =  kmfactory.getKeyManagers();
+            KeyManager[] keymanagers = kmfactory.getKeyManagers();
 
             /*
-          * Search for a X509KeyManager and use it as default
-          */
-            for (int i = 0; i < keymanagers.length; i++) {
-                if (keymanagers[i] instanceof X509KeyManager) {
-                    x509KeyManager = (X509KeyManager) keymanagers[i];
+             * Search for a X509KeyManager and use it as default
+             */
+            for (KeyManager keymanager : keymanagers) {
+                if (keymanager instanceof X509KeyManager) {
+                    x509KeyManager = (X509KeyManager) keymanager;
                     return;
                 }
             }
@@ -261,12 +261,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             throw new ConnectionException(pattern);
         }
 
-
         /**
-         *  Get the matching aliases for authenticating the client side of a secure socket given the public key type and the list of certificate issuer authorities recognized by the peer (if any).
-         * @param keyType
-         * @param issuers
-         * @return
+         * Get the matching aliases for authenticating the client side of a secure socket given the public key type and the list of certificate issuer authorities recognized by the peer (if any).
          */
         @Override
         public String[] getClientAliases(String keyType, Principal[] issuers) {
@@ -276,10 +272,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         /**
          * Choose an alias to authenticate the client side of a secure socket given the public key type and the list of certificate issuer authorities recognized by the peer (if any).
-         * @param keyType
-         * @param issuers
-         * @param socket
-         * @return
          */
         @Override
         public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
@@ -288,10 +280,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
 
         /**
-         * Get the matching aliases for authenticating the server side of a secure socket given the public key type and the list of certificate issuer authorities recognized by the peer (if any).
-         * @param keyType
-         * @param issuers
-         * @return
+         * Not supported at the client side
          */
         @Override
         public String[] getServerAliases(String keyType, Principal[] issuers) {
@@ -300,11 +289,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
 
         /**
-         * Choose an alias to authenticate the server side of a secure socket given the public key type and the list of certificate issuer authorities recognized by the peer (if any).
-         * @param keyType
-         * @param issuers
-         * @param socket
-         * @return
+         * Not supported at the client side
          */
         @Override
         public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
@@ -314,8 +299,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         /**
          * Returns the certificate chain associated with the given alias.
-         * @param alias
-         * @return
          */
         @Override
         public X509Certificate[] getCertificateChain(String alias) {
@@ -324,15 +307,13 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         /**
          * Returns the key associated with the given alias.
-         * @param alias
-         * @return
          */
         @Override
         public PrivateKey getPrivateKey(String alias) {
             return x509KeyManager.getPrivateKey(alias);
         }
 
-        private String getAlias(String[] keyType, Principal[] issuers){
+        private String getAlias(String[] keyType, Principal[] issuers) {
             try {
                 Enumeration<String> aliases = keyStore.aliases();
                 while (aliases.hasMoreElements()) {
@@ -352,10 +333,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             return null;
         }
 
-        private boolean isPublicKeyAlgorithmMatching(X509Certificate certificate, String[] keyType){
+        private boolean isPublicKeyAlgorithmMatching(X509Certificate certificate, String[] keyType) {
             String certPublicKeyAlgName = certificate.getPublicKey().getAlgorithm();
-            for(String type: keyType){
-                if(certPublicKeyAlgName.equalsIgnoreCase(type)){
+            for (String type : keyType) {
+                if (certPublicKeyAlgName.equalsIgnoreCase(type)) {
                     return true;
                 }
             }
@@ -363,9 +344,9 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
 
         private boolean isMatchingCAIssuer(Principal[] issuers, List<Principal> caRootIssuersForCertIdentifiedByAlias) {
-            for(Principal issuer: issuers){
+            for (Principal issuer : issuers) {
                 if (caRootIssuersForCertIdentifiedByAlias.contains(issuer)) {
-                   getLogger().info("Matching CA issuer found, return alias");
+                    getLogger().info("Matching CA issuer found, return alias");
                     return true;
                 }
             }
@@ -380,7 +361,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             } catch (IOException e) {
                 getLogger().warning("Unable to get GeneralNames from AuthorityKeyIdentifierExtension object. " + e);
             }
-            for(GeneralName generalName: generalNames.names()){
+            for (GeneralName generalName : generalNames.names()) {
                 X500Name name = (X500Name) generalName.getName();
                 caPrincipals.add(name.asX500Principal());
             }
@@ -402,10 +383,4 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             return null;
         }
     }
-
-    @Override
-    public String getVersion() {
-        return "$Date: 2016-10-17 15:37:07 +0300 (Mon, 17 Oct 2016)$";
-    }
-
 }
