@@ -330,7 +330,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     public Finder<ImportSchedule> findImportSchedules(String applicationName) {
         Condition condition = Condition.TRUE;
         if (!"SYS".equalsIgnoreCase(applicationName)) {
-            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName).or(Where.where("applicationName").isEqualToIgnoreCase("SYS")));
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
         }
         condition = condition.and(Where.where("obsoleteTime").isNull());
         return DefaultFinder.of(ImportSchedule.class, condition, dataModel).defaultSortColumn("name");
@@ -340,7 +340,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     public Finder<ImportSchedule> findAllImportSchedules(String applicationName) {
         Condition condition = Condition.TRUE;
         if (!"SYS".equalsIgnoreCase(applicationName)) {
-            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName).or(Where.where("applicationName").isEqualToIgnoreCase("SYS")));
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
         }
         return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
     }
