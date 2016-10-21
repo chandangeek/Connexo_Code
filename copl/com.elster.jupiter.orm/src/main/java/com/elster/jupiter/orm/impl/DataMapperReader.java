@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -376,9 +378,10 @@ public class DataMapperReader<T> implements TupleParser<T> {
         if (mapping == null) {
             throw new IllegalArgumentException("Invalid field " + fieldName);
         } else {
-            fragments.add(mapping.asEqualFragment(value, getAlias()));
+            Comparison comparison = value == null ?
+                    Operator.ISNULL.compare(fieldName) :
+                    Operator.EQUAL.compare(fieldName, value);
+            fragments.add(mapping.asComparisonFragment(comparison, getAlias()));
         }
     }
-
-
 }
