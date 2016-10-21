@@ -29,6 +29,10 @@ Ext.onReady(function () {
         {
             name: 'Dbp',
             path: '../../apps/dbp/src'
+        },
+        {
+            name: 'Yfn',
+            path: '../../apps/yfn/src'
         }
     ];
 
