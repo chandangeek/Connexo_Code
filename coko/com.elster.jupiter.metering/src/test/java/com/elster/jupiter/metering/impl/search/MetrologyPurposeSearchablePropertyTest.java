@@ -188,6 +188,6 @@ public class MetrologyPurposeSearchablePropertyTest {
     }
 
     private MetrologyPurposeSearchableProperty getTestInstance() {
-        return new MetrologyPurposeSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService);
+        return new MetrologyPurposeSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.clock);
     }
 }

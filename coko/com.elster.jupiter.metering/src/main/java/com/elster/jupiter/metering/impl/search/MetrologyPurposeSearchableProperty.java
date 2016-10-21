@@ -9,7 +9,9 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,17 +21,20 @@ public class MetrologyPurposeSearchableProperty implements SearchableUsagePointP
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final Clock clock;
     static final String FIELD_NAME  = "metrologyConfigurations.metrologyConfiguration.metrologyContracts.metrologyPurpose";
 
-    public MetrologyPurposeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService){
+    public MetrologyPurposeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock){
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.clock = clock;
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification;
+        return specification.and(Where.where("metrologyConfigurations.interval")
+                .isEffective(this.clock.instant()));
     }
 
     @Override
