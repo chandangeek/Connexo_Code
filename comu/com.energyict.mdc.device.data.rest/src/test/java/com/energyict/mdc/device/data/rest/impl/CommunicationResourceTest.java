@@ -62,7 +62,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(1L, "Read");
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -99,7 +99,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(1L, "Read");
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -126,8 +126,8 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         doReturn(Optional.of(connectionTask)).when(comTaskExecution).getConnectionTask();
-        List<ComTask> comTasks = Arrays.asList(mockComTask(1L, "Read all"));
-        when(comTaskExecution.getComTasks()).thenReturn(comTasks);
+        ComTask comTask = mockComTask(1L, "Read all");
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(1)));

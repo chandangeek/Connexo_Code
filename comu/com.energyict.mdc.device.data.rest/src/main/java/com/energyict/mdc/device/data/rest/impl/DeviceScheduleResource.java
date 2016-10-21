@@ -61,7 +61,7 @@ public class DeviceScheduleResource {
 
     private void checkForNoActionsAllowedOnSystemComTaskExecutions(long comTaskExecId) {
         ComTaskExecution comTaskExecution = resourceHelper.findComTaskExecutionOrThrowException(comTaskExecId);
-        if (comTaskExecution.getComTasks().stream().anyMatch(ComTask::isSystemComTask)) {
+        if (comTaskExecution.getComTask().isSystemComTask()) {
             throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK);
         }
     }
@@ -87,7 +87,7 @@ public class DeviceScheduleResource {
                 if (schedulingInfo.schedule != null) {
                     boolean comTaskExecutionExists = false;
                     for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTasks().get(0).getId() == comTaskEnablement.getComTask().getId()) {
+                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
                             ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
                             comTaskExecutionExists = true;
                         }
@@ -105,7 +105,7 @@ public class DeviceScheduleResource {
                 } else {
                     boolean comTaskExecutionExists = false;
                     for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTasks().get(0).getId() == comTaskEnablement.getComTask().getId()) {
+                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
                             comTaskExecution.scheduleNow();
                             comTaskExecutionExists = true;
                         }

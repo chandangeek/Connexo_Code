@@ -433,17 +433,13 @@ public class DeviceComTaskResource {
 
     private List<ComTaskExecution> getComTaskExecutionsForDeviceAndComTask(Long comTaskId, Device device) {
         return device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
-                        .mapToLong(ComTask::getId)
-                        .anyMatch(comTaskId::equals))
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
                 .collect(toList());
     }
 
     private ComTaskExecution getComTaskExecutionForDeviceAndComTaskOrThrowException(Long comTaskId, Device device) {
         return device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
-                        .mapToLong(ComTask::getId)
-                        .anyMatch(comTaskId::equals))
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
                 .findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId, device.getmRID()));
     }
 

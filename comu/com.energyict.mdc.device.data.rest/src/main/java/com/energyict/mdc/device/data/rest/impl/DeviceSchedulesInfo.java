@@ -36,8 +36,7 @@ public class DeviceSchedulesInfo {
         Set<Long> usedComtaskIds =
                 comTaskExecutions
                         .stream()
-                        .flatMap(each -> each.getComTasks().stream())
-                        .map(ComTask::getId)
+                        .map(each -> each.getComTask().getId())
                         .collect(Collectors.toSet());
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
@@ -76,7 +75,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
-        deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
+        deviceSchedulesInfo.comTaskInfos.add(ComTaskInfo.from(comTaskExecution.getComTask()));
         deviceSchedulesInfo.type = ScheduleType.SCHEDULED;
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         Device device = comTaskExecution.getDevice();
@@ -92,7 +91,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
-        deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
+        deviceSchedulesInfo.comTaskInfos.add(ComTaskInfo.from(comTaskExecution.getComTask()));
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
@@ -106,7 +105,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.plannedDate = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
-        deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
+        deviceSchedulesInfo.comTaskInfos.add(ComTaskInfo.from(comTaskExecution.getComTask()));
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());

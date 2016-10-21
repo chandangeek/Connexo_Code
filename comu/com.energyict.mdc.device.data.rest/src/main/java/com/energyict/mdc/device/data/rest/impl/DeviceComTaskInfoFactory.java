@@ -13,7 +13,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -44,7 +43,7 @@ public class DeviceComTaskInfoFactory {
 
     private DeviceComTaskInfo fromAllComTaskExecutions(ComTaskEnablement comTaskEnablement, List<ComTaskExecution> comTaskExecutions, Device device) {
         List<ComTaskExecution> compatibleComTaskExecutions = comTaskExecutions.stream()
-                .filter(comTaskExecution -> CollectionUtil.contains(comTaskExecution.getComTasks(), comTaskEnablement.getComTask()))
+                .filter(comTaskExecution -> comTaskExecution.getComTask().equals(comTaskEnablement.getComTask()))
                 .collect(Collectors.toList());
         if (!compatibleComTaskExecutions.isEmpty()) {
             return this.fromCompatibleComTaskExecutions(comTaskEnablement, compatibleComTaskExecutions);
@@ -75,7 +74,7 @@ public class DeviceComTaskInfoFactory {
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution) {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.INDIVIDUAL.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.INDIVIDUAL_SCHEDULE).format();
-        deviceComTasksInfo.protocolDialect = ((SingleComTaskComTaskExecution)comTaskExecution).getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
+        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         if (comTaskExecution.getNextExecutionSpecs().isPresent()) {
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }

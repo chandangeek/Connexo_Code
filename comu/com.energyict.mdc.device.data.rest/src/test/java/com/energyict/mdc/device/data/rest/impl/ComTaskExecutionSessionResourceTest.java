@@ -138,13 +138,10 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(comTaskExecution.getComSchedule()).thenReturn(comSchedule);
         when(comTaskExecution.isIgnoreNextExecutionSpecsForInbound()).thenReturn(true);
         when(comTaskExecution.getExecutionPriority()).thenReturn(-20);
-        ComTask comTask1 = mock(ComTask.class);
-        when(comTask1.getId()).thenReturn(1001L);
-        when(comTask1.getName()).thenReturn("Read all + Basic check");
         ComTask comTask2 = mock(ComTask.class);
         when(comTask2.getId()).thenReturn(1002L);
         when(comTask2.getName()).thenReturn("Set clock");
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask2, comTask1));
+        when(comTaskExecution.getComTask()).thenReturn(comTask2);
         when(comTaskExecutionSession.getComTask()).thenReturn(comTask2);
         when(comTaskExecutionSession.getComTaskExecution()).thenReturn(comTaskExecution);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);
