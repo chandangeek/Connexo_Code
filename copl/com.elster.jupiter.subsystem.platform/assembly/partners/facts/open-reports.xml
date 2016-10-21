@@ -143,7 +143,7 @@ from &#13;
     ) devgr &#13;
     INNER JOIN (&#13;
                      &#13;
-          select schType, sch.id, ddd.ID as DeviceID, ddd.MRID as "MRID", ddd.SERIALNUMBER as SerialNumber, &#13;
+      select schType, sch.id, ddd.ID as DeviceID, ddd.NAME as "DEVICENAME", ddd.SERIALNUMBER as SerialNumber, &#13;
           sch.Name as COMTASKNAME, sch.ConnectionMethod, sch.UseDefaultConnectionTask, sch.URGENCY, sps.name, sch.Status, sch.ScheduleName, sch.FREQUENCYVALUE, sch.FREQUENCYUNIT, sch.OFFSETVALUE, sch.OFFSETUNIT&#13;
           from ddc_device ddd left join&#13;
           (&#13;
@@ -494,7 +494,7 @@ from &#13;
       </viewField>
       <viewField>
         <id>77687</id>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>DEVICECOMMUNICATIONTASKS</refCode>
@@ -502,8 +502,8 @@ from &#13;
           <longDescription>Device communication tasks</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>MRID</shortDescription>
-        <longDescription>MRID</longDescription>
+        <shortDescription>DEVICENAME</shortDescription>
+        <longDescription>DEVICENAME</longDescription>
         <sortOrder>7</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -944,7 +944,7 @@ from &#13;
               LEFT JOIN YFN_ADHOC_DG yfndg ON yfnahg.DEVICEGROUPID = yfndg.ID&#13;
 &#13;
     ) devgr&#13;
-    INNER JOIN (select dv.ID as DeviceID, dv.MRID as MRID, dv.SERIALNUMBER SerialNumber, dt.Name as DeviceType, dc.Name as DeviceConfig, dv.CERTIF_YEAR as CertificateYear&#13;
+      INNER JOIN (select dv.ID as DeviceID, dv.NAME as DEVICENAME, dv.SERIALNUMBER SerialNumber, dt.Name as DeviceType, dc.Name as DeviceConfig, dv.CERTIF_YEAR as CertificateYear&#13;
         from DDC_DEVICE dv&#13;
         left join DTC_DEVICETYPE dt on dv.DEVICETYPE = dt.ID&#13;
         left join DTC_DEVICECONFIG dc ON dv.DEVICECONFIGID = dc.ID&#13;
@@ -1068,7 +1068,7 @@ from &#13;
       </viewField>
       <viewField>
         <id>77707</id>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>DEVICECONFIGOVERVIEW</refCode>
@@ -1076,8 +1076,8 @@ from &#13;
           <longDescription>Device configuration overview</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>MRID</shortDescription>
-        <longDescription>MRID</longDescription>
+        <shortDescription>DEVICENAME</shortDescription>
+        <longDescription>DEVICENAME</longDescription>
         <sortOrder>5</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -1272,7 +1272,7 @@ from &#13;
 &#13;
     ) devgr  &#13;
     INNER JOIN (select dd.ID as DeviceID,&#13;
-          dd.MRID as MRID, dd.SERIALNUMBER SerialNumber,&#13;
+      dd.NAME as DEVICENAME, dd.SERIALNUMBER SerialNumber,&#13;
           '' as ConnectionInfo,&#13;
           pct.Name as ConnectionName,&#13;
           cpc_pluggableclass.name as ConnectionType,&#13;
@@ -1744,7 +1744,7 @@ from &#13;
       </viewField>
       <viewField>
         <id>77723</id>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>DEVICECONNECTIONS</refCode>
@@ -1752,8 +1752,8 @@ from &#13;
           <longDescription>Device connections</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>MRID</shortDescription>
-        <longDescription>MRID</longDescription>
+        <shortDescription>DEVICENAME</shortDescription>
+        <longDescription>DEVICENAME</longDescription>
         <sortOrder>9</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -1985,7 +1985,7 @@ from &#13;
               LEFT JOIN YFN_ADHOC_DG yfndg ON yfnahg.DEVICEGROUPID = yfndg.ID&#13;
     ) devgr  &#13;
     INNER JOIN (&#13;
-      select gateway.ID as GatewayID, gateway.MRID,  ct.device &#13;
+      select gateway.ID as GatewayID, gateway.NAME, ct.device &#13;
     , successindicator &#13;
     , TASKSUCCESSCOUNT&#13;
 	, DATE '1970-01-01' + cs.startdate/(24*60*60*1000) ConnectionDate&#13;
@@ -1997,7 +1997,7 @@ from DTL_PHYSICALGATEWAYREFERENCE pgr &#13;
 			left join ddc_connectiontask ct on ct.device = gateway.id&#13;
 			inner join ddc_comsession cs on cs.connectiontask = ct.id 			&#13;
 		where cs.startdate between pgr.starttime and pgr.endtime	&#13;
-group by gateway.ID, gateway.MRID, ct.device, successindicator, TASKSUCCESSCOUNT, StartDate, StopDate , TOTALMILLIS, bytessent, bytesread&#13;
+      group by gateway.ID, gateway.NAME, ct.device, successindicator, TASKSUCCESSCOUNT, StartDate, StopDate , TOTALMILLIS, bytessent, bytesread&#13;
     ) res on devgr.ENDDEVICEID = res.GatewayID</viewSQL>
     <fieldList>
       <viewField>
@@ -2333,7 +2333,7 @@ group by gateway.ID, gateway.MRID, ct.device, successindicator, TASKSUCCESSCOUNT
       </viewField>
       <viewField>
         <id>77739</id>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>GATEWAYPERFORMANCE</refCode>
@@ -2341,8 +2341,8 @@ group by gateway.ID, gateway.MRID, ct.device, successindicator, TASKSUCCESSCOUNT
           <longDescription>Gateway performance</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>MRID</shortDescription>
-        <longDescription>MRID</longDescription>
+        <shortDescription>DEVICENAME</shortDescription>
+        <longDescription>DEVICENAME</longDescription>
         <sortOrder>6</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -2549,7 +2549,7 @@ from &#13;
               LEFT JOIN YFN_ADHOC_DG yfndg ON yfnahg.DEVICEGROUPID = yfndg.ID&#13;
     ) devgr   &#13;
     INNER JOIN (      &#13;
-      select dvs.ID as DeviceID, dvs.MRID deviceMRID, gateway.MRID gatewayMRID,&#13;
+      select dvs.ID as DeviceID, dvs.NAME deviceNAME, gateway.NAME gatewayNAME,&#13;
       TASKSUCCESSCOUNT, TASKFAILURECOUNT, TASKNOTEXECUTEDCOUNT,&#13;
        TOTALMILLIS,&#13;
        cs.stopdate,&#13;
@@ -2613,7 +2613,7 @@ from &#13;
       </viewField>
       <viewField>
         <id>77751</id>
-        <columnName>GATEWAYMRID</columnName>
+        <columnName>GATEWAYNAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>METERPERFORMANCE</refCode>
@@ -2621,8 +2621,8 @@ from &#13;
           <longDescription>Meter performance</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>GATEWAYMRID</shortDescription>
-        <longDescription>GATEWAYMRID</longDescription>
+        <shortDescription>GATEWAYNAME</shortDescription>
+        <longDescription>GATEWAYNAME</longDescription>
         <sortOrder>2</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -2855,7 +2855,7 @@ from &#13;
       </viewField>
       <viewField>
         <id>77756</id>
-        <columnName>DEVICEMRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>METERPERFORMANCE</refCode>
@@ -2863,8 +2863,8 @@ from &#13;
           <longDescription>Meter performance</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>DEVICEMRID</shortDescription>
-        <longDescription>DEVICEMRID</longDescription>
+        <shortDescription>DEVICENAME</shortDescription>
+        <longDescription>DEVICENAME</longDescription>
         <sortOrder>1</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -3027,7 +3027,7 @@ from &#13;
 &#13;
     ) devgr   &#13;
     INNER JOIN (&#13;
-        select ddd.ID as DeviceID, MRID, cp.Name COMPortPoolName&#13;
+      select ddd.ID as DeviceID, ddd.NAME as DEVICENAME, cp.Name COMPortPoolName&#13;
             , ct.device&#13;
             , successindicator&#13;
             , TOTALMILLIS            &#13;
@@ -3041,7 +3041,7 @@ from &#13;
             left join ddc_connectiontask ct on ddd.id = ct.device&#13;
             left join mdc_comportpool cp on cp.id = ct.comportpool&#13;
             left join ddc_comsession cs on cs.connectiontask = ct.id   &#13;
-        group by ddd.ID, MRID, cp.Name, ct.device&#13;
+      group by ddd.ID, ddd.NAME, cp.Name, ct.device&#13;
             , successindicator&#13;
             , TOTALMILLIS&#13;
             , Startdate&#13;
@@ -3473,7 +3473,7 @@ from &#13;
       </viewField>
       <viewField>
         <id>77777</id>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>POINTTOPOINTPERFORMANCE</refCode>
@@ -3481,8 +3481,8 @@ from &#13;
           <longDescription>Point to point performance</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>MRID</shortDescription>
-        <longDescription>MRID</longDescription>
+        <shortDescription>DEVICENAME</shortDescription>
+        <longDescription>DEVICENAME</longDescription>
         <sortOrder>4</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -3635,7 +3635,8 @@ from &#13;
               LEFT JOIN YFN_ADHOC_DG yfndg ON yfnahg.DEVICEGROUPID = yfndg.ID&#13;
     ) devgr&#13;
     INNER JOIN (&#13;
-        SELECT dd.MRID, dd.ID DeviceID, mrt.AliasName Name, DATE '1970-01-01' + LASTREADING/(24*60*60*1000) LastReadingDate, ld.LastReading, ld.LastValue, mrg.Name RegisterGroup&#13;
+      SELECT dd.NAME DEVICENAME, dd.ID DeviceID, mrt.AliasName Name, DATE '1970-01-01' + LASTREADING/(24*60*60*1000) LastReadingDate, ld.LastReading, ld.LastValue, mrg.Name
+      RegisterGroup&#13;
         FROM &#13;
           DDC_DEVICE dd&#13;
           left join DTC_REGISTERSPEC drs on drs.deviceconfigid = dd.deviceconfigid&#13;
@@ -3658,7 +3659,7 @@ from &#13;
     <fieldList>
       <viewField>
         <id>77793</id>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <category>
           <refTypeCode>FIELDCATEGORY</refTypeCode>
           <refCode>REGISTERREPORT</refCode>
@@ -3666,8 +3667,8 @@ from &#13;
           <longDescription>Register report</longDescription>
           <screenSortOrder>0</screenSortOrder>
         </category>
-        <shortDescription>MRID</shortDescription>
-        <longDescription>MRID</longDescription>
+        <shortDescription>DEVICENAME</shortDescription>
+        <longDescription>DEVICENAME</longDescription>
         <sortOrder>5</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -4291,7 +4292,7 @@ end</SQLClause>
       <reportField>
         <id>1</id>
         <fieldTemplateId>77687</fieldTemplateId>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <columnHeading>Device</columnHeading>
         <sortOrder>1</sortOrder>
         <breakOrder>0</breakOrder>
@@ -7230,7 +7231,7 @@ end</SQLClause>
       <reportField>
         <id>1</id>
         <fieldTemplateId>77707</fieldTemplateId>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <columnHeading>Device</columnHeading>
         <sortOrder>1</sortOrder>
         <breakOrder>0</breakOrder>
@@ -9278,7 +9279,7 @@ end</SQLClause>
       <reportField>
         <id>1</id>
         <fieldTemplateId>77723</fieldTemplateId>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <columnHeading>Device</columnHeading>
         <sortOrder>1</sortOrder>
         <breakOrder>0</breakOrder>
@@ -13672,7 +13673,7 @@ end</SQLClause>
       <reportField>
         <id>1</id>
         <fieldTemplateId>77739</fieldTemplateId>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <columnHeading>Gateway</columnHeading>
         <sortOrder>1</sortOrder>
         <breakOrder>0</breakOrder>
@@ -15647,7 +15648,7 @@ end</SQLClause>
       <reportField>
         <id>1</id>
         <fieldTemplateId>77756</fieldTemplateId>
-        <columnName>DEVICEMRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <columnHeading>Device</columnHeading>
         <sortOrder>1</sortOrder>
         <breakOrder>0</breakOrder>
@@ -15665,7 +15666,7 @@ end</SQLClause>
       <reportField>
         <id>2</id>
         <fieldTemplateId>77751</fieldTemplateId>
-        <columnName>GATEWAYMRID</columnName>
+        <columnName>GATEWAYNAME</columnName>
         <columnHeading>Gateway</columnHeading>
         <sortOrder>2</sortOrder>
         <breakOrder>0</breakOrder>
@@ -16011,7 +16012,7 @@ end</SQLClause>
         <id>78983</id>
         <fieldId>0</fieldId>
         <fieldTemplateId>77751</fieldTemplateId>
-        <columnName>GATEWAYMRID</columnName>
+        <columnName>GATEWAYNAME</columnName>
         <columnOperator>INLIST</columnOperator>
         <whereClauseOperator>AND</whereClauseOperator>
         <bracketsBefore>0</bracketsBefore>
@@ -17661,7 +17662,7 @@ end</SQLClause>
       <reportField>
         <id>1</id>
         <fieldTemplateId>77777</fieldTemplateId>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <columnHeading>Device</columnHeading>
         <sortOrder>1</sortOrder>
         <breakOrder>0</breakOrder>
@@ -20209,7 +20210,7 @@ end</SQLClause>
       <reportField>
         <id>1</id>
         <fieldTemplateId>77793</fieldTemplateId>
-        <columnName>MRID</columnName>
+        <columnName>DEVICENAME</columnName>
         <columnHeading>Device</columnHeading>
         <sortOrder>1</sortOrder>
         <breakOrder>0</breakOrder>
