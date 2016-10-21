@@ -57,6 +57,8 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private static final ObisCode ALARM_EVENTOBISCODE = ObisCode.fromString("0.0.97.98.20.255");
     private static final ObisCode ALARM_1_EVENTOBISCODE = ObisCode.fromString("1.0.0.97.98.20");
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
+
+    private static final int EVENT_NOTIFICATION_ATTRIBUTE_NUMBER = 2;
     private static final int LAST_EVENT_ATTRIBUTE_NUMBER = 3;
 
     private static final int DROP = 0;
@@ -65,6 +67,12 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private static final int WRAP_AS_SERVER_EVENT = 3;
     private static final int RELAYED_EVENT = 4;
     private static final int INTERNAL_EVENT = 5;
+    private static final int EVENT_NOTIFICATION = 6;
+
+    private static final byte TAG_EVENT_NOTIFICATION_REQUEST = (byte) (194);
+    private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
+    private static final int MAC_ADDRESS_LENGTH = 8;
+
     protected ObisCode logbookObisCode;
     protected CollectedLogBook collectedLogBook;
     protected DeviceIdentifier deviceIdentifier;
@@ -108,8 +116,11 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
      */
     public void readAndParseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
-        byte[] header = new byte[8];
-        inboundFrame.get(header);
+        if (!isEventNotificationRequest()){
+            // for frames which are not "EventNotificationRequest" strip the header
+            byte[] header = new byte[8];
+            inboundFrame.get(header);
+        }
 
         readAndParseInboundFrame(inboundFrame);
     }
@@ -218,7 +229,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         Date dateTime = null;
 
         // Check notification type by source SAP
-        if (getNotificatioType() == INTERNAL_EVENT) {
+        if (getNotificatioType() == INTERNAL_EVENT || isEventNotificationRequest()) {
             byte dateLength = inboundFrame.get();
             byte[] octetString = new byte[dateLength];
             inboundFrame.get(octetString);
@@ -569,6 +580,21 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
         log("Received frame header ["+readBytes+"]: " + ProtocolTools.getHexStringFromBytes(header));
 
+        if (readBytes>1){
+            if (header[0]==TAG_EVENT_NOTIFICATION_REQUEST){
+                log(" - this is an Event-Notification Request");
+                setNotificatioType(EVENT_NOTIFICATION);
+                byte[] frame = ProtocolTools.concatByteArrays(header);
+                readBytes = 0;
+                while (readBytes == 0) {
+                    byte[] block = new byte[1024];
+                    readBytes = getComChannel().read(block);
+                    frame = ProtocolTools.concatByteArrays(frame, ProtocolTools.getSubArray(block,0,readBytes));
+                }
+                log(" - received APDU:"+ProtocolTools.getHexStringFromBytes(frame));
+                return ByteBuffer.wrap(frame);
+            }
+        }
         if (readBytes != 8) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
         }
@@ -645,15 +671,21 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     private void validateCosemAttributeDescriptorOriginatingFromGateway(short classId, ObisCode obisCode, int attributeNumber) {
         if (classId != DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
-            throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' but was '" + classId + "'"));
+            if (classId != DLMSClassId.DATA.getClassId()) {
+                throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' or with classId '"+DLMSClassId.DATA.getClassId()+"' but was '" + classId + "'"));
+            }
         }
 
         if (!obisCode.equals(EVENT_NOTIFICATION_OBISCODE)) {
-            throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with obiscode '" + EVENT_NOTIFICATION_OBISCODE + "' but was '" + obisCode.toString() + "'"));
+            if (!obisCode.equals(ALARM_EVENTOBISCODE)) {
+                throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with obiscode '" + EVENT_NOTIFICATION_OBISCODE + "' or '"+ALARM_EVENTOBISCODE+"' but was '" + obisCode.toString() + "'"));
+            }
         }
 
         if (attributeNumber != LAST_EVENT_ATTRIBUTE_NUMBER) {
-            throw DataParseException.ioException(new ProtocolException("Expected push event notification attribute '" + LAST_EVENT_ATTRIBUTE_NUMBER + "' but was '" + attributeNumber + "'"));
+            if (attributeNumber != EVENT_NOTIFICATION_ATTRIBUTE_NUMBER) {
+                throw DataParseException.ioException(new ProtocolException("Expected push event notification attribute '" + LAST_EVENT_ATTRIBUTE_NUMBER + "' or '"+EVENT_NOTIFICATION_ATTRIBUTE_NUMBER+"' but was '" + attributeNumber + "'"));
+            }
         }
     }
 
@@ -679,7 +711,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         }
 
         deviceIdentifier = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
-
+        log(" - this notification is relayed by "+deviceIdentifier.toString());
         if (getNotificatioType() == RELAYED_EVENT) {
             Unsigned16 logicalDeviceId = eventWrapper.getDataType(1).getUnsigned16();
             if (logicalDeviceId == null) {
@@ -742,7 +774,11 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             if (alarmRegister == 0) {
                 throw DataParseException.ioException(new ProtocolException("Expected relayed meter event from Alarm Descriptor 1 or Alarm Descriptor 2, but came from somewhere else"));
             }
-            deviceIdentifier = new DialHomeIdDeviceIdentifier(logicalDeviceName.toString());
+            byte[] logicalDeviceNameBytes = logicalDeviceName.getOctetStr();
+            byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX.length(), GATEWAY_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
+            String macAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
+            log(" - event is from device with MAC "+macAddress);
+            deviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
         }
 
         Date dateTime = Calendar.getInstance().getTime();//TODO: see what timezone should be used
@@ -826,6 +862,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     public int getNotificatioType() {
         return notificationType;
+    }
+
+    public boolean isEventNotificationRequest(){
+        return getNotificatioType() == EVENT_NOTIFICATION;
     }
 
     public void setNotificatioType(int notificatioType) {
