@@ -326,8 +326,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private transient AmrSystem amrSystem;
 
-    private Optional<Location> location = Optional.empty();
-    private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
     private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
 
     // Next objects separate 'Kore' Specific Behaviour
@@ -450,11 +448,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     void postSave() {
-        if (this.meter.isPresent()) {
+        if (this.meter.isPresent() && !getmRID().equals(this.meter.get().getMRID())) {
             this.meter.get().setMRID(getmRID());
-            this.location.ifPresent(location1 -> this.meter.get().setLocation(location1));
-            this.spatialCoordinates.ifPresent(spatialCoordinates1 -> this.meter.get()
-                    .setSpatialCoordinates(spatialCoordinates1));
             this.meter.get().update();
         }
         this.saveDirtySecurityProperties();
@@ -473,11 +468,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Save.CREATE.save(dataModel, this);
             this.meter.set(this.createKoreMeter(getMdcAmrSystem()));
             dataModel.update(this);
-
-            //TODO check if this should be in the syncsWithKore
-            this.location.ifPresent(location -> this.meter.get().setLocation(location));
-            this.spatialCoordinates.ifPresent(coordinates -> this.meter.get().setSpatialCoordinates(coordinates));
-
 
             //All actions to take to sync with Kore once a Device is created
             syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), deviceService, readingTypeUtilService, clock, eventService));
@@ -567,13 +557,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private Optional<SyncDeviceWithKoreForSimpleUpdate> getKoreMeterUpdater() {
-        Optional<SyncDeviceWithKoreMeter> currentKoreUpdater = syncsWithKore.stream()
-                .filter((x) -> getClass().isAssignableFrom(SyncDeviceWithKoreForSimpleUpdate.class))
+        return this.syncsWithKore.stream()
+                .filter(x -> x.getClass().isAssignableFrom(SyncDeviceWithKoreForSimpleUpdate.class))
+                .map(SyncDeviceWithKoreForSimpleUpdate.class::cast)
                 .findFirst();
-        if (currentKoreUpdater.isPresent()) {
-            return Optional.of((SyncDeviceWithKoreForSimpleUpdate) currentKoreUpdater.get());
-        }
-        return Optional.empty();
     }
 
     private void saveDirtyConnectionProperties() {
