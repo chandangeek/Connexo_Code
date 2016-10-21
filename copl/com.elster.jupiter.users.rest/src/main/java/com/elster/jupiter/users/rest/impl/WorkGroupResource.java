@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.users.rest.SimplifiedUserInfo;
 import com.elster.jupiter.users.rest.WorkGroupInfo;
 import com.elster.jupiter.users.rest.actions.CreateWorkGroupTransaction;
 import com.elster.jupiter.users.rest.actions.DeleteWorkGroupTransaction;
@@ -88,6 +89,19 @@ public class WorkGroupResource {
         info.id = id;
         transactionService.execute(new DeleteWorkGroupTransaction(info, userService));
         return Response.status(Response.Status.OK).build();
+    }
+
+    @GET
+    @Path("/users")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
+    public PagedInfoList getUsers(@BeanParam JsonQueryParameters queryParameters) {
+        List<SimplifiedUserInfo> users = userService.getUsers()
+                .stream()
+                .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
+                .map(SimplifiedUserInfo::new)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("users", users, queryParameters);
     }
 
 }
