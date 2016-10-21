@@ -14,17 +14,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Created by kirkosh on 20.10.2016.
- */
-public class PurposeSearchableProperty implements SearchableUsagePointProperty {
+public class MetrologyPurposeSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     static final String FIELD_NAME  = "metrologyConfigurations.metrologyConfiguration.metrologyContracts.metrologyPurpose";
 
-    public PurposeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService){
+    public MetrologyPurposeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService){
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.metrologyConfigurationService = metrologyConfigurationService;
