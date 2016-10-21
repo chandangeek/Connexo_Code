@@ -5,10 +5,13 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 
+import java.util.List;
+
 /**
  * Created by bvn on 10/6/15.
  */
 public enum ComTaskExecutionType {
+    //TODO: FIX THIS
     SharedSchedule {
         @Override
         public ComTaskExecution createComTaskExecution(ComTaskExecutionInfoFactory factory, ComTaskExecutionInfo comTaskExecutionInfo, Device device) {

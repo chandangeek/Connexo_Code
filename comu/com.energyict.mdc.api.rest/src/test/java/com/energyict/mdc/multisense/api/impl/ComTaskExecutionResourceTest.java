@@ -13,7 +13,6 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -143,7 +142,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
-        SingleComTaskComTaskExecution comTaskExecution = mock(SingleComTaskComTaskExecution.class);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(102L);
         when(comTaskExecution.getPlannedPriority()).thenReturn(-20);
         ComTask comTask = mockComTask(23, "doIt", 3333L);
@@ -194,7 +193,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(comSchedule.getId()).thenReturn(24L);
         when(comSchedule.getName()).thenReturn("Periodically");
         when(comTaskExecution.getComSchedule()).thenReturn(comSchedule);
-        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(now);
         when(comTaskExecution.getPlannedNextExecutionTimestamp()).thenReturn(later);
         when(comTaskExecution.getLastExecutionStartTimestamp()).thenReturn(end);
@@ -341,7 +340,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
 
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
-        when(device.newScheduledComTaskExecution(comSchedule)).thenReturn(builder);
+        when(device.newScheduledComTaskExecution(comTaskEnablement, comSchedule)).thenReturn(builder);
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getId()).thenReturn(999L);
@@ -350,7 +349,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Response response = target("/devices/SPE001/comtaskexecutions").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(response.getHeaderString("location")).isEqualTo("http://localhost:9998/devices/SPE001/comtaskexecutions/999");
-        verify(device).newScheduledComTaskExecution(comSchedule);
+        verify(device).newScheduledComTaskExecution(comTaskEnablement, comSchedule);
         verify(builder).add();
     }
 

@@ -16,7 +16,6 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -35,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -124,8 +125,8 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
             }
         }));
         map.put("comTask", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
-            if (SingleComTaskComTaskExecution.class.isAssignableFrom(comTaskExecution.getClass())) {
-                comTaskExecutionInfo.comTask = comTaskInfoFactoryProvider.get().asLink(((SingleComTaskComTaskExecution) comTaskExecution).getComTask(), Relation.REF_RELATION, uriInfo);
+            if (ComTaskExecution.class.isAssignableFrom(comTaskExecution.getClass())) {
+                comTaskExecutionInfo.comTask = comTaskInfoFactoryProvider.get().asLink((comTaskExecution).getComTask(), Relation.REF_RELATION, uriInfo);
             }
         }));
         map.put("nextExecution", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.nextExecution = comTaskExecution.getNextExecutionTimestamp()));
@@ -176,7 +177,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
             builder.useDefaultConnectionTask(true);
         } else {
-            connectionTask.ifPresent(task -> builder.connectionTask(task));
+            connectionTask.ifPresent(builder::connectionTask);
         }
         if (comTaskExecutionInfo.priority!=null) {
             builder.priority(comTaskExecutionInfo.priority);
@@ -210,29 +211,40 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
         }
 
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = device.newScheduledComTaskExecution(comSchedule);
+        List<ComTaskExecutionBuilder<ScheduledComTaskExecution>> builders = device.getDeviceConfiguration().getComTaskEnablements()
+                .stream()
+                .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
+                .map(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule))
+                .collect(Collectors.toList());
 
         if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
-            builder.useDefaultConnectionTask(true);
+            builders.stream()
+                    .forEach(builder -> builder.useDefaultConnectionTask(true));
         } else {
-            connectionTask.ifPresent(task->builder.connectionTask(task));
+            builders.stream()
+                    .forEach(builder ->  connectionTask.ifPresent(builder::connectionTask));
         }
 
         if (connectionTask.isPresent()) {
-            builder.connectionTask(connectionTask.get());
+            builders.stream()
+                    .forEach(builder -> builder.connectionTask(connectionTask.get()));
         }
         if (comTaskExecutionInfo.priority!=null) {
-            builder.priority(comTaskExecutionInfo.priority);
+            builders.stream()
+                    .forEach(builder -> builder.priority(comTaskExecutionInfo.priority));
         }
         if (comTaskExecutionInfo.ignoreNextExecutionSpecForInbound!=null) {
-            builder.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound);
+            builders.stream()
+                    .forEach(builder ->  builder.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound));
         }
-        ScheduledComTaskExecution scheduledComTaskExecution = builder.add();
+        List<ScheduledComTaskExecution> executions = builders.stream()
+                .map(ComTaskExecutionBuilder::add)
+                .collect(Collectors.toList());
         device.save();
-        return scheduledComTaskExecution;
+        return executions.get(0);
     }
 
-    public SingleComTaskComTaskExecution createAdHocComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, Device device) {
+    public ComTaskExecution createAdHocComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, Device device) {
         if (comTaskExecutionInfo.comTask ==null || comTaskExecutionInfo.comTask.id==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.COM_TASK_EXPECTED);
         }

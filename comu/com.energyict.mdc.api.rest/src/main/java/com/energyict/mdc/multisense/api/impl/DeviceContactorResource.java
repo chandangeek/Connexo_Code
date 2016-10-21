@@ -77,8 +77,7 @@ public class DeviceContactorResource {
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
         ComTaskEnablement comTaskEnablement = getComTaskEnablementForDeviceMessage(device, deviceMessageId);
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(cte -> cte.getComTasks().stream()
-                        .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
+                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         long messageId = createDeviceMessageOnDevice(contactorInfo, device, deviceMessageId);
         existingComTaskExecution.orElseGet(()->createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
