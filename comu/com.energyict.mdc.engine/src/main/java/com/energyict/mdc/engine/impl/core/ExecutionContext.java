@@ -399,7 +399,7 @@ public final class ExecutionContext implements JournalEntryFactory {
                         this.getConnectionTask()
                 ));
         this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
-        connectionLogger.startingTask(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName());
+        connectionLogger.startingTask(Thread.currentThread().getName(), comTaskExecution.getComTask().getName());
         if (this.isConnected()) {
             executionStopWatchStart();
             Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
@@ -410,7 +410,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
 
         this.comTaskExecutionComCommand = comTaskExecutionComCommand;
-        this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTasks().get(0), now()));
+        this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTask(), now()));
         initializeJournalist();
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addProtocolDialectPropertiesAsJournalEntries(comTaskExecution);
@@ -428,7 +428,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         if (isConnected()) {
             this.getComPortRelatedComChannel().logRemainingBytes();
         }
-        connectionLogger.completingTask(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName());
+        connectionLogger.completingTask(Thread.currentThread().getName(), comTaskExecution.getComTask().getName());
         try {
             comTaskExecutionCompleted(successIndicator);
         } finally {
@@ -474,7 +474,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @param comTaskExecution The ComTaskExecution
      */
     public void comTaskExecutionFailed(ComTaskExecution comTaskExecution) {
-        connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName(), comTaskExecution.getDevice().getmRID());
+        connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), comTaskExecution.getComTask().getName(), comTaskExecution.getDevice().getmRID());
         publish(new ComTaskExecutionFailureEvent(new ComServerEventServiceProvider(), comTaskExecution, getComPort(), getConnectionTask()));
         failWithProblems();
     }

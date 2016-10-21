@@ -514,7 +514,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comTask.getId()).thenReturn(id);
         when(comTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTask.getDevice()).thenReturn(this.device);
-        when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(comTask.getComTask()).thenReturn(this.comTask);
         return comTask;
     }
 
@@ -666,7 +666,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comTask.getId()).thenReturn(id);
         when(comTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTask.getDevice()).thenReturn(this.device);
-        when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(comTask.getComTask()).thenReturn(this.comTask);
         when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         return comTask;
     }

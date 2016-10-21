@@ -65,15 +65,7 @@ public class CommandRootImpl implements CommandRoot {
     }
 
     private String getComTasksDescription() {
-        StringBuilder result = new StringBuilder();
-        List<ComTask> comTasks = executionContext.getComTaskExecution().getComTasks();
-        for (ComTask comTask : comTasks) {
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-            result.append(comTask.getName());
-        }
-        return result.toString();
+        return executionContext.getComTaskExecution().getComTask().getName();
     }
 
     private String getCurrentThreadName() {

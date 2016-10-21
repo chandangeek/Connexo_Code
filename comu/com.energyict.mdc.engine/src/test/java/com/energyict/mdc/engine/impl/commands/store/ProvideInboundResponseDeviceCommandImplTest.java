@@ -129,7 +129,6 @@ public class ProvideInboundResponseDeviceCommandImplTest {
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);

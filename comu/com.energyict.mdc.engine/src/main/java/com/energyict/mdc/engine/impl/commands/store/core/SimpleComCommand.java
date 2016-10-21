@@ -152,15 +152,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
 
     private String getComTasksDescription(ExecutionContext executionContext) {
-        StringBuilder result = new StringBuilder();
-        List<ComTask> comTasks = executionContext.getComTaskExecution().getComTasks();
-        for (ComTask comTask : comTasks) {
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-            result.append(comTask.getName());
-        }
-        return result.toString();
+        return executionContext.getComTaskExecution().getComTask().getName();
     }
 
     private void connectionErrorOccurred(DeviceProtocol deviceProtocol, Throwable e) {

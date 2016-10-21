@@ -20,7 +20,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
@@ -71,7 +70,7 @@ import java.util.stream.Stream;
  * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.config.ComPort ComPorts }
  * which perform one or more ComTasks.
  * It will be useful to group the AOP logging as well.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 25/10/12
  * Time: 16:27
@@ -102,9 +101,8 @@ public abstract class JobExecution implements ScheduledJob {
         if (isItAScheduledComTaskExecution(comTaskExecution)) {
             ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) comTaskExecution;
             return getProtocolDialectTypedProperties(scheduledComTaskExecution);
-        } else if (isSingleComTaskComTaskExecution(comTaskExecution)) {
-            SingleComTaskComTaskExecution singleComTaskComTaskExecution = (SingleComTaskComTaskExecution) comTaskExecution;
-            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), singleComTaskComTaskExecution.getProtocolDialectConfigurationProperties());
+        } else if (comTaskExecution != null) {
+            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), comTaskExecution.getProtocolDialectConfigurationProperties());
         } else {
             return TypedProperties.empty();
         }
@@ -112,10 +110,6 @@ public abstract class JobExecution implements ScheduledJob {
 
     private static boolean isItAScheduledComTaskExecution(ComTaskExecution comTaskExecution) {
         return comTaskExecution instanceof ScheduledComTaskExecution;
-    }
-
-    private static boolean isSingleComTaskComTaskExecution(ComTaskExecution comTaskExecution) {
-        return comTaskExecution instanceof SingleComTaskComTaskExecution;
     }
 
     private static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
@@ -138,14 +132,12 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution.getComTasks().isEmpty()) {
+        if (comTaskExecution.getComTask() == null) {
             return Optional.empty();
         } else {
-            for (ComTask comTask : comTaskExecution.getComTasks()) {
-                Optional<ProtocolDialectConfigurationProperties> properties = getProtocolDialectConfigurationProperties(comTaskExecution.getDevice(), comTask);
-                if (properties.isPresent()) {
-                    return properties;  // Got out now that we have got one, else continue with the next ComTask
-                }
+            Optional<ProtocolDialectConfigurationProperties> properties = getProtocolDialectConfigurationProperties(comTaskExecution.getDevice(), comTaskExecution.getComTask());
+            if (properties.isPresent()) {
+                return properties;  // Got out now that we have got one, else continue with the next ComTask
             }
             // Bugger: none of the ComTask were enabled with ProtocolDialectConfigurationProperties
             return Optional.empty();
@@ -252,10 +244,7 @@ public abstract class JobExecution implements ScheduledJob {
      * Each <i>set</i> of ProtocolTasks of a ComTask will be preceded by a CreateComTaskSession command.
      */
     private List<ProtocolTask> generateProtocolTaskList(ComTaskExecution comTaskExecution) {
-        return comTaskExecution
-                .getComTasks()
-                .stream()
-                .flatMap(comTask -> generateProtocolTaskList(comTask, comTaskExecution))
+        return generateProtocolTaskList(comTaskExecution.getComTask(), comTaskExecution)
                 .collect(Collectors.toList());
     }
 
@@ -394,21 +383,10 @@ public abstract class JobExecution implements ScheduledJob {
 
     private void rescheduleFailure(ComSession.SuccessIndicator successIndicator) {
         for (ComTaskExecution failedComTaskExecution : getFailedComTaskExecutions()) {
-            getExecutionContext().connectionLogger.reschedulingTask(getThreadName(), getComTasksDescription(failedComTaskExecution.getComTasks()));
+            getExecutionContext().connectionLogger.reschedulingTask(getThreadName(), failedComTaskExecution.getComTask().getName());
         }
 
         this.completeFailedComSession(successIndicator);
-    }
-
-    private String getComTasksDescription(List<ComTask> comTasks) {
-        StringBuilder result = new StringBuilder();
-        for (ComTask comTask : comTasks) {
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-            result.append(comTask.getName());
-        }
-        return result.toString();
     }
 
     private void rescheduleSuccess() {
