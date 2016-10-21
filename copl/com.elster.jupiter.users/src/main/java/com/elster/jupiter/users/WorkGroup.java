@@ -5,9 +5,7 @@ import com.elster.jupiter.users.impl.UsersInWorkGroup;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Created by albertv on 10/19/2016.
- */
+
 public interface WorkGroup {
 
     long getId();
@@ -29,5 +27,7 @@ public interface WorkGroup {
     void grant(User user);
 
     boolean hasUser(User user);
+
+    void delete();
 
 }

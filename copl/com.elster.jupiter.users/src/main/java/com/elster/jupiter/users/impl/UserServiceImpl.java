@@ -740,6 +740,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return dataModel.mapper(WorkGroup.class).find();
     }
 
+    @Override
+    public Optional<WorkGroup> findAndLockWorkGroupByIdAndVersion(long id, long version) {
+        return dataModel.mapper(WorkGroup.class).lockObjectIfVersion(version, id);
+    }
+
     private DataMapper<Privilege> privilegeFactory() {
         return dataModel.mapper(Privilege.class);
     }

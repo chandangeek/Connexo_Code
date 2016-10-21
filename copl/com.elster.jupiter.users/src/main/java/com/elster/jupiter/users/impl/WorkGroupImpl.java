@@ -112,4 +112,15 @@ public class WorkGroupImpl implements WorkGroup {
     public boolean hasUser(User user){
         return usersInWorkGroups.stream().anyMatch(userInWorkGroup -> userInWorkGroup.getUser().equals(user));
     }
+
+    @Override
+    public void delete(){
+        //FixMe verify whether there are issues still assigned
+        this.deleteAssociationWithWorkGroup();
+        dataModel.mapper(WorkGroup.class).remove(this);
+    }
+
+    private void deleteAssociationWithWorkGroup(){
+        usersInWorkGroups.forEach(UsersInWorkGroup::delete);
+    }
 }

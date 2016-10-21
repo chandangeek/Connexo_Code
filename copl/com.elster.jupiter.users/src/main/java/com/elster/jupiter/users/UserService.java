@@ -143,4 +143,6 @@ public interface UserService {
     Query<WorkGroup> getWorkGroupsQuery();
 
     List<WorkGroup> getWorkGroups();
+
+    Optional<WorkGroup> findAndLockWorkGroupByIdAndVersion(long id, long version);
 }
