@@ -1,94 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPort;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlock;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlow;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlock;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSap;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCycles;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZone;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPort;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlock;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSize;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivate;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnable;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerify;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPort;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateAliasAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateEntityAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateTypeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commonNameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.io.StringReader;
-import java.math.BigDecimal;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.CertificateAlias;
-import com.energyict.cbo.Password;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.ConcentratorSetup;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.FirewallSetup;
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
@@ -107,11 +26,7 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.DLMSKeyStoreUserFile;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.ECCCurve;
-import com.energyict.mdw.core.Group;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
@@ -124,11 +39,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastMeterState;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProperty;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProtocolConfiguration;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastSerializer;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastUpgradeState;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
@@ -137,17 +48,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurat
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
-import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
@@ -155,6 +56,27 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.util.function.Consumer;
+import org.apache.commons.codec.binary.Base64;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -170,10 +92,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
-    
-    /** The set of supported messages (which, ironically, is not a Set). */
+
+    /**
+     * The set of supported messages (which, ironically, is not a Set).
+     */
     private static final List<DeviceMessageSpec> SUPPORTED_MESSAGES = new ArrayList<>();
-    
+
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
@@ -210,7 +134,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE);
         SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_SUB_CA_CERTIFICATES);
         SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE);
-        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_CA_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE);
         SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER);
         SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE);
         SUPPORTED_MESSAGES.add(SecurityMessage.GENERATE_KEY_PAIR);
@@ -283,7 +208,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.AddMetersToBlackList);
         SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList);
         SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
-        
+
         // Logbook resets.
         SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetMainLogbook);
         SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetSecurityLogbook);
@@ -358,16 +283,22 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
             }
             return macAddresses.toString();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateAliasAttributeName) &&
-                offlineDeviceMessage.getSpecification().equals(SecurityMessage.IMPORT_CERTIFICATE)) {
-            //Only convert the alias for the import_certificate message.
-            //Load the certificate from the key store and encode it.
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateAliasAttributeName)) {
+            //Load the certificate with that alias from the EIServer DLMS trust store and encode it.
             String alias = (String) messageAttribute;
             String certificateEncoded = new CertificateAlias(alias).getCertificateEncoded();
             if (certificateEncoded == null || certificateEncoded.isEmpty()) {
                 throw new ApplicationException("Certificate with alias '" + alias + "' does not exist in the key store");
             }
             return certificateEncoded;
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperIdAttributeName)) {
+            //Load the certificate with that id from the CertificateWrapper table and encode it.
+            int id = ((BigDecimal) messageAttribute).intValue();
+            CertificateWrapper certificateWrapper = MeteringWarehouse.getCurrent().getCertificateWrapperFactory().findById(id);
+            if (certificateWrapper == null) {
+                throw new ApplicationException("CertificateWrapper with id '" + id + "' does not exist in the EIServer database");
+            }
+            return certificateWrapper.getBase64Certificate();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayPerBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentFast)
@@ -597,8 +528,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = exportSubCACertificates(collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE)) {
                         collectedMessage = exportRootCACertificate(collectedMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CERTIFICATE)) {
-                        importCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CA_CERTIFICATE)) {
+                        importCACertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE)) {
+                        importEndDeviceCertificate(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER)) {
                         deleteCertificateBySerialNumber(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE)) {
@@ -645,15 +578,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfaces)) {
                         enableNetworkInterfaces(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetMainLogbook)) {
-                    	this.resetLogbook(Beacon3100LogBookFactory.MAIN_LOGBOOK);
+                        this.resetLogbook(Beacon3100LogBookFactory.MAIN_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityLogbook)) {
-                    	this.resetLogbook(Beacon3100LogBookFactory.SECURITY_LOGBOOK);
+                        this.resetLogbook(Beacon3100LogBookFactory.SECURITY_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetCoverLogbook)) {
-                    	this.resetLogbook(Beacon3100LogBookFactory.COVER_LOGBOOK);
+                        this.resetLogbook(Beacon3100LogBookFactory.COVER_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetCommunicationLogbook)) {
-                    	this.resetLogbook(Beacon3100LogBookFactory.COMMUNICATION_LOGBOOK);
+                        this.resetLogbook(Beacon3100LogBookFactory.COMMUNICATION_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetVoltageCutLogbook)) {
-                    	this.resetLogbook(Beacon3100LogBookFactory.VOLTAGE_LOGBOOK);
+                        this.resetLogbook(Beacon3100LogBookFactory.VOLTAGE_LOGBOOK);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -740,19 +673,29 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
-     * Imports an X.509 v3 certificate of a public key.
+     * Imports an X.509 v3 certificate of a public key of a CA.
+     * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
+     * In case of sub-CA or root-CA certificates, their CN must end in "CA".
+     */
+    private void importCACertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getDeviceMessageAttributeValue();
+        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
+        getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
+    }
+
+    /**
+     * Imports an X.509 v3 certificate of a public key of an end-device.
      * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
      * In case of client (ComServer) certificates, this is the system title of the ComServer.
      * In case of server (Beacon) certificates, this is the system title of the Beacon device.
      * <p/>
-     * In case of sub-CA or root-CA certificates, their CN must end in "CA".
-     * <p/>
      * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
      */
-    private void importCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getDeviceMessageAttributeValue();
-        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
-        getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
+    private void importEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperIdAttributeName).getDeviceMessageAttributeValue();
+        byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
+
+        getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
     }
 
     /**
@@ -777,14 +720,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             //Not self signed, so a Sub-CA certificate.
             if (!x509Certificate.getIssuerDN().equals(x509Certificate.getSubjectDN())) {
                 if (protocolInfo.length() == 0) {
-                    protocolInfo.append("Added sub-CA certificate(s) to the keystore under the following alias(es): ");
+                    protocolInfo.append("Added sub-CA certificate(s) to the EIServer DLMS trust store under the following alias(es): ");
                 } else {
                     protocolInfo.append(", ");
                 }
 
                 String alias = "Beacon_sub_CA_" + x509Certificate.getSerialNumber();
                 CertificateAlias certificateAlias = new CertificateAlias(alias);
-                certificateAlias.setType(DLMSKeyStoreUserFile.CertificateType.SUB_CA); //Self signed, root CA
                 certificateAlias.setCertificateEncoded(getEncodedCertificate(x509Certificate));
                 subCACertificateAliases.add(certificateAlias);
 
@@ -829,14 +771,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             //Self-signed, root-CA certificate
             if (x509Certificate.getIssuerDN().equals(x509Certificate.getSubjectDN())) {
                 if (protocolInfo.length() == 0) {
-                    protocolInfo.append("Added root-CA certificate(s) to the keystore under the following alias(es): ");
+                    protocolInfo.append("Added root-CA certificate(s) to the EIServer DLMS trust store under the following alias(es): ");
                 } else {
                     protocolInfo.append(", ");
                 }
 
                 String alias = "Beacon_root_CA_" + x509Certificate.getSerialNumber();
                 CertificateAlias certificateAlias = new CertificateAlias(alias);
-                certificateAlias.setType(DLMSKeyStoreUserFile.CertificateType.ROOT_CA); //Self signed, root CA
                 certificateAlias.setCertificateEncoded(getEncodedCertificate(x509Certificate));
                 rootCACertificateAliases.add(certificateAlias);
 
@@ -860,17 +801,20 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
-     * Export an end device certificate of type signing/key agreement/TLS.
+     * Export a server end-device certificate of type signing/key agreement/TLS from the Beacon.
+     * It will be stored as a CertificateWrapper in EIServer, and the relevant property on the device will be filled in
+     * <p/>
      * Note that the different security suites each have their own certificate, based on a certain elliptical curve.
      * The Beacon returns the proper certificate for the security suite it is currently operating in.
      */
     private CollectedMessage exportEndDeviceCertificate(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0) {
-            throw new ProtocolException("The Beacon device does not have certificates in suite 0.");
-        }
-
         SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getDeviceMessageAttributeValue());
-        String alias = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateAliasAttributeName).getDeviceMessageAttributeValue();
+
+        if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0
+                && (certificateType.equals(SecurityMessage.CertificateType.DigitalSignature)
+                || certificateType.equals(SecurityMessage.CertificateType.KeyAgreement))) {
+            throw new ProtocolException("Cannot export ECDSA or ECDH certificates from the Beacon if it operates in suite 0.");
+        }
 
         //The server system-title
         byte[] responseSystemTitle = getProtocol().getDlmsSession().getAso().getSecurityContext().getResponseSystemTitle();
@@ -878,8 +822,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         X509Certificate x509Certificate = getSecuritySetup().exportCertificate(SecurityMessage.CertificateEntity.Server.getId(), certificateType.getId(), responseSystemTitle);
 
         String propertyName = "";
-        CertificateAlias propertyValue = new CertificateAlias(alias);
-        propertyValue.setCertificateEncoded(getEncodedCertificate(x509Certificate));
+        CertificateWrapperId propertyValue = new CertificateWrapperId(x509Certificate);
 
         //Server certificate for signing/key agreement is modelled as a security property
         if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType) || SecurityMessage.CertificateType.KeyAgreement.equals(certificateType)) {
@@ -908,7 +851,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     propertyValue);
         }
 
-        collectedMessage.setDeviceProtocolInformation("Added the exported certificate in the key store, under alias '" + alias + "'. Also property '" + propertyName + "' on the Beacon device is updated with this alias.");
+        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number'" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
+        getLogger().info(msg);
+        collectedMessage.setDeviceProtocolInformation(msg);
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessage;
     }
@@ -1805,16 +1750,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         int auth = AuthenticationMechanism.fromAuthName(authName);
         getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
     }
-    
+
     /**
      * Performs a reset on a {@link ProfileGeneric}.
-     * 
-     * @param 		obisCode				The OBIS code.
-     * 
-     * @throws 		IOException				If an IO error occurs.
+     *
+     * @param obisCode The OBIS code.
+     * @throws IOException If an IO error occurs.
      */
     private final void resetLogbook(final ObisCode obisCode) throws IOException {
-    	this.getCosemObjectFactory().getProfileGeneric(obisCode).reset();
+        this.getCosemObjectFactory().getProfileGeneric(obisCode).reset();
     }
 
     /**

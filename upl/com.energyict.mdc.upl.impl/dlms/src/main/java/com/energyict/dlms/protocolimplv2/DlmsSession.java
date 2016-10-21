@@ -141,27 +141,21 @@ public class DlmsSession implements ProtocolLink {
     }
 
     /**
-     * Build a new ApplicationServiceObject, using the DlmsSessionProperties
+     * Build a new ApplicationServiceObject
      */
-    protected ApplicationServiceObjectV2 buildAso() {
-        if (getProperties().isNtaSimulationTool()) {
-            return buildAso( getProperties().getSerialNumber());
-        } else {
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), null, null, getCallingAEQualifier());
+    protected ApplicationServiceObjectV2 buildAso(String calledSystemTitleString) {
+        if (calledSystemTitleString == null && getProperties().isNtaSimulationTool()) {
+            calledSystemTitleString = getProperties().getSerialNumber();
         }
-    }
 
-    /**
-     * Build a new ApplicationServiceObject, using the DlmsSessionProperties and a specific calledSystemTitle
-     */
-    protected ApplicationServiceObjectV2 buildAso(String calledSystemTitle){
-        if (calledSystemTitle == null && getProperties().isNtaSimulationTool()){
-            calledSystemTitle = getProperties().getSerialNumber();
-        }
-        if (calledSystemTitle!=null)
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null, null);
-        else
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
+        return new ApplicationServiceObjectV2(
+                buildXDlmsAse(),
+                this,
+                buildSecurityContext(),
+                getContextId(),
+                calledSystemTitleString == null ? null : calledSystemTitleString.getBytes(),
+                null,
+                getCallingAEQualifier());
     }
 
     /**
@@ -179,12 +173,12 @@ public class DlmsSession implements ProtocolLink {
                     try {
                         X509Certificate clientSigningCertificate = generalCipheringSecurityProvider.getClientSigningCertificate();
                         if (clientSigningCertificate == null) {
-                            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+                            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
                         }
 
                         return clientSigningCertificate.getEncoded();
                     } catch (CertificateEncodingException e) {
-                        throw DeviceConfigurationException.invalidPropertyFormat(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE, "x", "Should be a valid X.509 v3 certificate");
+                        throw DeviceConfigurationException.invalidPropertyFormat(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, "x", "Should be a private key and a valid X.509 v3 certificate");
                     }
                 }
             } else {

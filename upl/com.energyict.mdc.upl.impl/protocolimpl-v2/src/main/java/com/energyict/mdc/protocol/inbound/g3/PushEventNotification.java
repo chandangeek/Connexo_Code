@@ -125,7 +125,11 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     private boolean isJoinAttempt() {
-        return getMeterProtocolEvent().getProtocolCode() == METER_JOIN_ATTEMPT;
+        try {
+            return getMeterProtocolEvent().getProtocolCode() == METER_JOIN_ATTEMPT;
+        } catch (Exception ex){
+            return false;
+        }
     }
 
     /**
