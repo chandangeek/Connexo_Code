@@ -51,6 +51,7 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
@@ -73,6 +74,7 @@ public class DataPushNotificationParser {
     protected DeviceIdentifier deviceIdentifier;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     protected CollectedLogBook collectedLogBook;
+    InboundDiscoveryContext context;
 
     private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
@@ -82,8 +84,20 @@ public class DataPushNotificationParser {
         this.inboundDAO = context.getInboundDAO();
         this.inboundComPort = context.getComPort();
         this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
+        this.context = context;
     }
 
+    protected InboundDiscoveryContext getContext(){
+        return context;
+    }
+
+    protected void log(String message){
+        log(message, Level.INFO);
+    }
+
+    protected void log(String message, Level level){
+        getContext().logOnAllLoggerHandlers(message, level);
+    }
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serverSystemTitle = ProtocolTools.getHexStringFromBytes(systemTitle, "");
         serverSystemTitle = serverSystemTitle.replace("454C53", "ELS-");      // Replace HEX 454C53 by its ASCII 'ELS'

@@ -17,7 +17,13 @@ import java.io.IOException;
  */
 public class ModemWatchdogConfiguration extends AbstractCosemObject {
 
+    private Structure wdConfiguration = null;
+    private BooleanObject isModemWatchdogEnabled = null;
+
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.11.255");
+
+    public static final int WD_CONFIG = 2;
+    public static final int IS_MODEM_WATCHDOG_ENABLED = 3;
 
     /**
      * Creates a new instance of AbstractCosemObject
@@ -49,6 +55,28 @@ public class ModemWatchdogConfiguration extends AbstractCosemObject {
         structure.addDataType(new Unsigned16(modemResetThreshold));
         structure.addDataType(new Unsigned16(deviceRebootThreshold));
         write(ModemWatchdogConfigurationAttributes.CONFIG_PARAMETERS, structure.getBEREncodedByteArray());
+    }
+
+    /**
+     * Read WD_ENABLED attribute from the device
+     *
+     * @return
+     * @throws java.io.IOException
+     */
+    public Structure readWDConfigAttribute() throws IOException {
+        this.wdConfiguration = new Structure(getResponseData(WD_CONFIG), 0, 0);
+        return this.wdConfiguration;
+    }
+
+    /**
+     * Read IS_MODEM_WATCHDOG_ENABLED attribute from the device
+     *
+     * @return
+     * @throws java.io.IOException
+     */
+    public BooleanObject readModemWatchdogEnabledAttribute() throws IOException {
+        this.isModemWatchdogEnabled = new BooleanObject(getResponseData(IS_MODEM_WATCHDOG_ENABLED), 0);
+        return this.isModemWatchdogEnabled;
     }
 
     /**

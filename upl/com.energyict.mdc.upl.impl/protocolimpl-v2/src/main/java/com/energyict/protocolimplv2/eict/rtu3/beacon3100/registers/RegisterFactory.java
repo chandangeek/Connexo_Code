@@ -235,8 +235,8 @@ public class RegisterFactory {
                         }
                     } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()
                             || universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
-                        //Generic parsing for all data registers
 
+                        //Generic parsing for all data registers
                         final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
 
                         if (attribute.isOctetString()) {

@@ -296,8 +296,6 @@ public final class Beacon3100Test {
 				public Integer answer(final InvocationOnMock invocation) throws Throwable {
 					final byte[] request = (byte[])invocation.getArguments()[0];
 					
-					System.out.println(ProtocolTools.getHexStringFromBytes(request, ""));
-					
 					if (currentResponse == null && hmacFcResponse == null) {
 						final byte[] hmacChallenge = Arrays.copyOfRange(request, 23, request.length);
 						final byte[] challengeResponse = generateHmacResponse(hmacChallenge);
@@ -391,6 +389,92 @@ public final class Beacon3100Test {
 		hmac.init(ak);
 		
 		return hmac.doFinal(hmacInput);
+	}
+	
+	/**
+	 * Tests that the implementation uses non-pre-established even when configured differently when asked to use frame counter authentication.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public final void testInvalidConfiguration() throws Exception {
+		this.currentResponse = AARE_HMAC;
+		this.currentIndex = 0;
+		
+		final TypedProperties channelProperties = TypedProperties.empty();
+		channelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
+		
+		final ComChannel channel = mock(ComChannel.class);
+		
+		when(channel.getProperties()).thenReturn(channelProperties);
+		when(channel.write(any(byte[].class))).thenAnswer(
+			new Answer<Integer>() {
+				@Override
+				public Integer answer(final InvocationOnMock invocation) throws Throwable {
+					final byte[] request = (byte[])invocation.getArguments()[0];
+										
+					if (currentResponse == null && hmacFcResponse == null) {
+						final byte[] hmacChallenge = Arrays.copyOfRange(request, 23, request.length);
+						final byte[] challengeResponse = generateHmacResponse(hmacChallenge);
+						
+						hmacFcResponse = new byte[HMAC_RESPONSE_PRE.length + challengeResponse.length + HMAC_RESPONSE_POST.length];
+						
+						System.arraycopy(HMAC_RESPONSE_PRE, 0, hmacFcResponse, 0, HMAC_RESPONSE_PRE.length);
+						System.arraycopy(challengeResponse, 0, hmacFcResponse, HMAC_RESPONSE_PRE.length, challengeResponse.length);
+						System.arraycopy(HMAC_RESPONSE_POST, 0, hmacFcResponse, HMAC_RESPONSE_PRE.length + challengeResponse.length, HMAC_RESPONSE_POST.length);
+						
+						currentResponse = hmacFcResponse;
+					}
+					
+					return request.length;
+				}
+			}
+		);
+		
+		doAnswer(new Answer<Integer>() {
+			@Override
+			public final Integer answer(final InvocationOnMock invocation) throws Throwable {
+				final byte[] buffer = (byte[])invocation.getArguments()[0];
+				final int offset = (int)invocation.getArguments()[1];
+				final int length = (int)invocation.getArguments()[2];
+				
+				for (int i = 0; i < length; i++) {
+					buffer[offset + i] = currentResponse[currentIndex];
+					currentIndex++;
+					
+					if (currentIndex == currentResponse.length) {
+						if (hmacFcResponse == null) {
+							currentResponse = null;
+						} else {
+							currentResponse = RLRE;
+						}
+						
+						currentIndex = 0;
+					}
+				}
+				
+				return length;
+			}
+			
+		}).when(channel).read(any(byte[].class), anyInt(), anyInt());
+		
+		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
+		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
+		
+		final Beacon3100 protocol = new Beacon3100();
+		protocol.setSecurityPropertySet(securityProps);
+		
+		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
+		protocol.getDlmsSessionProperties().getProperties().setProperty(DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, Boolean.TRUE);
+		protocol.getDlmsSessionProperties().getProperties().setProperty(Beacon3100ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, Boolean.TRUE);
+		protocol.getDlmsSessionProperties().getProperties().setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), AK);
+		
+		assertThat(protocol.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter()).isEqualTo(1);
+		
+		protocol.readFrameCounter(channel);
+		
+		// We return 3100 as the FC, so make sure we have set it.
+		assertThat(protocol.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter()).isEqualTo(3101);
 	}
 	
 }
