@@ -160,14 +160,11 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.securitySuiteAttributeName, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2))
     ),
     EXPORT_END_DEVICE_CERTIFICATE(37,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateAliasAttributeName)
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
     ),
     EXPORT_SUB_CA_CERTIFICATES(38),
     EXPORT_ROOT_CA_CERTIFICATE(39),
-    IMPORT_CERTIFICATE(40,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateAliasAttributeName)
-    ),
+
     DELETE_CERTIFICATE_BY_TYPE(41,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateEntityAttributeName, CertificateEntity.getPossibleValues()),
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues()),
@@ -186,6 +183,12 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_WEBPORTAL_PASSWORD(45,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.usernameAttributeName, UserNames.getAllNames()),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)
+    ),
+    IMPORT_CA_CERTIFICATE(40,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateAliasAttributeName)
+    ),
+    IMPORT_END_DEVICE_CERTIFICATE(46,
+            PropertySpecFactory.positiveDecimalPropertySpec(DeviceMessageConstants.certificateWrapperIdAttributeName)
     );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;

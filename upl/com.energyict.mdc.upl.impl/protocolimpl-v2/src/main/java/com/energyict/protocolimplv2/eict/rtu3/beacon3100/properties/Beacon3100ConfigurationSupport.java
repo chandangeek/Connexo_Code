@@ -40,17 +40,16 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(requestAuthenticatedFrameCounter());
         optionalProperties.add(clientPrivateSigningKeyPropertySpec());
         optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
-        optionalProperties.add(clientSigningCertificate());
         optionalProperties.add(serverTLSCertificate());
         optionalProperties.add(callingAPTitlePropertySpec());
         optionalProperties.add(publicClientPreEstablishedPropertySpec());
-        
+
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
         optionalProperties.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
         optionalProperties.remove(deviceId());
-        
+
         return optionalProperties;
     }
 
@@ -71,13 +70,6 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
         return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-    }
-
-    /**
-     * The certificate that matches the private key of the client (the ComServer) used for digital signature (ECDSA)
-     */
-    private PropertySpec clientSigningCertificate() {
-        return PropertySpecFactory.certificateAliasPropertySpec(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
     }
 
     /**

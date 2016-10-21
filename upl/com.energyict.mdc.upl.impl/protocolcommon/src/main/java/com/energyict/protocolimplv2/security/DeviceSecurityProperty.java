@@ -55,12 +55,12 @@ public enum DeviceSecurityProperty {
      * The certificate that matches the private key of the server (the DLMS device) used for digital signature.
      * The protocols can use this certificate to verify that a received DLMS signature is valid.
      */
-    SERVER_SIGNATURE_CERTIFICATE(PropertySpecFactory.certificateAliasPropertySpec(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString())),
+    SERVER_SIGNATURE_CERTIFICATE(PropertySpecFactory.certificateWrapperIdPropertySpec(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString())),
 
     /**
      * The certificate that matches the private key of the server (the DLMS device) used for key agreement.
      */
-    SERVER_KEY_AGREEMENT_CERTIFICATE(PropertySpecFactory.certificateAliasPropertySpec(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString())),
+    SERVER_KEY_AGREEMENT_CERTIFICATE(PropertySpecFactory.certificateWrapperIdPropertySpec(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString())),
 
     /**
      * Defines the phase of Cryptoserver usage.
