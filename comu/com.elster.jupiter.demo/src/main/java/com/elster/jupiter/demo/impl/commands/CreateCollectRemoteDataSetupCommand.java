@@ -302,7 +302,7 @@ public class CreateCollectRemoteDataSetupCommand {
             int devicePosition = (int) ((devices.size() - 1) * Math.random());
             devices.get(devicePosition).getScheduledConnectionTasks().forEach(connectionTask -> {
                 connectionTask.setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "UNKNOWN");
-                connectionTask.save();
+                connectionTask.saveAllProperties();
             });
             devicesWithCorruptedConnectionSettings.add(devices.get(devicePosition).getmRID());
         }
