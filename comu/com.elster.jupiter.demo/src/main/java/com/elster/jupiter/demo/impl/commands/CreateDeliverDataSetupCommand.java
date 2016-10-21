@@ -3,7 +3,7 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.templates.DataExportTaskTpl;
 
-public class CreateDeliverDataSetupCommand {
+public class CreateDeliverDataSetupCommand extends CommandWithTransaction {
 
     public void run(){
         Builders.from(DataExportTaskTpl.NORTH_REGION).get();

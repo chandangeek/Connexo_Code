@@ -27,7 +27,7 @@ import java.util.Optional;
  * Date: 20/06/2016
  * Time: 9:13
  */
-public class CreateDataLoggerSetupCommand {
+public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;

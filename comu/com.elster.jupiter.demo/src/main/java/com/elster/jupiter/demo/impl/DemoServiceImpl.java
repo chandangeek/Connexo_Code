@@ -745,7 +745,6 @@ public class DemoServiceImpl {
      */
     @SuppressWarnings("unused")
     public void createDemoData(String comServerName, String host, String ignored, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
-        executeTransaction(() -> {
             CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
@@ -754,7 +753,6 @@ public class DemoServiceImpl {
             }
             command.setSkipFirmwareManagementData(skipFirmwareManagementData);
             command.run();
-        });
     }
 
     @SuppressWarnings("unused")
@@ -765,7 +763,6 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType) {
-        executeTransaction(() -> {
             CreateCollectRemoteDataSetupCommand command = injector.getInstance(CreateCollectRemoteDataSetupCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
@@ -775,7 +772,6 @@ public class DemoServiceImpl {
                 command.setDevicesPerType(null);
             }
             command.run();
-        });
     }
 
     @SuppressWarnings("unused")

@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class CreateCollectRemoteDataSetupCommand {
+public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction {
     public static final int VALIDATION_STRICT_DEVICE_COUNT = 21;
     private final LicenseService licenseService;
     private final DeviceService deviceService;
@@ -103,23 +103,37 @@ public class CreateCollectRemoteDataSetupCommand {
     public void run() {
         parametersCheck();
         licenseCheck();
-        createComBackground();
-        createRegisterTypes();
-        createRegisterGroups();
-        createLogBookTypes();
-        createLoadProfileTypes();
-        createComTasks();
-        createComSchedules();
-        createCalendars();
-        createMetrologyConfigurations();
+        executeTransaction(() -> {
+            createComBackground();
+            createRegisterTypes();
+            createRegisterGroups();
+            createLogBookTypes();
+            createLoadProfileTypes();
+        });
+        executeTransaction(() -> {
+            createComTasks();
+            createComSchedules();
+            createCalendars();
+        });
+        executeTransaction(() -> {
+            createMetrologyConfigurations();
+        });
         createDeviceStructure();
-        createCreationRules();
-        createAssignmentRules();
-        createDeviceGroups();
-        createDataCollectionKpi();
-        createDataValidationKpi();
-        processDevices();
-        corruptDeviceSettingsForIssueManagement();
+        executeTransaction(() -> {
+            createCreationRules();
+            createAssignmentRules();
+        });
+        executeTransaction(() -> {
+            createDeviceGroups();
+        });
+        executeTransaction(() -> {
+            createDataCollectionKpi();
+            createDataValidationKpi();
+        });
+        executeTransaction(() -> {
+            processDevices();
+            corruptDeviceSettingsForIssueManagement();
+        });
     }
 
     private void parametersCheck() {
@@ -218,32 +232,30 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createDeviceStructure() {
-        createDeviceStructureForDeviceType(DeviceTypeTpl.Actaris_SL7000);
-        createDeviceStructureForDeviceType(DeviceTypeTpl.Elster_AS1440);
-        createDeviceStructureForDeviceType(DeviceTypeTpl.Elster_A1800);
-        createDeviceStructureForDeviceType(DeviceTypeTpl.Iskra_38);
-        createDeviceStructureForDeviceType(DeviceTypeTpl.Landis_Gyr_ZMD);
-        createDeviceStructureForDeviceType(DeviceTypeTpl.Siemens_7ED);
+        Stream.of(DeviceTypeTpl.Actaris_SL7000,
+                DeviceTypeTpl.Elster_AS1440,
+                DeviceTypeTpl.Elster_A1800,
+                DeviceTypeTpl.Iskra_38,
+                DeviceTypeTpl.Landis_Gyr_ZMD,
+                DeviceTypeTpl.Siemens_7ED)
+                .forEach(deviceTypeTpl -> {executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
+                            executeTransaction(() -> createDevices(deviceTypeTpl));});
     }
 
-    private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
-        DeviceType deviceType = Builders.from(deviceTypeTpl).withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get()).get();
+    private void createDevices(DeviceTypeTpl deviceTypeTpl){
+        Optional<DeviceType> deviceType = Builders.from(deviceTypeTpl).find();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
             int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
-            createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT, validationStrictDeviceCount);
+            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl,  validationStrictDeviceCount);
             deviceCount = Math.max(0, deviceCount - VALIDATION_STRICT_DEVICE_COUNT);
         }
-        createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.PROSUMERS, deviceCount >> 1);
-        createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.CONSUMERS, deviceCount >> 1);
+        createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
+        createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
     }
 
-    private void createDeviceConfigurationWithDevices(DeviceType deviceType, DeviceTypeTpl deviceTypeTpl, DeviceConfigurationTpl deviceConfigurationTpl, int deviceCount) {
-        DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType)
-                .withPostBuilder(this.connectionMethodsProvider.get().withHost(host).withDefaultOutboundTcpProperties())
-                .withPostBuilder(new ChannelsOnDevConfPostBuilder())
-                .get();
-        configuration.activate();
+    private void createDevices(DeviceConfiguration configuration, DeviceTypeTpl deviceTypeTpl, int deviceCount){
+
         if (deviceCount < 1) {
             deviceCount = 1;
         }
@@ -252,6 +264,23 @@ public class CreateCollectRemoteDataSetupCommand {
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             createDevice(configuration, serialNumber, deviceTypeTpl);
         }
+    }
+
+    private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
+        DeviceType deviceType = Builders.from(deviceTypeTpl).withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get()).get();
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT);
+        }
+        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS);
+        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS);
+    }
+
+    private void createDeviceConfigurationWithDevices(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl) {
+        DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType)
+                .withPostBuilder(this.connectionMethodsProvider.get().withHost(host).withDefaultOutboundTcpProperties())
+                .withPostBuilder(new ChannelsOnDevConfPostBuilder())
+                .get();
+        configuration.activate();
     }
 
     private void createDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceTypeTpl) {

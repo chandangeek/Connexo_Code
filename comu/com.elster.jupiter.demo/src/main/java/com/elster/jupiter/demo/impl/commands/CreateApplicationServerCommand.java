@@ -6,7 +6,7 @@ import com.elster.jupiter.demo.impl.builders.AppServerBuilder;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class CreateApplicationServerCommand {
+public class CreateApplicationServerCommand extends CommandWithTransaction {
 
     private final Provider<AppServerBuilder> appServerBuilderProvider;
     private String name;
