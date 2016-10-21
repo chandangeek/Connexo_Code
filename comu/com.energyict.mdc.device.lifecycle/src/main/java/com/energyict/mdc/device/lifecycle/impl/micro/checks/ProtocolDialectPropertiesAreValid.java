@@ -6,7 +6,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
@@ -36,8 +35,8 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toSet());
 
-        requiredPropertySpecs.addAll(device.getComTaskExecutions().stream().filter(comTaskExecution -> comTaskExecution instanceof SingleComTaskComTaskExecution)
-                .flatMap(comTaskExecution -> ((SingleComTaskComTaskExecution) comTaskExecution).getProtocolDialectConfigurationProperties().getPropertySpecs().stream())
+        requiredPropertySpecs.addAll(device.getComTaskExecutions().stream()
+                .flatMap(comTaskExecution -> comTaskExecution.getProtocolDialectConfigurationProperties().getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toSet()));
 

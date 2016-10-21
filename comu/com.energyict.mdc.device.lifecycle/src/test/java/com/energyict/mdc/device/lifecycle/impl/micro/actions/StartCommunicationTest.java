@@ -89,15 +89,15 @@ public class StartCommunicationTest {
         when(device.newAdHocComTaskExecution(any(ComTaskEnablement.class))).thenReturn(comTaskExecutionBuilder);
         when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution3);
-        when(comTaskExecution1.getComTasks()).thenReturn(Collections.singletonList(comTask1));
-        when(comTaskExecution2.getComTasks()).thenReturn(Collections.singletonList(comTask2));
+        when(comTaskExecution1.getComTask()).thenReturn(comTask1);
+        when(comTaskExecution2.getComTask()).thenReturn(comTask2);
         when(comTaskEnablement1.getComTask()).thenReturn(comTask1);
         when(comTaskEnablement2.getComTask()).thenReturn(comTask2);
         when(comTaskEnablement3.getComTask()).thenReturn(comTask3);
         when(comTask1.getId()).thenReturn(1L);
         when(comTask2.getId()).thenReturn(2L);
         when(comTask3.getId()).thenReturn(3L);
-        when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3));
+        when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
         StartCommunication microAction = this.getTestInstance();
 
         // Business method
