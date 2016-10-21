@@ -34,7 +34,7 @@ Ext.define('Usr.view.workgroup.Setup', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('general.addWorkgroup', 'USR', 'Add workgroups'),
+                                text: Uni.I18n.translate('general.addWorkgroup', 'USR', 'Add workgroup'),
                                 privileges: Usr.privileges.Users.admin,
                                 href: '#/administration/workgroups/add'
                             }
