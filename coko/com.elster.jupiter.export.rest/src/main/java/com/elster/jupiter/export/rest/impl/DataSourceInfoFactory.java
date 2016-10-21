@@ -41,7 +41,7 @@ public class DataSourceInfoFactory {
 
     private DataSourceInfo.MeterDataSource asDataSource(Meter meter) {
         DataSourceInfo.MeterDataSource meterDataSource = new DataSourceInfo.MeterDataSource();
-        meterDataSource.mRID = meter.getMRID();
+        meterDataSource.name = meter.getName();
         meterDataSource.serialNumber = meter.getSerialNumber();
         return meterDataSource;
     }

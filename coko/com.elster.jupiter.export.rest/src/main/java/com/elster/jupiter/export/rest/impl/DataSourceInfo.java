@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import java.time.Instant;
@@ -16,18 +15,18 @@ public class DataSourceInfo {
 
     public static class DataSource {
 
+        public String name;
+
     }
 
     public static class MeterDataSource extends DataSource {
 
-        public String mRID;
         public String serialNumber;
 
     }
 
     public static class UsagePointDataSource extends DataSource {
 
-        public String name;
         public String connectionState;
 
     }
