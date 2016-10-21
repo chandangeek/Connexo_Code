@@ -73,6 +73,14 @@ public interface InboundDiscoveryContext {
     public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
 
     /**
+     * Get the properties of the default (or first if there's no default) outbound connection task
+     * based on the given deviceIdentifier
+     *
+     * @param deviceIdentifier the identifier that should uniquely identify the device
+     */
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
+
+    /**
      * Gets the {@link TypedProperties} of the Device that relate
      * to the protocol that is used to communicate with that Device.
      *
