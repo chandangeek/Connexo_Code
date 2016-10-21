@@ -198,7 +198,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         if (comTaskExecution.usesSharedSchedule()) {
             communicationTaskInfo.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
         } else {
-            communicationTaskInfo.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
+            communicationTaskInfo.name = comTaskExecution.getComTask().getName();
         }
         communicationTaskInfo.latestStatus = comTaskExecution.getStatus() != null ?
                 new IdWithNameInfo(comTaskExecution.getStatus().name(), comTaskExecution.getStatusDisplayName()) : null;
