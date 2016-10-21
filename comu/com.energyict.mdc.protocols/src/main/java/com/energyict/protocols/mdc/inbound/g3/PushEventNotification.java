@@ -1,12 +1,15 @@
 package com.energyict.protocols.mdc.inbound.g3;
 
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -18,7 +21,10 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
+
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +43,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
+    private final MeteringService meteringService;
+    private final Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider;
+    private final SocketService socketService;
+    private final IssueService issueService;
 
     protected InboundDiscoveryContext context;
     protected ComChannel comChannel;
@@ -44,11 +54,15 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     protected EventPushNotificationParser parser;
 
     @Inject
-    public PushEventNotification(IdentificationService identificationService, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public PushEventNotification(IdentificationService identificationService, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Thesaurus thesaurus, MeteringService meteringService, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider, SocketService socketService, IssueService issueService) {
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.meteringService = meteringService;
+        this.dsmrSecuritySupportProvider = dsmrSecuritySupportProvider;
+        this.socketService = socketService;
+        this.issueService = issueService;
     }
 
     @Override
@@ -95,7 +109,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 //        if (onHold) {
 //            pskProvider.provideError(getErrorMessage());
 //        } else {
-            pskProvider.providePSK(joiningMacAddress, securityPropertySet);
+        pskProvider.providePSK(joiningMacAddress, securityPropertySet);
 //        }
     }
 
@@ -141,7 +155,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
      * Subclass for the Beacon implementation overrides this, it returns a specific PSK provider that is customized for the Beacon.
      */
     protected G3GatewayPSKProvider getPskProvider() {
-        return G3GatewayPSKProviderFactory.getInstance().getPSKProvider(getDeviceIdentifier(), getContext());
+        return G3GatewayPSKProviderFactory.getInstance().getPSKProvider(getDeviceIdentifier(), getContext(), dsmrSecuritySupportProvider, thesaurus, propertySpecService, socketService, issueService, identificationService, collectedDataFactory, meteringService);
     }
 
     private MeterProtocolEvent getMeterProtocolEvent() {
@@ -150,7 +164,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     protected EventPushNotificationParser getEventPushNotificationParser() {
         if (parser == null) {
-            parser = new EventPushNotificationParser(comChannel, getContext(), identificationService, collectedDataFactory, thesaurus, propertySpecService );
+            parser = new EventPushNotificationParser(comChannel, getContext(), identificationService, collectedDataFactory, thesaurus, propertySpecService, meteringService);
         }
         return parser;
     }
@@ -200,6 +214,6 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return Collections.emptyList();
     }
 }

@@ -82,6 +82,11 @@
     @org.osgi.service.component.annotations.Activate *;
 }
 
+# Keep all dlms stuff
+-keep public class com.energyict.dlms.** {
+  public protected *;
+}
+
 # These are 'plain' copies from what was in EIServer 9.x
 -keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider { public *; protected *;}
 -keep public class com.energyict.protocolimpl.dlms.g3.G3Properties { public *; protected *;}

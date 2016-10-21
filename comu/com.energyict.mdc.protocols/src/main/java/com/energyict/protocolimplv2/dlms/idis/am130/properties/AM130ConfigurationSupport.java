@@ -102,7 +102,7 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     }
 
     public PropertySpec callingAPTitlePropertySpec() {
-        return propertySpecService.stringSpec().named(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT).describedAs(IDIS.CALLING_AP_TITLE).finish();
+        return propertySpecService.stringSpec().named(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE).describedAs(IDIS.CALLING_AP_TITLE).setDefaultValue(IDIS.CALLING_AP_TITLE_DEFAULT).finish();
     }
 
     protected PropertySpec limitMaxNrOfDaysPropertySpec() {

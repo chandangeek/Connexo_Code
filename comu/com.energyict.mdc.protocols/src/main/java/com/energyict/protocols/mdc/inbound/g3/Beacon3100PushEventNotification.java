@@ -59,7 +59,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     @Inject
     public Beacon3100PushEventNotification(IdentificationService identificationService, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(identificationService, collectedDataFactory, propertySpecService, thesaurus);
+        super(identificationService, collectedDataFactory, propertySpecService, thesaurus, meteringService, dsmrSecuritySupportProvider, socketService, issueService);
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
@@ -83,7 +83,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     @Override
     protected EventPushNotificationParser getEventPushNotificationParser() {
         if (parser == null) {
-            parser = new EventPushNotificationParser(comChannel, getContext(), OBIS_STANDARD_EVENT_LOG, identificationService, collectedDataFactory, thesaurus, propertySpecService);
+            parser = new EventPushNotificationParser(comChannel, getContext(), OBIS_STANDARD_EVENT_LOG, identificationService, collectedDataFactory, thesaurus, propertySpecService, meteringService);
         }
         return parser;
     }

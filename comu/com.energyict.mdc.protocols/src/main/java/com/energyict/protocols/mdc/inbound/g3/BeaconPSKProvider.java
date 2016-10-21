@@ -42,7 +42,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
-    private final SocketService sockerService;
+    private final SocketService socketService;
     private final SerialComponentService serialComponentService;
     private final IssueService issueService;
     private final TopologyService topologyService;
@@ -54,13 +54,13 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     private final Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider;
 
     @Inject
-    public BeaconPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, boolean provideProtocolJavaClasName, Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService sockerService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(deviceIdentifier, context);
+    public BeaconPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, boolean provideProtocolJavaClasName, Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
+        super(deviceIdentifier, context, dsmrSecuritySupportProvider, thesaurus, propertySpecService, socketService, issueService, identificationService, collectedDataFactory, meteringService);
         this.provideProtocolJavaClasName = provideProtocolJavaClasName;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
-        this.sockerService = sockerService;
+        this.socketService = socketService;
         this.serialComponentService = serialComponentService;
         this.issueService = issueService;
         this.topologyService = topologyService;
@@ -73,7 +73,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new Beacon3100(clock, thesaurus, propertySpecService, sockerService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory, dsmrSecuritySupportProvider);
+        return new Beacon3100(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory, dsmrSecuritySupportProvider);
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {

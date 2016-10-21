@@ -59,6 +59,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import javax.inject.Provider;
 import java.io.IOException;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -384,7 +385,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     /**
      * Return a B-Field corrected ObisCode.
      *
-     * @param obisCode     the ObisCode to correct
+     * @param obisCode the ObisCode to correct
      * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
      * @return the corrected ObisCode
      */
@@ -446,7 +447,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return getDlmsProperties().getPropertySpecs();
+        List<PropertySpec> allProperties = new ArrayList<>(getDlmsConfigurationSupport().getOptionalProperties());
+        allProperties.addAll(getDlmsConfigurationSupport().getRequiredProperties());
+        return allProperties;
     }
 
     public boolean hasBreaker() {

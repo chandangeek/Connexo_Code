@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.inbound.g3;
 
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -14,6 +15,8 @@ import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -39,11 +42,14 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
+import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterEventParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 
 import javax.inject.Inject;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -74,6 +80,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     protected ObisCode logbookObisCode;
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
+    private final MeteringService meteringService;
     protected CollectedLogBook collectedLogBook;
     protected DeviceIdentifier deviceIdentifier;
     private ComChannel comChannel;
@@ -87,11 +94,11 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private int notificationType = 0;
 
     @Inject
-    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        this(comChannel, context, DEFAULT_OBIS_STANDARD_EVENT_LOG, identificationService, collectedDataFactory, thesaurus, propertySpecService);
+    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
+        this(comChannel, context, DEFAULT_OBIS_STANDARD_EVENT_LOG, identificationService, collectedDataFactory, thesaurus, propertySpecService, meteringService);
     }
 
-    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, ObisCode logbookObisCode, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, ObisCode logbookObisCode, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
         super(comChannel, context, identificationService, collectedDataFactory, propertySpecService, thesaurus);
         this.comChannel = comChannel;
         this.context = context;
@@ -102,6 +109,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         this.logbookObisCode = logbookObisCode;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
+        this.meteringService = meteringService;
     }
 
     protected ComChannel getComChannel() {
@@ -114,7 +122,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
      * - event notification frame secured with general-global ciphering (tag 0xDB GENERAL_GLOBAL_CIPHERING)
      * - event notification frame secured with general ciphering (tag 0xDD GENERAL_CIPHERING)
      * - event notification frame secured with general signing (tag 0xDF GENERAL_SIGNING)
-     * <p/>
+     * <p>
      * Not supported:
      * - ded-event-notification-request (tag 0xCA DED_EVENTNOTIFICATION_REQUEST) because we don't have a dedicated session key available
      * - glo-event-notification-request (tag 0xD2 GLO_EVENTNOTIFICATION_REQUEST) because it does not contain a system-title to identify the device
@@ -368,7 +376,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                 Unsigned16 eventCode = eventPayload.getDataType(1).getUnsigned16();
                 Unsigned16 deviceCode = eventPayload.getDataType(2).getUnsigned16();
                 String description = parseDescriptionFromOctetString(eventPayload.getDataType(3).getOctetString());
-//                createCollectedLogBook(dateTime1, deviceCode.getValue(), eventCode.getValue(), description);
+                createCollectedLogBook(dateTime1, deviceCode.getValue(), eventCode.getValue(), description);
             } else {
                 AbstractDataType dataType = eventPayload.getNextDataType();
                 if (dataType instanceof OctetString) {
@@ -536,23 +544,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         return octetString.stringValue();
     }
 
-//    private void parseEvent(Structure structure) {
-//        Date dateTime = parseDateTime(structure);
-//        int eiCode = structure.getDataType(2).intValue();
-//        int protocolCode = structure.getDataType(3).intValue();
-//        String description = parseDescription(structure);
-//
-//        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-//        meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-//        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
-//        collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
-//    }
-
     //TODO this might change in the RTU3
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serialNumber = new String(systemTitle);
         serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
-//        return new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
         return identificationService.createDeviceIdentifierBySerialNumber("%" + serialNumber + "%");
     }
 
@@ -691,7 +686,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         int protocolCode = eventPayLoad.getDataType(3).intValue();
         String description = parseDescription(eventPayLoad.getDataType(4).getOctetString());
 
-//        createCollectedLogBook(dateTime, eiCode, protocolCode, description);
+        createCollectedLogBook(dateTime, eiCode, protocolCode, description);
     }
 
     private void parseNotificationWith3Elements(Structure eventWrapper, short classId, ObisCode obisCode, int attributeNumber) {
@@ -724,7 +719,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             int eiCode = eventPayLoad.getDataType(1).intValue();
             int protocolCode = eventPayLoad.getDataType(2).intValue();
             String description = parseDescription(eventPayLoad.getDataType(3).getOctetString());
-//            createCollectedLogBook(dateTime1, eiCode, protocolCode, description);
+            createCollectedLogBook(dateTime1, eiCode, protocolCode, description);
         } else if (nrOfDataTypes == 6) { // WRAP_AS_SERVER_EVENT event notification
             parseNotificationWith6Elements(eventPayLoad);
         } else if (nrOfDataTypes == 7) { // WRAP_AS_SERVER_EVENT data notification
@@ -753,7 +748,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         Date dateTime = Calendar.getInstance().getTime();
         deviceIdentifier = identificationService.createDeviceIdentifierByCallHomeId(logicalDeviceName.toString());
 
-//        createCollectedLogBook(MeterEventParser.parseEventCode(dateTime, (int) attributeValue.getValue()));
+        createCollectedLogBook(MeterEventParser.parseEventCode(dateTime, attributeValue.getValue(), 1));
     }
 
     private void parseGatewayRelayedEventWith2Elements(Structure eventPayLoad, int alarmRegister) {
@@ -768,25 +763,24 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         }
 
         Date dateTime = Calendar.getInstance().getTime();//TODO: see what timezone should be used
-//        createCollectedLogBook(MeterEventParser.parseEventCode(dateTime, (int) attributeValue.getValue()));
+        createCollectedLogBook(MeterEventParser.parseEventCode(dateTime, attributeValue.getValue(), alarmRegister));
     }
 
-//    private void createCollectedLogBook(Date dateTime, int eiCode, int protocolCode, String description) {
-//        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-//        meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-//        collectedLogBook = this.collectedDataFactory.createCollectedLogBook(
-//                identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(logbookObisCode, deviceIdentifier));
-//        collectedLogBook.setMeterEvents(meterProtocolEvents);
-//    }
+    private void createCollectedLogBook(Date dateTime, int eiCode, int protocolCode, String description) {
+        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
+        meterProtocolEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(Collections.singletonList(new MeterEvent(dateTime, eiCode, protocolCode, description)), meteringService));
+        collectedLogBook = this.collectedDataFactory.createCollectedLogBook(
+                identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(logbookObisCode, deviceIdentifier));
+        collectedLogBook.setMeterEvents(meterProtocolEvents);
+    }
 
-//    protected void createCollectedLogBook(List<MeterEvent> meterEvents) {
-//        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-//        for (MeterEvent meterEvent : meterEvents) {
-//            meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
-//        }
-//        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
-//        collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
-//    }
+    protected void createCollectedLogBook(List<MeterEvent> meterEvents) {
+        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
+        meterProtocolEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents, meteringService));
+
+        collectedLogBook = collectedDataFactory.createCollectedLogBook(identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(logbookObisCode, deviceIdentifier));
+        collectedLogBook.setMeterEvents(meterProtocolEvents);
+    }
 
     public CollectedLogBook getCollectedLogBook() {
         return collectedLogBook;

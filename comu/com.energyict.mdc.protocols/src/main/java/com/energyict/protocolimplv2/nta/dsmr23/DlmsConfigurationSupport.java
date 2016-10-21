@@ -51,6 +51,10 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
         this.propertySpecService = propertySpecService;
     }
 
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getRequiredProperties() {
         return Collections.emptyList();

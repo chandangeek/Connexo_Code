@@ -1,11 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
@@ -60,5 +64,36 @@ public class Beacon3100Properties extends DlmsProperties {
 
     public boolean getRequestAuthenticatedFrameCounter() {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
+    }
+
+    @Override
+    public CipheringType getCipheringType() {
+        String cipheringDescription = getProperties().getTypedProperty(DlmsProtocolProperties.CIPHERING_TYPE, CipheringType.GLOBAL.getDescription());
+        for (CipheringType cipheringType : CipheringType.values()) {
+            if (cipheringType.getDescription().equals(cipheringDescription)) {
+                return cipheringType;
+            }
+        }
+        return CipheringType.GLOBAL;
+    }
+
+
+    @Override
+    public byte[] getSystemIdentifier() {
+        //Property CallingAPTitle is used as system title in the AARQ
+        final HexString callingAPTitle = getProperties().getTypedProperty(IDIS.CALLING_AP_TITLE);
+        if (callingAPTitle == null || callingAPTitle.getContent() == null || callingAPTitle.getContent().isEmpty()) {
+            return super.getSystemIdentifier();
+        } else {
+            return ProtocolTools.getBytesFromHexString(callingAPTitle.getContent(), "");
+        }
+    }
+
+    /**
+     * PollingDelay is 0 ms by default, to disable polling. This will optimize the reading of responses from the Beacon device
+     */
+    @Override
+    public TimeDuration getPollingDelay() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
     }
 }

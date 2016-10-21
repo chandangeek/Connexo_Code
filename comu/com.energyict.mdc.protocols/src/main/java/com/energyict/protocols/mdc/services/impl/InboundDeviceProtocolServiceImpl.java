@@ -108,6 +108,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(Clock.class).toInstance(clock);
+                bind(TopologyService.class).toInstance(topologyService);
+                bind(SerialComponentService.class).toInstance(serialComponentService);
+                bind(SocketService.class).toInstance(socketService);
+                bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
+
                 bind(InboundDeviceProtocolService.class).toInstance(InboundDeviceProtocolServiceImpl.this);
             }
         };

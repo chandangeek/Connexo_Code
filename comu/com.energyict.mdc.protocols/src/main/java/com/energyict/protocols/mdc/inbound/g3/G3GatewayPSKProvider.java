@@ -68,18 +68,26 @@ public class G3GatewayPSKProvider {
 
     private Set<String> joiningMacAddresses = Collections.synchronizedSet(new HashSet<String>());
     private DeviceProtocol gatewayProtocol = null;
-    private Provider<DsmrSecuritySupport> securityProvider;
-    private Thesaurus thesaurus;
-    private PropertySpecService propertySpecService;
-    private SocketService socketService;
-    private IssueService issueService;
-    private IdentificationService identificationService;
-    private CollectedDataFactory collectedDataFactory;
-    private MeteringService meteringService;
+    private final Provider<DsmrSecuritySupport> securityProvider;
+    private final Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
+    private final SocketService socketService;
+    private final IssueService issueService;
+    private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
+    private final MeteringService meteringService;
 
-    public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
+    public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, Provider<DsmrSecuritySupport> securityProvider, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.deviceIdentifier = deviceIdentifier;
         this.context = context;
+        this.securityProvider = securityProvider;
+        this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
+        this.socketService = socketService;
+        this.issueService = issueService;
+        this.identificationService = identificationService;
+        this.collectedDataFactory = collectedDataFactory;
+        this.meteringService = meteringService;
     }
 
     protected DeviceIdentifier getDeviceIdentifier() {
@@ -227,7 +235,7 @@ public class G3GatewayPSKProvider {
 
     private void createTcpComChannel() {
         boolean tlsConnection = false;
-        TypedProperties connectionProperties = context.getDeviceConnectionTypeProperties(getDeviceIdentifier());
+        TypedProperties connectionProperties = context.getOutboundConnectionTypeProperties(getDeviceIdentifier());
 //        if(connectionProperties.getProperty(TLSConnectionType.TLS_VERSION_PROPERTY_NAME) != null){
 //            tlsConnection = true;
 //            context.logOnAllLoggerHandlers("Setting up a new TLS connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);

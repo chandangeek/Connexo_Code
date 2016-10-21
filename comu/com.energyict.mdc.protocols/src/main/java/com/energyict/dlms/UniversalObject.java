@@ -8,6 +8,8 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -21,6 +23,7 @@ import java.util.StringTokenizer;
  * of captured object list and #getLNA in case of instantiated object list).<br/>
  * <b>As a matter of fact, depending on which type you use, some methods produce erroneous output; so keep this in mind!</b>
  */
+@XmlRootElement
 public class UniversalObject implements Serializable {
 
     /**
@@ -50,8 +53,8 @@ public class UniversalObject implements Serializable {
     private static final byte IOL_LN_E = 7;
     private static final byte IOL_LN_F = 8;
 
-
-    private long[] fields;
+    @XmlElement
+    private long[] fields = new long[9];
 
     private static final int ASSOC_SN_OBJECT_LIST_STRUCTURE_SIZE = 9;
 
@@ -86,7 +89,7 @@ public class UniversalObject implements Serializable {
 
 
     public UniversalObject() {
-        this.fields = null;
+        this.fields= new long[9];
     }
 
     public UniversalObject(List values, int reference) { //, List frmts) {

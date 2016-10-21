@@ -108,8 +108,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 .describedAs(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER).finish();
     }
 
-    private PropertySpec lastSeenDatePropertySpec() {
-        return getPropertySpecService().positiveBigDecimalSpec().named(G3Properties.PROP_LASTSEENDATE, G3Properties.PROP_LASTSEENDATE)
+    public PropertySpec lastSeenDatePropertySpec() {
+        return getPropertySpecService().bigDecimalSpec().named(G3Properties.PROP_LASTSEENDATE, G3Properties.PROP_LASTSEENDATE)
                 .describedAs(G3Properties.PROP_LASTSEENDATE).finish();
     }
 
@@ -125,7 +125,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
     private PropertySpec nodeAddressPropertySpec() {
         return getPropertySpecService().positiveBigDecimalSpec().named(MeterProtocol.NODEID, MeterProtocol.NODEID)
-                .describedAs(MeterProtocol.NODEID).finish();
+                .describedAs(MeterProtocol.NODEID)
+                .setDefaultValue(BigDecimal.ONE).finish();
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
@@ -133,13 +134,13 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 .describedAs(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS).setDefaultValue(DEFAULT_SERVER_LOWER_MAC_ADDRESS).finish();
     }
 
-    private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
-        return getPropertySpecService().positiveBigDecimalSpec().named(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID)
+    public PropertySpec mirrorLogicalDeviceIdPropertySpec() {
+        return getPropertySpecService().bigDecimalSpec().named(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID)
                 .describedAs(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID).finish();
     }
 
-    private PropertySpec actualLogicalDeviceIdPropertySpec() {
-        return getPropertySpecService().positiveBigDecimalSpec().named(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID)
+    public PropertySpec actualLogicalDeviceIdPropertySpec() {
+        return getPropertySpecService().bigDecimalSpec().named(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID)
                 .describedAs(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID).finish();
     }
 

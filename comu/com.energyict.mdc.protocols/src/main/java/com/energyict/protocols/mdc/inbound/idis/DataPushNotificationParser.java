@@ -242,9 +242,8 @@ public class DataPushNotificationParser {
 
     protected SecurityContext getSecurityContext() {
         DlmsProperties securityProperties = getNewInstanceOfProperties();
-        //TODO fix it, find a way to get the securityproperties in here ...
-//        securityProperties.setSecurityPropertySet(getSecurityPropertySet());
-//        securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
+        securityProperties.setSecurityPropertySet(getSecurityPropertySet());
+        securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
 
         VoidComChannel dummyComChannel = new VoidComChannel();    //Dummy channel, no bytes will be read/written
         TypedProperties comChannelProperties = TypedProperties.empty();

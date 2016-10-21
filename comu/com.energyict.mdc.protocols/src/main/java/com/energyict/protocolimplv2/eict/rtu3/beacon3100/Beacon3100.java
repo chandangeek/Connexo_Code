@@ -32,6 +32,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -55,7 +56,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
@@ -70,7 +73,6 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -99,6 +101,8 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     private G3GatewayEvents g3GatewayEvents;
     private RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
+    protected ConfigurationSupport dlmsConfigurationSupport;
+    private AM540ConfigurationSupport am540ConfigurationSupport;
 
     @Inject
     public Beacon3100(Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
@@ -191,6 +195,14 @@ public class Beacon3100 extends AbstractDlmsProtocol {
             dlmsProperties = new Beacon3100Properties(propertySpecService, thesaurus);
         }
         return (Beacon3100Properties) dlmsProperties;
+    }
+
+    @Override
+    protected ConfigurationSupport getDlmsConfigurationSupport() {
+        if (this.dlmsConfigurationSupport == null) {
+            this.dlmsConfigurationSupport = new Beacon3100ConfigurationSupport(propertySpecService);
+        }
+        return this.dlmsConfigurationSupport;
     }
 
     /**
@@ -370,7 +382,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
                                 getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
-                                        getPropertySpecForName(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID),
+                                        getSlaveConfigurationSupport().actualLogicalDeviceIdPropertySpec(),
                                         gatewayLogicalDeviceId
                                 )
                         );
@@ -379,7 +391,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
                                 getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
-                                        getPropertySpecForName(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID),
+                                        getSlaveConfigurationSupport().mirrorLogicalDeviceIdPropertySpec(),
                                         mirrorLogicalDeviceId
                                 )
                         );
@@ -388,7 +400,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
                                 getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
-                                        getPropertySpecForName(G3Properties.PROP_LASTSEENDATE),
+                                        getSlaveConfigurationSupport().lastSeenDatePropertySpec(),
                                         lastSeenDate
                                 )
                         );
@@ -399,13 +411,11 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         return deviceTopology;
     }
 
-    private PropertySpec getPropertySpecForName(String propertySpecName) {
-        Optional<PropertySpec> propertySpec = getPropertySpec(propertySpecName);
-        if (propertySpec.isPresent()) {
-            return propertySpec.get();
-        } else {
-            return null;
+    private AM540ConfigurationSupport getSlaveConfigurationSupport() {
+        if (am540ConfigurationSupport == null) {
+            am540ConfigurationSupport = new AM540ConfigurationSupport(propertySpecService);
         }
+        return am540ConfigurationSupport;
     }
 
     private boolean hasLogicalDevicePrefix(byte[] logicalDeviceNameBytes, String expectedPrefix) {
