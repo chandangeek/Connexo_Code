@@ -86,13 +86,19 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                             },
                             {
                                 xtype: 'deviceLoadProfileChannelGraphView',
-                                mentionDataLoggerSlave : me.mentionDataLoggerSlave
+                                mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                listeners: {
+                                    barselect: Ext.bind(me.onBarSelect, me)
+                                }
                             },
                             {
                                 xtype: 'deviceLoadProfileChannelTableView',
                                 channel: me.channel,
                                 router: me.router,
-                                mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
+                                mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
+                                listeners: {
+                                    rowselect: Ext.bind(me.onRowSelect, me)
+                                }
                             }
                         ]
                     }
@@ -169,6 +175,65 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         this.bindStore('ext-empty-store');
     },
 
+    onBarSelect: function (point) {
+        var me = this,
+            tableView = me.down('deviceLoadProfileChannelTableView'),
+            grid = tableView.down('grid'),
+            index = grid.getStore().findExact('interval_end', new Date(point.intervalEnd)),
+            viewEl = grid.getView().getEl(),
+            currentScrollTop = viewEl.getScroll().top,
+            viewHeight = viewEl.getHeight(),
+            rowOffsetTop = index * 29,
+            newScrollTop;
+
+        if (index > -1) {
+            if (!(rowOffsetTop > currentScrollTop && rowOffsetTop < currentScrollTop + viewHeight)) {
+                newScrollTop = rowOffsetTop - viewHeight / 2;
+                if (newScrollTop > 0) {
+                    grid.getView().getEl().setScrollTop(newScrollTop);
+                } else {
+                    grid.getView().getEl().setScrollTop(0);
+                }
+            }
+
+            tableView.suspendEvent('rowselect');
+            grid.getSelectionModel().select(index);
+            tableView.resumeEvent('rowselect');
+        }
+    },
+
+    onRowSelect: function (record) {
+        var me = this,
+            index = me.down('deviceLoadProfileChannelTableView grid').getStore().indexOf(record),
+            graphView = me.down('deviceLoadProfileChannelGraphView'),
+            selectPoint = function () {
+                var data = graphView.chart.series[0].data,
+                    intervalEnd = record.get('interval_end').getTime(),
+                    xAxis = graphView.chart.xAxis[0],
+                    currentExtremes = xAxis.getExtremes(),
+                    range = currentExtremes.max - currentExtremes.min;
+
+                if (intervalEnd + range / 2 > currentExtremes.dataMax) {
+                    xAxis.setExtremes(currentExtremes.dataMax - range, currentExtremes.dataMax);
+                } else if (intervalEnd - range / 2 < currentExtremes.dataMin) {
+                    xAxis.setExtremes(currentExtremes.dataMin, currentExtremes.dataMin + range);
+                } else if (!(intervalEnd > currentExtremes.min && intervalEnd < currentExtremes.max)) {
+                    xAxis.setExtremes(intervalEnd - range / 2, intervalEnd + range / 2);
+                }
+                graphView.suspendEvent('barselect');
+                data[data.length - index - 1].select(true, false);
+                graphView.resumeEvent('barselect');
+            };
+
+        if (index > -1) {
+            if (graphView.chart) {
+                selectPoint();
+            } else if (graphView.rendered) {
+                me.on('graphrendered', selectPoint, me, {singelton: true});
+            }
+        }
+    },
+
     showGraphView: function () {
         var me = this,
             dataStore = me.store,
@@ -228,6 +293,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             container.down('#graphContainer').hide();
         }
         me.updateLayout();
+        me.fireEvent('graphrendered');
         Ext.resumeLayouts(true);
     },
 

@@ -91,14 +91,14 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     padding: '0px'
                 },
                 useHTML: true,
-                positioner: function (labelWidth, labelHeight, point) {
-                    var xValue,
-                        yValue;
-
-                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth * 2) / 3;
-                    yValue = point.plotY > labelHeight ? point.plotY : labelHeight;
-                    return {x: xValue, y: yValue}
-                },
+                //positioner: function (labelWidth, labelHeight, point) {
+                //    var xValue,
+                //        yValue;
+                //
+                //    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth * 2) / 3;
+                //    yValue = point.plotY > labelHeight ? point.plotY : labelHeight;
+                //    return {x: xValue, y: yValue}
+                //},
                 formatter: function (tooltip) {
                     var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x),
                         point = this.points[0].point,
@@ -187,7 +187,19 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     color: '#70BB51'
                 },
                 series: {
-                    cropThreshold: Number.MAX_VALUE
+                    cropThreshold: Number.MAX_VALUE,
+                    cursor: 'pointer',
+                    allowPointSelect: true,
+                    states: {
+                        select: {
+                            color: '#ACACAC'
+                        }
+                    },
+                    events: {
+                        click: function (event) {
+                            me.fireEvent('barselect', event.point);
+                        }
+                    }
                 }
             },
 
