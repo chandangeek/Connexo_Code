@@ -20,7 +20,14 @@ public class UpdateWorkGroupTransaction extends UpdateMembershipToWorkGroup impl
     public WorkGroup perform() {
         final WorkGroup workGroup = findAndLockGroupByIdAndVersion(info);
         updateMemberships(workGroup);
-        return workGroup;
+        if(!workGroup.getDescription().equals(info.description)){
+            workGroup.setDescription(info.description);
+            workGroup.update();
+            return workGroup;
+        }else{
+            workGroup.update();
+            return workGroup;
+        }
     }
 
     private WorkGroup findAndLockGroupByIdAndVersion(WorkGroupInfo info) {
