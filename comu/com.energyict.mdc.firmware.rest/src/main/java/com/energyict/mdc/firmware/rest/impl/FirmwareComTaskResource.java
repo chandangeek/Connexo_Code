@@ -57,9 +57,7 @@ public class FirmwareComTaskResource {
                         .supplier());
 
         ComTaskExecution firmwareComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
-                        .filter(comTask -> comTask.getId() == comTaskId).findAny()
-                        .isPresent())
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
         firmwareComTaskExecution.runNow();
