@@ -204,7 +204,8 @@ public class FirmwareUtils {
             Optional<ComTask> firmwareComTask = this.taskService.findFirmwareComTask();
             if (firmwareComTask.isPresent()) {
                 Optional<ComTaskExecution> existingFirmwareComTaskExecution = device.get().getComTaskExecutions().stream()
-                        .filter(comTaskExecution -> comTaskExecution.getComTasks().stream().filter(comTask -> comTask.getId() == firmwareComTask.get().getId()).count() > 0).findFirst();
+                        .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == firmwareComTask.get().getId())
+                        .findFirst();
 
                 executeTransaction(() -> {
                     if (existingFirmwareComTaskExecution.isPresent()) {
