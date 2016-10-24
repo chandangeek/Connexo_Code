@@ -69,8 +69,9 @@ public class SchedulingResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public PagedInfoList getSchedules(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
@@ -91,18 +92,17 @@ public class SchedulingResource {
 
     private void filterAvailableSchedulesOnly(String mrid, List<ComSchedule> comSchedules) {
         deviceService
-            .findByUniqueMrid(mrid)
-            .ifPresent(device -> {
-                List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-                List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-                Iterator<ComSchedule> iterator = comSchedules.iterator();
-                while(iterator.hasNext()) {
-                    ComSchedule comSchedule = iterator.next();
-                    if (!isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
-                        iterator.remove();
+                .findByUniqueMrid(mrid)
+                .ifPresent(device -> {
+                    List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+                    Iterator<ComSchedule> iterator = comSchedules.iterator();
+                    while (iterator.hasNext()) {
+                        ComSchedule comSchedule = iterator.next();
+                        if (!isValidComSchedule(comSchedule, comTaskEnablements)) {
+                            iterator.remove();
+                        }
                     }
-                }
-        });
+                });
     }
 
     private static class CompareBySchedulingStatus implements Comparator<ComSchedule> {
@@ -123,95 +123,17 @@ public class SchedulingResource {
     }
 
 
-
-    private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements) {
-        Set<Long> allowedComTaskIds = getAllowedComTaskIds(comTaskEnablements);
-        Set<Long> alreadyAssignedComTaskIds = getAlreadyAssignedComTaskIds(comTaskExecutions);
-        Set<Long> toBeVerifiedComTaskIds = new HashSet<>();
-        if (!hasSameConfigurationSettingsInEnablements(comSchedule, comTaskEnablements)) {
-            return false;
-        }
-        for (ComTask comTaskFromSchedule : comSchedule.getComTasks()) {
-            if (alreadyAssignedComTaskIds.contains(comTaskFromSchedule.getId())) {
-                return false;
-            }
-            toBeVerifiedComTaskIds.add(comTaskFromSchedule.getId());
-        }
-        return allowedComTaskIds.containsAll(toBeVerifiedComTaskIds);
+    private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements) {
+        return comTaskEnablements.stream()
+                .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
+                .findFirst()
+                .isPresent();
     }
 
-    private boolean hasSameConfigurationSettingsInEnablements(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements) {
-        List<ComTaskEnablement> comTaskEnablementsToCheck = getComTaskEnablementsForComTasks(comSchedule, comTaskEnablements);
-        if (comTaskEnablementsToCheck.size() == 0) {
-            return false;
-        } else if (comTaskEnablementsToCheck.size() == 1) {
-            return true;
-        } else {
-            long protocolDialectConfigurationPropertiesId = 0;
-            ComTaskEnablement firstComTaskEnablement = comTaskEnablementsToCheck.get(0);
-            protocolDialectConfigurationPropertiesId = firstComTaskEnablement.getProtocolDialectConfigurationProperties().getId();
-            long securityPropertySetId = firstComTaskEnablement.getSecurityPropertySet().getId();
-            long partialConnectionTaskId = 0;
-            if (firstComTaskEnablement.getPartialConnectionTask().isPresent()) {
-                partialConnectionTaskId = firstComTaskEnablement.getPartialConnectionTask().get().getId();
-            }
-            int priority = firstComTaskEnablement.getPriority();
-            for (int i = 1; i < comTaskEnablementsToCheck.size(); i++) {
-
-                long compareProtocolDialectConfigurationPropertiesId = 0;
-                ComTaskEnablement otherComTaskEnablement = comTaskEnablementsToCheck.get(i);
-                compareProtocolDialectConfigurationPropertiesId = otherComTaskEnablement.getProtocolDialectConfigurationProperties().getId();
-                long compareSecurityPropertySetId = otherComTaskEnablement.getSecurityPropertySet().getId();
-                long comparePartialConnectionTaskId = 0;
-                if (otherComTaskEnablement.getPartialConnectionTask().isPresent()) {
-                    comparePartialConnectionTaskId = otherComTaskEnablement.getPartialConnectionTask().get().getId();
-                }
-                int comparePriority = otherComTaskEnablement.getPriority();
-                if (protocolDialectConfigurationPropertiesId != compareProtocolDialectConfigurationPropertiesId ||
-                        securityPropertySetId != compareSecurityPropertySetId ||
-                        partialConnectionTaskId != comparePartialConnectionTaskId ||
-                        priority != comparePriority) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-    }
-
-    private List<ComTaskEnablement> getComTaskEnablementsForComTasks(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements) {
-        List<ComTaskEnablement> comTaskEnablementsToCheck = new ArrayList<>();
-        for (ComTask comTask : comSchedule.getComTasks()) {
-            for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
-                    comTaskEnablementsToCheck.add(comTaskEnablement);
-                }
-            }
-        }
-        return comTaskEnablementsToCheck;
-    }
-
-    private Set<Long> getAllowedComTaskIds(List<ComTaskEnablement> comTaskEnablements) {
-        Set<Long> allowedComTaskIds = new HashSet<>();
-        for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-            allowedComTaskIds.add(comTaskEnablement.getComTask().getId());
-        }
-        return allowedComTaskIds;
-    }
-
-    private Set<Long> getAlreadyAssignedComTaskIds(List<ComTaskExecution> comTaskExecutions) {
-        Set<Long> alreadyAssignedComTaskIds = new HashSet<>();
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            if (!comTaskExecution.isAdHoc()) {
-                alreadyAssignedComTaskIds.add(comTaskExecution.getComTask().getId());
-            }
-        }
-        return alreadyAssignedComTaskIds;
-    }
-
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = resourceHelper.findComScheduleOrThrowException(id);
@@ -219,9 +141,9 @@ public class SchedulingResource {
     }
 
 
-
-    @POST @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
@@ -235,9 +157,10 @@ public class SchedulingResource {
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, false, clock.instant())).build();
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response deleteSchedules(@PathParam("id") long id, ComScheduleInfo info) {
         info.id = id;
@@ -250,9 +173,10 @@ public class SchedulingResource {
         return Response.noContent().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = resourceHelper.lockComScheduleOrThrowException(comScheduleInfo);
@@ -297,9 +221,10 @@ public class SchedulingResource {
         return comTaskIdMap;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/comTasks")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
         ComSchedule comSchedule = resourceHelper.findComScheduleOrThrowException(id);
@@ -310,9 +235,10 @@ public class SchedulingResource {
         }
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/preview")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response generatePreviewForSchedule(PreviewInfo previewInfo) {
