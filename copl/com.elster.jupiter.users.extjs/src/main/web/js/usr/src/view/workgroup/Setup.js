@@ -29,7 +29,7 @@ Ext.define('Usr.view.workgroup.Setup', {
                         itemId: 'ctr-no-workgroups',
                         title: Uni.I18n.translate('workgroups.empty.title', 'USR', 'No workgroups found'),
                         reasons: [
-                            Uni.I18n.translate('workgroups.empty.list.item1', 'USR', 'No workgroups have been added yet.'),
+                            Uni.I18n.translate('workgroups.empty.list.item1', 'USR', 'No workgroups have been defined yet.'),
                             Uni.I18n.translate('workgroups.empty.list.item2', 'USR', 'Workgroups exist, but you do not have permission to view them.')
                         ],
                         stepItems: [
