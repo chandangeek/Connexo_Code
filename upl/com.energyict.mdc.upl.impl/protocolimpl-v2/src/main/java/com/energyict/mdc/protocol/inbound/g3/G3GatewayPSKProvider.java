@@ -130,6 +130,7 @@ public class G3GatewayPSKProvider {
      * The other threads that want to call this method (on the same instance of this class) will automatically wait.
      * Close the TCP connection, this will also release the current association to the beacon.
      * The next inbound frame will set it up again.
+     *
      * @param errorMessage
      */
     public synchronized void provideError(String errorMessage) {
@@ -139,6 +140,7 @@ public class G3GatewayPSKProvider {
     /**
      * Close the TCP connection, this will also release the current association to the beacon.
      * The next inbound frame will set it up again.
+     *
      * @param errorMessage
      */
     private void communicationError(String errorMessage) {
@@ -220,7 +222,7 @@ public class G3GatewayPSKProvider {
     private void createTcpComChannel() {
         boolean tlsConnection = false;
         TypedProperties connectionProperties = context.getInboundDAO().getOutboundConnectionTypeProperties(getDeviceIdentifier());
-        if(connectionProperties.getProperty(TLSConnectionType.TLS_VERSION_PROPERTY_NAME) != null){
+        if (connectionProperties.getProperty(TLSConnectionType.TLS_VERSION_PROPERTY_NAME) != null) {
             tlsConnection = true;
             context.logOnAllLoggerHandlers("Setting up a new TLS connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
         }
@@ -230,7 +232,7 @@ public class G3GatewayPSKProvider {
         try {
             InboundComPort comPort = context.getComPort();         //Note that this is indeed the INBOUND comport, it is only used for logging purposes in the ComChannel
             tcpComChannel = tlsConnection ? new TLSConnectionType().connect(comPort, connectionTaskProperties) :
-                                            new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
+                    new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
         } catch (ConnectionException e) {
             throw ConnectionSetupException.connectionSetupFailed(e);
         }
@@ -263,7 +265,7 @@ public class G3GatewayPSKProvider {
                     final DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
                     final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(slaveDeviceIdentifier);
                     if (deviceProtocolProperties != null) {
-                        final HexString psk = deviceProtocolProperties.<HexString>getTypedProperty(G3Properties.PSK);
+                        final HexString psk = deviceProtocolProperties.getTypedProperty(G3Properties.PSK);
                         if (psk != null && psk.getContent() != null && psk.getContent().length() > 0) {
                             final byte[] pskBytes = parseKey(psk.getContent());
                             if (pskBytes != null) {

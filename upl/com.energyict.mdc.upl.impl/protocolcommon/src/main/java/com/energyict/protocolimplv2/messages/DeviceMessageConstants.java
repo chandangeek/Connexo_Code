@@ -109,6 +109,7 @@ public class DeviceMessageConstants {
     public static final String securitySuiteAttributeName = "SecurityMessage.securitySuite";
     public static final String certificateEntityAttributeName = "SecurityMessage.certificateEntity";
     public static final String certificateAliasAttributeName = "SecurityMessage.certificateAlias";
+    public static final String certificateWrapperIdAttributeName = "SecurityMessage.certificateWrapperId";
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateIssuerAttributeName = "SecurityMessage.certificateIssuer";
     public static final String commonNameAttributeName = "SecurityMessage.commonName";
@@ -125,6 +126,7 @@ public class DeviceMessageConstants {
     public static final String deviceGroupAttributeName = "SecurityMessage.devicegroup";
 
     public static final String deviceConfigurationIDAttributeName = "DeviceActionMessage.deviceConfigurationID";
+    public static final String cleanUpUnusedDevicesAndDataAttributeName = "DeviceActionMessage.cleanUpUnusedDevicesAndDataAttributeName";
     public static final String cleanUpUnusedDeviceTypesAttributeName = "DeviceActionMessage.cleanupUnusedDeviceTypes";
     public static final String broadcastDevicesGroupAttributeName = "FirmwareDeviceMessage.broadcastDevicesGroup";
 

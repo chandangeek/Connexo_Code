@@ -17,10 +17,12 @@ import com.energyict.mdc.protocol.security.SecurityPropertySet;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import junit.framework.TestCase;
 import org.junit.Before;
@@ -78,6 +80,7 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final byte[] RELAYED_DATA_NOTIFICATION_ORIGIN_HEADER_AM540_1_6_0 = ProtocolTools.getBytesFromHexString("00010014000100400f000000010c07e0071302082728410000000203090e333431353733303030323937383112001402020910454c532d5547572d020000fffe00003b0600002000", "");
     private static final byte[] RELAYED_DATA_NOTIFICATION_WRAP_AS_SERVER_1_6_0 = ProtocolTools.getBytesFromHexString("00010001000100660f000000040c07e0080101062113100000000203090e333431353733303030323830303312001302060914554e4b4e4f574e2d4d455445522d53455249414c090802237efffefd8115120010110016020202020312000109060000616200ff0f020600200004", "");
     private static final byte[] RELAYED_DATA_NOTIFICATION_WRAP_AS_SERVER_1_6_1 = ProtocolTools.getBytesFromHexString("00010014000200540f000000000c07e0040307013b3100000080020309115254552d53455249414c2d4e554d42455212001402020910454c532d5547572d020000fffe000045020101010910fe80000000000000187900fffe000009", "");
+    private static final byte[] RELAY_EVENT_NOTIFICATION_1_6_0 = ProtocolTools.getBytesFromHexString("$00$01$00$13$00$10$00$39$C2$00$00$01$00$00$61$62$14$FF$02$02$03$09$0E$33$34$31$35$37$33$30$30$30$32$38$36$36$39$12$00$12$02$02$09$10$45$4C$53$2D$55$47$57$2D$02$23$7E$FF$FE$FD$AF$24$06$00$00$20$00","$");
 
 
     @Mock
@@ -171,7 +174,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getProtocolCode(), 0);
     }
 
-    @Test
+    // relayed supported now
     public void testMeterEventNotification_1_4_0() throws IOException, SQLException, BusinessException {
         EventPushNotificationParser parser = spyParser(METER_EVENT_NOTIFICATION_1_4_0);
         Throwable expected = null;
@@ -282,7 +285,7 @@ public class EventPushNotificationParserTest extends TestCase {
     public void testOriginHeaderAM540RelayEventNotification() throws IOException, SQLException, BusinessException {
         EventPushNotificationParser parser = spyParser(RELAYED_EVENT_NOTIFICATION_ORIGIN_HEADER_AM540_1_6_0);
         parser.readAndParseInboundFrame();
-        assertEquals(new DeviceIdentifierBySerialNumber("34157300029781"), parser.getDeviceIdentifier());
+        assertEquals(new DialHomeIdDeviceIdentifier("020000FFFE00003B").toString(), parser.getDeviceIdentifier().toString());
     }
 
     @Test
@@ -299,20 +302,22 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DeviceIdentifierBySerialNumber("34157300029781"), parser.getDeviceIdentifier());
     }
 
-/*    @Test
+    @Test
     public void testPlainRelayEventNotification() throws IOException, SQLException, BusinessException {
+        DeviceIdentifier    expectedIdentifier = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF24");
         EventPushNotificationParser parser = spyParser(RELAY_EVENT_NOTIFICATION_1_6_0);
         parser.readAndParseInboundFrame();
-        assertEquals(parser.getSourceSAP(), 1);
-        assertEquals(parser.getDestinationSAP(), 20);
-        assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
+        assertEquals(19, parser.getSourceSAP());
+        assertEquals(16, parser.getDestinationSAP());
+
+        assertEquals(expectedIdentifier.toString(), parser.getDeviceIdentifier().toString());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
-        assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
-        assertEquals(meterProtocolEvent.getMessage(), "Power up");
-    }*/
+        assertNotNull(meterProtocolEvent.getTime().getTime());
+        assertEquals(MeterEvent.FRAUD_ATTEMPT_MBUS, meterProtocolEvent.getEiCode());
+        assertEquals(40, meterProtocolEvent.getProtocolCode());
+        assertEquals("Fraud attempt", meterProtocolEvent.getMessage());
+    }
 
     @Test
     public void testEncryptedFrame() throws IOException, SQLException, BusinessException {
@@ -427,7 +432,7 @@ public class EventPushNotificationParserTest extends TestCase {
         pushEventNotification.initializeDiscoveryContext(context);
         pushEventNotification.getEventPushNotificationParser().readAndParseInboundFrame();
         pushEventNotification.collectedLogBook = pushEventNotification.getEventPushNotificationParser().getCollectedLogBook();
-        assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound event notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'");
+        assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound event notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'.");
     }
 
     private EventPushNotificationParser spyParser(byte[] frame) {
@@ -457,7 +462,7 @@ public class EventPushNotificationParserTest extends TestCase {
                 return argument.length;
             } else {                    //Then return the remaining frame
                 byte[] frame = ProtocolTools.getSubArray(this.frame, 8);
-                System.arraycopy(frame, 0, argument, 0, argument.length);
+                System.arraycopy(frame, 0, argument, 0, Math.min(argument.length, frame.length));
                 return argument.length;
             }
         }
