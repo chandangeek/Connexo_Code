@@ -2,7 +2,7 @@
  * @class Uni.model.timeofuse.Calendar
  */
 Ext.define('Uni.model.timeofuse.Calendar', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
 
     requires: [
         'Uni.model.timeofuse.Event',
