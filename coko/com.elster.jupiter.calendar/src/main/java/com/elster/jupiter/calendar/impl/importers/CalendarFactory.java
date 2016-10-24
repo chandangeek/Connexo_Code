@@ -5,6 +5,7 @@
 package com.elster.jupiter.calendar.impl.importers;
 
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.impl.xmlbinding.DayType;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
 import com.elster.jupiter.calendar.impl.xmlbinding.FixedOccurrence;
@@ -48,7 +49,7 @@ public class CalendarFactory {
     public com.elster.jupiter.calendar.Calendar getCalendar(com.elster.jupiter.calendar.impl.xmlbinding.Calendar calendar) {
         this.calendar = calendar;
 
-        calendarService.findCategoryByName(calendar.getCategory())
+        Category category = calendarService.findCategoryByName(calendar.getCategory())
                 .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory()));
 
         CalendarService.CalendarBuilder builder = calendarService.findCalendarByMRID(calendar.getMRID())
@@ -61,6 +62,7 @@ public class CalendarFactory {
                         getCalendarName(),
                         getStartYear())
                         .description(getDescription()).mRID(getMRID()));
+        builder.category(category);
 
         events = new HashMap<>();
         for (Event event : calendar.getEvents().getEvent()) {

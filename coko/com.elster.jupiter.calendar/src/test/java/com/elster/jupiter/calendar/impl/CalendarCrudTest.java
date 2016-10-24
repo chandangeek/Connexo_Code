@@ -82,6 +82,7 @@ public class CalendarCrudTest {
     public void testCalendarCrudByBuilder() {
         CalendarService service = getCalendarService();
         service.newCalendar("Test", Year.of(2010))
+                .category(service.findCategoryByName("TOU").orElseThrow(AssertionError::new))
                 .description("Description remains to be completed :-)")
                 .endYear(Year.of(2018))
                 .mRID("Sample-TOU-rates")
@@ -466,6 +467,7 @@ public class CalendarCrudTest {
         CalendarService service = getCalendarService();
         service.newCalendar("Test", Year.of(2010))
                 .endYear(Year.of(2018))
+                .category(service.findCategoryByName("TOU").orElseThrow(AssertionError::new))
                 .description("Description remains to be completed :-)")
                 .mRID("Sample-TOU-rates")
                 .addEvent("On peak", 3)
