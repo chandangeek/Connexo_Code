@@ -77,6 +77,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(LogBookDeviceMessage.ResetCommunicationLogbook, new SimpleTagMessageEntry("ResetCommunicationLogbook"));
         registry.put(LogBookDeviceMessage.ResetVoltageCutLogbook, new SimpleTagMessageEntry("ResetVoltageCutLogbook"));
         registry.put(LogBookDeviceMessage.ResetLQILogbook, new SimpleTagMessageEntry("ResetLQILogbook"));
+        registry.put(LogBookDeviceMessage.ResetSecurityLogbook, new SimpleTagMessageEntry("ResetSecurityLogbook"));
 
         registry.put(LoadProfileMessage.ResetActiveImportLP, new SimpleTagMessageEntry("ResetActiveImportLP"));
         registry.put(LoadProfileMessage.ResetActiveExportLP, new SimpleTagMessageEntry("ResetActiveExportLP"));

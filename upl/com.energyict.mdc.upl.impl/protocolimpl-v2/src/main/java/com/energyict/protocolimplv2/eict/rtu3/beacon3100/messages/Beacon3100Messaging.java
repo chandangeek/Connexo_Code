@@ -38,6 +38,7 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
@@ -55,6 +56,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.util.function.Consumer;
+import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -86,109 +88,114 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
-    private final static List<DeviceMessageSpec> supportedMessages;
     private static final String TEMP_DIR = "java.io.tmpdir";
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+
+    /**
+     * The set of supported messages (which, ironically, is not a Set).
+     */
+    private static final List<DeviceMessageSpec> SUPPORTED_MESSAGES = new ArrayList<>();
+
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
-    private static final Lock firmwareFileLock = new ReentrantLock();
+    private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
 
     static {
-        supportedMessages = new ArrayList<>();
-        supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
 
-        supportedMessages.add(DeviceActionMessage.SyncMasterdataForDC);
-        supportedMessages.add(DeviceActionMessage.SyncDeviceDataForDC);
-        supportedMessages.add(DeviceActionMessage.PauseDCScheduler);
-        supportedMessages.add(DeviceActionMessage.ResumeDCScheduler);
-        supportedMessages.add(DeviceActionMessage.SyncOneConfigurationForDC);
-        supportedMessages.add(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncMasterdataForDC);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncDeviceDataForDC);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.PauseDCScheduler);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.ResumeDCScheduler);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneConfigurationForDC);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL);
 
-        supportedMessages.add(PLCConfigurationDeviceMessage.PingMeter);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.PingMeter);
 
         // supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
-        supportedMessages.add(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade);
-        supportedMessages.add(FirmwareDeviceMessage.ReadMulticastProgress);
-        supportedMessages.add(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR);
-        supportedMessages.add(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
-        supportedMessages.add(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.ReadMulticastProgress);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
 
-        supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-        supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
-        supportedMessages.add(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY);
-        supportedMessages.add(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY);
-        supportedMessages.add(SecurityMessage.CHANGE_SECURITY_SUITE);
-        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
-        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
-        supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
-        supportedMessages.add(SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE);
-        supportedMessages.add(SecurityMessage.EXPORT_SUB_CA_CERTIFICATES);
-        supportedMessages.add(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE);
-        supportedMessages.add(SecurityMessage.IMPORT_CERTIFICATE);
-        supportedMessages.add(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER);
-        supportedMessages.add(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE);
-        supportedMessages.add(SecurityMessage.GENERATE_KEY_PAIR);
-        supportedMessages.add(SecurityMessage.GENERATE_CSR);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
+        SUPPORTED_MESSAGES.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
+        SUPPORTED_MESSAGES.add(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY);
+        SUPPORTED_MESSAGES.add(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_SECURITY_SUITE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
+        SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_SUB_CA_CERTIFICATES);
+        SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_CA_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER);
+        SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.GENERATE_KEY_PAIR);
+        SUPPORTED_MESSAGES.add(SecurityMessage.GENERATE_CSR);
 
-        supportedMessages.add(UplinkConfigurationDeviceMessage.EnableUplinkPing);
-        supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress);
-        supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval);
-        supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.EnableUplinkPing);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval);
+        SUPPORTED_MESSAGES.add(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout);
         //supportedMessages.add(PPPConfigurationDeviceMessage.SetPPPIdleTime);
         //supportedMessages.add(NetworkConnectivityMessage.PreferGPRSUpstreamCommunication);
-        supportedMessages.add(NetworkConnectivityMessage.EnableModemWatchdog);
-        supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
-        supportedMessages.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
-        supportedMessages.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
-        supportedMessages.add(NetworkConnectivityMessage.EnableNetworkInterfaces);
-        supportedMessages.add(NetworkConnectivityMessage.SetHttpPort);
-        supportedMessages.add(NetworkConnectivityMessage.SetHttpsPort);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetLockoutDuration);
-        supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
-        supportedMessages.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
-        supportedMessages.add(DeviceActionMessage.RebootApplication);
-        supportedMessages.add(FirewallConfigurationMessage.ActivateFirewall);
-        supportedMessages.add(FirewallConfigurationMessage.DeactivateFirewall);
-        supportedMessages.add(FirewallConfigurationMessage.ConfigureFWGPRS);
-        supportedMessages.add(FirewallConfigurationMessage.ConfigureFWLAN);
-        supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
-        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
-        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
-        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetPanId);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacA);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacK);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxBe);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableModemWatchdog);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfaces);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpPort);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpsPort);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.EnableSSL);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetLockoutDuration);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetDeviceName);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
+        SUPPORTED_MESSAGES.add(DeviceActionMessage.RebootApplication);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ActivateFirewall);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.DeactivateFirewall);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWGPRS);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWLAN);
+        SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWWAN);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
+        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMetricType);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetPanId);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetTMRTTL);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMacA);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMacK);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxBe);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMinBe);
 
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
         //supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
@@ -196,11 +203,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
-        supportedMessages.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
-        supportedMessages.add(PLCConfigurationDeviceMessage.KickMeter);
-        supportedMessages.add(PLCConfigurationDeviceMessage.AddMetersToBlackList);
-        supportedMessages.add(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList);
-        supportedMessages.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.KickMeter);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.AddMetersToBlackList);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList);
+        SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
+
+        // Logbook resets.
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetMainLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetSecurityLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetCoverLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetCommunicationLogbook);
+        SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetVoltageCutLogbook);
     }
 
     private MasterDataSync masterDataSync;
@@ -212,10 +226,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return supportedMessages;
+        return SUPPORTED_MESSAGES;
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
@@ -268,16 +283,22 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
             }
             return macAddresses.toString();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateAliasAttributeName) &&
-                offlineDeviceMessage.getSpecification().equals(SecurityMessage.IMPORT_CERTIFICATE)) {
-            //Only convert the alias for the import_certificate message.
-            //Load the certificate from the key store and encode it.
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateAliasAttributeName)) {
+            //Load the certificate with that alias from the EIServer DLMS trust store and encode it.
             String alias = (String) messageAttribute;
             String certificateEncoded = new CertificateAlias(alias).getCertificateEncoded();
             if (certificateEncoded == null || certificateEncoded.isEmpty()) {
                 throw new ApplicationException("Certificate with alias '" + alias + "' does not exist in the key store");
             }
             return certificateEncoded;
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperIdAttributeName)) {
+            //Load the certificate with that id from the CertificateWrapper table and encode it.
+            int id = ((BigDecimal) messageAttribute).intValue();
+            CertificateWrapper certificateWrapper = MeteringWarehouse.getCurrent().getCertificateWrapperFactory().findById(id);
+            if (certificateWrapper == null) {
+                throw new ApplicationException("CertificateWrapper with id '" + id + "' does not exist in the EIServer database");
+            }
+            return certificateWrapper.getBase64Certificate();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayPerBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentFast)
@@ -317,7 +338,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
 
         try {
-            firmwareFileLock.lock();
+            FIRMWARE_FILE_LOCK.lock();
 
             final File tempFile = new File(tempDirectory, fileName);
 
@@ -385,7 +406,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
             throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
         } finally {
-            firmwareFileLock.unlock();
+            FIRMWARE_FILE_LOCK.unlock();
         }
     }
 
@@ -507,8 +528,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = exportSubCACertificates(collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE)) {
                         collectedMessage = exportRootCACertificate(collectedMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CERTIFICATE)) {
-                        importCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CA_CERTIFICATE)) {
+                        importCACertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE)) {
+                        importEndDeviceCertificate(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER)) {
                         deleteCertificateBySerialNumber(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE)) {
@@ -554,6 +577,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = readMulticastProgress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfaces)) {
                         enableNetworkInterfaces(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetMainLogbook)) {
+                        this.resetLogbook(Beacon3100LogBookFactory.MAIN_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityLogbook)) {
+                        this.resetLogbook(Beacon3100LogBookFactory.SECURITY_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetCoverLogbook)) {
+                        this.resetLogbook(Beacon3100LogBookFactory.COVER_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetCommunicationLogbook)) {
+                        this.resetLogbook(Beacon3100LogBookFactory.COMMUNICATION_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetVoltageCutLogbook)) {
+                        this.resetLogbook(Beacon3100LogBookFactory.VOLTAGE_LOGBOOK);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -640,19 +673,29 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
-     * Imports an X.509 v3 certificate of a public key.
+     * Imports an X.509 v3 certificate of a public key of a CA.
+     * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
+     * In case of sub-CA or root-CA certificates, their CN must end in "CA".
+     */
+    private void importCACertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getDeviceMessageAttributeValue();
+        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
+        getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
+    }
+
+    /**
+     * Imports an X.509 v3 certificate of a public key of an end-device.
      * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
      * In case of client (ComServer) certificates, this is the system title of the ComServer.
      * In case of server (Beacon) certificates, this is the system title of the Beacon device.
      * <p/>
-     * In case of sub-CA or root-CA certificates, their CN must end in "CA".
-     * <p/>
      * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
      */
-    private void importCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getDeviceMessageAttributeValue();
-        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
-        getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
+    private void importEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperIdAttributeName).getDeviceMessageAttributeValue();
+        byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
+
+        getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
     }
 
     /**
@@ -677,14 +720,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             //Not self signed, so a Sub-CA certificate.
             if (!x509Certificate.getIssuerDN().equals(x509Certificate.getSubjectDN())) {
                 if (protocolInfo.length() == 0) {
-                    protocolInfo.append("Added sub-CA certificate(s) to the keystore under the following alias(es): ");
+                    protocolInfo.append("Added sub-CA certificate(s) to the EIServer DLMS trust store under the following alias(es): ");
                 } else {
                     protocolInfo.append(", ");
                 }
 
                 String alias = "Beacon_sub_CA_" + x509Certificate.getSerialNumber();
                 CertificateAlias certificateAlias = new CertificateAlias(alias);
-                certificateAlias.setType(DLMSKeyStoreUserFile.CertificateType.SUB_CA); //Self signed, root CA
                 certificateAlias.setCertificateEncoded(getEncodedCertificate(x509Certificate));
                 subCACertificateAliases.add(certificateAlias);
 
@@ -729,14 +771,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             //Self-signed, root-CA certificate
             if (x509Certificate.getIssuerDN().equals(x509Certificate.getSubjectDN())) {
                 if (protocolInfo.length() == 0) {
-                    protocolInfo.append("Added root-CA certificate(s) to the keystore under the following alias(es): ");
+                    protocolInfo.append("Added root-CA certificate(s) to the EIServer DLMS trust store under the following alias(es): ");
                 } else {
                     protocolInfo.append(", ");
                 }
 
                 String alias = "Beacon_root_CA_" + x509Certificate.getSerialNumber();
                 CertificateAlias certificateAlias = new CertificateAlias(alias);
-                certificateAlias.setType(DLMSKeyStoreUserFile.CertificateType.ROOT_CA); //Self signed, root CA
                 certificateAlias.setCertificateEncoded(getEncodedCertificate(x509Certificate));
                 rootCACertificateAliases.add(certificateAlias);
 
@@ -760,17 +801,20 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
-     * Export an end device certificate of type signing/key agreement/TLS.
+     * Export a server end-device certificate of type signing/key agreement/TLS from the Beacon.
+     * It will be stored as a CertificateWrapper in EIServer, and the relevant property on the device will be filled in
+     * <p/>
      * Note that the different security suites each have their own certificate, based on a certain elliptical curve.
      * The Beacon returns the proper certificate for the security suite it is currently operating in.
      */
     private CollectedMessage exportEndDeviceCertificate(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0) {
-            throw new ProtocolException("The Beacon device does not have certificates in suite 0.");
-        }
-
         SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getDeviceMessageAttributeValue());
-        String alias = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateAliasAttributeName).getDeviceMessageAttributeValue();
+
+        if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0
+                && (certificateType.equals(SecurityMessage.CertificateType.DigitalSignature)
+                || certificateType.equals(SecurityMessage.CertificateType.KeyAgreement))) {
+            throw new ProtocolException("Cannot export ECDSA or ECDH certificates from the Beacon if it operates in suite 0.");
+        }
 
         //The server system-title
         byte[] responseSystemTitle = getProtocol().getDlmsSession().getAso().getSecurityContext().getResponseSystemTitle();
@@ -778,8 +822,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         X509Certificate x509Certificate = getSecuritySetup().exportCertificate(SecurityMessage.CertificateEntity.Server.getId(), certificateType.getId(), responseSystemTitle);
 
         String propertyName = "";
-        CertificateAlias propertyValue = new CertificateAlias(alias);
-        propertyValue.setCertificateEncoded(getEncodedCertificate(x509Certificate));
+        CertificateWrapperId propertyValue = new CertificateWrapperId(x509Certificate);
 
         //Server certificate for signing/key agreement is modelled as a security property
         if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType) || SecurityMessage.CertificateType.KeyAgreement.equals(certificateType)) {
@@ -808,7 +851,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     propertyValue);
         }
 
-        collectedMessage.setDeviceProtocolInformation("Added the exported certificate in the key store, under alias '" + alias + "'. Also property '" + propertyName + "' on the Beacon device is updated with this alias.");
+        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number'" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
+        getLogger().info(msg);
+        collectedMessage.setDeviceProtocolInformation(msg);
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessage;
     }
@@ -1704,6 +1749,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getDeviceMessageAttributeValue();
         int auth = AuthenticationMechanism.fromAuthName(authName);
         getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
+    }
+
+    /**
+     * Performs a reset on a {@link ProfileGeneric}.
+     *
+     * @param obisCode The OBIS code.
+     * @throws IOException If an IO error occurs.
+     */
+    private final void resetLogbook(final ObisCode obisCode) throws IOException {
+        this.getCosemObjectFactory().getProfileGeneric(obisCode).reset();
     }
 
     /**

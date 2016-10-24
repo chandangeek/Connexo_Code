@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.cbo.CertificateAlias;
+import com.energyict.cbo.CertificateWrapperId;
 import com.energyict.cbo.PrivateKeyAlias;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSConnectionException;
@@ -17,9 +17,7 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
@@ -132,7 +130,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     @Override
     public X509Certificate getClientSigningCertificate() {
         if (clientSigningCertificate == null) {
-            clientSigningCertificate = parseX509Certificate(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+            clientSigningCertificate = parseCertificateOfPrivateKey(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
         }
         return clientSigningCertificate;
     }
@@ -157,54 +155,59 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
      * Returns a valid X509 v3 certificate, or null if the property has no value
      */
     private X509Certificate parseX509Certificate(String propertyName) {
-        CertificateAlias certificateAlias = properties.getTypedProperty(propertyName);
-        if (certificateAlias == null) {
+        CertificateWrapperId certificateWrapperId = properties.getTypedProperty(propertyName);
+        if (certificateWrapperId == null) {
             return null;
         } else {
+            String propertyValue = "CertificateWrapper with ID '" + certificateWrapperId.getId() + "'";
             try {
-                Certificate serverKeyAgreementCertificate = certificateAlias.getCertificate();
-                if (serverKeyAgreementCertificate == null) {
-                    return null;
-                }
-                if (!(serverKeyAgreementCertificate instanceof X509Certificate)) {
-                    throw DeviceConfigurationException.invalidPropertyFormat(
-                            propertyName,
-                            "Certificate with alias '" + certificateAlias.getAlias() + "'",
-                            "The certificate must be of type X509 v3");
-                }
-
-                X509Certificate x509Certificate = (X509Certificate) serverKeyAgreementCertificate;
-
-                if (x509Certificate.getPublicKey() instanceof ECPublicKey) {
-                    ECPoint ecPoint = ((ECPublicKey) x509Certificate.getPublicKey()).getW();
-
-                    int componentSize = KeyUtils.getKeySize(getECCCurve()) / 2;
-                    byte[] xBytes = trim(ecPoint.getAffineX().toByteArray(), componentSize);
-                    byte[] yBytes = trim(ecPoint.getAffineY().toByteArray(), componentSize);
-
-                    if ((xBytes.length + yBytes.length) != KeyUtils.getKeySize(getECCCurve())) {
-                        throw DeviceConfigurationException.invalidPropertyFormat(
-                                propertyName,
-                                "Certificate with alias '" + certificateAlias.getAlias() + "'",
-                                "The public key of the certificate should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
-                    }
-                } else {
-                    throw DeviceConfigurationException.invalidPropertyFormat(
-                            propertyName,
-                            "Certificate with alias '" + certificateAlias.getAlias() + "'",
-                            "The public key of the certificate should be for elliptic curve cryptography");
-                }
-
-                x509Certificate.checkValidity();
-
-                return x509Certificate;
+                Certificate certificate = certificateWrapperId.getCertificate();
+                return validateCertificate(propertyName, propertyValue, certificate);
             } catch (CertificateException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
-                        "Certificate with alias '" + certificateAlias.getAlias() + "'",
+                        propertyValue,
                         "The certificate must be a valid X509 v3 certificate: " + e.getMessage());
             }
         }
+    }
+
+    private X509Certificate validateCertificate(String propertyName, String propertyValue, Certificate certificate) throws CertificateExpiredException, CertificateNotYetValidException {
+        if (certificate == null) {
+            return null;
+        }
+        if (!(certificate instanceof X509Certificate)) {
+            throw DeviceConfigurationException.invalidPropertyFormat(
+                    propertyName,
+                    propertyValue,
+                    "The certificate must be of type X.509 v3");
+        }
+
+        X509Certificate x509Certificate = (X509Certificate) certificate;
+
+        if (x509Certificate.getPublicKey() instanceof ECPublicKey) {
+            ECPoint ecPoint = ((ECPublicKey) x509Certificate.getPublicKey()).getW();
+
+            int componentSize = KeyUtils.getKeySize(getECCCurve()) / 2;
+            byte[] xBytes = trim(ecPoint.getAffineX().toByteArray(), componentSize);
+            byte[] yBytes = trim(ecPoint.getAffineY().toByteArray(), componentSize);
+
+            if ((xBytes.length + yBytes.length) != KeyUtils.getKeySize(getECCCurve())) {
+                throw DeviceConfigurationException.invalidPropertyFormat(
+                        propertyName,
+                        propertyValue,
+                        "The public key of the certificate should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
+            }
+        } else {
+            throw DeviceConfigurationException.invalidPropertyFormat(
+                    propertyName,
+                    propertyValue,
+                    "The public key of the certificate should be for elliptic curve cryptography");
+        }
+
+        x509Certificate.checkValidity();
+
+        return x509Certificate;
     }
 
     /**
@@ -262,6 +265,27 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
                         propertyName,
                         "Private key with alias '" + alias.getAlias() + "'",
                         "The private key must be a valid, PKCS8 encoded key");
+            }
+        }
+    }
+
+    /**
+     * The PrivateKeyAlias contains both the private key and its matching certificate, fetched from the EIServer persisted key store.
+     */
+    private X509Certificate parseCertificateOfPrivateKey(String propertyName) {
+        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
+        if (alias == null) {
+            return null;
+        } else {
+            String propertyValue = "Certificate with alias '" + alias.getAlias() + "'";
+            try {
+                Certificate certificate = alias.getCertificate();
+                return validateCertificate(propertyName, propertyValue, certificate);
+            } catch (CertificateException e) {
+                throw DeviceConfigurationException.invalidPropertyFormat(
+                        propertyName,
+                        propertyValue,
+                        "The certificate must be a valid X509 v3 certificate: " + e.getMessage());
             }
         }
     }

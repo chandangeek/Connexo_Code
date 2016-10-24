@@ -13,7 +13,6 @@ import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 
-
 public class PPPSetupAttributesMapping extends RegisterMapping {
 
     private static final int MIN_ATTR = 1;

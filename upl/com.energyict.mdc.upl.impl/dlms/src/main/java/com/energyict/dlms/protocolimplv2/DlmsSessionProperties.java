@@ -19,7 +19,6 @@ import java.util.TimeZone;
 public interface DlmsSessionProperties extends CommunicationSessionProperties {
 
     String CLIENT_PRIVATE_KEY_AGREEMENT_KEY = "ClientPrivateKeyAgreementKey";
-    String CLIENT_SIGNING_CERTIFICATE = "ClientSigningCertificate";
     String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
     String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
     String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
