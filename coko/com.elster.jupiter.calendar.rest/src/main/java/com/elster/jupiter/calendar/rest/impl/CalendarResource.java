@@ -1,18 +1,20 @@
 package com.elster.jupiter.calendar.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarFilter;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.Status;
-import com.elster.jupiter.calendar.CalendarFilter;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.security.Privileges;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -20,6 +22,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -31,6 +34,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/calendars")
@@ -38,12 +42,16 @@ public class CalendarResource {
     private final ExceptionFactory exceptionFactory;
     private final CalendarInfoFactory calendarInfoFactory;
     private final CalendarService calendarService;
+    private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
+    private final TransactionService transactionService;
 
     @Inject
-    public CalendarResource(ExceptionFactory exceptionFactory, CalendarInfoFactory calendarInfoFactory, CalendarService calendarService) {
+    public CalendarResource(ExceptionFactory exceptionFactory, CalendarInfoFactory calendarInfoFactory, CalendarService calendarService, ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, TransactionService transactionService) {
         this.exceptionFactory = exceptionFactory;
         this.calendarInfoFactory = calendarInfoFactory;
         this.calendarService = calendarService;
+        this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
+        this.transactionService = transactionService;
     }
 
     @GET
@@ -86,6 +94,49 @@ public class CalendarResource {
         }
     }
 
+    @PUT
+    @Path("/{id}")
+    @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response updateCalendar(@PathParam("id") long id, CalendarInfo info) {
+        if (info.status == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        transactionService.run(() -> doUpdateCalendar(id, info));
+        return Response.ok().build();
+    }
+
+    private void doUpdateCalendar(@PathParam("id") long id, CalendarInfo info) {
+        Calendar calendar = lockCalendar(id, info);
+        switch (calendar.getStatus()) {
+            case ACTIVE:
+                if (Status.INACTIVE.equals(info.status.id)) {
+                    if (!calendarService.isCalendarInUse(calendar)) {
+                        calendar.deactivate();
+                    } else {
+                        throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TIME_OF_USE_CALENDAR_IN_USE);
+                    }
+                }
+                break;
+            case INACTIVE:
+                if (Status.ACTIVE.equals(info.status.id)) {
+                    calendar.activate();
+                }
+                break;
+            default:
+        }
+    }
+
+    private Calendar lockCalendar(@PathParam("id") long id, CalendarInfo info) {
+        Optional<Calendar> calendar = calendarService.findCalendar(id);
+        return calendarService.lockCalendar(id, info.version)
+                .orElseThrow(() -> concurrentModificationExceptionFactory
+                        .contextDependentConflictOn(calendar.map(Calendar::getName).orElse(""))
+                        .withActualVersion(() -> calendar.map(Calendar::getVersion).orElse(-1L))
+                        .build());
+    }
+
     @DELETE
     @Path("/{id}")
     @Transactional
@@ -95,7 +146,7 @@ public class CalendarResource {
     public Response removeCalendar(@PathParam("id") long id) {
         Calendar calendar = calendarService.findCalendar(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
-        if (!calendarService.isCalendarInUse(calendar)) {
+        if (!calendarService.isCalendarInUse(calendar) && calendar.mayBeDeleted()) {
             calendar.delete();
             return Response.ok().build();
         } else {
