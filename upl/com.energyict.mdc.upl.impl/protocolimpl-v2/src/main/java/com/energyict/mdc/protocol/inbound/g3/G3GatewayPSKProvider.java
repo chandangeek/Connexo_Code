@@ -93,22 +93,34 @@ public class G3GatewayPSKProvider {
         }
 
         if (joiningMacAddresses.isEmpty()) {
+            context.logOnAllLoggerHandlers("Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.", Level.INFO);
+        } else {
+            StringBuilder notJoinedMacAddresses = new StringBuilder();
+            Iterator it = joiningMacAddresses.iterator();
+            while(it.hasNext()){
+                notJoinedMacAddresses.append(it.next());
+                notJoinedMacAddresses.append(", ");
+            }
+            context.logOnAllLoggerHandlers("Unable to provide PSKs for following joining nodes: "+ notJoinedMacAddresses +" the association will be released.", Level.INFO);
+        }
+        closeConnection();
+    }
+
+    private void closeConnection() {
+        try {
+            //Our job is done here (for now), release the association and close the TCP connection
+            if (tcpComChannel != null && gatewayProtocol != null) {
+                this.gatewayProtocol.logOff();
+                this.gatewayProtocol.terminate();
+            }
+        } finally {
             try {
-                //Our job is done here (for now), release the association and close the TCP connection
-                context.logOnAllLoggerHandlers("Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.", Level.INFO);
-                if (tcpComChannel != null && gatewayProtocol != null) {
-                    this.gatewayProtocol.logOff();
-                    this.gatewayProtocol.terminate();
+                if (tcpComChannel != null) {
+                    this.tcpComChannel.close();
                 }
             } finally {
-                try {
-                    if (tcpComChannel != null) {
-                        this.tcpComChannel.close();
-                    }
-                } finally {
-                    this.gatewayProtocol = null;
-                    this.tcpComChannel = null;
-                }
+                this.gatewayProtocol = null;
+                this.tcpComChannel = null;
             }
         }
     }
