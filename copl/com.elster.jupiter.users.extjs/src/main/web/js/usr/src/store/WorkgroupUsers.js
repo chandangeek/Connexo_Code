@@ -9,6 +9,9 @@ Ext.define('Usr.store.WorkgroupUsers', {
         reader: {
             type: 'json',
             root: 'users'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });

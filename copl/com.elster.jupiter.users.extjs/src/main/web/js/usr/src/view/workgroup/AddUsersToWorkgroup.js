@@ -20,7 +20,7 @@ Ext.define('Usr.view.workgroup.AddUsersToWorkgroup', {
                     xtype: 'selection-grid',
                     itemId: 'grd-user-selection',
                     width: '100%',
-                    maxHeight: 300,
+                    maxHeight: 395,
                     columns: [
                         {
                             header: Uni.I18n.translate('workgroups.addUsers.userName', 'USR', 'User name'),
