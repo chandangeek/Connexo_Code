@@ -192,8 +192,8 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
 
 
     public ScheduledComTaskExecution createSharedScheduledComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, Device device) {
-        if (comTaskExecutionInfo.comTask!=null && comTaskExecutionInfo.comTask.id!=null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TYPE_DOES_NOT_SUPPORT_COM_TASK);
+        if (comTaskExecutionInfo.comTask==null || comTaskExecutionInfo.comTask.id==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.COM_TASK_EXPECTED);
         }
         if (comTaskExecutionInfo.schedulingSpec!=null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TYPE_DOES_NOT_SUPPORT_SCHEDULE_SPEC);
@@ -211,37 +211,38 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
         }
 
-        List<ComTaskExecutionBuilder<ScheduledComTaskExecution>> builders = device.getDeviceConfiguration().getComTaskEnablements()
+        ComTask comTask = taskService.findComTask(comTaskExecutionInfo.comTask.id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_TASK));
+
+        Optional<ComTaskExecutionBuilder<ScheduledComTaskExecution>> optionalBuilder = device.getDeviceConfiguration().getComTaskEnablements()
                 .stream()
+                .filter(comTaskEnablement -> comTask.equals(comTaskEnablement.getComTask()))
                 .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
                 .map(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule))
-                .collect(Collectors.toList());
+                .findFirst();
+
+        if(!optionalBuilder.isPresent()) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.COMTASK_NOT_IN_SCHEDULE);
+        }
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = optionalBuilder.get();
 
         if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
-            builders.stream()
-                    .forEach(builder -> builder.useDefaultConnectionTask(true));
-        } else {
-            builders.stream()
-                    .forEach(builder ->  connectionTask.ifPresent(builder::connectionTask));
+            builder.useDefaultConnectionTask(true);
+        } else {connectionTask.ifPresent(builder::connectionTask);
         }
 
         if (connectionTask.isPresent()) {
-            builders.stream()
-                    .forEach(builder -> builder.connectionTask(connectionTask.get()));
+            builder.connectionTask(connectionTask.get());
         }
         if (comTaskExecutionInfo.priority!=null) {
-            builders.stream()
-                    .forEach(builder -> builder.priority(comTaskExecutionInfo.priority));
+            builder.priority(comTaskExecutionInfo.priority);
         }
         if (comTaskExecutionInfo.ignoreNextExecutionSpecForInbound!=null) {
-            builders.stream()
-                    .forEach(builder ->  builder.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound));
+            builder.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound);
         }
-        List<ScheduledComTaskExecution> executions = builders.stream()
-                .map(ComTaskExecutionBuilder::add)
-                .collect(Collectors.toList());
+        ScheduledComTaskExecution scheduledComTaskExecution = builder.add();
         device.save();
-        return executions.get(0);
+        return scheduledComTaskExecution;
     }
 
     public ComTaskExecution createAdHocComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, Device device) {

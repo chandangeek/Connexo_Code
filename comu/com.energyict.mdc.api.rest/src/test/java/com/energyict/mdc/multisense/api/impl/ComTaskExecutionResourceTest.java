@@ -217,7 +217,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         assertThat(model.<Long>get("$.plannedNextExecution")).isEqualTo(later.toEpochMilli());
         assertThat(model.<Long>get("$.lastCommunicationStart")).isEqualTo(end.toEpochMilli());
         assertThat(model.<String>get("$.type")).isEqualTo(ComTaskExecutionType.SharedSchedule.name());
-        assertThat(model.<Object>get("$.comTask")).isNull();
+        assertThat(model.<Object>get("$.comTask")).isNotNull();
         assertThat(model.<Integer>get("$.connectionTask.id")).isEqualTo(25);
         assertThat(model.<String>get("$.connectionTask.link.href")).isEqualTo("http://localhost:9998/devices/SPE001/connectiontasks/25");
     }
@@ -281,43 +281,6 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
     }
 
     @Test
-    public void testScheduledComTaskExecutionDoesNotAcceptComTask() throws Exception {
-        long comTaskId = 24;
-        long connectionTaskId = 23L;
-        long scheduleId = 24L;
-
-        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
-        info.connectionTask = new LinkInfo();
-        info.connectionTask.id = connectionTaskId;
-        info.comTask = new LinkInfo();
-        info.comTask.id = comTaskId;
-        info.schedule = new LinkInfo();
-        info.schedule.id = scheduleId;
-        info.type = ComTaskExecutionType.SharedSchedule;
-        info.device = new LinkInfo();
-        info.device.version = 3334L;
-
-        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
-        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule", 3333L);
-
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3334L);
-        ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
-        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3333L);
-
-        when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
-        ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
-        when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(builder);
-        ManuallyScheduledComTaskExecution comTaskExecution1 = mock(ManuallyScheduledComTaskExecution.class);
-        when(comTaskExecution1.getDevice()).thenReturn(device);
-        when(comTaskExecution1.getId()).thenReturn(999L);
-        ComTaskExecution comTaskExecution = comTaskExecution1;
-        when(builder.add()).thenReturn(comTaskExecution);
-        Response response = target("/devices/SPE001/comtaskexecutions").request().post(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
     public void testCreateScheduledComTaskExecution() throws Exception {
         long comTaskId = 24;
         long scheduleId = 24L;
@@ -326,6 +289,8 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         info.schedule = new LinkInfo();
         info.schedule.id = scheduleId;
         info.device = new LinkInfo();
+        info.comTask = new LinkInfo();
+        info.comTask.id = comTaskId;
         info.device.version = 3334L;
         info.useDefaultConnectionTask = true;
         info.type = ComTaskExecutionType.SharedSchedule;
@@ -337,7 +302,9 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3334L);
         ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
         ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3333L);
-
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
+        when(comSchedule.getComTasks()).thenReturn(Collections.singletonList(comTask));
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
         when(device.newScheduledComTaskExecution(comTaskEnablement, comSchedule)).thenReturn(builder);
