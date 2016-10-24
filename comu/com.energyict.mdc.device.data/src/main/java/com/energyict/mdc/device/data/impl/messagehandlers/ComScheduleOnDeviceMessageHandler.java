@@ -9,18 +9,23 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.DefaultTranslationKey;
 import com.energyict.mdc.device.data.impl.ComScheduleOnDeviceQueueMessage;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * This message handler will add/remove a single com schedule to/from a single device
  */
 public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
-
     private static final Logger LOGGER = Logger.getLogger(ComScheduleOnDeviceMessageHandler.class.getSimpleName());
 
     private DeviceService deviceService;
@@ -69,9 +74,17 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
 
     private void addSchedule(ComSchedule comSchedule, Device device, ComScheduleOnDeviceQueueMessage queueMessage) {
         try {
+            List<ComTask> comtasksAlreadyHavingAnExecutionWithThisSchedule = device.getComTaskExecutions().stream()
+                    .filter(comTaskExecution -> comTaskExecution instanceof ScheduledComTaskExecution)
+                    .map(comTaskExecution -> (ScheduledComTaskExecution) comTaskExecution)
+                    .filter(scheduledComTaskExecution -> scheduledComTaskExecution.getComSchedule().equals(comSchedule))
+                    .map(ComTaskExecution::getComTask)
+                    .collect(Collectors.toList());
+
             device.getDeviceConfiguration().getComTaskEnablements()
                     .stream()
                     .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
+                    .filter(comTaskEnablement -> !comtasksAlreadyHavingAnExecutionWithThisSchedule.contains(comTaskEnablement.getComTask()))
                     .forEach(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule).add());
 
             LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
