@@ -177,17 +177,17 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-21 17:29:55 +0200 (Fri, 21 Oct 2016)$";
+        return "$Date: 2016-10-24 09:40:46 +0200 (Mon, 24 Oct 2016)$";
     }
 
     private class X509TrustManagerImpl implements X509TrustManager {
 
         X509TrustManager x509TrustManager;
 
-        X509TrustManagerImpl(KeyStore keyStore) throws Exception {
+        X509TrustManagerImpl(KeyStore trustStore) throws Exception {
 
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(keyStore);
+            trustManagerFactory.init(trustStore);
             TrustManager trustManagers[] = trustManagerFactory.getTrustManagers();
 
             /*
@@ -267,7 +267,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         @Override
         public String[] getClientAliases(String keyType, Principal[] issuers) {
             return x509KeyManager.getClientAliases(keyType, issuers);
-
         }
 
         /**
