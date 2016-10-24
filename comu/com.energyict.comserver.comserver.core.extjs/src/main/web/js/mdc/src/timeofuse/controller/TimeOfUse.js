@@ -177,7 +177,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                             view = Ext.widget('tou-available-cal-setup', {
                                 deviceTypeId: deviceTypeId
                             });
-                            store.getProxy().setUrl(me.deviceTypeId);
+                            store.getProxy().setUrl(deviceTypeId);
                             store.load({
                                 callback: function (records, operation, success) {
                                     if (records === null || records.length === 0) {
