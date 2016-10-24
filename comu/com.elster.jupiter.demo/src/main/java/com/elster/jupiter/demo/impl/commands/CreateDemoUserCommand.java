@@ -19,7 +19,7 @@ import java.util.List;
  * Date: 17/09/2015
  * Time: 9:46
  */
-public class CreateDemoUserCommand {
+public class CreateDemoUserCommand extends CommandWithTransaction {
 
     private final static String APPLICATION = "MDC";
     private final static String DEMO_USER_ROLE = "Demo Users";

@@ -86,18 +86,19 @@ public class CreateDemoDataCommand {
         createNtaConfigCommand();
         createDeliverDataSetupCommand();
         createDataLoggerSetupCommand();
+        System.out.println("Command completed successfully");
     }
 
     private void createUserManagementCommand() {
         CreateUserManagementCommand command = this.createUserManagementCommandProvider.get();
-        command.run();
+        command.runInTransaction();
     }
 
     private void createDemoUserCommand(String... usernames) {
         CreateDemoUserCommand command = this.createDemoUserCommandProvider.get();
         for (String name : usernames) {
             command.setUserName(name);
-            command.run();
+            command.runInTransaction();
         }
     }
 
@@ -111,41 +112,41 @@ public class CreateDemoDataCommand {
 
     private void createValidationSetupCommand() {
         CreateValidationSetupCommand command = this.createValidationSetupCommandProvider.get();
-        command.run();
+        command.runInTransaction();
     }
 
     private void createEstimationSetupCommand() {
         CreateEstimationSetupCommand command = this.createEstimationSetupCommandProvider.get();
-        command.run();
+        command.runInTransaction();
     }
 
     private void createApplicationServerCommand() {
         CreateApplicationServerCommand command = this.createApplicationServerCommandProvider.get();
         command.setName(this.comServerName);
-        command.run();
+        command.runInTransaction();
     }
 
     private void createNtaConfigCommand() {
         CreateNtaConfigCommand command = this.createNtaConfigCommandProvider.get();
-        command.run();
+        command.runInTransaction();
     }
 
     private void createDeliverDataSetupCommand() {
         CreateDeliverDataSetupCommand createDeliverDataSetupCommand = this.createDeliverDataSetupCommandProvider.get();
-        createDeliverDataSetupCommand.run();
+        createDeliverDataSetupCommand.runInTransaction();
     }
 
     private void setupFirmwareManagementCommand() {
         if (!skipFirmwareManagementData) {
             SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
-            setupFirmwareManagementCommand.run();
+            setupFirmwareManagementCommand.runInTransaction();
         }
     }
 
     private void createImportersCommand() {
         CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
         importersCommand.setAppServerName(this.comServerName);
-        importersCommand.run();
+        importersCommand.runInTransaction();
     }
 
     private void createDataLoggerSetupCommand() {
@@ -153,6 +154,6 @@ public class CreateDemoDataCommand {
         createDataLoggerSetupCommand.setDataLoggerMrid("DL099000000000");
         createDataLoggerSetupCommand.setDataLoggerSerial("099000000000");
         createDataLoggerSetupCommand.setNumberOfSlaves(1);
-        createDataLoggerSetupCommand.run();
+        createDataLoggerSetupCommand.runInTransaction();
     }
 }

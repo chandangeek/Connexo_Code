@@ -24,7 +24,7 @@ import java.util.Set;
  * Date: 10/09/2015
  * Time: 14:28
  */
-public class SetupFirmwareManagementCommand {
+public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
     private final static String FIRMWARE_VERSION_V1 = "NTA-Sim_V_1.0.0";
     private final static String FIRMWARE_VERSION_V2 = "NTA-Sim_V_2.0.0";

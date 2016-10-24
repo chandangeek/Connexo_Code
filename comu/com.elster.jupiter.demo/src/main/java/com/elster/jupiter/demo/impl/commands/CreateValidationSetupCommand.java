@@ -24,7 +24,7 @@ import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class CreateValidationSetupCommand {
+public class CreateValidationSetupCommand extends CommandWithTransaction {
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
