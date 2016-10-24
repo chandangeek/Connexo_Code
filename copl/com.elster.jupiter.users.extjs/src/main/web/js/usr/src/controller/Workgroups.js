@@ -32,15 +32,7 @@ Ext.define('Usr.controller.Workgroups', {
         {
             ref: 'workgroupPreviewContainerPanel',
             selector: '#pnl-workgroup-preview-form'
-        }/*,
-         {
-         ref: 'userDirectoriyUsersGrid',
-         selector: '#grd-user-directory-users'
-         },
-         {
-         ref: 'addExtUsersGrid',
-         selector: '#pnl-select-users #grd-add-ext-users'
-         }*/
+        }
     ],
 
     workgroupRecord: null,
@@ -66,22 +58,7 @@ Ext.define('Usr.controller.Workgroups', {
             },
             'usr-add-users-to-workgroup': {
                 selecteditemsadd: this.onSelectedItemsAdd
-            }/*,
-             '#frm-user-directory-users #btn-save-user': {
-             click: this.saveUsers
-             },
-             'usr-add-users-grid #btn-add-ext-user': {
-             click: this.addExtUsers
-             },
-             'usr-add-user-directory': {
-             displayinfo: this.displayInfo
-             },
-             '#btn-user-directory-synchronize-users': {
-             click: this.synchronizeUsers
-             },
-             '#btn-user-directory-add-users': {
-             click: this.selectUsers
-             }*/
+            }
         });
     },
 
@@ -187,11 +164,6 @@ Ext.define('Usr.controller.Workgroups', {
             }
 
             addWorkgroupForm.updateRecord(workgroupRecord);
-            //   workgroupRecord.beginEdit();
-            //workgroupRecord.set('securityProtocolInfo', {
-            //     name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
-            // });
-            // workgroupRecord.endEdit();
 
             workgroupRecord.save({
                 success: function () {
@@ -252,10 +224,28 @@ Ext.define('Usr.controller.Workgroups', {
     },
 
     showEditWorkgroup: function (workgroupId) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            addWorkgroupView, addWorkgroupForm;
+        var me = this;
 
+        //addWorkgroupView.setLoading();
+        if (me.workgroupRecord == null) {
+            var workgroup = me.getModel('Usr.model.Workgroup');
+            workgroup.load(workgroupId, {
+                success: function (workgroupRecord) {
+                    me.fillControls(workgroupRecord);
+                },
+                failure: function (record, operation) {
+                }
+            });
+        }
+        else {
+            me.fillControls(me.workgroupRecord);
+            me.workgroupRecord = null;
+        }
+    },
+
+    fillControls: function (workgroupRecord) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router')
         addWorkgroupView = Ext.create('Usr.view.workgroup.AddWorkgroup', {
             edit: true,
             returnLink: router.getRoute('administration/workgroups').buildUrl()
@@ -266,27 +256,8 @@ Ext.define('Usr.controller.Workgroups', {
             nameField.setDisabled(true);
         }
 
-        addWorkgroupView.setLoading();
-        if (me.workgroupRecord == null) {
-            var workgroup = me.getModel('Usr.model.Workgroup');
-            workgroup.load(workgroupId, {
-                success: function (workgroupRecord) {
-                    me.fillControls(addWorkgroupView, workgroupRecord);
-                },
-                failure: function (record, operation) {
-                }
-            });
-        }
-        else {
-            me.fillControls(addWorkgroupView, me.workgroupRecord);
-        }
-    },
-
-    fillControls: function (addWorkgroupView, workgroupRecord) {
-        var me = this;
-
         addWorkgroupView.workgroupRecord = workgroupRecord;
-        me.workgroupRecord = workgroupRecord;
+        //me.workgroupRecord = workgroupRecord;
 
         me.getApplication().fireEvent('editWorkgroup', workgroupRecord);
         var addWorkgroupForm = addWorkgroupView.down('#frm-add-workgroup');
@@ -306,6 +277,7 @@ Ext.define('Usr.controller.Workgroups', {
             addPage = me.getAddPage(),
             addWorkgroupForm = addPage.down('#frm-add-workgroup');
 
+        me.workgroupRecord = addPage.workgroupRecord;
         addWorkgroupForm.updateRecord(me.workgroupRecord);
         router.getRoute(router.currentRoute + '/users').forward();
     },

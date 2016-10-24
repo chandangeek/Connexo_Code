@@ -109,9 +109,10 @@ Ext.define('Usr.view.workgroup.AddWorkgroup', {
                                         }
                                     }
                                 ],
-                                height: 200,
-                                maxHeight: 290,
-                                width: 520
+                                maxHeight: 292,
+                                width: 520,
+                                autoHeight: true
+
                             },
                             {
                                 xtype: 'button',
