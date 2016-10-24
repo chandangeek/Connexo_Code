@@ -104,7 +104,9 @@ Ext.define('Usr.controller.Workgroups', {
         preview.setTitle(Ext.htmlEncode(record.get('name')));
         previewForm = page.down('usr-workgroup-preview-form');
         previewForm.loadRecord(record);
-        preview.down('usr-workgroup-action-menu').record = record;
+        if (preview.down('usr-workgroup-action-menu')) {
+            preview.down('usr-workgroup-action-menu').record = record;
+        }
         Ext.resumeLayouts();
     },
 

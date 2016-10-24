@@ -24,6 +24,7 @@ Ext.define('Usr.view.workgroup.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                privileges: Usr.privileges.Users.admin,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     return !Usr.privileges.Users.canAdministrate();
                 },

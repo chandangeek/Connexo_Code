@@ -8,6 +8,7 @@ Ext.define('Usr.view.workgroup.Preview', {
     tools: [
         {
             xtype: 'uni-button-action',
+            privileges: Usr.privileges.Users.admin,
             itemId: 'btn-workgroup-preview-action-menu',
             menu: {
                 xtype: 'usr-workgroup-action-menu'
