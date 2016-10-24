@@ -228,7 +228,8 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
 
         if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
             builder.useDefaultConnectionTask(true);
-        } else {connectionTask.ifPresent(builder::connectionTask);
+        } else {
+            connectionTask.ifPresent(builder::connectionTask);
         }
 
         if (connectionTask.isPresent()) {
