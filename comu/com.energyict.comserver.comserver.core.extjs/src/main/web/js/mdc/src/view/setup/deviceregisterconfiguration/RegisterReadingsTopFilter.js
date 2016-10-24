@@ -1,14 +1,15 @@
-Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
+Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
-    xtype: 'mdc-registers-overview-topfilter',
+    xtype: 'mdc-registerReadings-overview-topfilter',
 
     requires: [
         'Mdc.store.filter.RegisterGroups',
         'Mdc.store.filter.RegistersOfDeviceForRegisterGroups'
     ],
 
-    store: 'Mdc.store.RegisterConfigsOfDevice',
+    store: 'Mdc.store.RegisterReadings',
     deviceMRID: null,
+    containsBillingRegisters: false,
 
     initComponent: function () {
         var me = this,
@@ -17,6 +18,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
 
         registerGroupsStore.getProxy().setUrl(me.deviceMRID);
         registerStore.getProxy().setUrl(me.deviceMRID);
+        registerStore.on('load', function(store, records) {
+            Ext.Array.forEach(records, function(record) {
+                me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
+            });
+            me.showOrHideToTimeFilter(me.containsBillingRegisters);
+        }, me, {single:true});
 
         me.filters = [
             {
@@ -48,6 +55,23 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
                 valueField: 'id',
                 store: registerStore,
                 itemId: 'mdc-register-filter'
+            },
+            {
+                type: 'interval',
+                text: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
+                dataIndex: 'measurementTime',
+                dataIndexFrom: 'measurementTimeStart',
+                dataIndexTo: 'measurementTimeEnd',
+                itemId: 'mdc-measurement-time-filter'
+            },
+            {
+                type: 'interval',
+                text: Uni.I18n.translate('general.toTime', 'MDC', 'To time'),
+                dataIndex: 'toTime',
+                dataIndexFrom: 'toTimeStart',
+                dataIndexTo: 'toTimeEnd',
+                itemId: 'mdc-to-time-filter',
+                hidden: !me.containsBillingRegisters
             }
         ];
 
@@ -67,6 +91,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
         registerStore.load(function () {
             registerStore.sort('name', 'ASC');
             registerCombo.select(registerCombo.getValue()); // restore previous selection(s)
+            me.containsBillingRegisters = false;
+            registerStore.each(function(record) {
+                me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
+            });
+            me.showOrHideToTimeFilter(me.containsBillingRegisters);
         });
     },
 
@@ -89,6 +118,23 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
         } else {
             me.callParent(arguments);
         }
-    }
+    },
 
+    showOrHideToTimeFilter: function(showIt) {
+        var toTimeFilter = this.down('#mdc-to-time-filter');
+        if (!toTimeFilter) {
+            return;
+        }
+        if (showIt) {
+            toTimeFilter.show();
+        } else {
+            toTimeFilter.hide();
+        }
+
+        // Also show/hide the corresponding columns in the grid
+        var correspondinGrid = this.up('deviceRegisterReadingsView').down('deviceRegisterReadingsGrid');
+        if (correspondinGrid) {
+            correspondinGrid.showOrHideBillingColumns(showIt);
+        }
+    }
 });

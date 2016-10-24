@@ -1,6 +1,10 @@
 Ext.define('Mdc.store.filter.RegistersOfDeviceForRegisterGroups', {
     extend: 'Ext.data.Store',
-    fields: ['id', 'name'],
+    fields: [
+        {name: 'id', type: 'int'},
+        {name: 'name', type: 'string'},
+        {name: 'isBilling', type: 'boolean'}
+    ],
     sorters: {
         property: 'name',
         direction: 'ASC'

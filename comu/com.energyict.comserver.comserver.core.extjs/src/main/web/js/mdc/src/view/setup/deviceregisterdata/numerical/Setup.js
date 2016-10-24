@@ -49,8 +49,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
                                     unitOfMeasureCollected: me.unitOfMeasureCollected,
                                     unitOfMeasureCalculated: me.unitOfMeasureCalculated,
                                     multiplier: me.multiplier,
-                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave,
-                                    router: me.router
+                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave
                                 }
                             }
                         ]

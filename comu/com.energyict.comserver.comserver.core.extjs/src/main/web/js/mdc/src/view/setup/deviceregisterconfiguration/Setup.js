@@ -4,14 +4,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
     itemId: 'deviceRegisterConfigurationSetup',
     device: null,
     router: null,
+    controller: undefined,
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.deviceregisterconfiguration.Grid',
-        'Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter',
-        'Uni.view.container.PreviewContainer',
-        'Uni.view.container.PreviewContainer',
-        'Uni.util.FormEmptyMessage'
+        'Mdc.view.setup.deviceregisterconfiguration.RegistersView',
+        'Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView'
     ],
 
     initComponent: function () {
@@ -34,36 +32,26 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
 
         me.content = [
             {
-                xtype: 'panel',
+                xtype: 'tabpanel',
+                itemId: 'mdc-registers-tabPanel',
                 ui: 'large',
                 title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
-                dockedItems: [
-                    {
-                        dock: 'top',
-                        xtype: 'mdc-registers-overview-topfilter',
-                        deviceMRID: me.device.get('mRID')
-                    }
-                ]
-            },
-            {
-                xtype: 'panel',
+                activeTab: 'mdc-registers-' + me.activeTab,
                 items: [
                     {
-                        xtype: 'preview-container',
-                        grid: {
-                            xtype: 'deviceRegisterConfigurationGrid',
-                            mRID: encodeURIComponent(me.device.get('mRID')),
-                            showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
-                            router: me.router
-                        },
-                        emptyComponent: {
-                            xtype: 'uni-form-empty-message',
-                            itemId: 'ctr-no-device-register-config',
-                            text: Uni.I18n.translate('deviceregisterconfiguration.empty', 'MDC', 'No registers have been defined yet.')
-                        },
-                        previewComponent: {
-                            xtype: 'container',
-                            itemId: 'previewComponentContainer'
+                        title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
+                        itemId: 'mdc-registers-registers',
+                        listeners: {
+                            activate: me.controller.showRegistersTab,
+                            scope: me.controller
+                        }
+                    },
+                    {
+                        title: Uni.I18n.translate('general.registerReadings', 'MDC', 'Register readings'),
+                        itemId: 'mdc-registers-readings',
+                        listeners: {
+                            activate: me.controller.showReadingsTab,
+                            scope: me.controller
                         }
                     }
                 ]
