@@ -97,7 +97,7 @@ public class WorkGroupImpl implements WorkGroup {
 
     @Override
     public List<User> getUsersInWorkGroup(){
-        return usersInWorkGroups.stream().map(UsersInWorkGroup::getUser).collect(Collectors.toList());
+        return usersInWorkGroups.stream().map(UsersInWorkGroup::getUser).sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase())).collect(Collectors.toList());
     }
 
     @Override
