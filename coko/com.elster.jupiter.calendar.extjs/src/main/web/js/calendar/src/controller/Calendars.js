@@ -147,13 +147,10 @@ Ext.define('Cal.controller.Calendars', {
         calendar.save({
             success: function(){
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('calendar.save.success.msg', 'CAL', 'Calendar saved'));
-                store.load( {
-                    callback: function (records, operation, success) {
-                        if(success === true) {
-                            //me.updateCalendarsCounter();
-                        }
-                    }
-                });
+                store.load();
+            },
+            failure: function(){
+                store.load();
             }
         });
     }

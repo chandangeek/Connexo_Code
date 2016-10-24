@@ -7,7 +7,8 @@ Ext.define('Cal.store.TimeOfUseCalendars', {
         url: '/api/cal/calendars',
         timeout: 120000,
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'calendars'
         }
     }
 });

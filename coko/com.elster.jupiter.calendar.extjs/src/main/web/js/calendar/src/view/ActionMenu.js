@@ -31,7 +31,7 @@ Ext.define('Cal.view.ActionMenu', {
             var me = this;
             me.items.each(function (item) {
                 if(item.activateDeactivate !== undefined){
-                    item.text = item.activateDeactivate.call(me)==='ACTIVE'?Uni.I18n.translate('general.deActivate', 'CAL', 'Deactivate'):Uni.I18n.translate('general.activate', 'CAL', 'Activate');
+                    item.setText(item.activateDeactivate.call(me)==='ACTIVE'?Uni.I18n.translate('general.deActivate', 'CAL', 'Deactivate'):Uni.I18n.translate('general.activate', 'CAL', 'Activate'));
                 }
             })
         }
