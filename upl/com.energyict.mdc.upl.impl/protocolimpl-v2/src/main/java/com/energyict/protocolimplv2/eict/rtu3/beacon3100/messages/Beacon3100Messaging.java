@@ -830,8 +830,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString() :
                     SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
 
-            //Note that updating the alias security property will also add the given certificate under that alias, to the DLMS key store.
-            //If the key store already contains a certificate for that alias, an error is thrown, and the security property will not be updated either.
+            //Note that updating the CertificateWrapperID security property will also add the given certificate to the CertificateWrapperID table.
+            //If the table already contains a certificate with the same issuerDN and serial number, an error is thrown, and the security property will not be updated either.
             collectedMessage = MdcManager.getCollectedDataFactory().createCollectedMessageWithUpdateSecurityProperty(
                     new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
                     collectedMessage.getMessageIdentifier(),
@@ -842,8 +842,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } else if (SecurityMessage.CertificateType.TLS.equals(certificateType)) {
             propertyName = DlmsSessionProperties.SERVER_TLS_CERTIFICATE;
 
-            //Note that updating the alias general property will also add the given certificate under that alias, to the DLMS key store.
-            //If the key store already contains a certificate for that alias, an error is thrown, and the general property will not be updated either.
+            //Note that updating the CertificateWrapperID general property will also add the given certificate to the CertificateWrapperID table.
+            //If the table already contains a certificate with the same issuerDN and serial number, an error is thrown, and the general property will not be updated either.
             collectedMessage = MdcManager.getCollectedDataFactory().createCollectedMessageWithUpdateGeneralProperty(
                     new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
                     collectedMessage.getMessageIdentifier(),
@@ -851,7 +851,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     propertyValue);
         }
 
-        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number'" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
+        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number '" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
         getLogger().info(msg);
         collectedMessage.setDeviceProtocolInformation(msg);
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
