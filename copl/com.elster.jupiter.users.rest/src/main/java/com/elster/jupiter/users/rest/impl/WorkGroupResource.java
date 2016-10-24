@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -64,7 +65,7 @@ public class WorkGroupResource {
                 .map(WorkGroupInfo::new)
                 .sorted((first,second) -> first.name.toLowerCase().compareTo(second.name.toLowerCase()))
                 .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("workGroups", infos, queryParameters);
+        return PagedInfoList.fromPagedList("workGroups", ListPager.of(infos).from(queryParameters).find(), queryParameters);
     }
 
     @GET
