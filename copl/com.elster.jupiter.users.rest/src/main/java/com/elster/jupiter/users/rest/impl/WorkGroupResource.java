@@ -62,7 +62,7 @@ public class WorkGroupResource {
         List<WorkGroupInfo> infos = userService.getWorkGroups()
                 .stream()
                 .map(WorkGroupInfo::new)
-                .sorted((first,second) -> first.name.compareTo(second.name))
+                .sorted((first,second) -> first.name.toLowerCase().compareTo(second.name.toLowerCase()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("workGroups", infos, queryParameters);
     }
