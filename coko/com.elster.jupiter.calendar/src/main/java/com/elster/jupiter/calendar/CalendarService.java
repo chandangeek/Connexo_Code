@@ -48,6 +48,8 @@ public interface CalendarService {
 
     boolean isCalendarInUse(Calendar calendar);
 
+    Optional<Calendar> lockCalendar(long id, long version);
+
     @ProviderType
     interface CalendarBuilder {
         CalendarBuilder category(Category category);

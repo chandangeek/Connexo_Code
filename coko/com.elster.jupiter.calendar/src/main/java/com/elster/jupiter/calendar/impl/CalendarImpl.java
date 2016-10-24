@@ -242,6 +242,11 @@ class CalendarImpl implements Calendar {
         eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
     }
 
+    private void saveActivation() {
+        Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
+        eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
+    }
+
     @Override
     public CalendarService.CalendarBuilder redefine(){
         exceptionalOccurrences.clear();
@@ -280,6 +285,11 @@ class CalendarImpl implements Calendar {
         for (ExceptionalOccurrence occurrence : exceptionalOccurrences) {
             ((ExceptionalOccurrenceImpl) occurrence).save();
         }
+    }
+
+    @Override
+    public boolean mayBeDeleted() {
+        return Status.INACTIVE.equals(this.status);
     }
 
     @Override
@@ -340,6 +350,18 @@ class CalendarImpl implements Calendar {
     @Override
     public List<PeriodTransition> getTransitions() {
         return (containsFixedTransitions()) ? getFixedPeriodTransitions() : getRecurrentPeriodTransitions();
+    }
+
+    @Override
+    public void deactivate() {
+        this.status = Status.INACTIVE;
+        saveActivation();
+    }
+
+    @Override
+    public void activate() {
+        this.status = Status.ACTIVE;
+        saveActivation();
     }
 
     private boolean containsFixedTransitions() {

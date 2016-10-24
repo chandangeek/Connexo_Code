@@ -224,6 +224,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public Optional<Calendar> lockCalendar(long id, long version) {
+        return this.getDataModel().mapper(Calendar.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public DataModel getDataModel() {
         return dataModel;
     }

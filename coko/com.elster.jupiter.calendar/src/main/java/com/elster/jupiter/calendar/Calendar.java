@@ -121,9 +121,15 @@ public interface Calendar extends HasId, HasName {
 
     CalendarService.CalendarBuilder redefine();
 
+    boolean mayBeDeleted();
+
     void delete();
 
     boolean isAbstract();
 
     Status getStatus();
+
+    void deactivate();
+
+    void activate();
 }
