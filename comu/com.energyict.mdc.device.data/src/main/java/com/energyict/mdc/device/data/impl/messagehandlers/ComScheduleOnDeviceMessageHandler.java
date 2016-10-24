@@ -74,17 +74,13 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
 
     private void addSchedule(ComSchedule comSchedule, Device device, ComScheduleOnDeviceQueueMessage queueMessage) {
         try {
-            List<ComTask> comtasksAlreadyHavingAnExecutionWithThisSchedule = device.getComTaskExecutions().stream()
-                    .filter(comTaskExecution -> comTaskExecution instanceof ScheduledComTaskExecution)
-                    .map(comTaskExecution -> (ScheduledComTaskExecution) comTaskExecution)
-                    .filter(scheduledComTaskExecution -> scheduledComTaskExecution.getComSchedule().equals(comSchedule))
-                    .map(ComTaskExecution::getComTask)
-                    .collect(Collectors.toList());
+            device.getComTaskExecutions().stream()
+                    .filter(comTaskExecution -> comSchedule.getComTasks().contains(comTaskExecution.getComTask()))
+                    .forEach(device::removeComTaskExecution);
 
             device.getDeviceConfiguration().getComTaskEnablements()
                     .stream()
                     .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
-                    .filter(comTaskEnablement -> !comtasksAlreadyHavingAnExecutionWithThisSchedule.contains(comTaskEnablement.getComTask()))
                     .forEach(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule).add());
 
             LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
