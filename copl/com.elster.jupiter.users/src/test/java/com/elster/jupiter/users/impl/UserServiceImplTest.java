@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -35,6 +38,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.UtilModule;
 
 import com.google.inject.AbstractModule;
@@ -167,6 +171,18 @@ public class UserServiceImplTest {
     }
 
     @Test
+    public void testLockWorkGroupOkCase() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            WorkGroup workGroup = userService.createWorkGroup("name", "description");
+            workGroup.update();
+
+            Optional<WorkGroup> lockedWorkGroup = userService.findAndLockWorkGroupByIdAndVersion(workGroup.getId(), workGroup.getVersion());
+            assertThat(lockedWorkGroup.isPresent()).isTrue();
+        }
+    }
+
+    @Test
     public void testLockGroupAlreadyModified() {
         UserService userService = injector.getInstance(UserService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -178,4 +194,67 @@ public class UserServiceImplTest {
         }
     }
 
+    @Test
+    public void testLockWorkGroupAlreadyModified() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            WorkGroup workGroup = userService.createWorkGroup("name", "description");
+            workGroup.update();
+            Optional<WorkGroup> lockedWorkGroup = userService.findAndLockWorkGroupByIdAndVersion(workGroup.getId(), workGroup.getVersion() + 1);
+            assertThat(lockedWorkGroup.isPresent()).isFalse();
+        }
+    }
+
+    @Test
+    public void testAddUsersToWorkGroup() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            WorkGroup workGroup = userService.createWorkGroup("name", "description");
+            workGroup.update();
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
+            user.update();
+            workGroup.grant(user);
+            Optional<WorkGroup> lockedWorkGroup = userService.findAndLockWorkGroupByIdAndVersion(workGroup.getId(), workGroup.getVersion());
+            assertThat(lockedWorkGroup.isPresent()).isTrue();
+            assertThat(lockedWorkGroup.get().getUsersInWorkGroup()).isEqualTo(Collections.singletonList(user));
+        }
+    }
+
+    @Test
+    public void testRemoveUsersFromWorkGroup() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            WorkGroup workGroup = userService.createWorkGroup("name", "description");
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
+            user.update();
+            workGroup.grant(user);
+            workGroup.update();
+            Optional<WorkGroup> lockedWorkGroup = userService.findAndLockWorkGroupByIdAndVersion(workGroup.getId(), workGroup.getVersion());
+            assertThat(lockedWorkGroup.isPresent()).isTrue();
+            assertThat(lockedWorkGroup.get().getUsersInWorkGroup()).isEqualTo(Collections.singletonList(user));
+            assertThat(lockedWorkGroup.get().getUsersInWorkGroup().get(0).getName()).isEqualTo(AUTH_NAME);
+            workGroup.revoke(user);
+            workGroup.update();
+            lockedWorkGroup = userService.findAndLockWorkGroupByIdAndVersion(workGroup.getId(), workGroup.getVersion());
+            assertThat(lockedWorkGroup.isPresent()).isTrue();
+            assertThat(lockedWorkGroup.get().getUsersInWorkGroup()).isEqualTo(Collections.emptyList());
+        }
+    }
+
+    @Test
+    public void testDeleteWorkGroup() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            WorkGroup workGroup = userService.createWorkGroup("name", "description");
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
+            user.update();
+            workGroup.grant(user);
+            workGroup.update();
+            workGroup.delete();
+            assertThat(userService.getWorkGroups()).isEqualTo(Collections.emptyList());
+        }
+    }
 }
