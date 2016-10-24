@@ -21,6 +21,7 @@ public class ColumnInConstraintImpl {
 	ColumnInConstraintImpl init(TableConstraintImpl constraint, ColumnImpl column) {
 		this.constraint.set(constraint);
 		this.columnName = column.getName();
+		this.column = column;
 		return this;
 	}		
 	
