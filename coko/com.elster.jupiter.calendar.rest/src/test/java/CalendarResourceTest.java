@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
+import com.elster.jupiter.calendar.Status;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONArray;
@@ -39,7 +40,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
     @Test
     public void testGetCalendar() throws Exception {
         mockCalendar();
-        Response response = target("/calendars/timeofusecalendars/1").request().get();
+        Response response = target("/calendars/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
@@ -68,6 +69,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         when(calendar.getDescription()).thenReturn(CALENDAR_DESCRIPTION);
         when(calendar.getStartYear()).thenReturn(Year.of(2010));
         when(calendar.getEndYear()).thenReturn(Year.of(2020));
+        when(calendar.getStatus()).thenReturn(Status.ACTIVE);
 
         Category category = mock(Category.class);
         when(category.getName()).thenReturn("ToU");
@@ -145,7 +147,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
     public void testGetCalendarForWeek () throws Exception {
         mockCalendar();
         //DAY IS TUESDAY 05/04/2016
-        Response response = target("/calendars/timeofusecalendars/1").queryParam("weekOf",1459814400000L).request().get();
+        Response response = target("/calendars/1").queryParam("weekOf",1459814400000L).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
