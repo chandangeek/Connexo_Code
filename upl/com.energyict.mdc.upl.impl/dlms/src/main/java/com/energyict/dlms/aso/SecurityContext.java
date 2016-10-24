@@ -633,7 +633,7 @@ public class SecurityContext {
                     }
 
                     if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
-                        /*throw ConnectionCommunicationException.signatureVerificationError();*/
+                        throw ConnectionCommunicationException.signatureVerificationError();
                     }
 
                     PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
