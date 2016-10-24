@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
                         grid: {
                             xtype: 'deviceRegisterReadingsGrid',
                             itemId: 'mdc-register-readings-grid',
+                            router: me.router,
                             store: registerReadingsStore,
                             mRID: me.device.get('mRID'),
                             showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')

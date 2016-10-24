@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceRegisterReadingsGrid',
     store: undefined,
+    router: undefined,
     mRID: undefined,
     showDataLoggerSlaveColumn: false,
     requires: [
@@ -63,7 +64,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
             me.columns.push(
                 {
                     dataIndex: 'dataloggerSlavemRID',
-                    flex: 1,
+                    flex: 10,
                     header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
                     renderer: function(value) {
                         if (Ext.isEmpty(value)) {

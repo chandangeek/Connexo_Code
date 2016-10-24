@@ -44,6 +44,12 @@ Ext.define('Mdc.model.RegisterReading', {
             persist: false,
             mapping: 'interval.end',
             type: 'number'
+        },
+        {
+            name: 'dataloggerSlavemRID',
+            persist: false,
+            mapping: 'slaveRegister.mrid',
+            type: 'string'
         }
     ]
 });
