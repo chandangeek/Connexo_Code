@@ -76,7 +76,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The TLS certificate of the server. Not actively used in the protocols.
      */
     private PropertySpec serverTLSCertificate() {
-        return PropertySpecFactory.certificateAliasPropertySpec(DlmsSessionProperties.SERVER_TLS_CERTIFICATE);
+        return PropertySpecFactory.certificateWrapperIdPropertySpec(DlmsSessionProperties.SERVER_TLS_CERTIFICATE);
     }
 
     /**
