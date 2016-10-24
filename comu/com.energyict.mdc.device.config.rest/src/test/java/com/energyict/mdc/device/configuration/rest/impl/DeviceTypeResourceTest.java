@@ -7,6 +7,7 @@ import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
+import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
@@ -1663,8 +1664,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Category category = mock(Category.class);
         when(category.getName()).thenReturn("ToU");
         when(calendar.getCategory()).thenReturn(category);
-
-        when(calendar.getTimeZone()).thenReturn(TimeZone.getDefault());
+        when(calendar.getStatus()).thenReturn(Status.ACTIVE);
 
         Event event = mock(Event.class);
         when(event.getId()).thenReturn(2L);
