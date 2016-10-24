@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl.gogo;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -93,6 +94,7 @@ public class CalendarCommands {
             calendarService.newCalendar(name, Year.of(2010))
                     .endYear(Year.of(2020))
                     .description("Description remains to be completed :-)")
+                    .category(calendarService.findCategoryByName("TOU").get())
                     .mRID(name)
                     .addEvent("On peak", 3)
                     .addEvent("Off peak", 5)
