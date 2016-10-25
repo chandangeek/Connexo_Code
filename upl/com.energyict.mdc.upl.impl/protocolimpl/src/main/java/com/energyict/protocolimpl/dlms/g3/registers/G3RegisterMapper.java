@@ -270,6 +270,7 @@ public class G3RegisterMapper {
         this.mappings.addAll(getGprsModemSetupRegistering());
         this.mappings.addAll(getPPPSetupRegistering());
         this.mappings.addAll(getMetrologyRegistering());
+        this.mappings.addAll(getModemWatchdogRegistering());
     }
 
     /**
