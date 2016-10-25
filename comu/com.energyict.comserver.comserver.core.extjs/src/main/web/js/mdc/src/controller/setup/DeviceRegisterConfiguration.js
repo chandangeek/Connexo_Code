@@ -67,6 +67,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     originalOverflowOfConfig: null, // The overflow value of the configuration
     originalNumberOfFractionDigitsOfConfig: null, // The NumberOfFractionDigits value of the configuration
     previousMeasurementTime: undefined,
+    previoustOTime: undefined,
     registersFromQueryParam: undefined,
     groupsFromQueryParam: undefined,
     device: undefined,
@@ -156,6 +157,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         if (!Ext.isEmpty(router.queryParams)) {
             if (!Ext.isEmpty(router.queryParams.measurementTime)) {
                 me.previousMeasurementTime = router.queryParams.measurementTime;
+            }
+            if (!Ext.isEmpty(router.queryParams.toTime)) {
+                me.previousToTime = router.queryParams.toTime;
             }
             if (!Ext.isEmpty(router.queryParams.groups)) {
                 me.groupsFromQueryParam = router.queryParams.groups;
@@ -779,12 +783,17 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             otherTabsGroupCombo = otherTabsTopFilter ? otherTabsTopFilter.down('#mdc-register-group-filter') : undefined,
             otherTabsRegisterCombo = otherTabsTopFilter ? otherTabsTopFilter.down('#mdc-register-filter') : undefined,
             otherMeasurementFilter = otherTabsTopFilter ? otherTabsTopFilter.down('#mdc-measurement-time-filter') : undefined,
-            currentMeasurementTimeParam = otherMeasurementFilter ? otherMeasurementFilter.getParamValue() : undefined;
+            toTimeFilter = otherTabsTopFilter ? otherTabsTopFilter.down('#mdc-to-time-filter') : undefined,
+            currentMeasurementTimeParam = otherMeasurementFilter ? otherMeasurementFilter.getParamValue() : undefined,
+            currentToTimeParam = toTimeFilter ? toTimeFilter.getParamValue() : undefined;
 
         Uni.util.History.suspendEventsForNextCall();
         Uni.util.History.setParsePath(false);
         if (!Ext.isEmpty(currentMeasurementTimeParam)) {
             me.previousMeasurementTime = currentMeasurementTimeParam;
+        }
+        if (!Ext.isEmpty(currentToTimeParam)) {
+            me.previousToTime = currentToTimeParam;
         }
 
         var params = undefined;
@@ -835,9 +844,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var params = undefined;
         if (!Ext.isEmpty(otherTabsGroupCombo) && !Ext.isEmpty(otherTabsGroupCombo.getValue())) {
             if (Ext.isEmpty(params)) { params = {}; }
-            if (!Ext.isEmpty(me.previousMeasurementTime)) {
-                params.measurementTime = me.previousMeasurementTime;
-            }
             params.groups = otherTabsGroupCombo.getValue();
         } else if (!Ext.isEmpty(me.groupsFromQueryParam)) {
             if (Ext.isEmpty(params)) { params = {}; }
@@ -855,6 +861,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         if (!Ext.isEmpty(me.previousMeasurementTime)) {
             if (Ext.isEmpty(params)) { params = {}; }
             params.measurementTime = me.previousMeasurementTime;
+        }
+        if (!Ext.isEmpty(me.previousToTime)) {
+            if (Ext.isEmpty(params)) { params = {}; }
+            params.toTime = me.previousToTime;
         }
 
         if (Ext.isEmpty(params) || Ext.isEmpty(params.measurementTime)) {
