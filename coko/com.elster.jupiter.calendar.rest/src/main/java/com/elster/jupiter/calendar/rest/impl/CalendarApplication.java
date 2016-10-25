@@ -40,7 +40,8 @@ public class CalendarApplication extends Application implements TranslationKeyPr
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                CalendarResource.class
+                CalendarResource.class,
+                CategoryResource.class
         );
     }
 

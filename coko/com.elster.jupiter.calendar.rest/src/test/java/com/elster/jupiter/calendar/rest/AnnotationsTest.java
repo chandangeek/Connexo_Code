@@ -1,3 +1,5 @@
+package com.elster.jupiter.calendar.rest;
+
 import com.elster.jupiter.rest.util.PROPFIND;
 
 import javax.annotation.security.RolesAllowed;
@@ -7,7 +9,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import java.util.stream.Stream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;

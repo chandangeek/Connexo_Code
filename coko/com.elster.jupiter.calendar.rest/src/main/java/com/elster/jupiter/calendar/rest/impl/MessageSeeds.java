@@ -8,7 +8,8 @@ public enum MessageSeeds implements MessageSeed {
 
     //MESSAGES HERE
     NO_SUCH_TIME_OF_USE_CALENDAR(1, "NoSuchTimeOfUseCalendar", "Time of use calendar does not exist"),
-    TIME_OF_USE_CALENDAR_IN_USE(2, "TOUCalendarInUse", "Time of use calendar is still in use by a device type");
+    TIME_OF_USE_CALENDAR_IN_USE(2, "TOUCalendarInUse", "Time of use calendar is still in use by a device type"),
+    NO_SUCH_CATEGORY(3, "NoSuchCategory", "Category does not exist");
 
     private final int number;
     private final String key;
