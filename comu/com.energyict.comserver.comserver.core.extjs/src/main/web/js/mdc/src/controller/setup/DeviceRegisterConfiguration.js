@@ -119,6 +119,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             },
             'deviceRegisterReadingsView #mdc-register-readings-grid': {
                 select: me.loadRegisterReadingDetails
+            },
+            'deviceRegisterReadingsView mdc-registerReadings-overview-topfilter #filter-clear-all': {
+                click: me.onRegisterReadingsTopFilterClearAll
+            },
+            'deviceRegisterReadingsView mdc-registerReadings-overview-topfilter #mdc-measurement-time-filter button[action=clear]': {
+                click: me.onRegisterReadingsTopFilterClearMeasurementTime
+            },
+            'deviceRegisterReadingsView mdc-registerReadings-overview-topfilter #mdc-to-time-filter button[action=clear]': {
+                click: me.onRegisterReadingsTopFilterClearToTime
             }
         });
     },
@@ -905,5 +914,18 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         } else { // required widget already available (from a previous selection/preview)
             previewWidget.updateContent(record);
         }
+    },
+
+    onRegisterReadingsTopFilterClearMeasurementTime: function() {
+        this.previousMeasurementTime = undefined;
+    },
+
+    onRegisterReadingsTopFilterClearToTime: function() {
+        this.previousToTime = undefined;
+    },
+
+    onRegisterReadingsTopFilterClearAll: function() {
+        this.onRegisterReadingsTopFilterClearMeasurementTime();
+        this.onRegisterReadingsTopFilterClearToTime();
     }
 });
