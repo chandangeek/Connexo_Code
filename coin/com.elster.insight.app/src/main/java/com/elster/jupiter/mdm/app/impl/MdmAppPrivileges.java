@@ -51,7 +51,16 @@ class MdmAppPrivileges {
                 com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION,
 
                 //Import services
-                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                //estimation
+                com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK
         );
     }
 }

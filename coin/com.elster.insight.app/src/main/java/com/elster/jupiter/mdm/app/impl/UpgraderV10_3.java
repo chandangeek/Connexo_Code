@@ -30,14 +30,28 @@ public class UpgraderV10_3 implements Upgrader {
     private String[] getNewDataExpertPrivileges() {
         return new String[]{
                 //Import services
-                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                //estimation
+                com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK
         };
     }
 
     private String[] getNewDataOperatorPrivileges() {
         return new String[]{
                 //Import services
-                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                //estimation
+                com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK
         };
     }
 }
