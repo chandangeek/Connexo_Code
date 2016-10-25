@@ -89,7 +89,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
             value: groupCombo.getValue()
         }]));
         registerStore.load(function () {
-            registerStore.sort('name', 'ASC');
             registerCombo.select(registerCombo.getValue()); // restore previous selection(s)
             me.containsBillingRegisters = false;
             registerStore.each(function(record) {

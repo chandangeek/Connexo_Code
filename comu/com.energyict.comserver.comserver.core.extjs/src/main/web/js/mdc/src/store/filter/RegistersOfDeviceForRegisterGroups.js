@@ -5,10 +5,6 @@ Ext.define('Mdc.store.filter.RegistersOfDeviceForRegisterGroups', {
         {name: 'name', type: 'string'},
         {name: 'isBilling', type: 'boolean'}
     ],
-    sorters: {
-        property: 'name',
-        direction: 'ASC'
-    },
     proxy: {
         type: 'rest',
         urlTpl: '/api/ddr/devices/{0}/registers/registersforgroups',

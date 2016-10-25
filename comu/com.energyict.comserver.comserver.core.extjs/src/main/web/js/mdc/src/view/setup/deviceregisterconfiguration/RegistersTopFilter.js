@@ -65,7 +65,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
             value: groupCombo.getValue()
         }]));
         registerStore.load(function () {
-            registerStore.sort('name', 'ASC');
             registerCombo.select(registerCombo.getValue()); // restore previous selection(s)
         });
     },
