@@ -412,6 +412,7 @@ public class DeviceDataInfoFactory {
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         billingRegisterInfo.useMultiplier = register.getRegisterSpec().isUseMultiplier();
+        billingRegisterInfo.overruledNumberOfFractionDigits = register.getRegisterSpec().getNumberOfFractionDigits();
         return billingRegisterInfo;
     }
 
