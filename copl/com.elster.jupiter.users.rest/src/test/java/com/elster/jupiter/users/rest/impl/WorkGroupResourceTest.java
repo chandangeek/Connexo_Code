@@ -30,7 +30,7 @@ public class WorkGroupResourceTest extends UsersRestApplicationJerseyTest {
         WorkGroup workGroup = mock(WorkGroup.class);
         when(workGroup.getId()).thenReturn(WORK_GROUP_ID);
         when(workGroup.getDescription()).thenReturn(WORK_GROUP_DESCRIPTION);
-        when(workGroup.getDescription()).thenReturn(WORK_GROUP_NAME);
+        when(workGroup.getName()).thenReturn(WORK_GROUP_NAME);
         when(workGroup.getVersion()).thenReturn(WORK_GROUP_VERSION);
         return workGroup;
     }
@@ -80,5 +80,19 @@ public class WorkGroupResourceTest extends UsersRestApplicationJerseyTest {
 
         Response response = target("/workgroups/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testGetWorkGroup() {
+        WorkGroup workGroup = mockWorkGroup();
+        User user = mock(User.class);
+        when(workGroup.getUsersInWorkGroup()).thenReturn(Collections.singletonList(user));
+        when(userService.findAndLockWorkGroupByIdAndVersion(1L, 1L)).thenReturn(Optional.of(workGroup));
+        when(userService.getWorkGroup(1L)).thenReturn(Optional.of(workGroup));
+        Response response = target("/workgroups/1").request().get();
+        WorkGroupInfo info = response.readEntity(WorkGroupInfo.class);
+        assertThat(info.name).isEqualTo(WORK_GROUP_NAME);
+        assertThat(info.description).isEqualTo(WORK_GROUP_DESCRIPTION);
+        assertThat(info.users.size()).isEqualTo(1);
     }
 }
