@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersView', {
-    extend: 'Uni.view.container.ContentContainer',
+    extend: 'Ext.container.Container',
     alias: 'widget.deviceRegistersView',
     device: null,
     router: null,
@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersView', {
     initComponent: function () {
         var me = this;
 
-        me.content = [
+        me.items = [
             {
                 xtype: 'panel',
                 ui: 'large',

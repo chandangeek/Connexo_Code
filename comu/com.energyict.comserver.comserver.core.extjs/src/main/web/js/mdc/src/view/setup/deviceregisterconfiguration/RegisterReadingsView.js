@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
-    extend: 'Uni.view.container.ContentContainer',
+    extend: 'Ext.container.Container',
     alias: 'widget.deviceRegisterReadingsView',
     device: null,
     router: null,
@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
 
         registerReadingsStore.getProxy().setUrl(me.device.get('mRID'));
 
-        me.content = [
+        me.items = [
             {
                 xtype: 'panel',
                 ui: 'large',
