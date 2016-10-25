@@ -47,8 +47,8 @@ import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  * Parser class for the IDIS DataPush<br/>
@@ -85,6 +85,17 @@ public class DataPushNotificationParser {
         this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
     }
 
+    protected InboundDiscoveryContext getContext(){
+        return context;
+    }
+
+    protected void log(String message){
+        log(message, Level.INFO);
+    }
+
+    protected void log(String message, Level level){
+        getContext().logOnAllLoggerHandlers(message, level);
+    }
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serverSystemTitle = ProtocolTools.getHexStringFromBytes(systemTitle, "");
         serverSystemTitle = serverSystemTitle.replace("454C53", "ELS-");      // Replace HEX 454C53 by its ASCII 'ELS'
@@ -218,19 +229,19 @@ public class DataPushNotificationParser {
                 this.securityPropertySet = new DeviceProtocolSecurityPropertySet() {
                     @Override
                     public int getAuthenticationDeviceAccessLevel() {
-                        return 0;
+                        return securityProperties.size()> 0?securityProperties.get(0).getAuthenticationDeviceAccessLevel().getId():0;
                     }
 
                     @Override
                     public int getEncryptionDeviceAccessLevel() {
-                        return 0;
+                        return securityProperties.size()> 0?securityProperties.get(0).getAuthenticationDeviceAccessLevel().getId():0;
                     }
 
                     @Override
                     public TypedProperties getSecurityProperties() {
-                        Properties properties = new Properties();
-                        securityProperties.stream().forEach(securityProperty -> properties.put(securityProperty.getName(), securityProperty.getValue()));
-                        return TypedProperties.copyOf(properties);
+                        TypedProperties properties = TypedProperties.empty();
+                        securityProperties.stream().forEach(securityProperty -> properties.setProperty(securityProperty.getName(), securityProperty.getValue()));
+                        return properties;
                     }
                 };
             } else {

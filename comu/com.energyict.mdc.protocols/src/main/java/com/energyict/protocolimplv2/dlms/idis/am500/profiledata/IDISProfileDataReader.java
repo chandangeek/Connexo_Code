@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -254,25 +253,25 @@ public class IDISProfileDataReader {
         Map<ObisCode, Unit> unitMap = readUnits(correctedLoadProfileObisCode, channelObisCodes);
 
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        int counter = 0;
         for (ObisCode obisCode : channelObisCodes) {
-            Unit unit = unitMap.get(obisCode);
-            ChannelInfo channelInfo = ChannelInfo.ChannelInfoBuilder.fromObisCode(obisCode)
-                    .unit(unit == null ? Unit.get(BaseUnit.UNITLESS) : unit)
-                    .readingType(getReadingTypeFor(loadProfileReader, obisCode))
-                    .build();
-            if (isCumulative(obisCode)) {
-                channelInfo.setCumulative();
-            }
-            channelInfos.add(channelInfo);
-            counter++;
+            getConfiguredChannelInfo(loadProfileReader, obisCode).ifPresent(configuredChannelInfo -> {
+                Unit unit = unitMap.get(obisCode);
+                ChannelInfo channelInfo = ChannelInfo.ChannelInfoBuilder.fromObisCode(obisCode)
+                        .unit(unit == null ? Unit.get(BaseUnit.UNITLESS) : unit)
+                        .readingType(configuredChannelInfo.getReadingType())
+                        .meterIdentifier(configuredChannelInfo.getMeterIdentifier())
+                        .build();
+                if (isCumulative(obisCode)) {
+                    channelInfo.setCumulative();
+                }
+                channelInfos.add(channelInfo);
+            });
         }
         return channelInfos;
     }
 
-    private ReadingType getReadingTypeFor(LoadProfileReader loadProfileReader, ObisCode obisCode) {
-        Optional<ChannelInfo> configuredChannelInfo = loadProfileReader.getChannelInfos().stream().filter(channelInfo -> channelInfo.getChannelObisCode().equals(obisCode)).findAny();
-        return configuredChannelInfo.isPresent() ? configuredChannelInfo.get().getReadingType() : null;
+    private Optional<ChannelInfo> getConfiguredChannelInfo(LoadProfileReader loadProfileReader, ObisCode obisCode) {
+        return loadProfileReader.getChannelInfos().stream().filter(channelInfo -> channelInfo.getChannelObisCode().equals(obisCode)).findAny();
     }
 
 

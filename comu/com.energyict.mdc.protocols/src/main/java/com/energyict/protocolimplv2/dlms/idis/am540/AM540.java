@@ -31,7 +31,6 @@ import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.FrameCounterCache;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceBasicSupport;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -39,7 +38,6 @@ import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalC
 import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
 
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -77,7 +75,7 @@ import java.util.Optional;
  * @author sva
  * @since 11/08/2015 - 14:04
  */
-public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCache {
+public class AM540 extends AM130 implements DeviceBasicSupport {
     protected static final ObisCode EVN_FRAMECOUNTER_DATA_READOUT = ObisCode.fromString("0.0.43.3.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_INSTALLATION = ObisCode.fromString("0.0.43.4.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_MAINTENANCE = ObisCode.fromString("0.0.43.5.0.255");
@@ -104,6 +102,7 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getDeviceCache().setConnectionToBeaconMirror(getDlmsProperties().useBeaconMirrorDeviceDialect());
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: " + getVersion());
         initDlmsSession(comChannel);
@@ -112,9 +111,9 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
 
     private void initDlmsSession(ComChannel comChannel) {
         setMeterToTransparentMode(comChannel);
-        readFrameCounter(comChannel);
+        handleFC(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsProperties()));
-        initFrameCounterCache(null);
+//        initFrameCounterCache(null);
     }
 
     private void setMeterToTransparentMode(ComChannel comChannel) {
@@ -222,27 +221,27 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
         return new AM540ConfigurationSupport(propertySpecService);
     }
 
-    protected void initFrameCounterCache(SecurityContext securityContext) {
-        if (securityContext == null) {
-            securityContext = getDlmsSession().getAso().getSecurityContext();
-        }
-        securityContext.setFrameCounterCache(getDlmsProperties().getClientMacAddress(), getDeviceCache());
-    }
-
     /**
      * First read out the frame counter for the management client, using the public client.
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
-    protected void readFrameCounter(ComChannel comChannel) {
-        boolean weHaveValidCachedFrameCounter = false;
+    protected void handleFC(ComChannel comChannel) {
+        final int clientId = getDlmsProperties().getClientMacAddress();
+        validateFCProperties(clientId);
 
+        boolean weHaveValidCachedFrameCounter = false;
         if (getDlmsProperties().useCachedFrameCounter()) {
-            weHaveValidCachedFrameCounter = readAndTestCachedFrameCounter(comChannel);
+            weHaveValidCachedFrameCounter = getCachedFrameCounter(comChannel, clientId);
         }
 
         if (!weHaveValidCachedFrameCounter) {
             if (getDlmsProperties().getRequestAuthenticatedFrameCounter()) {
-                readFrameCounterSecure(comChannel);
+                if (clientId != EVN_CLIENT_MANAGEMENT) {
+                    readFrameCounterSecure(comChannel);
+                } else {
+                    getLogger().info("Reading frame counter with client " + EVN_CLIENT_MANAGEMENT + " is not allowed. " +
+                            "If communication fails please adjust your initial frame counter value to a proper one");
+                }
             } else {
                 if (!getDlmsProperties().usesPublicClient()) {
                     getLogger().info("Reading frame counter using normal method");
@@ -252,38 +251,45 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
         }
     }
 
+    private void validateFCProperties(int clientId) {
+        if (clientId == EVN_CLIENT_MANAGEMENT
+                && getDlmsProperties().getRequestAuthenticatedFrameCounter()
+                && !getDlmsProperties().useCachedFrameCounter()) {
+
+            String msg = "When Client 1 is configured and "
+                    + AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER
+                    + " is active, we also need "
+                    + AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER
+                    + " to be active";
+            getLogger().info(msg);
+
+            throw DeviceConfigurationException.unsupportedPropertyValue(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, "false");
+        }
+    }
 
     /**
-     * Before using an cached frame counter, test it first to see if it's still good
-     * If not, we shall resume back to public client initialization
-     *
-     * @return
+     * Get the frame counter from the cache, for the given clientId.
+     * If no frame counter is available in the cache (value -1), use the configured InitialFC property.
+     * <p/>
+     * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
      */
-    protected boolean readAndTestCachedFrameCounter(ComChannel comChannel) {
+    protected boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
         getLogger().info("Will try to use a cached frame counter");
-        final int clientId = getDlmsProperties().getClientMacAddress();
+        boolean weHaveAFrameCounter = false;
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
-        boolean frameCounterSet = false;
+        long initialFrameCounter = getDlmsProperties().getInitialFrameCounter().longValue();
 
-        if (cachedFrameCounter > 0) {
-            getLogger().info(" - cached frame counter: " + cachedFrameCounter);
-            this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
-            frameCounterSet = true;
-        } else {
-            getLogger().warning("Cache does not have a cached frame counter for clientId=" + clientId);
-
-            BigDecimal initialFrameCounter = getDlmsProperties().getInitialFrameCounter();
-            if (initialFrameCounter != null) {
-                getLogger().info("Using the configured initial framecounter: " + initialFrameCounter);
-                this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter.intValue());
-                frameCounterSet = true;
-            } else {
-                getLogger().warning("InitialFrameCounter parameter not set correctly, will try to fetch a new one if possible.: ");
-            }
+        if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1)
+            getLogger().info("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
+            setTXFrameCounter(initialFrameCounter);
+            weHaveAFrameCounter = true;
+        } else if (cachedFrameCounter > 0) {
+            getLogger().info("Using cached frame counter: " + cachedFrameCounter);
+            setTXFrameCounter(cachedFrameCounter + 1);
+            weHaveAFrameCounter = true;
         }
 
-
-        if (frameCounterSet) {
+        if (weHaveAFrameCounter) {
             if (getDlmsProperties().validateCachedFrameCounter()) {
                 return testConnectionAndRetryWithFrameCounterIncrements(comChannel);
             } else {
@@ -293,7 +299,6 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
             }
         }
 
-
         return false;
     }
 
@@ -301,6 +306,7 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
         DlmsSession testDlmsSession = new DlmsSession(comChannel, getDlmsProperties());
         int retries = getDlmsProperties().getFrameCounterRecoveryRetries();
         int step = getDlmsProperties().getFrameCounterRecoveryStep();
+        boolean releaseOnce = true;
 
         getLogger().info("Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
         if (retries <= 0) {
@@ -308,26 +314,33 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
             step = 0;
         }
 
-        initFrameCounterCache(testDlmsSession.getAso().getSecurityContext());
-
         do {
             try {
                 testDlmsSession.getDlmsV2Connection().connectMAC();
                 testDlmsSession.createAssociation();
                 if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-                    //testDlmsSession.disconnect();
+                    testDlmsSession.disconnect();
                     getLogger().info("Cached FrameCounter is valid!");
+                    setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     return true;
                 }
-            } catch (CommunicationException ex) {
-                long frameCounter = this.getDlmsProperties().getSecurityProvider().getInitialFrameCounter();
+            } catch (Exception ex) {
+                long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
                 getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                 frameCounter += step;
-                this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
-                setTXFrameCounter(getDlmsProperties().getClientMacAddress(), (int) frameCounter);
-            } catch (Exception ex) {
-                getLogger().warning("Received an unexpected exception while testing the frame counter " + ex.getMessage());
-                throw ex;
+                setTXFrameCounter(frameCounter);
+                testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
+
+                if (releaseOnce) {
+                    releaseOnce = false;
+                    //Try to release that association once, it may be that it was still open from a previous session, causing troubles to create the new association.
+                    try {
+                        testDlmsSession.getAso().releaseAssociation();
+                    } catch (CommunicationException e) {
+                        testDlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                        // Absorb exception: in 99% of the cases we expect an exception here ...
+                    }
+                }
             }
             retries--;
         } while (retries > 0);
@@ -345,7 +358,7 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = getDlmsProperties().getProperties().clone();
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
-        final AM540Properties publicClientProperties = new AM540Properties(propertySpecService, thesaurus);
+        final AM540Properties publicClientProperties = new AM540Properties(propertySpecService,thesaurus);
         publicClientProperties.addProperties(publicProperties);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySet() {
             @Override
@@ -383,7 +396,8 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
         } finally {
             publicDlmsSession.disconnect();
         }
-        this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+
+        setTXFrameCounter(frameCounter + 1);
     }
 
     @Override
@@ -553,18 +567,12 @@ public class AM540 extends AM130 implements DeviceBasicSupport, FrameCounterCach
         return idisMessaging;
     }
 
-    @Override
-    public void setTXFrameCounter(int clientId, int frameCounter) {
-        if (clientId == getDlmsProperties().getClientMacAddress()) {
-            getDlmsProperties().getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(frameCounter);
-        }
+    /**
+     * Set the initial frame counter to be used when starting this DLMS session.
+     */
+    private void setTXFrameCounter(long frameCounter) {
+        this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
     }
-
-    @Override
-    public long getTXFrameCounter(int clientId) {
-        return 0;
-    }
-
 
     @Override
     public CollectedTopology getDeviceTopology() {

@@ -78,13 +78,14 @@ public class AM540Properties extends IDISProperties {
 
     @Override
     public int getServerUpperMacAddress() {
-        if (useBeaconMirrorDeviceDialect()) {
-            return getMirrorLogicalDeviceId();  // The Beacon mirrored device
-        } else if (useBeaconGatewayDeviceDialect()) {
+//        if (useBeaconMirrorDeviceDialect()) {
+//            return getMirrorLogicalDeviceId();  // The Beacon mirrored device
+//        } else if (useBeaconGatewayDeviceDialect()) {
+        //todo we might need to fix this ...
             return getGatewayLogicalDeviceId(); // Beacon acts as a gateway
-        } else {
-            return getNodeAddress();            // Classic G3 gateway
-        }
+//        } else {
+//            return getNodeAddress();            // Classic G3 gateway
+//        }
     }
 
     private int getMirrorLogicalDeviceId() {
@@ -116,11 +117,11 @@ public class AM540Properties extends IDISProperties {
 
     @Override
     public int getClientMacAddress() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
     }
 
     public boolean usesPublicClient() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
     }
 
     public boolean useBeaconMirrorDeviceDialect() {

@@ -7,6 +7,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.xml.DeviceProtocolCacheXmlMarshallAdapter;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.Map;
  * @author sva
  * @since 27/08/2015 - 11:54
  */
+@XmlRootElement
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public class AM540Cache extends DLMSCache implements FrameCounterCache, Serializable {
 
@@ -26,6 +28,10 @@ public class AM540Cache extends DLMSCache implements FrameCounterCache, Serializ
 
     protected Map<Integer, Long> frameCountersGateway = new HashMap<>();
     protected Map<Integer, Long> frameCountersMirror = new HashMap<>();
+
+    public AM540Cache(){
+    }
+
 
     public AM540Cache(boolean connectionToBeaconMirror) {
         this.connectionToBeaconMirror = connectionToBeaconMirror;

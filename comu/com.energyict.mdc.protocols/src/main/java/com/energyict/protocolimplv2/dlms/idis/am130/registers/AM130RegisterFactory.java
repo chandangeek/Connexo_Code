@@ -49,6 +49,7 @@ import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -458,9 +459,16 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 .getCollectedDataFactory()
                 .createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister), offlineRegister.getReadingType());
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-        deviceRegister.setCollectedTimeStamps(registerValue.getReadTime().toInstant(), registerValue.getFromTime().toInstant(), registerValue.getToTime().toInstant(), registerValue.getEventTime()
-                .toInstant());
+        deviceRegister.setCollectedTimeStamps(getRegisterInstantTimeStamp(registerValue.getReadTime()), getRegisterInstantTimeStamp(registerValue.getFromTime()), getRegisterInstantTimeStamp(registerValue.getToTime()), getRegisterInstantTimeStamp(registerValue.getEventTime()));
         return deviceRegister;
+    }
+
+    private Instant getRegisterInstantTimeStamp(Date time) {
+        if(time != null){
+            return time.toInstant();
+        } else {
+            return null;
+        }
     }
 
     public AbstractDlmsProtocol getMeterProtocol() {

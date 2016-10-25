@@ -151,27 +151,21 @@ public class DlmsSession implements ProtocolLink {
     }
 
     /**
-     * Build a new ApplicationServiceObject, using the DlmsSessionProperties
+     * Build a new ApplicationServiceObject
      */
-    protected ApplicationServiceObjectV2 buildAso() {
-        if (getProperties().isNtaSimulationTool()) {
-            return buildAso( getProperties().getSerialNumber());
-        } else {
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), null, null, getCallingAEQualifier());
-        }
+    protected ApplicationServiceObjectV2 buildAso(String calledSystemTitleString) {
+        if (calledSystemTitleString == null && getProperties().isNtaSimulationTool()) {
+            calledSystemTitleString = getProperties().getSerialNumber();
     }
 
-    /**
-     * Build a new ApplicationServiceObject, using the DlmsSessionProperties and a specific calledSystemTitle
-     */
-    protected ApplicationServiceObjectV2 buildAso(String calledSystemTitle){
-        if (calledSystemTitle == null && getProperties().isNtaSimulationTool()){
-            calledSystemTitle = getProperties().getSerialNumber();
-        }
-        if (calledSystemTitle!=null)
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null, null);
-        else
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
+        return new ApplicationServiceObjectV2(
+                buildXDlmsAse(),
+                this,
+                buildSecurityContext(),
+                getContextId(),
+                calledSystemTitleString == null ? null : calledSystemTitleString.getBytes(),
+                null,
+                getCallingAEQualifier());
         }
 
     /**
