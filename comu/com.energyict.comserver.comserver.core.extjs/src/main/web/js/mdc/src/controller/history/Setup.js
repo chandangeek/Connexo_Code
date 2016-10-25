@@ -365,7 +365,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'devices/device/registers/tab',
                                 params: {
                                     tab: 'registers'
-                                }
+                                },
+                                locationReplace: true /* = don't remember the devices/device/registers route in browser history */
                             },
                             items: {
                                 register: {
