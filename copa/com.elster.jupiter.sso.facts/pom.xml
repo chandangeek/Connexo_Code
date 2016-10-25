@@ -6,7 +6,7 @@
 
     <groupId>com.elster.partners</groupId>
     <artifactId>facts.filter</artifactId>
-    <version>1.1.0${revision}</version>
+    <version>1.2.0${revision}</version>
     <name>[Partners] Facts SSO servlet filter</name>
 
     <parent>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>connexo.filter</artifactId>
-            <version>1.1.0${revision}</version>
+            <version>1.2.0${revision}</version>
         </dependency>
         <!--dependency>
             <groupId>com.yellowfin</groupId>
