@@ -38,7 +38,11 @@ public interface CalendarService {
 
     CalendarFilter newCalendarFilter();
 
+    List<Category> findAllCategories();
+
     Optional<Category> findCategoryByName(String name);
+
+    Optional<Category> findCategory(long id);
 
     Optional<Calendar> findCalendar(long id);
 

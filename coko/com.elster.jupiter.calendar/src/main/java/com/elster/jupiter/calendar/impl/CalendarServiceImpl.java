@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -99,7 +100,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Reference
-     public void setUserService(UserService userService) {
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
@@ -195,22 +196,40 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public Optional<Calendar> findCalendar(long id) {
-        return this.getDataModel().mapper(Calendar.class).getUnique("id", id);
+        return calendarMapper().getUnique("id", id);
+    }
+
+    private DataMapper<Calendar> calendarMapper() {
+        return this.getDataModel().mapper(Calendar.class);
     }
 
     @Override
     public Optional<Category> findCategoryByName(String name) {
-        return this.getDataModel().mapper(Category.class).getUnique("name", name);
+        return categoryMapper().getUnique("name", name);
+    }
+
+    private DataMapper<Category> categoryMapper() {
+        return this.getDataModel().mapper(Category.class);
+    }
+
+    @Override
+    public Optional<Category> findCategory(long id) {
+        return categoryMapper().getOptional(id);
+    }
+
+    @Override
+    public List<Category> findAllCategories() {
+        return categoryMapper().find();
     }
 
     @Override
     public Optional<Calendar> findCalendarByName(String name) {
-        return this.getDataModel().mapper(Calendar.class).getUnique("name", name);
+        return calendarMapper().getUnique("name", name);
     }
 
     @Override
     public Optional<Calendar> findCalendarByMRID(String mRID) {
-        return this.getDataModel().mapper(Calendar.class).getUnique("mRID", mRID);
+        return calendarMapper().getUnique("mRID", mRID);
     }
 
     @Override
@@ -225,7 +244,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public Optional<Calendar> lockCalendar(long id, long version) {
-        return this.getDataModel().mapper(Calendar.class).lockObjectIfVersion(version, id);
+        return calendarMapper().lockObjectIfVersion(version, id);
     }
 
     @Override
