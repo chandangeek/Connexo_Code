@@ -4,13 +4,13 @@
     "creator": "Elster Jupiter Project",
     "summary": "Short summary",
     "detailedDescription": "Long description of package",
-  "version": "1.2.0",
-  "compatVersion": "1.2.0",
+  "version": "1.2.1",
+  "compatVersion": "1.2.1",
     "format": "1",
     "local": true,
     "requires": [
-        "com.elster.jupiter.unifyingjs",
-        "com.elster.jupiter.time.extjs"
+        "com.elster.jupiter.unifyingjs@1.2.0",
+        "com.elster.jupiter.time.extjs@1.2.0"
 
     ]
 }
