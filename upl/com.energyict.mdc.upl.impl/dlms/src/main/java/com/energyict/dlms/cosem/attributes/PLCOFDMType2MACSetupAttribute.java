@@ -22,6 +22,8 @@ public enum PLCOFDMType2MACSetupAttribute implements DLMSClassAttributes {
     MAC_SHORT_ADDRESS(2, 0x0008),
     MAC_RC_COORD(3, 0x0010),
     MAC_PAN_ID(4, 0x0018),
+    MAC_KEY_TABLE(5, 0x0020),
+    MAC_FRAME_COUNTER(6, 0x0028),
     MAC_TONE_MASK(7, 0x0030),
     MAC_TMR_TTL(8, 0x0038),
     MAC_MAX_FRAME_RETRIES(9, 0x0040),
@@ -34,6 +36,7 @@ public enum PLCOFDMType2MACSetupAttribute implements DLMSClassAttributes {
     MAC_K(16, 0x0078),
     MAC_MIN_CW_ATTEMPTS(17, 0x0080),
     MAC_CENELEC_LEGACY_MODE(18, 0x0088),
+    MAC_FCC_LEGACY_MODE(19, 0x0090),
     MAC_MAX_BE(20, 0x0098),
     MAC_MAX_CSMA_BACKOFF(21, 0x0100),
     MAC_MIN_BE(22, 0x0108);
