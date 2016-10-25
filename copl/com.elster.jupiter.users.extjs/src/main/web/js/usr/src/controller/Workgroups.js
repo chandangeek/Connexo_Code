@@ -93,8 +93,6 @@ Ext.define('Usr.controller.Workgroups', {
 
         switch (item.action) {
             case 'addUsers':
-                //    me.userDirectoryUsersStoreLoaded = false;
-                // location.href = '#/administration/workgroups/addUser';
                 me.addUsersBtn();
                 break;
             case 'editWorkgroup':
@@ -226,7 +224,6 @@ Ext.define('Usr.controller.Workgroups', {
     showEditWorkgroup: function (workgroupId) {
         var me = this;
 
-        //addWorkgroupView.setLoading();
         if (me.workgroupRecord == null) {
             var workgroup = me.getModel('Usr.model.Workgroup');
             workgroup.load(workgroupId, {
@@ -257,8 +254,6 @@ Ext.define('Usr.controller.Workgroups', {
         }
 
         addWorkgroupView.workgroupRecord = workgroupRecord;
-        //me.workgroupRecord = workgroupRecord;
-
         me.getApplication().fireEvent('editWorkgroup', workgroupRecord);
         var addWorkgroupForm = addWorkgroupView.down('#frm-add-workgroup');
         addWorkgroupForm.setTitle(Ext.String.format(Uni.I18n.translate('workgroups.edit', 'USR', 'Edit \'{0}\''), workgroupRecord.get('name')));
@@ -268,7 +263,6 @@ Ext.define('Usr.controller.Workgroups', {
         addWorkgroupForm.down('#grd-users').reconfigure(usersStore);
         addWorkgroupView.updateGrid();
         me.getApplication().fireEvent('changecontentevent', addWorkgroupView);
-        addWorkgroupView.setLoading(false);
     },
 
     addUsersBtn: function () {
@@ -336,9 +330,7 @@ Ext.define('Usr.controller.Workgroups', {
         var me = this;
 
         me.workgroupRecord.beginEdit();
-        selections.forEach(function (selection) {
-            me.workgroupRecord.users().add(selection);
-        });
+        me.workgroupRecord.users().insert(0, selections);
         me.workgroupRecord.endEdit();
 
         me.forwardToPreviousPage();
