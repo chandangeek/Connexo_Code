@@ -8,24 +8,26 @@ Ext.define('Mdc.model.Register', {
             useNull: true,
             convert: function (v, record) {
                 if (!Ext.isEmpty(record.data.lastReading)) {
-                    if (record.get('type') == 'billing') {
-                        return record.get('lastReading').value + ' ' + record.get('lastReading').unitOfMeasure;
+                    var value, unit;
+                    if (record.get('type') === 'billing') {
+                        value = record.get('lastReading').value;
+                        unit = record.get('lastReading').unit;
+                        return Ext.isEmpty(value) ? '-' : value + ' ' + (unit ? unit : '');
                     }
-                    if (record.get('type') == 'numerical') {
-                        if(!Ext.isEmpty(record.get('lastReading').value)) {
-                            return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('readingType').names.unitOfMeasure;
-                        }
-                        return '-'
-
+                    else if (record.get('type') === 'numerical') {
+                        value = record.get('lastReading').value;
+                        unit = record.get('readingType').names.unitOfMeasure;
+                        return Ext.isEmpty(value) ? '-' : Uni.Number.formatNumber(value, -1) + ' ' + (unit ? unit : '');
                     }
-                    if (record.data.type == 'text') {
-                        return record.data.lastReading.value;
+                    else if (record.data.type === 'text') {
+                        value = record.data.lastReading.value;
+                        return Ext.isEmpty(value) ? '-' : value;
                     }
-                    if (record.data.type == 'flags') {
-                        return record.data.lastReading.value;
+                    else if (record.data.type === 'flags') {
+                        value = record.data.lastReading.value;
+                        return Ext.isEmpty(value) ? '-' : value;
                     }
                 }
-
                 return '-';
             }
         },
