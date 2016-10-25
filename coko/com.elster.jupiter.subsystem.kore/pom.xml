@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>kore</artifactId>
-    <version>1.2.0${revision}</version>
+    <version>1.2.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.kore</name>
     <description>This POM details all versions of bundles related to business intelligence (e.g. Metering, Issues,...)
@@ -21,7 +21,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>kore</artifactId>
-                <version>1.2.0${revision}</version>
+                <version>1.2.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -32,26 +32,26 @@
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>
-            <version>1.2.0${revision}</version>
+            <version>1.2.1${revision}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>
-            <version>1.2.0${revision}</version>
+            <version>1.2.1${revision}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kore</artifactId>
-            <version>1.2.0${revision}</version>
+            <version>1.2.1${revision}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>platform</artifactId>
-            <version>1.2.0${revision}</version>
+            <version>1.2.1${revision}</version>
             <type>pom</type>
         </dependency>
         <dependency>
