@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdm</artifactId>
-    <version>1.1.0${revision}</version>
+    <version>1.1.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Insight Subsystem] com.elster.insight.subsystem</name>
     <description>Assembly project for Insight</description>
@@ -20,7 +20,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>mdm.parent</artifactId>
-                <version>1.1.0${revision}</version>
+                <version>1.1.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.parent</artifactId>
-            <version>1.1.0${revision}</version>
+            <version>1.1.1${revision}</version>
             <type>pom</type>
         </dependency>
         <dependency>
