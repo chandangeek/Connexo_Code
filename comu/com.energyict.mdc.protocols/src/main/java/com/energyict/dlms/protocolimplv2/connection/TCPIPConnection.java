@@ -83,7 +83,8 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
         this.incrementFrameCounterForRetries = properties.incrementFrameCounterForRetries();
         this.pollingDelay = properties.getPollingDelay().getMilliSeconds();
         this.timeoutMeansBrokenConnection = properties.timeoutMeansBrokenConnection();
-        this.comChannel.setTimeout(this.timeout);
+        //todo removed it so we don't have a version bump
+//        this.comChannel.setTimeout(this.timeout);
     }
 
     public long getForceDelay() {
@@ -518,7 +519,8 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
 
     public void setTimeout(long timeout) {
         this.timeout = timeout;
-        comChannel.setTimeout(timeout);
+        //todo removed it so we don't have a version bump
+//        comChannel.setTimeout(timeout);
     }
 
     public void setRetries(int retries) {

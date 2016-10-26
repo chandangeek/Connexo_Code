@@ -425,7 +425,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
         } else {
-            throw ConnectionCommunicationException.numberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
+            throw new ConnectionCommunicationException(am130.getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 

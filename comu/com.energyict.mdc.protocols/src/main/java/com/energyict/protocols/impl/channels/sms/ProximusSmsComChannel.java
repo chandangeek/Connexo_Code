@@ -111,11 +111,6 @@ public class ProximusSmsComChannel implements ComChannel {
     }
 
     @Override
-    public void setTimeout(long millis) {
-        // currently not timeout to set
-    }
-
-    @Override
     public void addProperties(TypedProperties typedProperties) {
         this.connectionTaskProperties.setAllProperties(typedProperties);
     }

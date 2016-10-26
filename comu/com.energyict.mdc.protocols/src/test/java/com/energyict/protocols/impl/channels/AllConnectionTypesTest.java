@@ -23,6 +23,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -124,6 +125,8 @@ public class AllConnectionTypesTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceMessageFileService deviceMessageFileService;
+    @Mock
+    private LoadProfileFactory loadProfileFactory;
 
     private InMemoryBootstrapModule bootstrapModule;
     private ConnectionTypeService connectionTypeService;
@@ -292,6 +295,7 @@ public class AllConnectionTypesTest {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
+            bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

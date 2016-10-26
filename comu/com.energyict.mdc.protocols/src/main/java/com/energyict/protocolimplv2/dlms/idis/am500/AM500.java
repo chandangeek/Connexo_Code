@@ -282,19 +282,18 @@ public class AM500 extends AbstractDlmsProtocol implements DeviceBasicSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        //TODO don't do messages for now ...
-        return getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        return getIDISMessaging().executePendingMessages(pendingMessages);
+
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        //TODO don't do messages for now ...
-        return getCollectedDataFactory().createCollectedMessageList(sentMessages);
+        return getIDISMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return "";
+        return getIDISMessaging().format(propertySpec, messageAttribute);
     }
 
     protected IDISMessaging getIDISMessaging() {

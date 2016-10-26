@@ -173,7 +173,7 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
                     return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                 }
             } else {
-                throw ConnectionCommunicationException.numberOfRetriesReached(e, AM500.getDlmsSession().getProperties().getRetries() + 1);
+                throw new ConnectionCommunicationException(AM500.getDlmsSession().getProperties().getRetries() + 1);
             }
         }
     }

@@ -18,6 +18,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -392,7 +393,7 @@ public class AM540 extends AM130 implements DeviceBasicSupport {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         } catch (Exception e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the secure frame counter, cannot continue! " + e.getMessage());
-            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+            throw new ConnectionCommunicationException(MessageSeeds.PROTOCOL_IO_PARSE_ERROR, protocolException);
         } finally {
             publicDlmsSession.disconnect();
         }
