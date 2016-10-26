@@ -52,6 +52,11 @@ public class CategoryResourceTest extends CalendarApplicationTest {
         }
 
         @Override
+        public String getDisplayName() {
+            return name;
+        }
+
+        @Override
         public long getId() {
             return id;
         }

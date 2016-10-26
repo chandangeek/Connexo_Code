@@ -182,7 +182,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
     private void addBasicInformation(Calendar calendar, CalendarInfo calendarInfo) {
         calendarInfo.name = calendar.getName();
-        calendarInfo.category = calendar.getCategory().getName();
+        calendarInfo.category = CategoryInfo.from(calendar.getCategory());
         calendarInfo.startYear = calendar.getStartYear().getValue();
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
