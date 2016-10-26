@@ -18,6 +18,7 @@ public class MetrologyContractInfo {
     public Long version;
     public List<ReadingTypeDeliverablesInfo> readingTypeDeliverables;
     public List<ValidationRuleSetInfo> validationRuleSets;
+    public List<EstimationRuleSetInfo> estimationRuleSets;
     public List<DataValidationTaskMinimalInfo> validationTasks;
 
     public MetrologyContractInfo() {
@@ -36,6 +37,10 @@ public class MetrologyContractInfo {
 
     public void addValidationRuleSets(List<ValidationRuleSetInfo> validationRuleSets) {
         this.validationRuleSets = validationRuleSets;
+    }
+
+    public void addEstimationRuleSets(List<EstimationRuleSetInfo> estimationRuleSets) {
+        this.estimationRuleSets = estimationRuleSets;
     }
 }
 

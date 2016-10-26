@@ -87,6 +87,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         metrologyContract = config1.getContracts().stream().findFirst().get();
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
         metrologyContractInfo.addValidationRuleSets(Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
+        metrologyContractInfo.addEstimationRuleSets(Collections.emptyList());
         when(vrs3.getId()).thenReturn(2L);
         when(vrs3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion3)).when(vrs3).getRuleSetVersions();
