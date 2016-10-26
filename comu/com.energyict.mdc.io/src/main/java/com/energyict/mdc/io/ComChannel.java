@@ -194,14 +194,4 @@ public interface ComChannel extends Flushable {
      */
     public ComChannelType getComChannelType();
 
-    /**
-     * The given timeout value can be used by the comchannel implementation for blocking read calls.
-     * <p/>
-     * It is up to the protocol implementation to let the comchannel instance know what the timeout period is.
-     * This timeout property is protocol specific.
-     *
-     * @param millis the time in milliseconds that the protocol implementation waits for a response from the device
-     */
-    public void setTimeout(long millis);
-
 }

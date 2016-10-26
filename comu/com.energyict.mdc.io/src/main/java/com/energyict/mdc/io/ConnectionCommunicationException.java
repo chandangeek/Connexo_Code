@@ -61,11 +61,4 @@ public class ConnectionCommunicationException extends CommunicationException {
         super(messageSeed, cause);
     }
 
-    public static ConnectionCommunicationException numberOfRetriesReached(IOException e, int numberOfRetries) {
-        return new ConnectionCommunicationException(numberOfRetries);
-    }
-
-    public static ConnectionCommunicationException unExpectedProtocolError(IOException protocolException) {
-        return new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, protocolException);
-    }
 }

@@ -99,11 +99,4 @@ public abstract class AbstractComChannel implements ComChannel {
         this.connectionTaskProperties.setAllProperties(typedProperties);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setTimeout(long millis) {
-        //Does nothing by default. Subclasses can override.
-    }
 }
