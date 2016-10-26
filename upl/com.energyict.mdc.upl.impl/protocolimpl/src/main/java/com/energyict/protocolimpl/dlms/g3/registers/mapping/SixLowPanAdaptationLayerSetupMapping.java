@@ -103,9 +103,6 @@ public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
             case 19:
                 return sixLowPanSetup.readDeviceType();
 
-            case 22:
-                return sixLowPanSetup.readAdpRoutingTupleTTL();
-
             default:
                 throw new NoSuchRegisterException("SixLowPanAdaptationLayerSetupMapping attribute [" + obisCode.getB() + "] not supported!");
 

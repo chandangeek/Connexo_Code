@@ -93,16 +93,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
     }
 
     /**
-     * The time to live of a route request table entry.
-     *
-     * @return
-     * @throws IOException
-     */
-    public AbstractDataType readAdpRoutingTupleTTL() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ROUTING_TUPLE_TTL);
-    }
-
-    /**
      * The routing table contains information about the different routes in
      * which the device is implicated.
      *
@@ -249,16 +239,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         final Unsigned16 value = new Unsigned16(broadcastLogTableTTL);
         final byte[] rawValue = value.getBEREncodedByteArray();
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_BROADCAST_LOG_TABLE_ENTRY_TTL, rawValue);
-    }
-
-    /**
-     * @param routingTupleTTL
-     * @throws IOException
-     */
-    public void writeRoutingTupleTTL(int routingTupleTTL) throws IOException {
-        final Unsigned16 value = new Unsigned16(routingTupleTTL);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ROUTING_TUPLE_TTL, rawValue);
     }
 
     public void writeMaxJoinWaitTime(int waitTime) throws IOException {

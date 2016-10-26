@@ -709,14 +709,6 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final MessageResult writeRoutingTupleTTLEntryTTL(SixLoWPanMessages.SetRoutingTupleTTLMessage message) throws IOException {
-        getLogger().info("Received [SetRoutingTupleTTLMessage]. Writing new value of [" + message.getRoutingTupleTTL() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeRoutingTupleTTL(message.getRoutingTupleTTL());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
     public final MessageResult setMaxJoinWaitTime(SixLoWPanMessages.SetMaxJoinWaitTime message) throws IOException {
         getLogger().info("Received [SetMaxJoinWaitTime]. Writing new value of [" + message.getValue() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
