@@ -314,6 +314,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.callParent(arguments);
 
         me.initActions();
+        me.updateTitle();
     },
 
     initActions: function () {
