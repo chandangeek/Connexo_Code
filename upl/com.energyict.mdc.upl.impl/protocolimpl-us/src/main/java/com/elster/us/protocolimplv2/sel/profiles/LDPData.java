@@ -6,24 +6,24 @@ import com.elster.us.protocolimplv2.sel.profiles.structure.*;
 
 
 public class LDPData {
-  
+
   private MeterConfiguration meterConfig;
-  private float[] presentValues;
+  private Long[] presentValues;
   private MeterStatus meterStatus;
   private List<LPData> lpData;
   private List<SERData> serData;
   private List<LDPError> ldpError;
-     
+
   public MeterConfiguration getMeterConfig() {
     return meterConfig;
   }
   public void setMeterConfig(MeterConfiguration meterConfig) {
     this.meterConfig = meterConfig;
   }
-  public float[] getPresentValues() {
+  public Long[] getPresentValues() {
     return presentValues;
   }
-  public void setPresentValues(float[] presentValues) {
+  public void setPresentValues(Long[] presentValues) {
     this.presentValues = presentValues;
   }
   public MeterStatus getMeterStatus() {
