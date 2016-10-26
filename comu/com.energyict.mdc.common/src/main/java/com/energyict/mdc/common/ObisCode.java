@@ -269,17 +269,17 @@ public class ObisCode implements Serializable {
         if (tokenizer.countTokens() != 6) {
             throw new IllegalArgumentException(codeString);
             }
-        String token = tokenizer.nextToken();
+        String token = tokenizer.nextToken().trim();
         int a = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = tokenizer.nextToken().trim();
         int b = "x".equalsIgnoreCase(token) ? -1 : Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = tokenizer.nextToken().trim();
         int c = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = tokenizer.nextToken().trim();
         int d = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = tokenizer.nextToken().trim();
         int e = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = tokenizer.nextToken().trim();
         boolean hasRelativeBillingPoint = token.startsWith("VZ");
             int f;
             if (hasRelativeBillingPoint) {
