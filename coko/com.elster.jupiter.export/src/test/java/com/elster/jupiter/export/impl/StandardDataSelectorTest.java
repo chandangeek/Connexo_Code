@@ -152,7 +152,7 @@ public class StandardDataSelectorTest {
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
         when(dataModel.getInstance(ReadingTypeDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, thesaurus));
-        when(dataModel.getInstance(DefaultItemDataSelector.class)).thenAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService));
+        when(dataModel.getInstance(AbstractItemDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataItemDataSelector(clock, validationService, thesaurus, transactionService));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new MyRefAny(invocation.getArguments()[0]));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
@@ -215,12 +215,13 @@ public class StandardDataSelectorTest {
 
     @Test
     public void testExecuteObsoleteItemIsDeactivated() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod);
+        selector.setEndDeviceGroup(group);
         selector.addReadingType(readingType1);
         selector.setEndDeviceGroup(group);
         existingItem = selector.addExportItem(meter2, readingType1);
         obsoleteItem = selector.addExportItem(meter3, readingType1);
-        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
+//        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
 
         selector.asReadingTypeDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
 
@@ -231,12 +232,13 @@ public class StandardDataSelectorTest {
 
     @Test
     public void testExecuteExistingItemIsUpdated() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod);
+        selector.setEndDeviceGroup(group);
         selector.addReadingType(readingType1);
         selector.setEndDeviceGroup(group);
         existingItem = selector.addExportItem(meter2, readingType1);
         obsoleteItem = selector.addExportItem(meter3, readingType1);
-        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
+//        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
 
         selector.asReadingTypeDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
 
@@ -246,12 +248,13 @@ public class StandardDataSelectorTest {
 
     @Test
     public void testNewItemIsUpdated() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod);
+        selector.setEndDeviceGroup(group);
         selector.addReadingType(readingType1);
         selector.setEndDeviceGroup(group);
         existingItem = selector.addExportItem(meter2, readingType1);
         obsoleteItem = selector.addExportItem(meter3, readingType1);
-        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
+//        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
 
         selector.asReadingTypeDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
 

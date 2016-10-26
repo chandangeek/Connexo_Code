@@ -16,11 +16,16 @@ import java.util.Optional;
 public interface DataExportService {
 
     String COMPONENTNAME = "DES";
+
     String STANDARD_READINGTYPE_DATA_SELECTOR = "Standard Data Selector";
+    String STANDARD_AGGREGATED_DATA_SELECTOR = "Standard Aggregated Data Selector";
     String STANDARD_EVENT_DATA_SELECTOR = "Standard Event Data Selector";
+
     String DATA_TYPE_PROPERTY = "dataType";
+
     String STANDARD_READING_DATA_TYPE = "standardReadingDataType";
     String STANDARD_EVENT_DATA_TYPE = "standardEventDataType";
+    String STANDARD_AGGREGATED_DATA_TYPE = "standardAggregatedDataType";
 
     DataExportTaskBuilder newBuilder();
 

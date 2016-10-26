@@ -89,7 +89,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     static final String DESTINATION_NAME = "DataExport";
     static final String SUBSCRIBER_NAME = "DataExport";
-    static final String SUBSCRIBER_DISPLAYNAME = "Handle data export";
+    static final String SUBSCRIBER_DISPLAY_NAME = "Handle data export";
     private static final String MODULE_DESCRIPTION = "Data Export";
     private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
     private volatile DataModel dataModel;
@@ -329,6 +329,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
             });
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
             addSelector(new StandardEventDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_EVENT_DATA_TYPE));
+            addSelector(new AggregatedDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_AGGREGATED_DATA_TYPE));
             String tempDirectoryPath = context.getProperty(JAVA_TEMP_DIR_PROPERTY);
             if (tempDirectoryPath == null) {
                 tempDirectory = fileSystem.getRootDirectories().iterator().next();
@@ -513,11 +514,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public List<TranslationKey> getKeys() {
         SimpleTranslationKey standardDataSelectorKey = new SimpleTranslationKey(StandardDataSelectorFactory.TRANSLATION_KEY, StandardDataSelectorFactory.DISPLAY_NAME);
         SimpleTranslationKey standardEventDataSelectorKey = new SimpleTranslationKey(StandardEventDataSelectorFactory.TRANSLATION_KEY, StandardEventDataSelectorFactory.DISPLAY_NAME);
+        SimpleTranslationKey aggregatedDataSelectorKey = new SimpleTranslationKey(AggregatedDataSelectorFactory.TRANSLATION_KEY, AggregatedDataSelectorFactory.DISPLAY_NAME);
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
                 Stream.of(DataExportStatus.values()),
                 Stream.of(Privileges.values()),
-                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey))
+                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey, aggregatedDataSelectorKey))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -526,5 +528,4 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
-
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 interface IExportTask extends ExportTask, HasAuditInfo {
+
     PropertySpec getPropertySpec(String name);
 
     String getDisplayName(String name);
@@ -19,11 +20,9 @@ interface IExportTask extends ExportTask, HasAuditInfo {
 
     void setReadingTypeDataSelector(StandardDataSelectorImpl readingTypeDataSelector);
 
-    void setEventDataSelector(StandardDataSelectorImpl eventDataSelector);
-
     boolean hasDefaultSelector();
 
     Destination getCompositeDestination();
 
-    Optional<IStandardDataSelector> getReadingTypeDataSelector();
+    Optional<IStandardDataSelector> getStandardDataSelector();
 }

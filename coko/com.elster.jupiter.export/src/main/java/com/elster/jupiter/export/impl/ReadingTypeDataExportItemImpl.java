@@ -1,10 +1,13 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -127,5 +130,22 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
 
     private ExportTask getTask() {
         return getSelector().getExportTask();
+    }
+
+    @Override
+    public String getDescription() {
+        return getDomainObject().getName() + ":" + getReadingType().getFullAliasName();
+    }
+
+    @Override
+    public IdentifiedObject getDomainObject() {
+        ReadingContainer readingContainer = getReadingContainer();
+        if (readingContainer instanceof Meter) {
+            return (Meter) readingContainer;
+        } else if (readingContainer instanceof ChannelsContainer) {
+            return ((ChannelsContainer) readingContainer).getUsagePoint().get();
+        } else {
+            throw new IllegalStateException("Unexpected domain object linked to export item");
+        }
     }
 }

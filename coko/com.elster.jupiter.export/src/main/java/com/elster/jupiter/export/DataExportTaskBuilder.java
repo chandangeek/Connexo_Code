@@ -2,6 +2,7 @@ package com.elster.jupiter.export;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -26,6 +27,8 @@ public interface DataExportTaskBuilder {
     ReadingTypeSelectorBuilder selectingReadingTypes();
 
     EventSelectorBuilder selectingEventTypes();
+
+    AggregatedDataSelectorBuilder selectingAggregatedData();
 
     CustomSelectorBuilder selectingCustom(String dataSelector);
 
@@ -75,6 +78,24 @@ public interface DataExportTaskBuilder {
         EventSelectorBuilder fromEventType(String filterCode);
 
         EventSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+        DataExportTaskBuilder endSelection();
+
+    }
+
+    interface AggregatedDataSelectorBuilder {
+
+        AggregatedDataSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+
+        AggregatedDataSelectorBuilder fromUsagePointGroup(UsagePointGroup usagePointGroup);
+
+        AggregatedDataSelectorBuilder fromReadingType(ReadingType readingType);
+
+        AggregatedDataSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
+
+        AggregatedDataSelectorBuilder continuousData(boolean exportContinuousData);
+
+        AggregatedDataSelectorBuilder exportComplete(boolean exportComplete);
 
         DataExportTaskBuilder endSelection();
 

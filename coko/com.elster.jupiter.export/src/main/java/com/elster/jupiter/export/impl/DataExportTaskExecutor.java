@@ -112,7 +112,9 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
-        Stream<ExportData> data = getDataSelector(task, logger).selectData(occurrence);
+        DataSelector dataSelector = getDataSelector(task, logger);
+
+        Stream<ExportData> data = dataSelector.selectData(occurrence);
 
         DataFormatter dataFormatter = getDataFormatter(task);
 
@@ -122,7 +124,7 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(() -> {
             FormattedData formattedData;
-            if (task.hasDefaultSelector() && task.getReadingTypeDataSelector().isPresent()) {
+            if (task.hasDefaultSelector() && (task.getReadingTypeDataSelector().isPresent() || task.getAggregatedDataSelector().isPresent())) {
                 formattedData = doProcessFromDefaultReadingSelector(occurrence, data, itemExporter);
             } else {
                 formattedData = dataFormatter.processData(data);
@@ -135,14 +137,18 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(loggingExceptions(logger, dataFormatter::endExport)).run();
 
-        if (task.hasDefaultSelector() && task.getReadingTypeDataSelector().isPresent()) {
+        if (isDefaultReadingsDataSelector(dataSelector)) {
             try (TransactionContext context = transactionService.getContext()) {
-                task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                ((AbstractDataSelector) dataSelector).getActiveItems(occurrence).stream()
                         .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                         .forEach(IReadingTypeDataExportItem::update);
                 context.commit();
             }
         }
+    }
+
+    private boolean isDefaultReadingsDataSelector(DataSelector dataSelector) {
+        return dataSelector instanceof AbstractDataSelector;
     }
 
     private LoggingItemExporter getItemExporter(DataFormatter dataFormatter, Logger logger) {
@@ -185,21 +191,13 @@ class DataExportTaskExecutor implements TaskExecutor {
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
-    private DataFormatterFactory getDataFormatterFactory(String dataFormatter) {
-        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(() -> new NoSuchDataFormatter(thesaurus, dataFormatter));
-    }
-
-    private DataSelectorFactory getDataSelectorFactory(String dataSelector) {
-        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new NoSuchDataSelector(thesaurus, dataSelector));
-    }
-
-    private FormattedData doProcessFromDefaultReadingSelector(DataExportOccurrence occurrence, Stream<ExportData> exportDatas, ItemExporter itemExporter) {
-        List<FormattedExportData> formattedDatas = exportDatas
+    private FormattedData doProcessFromDefaultReadingSelector(DataExportOccurrence occurrence, Stream<ExportData> exportData, ItemExporter itemExporter) {
+        List<FormattedExportData> formattedData = exportData
                 .map(MeterReadingData.class::cast)
                 .flatMap(meterReadingData -> doProcess(occurrence, meterReadingData, itemExporter).stream())
                 .sorted(Comparator.comparing(data -> data.getStructureMarker().getStructurePath().get(0)))
                 .collect(Collectors.toList());
-        return SimpleFormattedData.of(formattedDatas);
+        return SimpleFormattedData.of(formattedData);
     }
 
     private List<FormattedExportData> doProcess(DataExportOccurrence occurrence, MeterReadingData meterReadingData, ItemExporter itemExporter) {

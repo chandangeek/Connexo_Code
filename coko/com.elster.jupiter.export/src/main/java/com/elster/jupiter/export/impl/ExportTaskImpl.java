@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.AggregatedDataSelectorConfig;
 import com.elster.jupiter.export.CannotDeleteWhileBusyException;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
@@ -437,6 +438,13 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
+    public Optional<AggregatedDataSelectorConfig> getAggregatedDataSelector() {
+        return readingTypeDataSelector.getOptional()
+                .map(AggregatedDataSelectorConfig.class::cast)
+                .filter(selector -> DataExportService.STANDARD_AGGREGATED_DATA_SELECTOR.equals(dataSelector));
+    }
+
+    @Override
     public Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at) {
         return getReadingTypeDataSelector().flatMap(selector -> selector.getHistory().getVersionAt(at));
     }
@@ -463,11 +471,6 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void setReadingTypeDataSelector(StandardDataSelectorImpl readingTypeDataSelector) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
-    }
-
-    @Override
-    public void setEventDataSelector(StandardDataSelectorImpl eventDataSelector) {
-        this.readingTypeDataSelector.set(eventDataSelector);
     }
 
     @Override
@@ -555,5 +558,10 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public String getApplication() {
         return recurrentTask.get().getApplication();
+    }
+
+    @Override
+    public Optional<IStandardDataSelector> getStandardDataSelector() {
+        return readingTypeDataSelector.getOptional();
     }
 }

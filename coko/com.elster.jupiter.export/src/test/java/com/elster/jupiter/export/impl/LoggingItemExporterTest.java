@@ -98,7 +98,7 @@ public class LoggingItemExporterTest {
         when(meterReadingData.getItem()).thenReturn(item);
         when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);
-        when(item.getDescription(any(Instant.class))).thenReturn("I'm Marilyn and I take drugs");
+        when(item.getDescription()).thenReturn("I'm Marilyn and I take drugs");
         when(item.getReadingContainer()).thenReturn(meter);
         when(meter.getMeter(any())).thenReturn(Optional.of(meter));
         when(thesaurus.getFormat(MessageSeeds.ITEM_EXPORTED_SUCCESFULLY)).thenReturn(successFormat);

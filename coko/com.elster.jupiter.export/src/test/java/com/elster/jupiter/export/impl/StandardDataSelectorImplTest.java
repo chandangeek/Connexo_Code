@@ -132,8 +132,8 @@ public class StandardDataSelectorImplTest {
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
         doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, thesaurus))
                 .when(dataModel).getInstance(ReadingTypeDataSelector.class);
-        doAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService))
-                .when(dataModel).getInstance(DefaultItemDataSelector.class);
+        doAnswer(invocation -> new ReadingTypeDataItemDataSelector(clock, validationService, thesaurus, transactionService))
+                .when(dataModel).getInstance(AbstractItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
 
         when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
@@ -186,7 +186,8 @@ public class StandardDataSelectorImplTest {
 
     @Test
     public void testSelectWithUpdate() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
+        selector.setEndDeviceGroup(endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -198,9 +199,9 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
-        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+//                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -225,7 +226,8 @@ public class StandardDataSelectorImplTest {
 
     @Test
     public void testSelectWithUpdateAndWindow() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
+        selector.setEndDeviceGroup(endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -238,9 +240,9 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
-        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+//                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -270,7 +272,8 @@ public class StandardDataSelectorImplTest {
         when(meter1.toList(eq(readingType), any())).thenReturn(Arrays.asList(END.toInstant()));
         when(meter2.toList(eq(readingType), any())).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
+        selector.setEndDeviceGroup(endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(false);
         selector.setExportOnlyIfComplete(true);
@@ -290,7 +293,8 @@ public class StandardDataSelectorImplTest {
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
+        selector.setEndDeviceGroup(endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -304,9 +308,9 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
-        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+//                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -340,7 +344,8 @@ public class StandardDataSelectorImplTest {
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
+        selector.setEndDeviceGroup(endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -354,9 +359,9 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
-        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+//                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -397,7 +402,8 @@ public class StandardDataSelectorImplTest {
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
         when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
+        selector.setEndDeviceGroup(endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -411,9 +417,9 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
-        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+//                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -454,7 +460,8 @@ public class StandardDataSelectorImplTest {
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
+        selector.setEndDeviceGroup(endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -468,9 +475,9 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(1);
 
-        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+//                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -497,9 +504,9 @@ public class StandardDataSelectorImplTest {
                 dataModel, dataModel.getInstance(StandardDataSelectorImpl.class), meter1, readingType);
         when(meter1.getName()).thenReturn("PeriMeter");
         when(readingType.getFullAliasName()).thenReturn("Odium humani generis");
-        assertThat(item.getDescription(Instant.EPOCH)).isEqualTo("PeriMeter:Odium humani generis");
+        assertThat(item.getDescription()).isEqualTo("PeriMeter:Odium humani generis");
         when(meter1.getMeter(any(Instant.class))).thenReturn(Optional.empty());
-        assertThat(item.getDescription(Instant.EPOCH)).isEqualTo("Odium humani generis");
+        assertThat(item.getDescription()).isEqualTo("Odium humani generis");
     }
 
     private static class FakeRefAny implements RefAny {

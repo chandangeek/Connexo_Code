@@ -136,7 +136,7 @@ public class DataExportServiceImplTest {
     @Before
     public void setUp() throws SQLException {
         when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
-        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
+//        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
         when(iExportTask.getEventDataSelector()).thenReturn(Optional.empty());
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);

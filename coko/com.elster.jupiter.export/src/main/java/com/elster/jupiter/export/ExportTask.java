@@ -80,6 +80,8 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     Optional<EventDataSelector> getEventDataSelector();
 
+    Optional<AggregatedDataSelectorConfig> getAggregatedDataSelector();
+
     Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at);
 
     FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension);
