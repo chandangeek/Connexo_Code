@@ -83,7 +83,12 @@ public class RegisterResource {
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
+        Collections.sort(registerInfos, this::compareRegisterInfos);
         return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
+    }
+
+    private int compareRegisterInfos(RegisterInfo ri1, RegisterInfo ri2) {
+        return ri1.readingType.fullAliasName.compareTo(ri2.readingType.fullAliasName);
     }
 
     private List<ReadingType> getElegibleReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, Device device) {
@@ -182,7 +187,12 @@ public class RegisterResource {
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
                 .map(register -> new SummarizedRegisterInfo(register.getRegisterSpecId(), register.getReadingType().getFullAliasName(), register instanceof BillingRegister))
                 .collect(Collectors.toList());
+        Collections.sort(registerInfos, this::compareSummarizedRegisterInfos);
         return Response.ok(registerInfos).build();
+    }
+
+    private int compareSummarizedRegisterInfos(SummarizedRegisterInfo ri1, SummarizedRegisterInfo ri2) {
+        return ri1.name.compareTo(ri2.name);
     }
 
     private boolean registerGroupContainsAtLeastOneReadingType(List<RegisterType> registerTypes, List<Register> registers) {
