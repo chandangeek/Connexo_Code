@@ -76,7 +76,7 @@ public class ConnexoFlowRestProxyManager {
 
     public boolean existsGroup(String groupId) {
         try {
-            return (getEntity("/api/usr/findgroups/" + URLEncoder.encode(groupId, "UTF-8")) != null);
+            return (getEntity("/api/usr/findworkgroups/" + URLEncoder.encode(groupId, "UTF-8")) != null);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -87,7 +87,7 @@ public class ConnexoFlowRestProxyManager {
         List<String> members = new ArrayList<>();
         JSONArray array = null;
         try {
-            array = (JSONArray) getEntities("/api/usr/findgroups/" + URLEncoder.encode(groupId, "UTF-8") + "/users", "users");
+            array = (JSONArray) getEntities("/api/usr/findworkgroups/" + URLEncoder.encode(groupId, "UTF-8") + "/users", "users");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -112,7 +112,7 @@ public class ConnexoFlowRestProxyManager {
         List<String> members = new ArrayList<>();
         JSONArray array = null;
         try {
-            array = (JSONArray) getEntities("/api/usr/findusers/" +  URLEncoder.encode(userId, "UTF-8") + "/groups", "groups");
+            array = (JSONArray) getEntities("/api/usr/findusers/" +  URLEncoder.encode(userId, "UTF-8") + "/workgroups", "workgroups");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -170,11 +170,12 @@ public class ConnexoFlowRestProxyManager {
                 }
             }
         } catch (JSONException e) {
+            e.printStackTrace();
             System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace().toString());
+            System.out.println(e.getStackTrace());
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace().toString());
+            System.out.println(e.getStackTrace());
         }
 
         return null;
