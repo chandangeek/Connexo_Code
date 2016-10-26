@@ -10,7 +10,12 @@ import com.elster.jupiter.demo.impl.templates.DataValidationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.ValidationRuleSetTpl;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -29,6 +34,8 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
     private final Clock clock;
+    private final MeteringService meteringService;
+    private final ValidationService validationService;
 
     private ValidationRuleSet validationRuleSet;
     private ValidationRuleSet strictValidationRuleSet;
@@ -38,10 +45,13 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
             DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService,
             Clock clock,
-            Provider<CreateValidationDeviceCommand> createValidationDeviceCommandProvider) {
+            MeteringService meteringService,
+            ValidationService validationService) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.clock = clock;
         this.deviceService = deviceService;
+        this.meteringService = meteringService;
+        this.validationService = validationService;
     }
 
     public void run() {
@@ -74,9 +84,10 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
                     configuration.addValidationRuleSet(this.validationRuleSet);
                     configuration.save();
                 });
-        this.deviceConfigurationService.getLinkableDeviceConfigurations(this.strictValidationRuleSet)
+        Builders.from(DeviceTypeTpl.Elster_A1800).get().getConfigurations()
                 .stream()
                 .filter(configuration -> DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName()))
+                .filter(configuration -> configuration.getValidationRuleSets().stream().map(ValidationRuleSet::getId).noneMatch(id -> id == this.strictValidationRuleSet.getId()))
                 .forEach(configuration -> {
                     configuration.addValidationRuleSet(this.strictValidationRuleSet);
                     configuration.save();
@@ -85,16 +96,25 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
 
 
     private void addValidationToDevices() {
-        List<Device> devices = deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
-        System.out.println("==> Validation will be activated for " + devices.size() + " devices");
         DeviceType elsterA1800DeviceType = Builders.from(DeviceTypeTpl.Elster_A1800).get();
-        Instant now = this.clock.instant();
-        devices.forEach(device -> {
-            if (device.getDeviceType().equals(elsterA1800DeviceType)) {
-                device.forValidation().activateValidation(now);
-            } else {
-                device.forValidation().activateValidationOnStorage(now);
-            }
+        Subquery devicesWithValidateOnStore = this.deviceService.deviceQuery()
+                .asSubquery(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*").and(where("deviceType").isNotEqual(elsterA1800DeviceType)), "id");
+        List<Meter> meters = this.meteringService.getMeterQuery()
+                .select(ListOperator.IN.contains(devicesWithValidateOnStore, "amrId"));
+        System.out.println("==> Validate on store will be activated for " + meters.size() + " devices");
+        meters.forEach(meter -> {
+            this.validationService.activateValidation(meter);
+            this.validationService.enableValidationOnStorage(meter);
+        });
+
+        devicesWithValidateOnStore = this.deviceService.deviceQuery()
+                .asSubquery(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*").and(where("deviceType").isEqualTo(elsterA1800DeviceType)), "id");
+        meters = this.meteringService.getMeterQuery()
+                .select(ListOperator.IN.contains(devicesWithValidateOnStore, "amrId"));
+        System.out.println("==> Validation (without validate on store) will be activated for " + meters.size() + " devices");
+        meters.forEach(meter -> {
+            this.validationService.activateValidation(meter);
+            this.validationService.disableValidationOnStorage(meter);
         });
     }
 }

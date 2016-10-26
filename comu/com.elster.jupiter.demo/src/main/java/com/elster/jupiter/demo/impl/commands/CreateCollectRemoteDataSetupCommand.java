@@ -248,7 +248,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
             int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
             createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl,  validationStrictDeviceCount);
-            deviceCount = Math.max(0, deviceCount - VALIDATION_STRICT_DEVICE_COUNT);
+            deviceCount = Math.max(0, deviceCount - validationStrictDeviceCount);
         }
         createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
         createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
