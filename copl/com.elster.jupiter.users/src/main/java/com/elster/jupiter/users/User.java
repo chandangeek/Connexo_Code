@@ -92,4 +92,6 @@ public interface User extends Principal, HasName {
     Instant getLastUnSuccessfulLogin();
 
     void setLastUnSuccessfulLogin(Instant lastLoginFail);
+
+    List<WorkGroup> getWorkGroups();
 }

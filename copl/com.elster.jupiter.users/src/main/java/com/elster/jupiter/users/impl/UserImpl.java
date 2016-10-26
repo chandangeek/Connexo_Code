@@ -9,6 +9,7 @@ import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.WorkGroup;
 
 import com.google.common.collect.ImmutableList;
 
@@ -380,6 +381,12 @@ public final class UserImpl implements User {
     public void setLastUnSuccessfulLogin(Instant lastUnSuccessfulLogin) {
         this.lastUnSuccessfulLogin = lastUnSuccessfulLogin;
         this.dataModel.update(this, "lastUnSuccessfulLogin");
+    }
+
+    @Override
+    public List<WorkGroup> getWorkGroups() {
+        return dataModel.mapper(UsersInWorkGroup.class).find("userId", this.getId())
+                .stream().map(UsersInWorkGroup::getWorkGroup).collect(Collectors.toList());
     }
 
 }
