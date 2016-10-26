@@ -138,6 +138,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>loaderjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>calendar</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
