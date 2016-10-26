@@ -303,4 +303,61 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(2);
         assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
     }
+
+    @Test
+    public void testGetRegisterDataWithRegisterAndToTimeFilter() throws Exception {
+        when(clock.instant()).thenReturn(NOW);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(device.getId()).thenReturn(1L);
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+
+        long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        when(topologyService.getDataLoggerRegisterTimeLine(eq(register), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(register, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
+        when(topologyService.getDataLoggerRegisterTimeLine(eq(billingRegister), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(billingRegister, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
+        String filter = ExtjsFilter.filter()
+                .property("toTimeStart", intervalStart)
+                .property("toTimeEnd", intervalEnd)
+                .property("registers", Collections.singletonList(2))
+                .create();
+        Map json = target("devices/1/registers/registerreadings")
+                .queryParam("filter", filter)
+                .request().get(Map.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
+    }
+
+    @Test
+    public void testGetRegisterDataWithRegisterAndToTimeFilter2() throws Exception {
+        when(clock.instant()).thenReturn(NOW);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(device.getId()).thenReturn(1L);
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+
+        long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        when(topologyService.getDataLoggerRegisterTimeLine(eq(register), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(register, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
+        when(topologyService.getDataLoggerRegisterTimeLine(eq(billingRegister), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(billingRegister, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
+        String filter = ExtjsFilter.filter()
+                .property("toTimeStart", intervalStart)              // <<< criterion asking for Billing only registers
+                .property("toTimeEnd", intervalEnd)                  // <<< criterion asking for Billing only registers
+                .property("registers", Collections.singletonList(1)) // <<< criterion asking for Numerical registers
+                .create();
+        Map json = target("devices/1/registers/registerreadings")
+                .queryParam("filter", filter)
+                .request().get(Map.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(0);
+    }
 }

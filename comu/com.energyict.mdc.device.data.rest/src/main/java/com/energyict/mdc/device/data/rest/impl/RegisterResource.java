@@ -204,7 +204,7 @@ public class RegisterResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
         List<Register> registers = device.getRegisters().stream()
-                .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
+                .filter(register -> filteredReadingTypes.contains(register.getReadingType()))
                 .collect(Collectors.toList());
 
         Instant measurementTimeStart = jsonQueryFilter.getInstant("measurementTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("measurementTimeStart");
@@ -224,6 +224,9 @@ public class RegisterResource {
                     List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()))
                             .stream()
                             .filter(reading -> {
+                                if ( toTimeFilterAvailable && !(register1 instanceof BillingRegister) ) {
+                                     return false;
+                                }
                                 if (!toTimeFilterAvailable || !(register1 instanceof BillingRegister)) {
                                     return true;
                                 }
