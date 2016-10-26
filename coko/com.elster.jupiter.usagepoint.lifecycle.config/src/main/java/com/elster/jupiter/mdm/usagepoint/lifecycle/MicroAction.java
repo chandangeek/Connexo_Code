@@ -23,7 +23,7 @@ public enum MicroAction {
     }
 
     public MicroCategory getCategory() {
-        return category;
+        return this.category;
     }
 
     public Optional<String> getConflictGroupKey() {

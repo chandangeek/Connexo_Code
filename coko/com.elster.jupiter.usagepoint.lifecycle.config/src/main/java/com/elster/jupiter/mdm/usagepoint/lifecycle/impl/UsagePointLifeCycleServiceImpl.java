@@ -1,8 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -31,6 +33,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -38,6 +42,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {UsagePointLifeCycleService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true)
 public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleService, MessageSeedProvider, TranslationKeyProvider {
+    private static final String FSM_NAME_PREFIX = UsagePointLifeCycleService.COMPONENT_NAME + "_";
 
     private DataModel dataModel;
     private Thesaurus thesaurus;
@@ -125,6 +130,8 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Stream.of(DefaultState.values()).map(DefaultState::getTranslation).collect(Collectors.toList()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 
@@ -134,15 +141,36 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     }
 
     @Override
+    public Optional<UsagePointLifeCycle> findUsagePointLifeCycle(long id) {
+        return this.dataModel.mapper(UsagePointLifeCycle.class).getOptional(id);
+    }
+
+    @Override
     public Optional<UsagePointLifeCycle> findUsagePointLifeCycleByName(String name) {
         Condition condition = where(UsagePointLifeCycleImpl.Fields.NAME.fieldName()).isEqualTo(name)
                 .and(where(UsagePointLifeCycleImpl.Fields.OBSOLETE_TIME.fieldName()).isNull());
         return this.dataModel.query(UsagePointLifeCycle.class).select(condition).stream().findFirst();
     }
 
-    @Override
-    public UsagePointLifeCycleBuilder newUsagePointLifeCycle(String name) {
-        return this.dataModel.getInstance(UsagePointLifeCycleBuilderImpl.class).init(name);
+    public FiniteStateMachine getDefaultFiniteStateMachine(String name) {
+        FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
+        stateMachineBuilder.newStandardState(DefaultState.CONNECTED.getKey()).complete();
+        stateMachineBuilder.newStandardState(DefaultState.PHYSICALLY_DISCONNECTED.getKey()).complete();
+        stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
+        return stateMachineBuilder.complete(stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete());
     }
 
+    private UsagePointLifeCycle newUsagePointLifeCycle(String name, FiniteStateMachine stateMachine) {
+        UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
+        lifeCycle.setName(name);
+        lifeCycle.setStateMachine(stateMachine);
+        lifeCycle.save();
+        return lifeCycle;
+    }
+    @Override
+    public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
+        UsagePointLifeCycle lifeCycle = this.newUsagePointLifeCycle(name, getDefaultFiniteStateMachine(name));
+
+        return lifeCycle;
+    }
 }

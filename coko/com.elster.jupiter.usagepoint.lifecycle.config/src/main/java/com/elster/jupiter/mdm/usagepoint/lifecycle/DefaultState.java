@@ -23,7 +23,7 @@ public enum DefaultState {
         return translation;
     }
 
-    enum Translation implements TranslationKey {
+    private enum Translation implements TranslationKey {
         CONNECTED("usage.point.state.connected", "Connected"),
         DEMOLISHED("usage.point.state.demolished", "Demolished"),
         LOGICALLY_DISCONNECTED("usage.point.state.logically.disconnected", "Logically disconnected"),

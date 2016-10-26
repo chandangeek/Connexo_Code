@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleUpdater;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.orm.DataModel;
@@ -47,7 +46,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     @SuppressWarnings("unused")
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH - 4, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}") // 4 is the length for 'UPL_' prefix for FSM
     private String name;
     @SuppressWarnings("unused")
     private Instant obsoleteTime;
@@ -91,6 +90,11 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     }
 
     @Override
+    public UsagePointState.UsagePointStateCreator newState(String name) {
+        return new UsagePointStateCreatorImpl(this.dataModel, this, name);
+    }
+
+    @Override
     public long getVersion() {
         return this.version;
     }
@@ -118,11 +122,6 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
 
     void setStateMachine(FiniteStateMachine stateMachine) {
         this.stateMachine.set(stateMachine);
-    }
-
-    @Override
-    public UsagePointLifeCycleUpdater startUpdate() {
-        throw new UnsupportedOperationException("Method is not implemented yet."); // TODO
     }
 
     void save() {

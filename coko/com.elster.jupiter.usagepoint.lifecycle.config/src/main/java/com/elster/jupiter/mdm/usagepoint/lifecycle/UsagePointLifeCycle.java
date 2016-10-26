@@ -21,7 +21,7 @@ public interface UsagePointLifeCycle extends HasId, HasName {
 
     List<UsagePointState> getStates();
 
-    UsagePointLifeCycleUpdater startUpdate();
+    UsagePointState.UsagePointStateCreator newState(String name);
 
     long getVersion();
 }

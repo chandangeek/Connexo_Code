@@ -1,15 +1,12 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
-import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -39,27 +36,12 @@ public class UsagePointStateImpl implements UsagePointState {
     }
 
     @Override
-    public boolean isCustom() {
-        return this.delegate.isCustom();
-    }
-
-    @Override
     public String getName() {
         Optional<DefaultState> defaultState = getDefaultState();
         if (defaultState.isPresent()) {
             return this.thesaurus.getFormat(defaultState.get().getTranslation()).format();
         }
         return this.delegate.getName();
-    }
-
-    @Override
-    public FiniteStateMachine getFiniteStateMachine() {
-        return this.delegate.getFiniteStateMachine();
-    }
-
-    @Override
-    public List<StateTransition> getOutgoingStateTransitions() {
-        return this.delegate.getOutgoingStateTransitions();
     }
 
     @Override
@@ -78,22 +60,51 @@ public class UsagePointStateImpl implements UsagePointState {
     }
 
     @Override
-    public Instant getCreationTimestamp() {
-        return this.delegate.getCreationTimestamp();
-    }
-
-    @Override
-    public Instant getModifiedTimestamp() {
-        return this.delegate.getModifiedTimestamp();
-    }
-
-    @Override
     public Optional<DefaultState> getDefaultState() {
-        if (isCustom()) {
+        if (this.delegate.isCustom()) {
             return Optional.empty();
         }
         return Stream.of(DefaultState.values())
                 .filter(candidate -> candidate.getKey().equals(this.delegate.getName()))
                 .findFirst();
+    }
+
+    @Override
+    public boolean isDefault(DefaultState state) {
+        if (state == null || this.delegate.isCustom()) {
+            return false;
+        }
+        return this.delegate.getName().equals(state.getKey());
+    }
+
+    @Override
+    public void remove() {
+        this.delegate.getFiniteStateMachine().startUpdate().removeState(this.delegate);
+    }
+
+    @Override
+    public UsagePointStateUpdater startUpdate() {
+        return new UsagePointStateUpdaterImpl(this);
+    }
+
+    State getState() {
+        return this.delegate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UsagePointStateImpl that = (UsagePointStateImpl) o;
+        return this.delegate != null ? this.delegate.equals(that.delegate) : that.delegate == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.delegate != null ? this.delegate.hashCode() : 0;
     }
 }
