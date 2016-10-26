@@ -17,4 +17,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface Category extends HasId, HasName {
     void save();
+
+    String getDisplayName();
 }

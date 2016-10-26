@@ -17,6 +17,6 @@ public enum OutOfTheBoxCategory {
     }
 
     public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString("calendar.category." + this.name().toLowerCase(), getDefaultDisplayName());
+        return thesaurus.getString(CategoryImpl.CALENDAR_CATEGORY_KEY_PREFIX + this.name().toLowerCase(), getDefaultDisplayName());
     }
 }

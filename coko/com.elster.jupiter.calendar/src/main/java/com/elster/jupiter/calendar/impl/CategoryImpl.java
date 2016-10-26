@@ -4,6 +4,7 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 
 import javax.inject.Inject;
@@ -18,6 +19,8 @@ import java.util.Objects;
  */
 @UniqueCategoryName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CATEGORY_NAME + "}")
 final class CategoryImpl implements Category {
+
+    static final String CALENDAR_CATEGORY_KEY_PREFIX = "calendar.category.";
 
     public enum Fields {
         ID("id"),
@@ -41,6 +44,7 @@ final class CategoryImpl implements Category {
     private String name;
 
     private final ServerCalendarService calendarService;
+    private final Thesaurus thesaurus;
 
     public CategoryImpl init(String name) {
         this.name = name;
@@ -48,8 +52,9 @@ final class CategoryImpl implements Category {
     }
 
     @Inject
-    CategoryImpl(ServerCalendarService calendarService) {
+    CategoryImpl(ServerCalendarService calendarService, Thesaurus thesaurus) {
         this.calendarService = calendarService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -65,6 +70,11 @@ final class CategoryImpl implements Category {
     @Override
     public void save() {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return thesaurus.getString(CALENDAR_CATEGORY_KEY_PREFIX + getName().toLowerCase(), getName());
     }
 
     @Override
