@@ -13,6 +13,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.rest.SimplifiedUserInfo;
+import com.elster.jupiter.users.rest.UserInfos;
 import com.elster.jupiter.users.rest.WorkGroupInfo;
 import com.elster.jupiter.users.rest.actions.CreateWorkGroupTransaction;
 import com.elster.jupiter.users.rest.actions.DeleteWorkGroupTransaction;
@@ -112,6 +113,18 @@ public class WorkGroupResource {
         List<SimplifiedUserInfo> users = userService.getUsers()
                 .stream()
                 .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
+                .map(SimplifiedUserInfo::new)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("users", users, queryParameters);
+    }
+
+    @GET
+    @Path("/{id}/members")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    public PagedInfoList getWorkGroupMembers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id) {
+        WorkGroup workGroup = userService.getWorkGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<SimplifiedUserInfo> users = workGroup.getUsersInWorkGroup().stream().sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
                 .map(SimplifiedUserInfo::new)
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("users", users, queryParameters);

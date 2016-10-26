@@ -62,4 +62,19 @@ public class FindUserResource {
         }
     }
 
+    @GET
+    @Path("/{user}/workgroups")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
+    public WorkGroupInfos getUserWorkGroups(@PathParam("user") String authenticationName) {
+        try {
+            return userService
+                    .findUser(URLDecoder.decode(authenticationName, "UTF-8"))
+                    .map(user -> new WorkGroupInfos(user.getWorkGroups()))
+                    .orElse(null);
+        } catch (UnsupportedEncodingException e) {
+            throw new UnderlyingIOException(e);
+        }
+    }
+
 }
