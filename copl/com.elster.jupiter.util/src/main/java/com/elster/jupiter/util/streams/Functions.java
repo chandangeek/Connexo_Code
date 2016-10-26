@@ -28,4 +28,8 @@ public enum Functions {
     public static <T> Consumer<T> first(Consumer<T> consumer) {
         return consumer;
     }
+
+    public static <X, Y> Function<X, Y> map(Function<X, Y> function) {
+        return function;
+    }
 }
