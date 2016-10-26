@@ -21,5 +21,4 @@ public class TranslatablePropertyValueInfo extends HasIdAndName {
     public String getName() {
         return name;
     }
-
 }

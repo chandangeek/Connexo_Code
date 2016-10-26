@@ -9,7 +9,6 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
-import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.Channel;
@@ -221,12 +220,35 @@ public class StandardCsvDataFormatterTest {
     }
 
     @Test
-    public void testLinesAreOk() {
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
+    public void testLinesAreOkForLoadProfile() {
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), dataExportService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        FormattedData formattedData = processor.processData(Stream.of(/*new MeterReadingData(item, dataLoadProfile, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
+        List<FormattedExportData> lines = formattedData.getData();
+        processor.endItem(item);
+        assertThat(lines).hasSize(2);
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMR;Device;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMR;Device;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;\n");
+
+        processor.startExport(dataExportOccurrence, logger);
+        processor.startItem(item1);
+        formattedData = processor.processData(Stream.of(/*new MeterReadingData(item1, this.dataLoadProfile, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
+        lines = formattedData.getData();
+        processor.endItem(item1);
+        assertThat(lines).hasSize(2);
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMRMR;AnotherDevice;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMRMR;AnotherDevice;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;\n");
+    }
+
+    @Test
+    public void testLinesAreOk() {
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), dataExportService);
+
+        processor.startExport(dataExportOccurrence, logger);
+        processor.startItem(item);
+        FormattedData formattedData = processor.processData(Stream.of(/*new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
         List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(3);
@@ -236,7 +258,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
-        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.data, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        formattedData = processor.processData(Stream.of(/*new MeterReadingData(item1, this.data, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
         lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(3);
@@ -245,47 +267,24 @@ public class StandardCsvDataFormatterTest {
         assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMRMR;AnotherDevice;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;0;suspect\n");
     }
 
-    @Test
-    public void testLinesAreOkForLoadProfile() {
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
-
-        processor.startExport(dataExportOccurrence, logger);
-        processor.startItem(item);
-        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, dataLoadProfile, TestDefaultStructureMarker.createRoot(clock, "root"))));
-        List<FormattedExportData> lines = formattedData.getData();
-        processor.endItem(item);
-        assertThat(lines).hasSize(2);
-        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMR;Device;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;\n");
-        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMR;Device;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;\n");
-
-        processor.startExport(dataExportOccurrence, logger);
-        processor.startItem(item1);
-        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.dataLoadProfile, TestDefaultStructureMarker.createRoot(clock, "root"))));
-        lines = formattedData.getData();
-        processor.endItem(item1);
-        assertThat(lines).hasSize(2);
-        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMRMR;AnotherDevice;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;\n");
-        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;MRMRMR;AnotherDevice;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;\n");
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException() {
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), dataExportService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(Stream.of(new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock ,"root"))));
+        processor.processData(Stream.of(/*new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock ,"root"))*/));
         processor.endItem(item1);
     }
 
     @Test(expected = DataExportException.class)
     public void testNoMeter() {
         when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.empty());
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), dataExportService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(Stream.of(new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        processor.processData(Stream.of(/*new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
     }
 
     private Map<String, Object> getPropertyMap(List<DataExportProperty> properties) {

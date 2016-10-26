@@ -4,7 +4,6 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -13,7 +12,6 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.FancyJoiner;
-import com.elster.jupiter.validation.ValidationService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -35,8 +33,6 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportService dataExportService;
-    private volatile ValidationService validationService;
-    private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
     //OSGI
@@ -45,12 +41,10 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     // Tests
     @Inject
-    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService, MeteringService meteringService) {
+    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, NlsService nlsService) {
         this();
         setPropertySpecService(propertySpecService);
         setDataExportService(dataExportService);
-        setValidationService(validationService);
-        setMeteringService(meteringService);
         setThesaurus(nlsService);
     }
 
@@ -67,16 +61,6 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     @Reference
     public void setDataExportService(DataExportService dataExportService) {
         this.dataExportService = dataExportService;
-    }
-
-    @Reference
-    public void setValidationService(ValidationService validationService) {
-        this.validationService = validationService;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
     }
 
     @Override
@@ -120,7 +104,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvDataFormatter(properties, thesaurus, validationService, dataExportService, meteringService);
+        return new StandardCsvDataFormatter(properties, dataExportService);
     }
 
     @Override
@@ -159,5 +143,4 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     public String getDisplayName() {
         return this.thesaurus.getFormat(Translations.Labels.CSV_FORMATTER).format();
     }
-
 }
