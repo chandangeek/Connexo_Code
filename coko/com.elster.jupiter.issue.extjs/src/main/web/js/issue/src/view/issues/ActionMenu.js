@@ -19,6 +19,11 @@ Ext.define('Isu.view.issues.ActionMenu', {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
             privileges: Isu.privileges.Issue.comment,
             action: 'addComment'
+        },
+        {
+            text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'ISU', 'Assign to me'),
+            privileges: Isu.privileges.Issue.Assign,
+            action: 'addComment'
         }
     ],
     listeners: {

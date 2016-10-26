@@ -8,6 +8,7 @@ Ext.define('Isu.view.issues.Grid', {
         'Uni.view.toolbar.PagingBottom',
         'Isu.view.issues.ActionMenu',
         'Isu.view.component.AssigneeColumn',
+        'Isu.view.component.WorkgroupColumn',
         'Isu.privileges.Issue'
     ],
     alias: 'widget.issues-grid',
@@ -55,6 +56,13 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-status',
                 header: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 dataIndex: 'status_name',
+                flex: 1
+            },
+            {
+                itemId: 'issues-grid-workgroup',
+                header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
+                xtype: 'isu-workgroup-column',
+                dataIndex: 'assignee',
                 flex: 1
             },
             {
