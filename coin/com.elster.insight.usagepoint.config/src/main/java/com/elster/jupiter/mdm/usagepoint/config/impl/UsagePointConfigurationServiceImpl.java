@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -283,6 +284,91 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                         .isEqualTo(ruleset))
                 .isEmpty();
     }
+
+    @Override
+    public void addEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+        this.dataModel
+                .getInstance(MetrologyContractEstimationRuleSetUsageImpl.class)
+                .initAndSave(metrologyContract, estimationRuleSet);
+        metrologyContract.update();
+    }
+
+    @Override
+    public void removeEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+        this.dataModel
+                .mapper(MetrologyContractEstimationRuleSetUsage.class)
+                .getUnique(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName(), metrologyContract,
+                        MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName(), estimationRuleSet)
+                .ifPresent(metrologyContractEstimationRuleSetUsage -> dataModel.remove(metrologyContractEstimationRuleSetUsage));
+        metrologyContract.update();
+    }
+
+    @Override
+    public List<EstimationRuleSet> getEstimationRuleSets(MetrologyContract metrologyContract) {
+        return this.dataModel
+                .query(MetrologyContractEstimationRuleSetUsage.class)
+                .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                        .isEqualTo(metrologyContract))
+                .stream()
+                .map(MetrologyContractEstimationRuleSetUsage::getEstimationRuleSet)
+                .sorted((ruleSet1, ruleSet2) -> ruleSet1.getName().compareToIgnoreCase(ruleSet2.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isLinkableEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet, List<EstimationRuleSet> linkedEstimationRuleSets) {
+        if (linkedEstimationRuleSets.contains(estimationRuleSet)) {
+            return false;
+        }
+
+            if (!estimationRuleSet.getRules().isEmpty()) {
+                List<ReadingType> ruleSetReadingTypes = estimationRuleSet
+                        .getRules()
+                        .stream()
+                        .flatMap(rule -> rule.getReadingTypes().stream())
+                        .collect(Collectors.toList());
+                List<String> ruleSetReadingTypeMRIDs = ruleSetReadingTypes
+                        .stream()
+                        .map(ReadingType::getMRID)
+                        .collect(Collectors.toList());
+                if (!metrologyContract.getDeliverables().isEmpty()) {
+                    List<String> deliverableReadingTypeMRIDs = metrologyContract.getDeliverables()
+                            .stream()
+                            .map(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().getMRID())
+                            .collect(Collectors.toList());
+                    if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
+                        return true;
+                    } else {
+                        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+                        metrologyContract.getDeliverables()
+                                .stream()
+                                .map(ReadingTypeDeliverable::getFormula)
+                                .map(Formula::getExpressionNode)
+                                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+                        for (ReadingTypeRequirement readingTypeRequirement : requirementsCollector.getReadingTypeRequirements()) {
+                            if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes.contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
+                                return true;
+                            } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
+                                ReadingTypeTemplate readingTypeTemplate = ((PartiallySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingTypeTemplate();
+                                return ruleSetReadingTypes.stream().anyMatch(readingTypeTemplate::matches);
+                            }
+                        }
+                    }
+                }
+            }
+
+        return false;
+    }
+
+    @Override
+    public boolean isEstimationRuleSetInUse(EstimationRuleSet ruleset) {
+        return !this.dataModel
+                .query(MetrologyContractEstimationRuleSetUsage.class)
+                .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName())
+                        .isEqualTo(ruleset))
+                .isEmpty();
+    }
+
 
     @Override
     public String getComponentName() {
