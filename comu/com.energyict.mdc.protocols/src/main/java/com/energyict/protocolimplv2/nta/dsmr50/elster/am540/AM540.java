@@ -39,6 +39,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -164,6 +165,11 @@ public class AM540 extends AbstractDlmsProtocol {
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         super.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
         this.getDlmsProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
+    }
+
+    @Override
+    protected ConfigurationSupport getDlmsConfigurationSupport() {
+        return new InternalConfigurationSupport();
     }
 
     /**
@@ -467,5 +473,17 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public boolean supportsCommunicationFirmwareVersion() {
         return true;
+    }
+
+    private class InternalConfigurationSupport implements ConfigurationSupport {
+        @Override
+        public List<PropertySpec> getRequiredProperties() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<PropertySpec> getOptionalProperties() {
+            return getDlmsProperties().getPropertySpecs();
+        }
     }
 }

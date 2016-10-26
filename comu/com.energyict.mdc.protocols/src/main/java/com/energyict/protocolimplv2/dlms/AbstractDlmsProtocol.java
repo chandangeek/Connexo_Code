@@ -449,7 +449,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> allProperties = new ArrayList<>(getDlmsConfigurationSupport().getOptionalProperties());
         allProperties.addAll(getDlmsConfigurationSupport().getRequiredProperties());
-        allProperties.addAll(getDlmsProperties().getPropertySpecs());
         return allProperties;
     }
 
