@@ -21,7 +21,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 dataIndex: 'register',
                 renderer: function (value, metaData, record) {
                     var from = moment(record.get('timeStamp')).subtract(1, 'minutes').valueOf(),
-                        url = '#/devices/' + me.mRID + '/registers/' + value.id + '/data?interval=' + from + '-' + record.get('timeStamp');
+                        to = moment(record.get('timeStamp')).add(1, 'minutes').valueOf(),
+                        url = '#/devices/' + me.mRID + '/registers/' + value.id + '/data?interval=' + from + '-' + to;
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                 },
                 flex: 15
@@ -40,7 +41,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 dataIndex: 'intervalStart',
                 itemId: 'mdc-readings-grid-from-column',
                 renderer: function (value) {
-                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
+                    return Ext.isEmpty(value) || value === 0 ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 },
                 hidden: true
             },
@@ -50,7 +51,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 dataIndex: 'intervalEnd',
                 itemId: 'mdc-readings-grid-to-column',
                 renderer: function (value) {
-                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
+                    return Ext.isEmpty(value) || value === 0 ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 },
                 hidden: true
             },
