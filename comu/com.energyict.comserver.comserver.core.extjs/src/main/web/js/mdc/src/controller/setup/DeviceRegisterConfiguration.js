@@ -164,18 +164,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             showMeReadings = router.currentRoute.endsWith('readings');
 
         if (!Ext.isEmpty(router.queryParams)) {
-            if (!Ext.isEmpty(router.queryParams.measurementTime)) {
-                me.previousMeasurementTime = router.queryParams.measurementTime;
-            }
-            if (!Ext.isEmpty(router.queryParams.toTime)) {
-                me.previousToTime = router.queryParams.toTime;
-            }
-            if (!Ext.isEmpty(router.queryParams.groups)) {
-                me.groupsFromQueryParam = router.queryParams.groups;
-            }
-            if (!Ext.isEmpty(router.queryParams.registers)) {
-                me.registersFromQueryParam = router.queryParams.registers;
-            }
+            me.previousMeasurementTime = Ext.isEmpty(router.queryParams.measurementTime) ? undefined : router.queryParams.measurementTime;
+            me.previousToTime = Ext.isEmpty(router.queryParams.toTime) ? undefined : router.queryParams.toTime;
+            me.groupsFromQueryParam = Ext.isEmpty(router.queryParams.groups) ? undefined : router.queryParams.groups;
+            me.registersFromQueryParam = Ext.isEmpty(router.queryParams.registers) ? undefined : router.queryParams.registers;
         }
         if (Ext.isEmpty(tab)) {
             Uni.util.History.suspendEventsForNextCall();
