@@ -1,102 +1,35 @@
 package com.energyict.mdc.upl;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
  * MeterProtocol defines the interface between a data collection
- * system and the meter protocol implementation. The interface can both be
- * used at operational time and at configuration time
+ * system and the meter protocol implementation.
  * <p>
- * During normal operations the data collection system will call the MeterProtocol
+ * During normal operations the data collection system will call the
  * methods in the following sequence:
  * <ul>
- * <li> setProperties </li>
  * <li> init </li>
  * <li> connect </li>
  * <li> any of the get, set and initializeDevice methods in undefined sequence </li>
  * <li> release </li>
  * <li> disconnect </li>
  * </ul>
- * At configuration time, the getRequiredKeys, getOptionalKeys and setProperties methods
- * can be called in any sequence </p>
  *
  * @author Karel
  *         KV 15122003 serialnumber of the device
  */
 @ConsumerType
 public interface MeterProtocol {
-
-    enum Property {
-        ADDRESS("DevideId"),
-        PASSWORD("Password"),
-        PROFILEINTERVAL("ProfileInterval"),
-        SERIALNUMBER("SerialNumber"),
-        NODEID("NodeAddress"),
-        MAXTIMEDIFF("MaximumTimeDiff"),
-        MINTIMEDIFF("MinimumTimeDiff"),
-
-        /**
-         * This property is used by the getTime() and setTime() method
-         * to correct the communication roundtrip.
-         */
-        ROUNDTRIPCORR("RoundtripCorrection"),
-
-        /**
-         * The string used for the correctTime property.
-         * The property is used only by the protocoltester software.
-         */
-        CORRECTTIME("CorrectTime"),
-
-        /**
-         * This string used for the ExtraIntervals property.
-         * The property is used to subtract nr of ExtraIntervals from last reading
-         * so to request ExtraIntervals more profile data from a meter.
-         * This is done to ensure that enough intervals are read
-         * to calculate advances from cumulative values!
-         */
-        EXTRAINTERVALS("ExtraIntervals"),
-
-        /**
-         * The string used for the protocol classname property
-         */
-        PROTOCOL("ProtocolReader");
-
-        private final String name;
-
-        Property(String name) {
-            this.name = name;
-        }
-
-        String getName() {
-            return this.name;
-        }
-    }
-
-    /**
-     * <p>
-     * Sets the protocol specific properties.
-     * </p><p>
-     * This method can also be called at device configuration time to check the validity of
-     * the configured values </p><p>
-     * The implementer has to specify which keys are mandatory,
-     * and which are optional. Convention is to use lower case keys.</p><p>
-     * Typical keys are: <br>
-     * "address"  (MeterProtocol.ADDRESS) <br>
-     * "password"  (MeterProtocol.PASSWORD) </p>
-     *
-     * @param properties contains a set of protocol specific key value pairs
-     * @throws InvalidPropertyException if a property value is not compatible with the device type
-     * @throws MissingPropertyException if a required property is not present
-     */
-    void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException;
 
     /**
      * <p>
