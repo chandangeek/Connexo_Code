@@ -2,11 +2,13 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Uni.form.field.DateTime',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Est.estimationtasks.view.DataSourcesContainer'
     ],
     alias: 'widget.estimationtasks-addedit',
 
     returnLink: null,
+    appName: null,
     edit: false,
 
     initComponent: function () {
@@ -51,34 +53,8 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                         ui: 'medium'
                     },
                     {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('estimationtasks.general.deviceGroup', 'EST', 'Device group'),
-                        required: true,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'combobox',
-                                itemId: 'device-group-id',
-                                name: 'deviceGroupId',
-                                width: 235,
-                                store: 'Est.estimationtasks.store.DeviceGroups',
-                                editable: false,
-                                disabled: false,
-                                emptyText: Uni.I18n.translate('estimationtasks.addEstimationTask.deviceGroupPrompt', 'EST', 'Select a device group...'),
-                                allowBlank: false,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'no-device',
-                                hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('estimationtasks.general.noDeviceGroup', 'EST', 'No device group defined yet.') + '</div>',
-                                htmlEncode: false,
-                                width: 235
-                            }
-                        ]
+                        xtype: 'est-data-sources-container',
+                        appName: me.appName
                     },
                     {
                         title: Uni.I18n.translate('estimationtasks.general.schedule', 'EST', 'Schedule'),

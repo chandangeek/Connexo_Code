@@ -38,20 +38,17 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
     showAddEstimationTasksView: function () {
         var me = this,
-            widget = Ext.widget('estimationtasks-addedit');
+            widget = Ext.widget('estimationtasks-addedit',{
+                appName: Uni.util.Application.getAppName()
+            }),
+            dataSourcesContainer = widget.down('est-data-sources-container');
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getEstimationPeriodCombo().store.load({
             params: {
                 category: 'relativeperiod.category.estimation'
             },
             callback: function () {
-                me.getDeviceGroupCombo().store.load(function () {
-                    if (this.getCount() === 0) {
-                        me.getDeviceGroupCombo().allowBlank = true;
-                        me.getDeviceGroupCombo().hide();
-                        me.getNoDeviceGroupBlock().show();
-                    }
-                });
+                dataSourcesContainer.loadGroupStore();
             }
         });
 
@@ -226,25 +223,22 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Est.estimationtasks.model.EstimationTask'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            widget;
+            widget = Ext.widget('estimationtasks-addedit', {
+                appName: Uni.util.Application.getAppName(),
+                edit: true
+            });
 
         me.taskId = currentTaskId;
 
         if (me.fromDetails) {
-            widget = Ext.widget('estimationtasks-addedit', {
-                edit: true,
-                returnLink: router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: currentTaskId})
-            })
+            widget.returnLink = router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: currentTaskId});
         } else {
-            widget = Ext.widget('estimationtasks-addedit', {
-                edit: true,
-                returnLink: router.getRoute('administration/estimationtasks').buildUrl()
-            })
+            widget.returnLink = router.getRoute('administration/estimationtasks').buildUrl();
         }
         pageMainContent.setLoading(true);
 
         var taskForm = widget.down('#add-edit-estimationtask-form'),
-            deviceGroupCombo = widget.down('#device-group-id'),
+            dataSourcesContainer = widget.down('est-data-sources-container'),
             recurrenceTypeCombo = widget.down('#recurrence-type');
 
         taskModel.load(currentTaskId, {
@@ -256,13 +250,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                 taskForm.loadRecord(record);
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'EST', "Edit '{0}'",[record.get('name')]));
-                deviceGroupCombo.store.load(function () {
-                    if (this.getCount() === 0) {
-                        deviceGroupCombo.allowBlank = true;
-                        deviceGroupCombo.hide();
-                        me.getNoDeviceGroupBlock().show();
-                    }
-                    deviceGroupCombo.setValue(deviceGroupCombo.store.getById(deviceGroup.id));
+                dataSourcesContainer.loadGroupStore(function(){
+                    dataSourcesContainer.setComboValue(deviceGroup.id);
                     me.getEstimationPeriodCombo().store.load(function () {
                         if (period && (period.id !== 0)) {
                             widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});
@@ -270,7 +259,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                         }
                         pageMainContent.setLoading(false);
                     });
-
                 });
 
                 if (record.get('nextRun') && (record.get('nextRun') !== 0)) {
