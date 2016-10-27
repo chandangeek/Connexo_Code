@@ -123,6 +123,7 @@ public class UsagePointResource {
     private final Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider;
     private final Provider<GoingOnResource> goingOnResourceProvider;
     private final Provider<UsagePointOutputResource> usagePointOutputResourceProvider;
+    private final Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
@@ -139,7 +140,7 @@ public class UsagePointResource {
                               ServiceCallService serviceCallService, ServiceCallInfoFactory serviceCallInfoFactory,
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
                               CustomPropertySetService customPropertySetService,
-                              UsagePointInfoFactory usagePointInfoFactory,
+                              Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider, UsagePointInfoFactory usagePointInfoFactory,
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
                               ExceptionFactory exceptionFactory,
                               LocationInfoFactory locationInfoFactory,
@@ -159,6 +160,7 @@ public class UsagePointResource {
         this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
         this.customPropertySetService = customPropertySetService;
+        this.usagePointCalendarResourceProvider = usagePointCalendarResourceProvider;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.locationInfoFactory = locationInfoFactory;
         this.validationSummaryInfoFactory = validationSummaryInfoFactory;
@@ -518,6 +520,11 @@ public class UsagePointResource {
     @Path("/{mrid}/customproperties")
     public UsagePointCustomPropertySetResource getUsagePointCustomPropertySetResource() {
         return usagePointCustomPropertySetResourceProvider.get();
+    }
+
+    @Path("/{mrid}/calendars")
+    public UsagePointCalendarResource getUsagePointCalendarResource() {
+        return usagePointCalendarResourceProvider.get();
     }
 
     @Path("/{mRID}/whatsgoingon")

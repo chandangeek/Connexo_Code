@@ -32,6 +32,7 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
@@ -84,6 +85,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile TimeService timeService;
     private volatile LicenseService licenseService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
+    private volatile UsagePointCalendarService usagePointCalendarService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -93,7 +96,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointCustomPropertySetResource.class,
                 UsagePointOutputResource.class,
                 GoingOnResource.class,
-                RestValidationExceptionMapper.class
+                RestValidationExceptionMapper.class,
+                UsagePointCalendarResource.class
         );
     }
 
@@ -256,6 +260,16 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setCalendarOnUsagePointInfoFactory(CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory) {
+        this.calendarOnUsagePointInfoFactory = calendarOnUsagePointInfoFactory;
+    }
+
+    @Reference
+    public void setUsagePointCalendarService(UsagePointCalendarService usagePointCalendarService) {
+        this.usagePointCalendarService = usagePointCalendarService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -299,6 +313,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
             bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
+            bind(calendarOnUsagePointInfoFactory).to(CalendarOnUsagePointInfoFactory.class);
+            bind(usagePointCalendarService).to(UsagePointCalendarService.class);
         }
     }
 

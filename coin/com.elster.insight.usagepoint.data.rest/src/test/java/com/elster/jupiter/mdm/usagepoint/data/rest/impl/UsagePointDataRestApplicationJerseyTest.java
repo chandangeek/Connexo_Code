@@ -43,6 +43,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.Priority;
@@ -113,6 +114,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ThreadPrincipalService threadPrincipalService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    private UsagePointCalendarService usagePointCalendarService;
+    @Mock
+    private CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
 
     @Override
     protected Application getApplication() {
@@ -148,6 +153,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setUsagePointCalendarService(usagePointCalendarService);
+        application.setCalendarOnUsagePointInfoFactory(calendarOnUsagePointInfoFactory);
         return application;
     }
 
