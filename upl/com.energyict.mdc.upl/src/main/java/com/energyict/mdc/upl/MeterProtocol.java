@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -18,18 +19,89 @@ import java.util.logging.Logger;
  * During normal operations the data collection system will call the
  * methods in the following sequence:
  * <ul>
- * <li> init </li>
- * <li> connect </li>
- * <li> any of the get, set and initializeDevice methods in undefined sequence </li>
- * <li> release </li>
- * <li> disconnect </li>
+ * <li>setProperties</li>
+ * <li>init</li>
+ * <li>connect</li>
+ * <li>any of the get, set and initializeDevice methods in undefined sequence</li>
+ * <li>release</li>
+ * <li>disconnect</li>
  * </ul>
+ * Failing to set a value for a required property will result in a NullPointerException
+ * in one of the init, connect, get, set, initializeDevice, release or disconnect methods.
+ * <p>
+ * At configuration time, the getRequiredKeys, getOptionalKeys and setProperties methods
+ * can be called in any sequence.
+ * </p>
  *
  * @author Karel
  *         KV 15122003 serialnumber of the device
  */
 @ConsumerType
 public interface MeterProtocol {
+
+    /**
+     * Models common properties that can be marked required or optional
+     * by the actual MeterProtocol implementation classes.
+     */
+    enum Property {
+        ADDRESS("DevideId"),
+        PASSWORD("Password"),
+        PROFILEINTERVAL("ProfileInterval"),
+        SERIALNUMBER("SerialNumber"),
+        NODEID("NodeAddress"),
+        MAXTIMEDIFF("MaximumTimeDiff"),
+        MINTIMEDIFF("MinimumTimeDiff"),
+
+        /**
+         * This property is used by the getTime() and setTime() method
+         * to correct the communication roundtrip.
+         */
+        ROUNDTRIPCORR("RoundtripCorrection"),
+
+        /**
+         * The string used for the correctTime property.
+         * The property is used only by the protocoltester software.
+         */
+        CORRECTTIME("CorrectTime"),
+
+        /**
+         * This string used for the ExtraIntervals property.
+         * The property is used to subtract nr of ExtraIntervals from last reading
+         * so to request ExtraIntervals more profile data from a meter.
+         * This is done to ensure that enough intervals are read
+         * to calculate advances from cumulative values!
+         */
+        EXTRAINTERVALS("ExtraIntervals"),
+
+        /**
+         * The string used for the protocol classname property
+         */
+        PROTOCOL("ProtocolReader");
+
+        private final String name;
+
+        Property(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+
+    /**
+     * Gets the names of the required properties for this MeterProtocol.
+     *
+     * @return The List of property names
+     */
+    List<String> getRequiredKeys();
+
+    /**
+     * Gets the names of the optional properties for this MeterProtocol.
+     *
+     * @return The List of property names
+     */
+    List<String> getOptionalKeys();
 
     /**
      * <p>
