@@ -11,7 +11,14 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
@@ -97,6 +104,38 @@ public class PagedInfoList {
             infos = infos.subList(startIndex, endIndex);
         }
         return new PagedInfoList(jsonListName, infos, totalCount);
+    }
+
+    public static <T> Collector<T, ArrayList<T>, PagedInfoList> toPagedInfoList(String jsonListName, QueryParameters queryParameters) {
+        return new Collector<T, ArrayList<T>, PagedInfoList>() {
+            @Override
+            public Supplier<ArrayList<T>> supplier() {
+                return ArrayList<T>::new;
+            }
+
+            @Override
+            public BiConsumer<ArrayList<T>, T> accumulator() {
+                return ArrayList::add;
+            }
+
+            @Override
+            public BinaryOperator<ArrayList<T>> combiner() {
+                return (list1, list2) -> {
+                    list1.addAll(list2);
+                    return list1;
+                };
+            }
+
+            @Override
+            public Function<ArrayList<T>, PagedInfoList> finisher() {
+                return list -> fromCompleteList(jsonListName, list, queryParameters);
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return EnumSet.noneOf(Characteristics.class);
+            }
+        };
     }
 
     public static class Serializer extends JsonSerializer<PagedInfoList> {
