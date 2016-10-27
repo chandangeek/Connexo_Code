@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -68,5 +69,32 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         assertThat(usagePointState.getDefaultState()).isEmpty();
         assertThat(usagePointState.getOnEntryProcesses()).isEmpty();
         assertThat(usagePointState.getOnExitProcesses()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveLifeCycle() {
+        UsagePointLifeCycleService service = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
+        lifeCycle.remove();
+
+        assertThat(service.findUsagePointLifeCycle(lifeCycle.getId())).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testCanCreateTransition() {
+        UsagePointLifeCycleService service = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
+        UsagePointState from = lifeCycle.newState("From").complete();
+        UsagePointState to = lifeCycle.newState("To").complete();
+
+        UsagePointTransition transition = lifeCycle.newTransition("tr1", from, to).complete();
+
+        transition = service.finUsagePointTransition(transition.getId()).get();
+        assertThat(transition.getName()).isEqualTo("tr1");
+        assertThat(transition.getFrom()).isEqualTo(from);
+        assertThat(transition.getTo()).isEqualTo(to);
+        assertThat(transition.getTriggeredBy()).isEmpty();
     }
 }

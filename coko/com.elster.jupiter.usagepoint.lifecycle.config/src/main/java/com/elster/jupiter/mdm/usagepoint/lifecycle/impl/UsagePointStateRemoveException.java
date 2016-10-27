@@ -25,7 +25,7 @@ public class UsagePointStateRemoveException extends LocalizedException {
     }
 
     public static UsagePointStateRemoveException stateIsInitial(Thesaurus thesaurus) {
-        UsagePointStateRemoveException exception = new UsagePointStateRemoveException(thesaurus, MessageSeeds.CAN_NOT_REMOVE_LAST_STATE);
+        UsagePointStateRemoveException exception = new UsagePointStateRemoveException(thesaurus, MessageSeeds.CAN_NOT_REMOVE_INITIAL_STATE);
         return exception;
     }
 }

@@ -1,11 +1,13 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -49,6 +51,7 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     private UpgradeService upgradeService;
     private UserService userService;
     private FiniteStateMachineService stateMachineService;
+    private EventService eventService;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -59,12 +62,14 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                                           NlsService nlsService,
                                           UpgradeService upgradeService,
                                           UserService userService,
-                                          FiniteStateMachineService stateMachineService) {
+                                          FiniteStateMachineService stateMachineService,
+                                          EventService eventService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         setUserService(userService);
         setStateMachineService(stateMachineService);
+        setEventService(eventService);
         activate();
     }
 
@@ -96,6 +101,11 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         this.stateMachineService = stateMachineService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -113,6 +123,7 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(FiniteStateMachineService.class).toInstance(stateMachineService);
+                bind(EventService.class).toInstance(eventService);
             }
         };
     }
@@ -177,5 +188,10 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         UsagePointLifeCycle lifeCycle = this.newUsagePointLifeCycle(name, getDefaultFiniteStateMachine(name));
 
         return lifeCycle;
+    }
+
+    @Override
+    public Optional<UsagePointTransition> finUsagePointTransition(long id) {
+        return this.dataModel.mapper(UsagePointTransition.class).getOptional(id);
     }
 }

@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {UniqueUsagePointLifeCycleNameValidator.class})
+@Constraint(validatedBy = {UniqueUsagePointLifeCycleNameValidator.class, UniqueUsagePointTransitionValidator.class})
 public @interface Unique {
 
     String message() default "";

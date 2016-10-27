@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
@@ -65,10 +66,12 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     private Instant modTime;
 
     private final DataModel dataModel;
+    private final EventService eventService;
 
     @Inject
-    public UsagePointLifeCycleImpl(DataModel dataModel) {
+    public UsagePointLifeCycleImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
     @Override
@@ -91,7 +94,12 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
 
     @Override
     public UsagePointState.UsagePointStateCreator newState(String name) {
-        return new UsagePointStateCreatorImpl(this.dataModel, this, name);
+        return this.dataModel.getInstance(UsagePointStateCreatorImpl.class).init(this, name);
+    }
+
+    @Override
+    public UsagePointTransition.UsagePointTransitionCreator newTransition(String name, UsagePointState from, UsagePointState to) {
+        return this.dataModel.getInstance(UsagePointTransitionCreatorImpl.class).init(this, name, from, to);
     }
 
     @Override
@@ -116,8 +124,8 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         return this.name;
     }
 
-    Optional<FiniteStateMachine> getStateMachine() {
-        return this.stateMachine.getOptional();
+    FiniteStateMachine getStateMachine() {
+        return this.stateMachine.get();
     }
 
     void setStateMachine(FiniteStateMachine stateMachine) {
@@ -127,14 +135,27 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     void save() {
         if (getId() > 0) {
             Save.UPDATE.save(this.dataModel, this);
+            this.eventService.postEvent(EventType.LIFE_CYCLE_UPDATED.topic(), this);
         } else {
             Save.CREATE.save(this.dataModel, this);
+            this.eventService.postEvent(EventType.LIFE_CYCLE_CREATED.topic(), this);
         }
     }
 
+    void touch() {
+        this.dataModel.touch(this);
+    }
+
     @Override
-    public void delete() {
-        throw new UnsupportedOperationException("Method is not implemented yet."); // TODO
+    public void remove() {
+        this.eventService.postEvent(EventType.LIFE_CYCLE_BEFORE_DELETE.topic(), this);
+        this.dataModel.remove(this);
+        this.eventService.postEvent(EventType.LIFE_CYCLE_DELETED.topic(), this);
+    }
+
+    void addTransition(UsagePointTransitionImpl transition) {
+        Save.CREATE.validate(this.dataModel, transition);
+        this.transitions.add(transition);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle;
 
+import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -38,9 +39,20 @@ public interface UsagePointTransition extends HasId, HasName {
 
     Set<Level> getLevels();
 
-    long getVersion();
-
     UsagePointState getFrom();
 
     UsagePointState getTo();
+
+    Optional<StandardStateTransitionEventType> getTriggeredBy();
+
+    UsagePointLifeCycle getLifeCycle();
+
+    long getVersion();
+
+    interface UsagePointTransitionCreator {
+
+        UsagePointTransitionCreator triggeredBy(StandardStateTransitionEventType eventType);
+
+        UsagePointTransition complete();
+    }
 }

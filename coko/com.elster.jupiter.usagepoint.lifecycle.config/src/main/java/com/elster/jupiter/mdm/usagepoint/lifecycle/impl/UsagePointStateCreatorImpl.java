@@ -9,18 +9,26 @@ import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
+
 public class UsagePointStateCreatorImpl implements UsagePointState.UsagePointStateCreator<UsagePointStateCreatorImpl> {
     private final DataModel dataModel;
-    private final UsagePointLifeCycle lifeCycle;
-    private final FiniteStateMachineUpdater stateMachineUpdater;
-    private final FiniteStateMachineBuilder.StateBuilder stateBuilder;
+
+    private UsagePointLifeCycle lifeCycle;
+    private FiniteStateMachineUpdater stateMachineUpdater;
+    private FiniteStateMachineBuilder.StateBuilder stateBuilder;
     private boolean isInitial = false;
 
-    public UsagePointStateCreatorImpl(DataModel dataModel, UsagePointLifeCycleImpl lifeCycle, String name) {
+    @Inject
+    public UsagePointStateCreatorImpl(DataModel dataModel) {
         this.dataModel = dataModel;
+    }
+
+    UsagePointStateCreatorImpl init(UsagePointLifeCycleImpl lifeCycle, String name) {
         this.lifeCycle = lifeCycle;
-        this.stateMachineUpdater = lifeCycle.getStateMachine().get().startUpdate();
+        this.stateMachineUpdater = lifeCycle.getStateMachine().startUpdate();
         this.stateBuilder = this.stateMachineUpdater.newCustomState(name);
+        return this;
     }
 
     @Override

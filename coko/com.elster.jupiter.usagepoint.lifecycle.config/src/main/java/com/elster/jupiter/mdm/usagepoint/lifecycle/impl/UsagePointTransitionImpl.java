@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
@@ -17,8 +18,10 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 
+@Unique(message = "{" + MessageSeeds.Keys.TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE + "}")
 public class UsagePointTransitionImpl implements UsagePointTransition, PersistenceAware {
     public enum Fields {
         // Common fields
@@ -47,7 +50,6 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<UsagePointLifeCycle> lifeCycle = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<StateTransition> fsmTransition = ValueReference.absent();
     @SuppressWarnings("unused")
     private int levelBits;
@@ -68,6 +70,16 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
     private EnumSet<MicroCheck> checks = EnumSet.noneOf(MicroCheck.class);
     private EnumSet<MicroAction> actions = EnumSet.noneOf(MicroAction.class);
+
+    UsagePointTransitionImpl init(UsagePointLifeCycle lifeCycle, String name) {
+        this.lifeCycle.set(lifeCycle);
+        this.name = name;
+        return this;
+    }
+
+    void setTransition(StateTransition fsmTransition) {
+        this.fsmTransition.set(fsmTransition);
+    }
 
     @Override
     public void postLoad() {
@@ -126,12 +138,33 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     @Override
     public UsagePointState getFrom() {
-        return null;
+        return this.lifeCycle.get().getStates()
+                .stream()
+                .filter(state -> state.getId() == this.fsmTransition.get().getFrom().getId())
+                .findFirst()
+                .get();
     }
 
     @Override
     public UsagePointState getTo() {
-        return null;
+        return this.lifeCycle.get().getStates()
+                .stream()
+                .filter(state -> state.getId() == this.fsmTransition.get().getTo().getId())
+                .findFirst()
+                .get();
+    }
+
+    @Override
+    public Optional<StandardStateTransitionEventType> getTriggeredBy() {
+        return this.fsmTransition.getOptional()
+                .map(StateTransition::getEventType)
+                .filter(et -> et instanceof StandardStateTransitionEventType)
+                .map(StandardStateTransitionEventType.class::cast);
+    }
+
+    @Override
+    public UsagePointLifeCycle getLifeCycle() {
+        return this.lifeCycle.get();
     }
 
     @Override

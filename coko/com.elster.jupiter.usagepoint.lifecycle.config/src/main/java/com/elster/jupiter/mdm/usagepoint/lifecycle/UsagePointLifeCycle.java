@@ -15,13 +15,15 @@ public interface UsagePointLifeCycle extends HasId, HasName {
         return getObsoleteTime().isPresent();
     }
 
-    void delete();
+    void remove();
 
     List<UsagePointTransition> getTransitions();
 
     List<UsagePointState> getStates();
 
     UsagePointState.UsagePointStateCreator newState(String name);
+
+    UsagePointTransition.UsagePointTransitionCreator newTransition(String name, UsagePointState from, UsagePointState to);
 
     long getVersion();
 }
