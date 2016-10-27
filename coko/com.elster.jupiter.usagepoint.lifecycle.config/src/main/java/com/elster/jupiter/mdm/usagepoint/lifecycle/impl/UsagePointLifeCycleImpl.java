@@ -85,7 +85,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     public List<UsagePointState> getStates() {
         return this.stateMachine.get().getStates()
                 .stream()
-                .map(state -> this.dataModel.getInstance(UsagePointStateImpl.class).init(state))
+                .map(state -> this.dataModel.getInstance(UsagePointStateImpl.class).init(this, state))
                 .collect(Collectors.toList());
     }
 

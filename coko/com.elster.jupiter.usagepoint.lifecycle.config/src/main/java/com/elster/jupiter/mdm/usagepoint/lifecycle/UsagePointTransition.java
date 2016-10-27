@@ -39,4 +39,8 @@ public interface UsagePointTransition extends HasId, HasName {
     Set<Level> getLevels();
 
     long getVersion();
+
+    UsagePointState getFrom();
+
+    UsagePointState getTo();
 }

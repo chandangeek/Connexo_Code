@@ -3,36 +3,41 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UsagePointStateImpl implements UsagePointState {
     private final Thesaurus thesaurus;
-    private State delegate;
+    private State fsmState;
+    private UsagePointLifeCycle lifeCycle;
 
     @Inject
     public UsagePointStateImpl(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
-    public UsagePointState init(State delegate) {
-        this.delegate = delegate;
+    public UsagePointState init(UsagePointLifeCycle lifeCycle, State fsmState) {
+        this.lifeCycle = lifeCycle;
+        this.fsmState = fsmState;
         return this;
     }
 
     @Override
     public long getId() {
-        return this.delegate.getId();
+        return this.fsmState.getId();
     }
 
     @Override
     public boolean isInitial() {
-        return this.delegate.isInitial();
+        return this.fsmState.isInitial();
     }
 
     @Override
@@ -41,45 +46,60 @@ public class UsagePointStateImpl implements UsagePointState {
         if (defaultState.isPresent()) {
             return this.thesaurus.getFormat(defaultState.get().getTranslation()).format();
         }
-        return this.delegate.getName();
+        return this.fsmState.getName();
     }
 
     @Override
     public List<ProcessReference> getOnEntryProcesses() {
-        return this.delegate.getOnEntryProcesses();
+        return this.fsmState.getOnEntryProcesses();
     }
 
     @Override
     public List<ProcessReference> getOnExitProcesses() {
-        return this.delegate.getOnExitProcesses();
+        return this.fsmState.getOnExitProcesses();
     }
 
     @Override
     public long getVersion() {
-        return this.delegate.getVersion();
+        return this.fsmState.getVersion();
     }
 
     @Override
     public Optional<DefaultState> getDefaultState() {
-        if (this.delegate.isCustom()) {
+        if (this.fsmState.isCustom()) {
             return Optional.empty();
         }
         return Stream.of(DefaultState.values())
-                .filter(candidate -> candidate.getKey().equals(this.delegate.getName()))
+                .filter(candidate -> candidate.getKey().equals(this.fsmState.getName()))
                 .findFirst();
     }
 
     @Override
     public boolean isDefault(DefaultState state) {
-        if (state == null || this.delegate.isCustom()) {
+        if (state == null || this.fsmState.isCustom()) {
             return false;
         }
-        return this.delegate.getName().equals(state.getKey());
+        return this.fsmState.getName().equals(state.getKey());
     }
 
     @Override
     public void remove() {
-        this.delegate.getFiniteStateMachine().startUpdate().removeState(this.delegate);
+        List<UsagePointTransition> linkedTransitions = this.lifeCycle.getTransitions()
+                .stream()
+                .filter(transition -> transition.getFrom().getId() == getId()
+                        || transition.getTo().getId() == getId())
+                .collect(Collectors.toList());
+        if (!linkedTransitions.isEmpty()) {
+            throw UsagePointStateRemoveException.stateHasLinkedTransitions(this.thesaurus, linkedTransitions);
+        }
+        List<UsagePointState> allStates = this.lifeCycle.getStates();
+        if (allStates.size() == 1 && allStates.contains(this)) {
+            throw UsagePointStateRemoveException.stateIsTheLastState(this.thesaurus);
+        }
+        if (isInitial()) {
+            throw UsagePointStateRemoveException.stateIsInitial(this.thesaurus);
+        }
+        this.fsmState.getFiniteStateMachine().startUpdate().removeState(this.fsmState).complete();
     }
 
     @Override
@@ -88,7 +108,7 @@ public class UsagePointStateImpl implements UsagePointState {
     }
 
     State getState() {
-        return this.delegate;
+        return this.fsmState;
     }
 
     @Override
@@ -100,11 +120,11 @@ public class UsagePointStateImpl implements UsagePointState {
             return false;
         }
         UsagePointStateImpl that = (UsagePointStateImpl) o;
-        return this.delegate != null ? this.delegate.equals(that.delegate) : that.delegate == null;
+        return this.fsmState != null ? this.fsmState.equals(that.fsmState) : that.fsmState == null;
     }
 
     @Override
     public int hashCode() {
-        return this.delegate != null ? this.delegate.hashCode() : 0;
+        return this.fsmState != null ? this.fsmState.hashCode() : 0;
     }
 }

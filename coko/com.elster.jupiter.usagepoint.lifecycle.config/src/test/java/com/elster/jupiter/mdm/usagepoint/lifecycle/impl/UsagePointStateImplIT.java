@@ -59,9 +59,34 @@ public class UsagePointStateImplIT extends BaseTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{state.unique.name}")
+    @ExpectedConstraintViolation(property = "name", messageId = "state.unique.name")
     public void testCanNotCreateStatesWithTheSameName() {
         getTestLifeCycle().newState("TestState").complete();
         getTestLifeCycle().newState("TestState").complete();
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveState() {
+        UsagePointLifeCycle lifeCycle = getTestLifeCycle();
+        int stateCount = lifeCycle.getStates().size();
+
+        UsagePointState testState = lifeCycle.newState("TestState").complete();
+        assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount + 1);
+
+        testState.remove();
+        assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount);
+    }
+
+    @Test(expected = UsagePointStateRemoveException.class)
+    @Transactional
+    public void testCanNotRemoveInitialState() {
+        UsagePointLifeCycle lifeCycle = getTestLifeCycle();
+        int stateCount = lifeCycle.getStates().size();
+
+        UsagePointState testState = lifeCycle.newState("TestState").setInitial().complete();
+        assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount + 1);
+
+        testState.remove();
     }
 }

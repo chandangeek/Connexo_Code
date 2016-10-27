@@ -7,6 +7,8 @@ public interface UsagePointLifeCycleService {
 
     Optional<UsagePointLifeCycle> findUsagePointLifeCycle(long id);
 
+    Optional<UsagePointLifeCycle> findAndLockUsagePointLifeCycleByIdAndVersion(long id, long version);
+
     Optional<UsagePointLifeCycle> findUsagePointLifeCycleByName(String name);
 
     UsagePointLifeCycle newUsagePointLifeCycle(String name);

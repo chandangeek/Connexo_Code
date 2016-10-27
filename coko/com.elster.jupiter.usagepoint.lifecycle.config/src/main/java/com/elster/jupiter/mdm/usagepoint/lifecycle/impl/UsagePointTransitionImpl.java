@@ -5,6 +5,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -121,6 +122,16 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @Override
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public UsagePointState getFrom() {
+        return null;
+    }
+
+    @Override
+    public UsagePointState getTo() {
+        return null;
     }
 
     @Override

@@ -146,6 +146,11 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     }
 
     @Override
+    public Optional<UsagePointLifeCycle> findAndLockUsagePointLifeCycleByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(UsagePointLifeCycle.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<UsagePointLifeCycle> findUsagePointLifeCycleByName(String name) {
         Condition condition = where(UsagePointLifeCycleImpl.Fields.NAME.fieldName()).isEqualTo(name)
                 .and(where(UsagePointLifeCycleImpl.Fields.OBSOLETE_TIME.fieldName()).isNull());

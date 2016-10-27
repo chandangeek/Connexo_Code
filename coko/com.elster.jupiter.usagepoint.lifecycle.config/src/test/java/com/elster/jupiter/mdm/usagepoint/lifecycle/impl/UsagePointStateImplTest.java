@@ -1,11 +1,16 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.nls.Thesaurus;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
@@ -14,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -21,43 +28,45 @@ public class UsagePointStateImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private State delegate;
+    private UsagePointLifeCycle lifeCycle;
+    @Mock
+    private State fsmState;
     @Mock
     private ProcessReference process;
 
     private UsagePointState getTestInstance() {
-        return new UsagePointStateImpl(this.thesaurus).init(this.delegate);
+        return new UsagePointStateImpl(this.thesaurus).init(this.lifeCycle, this.fsmState);
     }
 
     @Test
     public void testIsInitialWhenDelegateIsInitial() {
-        when(this.delegate.isInitial()).thenReturn(true);
+        when(this.fsmState.isInitial()).thenReturn(true);
         assertThat(getTestInstance().isInitial()).isTrue();
     }
 
     @Test
     public void testIsInitialWhenDelegateIsNotInitial() {
-        when(this.delegate.isInitial()).thenReturn(false);
+        when(this.fsmState.isInitial()).thenReturn(false);
         assertThat(getTestInstance().isInitial()).isFalse();
     }
 
     @Test
     public void testCustomStateIsNotDefault() {
-        when(this.delegate.isCustom()).thenReturn(true);
+        when(this.fsmState.isCustom()).thenReturn(true);
         assertThat(getTestInstance().getDefaultState()).isEmpty();
     }
 
     @Test
     public void testRenamedStateIsNotDefault() {
-        when(this.delegate.isCustom()).thenReturn(false);
-        when(this.delegate.getName()).thenReturn("Renamed");
+        when(this.fsmState.isCustom()).thenReturn(false);
+        when(this.fsmState.getName()).thenReturn("Renamed");
         assertThat(getTestInstance().getDefaultState()).isEmpty();
     }
 
     @Test
     public void testStateIsDefault() {
-        when(this.delegate.isCustom()).thenReturn(false);
-        when(this.delegate.getName()).thenReturn(DefaultState.DEMOLISHED.getKey());
+        when(this.fsmState.isCustom()).thenReturn(false);
+        when(this.fsmState.getName()).thenReturn(DefaultState.DEMOLISHED.getKey());
         UsagePointState state = getTestInstance();
         assertThat(state.getDefaultState()).isPresent();
         assertThat(state.getDefaultState().get().getKey()).isEqualTo(DefaultState.DEMOLISHED.getKey());
@@ -66,19 +75,66 @@ public class UsagePointStateImplTest {
 
     @Test
     public void testGetVersion() {
-        when(this.delegate.getVersion()).thenReturn(123L);
+        when(this.fsmState.getVersion()).thenReturn(123L);
         assertThat(getTestInstance().getVersion()).isEqualTo(123L);
     }
 
     @Test
     public void testGetProcessesOnEntry() {
-        when(this.delegate.getOnEntryProcesses()).thenReturn(Collections.singletonList(this.process));
+        when(this.fsmState.getOnEntryProcesses()).thenReturn(Collections.singletonList(this.process));
         assertThat(getTestInstance().getOnEntryProcesses()).containsExactly(this.process);
     }
 
     @Test
     public void testGetProcessesOnExit() {
-        when(this.delegate.getOnEntryProcesses()).thenReturn(Collections.singletonList(this.process));
+        when(this.fsmState.getOnEntryProcesses()).thenReturn(Collections.singletonList(this.process));
         assertThat(getTestInstance().getOnEntryProcesses()).containsExactly(this.process);
+    }
+
+    @Test
+    public void testCanRemoveState() {
+        FiniteStateMachineUpdater stateMachineUpdater = mock(FiniteStateMachineUpdater.class);
+        when(stateMachineUpdater.removeState(this.fsmState)).thenReturn(stateMachineUpdater);
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.startUpdate()).thenReturn(stateMachineUpdater);
+        when(this.fsmState.getFiniteStateMachine()).thenReturn(stateMachine);
+        UsagePointState testInstance = getTestInstance();
+        UsagePointState anotherState = mock(UsagePointState.class);
+        when(this.lifeCycle.getStates()).thenReturn(Arrays.asList(anotherState, testInstance));
+
+        testInstance.remove();
+
+        verify(stateMachineUpdater).removeState(this.fsmState);
+        verify(stateMachineUpdater).complete();
+    }
+
+    @Test(expected = UsagePointStateRemoveException.class)
+    public void testCanNotRemoveStateWithTransitions() {
+        UsagePointTransition transition = mock(UsagePointTransition.class);
+        UsagePointState testInstance = getTestInstance();
+        when(transition.getFrom()).thenReturn(testInstance);
+        UsagePointState toState = mock(UsagePointState.class);
+        when(transition.getTo()).thenReturn(toState);
+        when(this.lifeCycle.getTransitions()).thenReturn(Collections.singletonList(transition));
+
+        testInstance.remove();
+    }
+
+    @Test(expected = UsagePointStateRemoveException.class)
+    public void testCanNotRemoveTheLatestState() {
+        UsagePointState testInstance = getTestInstance();
+        when(this.lifeCycle.getStates()).thenReturn(Collections.singletonList(testInstance));
+
+        testInstance.remove();
+    }
+
+    @Test(expected = UsagePointStateRemoveException.class)
+    public void testCanNotRemoveTheInitialState() {
+        UsagePointState anotherState = mock(UsagePointState.class);
+        UsagePointState testInstance = getTestInstance();
+        when(this.lifeCycle.getStates()).thenReturn(Arrays.asList(anotherState, testInstance));
+        when(testInstance.isInitial()).thenReturn(true);
+
+        testInstance.remove();
     }
 }
