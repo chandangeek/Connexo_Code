@@ -22,7 +22,6 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -155,7 +154,7 @@ public class BroadcastUpgrade {
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
-        blockTransferProperties.getProperties().setProperty(MeterProtocol.Property.NODEID.getName(), BigDecimal.ONE);
+        blockTransferProperties.getProperties().setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(Beacon3100ConfigurationSupport.READCACHE_PROPERTY, false);
 
         //Note that all meters will have the same AK and broadcast EK. (this is defined in the IDIS P2 spec)

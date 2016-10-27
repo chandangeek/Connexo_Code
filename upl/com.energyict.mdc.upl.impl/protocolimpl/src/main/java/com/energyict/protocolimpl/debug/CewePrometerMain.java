@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
 import java.io.IOException;
@@ -33,17 +32,17 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
     Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
-        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
-        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
-        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
-        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "222222");
-        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), SERIAL);
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "222222");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), SERIAL);
         properties.setProperty("SecurityLevel", "2");
         properties.setProperty("Software7E1", "1");
         properties.setProperty("Retries", "3");
         properties.setProperty("Timeout", "10000");
-        properties.setProperty(MeterProtocol.Property.NODEID.getName(), SERIAL);
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), SERIAL);
         properties.setProperty("ExtendedLogging", "2");
 
         properties.setProperty("Logger", "0");

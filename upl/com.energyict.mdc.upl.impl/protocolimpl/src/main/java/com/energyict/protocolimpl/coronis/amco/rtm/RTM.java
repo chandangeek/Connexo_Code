@@ -11,7 +11,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -174,7 +173,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
-        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0"));
+        correctTime = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0"));
         verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
         multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
 

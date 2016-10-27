@@ -474,15 +474,15 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-            iProfileInterval = Integer.parseInt(properties.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            iProfileInterval = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
 
             iSCTMTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "2").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             strMeterClass = properties.getProperty("MeterClass", "1");
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals", "0").trim()) == 1 ? true : false;
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "100"));
             nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap", "6"));

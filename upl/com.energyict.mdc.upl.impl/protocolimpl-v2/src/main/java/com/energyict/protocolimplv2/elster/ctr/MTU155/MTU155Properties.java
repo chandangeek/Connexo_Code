@@ -6,7 +6,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
@@ -30,8 +29,8 @@ public class MTU155Properties {
     public static final String ENCRTYPTION_KEY_C_PROPERTY_NAME = "KeyC";
     public static final String ENCRTYPTION_KEY_F_PROPERTY_NAME = "KeyF";
     public static final String ENCRYPTION_KEY_T_PROPERTY_NAME = "KeyT";
-    public static final String PASSWORD_PROPERTY_NAME = MeterProtocol.Property.PASSWORD.getName();
-    public static final String ADDRESS_PROPERTY_NAME = MeterProtocol.Property.NODEID.getName();
+    public static final String PASSWORD_PROPERTY_NAME = com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName();
+    public static final String ADDRESS_PROPERTY_NAME = com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName();
     public static final String CHANNEL_CONFIG_PROPERTY_NAME = "ChannelConfig";
     public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     public static final String DEBUG_PROPERTY_NAME = "Debug";

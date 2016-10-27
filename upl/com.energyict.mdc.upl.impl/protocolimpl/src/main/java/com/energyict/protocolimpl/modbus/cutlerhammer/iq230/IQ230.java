@@ -15,7 +15,6 @@ import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -103,7 +102,7 @@ public class IQ230 extends Modbus {
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "900");
             //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), "13");
+            properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "13");
             properties.setProperty("HalfDuplex", "1");
             properties.setProperty("RegisterOrderFixedPoint", "1");
 

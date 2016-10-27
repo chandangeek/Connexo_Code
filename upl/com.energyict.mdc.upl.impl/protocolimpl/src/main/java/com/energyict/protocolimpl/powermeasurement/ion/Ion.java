@@ -13,7 +13,6 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -160,7 +159,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         }
 
         try {
-            String anId = p.getProperty(MeterProtocol.Property.NODEID.getName());
+            String anId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
             if (!Utils.isNull(anId)) {
                 pNodeId = Integer.parseInt(anId);
             }
@@ -174,8 +173,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             pUserId = p.getProperty(PK_USER_ID);
         }
 
-        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-            pPassword = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
         }
 
         try {
@@ -186,12 +185,12 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             throw new InvalidPropertyException(e.getMessage());
         }
 
-        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
@@ -202,12 +201,12 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -248,7 +247,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
      */
     public List getRequiredKeys() {
         List result = new ArrayList(1);
-        result.add(MeterProtocol.Property.NODEID.getName());
+        result.add(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         return result;
     }
 
@@ -657,7 +656,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
         Properties p = new Properties();
         p.setProperty("SecurityLevel", "0");
-        p.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
+        p.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
 
         setProperties(p);
 

@@ -35,7 +35,6 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
@@ -588,7 +587,7 @@ public class MasterDataSerializer {
         allProperties.setProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         allProperties.setProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         allProperties.setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
-        allProperties.setProperty(MeterProtocol.Property.NODEID.getName(), BigDecimal.ONE);
+        allProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), BigDecimal.ONE);
 
         //No need to send the PSK property
         allProperties.removeProperty(G3Properties.PSK);

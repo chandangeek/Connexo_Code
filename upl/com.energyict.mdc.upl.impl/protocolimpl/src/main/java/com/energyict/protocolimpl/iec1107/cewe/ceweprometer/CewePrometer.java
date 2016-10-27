@@ -10,7 +10,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -242,7 +241,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     protected List doGetOptionalKeys() {
         ArrayList result = new ArrayList();
         result.add( PK_LOGGER );
-        result.add( MeterProtocol.Property.PASSWORD.getName() );
+        result.add( com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName() );
         result.add("Software7E1");
         return result;
     }

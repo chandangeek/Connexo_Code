@@ -4,7 +4,6 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
@@ -79,15 +78,15 @@ public class NXT4Properties implements ConfigurationSupport {
     }
 
     public String getDeviceId() {
-        return protocolProperties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+        return protocolProperties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
     }
 
     public String getNodeAddress() {
-        return getProperty(MeterProtocol.Property.NODEID.getName(), "");
+        return getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
     }
 
     public String getPassword() {
-        return getProperty(MeterProtocol.Property.PASSWORD.getName());
+        return getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
     }
 
     public int getIEC1107TimeOut() {

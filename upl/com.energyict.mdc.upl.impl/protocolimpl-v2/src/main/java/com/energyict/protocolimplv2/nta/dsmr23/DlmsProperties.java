@@ -14,7 +14,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -324,7 +323,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public String getSerialNumber() {
         if (serialNumber == null || serialNumber.isEmpty()) {
-            serialNumber = properties.getTypedProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+            serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         }
         return serialNumber;
     }

@@ -16,7 +16,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -94,7 +93,7 @@ public class Trimaran extends AbstractProtocol {
     public int getMeterProfileInterval(){
     	this.getLogger().log(Level.INFO, "** Could not retreive profileInterval from the meter **");
     	this.getLogger().log(Level.INFO, "** Make sure the interval on the meter is correct. **");
-    	return Integer.parseInt(MeterProtocol.Property.PROFILEINTERVAL.getName());
+    	return Integer.parseInt(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName());
     }
 
     protected void validateDeviceId() throws IOException {

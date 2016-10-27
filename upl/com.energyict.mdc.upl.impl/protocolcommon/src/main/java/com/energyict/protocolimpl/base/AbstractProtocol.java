@@ -25,7 +25,6 @@ import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -1086,22 +1085,22 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "10000").trim()));
             setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "5").trim()));
-            roundtripCorrection = Integer.parseInt(properties.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName(), "0").trim());
+            roundtripCorrection = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName(), "0").trim());
             securityLevel = Integer.parseInt(properties.getProperty(PROP_SECURITY_LEVEL, "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             echoCancelling = Integer.parseInt(properties.getProperty(PROP_ECHO_CANCELING, "0").trim());
             protocolCompatible = Integer.parseInt(properties.getProperty(PROP_PROTOCOL_COMPATIBLE, "1").trim());
             extendedLogging = Integer.parseInt(properties.getProperty(PROP_EXTENDED_LOGGING, "0").trim());
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
             channelMap = properties.getProperty(PROP_CHANNEL_MAP);
             if (channelMap != null) {
                 protocolChannelMap = new ProtocolChannelMap(channelMap);
             }
-            profileInterval = Integer.parseInt(properties.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900").trim());
+            profileInterval = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "900").trim());
             requestHeader = Integer.parseInt(properties.getProperty(PROP_REQUEST_HEADER, "0").trim());
             scaler = Integer.parseInt(properties.getProperty(PROP_SCALER, "0").trim());
             setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "300").trim()));

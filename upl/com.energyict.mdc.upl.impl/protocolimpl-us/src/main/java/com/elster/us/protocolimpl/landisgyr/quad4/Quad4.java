@@ -166,12 +166,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
          */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
-            pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
             //Node Address must be 7 digits
             if (pNodeId.length() != 7) {
                 throw new InvalidPropertyException("NodeId must be a string of 7 numbers long");
@@ -187,12 +187,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             }
         }
 
-        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-            String pwd = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+            String pwd = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             if (pwd == null) {
                 pwd = "    ";
             }
@@ -222,12 +222,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_FORCE_DELAY) != null) {
@@ -321,7 +321,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add(MeterProtocol.Property.NODEID.getName());
+        result.add(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         result.add(PK_NODE_PREFIX);
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);

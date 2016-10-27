@@ -26,7 +26,6 @@ import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -388,9 +387,9 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
-        nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
-        deviceId = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "");
-        serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+        nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        deviceId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "");
+        serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "1"));
         clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32"));
         serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "1"));

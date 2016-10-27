@@ -15,7 +15,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -233,8 +232,8 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             iIEC870TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "25000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "3").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());

@@ -23,7 +23,6 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -252,14 +251,14 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            this.strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "");
-            this.strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
-            this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            this.strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "");
+            this.strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+            this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
             this.iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             this.iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             this.iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            this.nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            this.nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             this.iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             this.iForceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "0").trim());
             this.profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());

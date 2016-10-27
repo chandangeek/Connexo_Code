@@ -8,7 +8,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol;
 
@@ -41,12 +40,12 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
     protected Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
-        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
-        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
-        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
-        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "ntaSim");
-        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), MASTER_SERIAL_NUMBER);
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "ntaSim");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), MASTER_SERIAL_NUMBER);
         properties.setProperty("NTASimulationTool", "1");
         properties.setProperty("SecurityLevel", "1:0");
         properties.setProperty("Retries", "3");

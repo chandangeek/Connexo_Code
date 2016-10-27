@@ -15,7 +15,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -64,8 +63,8 @@ public class S200 extends AbstractProtocol {
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(), "0000000"));
-        setInfoTypePassword(properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "0000"));
+        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "0000000"));
+        setInfoTypePassword(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "0000"));
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "0")));
         setCrnInitialValue(Integer.parseInt(properties.getProperty("CRNInitialValue", "-1")));
         setModeOfOperation(Integer.parseInt(properties.getProperty("ModeOfOperation", "0"), 16));

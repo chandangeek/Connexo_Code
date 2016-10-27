@@ -12,7 +12,6 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -127,24 +126,24 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     public void setProperties(Properties p) throws InvalidPropertyException,
             MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
-            pAddress = p.getProperty(MeterProtocol.Property.ADDRESS.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
+            pAddress = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
-            pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-            pPassword = Integer.parseInt(p.getProperty(MeterProtocol.Property.PASSWORD.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()));
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
@@ -155,12 +154,12 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = new Integer(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -206,7 +205,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add(MeterProtocol.Property.ADDRESS.getName());
+        result.add(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_EXTENDED_LOGGING);
@@ -370,7 +369,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         int baudrate = discoverInfo.getBaudrate();
 
         Properties p = new Properties();
-        p.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
+        p.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         setProperties(p);
 
         init(cChannel.getInputStream(), cChannel.getOutputStream(), null, null);

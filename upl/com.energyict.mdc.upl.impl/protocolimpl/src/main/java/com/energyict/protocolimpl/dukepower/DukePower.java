@@ -28,7 +28,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -827,11 +826,11 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             if (strID.length() != 7) {
                 throw new InvalidPropertyException("ID must be exact 7 characters.");
             }
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             if (strPassword.length() != 4) {
                 throw new InvalidPropertyException("Password must be exact 4 characters.");
             }

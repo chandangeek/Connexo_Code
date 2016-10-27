@@ -8,7 +8,6 @@ import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -99,7 +98,7 @@ public class AM540Properties extends IDISProperties {
     }
 
     public int getNodeAddress() {
-        return parseBigDecimalProperty(MeterProtocol.Property.NODEID.getName());
+        return parseBigDecimalProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
     }
 
     /**

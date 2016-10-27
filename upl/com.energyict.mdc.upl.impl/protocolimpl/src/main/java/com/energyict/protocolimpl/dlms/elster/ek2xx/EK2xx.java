@@ -35,7 +35,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -156,20 +155,20 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            this.strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            this.strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             // KV 19012004
             if ((this.strID != null) && (this.strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
 
 
-            this.nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            this.nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
             this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            this.strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
+            this.strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             this.iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());

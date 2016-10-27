@@ -15,7 +15,6 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -533,7 +532,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     /** @see AbstractProtocol#getRequiredKeys() */
     public List getRequiredKeys() {
         ArrayList result = new ArrayList( );
-        result.add(MeterProtocol.Property.PASSWORD.getName());
+        result.add(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
         return result;
     }
 

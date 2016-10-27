@@ -9,7 +9,6 @@ import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocol.MeterProtocol;
 
 import java.util.Arrays;
 import java.util.List;
@@ -105,7 +104,7 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     private void overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
         Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec().getName());
         if(deviceAccessIdentifier == null){
-            deviceAccessIdentifier =typedProperties.getProperty(MeterProtocol.Property.NODEID.getName());
+            deviceAccessIdentifier =typedProperties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         }
         if (deviceAccessIdentifier!=null) {
             typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec().getName(), deviceAccessIdentifier);

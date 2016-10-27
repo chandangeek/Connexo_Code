@@ -13,7 +13,6 @@ package com.energyict.protocolimpl.mbus.generic;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -286,7 +285,7 @@ public class Generic extends MBus {
 
     private Properties getProperties(int address, int secondaryAddressing) {
         Properties properties = new Properties();
-        properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), "" + address);
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "" + address);
         properties.setProperty("Retries", "1");
         properties.setProperty("Timeout", "250");
         properties.setProperty("SecondaryAddressing", ""+secondaryAddressing);

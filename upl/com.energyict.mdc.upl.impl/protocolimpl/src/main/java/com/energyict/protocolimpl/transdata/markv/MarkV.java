@@ -17,7 +17,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -177,7 +176,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         Properties properties = new Properties();
         properties.setProperty("SecurityLevel", "0");
         if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0))
-            properties.setProperty(MeterProtocol.Property.NODEID.getName(),discoverInfo.getNodeId());
+            properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),discoverInfo.getNodeId());
         setProperties(properties);
         init(discoverInfo.getCommChannel().getInputStream(),discoverInfo.getCommChannel().getOutputStream(),null,null);
         connect();

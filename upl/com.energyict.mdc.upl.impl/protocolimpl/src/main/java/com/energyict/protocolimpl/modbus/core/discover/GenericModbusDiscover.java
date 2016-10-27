@@ -14,7 +14,6 @@ package com.energyict.protocolimpl.modbus.core.discover;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -253,7 +252,7 @@ public class GenericModbusDiscover extends Modbus {
 
     private Properties getProperties(int address) {
         Properties properties = new Properties();
-        properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), String.valueOf(address));
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), String.valueOf(address));
         properties.setProperty("ProfileInterval", "900");
         properties.setProperty("HalfDuplex", "-1");
         return properties;

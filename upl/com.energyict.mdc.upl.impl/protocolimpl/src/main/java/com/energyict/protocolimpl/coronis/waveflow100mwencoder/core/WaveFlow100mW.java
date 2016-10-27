@@ -10,7 +10,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -199,7 +198,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
         readLoadProfile = "1".equals(properties.getProperty(READ_LOAD_PROFILE_PROPERTY, "1"));
-        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0"));
+        correctTime = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0"));
         verifyProfileInterval = Boolean.parseBoolean(properties.getProperty(VERIFY_PROFILE_INTERVAL_PROPERTY, "false"));
         serialNumberA = properties.getProperty(SERIAL_NUMBER_A);
         serialNumberB = properties.getProperty(SERIAL_NUMBER_B);

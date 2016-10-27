@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -220,7 +219,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel","0"));
         readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0"));
         emptyNodeAddress = Integer.parseInt(properties.getProperty("EmptyNodeAddress","0"));
-        setNodeId(properties.getProperty(MeterProtocol.Property.NODEID.getName(),(emptyNodeAddress==0?"001":"")));
+        setNodeId(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),(emptyNodeAddress==0?"001":"")));
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

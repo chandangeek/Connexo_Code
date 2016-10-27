@@ -17,7 +17,6 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -242,24 +241,24 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
           */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
-            this.pAddress = p.getProperty(MeterProtocol.Property.ADDRESS.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
+            this.pAddress = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
-            pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-            pPassword = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
         }
 
         if (p.getProperty(PK_OPUS) != null) {

@@ -17,7 +17,6 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -213,20 +212,20 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 }
             }
 
-            if (p.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
-                pAddress = p.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
+                pAddress = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             }
 
-            if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
-                pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
+            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
+                pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
             }
 
-            if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+                pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
             }
 
-            if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-                pPassword = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+                pPassword = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             }
 
             if (p.getProperty(PK_TIMEOUT) != null) {
@@ -237,12 +236,12 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
             }
 
-            if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-                pRoundTripCorrection = new Integer(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
+            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+                pRoundTripCorrection = new Integer(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
             }
 
-            if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
+            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+                pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
             }
 
             if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -626,7 +625,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         int baudrate = discoverInfo.getBaudrate();
         Properties properties = new Properties();
         properties.setProperty("SecurityLevel", "0");
-        properties.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");
         setProperties(properties);
         init(commChannel.getInputStream(), commChannel.getOutputStream(), null, null);

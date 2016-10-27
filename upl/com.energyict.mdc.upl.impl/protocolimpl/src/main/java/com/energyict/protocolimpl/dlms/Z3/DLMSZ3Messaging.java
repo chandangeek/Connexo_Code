@@ -48,7 +48,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -220,7 +219,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
             }
         }
 
-        this.password = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
+        this.password = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
         this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("ConnectionMode", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));

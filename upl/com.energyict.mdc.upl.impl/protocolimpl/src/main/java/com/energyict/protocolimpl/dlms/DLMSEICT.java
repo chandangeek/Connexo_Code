@@ -22,7 +22,6 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -176,9 +175,9 @@ public class DLMSEICT extends DLMSSN
                 if (properties.getProperty(key) == null)
                     throw new MissingPropertyException (key + " key missing");
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             if (strID.length()>16) throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
             iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());

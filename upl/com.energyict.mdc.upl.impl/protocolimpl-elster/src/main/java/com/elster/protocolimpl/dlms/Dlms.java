@@ -41,7 +41,6 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -542,13 +541,13 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getProperty(
                     "Retries", "5").trim());
             //extendedLogging = Integer.parseInt(properties.getProperty(
             //        "ExtendedLogging", "0").trim());
 
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
 
             clientID = getPropertyAsInteger(properties.getProperty(Dlms.CLIENTID));
             serverAddress = getPropertyAsInteger(properties.getProperty(Dlms.SERVERADDRESS, "5959"));

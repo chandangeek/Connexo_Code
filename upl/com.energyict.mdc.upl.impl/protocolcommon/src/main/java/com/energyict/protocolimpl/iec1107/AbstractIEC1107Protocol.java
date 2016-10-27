@@ -21,7 +21,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -494,17 +493,17 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             iec1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             protocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             roundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             echoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iec1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
             if (properties.getProperty("ChannelMap") != null) {
                 channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
                 protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));

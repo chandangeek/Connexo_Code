@@ -62,7 +62,6 @@ import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -769,9 +768,9 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      */
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            configuredSerialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+            configuredSerialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection

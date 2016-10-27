@@ -15,7 +15,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -117,7 +116,7 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         clientAddress = Integer.parseInt(properties.getProperty("ClientAddress", "254"));
-        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(), "01"));
+        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "01"));
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
         setMassMemoryId(Integer.parseInt(properties.getProperty("MassMemoryId","0").trim()));
         if (getMassMemoryId()>1) setMassMemoryId(1);

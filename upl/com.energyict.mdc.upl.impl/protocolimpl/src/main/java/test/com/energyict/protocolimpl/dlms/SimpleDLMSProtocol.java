@@ -42,7 +42,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -236,9 +235,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
-        this.nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
-        this.deviceId = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "");
-        this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+        this.nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        this.deviceId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "");
+        this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));

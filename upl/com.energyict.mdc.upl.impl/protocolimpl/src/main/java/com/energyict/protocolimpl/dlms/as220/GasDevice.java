@@ -16,7 +16,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -154,8 +153,8 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 	}
 
 	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
-		this.emeterSerialnumber = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+		this.gmeterSerialnumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
+		this.emeterSerialnumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
 
 	}
 

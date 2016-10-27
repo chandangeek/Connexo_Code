@@ -574,7 +574,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         Properties props = new Properties();
         props.put(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
         props.put(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
-        props.put(MeterProtocol.Property.PASSWORD.getName(), password);
+        props.put(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
         LocalSecurityProvider lsp = new LocalSecurityProvider(props);
         return lsp;
     }
@@ -1367,7 +1367,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             }
         }
 
-        this.password = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+        this.password = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
         this.hdlcTimeout = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, "10000").trim());
         this.protocolRetries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "5").trim());
 
@@ -1386,8 +1386,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
-        this.nodeAddress = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
-        this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        this.nodeAddress = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1")));
         this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")));
         this.loadProfileObisCode = properties.containsKey(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;

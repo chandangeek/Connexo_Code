@@ -10,7 +10,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -245,7 +244,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
-        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0"));
+        correctTime = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0"));
         multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
 
         verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
@@ -275,7 +274,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
         roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
         connectionMode = Integer.parseInt(properties.getProperty(CONNECTION_PROPERTY, MUC_WAVECELL_CONNECTION).trim());
-        String nodeIdString = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "-1");
+        String nodeIdString = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "-1");
         try {
             waveFlowId = Integer.parseInt(nodeIdString.trim().length() == 0 ? "-1" : nodeIdString.trim());   //DeviceId
         } catch (NumberFormatException e) {

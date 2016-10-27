@@ -14,7 +14,6 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimplv2.MdcManager;
@@ -287,7 +286,7 @@ public class SmsHandler {
     }
 
     private String getDeviceSerialNumber() {
-        String serial = (String) getAllProperties().getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+        String serial = (String) getAllProperties().getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         return serial;
     }
 

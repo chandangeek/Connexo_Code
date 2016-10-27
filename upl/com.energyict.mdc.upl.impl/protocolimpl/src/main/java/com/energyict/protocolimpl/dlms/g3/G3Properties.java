@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -56,7 +55,7 @@ public class G3Properties extends DlmsProtocolProperties {
     public String getPassword() {
         String hlsSecret = getStringValue(HLS_SECRET, "");
         if (hlsSecret == null || hlsSecret.isEmpty() || "".equals(hlsSecret)) {
-            return getStringValue(MeterProtocol.Property.PASSWORD.getName(), "");     //Is limited to 20 chars in EiServer!
+            return getStringValue(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");     //Is limited to 20 chars in EiServer!
         } else {
             return hlsSecret;
         }

@@ -2,7 +2,6 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -23,7 +22,7 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final String RETRIES_PROPERTY_NAME = "Retries";
     public static final String DELAY_AFTER_ERROR_PROPERTY_NAME = "DelayAfterError";
     public static final String FORCED_DELAY_PROPERTY_NAME = "ForcedDelay";
-    public static final String ADDRESS_PROPERTY_NAME = MeterProtocol.Property.NODEID.getName();
+    public static final String ADDRESS_PROPERTY_NAME = com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName();
 
     public static final String SEND_END_OF_SESSION_PROPERTY_NAME = "SendEndOfSession";
     public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME = "MaxAllowedInvalidProfileResponses";

@@ -20,7 +20,6 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -208,8 +207,8 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "2").trim());
             if (iSecurityLevel != 0) {
                 if ("".compareTo(strPassword) == 0) {
@@ -223,12 +222,12 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
             iProtocolRetries = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "2").trim());
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "0").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             // 15122003 get the serialNumber
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
 
             // 0 = 16 TOU registers type (most in the UK)
             // 1 = 32 TOU registers type (Portugal, etc...)
@@ -560,7 +559,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         int baudrate = discoverInfo.getBaudrate();
         Properties properties = new Properties();
         properties.setProperty("SecurityLevel", "0");
-        properties.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");
         setProperties(properties);
         init(serialCommunicationChannel.getInputStream(), serialCommunicationChannel.getOutputStream(), null, null);

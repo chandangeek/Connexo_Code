@@ -22,7 +22,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -274,7 +273,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     @Override
     public List<String> getRequiredKeys() {
         List<String> required = new ArrayList<>();
-        required.add(MeterProtocol.Property.SERIALNUMBER.getName());
+        required.add(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         return required;
     }
 

@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.unilog.Unilog;
 import com.energyict.protocolimpl.iec1107.unilog.UnilogRegister;
 import com.energyict.protocolimpl.iec1107.unilog.UnilogRegistry;
@@ -33,19 +32,19 @@ public class UnilogMain extends AbstractDebuggingMain<Unilog> {
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
-        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
-        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
-        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "3600");
-        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "kamstrup");
-        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "PL00013144");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "3600");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "kamstrup");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "PL00013144");
         properties.setProperty("ChannelMap", "0+5,0+5,0+5,0,0,0,0");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "2");
         properties.setProperty("Software7E1", "1");
         properties.setProperty("Retries", "5");
         properties.setProperty("Timeout", "10000");
-        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "UNILOG10");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "UNILOG10");
 
         return properties;
     }

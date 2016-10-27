@@ -14,7 +14,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -120,25 +119,25 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      */
     protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
-        if (properties.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
-            pAddress = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
+            pAddress = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
-            pNodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName());
+        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-            pPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
             pProfileInterval = Integer.parseInt(properties
-                    .getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
+                    .getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
         if (properties.getProperty(PK_TIMEOUT) != null) {
@@ -163,8 +162,8 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                     .getProperty(PK_IEC1107_COMPATIBLE));
         }
 
-        if (properties.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            pRountTripCorrection = Integer.parseInt(properties.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
+        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
         this.software7E1 = !properties.getProperty(PK_SOFTWARE_7E1, "0").equalsIgnoreCase("0");
@@ -197,7 +196,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_ECHO_CANCELLING);
-        result.add(MeterProtocol.Property.ROUNDTRIPCORR.getName());
+        result.add(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName());
         result.add(PK_SOFTWARE_7E1);
         result.add(PK_CHANNEL_MAP);
         return result;

@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -161,7 +160,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     protected List doGetOptionalKeys() {
         return new ArrayList(){
             {
-                add( MeterProtocol.Property.PASSWORD.getName() );
+                add( com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName() );
                 add( PK_TIMEOUT );
                 add( PK_RETRIES );
                 add( PK_EXTENDED_LOGGING );

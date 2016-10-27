@@ -47,7 +47,6 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -392,13 +391,13 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             // KV 19012004
             if ((strID != null) && (strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
 
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());

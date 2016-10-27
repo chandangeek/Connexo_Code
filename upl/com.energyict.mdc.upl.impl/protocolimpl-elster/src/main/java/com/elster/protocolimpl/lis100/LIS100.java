@@ -13,7 +13,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -279,9 +278,9 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
                 }
             }
 
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
 
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getProperty(
                     "Retries", "3").trim());
 

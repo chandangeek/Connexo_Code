@@ -13,7 +13,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -119,7 +118,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0) && (getInfoTypePassword().length() != 16)) {
             throw new InvalidPropertyException("EZ7, doValidateProperties, password length error! Password must have a length of 16 characters!");
         }
-        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(), "1A"));
+        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "1A"));
     }
 
 

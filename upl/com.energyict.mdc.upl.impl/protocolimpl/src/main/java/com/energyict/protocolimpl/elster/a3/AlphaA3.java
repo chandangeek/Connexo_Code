@@ -18,7 +18,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -186,7 +185,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(), "0"));
+        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "0"));
         c12User = properties.getProperty("C12User", "");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId", "0").trim());
         passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary","0").trim());

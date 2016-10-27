@@ -23,7 +23,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -242,20 +241,20 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
           */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
-            this.pAddress = p.getProperty(MeterProtocol.Property.ADDRESS.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
+            this.pAddress = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
-            this.pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
+            this.pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            this.pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            this.pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-            this.pPassword = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+            this.pPassword = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
         }
 
         if (p.getProperty(PK_OPUS) != null) {
@@ -270,8 +269,8 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             this.pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
         }
 
-        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            this.pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            this.pRountTripCorrection = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
         if (p.getProperty(PK_DELAY_AFTER_FAIL) != null) {
@@ -282,8 +281,8 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             this.pRetries = Integer.parseInt(p.getProperty(PK_SECURITY_LEVEL));
         }
 
-        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-            this.pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            this.pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_EXTENDED_LOGGING) != null) {

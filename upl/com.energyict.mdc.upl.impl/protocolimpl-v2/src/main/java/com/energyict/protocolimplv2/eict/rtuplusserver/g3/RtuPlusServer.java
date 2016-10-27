@@ -42,7 +42,6 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -244,7 +243,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                     deviceTopology.addAdditionalCollectedDeviceInfo(
                             MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                     slaveDeviceIdentifier,
-                                    MeterProtocol.Property.NODEID.getName(),
+                                    com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),
                                     sapAssignmentItem.getSap()
                             )
                     );

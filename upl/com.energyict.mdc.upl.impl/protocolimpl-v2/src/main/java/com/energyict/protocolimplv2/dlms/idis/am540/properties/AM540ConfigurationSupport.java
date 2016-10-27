@@ -4,7 +4,6 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
@@ -109,7 +108,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     private PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.Property.NODEID.getName());
+        return PropertySpecFactory.bigDecimalPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {

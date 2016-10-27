@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -92,7 +91,7 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	@Override
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","20000").trim()));
-		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.Property.CORRECTTIME.getName(),"0"));
+		correctTime = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(),"0"));
 		doTheValidateProperties(properties);
 	}
 

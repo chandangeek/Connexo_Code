@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.iec1107.siemenss4s;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -96,15 +95,15 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 	 */
 	protected void doValidateProperties(Properties properties)
 	throws MissingPropertyException, InvalidPropertyException {
-		this.deviceId = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-		this.passWord = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "4281602592");
+		this.deviceId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+		this.passWord = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "4281602592");
 		if(this.passWord.equalsIgnoreCase("")){
 			this.passWord = "4281602592";
 		}
 		//TODO set the level in the encryptor
 		this.securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","2").trim());
-		this.nodeAddress=properties.getProperty(MeterProtocol.Property.NODEID.getName(),"");
-		this.serialNumber=properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+		this.nodeAddress=properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),"");
+		this.serialNumber=properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
 		this.channelMap = Integer.parseInt(properties.getProperty("ChannelMap","1"));
 	}
 

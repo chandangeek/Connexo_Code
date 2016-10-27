@@ -11,7 +11,6 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -167,12 +166,12 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
          */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
-            pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
             //Node Address must be 7 digits
             if (pNodeId.length() != 7) {
                 throw new InvalidPropertyException("NodeId must be a string of 7 numbers long");
@@ -188,12 +187,12 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
             }
         }
 
-        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
-            String pwd = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
+            String pwd = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             if (pwd == null) {
                 pwd = "    ";
             }
@@ -223,12 +222,12 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
+        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_FORCE_DELAY) != null) {
@@ -322,7 +321,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add(MeterProtocol.Property.NODEID.getName());
+        result.add(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         result.add(PK_NODE_PREFIX);
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);

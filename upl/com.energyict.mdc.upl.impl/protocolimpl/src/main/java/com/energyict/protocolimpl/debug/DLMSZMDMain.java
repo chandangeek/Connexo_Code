@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.VirtualDeviceDialer;
@@ -46,10 +45,10 @@ public class DLMSZMDMain {
 	private static Properties getProperties() {
 		Properties properties = new Properties();
 
-		properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
-		properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "00000000");
-        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "3");
-        properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), "LGZ80131045");
+		properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
+		properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "00000000");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "3");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "LGZ80131045");
 
 		return properties;
 	}

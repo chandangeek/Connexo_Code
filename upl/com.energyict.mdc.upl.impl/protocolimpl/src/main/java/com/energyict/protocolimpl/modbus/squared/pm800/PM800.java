@@ -17,7 +17,6 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -159,7 +158,7 @@ public class PM800 extends Modbus  {
 				Properties properties = new Properties();
 				properties.setProperty("ProfileInterval", "900");
 				// properties.setProperty(MeterProtocol.NODEID,"0");
-				properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), "1");
+				properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "1");
 				properties.setProperty("Timeout", "2000");
 
 	            int ift;

@@ -8,7 +8,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -58,7 +57,7 @@ public class AbntProperties implements ConfigurationSupport {
      * The SerialNumber of the concentrator
      */
     public String getSerialNumber() {
-        return getProperties().getTypedProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        return getProperties().getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
     }
 
     public int getReaderSerialNumber() {

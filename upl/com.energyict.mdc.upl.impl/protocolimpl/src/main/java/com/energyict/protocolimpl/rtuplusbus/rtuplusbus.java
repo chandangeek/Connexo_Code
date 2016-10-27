@@ -14,7 +14,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -166,12 +165,12 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
 
 
             // Node ID or Address
-            liNodeID = Integer.parseInt(properties.getProperty(MeterProtocol.Property.NODEID.getName()));
+            liNodeID = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()));
             if (liNodeID >= 255 || liNodeID < 3) {
                 throw new MissingPropertyException("NodeID for the RtuPlusBus Protocol must be >= 3 and <= 255.  Value is now: " + liNodeID);
             }
             // The Password is an unsigned 32 bits integer
-            llPassword = Long.parseLong(properties.getProperty(MeterProtocol.Property.PASSWORD.getName()));
+            llPassword = Long.parseLong(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()));
             if (llPassword <= 0 || llPassword > 0x7FFFFFFF) {
                 throw new MissingPropertyException("Password must be a positive number between 0 and " + 0x7FFFFFFF);
             }

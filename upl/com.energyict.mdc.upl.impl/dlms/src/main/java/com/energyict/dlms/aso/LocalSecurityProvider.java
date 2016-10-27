@@ -6,7 +6,6 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
-import com.energyict.protocol.MeterProtocol;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -59,7 +58,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
 		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
 		this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
-		this.hlsSecret = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
+		this.hlsSecret = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
 		this.initialFrameCounter = properties.getProperty(INITIAL_FRAME_COUNTER) != null ? Long.parseLong(properties.getProperty(INITIAL_FRAME_COUNTER)) : null;
 	}
 
@@ -74,7 +73,7 @@ public class LocalSecurityProvider implements SecurityProvider {
         this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
         this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
         this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
-        this.hlsSecret = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
+        this.hlsSecret = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
         this.initialFrameCounter = properties.getProperty(INITIAL_FRAME_COUNTER) != null ? Long.parseLong(properties.getProperty(INITIAL_FRAME_COUNTER)) : null;
     }
 

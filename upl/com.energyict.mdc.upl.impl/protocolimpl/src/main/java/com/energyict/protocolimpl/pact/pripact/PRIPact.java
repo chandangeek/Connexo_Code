@@ -14,7 +14,6 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -273,14 +272,14 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
             protocolTimeout = Integer.parseInt(properties.getProperty("Timeout", "30000").trim());
             maxRetries = Integer.parseInt(properties.getProperty("Retries", "10").trim());
             roundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "2").trim());
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "001");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "001");
             echoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             try {
                 channelMap = new ChannelMap(properties.getProperty("ChannelMap"));

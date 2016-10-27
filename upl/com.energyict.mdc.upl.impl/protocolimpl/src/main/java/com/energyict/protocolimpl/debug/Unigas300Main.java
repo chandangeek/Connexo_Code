@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMapping;
 import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMappingFactory;
@@ -34,18 +33,18 @@ public class Unigas300Main extends AbstractDebuggingMain<Unigas300> {
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
-        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
-        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
-        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "3600");
-        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "00000000");
-        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "3600");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "00000000");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "1");
         properties.setProperty("Software7E1", "1");
         properties.setProperty("Retries", "5");
         properties.setProperty("Timeout", "10000");
-        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "UNILOG10");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "UNILOG10");
 
         return properties;
     }

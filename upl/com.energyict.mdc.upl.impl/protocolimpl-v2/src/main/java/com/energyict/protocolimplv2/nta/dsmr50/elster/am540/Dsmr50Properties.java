@@ -4,7 +4,6 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -92,7 +91,7 @@ public class Dsmr50Properties extends DlmsProperties {
     }
 
     public int getNodeAddress() {
-        Object nodeAddressObject = getProperties().getTypedProperty(MeterProtocol.Property.NODEID.getName());
+        Object nodeAddressObject = getProperties().getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         if (nodeAddressObject == null) {
             return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
         } else if (nodeAddressObject instanceof BigDecimal) {

@@ -56,7 +56,6 @@ import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -1196,11 +1195,11 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             if ((strID != null) && (strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "10").trim());
@@ -1213,9 +1212,9 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
             iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
             firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
 
             if (Integer.parseInt(properties.getProperty("LoadProfileId", "1")) == 1) {

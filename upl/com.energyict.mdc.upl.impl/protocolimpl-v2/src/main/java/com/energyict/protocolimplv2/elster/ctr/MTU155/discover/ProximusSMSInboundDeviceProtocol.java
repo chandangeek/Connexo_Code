@@ -10,7 +10,6 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -85,7 +84,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
 
             allRelevantProperties.setAllProperties(deviceProtocolProperties);
             allRelevantProperties.setAllProperties(deviceConnectionTypeProperties);
-            allRelevantProperties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), getDeviceSerialNumber());
+            allRelevantProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), getDeviceSerialNumber());
 
             List<SecurityProperty> protocolSecurityProperties = getContext().getInboundDAO().getDeviceProtocolSecurityProperties(this.deviceIdentifier, getContext().getComPort());
             MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport().convertToTypedProperties(protocolSecurityProperties));

@@ -53,7 +53,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -486,18 +485,18 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 }
             }
 
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
-            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
             extendedLogging = Integer.parseInt(properties.getProperty(PR_EXTENDED_LOGGING, "0"));
             addressingMode = Integer.parseInt(properties.getProperty(PR_ADDRESSING_MODE, "-1"));
             connectionMode = Integer.parseInt(properties.getProperty(PR_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
 
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             if ((strID != null) && (strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
 
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "00000000");
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "00000000");
             iTimeoutProperty = Integer.parseInt(properties.getProperty(PR_TIMEOUT, "10000").trim());
             iForcedDelay = Integer.parseInt(properties.getProperty(PR_FORCED_DELAY, "10").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(PR_RETRIES, "5").trim());

@@ -9,7 +9,6 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -63,7 +62,7 @@ public class GarnetProperties implements ConfigurationSupport {
      * The SerialNumber of the concentrator
      */
     public String getSerialNumber() {
-        return getProperties().getTypedProperty(MeterProtocol.Property.SERIALNUMBER.getName());
+        return getProperties().getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
     }
 
     /**

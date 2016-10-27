@@ -16,7 +16,6 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -489,15 +488,15 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             if (strPassword == null) {
                 throw new MissingPropertyException("password key is missing!");
             }
             if ((strPassword.length() != 5) && (strPassword.length() != 8)) {
                 throw new InvalidPropertyException("Password (SCTM ID) must have a length of 5 or 8!");
             }
-            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName());
+            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
             if (nodeId == null) {
                 nodeId = strPassword;
             }

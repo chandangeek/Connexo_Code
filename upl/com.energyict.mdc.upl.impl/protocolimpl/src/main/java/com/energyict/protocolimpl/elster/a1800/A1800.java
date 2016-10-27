@@ -9,7 +9,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.messaging.Message;
@@ -93,7 +92,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(), "0"));
+        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "0"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary","0").trim());

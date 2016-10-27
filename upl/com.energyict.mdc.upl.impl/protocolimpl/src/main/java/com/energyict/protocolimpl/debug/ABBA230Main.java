@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.abba230.ABBA230;
 
 import java.io.IOException;
@@ -29,17 +28,17 @@ public class ABBA230Main extends AbstractDebuggingMain<ABBA230> {
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
-        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
-        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
-        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
-        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "ABCD0002");
-        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "09045210");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "ABCD0002");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "09045210");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "2");
         properties.setProperty("Retries", "2");
         properties.setProperty("Timeout", "35000");
-        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "001");
+        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "001");
 
         return properties;
     }

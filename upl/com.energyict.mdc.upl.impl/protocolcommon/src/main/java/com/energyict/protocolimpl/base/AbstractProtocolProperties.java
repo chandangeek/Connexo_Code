@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -9,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
-import static com.energyict.protocol.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
 
 /**
  * Copyrights EnergyICT
@@ -44,22 +43,22 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     @ProtocolProperty
     public String getPassword() {
-        return getStringValue(MeterProtocol.Property.PASSWORD.getName(), "");
+        return getStringValue(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
     }
 
     @ProtocolProperty
     public String getDeviceId() {
-        return getStringValue(MeterProtocol.Property.ADDRESS.getName(), "");
+        return getStringValue(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "");
     }
 
     @ProtocolProperty
     public String getNodeAddress() {
-        return getStringValue(MeterProtocol.Property.NODEID.getName(), "");
+        return getStringValue(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
     }
 
     @ProtocolProperty
     public String getSerialNumber() {
-        return getStringValue(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+        return getStringValue(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
     }
 
     @ProtocolProperty
