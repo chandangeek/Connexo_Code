@@ -4,8 +4,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
-import com.elster.jupiter.metering.groups.EventType;
+import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -49,8 +48,8 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
-        EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
+        GroupEventData eventSource = (GroupEventData) localEvent.getSource();
+        EndDeviceGroup endDeviceGroup = (EndDeviceGroup) eventSource.getGroup();
 
         if (isInUse(endDeviceGroup)) {
             throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
