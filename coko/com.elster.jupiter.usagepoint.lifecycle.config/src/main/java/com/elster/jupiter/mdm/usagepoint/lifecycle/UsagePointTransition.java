@@ -37,8 +37,6 @@ public interface UsagePointTransition extends HasId, HasName {
         }
     }
 
-    Set<Level> getLevels();
-
     UsagePointState getFrom();
 
     UsagePointState getTo();
@@ -47,11 +45,23 @@ public interface UsagePointTransition extends HasId, HasName {
 
     UsagePointLifeCycle getLifeCycle();
 
+    Set<MicroAction> getActions();
+
+    Set<MicroCheck> getChecks();
+
+    Set<Level> getLevels();
+
     long getVersion();
 
     interface UsagePointTransitionCreator {
 
         UsagePointTransitionCreator triggeredBy(StandardStateTransitionEventType eventType);
+
+        UsagePointTransitionCreator withActions(Set<MicroAction.Key> microActionKeys);
+
+        UsagePointTransitionCreator withChecks(Set<MicroCheck.Key> microCheckKeys);
+
+        UsagePointTransitionCreator withLevels(Set<Level> levels);
 
         UsagePointTransition complete();
     }

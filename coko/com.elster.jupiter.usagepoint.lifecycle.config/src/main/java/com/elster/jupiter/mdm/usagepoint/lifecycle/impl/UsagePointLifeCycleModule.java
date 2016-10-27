@@ -2,6 +2,10 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroActionFactory;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroCheckFactory;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -20,5 +24,7 @@ public class UsagePointLifeCycleModule extends AbstractModule {
         requireBinding(UserService.class);
 
         bind(UsagePointLifeCycleService.class).to(UsagePointLifeCycleServiceImpl.class).in(Scopes.SINGLETON);
+        bind(UsagePointMicroActionFactory.class).to(UsagePointMicroActionFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(UsagePointMicroCheckFactory.class).to(UsagePointMicroCheckFactoryImpl.class).in(Scopes.SINGLETON);
     }
 }

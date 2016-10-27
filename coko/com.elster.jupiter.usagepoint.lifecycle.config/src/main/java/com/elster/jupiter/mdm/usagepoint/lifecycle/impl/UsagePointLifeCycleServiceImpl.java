@@ -7,7 +7,11 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroActionFactory;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroCheckFactory;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -52,6 +56,8 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     private UserService userService;
     private FiniteStateMachineService stateMachineService;
     private EventService eventService;
+    private UsagePointMicroActionFactory microActionFactory;
+    private UsagePointMicroCheckFactory microCheckFactory;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -63,13 +69,17 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                                           UpgradeService upgradeService,
                                           UserService userService,
                                           FiniteStateMachineService stateMachineService,
-                                          EventService eventService) {
+                                          EventService eventService,
+                                          UsagePointMicroActionFactory microActionFactory,
+                                          UsagePointMicroCheckFactory microCheckFactory) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         setUserService(userService);
         setStateMachineService(stateMachineService);
         setEventService(eventService);
+        setMicroActionFactory(microActionFactory);
+        setMicroCheckFactory(microCheckFactory);
         activate();
     }
 
@@ -106,6 +116,16 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         this.eventService = eventService;
     }
 
+    @Reference
+    public void setMicroActionFactory(UsagePointMicroActionFactory microActionFactory) {
+        this.microActionFactory = microActionFactory;
+    }
+
+    @Reference
+    public void setMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory) {
+        this.microCheckFactory = microCheckFactory;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -124,6 +144,8 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                 bind(UserService.class).toInstance(userService);
                 bind(FiniteStateMachineService.class).toInstance(stateMachineService);
                 bind(EventService.class).toInstance(eventService);
+                bind(UsagePointMicroActionFactory.class).toInstance(microActionFactory);
+                bind(UsagePointMicroCheckFactory.class).toInstance(microCheckFactory);
             }
         };
     }
@@ -143,6 +165,9 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Stream.of(DefaultState.values()).map(DefaultState::getTranslation).collect(Collectors.toList()));
         keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(MicroCategoryTranslationKeys.values()));
+        keys.addAll(Arrays.asList(MicroActionTranslationKeys.values()));
+        keys.addAll(Arrays.asList(MicroCheckTranslationKeys.values()));
         return keys;
     }
 
@@ -183,6 +208,7 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         lifeCycle.save();
         return lifeCycle;
     }
+
     @Override
     public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
         UsagePointLifeCycle lifeCycle = this.newUsagePointLifeCycle(name, getDefaultFiniteStateMachine(name));

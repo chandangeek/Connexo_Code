@@ -3,10 +3,13 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UsagePointLifeCycle extends HasId, HasName {
 
     Optional<Instant> getObsoleteTime();

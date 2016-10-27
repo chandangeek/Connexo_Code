@@ -6,6 +6,8 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroActionFactory;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroCheckFactory;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.orm.Table;
@@ -14,15 +16,18 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 
+import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 @Unique(message = "{" + MessageSeeds.Keys.TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE + "}")
 public class UsagePointTransitionImpl implements UsagePointTransition, PersistenceAware {
+
     public enum Fields {
         // Common fields
         NAME("name"),
@@ -52,7 +57,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private Reference<UsagePointLifeCycle> lifeCycle = ValueReference.absent();
     private Reference<StateTransition> fsmTransition = ValueReference.absent();
     @SuppressWarnings("unused")
-    private int levelBits;
+    private long levelBits;
     @SuppressWarnings("unused")
     private long checkBits;
     @SuppressWarnings("unused")
@@ -68,8 +73,17 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private Instant modTime;
 
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
-    private EnumSet<MicroCheck> checks = EnumSet.noneOf(MicroCheck.class);
-    private EnumSet<MicroAction> actions = EnumSet.noneOf(MicroAction.class);
+    private Set<MicroAction> microActions;
+    private Set<MicroCheck> microChecks;
+
+    private final UsagePointMicroActionFactory microActionFactory;
+    private final UsagePointMicroCheckFactory microCheckFactory;
+
+    @Inject
+    public UsagePointTransitionImpl(UsagePointMicroActionFactory microActionFactory, UsagePointMicroCheckFactory microCheckFactory) {
+        this.microActionFactory = microActionFactory;
+        this.microCheckFactory = microCheckFactory;
+    }
 
     UsagePointTransitionImpl init(UsagePointLifeCycle lifeCycle, String name) {
         this.lifeCycle.set(lifeCycle);
@@ -83,12 +97,12 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     @Override
     public void postLoad() {
-        postLoadLevelEnumSet();
-        this.postLoadChecksEnumSet();
-        this.postLoadActionsEnumSet();
+        postLoadLevel();
+        postLoadChecks();
+        postLoadActions();
     }
 
-    private void postLoadLevelEnumSet() {
+    private void postLoadLevel() {
         int mask = 1;
         for (Level level : Level.values()) {
             if ((this.levelBits & mask) != 0) {
@@ -99,23 +113,25 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         }
     }
 
-    private void postLoadChecksEnumSet() {
+    private void postLoadChecks() {
+        this.microChecks = new HashSet<>();
         int mask = 1;
-        for (MicroCheck microCheck : MicroCheck.values()) {
+        for (MicroCheck.Key key : MicroCheck.Key.values()) {
             if ((this.checkBits & mask) != 0) {
                 // The bit corresponding to the current microCheck is set so add it to the set.
-                this.checks.add(microCheck);
+                this.microChecks.add(this.microCheckFactory.from(key));
             }
             mask = mask << 1;
         }
     }
 
-    private void postLoadActionsEnumSet() {
+    private void postLoadActions() {
+        this.microActions = new HashSet<>();
         int mask = 1;
-        for (MicroAction microAction : MicroAction.values()) {
+        for (MicroAction.Key key : MicroAction.Key.values()) {
             if ((this.actionBits & mask) != 0) {
                 // The bit corresponding to the current microAction is set so add it to the set.
-                this.actions.add(microAction);
+                this.microActions.add(this.microActionFactory.from(key));
             }
             mask = mask << 1;
         }
@@ -168,7 +184,41 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     }
 
     @Override
+    public Set<MicroAction> getActions() {
+        return Collections.unmodifiableSet(this.microActions);
+    }
+
+    @Override
+    public Set<MicroCheck> getChecks() {
+        return Collections.unmodifiableSet(this.microChecks);
+    }
+
+    @Override
     public Set<Level> getLevels() {
         return Collections.unmodifiableSet(this.levels);
+    }
+
+    void setLevels(Set<UsagePointTransition.Level> transitionLevels) {
+        this.levelBits = 0L;
+        for (UsagePointTransition.Level level : transitionLevels) {
+            this.levelBits |= (1L << level.ordinal());
+        }
+        postLoadLevel();
+    }
+
+    void setMicroChecks(Set<MicroCheck.Key> microCheckKeys) {
+        this.checkBits = 0L;
+        for (MicroCheck.Key key : microCheckKeys) {
+            this.checkBits |= (1L << key.ordinal());
+        }
+        postLoadChecks();
+    }
+
+    void setMicroActions(Set<MicroAction.Key> microActionKeys) {
+        this.actionBits = 0L;
+        for (MicroAction.Key key : microActionKeys) {
+            this.actionBits |= (1L << key.ordinal());
+        }
+        postLoadActions();
     }
 }

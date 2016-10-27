@@ -1,7 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
+@ProviderType
 public interface UsagePointLifeCycleService {
     String COMPONENT_NAME = "UPL";
 

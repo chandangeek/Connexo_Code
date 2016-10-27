@@ -5,21 +5,25 @@ import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UsagePointState extends HasId, HasName {
+
     boolean isInitial();
 
     List<ProcessReference> getOnEntryProcesses();
 
     List<ProcessReference> getOnExitProcesses();
 
-    long getVersion();
-
     Optional<DefaultState> getDefaultState();
 
     boolean isDefault(DefaultState state);
+
+    long getVersion();
 
     void remove();
 

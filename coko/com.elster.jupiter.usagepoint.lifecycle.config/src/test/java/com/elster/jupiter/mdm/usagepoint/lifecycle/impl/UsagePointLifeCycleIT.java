@@ -2,11 +2,15 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -89,12 +93,23 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         UsagePointState from = lifeCycle.newState("From").complete();
         UsagePointState to = lifeCycle.newState("To").complete();
 
-        UsagePointTransition transition = lifeCycle.newTransition("tr1", from, to).complete();
+        UsagePointTransition transition = lifeCycle.newTransition("tr1", from, to)
+                .withLevels(EnumSet.of(UsagePointTransition.Level.ONE, UsagePointTransition.Level.TWO))
+                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .complete();
 
         transition = service.finUsagePointTransition(transition.getId()).get();
         assertThat(transition.getName()).isEqualTo("tr1");
         assertThat(transition.getFrom()).isEqualTo(from);
         assertThat(transition.getTo()).isEqualTo(to);
         assertThat(transition.getTriggeredBy()).isEmpty();
+        assertThat(transition.getLevels()).containsExactly(UsagePointTransition.Level.ONE, UsagePointTransition.Level.TWO);
+        Set<MicroCheck> microChecks = transition.getChecks();
+        assertThat(microChecks).hasSize(1);
+        assertThat(microChecks.iterator().next().getKey()).isEqualTo(MicroCheck.Key.ALL_DATA_VALID);
+        Set<MicroAction> microActions = transition.getActions();
+        assertThat(microActions).hasSize(1);
+        assertThat(microActions.iterator().next().getKey()).isEqualTo(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS);
     }
 }

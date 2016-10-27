@@ -41,7 +41,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column lifeCycle = table.column("LIFE_CYCLE").number().notNull().add();
             table.column("NAME").varChar().map(UsagePointTransitionImpl.Fields.NAME.fieldName()).add();
-            table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(UsagePointTransitionImpl.Fields.LEVELS.fieldName()).add();
+            table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.LEVELS.fieldName()).add();
             table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.CHECKS.fieldName()).add();
             table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.ACTIONS.fieldName()).add();
             Column fsmTransition = table.column("FSM_TRANSITION").number().add();

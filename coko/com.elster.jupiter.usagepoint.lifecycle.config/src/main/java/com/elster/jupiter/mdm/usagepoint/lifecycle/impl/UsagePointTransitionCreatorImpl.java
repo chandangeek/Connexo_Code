@@ -4,12 +4,16 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Set;
 
 public class UsagePointTransitionCreatorImpl implements UsagePointTransition.UsagePointTransitionCreator {
     private final DataModel dataModel;
@@ -20,6 +24,9 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
     private UsagePointState fromState;
     private UsagePointState toState;
     private StandardStateTransitionEventType eventType;
+    private Set<UsagePointTransition.Level> levels;
+    private Set<MicroCheck.Key> microCheckKeys;
+    private Set<MicroAction.Key> microActionKeys;
 
     @Inject
     public UsagePointTransitionCreatorImpl(DataModel dataModel, FiniteStateMachineService stateMachineService) {
@@ -42,9 +49,30 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
     }
 
     @Override
+    public UsagePointTransition.UsagePointTransitionCreator withActions(Set<MicroAction.Key> microActionKeys) {
+        this.microActionKeys = Collections.unmodifiableSet(microActionKeys);
+        return this;
+    }
+
+    @Override
+    public UsagePointTransition.UsagePointTransitionCreator withChecks(Set<MicroCheck.Key> microCheckKeys) {
+        this.microCheckKeys = Collections.unmodifiableSet(microCheckKeys);
+        return this;
+    }
+
+    @Override
+    public UsagePointTransition.UsagePointTransitionCreator withLevels(Set<UsagePointTransition.Level> levels) {
+        this.levels = Collections.unmodifiableSet(levels);
+        return this;
+    }
+
+    @Override
     public UsagePointTransition complete() {
         UsagePointTransitionImpl transition = this.dataModel.getInstance(UsagePointTransitionImpl.class)
                 .init(this.lifeCycle, this.name);
+        transition.setLevels(this.levels);
+        transition.setMicroChecks(this.microCheckKeys);
+        transition.setMicroActions(this.microActionKeys);
         this.lifeCycle.addTransition(transition);
         StateTransitionEventType eventType = this.eventType;
         String eventTypeSymbol = this.eventType == null
