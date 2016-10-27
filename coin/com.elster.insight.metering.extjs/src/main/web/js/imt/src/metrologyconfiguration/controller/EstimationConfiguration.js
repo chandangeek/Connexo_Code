@@ -3,6 +3,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
 
     views: [
         'Imt.metrologyconfiguration.view.estimation.EstimationConfiguration',
+        'Imt.metrologyconfiguration.view.veecommon.ViewConfiguration'
         // 'Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPurpose',
         // 'Imt.metrologyconfiguration.view.validation.ValidationSchedule'
     ],
@@ -33,12 +34,12 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
 
     init: function () {
         this.control({
-            // 'estimation-mc-rule-sets purpose-with-rule-sets-grid': {
-            //     select: this.showRules
-            // },
-            // 'estimation-mc-rule-sets purpose-rules-grid': {
-            //     select: this.showRulePreview
-            // },
+            'estimation-mc-rule-sets est-purpose-with-rule-sets-grid': {
+                select: this.showRules
+            },
+            'estimation-mc-rule-sets est-purpose-rules-grid': {
+                select: this.showRulePreview
+            },
             // 'validation-mc-rule-sets purpose-with-rule-sets-grid actioncolumn': {
             //     removeRuleSetFromPurpose: this.removeRuleSet
             // },
@@ -84,33 +85,32 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
         }
     },
 
-    // showRules: function (rowModel, ruleSet) {
-    //     var me = this,
-    //         view = me.getEstimationRuleSetsView(),
-    //         rulesStore = me.getStore('Imt.store.EstimationRules');
+    showRules: function (rowModel, ruleSet) {
+        var me = this,
+            view = me.getEstimationRuleSetsView(),
+            rulesStore = me.getStore('Imt.store.EstimationRules');
+
+        Ext.suspendLayouts();
+        if (view.down('#purpose-rule-sets-add-rule-button')) {
+            view.down('#purpose-rule-sets-add-rule-button').setHref(me.getController('Uni.controller.history.Router')
+                .getRoute('administration/estimationrulesets/estimationruleset/rules/add').buildUrl({ruleSetId: ruleSet.get('id')}));
+        }
+        rulesStore.getProxy().extraParams = {
+            ruleSetId: ruleSet.get('id')
+        };
+        rulesStore.load(function () {
+            view.down('#est-purpose-rules-grid-paging-top').child('#displayItem')
+                .setText(Uni.I18n.translate('metrologyConfiguration.estimation.rulesCount', 'IMT', '{0} estimation rule(s)', rulesStore.getCount()));
+        });
+        Ext.resumeLayouts(true);
+    },
     //
-    //     Ext.suspendLayouts();
-    //     if (view.down('#purpose-rule-sets-add-rule-button')) {
-    //         view.down('#purpose-rule-sets-add-rule-button').setHref(me.getController('Uni.controller.history.Router')
-    //             .getRoute('administration/rulesets/overview/versions/overview/rules/add').buildUrl({ruleSetId: ruleSet.get('id'), versionId: ruleSet.get('currentVersionId')}));
-    //     }
-    //     rulesStore.getProxy().extraParams = {
-    //         ruleSetId: ruleSet.get('id'),
-    //         versionId: ruleSet.get('currentVersionId')
-    //     };
-    //     rulesStore.load(function () {
-    //         view.down('#purpose-rules-grid-paging-top').child('#displayItem')
-    //             .setText(Uni.I18n.translate('metrologyConfiguration.estimation.rulesCount', 'IMT', '{0} estimation rule(s)', rulesStore.getCount()));
-    //     });
-    //     Ext.resumeLayouts(true);
-    // },
-    //
-    // showRulePreview: function (rowModel, rule) {
-    //     var me = this,
-    //         view = me.getEstimationRuleSetsView() || me.getAddEstimationRuleSetsView();
-    //
-    //     view.down('estimation-rule-preview').updateValidationRule(rule);
-    // },
+    showRulePreview: function (rowModel, rule) {
+        var me = this,
+            view = me.getEstimationRuleSetsView()/* || me.getAddEstimationRuleSetsView()*/;
+
+        view.down('estimation-rules-detail-form').updateForm(rule);
+    },
 
     // removeRuleSet: function (record) {
     //     var me = this;
@@ -219,7 +219,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
     showEstRulesTab: function(panel) {
         var me = this,
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
-            rulesStore = me.getStore('Imt.store.ValidationRules'),
+            rulesStore = me.getStore('Imt.store.EstimationRules'),
             router = me.getController('Uni.controller.history.Router');
 
         Uni.util.History.suspendEventsForNextCall();

@@ -3,9 +3,9 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
     alias: 'widget.estimation-mc-rule-sets',
     requires: [
         'Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets',
-        // 'Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
-        // 'Imt.metrologyconfiguration.view.estimation.RulesGrid',
-        'Cfg.view.validation.RulePreview',
+        'Imt.metrologyconfiguration.view.estimation.PurposeWithRuleSetsGrid',
+        'Imt.metrologyconfiguration.view.estimation.RulesGrid',
+        'Est.estimationrules.view.DetailForm',
         'Imt.metrologyconfiguration.model.EstimationRuleSet',
         // 'Imt.store.ValidationRules'
     ],
@@ -25,10 +25,10 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
             me.emptyComponent = {
                 xtype: 'no-items-found-panel',
                 itemId: 'no-validation-rule-sets-found-panel',
-                title: Uni.I18n.translate('usagepoint.dataEstimation.rulesSetGrid.emptyCmp.title', 'IMT', 'No estimation rule sets found'),
+                title: Uni.I18n.translate('usagepoint.estimation.rulesSetGrid.emptyCmp.title', 'IMT', 'No estimation rule sets found'),
                 reasons: [
-                    Uni.I18n.translate('usagepoint.dataEstimation.rulesSetGrid.emptyCmp.item1', 'IMT', 'No estimation rule sets have been defined yet.'),
-                    Uni.I18n.translate('usagepoint.dataEstimation.rulesSetGrid.emptyCmp.item2', 'IMT', 'Estimation rule sets exist, but you do not have permission to view them.')
+                    Uni.I18n.translate('usagepoint.estimation.rulesSetGrid.emptyCmp.item1', 'IMT', 'No estimation rule sets have been defined yet.'),
+                    Uni.I18n.translate('usagepoint.estimation.rulesSetGrid.emptyCmp.item2', 'IMT', 'Estimation rule sets exist, but you do not have permission to view them.')
                 ],
                 stepItems: [
                     {
@@ -81,8 +81,8 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
         store.totalCount = ruleSetsCount;
 
         me.grid = {
-            xtype: 'purpose-with-rule-sets-grid',
-            itemId: 'purpose-with-rule-sets-grid',
+            xtype: 'est-purpose-with-rule-sets-grid',
+            itemId: 'est-purpose-with-rule-sets-grid',
             router: me.router,
             store: store,
             purposes: me.purposes,
@@ -92,27 +92,28 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
         me.previewComponent = {
             xtype: 'preview-container',
             grid: {
-                xtype: 'purpose-rules-grid',
+                xtype: 'est-purpose-rules-grid',
                 router: me.router,
-                itemId: 'purpose-rules-grid',
+                itemId: 'est-purpose-rules-grid',
                 store: me.rulesStore
             },
             previewComponent: {
-                // xtype: 'estimation-rule-preview',
-                // itemId: 'purpose-rule-sets-rule-preview',
-                // noActionsButton: true,
-                // title: ''
+                xtype: 'estimation-rules-detail-form',
+                itemId: 'estimation-rules-detail-form',
+                frame: true,
+                noActionsButton: true,
+                title: ''
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
                 itemId: 'purpose-no-estimation-rules',
-                title: Uni.I18n.translate('validation.rules.empty.title', 'IMT', 'No estimation rules found'),
+                title: Uni.I18n.translate('estimation.rules.empty.title', 'IMT', 'No estimation rules found'),
                 reasons: [
-                    Uni.I18n.translate('validation.rules.empty.list.item1', 'IMT', 'No estimation rules have been defined yet.')
+                    Uni.I18n.translate('estimation.rules.empty.list.item1', 'IMT', 'No estimation rules have been defined yet.')
                 ],
                 stepItems: [
                     {
-                        text: Uni.I18n.translate('validation.addEstimationRule', 'IMT', 'Add estimation rule'),
+                        text: Uni.I18n.translate('estimation.addEstimationRule', 'IMT', 'Add estimation rule'),
                         itemId: 'purpose-rule-sets-add-rule-button',
                         privileges: Cfg.privileges.Validation.admin,
                         preventDefault: false
@@ -126,7 +127,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
             var index = store.findBy(function (record) {
                 return record.get('id');
             });
-            me.down('#purpose-with-rule-sets-grid').getSelectionModel().select(index);
+            me.down('#est-purpose-with-rule-sets-grid').getSelectionModel().select(index);
         }, me, {single: true});
 
         me.callParent(arguments);
