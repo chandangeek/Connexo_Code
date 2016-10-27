@@ -11,7 +11,8 @@ Ext.define('MdmApp.Application', {
         'Imt.privileges.MetrologyConfig',
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
-        'Fim.privileges.DataImport'
+        'Fim.privileges.DataImport',
+        'Est.privileges.EstimationConfiguration'
     ],
 
     controllers: [
