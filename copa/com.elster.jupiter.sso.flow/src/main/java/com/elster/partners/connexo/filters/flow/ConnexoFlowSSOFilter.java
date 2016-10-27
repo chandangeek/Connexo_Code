@@ -62,10 +62,8 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 Set<Group> groups = new HashSet<>();
                 for(String role : principal.getRoles()) {
                     roles.add(new RoleImpl(role));
-                    //groups.add(new GroupImpl(role));
-
+                    groups.add(new GroupImpl(role));
                 }
-                groups.add(new GroupImpl("workGroupTest"));
 
                 // Bug in jBPM 6.4.0 web console - only the default admin role is allowed to access AdministrationPerspective
                 RoleImpl defaultAdmin = new RoleImpl("admin");

@@ -23,14 +23,13 @@ public class ConnexoFlowRestProxyManager {
     private final String url;
     private final String user;
     private final String password;
-    private String token;
 
     private static ConnexoFlowRestProxyManager instance = null;
 
     public static synchronized ConnexoFlowRestProxyManager getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             Properties properties = new Properties();
-            if(CONNEXO_CONFIG != null){
+            if (CONNEXO_CONFIG != null) {
                 try {
                     FileInputStream inputStream = new FileInputStream(CONNEXO_CONFIG);
                     properties.load(inputStream);
@@ -61,11 +60,11 @@ public class ConnexoFlowRestProxyManager {
         this.password = password;
     }
 
-    public void setToken(String token){
-        this.token = token;
-    }
-
     public boolean existsUser(String userId) {
+        if (userId.equals("Administrator")) {
+            return true;
+        }
+
         try {
             return (getEntity("/api/usr/findusers/" + URLEncoder.encode(userId, "UTF-8")) != null);
         } catch (UnsupportedEncodingException e) {
@@ -75,6 +74,10 @@ public class ConnexoFlowRestProxyManager {
     }
 
     public boolean existsGroup(String groupId) {
+        if (groupId.equals("Administrators")) {
+            return true;
+        }
+
         try {
             return (getEntity("/api/usr/findworkgroups/" + URLEncoder.encode(groupId, "UTF-8")) != null);
         } catch (UnsupportedEncodingException e) {
@@ -84,6 +87,12 @@ public class ConnexoFlowRestProxyManager {
     }
 
     public List<String> getMembersOf(String groupId) {
+        if (groupId.equals("Administrators")) {
+            return new ArrayList<String>() {{
+                add("Administrator");
+            }};
+        }
+
         List<String> members = new ArrayList<>();
         JSONArray array = null;
         try {
@@ -92,7 +101,7 @@ public class ConnexoFlowRestProxyManager {
             e.printStackTrace();
         }
 
-        if(array != null) {
+        if (array != null) {
             for (int i = 0; i < array.length(); i++) {
                 try {
                     JSONObject user = (JSONObject) array.get(i);
@@ -109,15 +118,20 @@ public class ConnexoFlowRestProxyManager {
     }
 
     public List<String> getGroupsOf(String userId) {
+        if (userId.equals("Administrator")) {
+            return new ArrayList<String>() {{
+                add("Administrators");
+            }};
+        }
         List<String> members = new ArrayList<>();
         JSONArray array = null;
         try {
-            array = (JSONArray) getEntities("/api/usr/findusers/" +  URLEncoder.encode(userId, "UTF-8") + "/workgroups", "workgroups");
+            array = (JSONArray) getEntities("/api/usr/findusers/" + URLEncoder.encode(userId, "UTF-8") + "/workgroups", "workGroups");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
-        if(array != null) {
+        if (array != null) {
             for (int i = 0; i < array.length(); i++) {
                 try {
                     JSONObject group = (JSONObject) array.get(i);
@@ -134,14 +148,17 @@ public class ConnexoFlowRestProxyManager {
     }
 
     public String getLanguageOf(String userId) {
+        if (userId.equals("Administrator")) {
+            return "en_US";
+        }
         JSONObject object = null;
         try {
-            object = (JSONObject) getEntity("/api/usr/findusers/" +  URLEncoder.encode(userId, "UTF-8"));
+            object = (JSONObject) getEntity("/api/usr/findusers/" + URLEncoder.encode(userId, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
-        if(object != null) {
+        if (object != null) {
             try {
                 JSONObject language = (JSONObject) object.get("language");
                 if (language != null) {
@@ -162,20 +179,18 @@ public class ConnexoFlowRestProxyManager {
             jsonContent = doGet(targetUrl);
             if (!"".equals(jsonContent)) {
                 object = new JSONObject(jsonContent);
-                if(object != null) {
+                if (object != null) {
                     return object;
-                }
-                else {
+                } else {
                     throw new RuntimeException("No entity found at " + targetUrl);
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
             System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
         }
 
         return null;
@@ -189,13 +204,12 @@ public class ConnexoFlowRestProxyManager {
             jsonContent = doGet(targetUrl);
             if (!"".equals(jsonContent)) {
                 JSONObject object = new JSONObject(jsonContent);
-                if(object != null) {
+                if (object != null) {
                     array = object.getJSONArray(element);
-                    if(array != null && array.length() > 0){
+                    if (array != null && array.length() > 0) {
                         return array;
                     }
-                }
-                else {
+                } else {
                     throw new RuntimeException("No entity found at " + targetUrl);
                 }
             }
@@ -217,7 +231,6 @@ public class ConnexoFlowRestProxyManager {
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
-            //httpConnection.setRequestProperty("X-CONNEXO-TOKEN", this.token);
             httpConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((this.user + ":" + this.password).getBytes()));
             httpConnection.setRequestProperty("Accept", "application/json");
             if (httpConnection.getResponseCode() < 200 || httpConnection.getResponseCode() >= 300) {
