@@ -50,26 +50,26 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
 
     @Override
     public UsagePointTransition.UsagePointTransitionCreator withActions(Set<MicroAction.Key> microActionKeys) {
-        this.microActionKeys = Collections.unmodifiableSet(microActionKeys);
+        this.microActionKeys = microActionKeys != null ? Collections.unmodifiableSet(microActionKeys) : Collections.emptySet();
         return this;
     }
 
     @Override
     public UsagePointTransition.UsagePointTransitionCreator withChecks(Set<MicroCheck.Key> microCheckKeys) {
-        this.microCheckKeys = Collections.unmodifiableSet(microCheckKeys);
+        this.microCheckKeys = microCheckKeys != null ? Collections.unmodifiableSet(microCheckKeys) : Collections.emptySet();
         return this;
     }
 
     @Override
     public UsagePointTransition.UsagePointTransitionCreator withLevels(Set<UsagePointTransition.Level> levels) {
-        this.levels = Collections.unmodifiableSet(levels);
+        this.levels = levels != null ? Collections.unmodifiableSet(levels) : Collections.emptySet();
         return this;
     }
 
     @Override
     public UsagePointTransition complete() {
         UsagePointTransitionImpl transition = this.dataModel.getInstance(UsagePointTransitionImpl.class)
-                .init(this.lifeCycle, this.name);
+                .init(this.lifeCycle, this.name, this.fromState, this.toState);
         transition.setLevels(this.levels);
         transition.setMicroChecks(this.microCheckKeys);
         transition.setMicroActions(this.microActionKeys);

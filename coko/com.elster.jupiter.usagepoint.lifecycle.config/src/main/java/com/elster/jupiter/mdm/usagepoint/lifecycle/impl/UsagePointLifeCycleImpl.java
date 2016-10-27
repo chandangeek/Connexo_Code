@@ -143,14 +143,18 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     }
 
     void touch() {
-        this.dataModel.touch(this);
+        if (getId() > 0) {
+            this.dataModel.touch(this);
+        }
     }
 
     @Override
     public void remove() {
-        this.eventService.postEvent(EventType.LIFE_CYCLE_BEFORE_DELETE.topic(), this);
-        this.dataModel.remove(this);
-        this.eventService.postEvent(EventType.LIFE_CYCLE_DELETED.topic(), this);
+        if (getId() > 0) {
+            this.eventService.postEvent(EventType.LIFE_CYCLE_BEFORE_DELETE.topic(), this);
+            this.dataModel.remove(this);
+            this.eventService.postEvent(EventType.LIFE_CYCLE_DELETED.topic(), this);
+        }
     }
 
     void addTransition(UsagePointTransitionImpl transition) {

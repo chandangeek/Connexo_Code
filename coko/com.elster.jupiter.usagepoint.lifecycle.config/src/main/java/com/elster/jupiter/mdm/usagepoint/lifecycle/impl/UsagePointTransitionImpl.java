@@ -22,10 +22,12 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @Unique(message = "{" + MessageSeeds.Keys.TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE + "}")
+@HasDifferentStates(message = "{" + MessageSeeds.Keys.TRANSITION_FROM_AND_TO_ARE_THE_SAME + "}")
 public class UsagePointTransitionImpl implements UsagePointTransition, PersistenceAware {
 
     public enum Fields {
@@ -72,6 +74,8 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @SuppressWarnings("unused")
     private Instant modTime;
 
+    private UsagePointState fromState;
+    private UsagePointState toState;
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
     private Set<MicroAction> microActions;
     private Set<MicroCheck> microChecks;
@@ -85,14 +89,12 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         this.microCheckFactory = microCheckFactory;
     }
 
-    UsagePointTransitionImpl init(UsagePointLifeCycle lifeCycle, String name) {
+    UsagePointTransitionImpl init(UsagePointLifeCycle lifeCycle, String name, UsagePointState fromState, UsagePointState toState) {
         this.lifeCycle.set(lifeCycle);
         this.name = name;
+        this.fromState = fromState;
+        this.toState = toState;
         return this;
-    }
-
-    void setTransition(StateTransition fsmTransition) {
-        this.fsmTransition.set(fsmTransition);
     }
 
     @Override
@@ -100,6 +102,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         postLoadLevel();
         postLoadChecks();
         postLoadActions();
+        postLoadStates();
     }
 
     private void postLoadLevel() {
@@ -137,6 +140,20 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         }
     }
 
+    private void postLoadStates() {
+        long fromId = this.fsmTransition.get().getFrom().getId();
+        long toId = this.fsmTransition.get().getTo().getId();
+        List<UsagePointState> states = this.lifeCycle.get().getStates();
+        for (int i = 0; i < states.size() && (this.fromState == null || this.toState == null); i++) {
+            UsagePointState state = states.get(i);
+            if (state.getId() == fromId) {
+                this.fromState = state;
+            } else if (state.getId() == toId) {
+                this.toState = state;
+            }
+        }
+    }
+
     @Override
     public long getId() {
         return this.id;
@@ -154,20 +171,12 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     @Override
     public UsagePointState getFrom() {
-        return this.lifeCycle.get().getStates()
-                .stream()
-                .filter(state -> state.getId() == this.fsmTransition.get().getFrom().getId())
-                .findFirst()
-                .get();
+        return this.fromState;
     }
 
     @Override
     public UsagePointState getTo() {
-        return this.lifeCycle.get().getStates()
-                .stream()
-                .filter(state -> state.getId() == this.fsmTransition.get().getTo().getId())
-                .findFirst()
-                .get();
+        return this.toState;
     }
 
     @Override
@@ -200,25 +209,54 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     void setLevels(Set<UsagePointTransition.Level> transitionLevels) {
         this.levelBits = 0L;
-        for (UsagePointTransition.Level level : transitionLevels) {
-            this.levelBits |= (1L << level.ordinal());
+        if (transitionLevels != null) {
+            for (UsagePointTransition.Level level : transitionLevels) {
+                this.levelBits |= (1L << level.ordinal());
+            }
         }
         postLoadLevel();
     }
 
     void setMicroChecks(Set<MicroCheck.Key> microCheckKeys) {
         this.checkBits = 0L;
-        for (MicroCheck.Key key : microCheckKeys) {
-            this.checkBits |= (1L << key.ordinal());
+        if (microCheckKeys != null) {
+            for (MicroCheck.Key key : microCheckKeys) {
+                this.checkBits |= (1L << key.ordinal());
+            }
         }
         postLoadChecks();
     }
 
     void setMicroActions(Set<MicroAction.Key> microActionKeys) {
         this.actionBits = 0L;
-        for (MicroAction.Key key : microActionKeys) {
-            this.actionBits |= (1L << key.ordinal());
+        if (microActionKeys != null) {
+            for (MicroAction.Key key : microActionKeys) {
+                this.actionBits |= (1L << key.ordinal());
+            }
         }
         postLoadActions();
+    }
+
+    void setTransition(StateTransition fsmTransition) {
+        this.fsmTransition.set(fsmTransition);
+        postLoadStates();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UsagePointTransitionImpl that = (UsagePointTransitionImpl) o;
+        return this.id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (this.id ^ (this.id >>> 32));
     }
 }

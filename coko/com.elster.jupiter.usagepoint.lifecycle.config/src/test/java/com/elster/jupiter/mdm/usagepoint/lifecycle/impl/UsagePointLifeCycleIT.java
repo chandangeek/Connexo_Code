@@ -99,7 +99,7 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
                 .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
                 .complete();
 
-        transition = service.finUsagePointTransition(transition.getId()).get();
+        transition = service.findUsagePointTransition(transition.getId()).get();
         assertThat(transition.getName()).isEqualTo("tr1");
         assertThat(transition.getFrom()).isEqualTo(from);
         assertThat(transition.getTo()).isEqualTo(to);

@@ -1,8 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
@@ -48,8 +46,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {UsagePointLifeCycleService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true)
 public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleService, MessageSeedProvider, TranslationKeyProvider {
-    private static final String FSM_NAME_PREFIX = UsagePointLifeCycleService.COMPONENT_NAME + "_";
-
     private DataModel dataModel;
     private Thesaurus thesaurus;
     private UpgradeService upgradeService;
@@ -193,31 +189,18 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         return this.dataModel.query(UsagePointLifeCycle.class).select(condition).stream().findFirst();
     }
 
-    public FiniteStateMachine getDefaultFiniteStateMachine(String name) {
-        FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
-        stateMachineBuilder.newStandardState(DefaultState.CONNECTED.getKey()).complete();
-        stateMachineBuilder.newStandardState(DefaultState.PHYSICALLY_DISCONNECTED.getKey()).complete();
-        stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
-        return stateMachineBuilder.complete(stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete());
-    }
-
-    private UsagePointLifeCycle newUsagePointLifeCycle(String name, FiniteStateMachine stateMachine) {
-        UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
-        lifeCycle.setName(name);
-        lifeCycle.setStateMachine(stateMachine);
-        lifeCycle.save();
-        return lifeCycle;
-    }
-
     @Override
     public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
-        UsagePointLifeCycle lifeCycle = this.newUsagePointLifeCycle(name, getDefaultFiniteStateMachine(name));
-
-        return lifeCycle;
+        return this.dataModel.getInstance(UsagePointLifeCycleBuilderImpl.class).getDefaultLifeCycleWithName(name);
     }
 
     @Override
-    public Optional<UsagePointTransition> finUsagePointTransition(long id) {
+    public Optional<UsagePointTransition> findUsagePointTransition(long id) {
         return this.dataModel.mapper(UsagePointTransition.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<UsagePointTransition> findAndLockUsagePointTransitionByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(UsagePointTransition.class).lockObjectIfVersion(version, id);
     }
 }

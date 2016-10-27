@@ -16,5 +16,7 @@ public interface UsagePointLifeCycleService {
 
     UsagePointLifeCycle newUsagePointLifeCycle(String name);
 
-    Optional<UsagePointTransition> finUsagePointTransition(long id);
+    Optional<UsagePointTransition> findUsagePointTransition(long id);
+
+    Optional<UsagePointTransition> findAndLockUsagePointTransitionByIdAndVersion(long id, long version);
 }
