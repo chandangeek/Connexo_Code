@@ -1,4 +1,4 @@
-package com.elster.jupiter.calendar.rest.impl;
+package com.elster.jupiter.calendar.rest;
 
 import com.elster.jupiter.calendar.Category;
 

@@ -3,6 +3,7 @@ package com.elster.jupiter.calendar.rest.impl;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
+import com.elster.jupiter.calendar.rest.CategoryInfo;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -36,7 +37,7 @@ public class CategoryResource {
     @GET
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getAllCalendars(@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAllCategories(@BeanParam JsonQueryParameters queryParameters) {
         List<Category> allCategories = calendarService.findAllCategories();
         return PagedInfoList.fromCompleteList("categories", allCategories, queryParameters);
     }
@@ -45,7 +46,7 @@ public class CategoryResource {
     @Path("/{id}")
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public CategoryInfo getCalendar(@PathParam("id") long id) {
+    public CategoryInfo getCategory(@PathParam("id") long id) {
         return calendarService.findCategory(id)
                 .map(CategoryInfo::from)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CATEGORY));

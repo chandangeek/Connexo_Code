@@ -10,6 +10,7 @@ import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
+import com.elster.jupiter.calendar.rest.CategoryInfo;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
         service = CalendarInfoFactory.class)
 public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
-    private Thesaurus thesaurus;
+    private volatile Thesaurus thesaurus;
 
     //osgi
     public CalendarInfoFactoryImpl() {

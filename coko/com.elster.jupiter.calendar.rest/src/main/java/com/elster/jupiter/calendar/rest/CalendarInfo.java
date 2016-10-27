@@ -1,7 +1,6 @@
 package com.elster.jupiter.calendar.rest;
 
 import com.elster.jupiter.calendar.Status;
-import com.elster.jupiter.calendar.rest.impl.CategoryInfo;
 import com.elster.jupiter.calendar.rest.impl.DayInfo;
 import com.elster.jupiter.calendar.rest.impl.DayTypeInfo;
 import com.elster.jupiter.calendar.rest.impl.DaysPerTypeInfo;
