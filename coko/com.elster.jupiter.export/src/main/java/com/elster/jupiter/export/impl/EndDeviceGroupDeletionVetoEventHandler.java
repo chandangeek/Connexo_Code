@@ -5,8 +5,8 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
 import com.elster.jupiter.metering.groups.EventType;
+import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -52,8 +52,8 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
-        EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
+        GroupEventData eventSource = (GroupEventData) localEvent.getSource();
+        EndDeviceGroup endDeviceGroup = (EndDeviceGroup) eventSource.getGroup();
         List<? extends ExportTask> tasks = dataExportService.findReadingTypeDataExportTasks();
         tasks.stream()
                 .map(ExportTask::getReadingTypeDataSelector)

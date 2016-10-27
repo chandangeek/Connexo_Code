@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.FormattedData;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -18,7 +19,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
@@ -93,7 +94,7 @@ public class StandardDataSelectorTest {
     @Mock
     private EndDeviceGroup group;
     @Mock
-    private EndDeviceMembership endDeviceMembership1, endDeviceMembership2;
+    private Membership<EndDevice> endDeviceMembership1, endDeviceMembership2;
     @Mock
     private Meter meter1, meter2, meter3;
     @Mock
@@ -193,8 +194,8 @@ public class StandardDataSelectorTest {
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
         when(meter3.getUsagePoint(any())).thenReturn(Optional.<UsagePoint>empty());
         when(group.getMembers(exportPeriod)).thenReturn(Arrays.asList(endDeviceMembership1, endDeviceMembership2));
-        when(endDeviceMembership1.getEndDevice()).thenReturn(meter1);
-        when(endDeviceMembership2.getEndDevice()).thenReturn(meter2);
+        when(endDeviceMembership1.getMember()).thenReturn(meter1);
+        when(endDeviceMembership2.getMember()).thenReturn(meter2);
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put(dataExportProperty.getName(), dataExportProperty.getValue());
         when(dataFormatterFactory.createDataFormatter(propertyMap)).thenReturn(dataFormatter);

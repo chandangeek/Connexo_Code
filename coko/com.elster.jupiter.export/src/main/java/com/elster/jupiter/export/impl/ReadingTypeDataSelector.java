@@ -9,7 +9,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
@@ -17,6 +17,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -121,7 +122,7 @@ class ReadingTypeDataSelector implements DataSelector {
         boolean hasMismatchedMeters = decorate(getEndDeviceGroup()
                 .getMembers(range)
                 .stream())
-                .map(EndDeviceMembership::getEndDevice)
+                .map(Membership::getMember)
                 .filterSubType(Meter.class)
                 .anyMatch(meter -> meter.getReadingTypes(range)
                                 .stream()

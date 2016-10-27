@@ -16,7 +16,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -130,7 +130,7 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
                         .orElse(Range.<Instant>all()))
                 .stream())
-                .map(EndDeviceMembership::getEndDevice)
+                .map(Membership::getMember)
                 .filterSubType(Meter.class)
                 .flatMap(this::readingTypeDataExportItems)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
