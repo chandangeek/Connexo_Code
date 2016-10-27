@@ -13,7 +13,7 @@ import java.util.Optional;
 @ProviderType
 public interface ReadingTypeDataExportItem {
 
-    StandardDataSelector getSelector();
+    ReadingDataSelectorConfig getSelector();
 
     ReadingContainer getReadingContainer();
 

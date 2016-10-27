@@ -5,7 +5,6 @@ import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -28,7 +27,6 @@ abstract class AbstractDataSelector implements DataSelector {
     private final Thesaurus thesaurus;
 
     private Logger logger;
-    private StandardDataSelectorImpl selector;
 
     AbstractDataSelector(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
@@ -36,8 +34,7 @@ abstract class AbstractDataSelector implements DataSelector {
         this.thesaurus = thesaurus;
     }
 
-    AbstractDataSelector init(StandardDataSelectorImpl selector, Logger logger) {
-        this.selector = selector;
+    AbstractDataSelector init(Logger logger) {
         this.logger = logger;
         return this;
     }
@@ -47,8 +44,8 @@ abstract class AbstractDataSelector implements DataSelector {
         Set<IReadingTypeDataExportItem> activeItems;
         Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
         try (TransactionContext context = getTransactionService().getContext()) {
-            activeItems = getActiveItems(occurrence);
-            getSelector().getExportItems().stream()
+            activeItems = getSelectorConfig().getActiveItems(occurrence);
+            getSelectorConfig().getExportItems().stream()
                     .filter(item -> !activeItems.contains(item))
                     .peek(IReadingTypeDataExportItem::deactivate)
                     .forEach(IReadingTypeDataExportItem::update);
@@ -92,22 +89,11 @@ abstract class AbstractDataSelector implements DataSelector {
         }
     }
 
-    abstract Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
-
     abstract void warnIfObjectsHaveNoneOfTheReadingTypes(DataExportOccurrence occurrence);
 
     abstract AbstractItemDataSelector getItemDataSelector();
 
-    Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer) {
-        return selector.getReadingTypes().stream()
-                .map(r -> selector.getExportItems().stream()
-                        .map(IReadingTypeDataExportItem.class::cast)
-                        .filter(item -> r.equals(item.getReadingType()))
-                        .filter(i -> i.getReadingContainer().is(readingContainer))
-                        .findAny()
-                        .orElseGet(() -> selector.addExportItem(readingContainer, r))
-                );
-    }
+    abstract ReadingDataSelectorConfigImpl getSelectorConfig();
 
     DataModel getDataModel() {
         return dataModel;
@@ -115,10 +101,6 @@ abstract class AbstractDataSelector implements DataSelector {
 
     Logger getLogger() {
         return logger;
-    }
-
-    StandardDataSelectorImpl getSelector() {
-        return selector;
     }
 
     Thesaurus getThesaurus() {

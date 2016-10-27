@@ -18,8 +18,6 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder scheduleImmediately();
 
-    ExportTask create();
-
     DataExportTaskBuilder setName(String string);
 
     DataExportTaskBuilder setDataFormatterFactoryName(String dataFormatter);
@@ -34,6 +32,8 @@ public interface DataExportTaskBuilder {
 
     PropertyBuilder<DataExportTaskBuilder> addProperty(String name);
 
+    ExportTask create();
+
     interface PropertyBuilder<T> {
 
         T withValue(Object value);
@@ -41,6 +41,7 @@ public interface DataExportTaskBuilder {
     }
 
     interface CustomSelectorBuilder {
+
         PropertyBuilder<CustomSelectorBuilder> addProperty(String name);
 
         DataExportTaskBuilder endSelection();
@@ -53,8 +54,6 @@ public interface DataExportTaskBuilder {
         ReadingTypeSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
 
         ReadingTypeSelectorBuilder fromReadingType(ReadingType readingType);
-
-        ReadingTypeSelectorBuilder fromReadingType(String readingType);
 
         ReadingTypeSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
 

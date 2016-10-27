@@ -39,7 +39,7 @@ class LoggingItemExporter implements ItemExporter {
         ReadingTypeDataExportItem item = meterReadingData.getItem();
         String itemDescription = item.getDescription();
         try {
-            Range<Instant> range = ((IStandardDataSelector) occurrence.getTask().getAggregatedDataSelector().get()).adjustedExportPeriod(occurrence, item);
+            Range<Instant> range = ((IExportTask) occurrence.getTask()).getReadingDataSelectorConfig().get().getStrategy().adjustedExportPeriod(occurrence, item);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
             String toDate = range.hasUpperBound() ? timeFormatter.format(range.upperEndpoint()) : "";
 

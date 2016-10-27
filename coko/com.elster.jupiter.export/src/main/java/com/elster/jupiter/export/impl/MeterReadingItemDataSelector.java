@@ -6,8 +6,8 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -36,16 +36,11 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.ExtraCollectors.toImmutableRangeSet;
 
-class ReadingTypeDataItemDataSelector extends AbstractItemDataSelector {
+class MeterReadingItemDataSelector extends AbstractItemDataSelector {
 
     @Inject
-    ReadingTypeDataItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
+    MeterReadingItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
         super(clock, validationService, thesaurus, transactionService);
-    }
-
-    @Override
-    Optional<IStandardDataSelector> getDataSelector(DataExportOccurrence occurrence) {
-        return occurrence.getTask().getReadingTypeDataSelector().map(IStandardDataSelector.class::cast);
     }
 
     @Override
@@ -74,7 +69,7 @@ class ReadingTypeDataItemDataSelector extends AbstractItemDataSelector {
             readings = rangeSet.asRanges().stream()
                     .flatMap(range -> {
                         List<? extends BaseReadingRecord> found = getReadings(item, range);
-                        if (occurrence.getTask().getReadingTypeDataSelector().get().getStrategy().isExportCompleteData()) {
+                        if (getExportStrategy(occurrence).get().isExportCompleteData()) {
                             handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range, itemDescription);
                             if (!isComplete(item, range, found)) {
                                 return Stream.empty();
@@ -94,10 +89,7 @@ class ReadingTypeDataItemDataSelector extends AbstractItemDataSelector {
     }
 
     private boolean isExportUpdates(DataExportOccurrence occurrence) {
-        return occurrence.getTask().getReadingTypeDataSelector()
-                .map(StandardDataSelector::getStrategy)
-                .map(DataExportStrategy::isExportUpdate)
-                .orElse(false);
+        return getExportStrategy(occurrence).map(DataExportStrategy::isExportUpdate).orElse(false);
     }
 
     private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
@@ -109,8 +101,7 @@ class ReadingTypeDataItemDataSelector extends AbstractItemDataSelector {
     }
 
     private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        return occurrence.getTask().getReadingTypeDataSelector()
-                .map(StandardDataSelector::getStrategy)
+        return getExportStrategy(occurrence)
                 .filter(DataExportStrategy::isExportUpdate)
                 .flatMap(DataExportStrategy::getUpdatePeriod)
                 .map(relativePeriod -> relativePeriod.getOpenClosedInterval(
@@ -124,5 +115,10 @@ class ReadingTypeDataItemDataSelector extends AbstractItemDataSelector {
                 .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
                 // all the MRIDs above are not used anywhere
                 .child("update");
+    }
+
+    private Optional<DataExportStrategy> getExportStrategy(DataExportOccurrence dataExportOccurrence) {
+        IExportTask exportTask = (IExportTask) dataExportOccurrence.getTask();
+        return exportTask.getReadingDataSelectorConfig().map(ReadingDataSelectorConfig::getStrategy);
     }
 }

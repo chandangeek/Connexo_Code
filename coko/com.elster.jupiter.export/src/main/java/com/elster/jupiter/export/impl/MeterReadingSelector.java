@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -14,22 +13,32 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-class ReadingTypeDataSelector extends AbstractDataSelector {
+class MeterReadingSelector extends AbstractDataSelector {
+
+    private MeterReadingSelectorConfigImpl selectorConfig;
 
     @Inject
-    public ReadingTypeDataSelector(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
+    MeterReadingSelector(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
         super(dataModel, transactionService, thesaurus);
     }
 
-    static DataSelector from(DataModel dataModel, StandardDataSelectorImpl selector, Logger logger) {
-        return dataModel.getInstance(ReadingTypeDataSelector.class).init(selector, logger);
+    static MeterReadingSelector from(DataModel dataModel, MeterReadingSelectorConfigImpl selectorConfig, Logger logger) {
+        return dataModel.getInstance(MeterReadingSelector.class).init(selectorConfig, logger);
+    }
+
+    MeterReadingSelector init(MeterReadingSelectorConfigImpl selectorConfig, Logger logger) {
+        super.init(logger);
+        this.selectorConfig = selectorConfig;
+        return this;
+    }
+
+    @Override
+    MeterReadingSelectorConfigImpl getSelectorConfig() {
+        return selectorConfig;
     }
 
     @Override
@@ -47,8 +56,8 @@ class ReadingTypeDataSelector extends AbstractDataSelector {
                 .map(EndDeviceMembership::getEndDevice)
                 .filterSubType(Meter.class)
                 .anyMatch(meter -> meter.getReadingTypes(range)
-                                .stream()
-                        .noneMatch(readingType -> getSelector().getReadingTypes().contains(readingType))
+                        .stream()
+                        .noneMatch(readingType -> getSelectorConfig().getReadingTypes().contains(readingType))
                 );
         if (hasMismatchedMeters) {
             MessageSeeds.SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES.log(getLogger(), getThesaurus(), getEndDeviceGroup().getName());
@@ -56,24 +65,11 @@ class ReadingTypeDataSelector extends AbstractDataSelector {
     }
 
     @Override
-    public Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
-        return decorate(getEndDeviceGroup()
-                .getMembers(occurrence.getDefaultSelectorOccurrence()
-                        .map(DefaultSelectorOccurrence::getExportedDataInterval)
-                        .orElse(Range.all()))
-                .stream())
-                .map(EndDeviceMembership::getEndDevice)
-                .filterSubType(Meter.class)
-                .flatMap(super::readingTypeDataExportItems)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    @Override
     AbstractItemDataSelector getItemDataSelector() {
-        return getDataModel().getInstance(ReadingTypeDataItemDataSelector.class).init(getLogger());
+        return getDataModel().getInstance(MeterReadingItemDataSelector.class).init(getLogger());
     }
 
     private EndDeviceGroup getEndDeviceGroup() {
-        return getSelector().getEndDeviceGroup();
+        return getSelectorConfig().getEndDeviceGroup();
     }
 }

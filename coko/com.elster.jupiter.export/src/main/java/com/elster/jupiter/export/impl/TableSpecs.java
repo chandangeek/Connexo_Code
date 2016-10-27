@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -14,6 +15,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
+
+import com.google.common.collect.ImmutableMap;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -44,12 +47,19 @@ enum TableSpecs {
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
         }
     },
-    DES_RTDATASELECTOR(IStandardDataSelector.class) {
+    DES_RTDATASELECTOR(DataSelectorConfig.class) {
         @Override
         void describeTable(Table table) {
-            table.map(StandardDataSelectorImpl.class);
+            table.map(
+                    ImmutableMap.of(
+                            MeterReadingSelectorConfigImpl.IMPLEMENTOR_NAME, MeterReadingSelectorConfigImpl.class,
+                            UsagePointReadingSelectorConfigImpl.IMPLEMENTOR_NAME, UsagePointReadingSelectorConfigImpl.class,
+                            EventSelectorConfigImpl.IMPLEMENTOR_NAME, EventSelectorConfigImpl.class
+                    )
+            );
             table.setJournalTableName("DES_RTDATASELECTORJRNL");
             Column idColumn = table.addAutoIdColumn();
+            table.column("TYPE").varChar(NAME_LENGTH).map(Column.TYPEFIELDNAME).since(version(10, 3)).add();// discriminator column
             Column taskColumn = table.column("EXPORTTASK").number().notNull().add();
             Column exportPeriod = table.column("EXPORT_PERIOD").number().notNull().add();
             Column updatePeriod = table.column("UPDATE_PERIOD").number().add();
@@ -57,8 +67,12 @@ enum TableSpecs {
             Column endDeviceGroupId_10_2 = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).upTo(version(10, 3)).add();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).previously(endDeviceGroupId_10_2).add();
             Column usagePointGroup = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
-            table.column("EXPORT_UPDATE").bool().map("exportUpdate").add();
-            table.column("EXPORT_COMPLETE").bool().map("exportOnlyIfComplete").add();
+            Column exportUpdate_10_2 =
+                    table.column("EXPORT_UPDATE").bool().map("exportUpdate").upTo(version(10, 3)).add();
+            table.column("EXPORT_UPDATE").bool().map("exportUpdate").bool().notNull(false).since(version(10, 3)).previously(exportUpdate_10_2).add();
+            Column exportComplete_10_2 =
+                    table.column("EXPORT_COMPLETE").bool().map("exportOnlyIfComplete").upTo(version(10, 3)).add();
+            table.column("EXPORT_COMPLETE").bool().notNull(false).map("exportOnlyIfComplete").since(version(10, 3)).previously(exportComplete_10_2).add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
 
@@ -69,7 +83,7 @@ enum TableSpecs {
                     .on(taskColumn)
                     .references("DES_DATAEXPORTTASK")
                     .map("exportTask")
-                    .reverseMap("readingTypeDataSelector")
+                    .reverseMap("dataSelectorConfig")
                     .add();
             table.foreignKey("DES_FK_RTDS_EXPORTPERIOD")
                     .on(exportPeriod)

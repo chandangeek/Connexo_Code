@@ -76,13 +76,9 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     Optional<ScheduleExpression> getScheduleExpression(Instant at);
 
-    Optional<? extends StandardDataSelector> getReadingTypeDataSelector();
+    Optional<DataSelectorConfig> getStandardDataSelectorConfig();
 
-    Optional<EventDataSelector> getEventDataSelector();
-
-    Optional<AggregatedDataSelectorConfig> getAggregatedDataSelector();
-
-    Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at);
+    Optional<DataSelectorConfig> getStandardDataSelectorConfig(Instant at);
 
     FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension);
 

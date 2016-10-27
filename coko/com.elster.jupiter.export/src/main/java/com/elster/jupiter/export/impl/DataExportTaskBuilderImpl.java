@@ -2,8 +2,10 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -37,7 +39,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private RelativePeriod exportPeriod;
     private RelativePeriod updatePeriod;
     private RelativePeriod updateWindow;
-    private List<ReadingTypeDefinition> readingTypes = new ArrayList<>();
+    private List<ReadingType> readingTypes = new ArrayList<>();
     private Set<String> eventTypeFilters = new LinkedHashSet<>();
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
@@ -46,37 +48,6 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private boolean exportContinuousData;
     private boolean exportComplete;
     private String application;
-
-    private interface ReadingTypeDefinition {
-        void addTo(StandardDataSelector standardDataSelector);
-    }
-
-    private class ReadingTypeByMrid implements ReadingTypeDefinition {
-        private final String mrid;
-
-        ReadingTypeByMrid(String mrid) {
-            this.mrid = mrid;
-        }
-
-        @Override
-        public void addTo(StandardDataSelector dataSelector) {
-            dataSelector.addReadingType(mrid);
-        }
-    }
-
-    private class ReadingTypeHolder implements ReadingTypeDefinition {
-
-        private final ReadingType readingType;
-
-        ReadingTypeHolder(ReadingType readingType) {
-            this.readingType = readingType;
-        }
-
-        @Override
-        public void addTo(StandardDataSelector task) {
-            task.addReadingType(readingType);
-        }
-    }
 
     DataExportTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -112,34 +83,36 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         exportTask.setScheduleImmediately(scheduleImmediately);
         switch (defaultSelector) {
             case READINGTYPES: {
-                StandardDataSelectorImpl dataSelector = StandardDataSelectorImpl.from(dataModel, exportTask, exportPeriod);
-                dataSelector.setEndDeviceGroup(endDeviceGroup);
-                dataSelector.setUpdatePeriod(updatePeriod);
-                dataSelector.setValidatedDataOption(validatedDataOption);
-                dataSelector.setExportUpdate(exportUpdate);
-                dataSelector.setExportContinuousData(exportContinuousData);
-                dataSelector.setUpdateWindow(updateWindow);
-                dataSelector.setExportOnlyIfComplete(exportComplete);
-                readingTypes.forEach(readingTypeDefinition -> readingTypeDefinition.addTo(dataSelector));
-                exportTask.setReadingTypeDataSelector(dataSelector);
+                MeterReadingSelectorConfig.Updater updater = MeterReadingSelectorConfigImpl.from(dataModel, exportTask, exportPeriod)
+                        .startUpdate()
+                        .setEndDeviceGroup(endDeviceGroup)
+                        .setUpdatePeriod(updatePeriod)
+                        .setValidatedDataOption(validatedDataOption)
+                        .setExportUpdate(exportUpdate)
+                        .setExportContinuousData(exportContinuousData)
+                        .setUpdateWindow(updateWindow)
+                        .setExportOnlyIfComplete(exportComplete);
+                readingTypes.forEach(updater::addReadingType);
+                exportTask.setStandardDataSelectorConfig(updater.complete());
                 break;
             }
             case EVENTTYPES: {
-                StandardDataSelectorImpl dataSelector = StandardDataSelectorImpl.from(dataModel, exportTask, exportPeriod);
-                dataSelector.setEndDeviceGroup(endDeviceGroup);
-                dataSelector.setExportContinuousData(exportContinuousData);
-                eventTypeFilters.forEach(dataSelector::addEventTypeFilter);
-                exportTask.setReadingTypeDataSelector(dataSelector);
+                EventSelectorConfig.Updater updater = EventSelectorConfigImpl.from(dataModel, exportTask, exportPeriod)
+                        .startUpdate()
+                        .setEndDeviceGroup(endDeviceGroup)
+                        .setExportContinuousData(exportContinuousData);
+                eventTypeFilters.forEach(updater::addEventTypeFilter);
+                exportTask.setStandardDataSelectorConfig(updater.complete());
                 break;
             }
             case AGGREGATEDDATA: {
-                StandardDataSelectorImpl dataSelector = StandardDataSelectorImpl.from(dataModel, exportTask, exportPeriod);
-                dataSelector.setUsagePointGroup(usagePointGroup);
-                dataSelector.setValidatedDataOption(validatedDataOption);
-                dataSelector.setExportContinuousData(exportContinuousData);
-                dataSelector.setExportOnlyIfComplete(exportComplete);
-                readingTypes.forEach(readingTypeDefinition -> readingTypeDefinition.addTo(dataSelector));
-                exportTask.setReadingTypeDataSelector(dataSelector);
+                UsagePointReadingSelectorConfig.Updater updater = UsagePointReadingSelectorConfigImpl.from(dataModel, exportTask, exportPeriod).startUpdate()
+                        .setUsagePointGroup(usagePointGroup)
+                        .setValidatedDataOption(validatedDataOption)
+                        .setExportContinuousData(exportContinuousData)
+                        .setExportOnlyIfComplete(exportComplete);
+                readingTypes.forEach(updater::addReadingType);
+                exportTask.setStandardDataSelectorConfig(updater.complete());
                 break;
             }
             case CUSTOM:
@@ -179,7 +152,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     @Override
     public AggregatedDataSelectorBuilder selectingAggregatedData() {
         defaultSelector = SelectorType.AGGREGATEDDATA;
-        dataSelector = DataExportService.STANDARD_AGGREGATED_DATA_SELECTOR;
+        dataSelector = DataExportService.STANDARD_USAGE_POINT_DATA_SELECTOR;
         return new AggregatedDataSelectorBuilderImpl();
     }
 
@@ -208,7 +181,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
     }
 
-    class StandardSelectorBuilderImpl implements ReadingTypeSelectorBuilder {
+    private class StandardSelectorBuilderImpl implements ReadingTypeSelectorBuilder {
         @Override
         public StandardSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
             exportPeriod = relativePeriod;
@@ -223,13 +196,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
         @Override
         public StandardSelectorBuilderImpl fromReadingType(ReadingType readingType) {
-            readingTypes.add(new ReadingTypeHolder(readingType));
-            return this;
-        }
-
-        @Override
-        public StandardSelectorBuilderImpl fromReadingType(String readingType) {
-            readingTypes.add(new ReadingTypeByMrid(readingType));
+            readingTypes.add(readingType);
             return this;
         }
 
@@ -275,7 +242,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
     }
 
-    class AggregatedDataSelectorBuilderImpl implements AggregatedDataSelectorBuilder {
+    private class AggregatedDataSelectorBuilderImpl implements AggregatedDataSelectorBuilder {
         @Override
         public AggregatedDataSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
             exportPeriod = relativePeriod;
@@ -284,7 +251,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
         @Override
         public AggregatedDataSelectorBuilderImpl fromReadingType(ReadingType readingType) {
-            readingTypes.add(new ReadingTypeHolder(readingType));
+            readingTypes.add(readingType);
             return this;
         }
 

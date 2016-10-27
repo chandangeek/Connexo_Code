@@ -3,7 +3,11 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataSelectorConfig;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
 import com.elster.jupiter.metering.groups.EventType;
@@ -17,6 +21,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -55,15 +60,16 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
         EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
         EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
         List<? extends ExportTask> tasks = dataExportService.findReadingTypeDataExportTasks();
-        tasks.stream()
-                .map(ExportTask::getReadingTypeDataSelector)
-                .flatMap(Functions.asStream())
-                .filter(selector -> selector.getEndDeviceGroup().getId() == endDeviceGroup.getId())
-                .findAny()
-                .ifPresent(readingTypeDataSelector -> {
-                    throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
-                });
 
+        tasks.stream()
+                .map(ExportTask::getStandardDataSelectorConfig)
+                .flatMap(Functions.asStream())
+                .map(EndDeviceGroupGetter::getEndDeviceGroup)
+                .flatMap(Functions.asStream())
+                .filter(endDeviceGroup::equals)
+                .findAny().ifPresent(readingTypeDataSelector -> {
+            throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
+        });
     }
 
     @Override
@@ -71,4 +77,29 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
         return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
     }
 
+    private static class EndDeviceGroupGetter implements DataSelectorConfig.DataSelectorConfigVisitor {
+
+        private EndDeviceGroup endDeviceGroup;
+
+        static Optional<EndDeviceGroup> getEndDeviceGroup(DataSelectorConfig selectorConfig) {
+            EndDeviceGroupGetter visitor = new EndDeviceGroupGetter();
+            selectorConfig.apply(visitor);
+            return Optional.ofNullable(visitor.endDeviceGroup);
+        }
+
+        @Override
+        public void visit(MeterReadingSelectorConfig config) {
+            endDeviceGroup = config.getEndDeviceGroup();
+        }
+
+        @Override
+        public void visit(UsagePointReadingSelectorConfig config) {
+            // no device groups used
+        }
+
+        @Override
+        public void visit(EventSelectorConfig config) {
+            endDeviceGroup = config.getEndDeviceGroup();
+        }
+    }
 }

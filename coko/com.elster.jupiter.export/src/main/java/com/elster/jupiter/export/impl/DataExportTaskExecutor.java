@@ -112,9 +112,7 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
-        DataSelector dataSelector = getDataSelector(task, logger);
-
-        Stream<ExportData> data = dataSelector.selectData(occurrence);
+        Stream<ExportData> data = getDataSelector(task, logger).selectData(occurrence);
 
         DataFormatter dataFormatter = getDataFormatter(task);
 
@@ -124,7 +122,7 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(() -> {
             FormattedData formattedData;
-            if (task.hasDefaultSelector() && (task.getReadingTypeDataSelector().isPresent() || task.getAggregatedDataSelector().isPresent())) {
+            if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
                 formattedData = doProcessFromDefaultReadingSelector(occurrence, data, itemExporter);
             } else {
                 formattedData = dataFormatter.processData(data);
@@ -137,18 +135,14 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(loggingExceptions(logger, dataFormatter::endExport)).run();
 
-        if (isDefaultReadingsDataSelector(dataSelector)) {
+        if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
-                ((AbstractDataSelector) dataSelector).getActiveItems(occurrence).stream()
+                task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
                         .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                         .forEach(IReadingTypeDataExportItem::update);
                 context.commit();
             }
         }
-    }
-
-    private boolean isDefaultReadingsDataSelector(DataSelector dataSelector) {
-        return dataSelector instanceof AbstractDataSelector;
     }
 
     private LoggingItemExporter getItemExporter(DataFormatter dataFormatter, Logger logger) {

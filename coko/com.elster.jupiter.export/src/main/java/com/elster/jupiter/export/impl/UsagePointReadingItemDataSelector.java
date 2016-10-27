@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-class AggregatedDataItemDataSelector extends AbstractItemDataSelector {
+class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
 
     @Inject
-    AggregatedDataItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
+    UsagePointReadingItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
         super(clock, validationService, thesaurus, transactionService);
     }
 
@@ -30,11 +30,6 @@ class AggregatedDataItemDataSelector extends AbstractItemDataSelector {
     public Optional<MeterReadingData> selectDataForUpdate(DataExportOccurrence occurrence, IReadingTypeDataExportItem item, Instant since) {
         // not supported yet
         return Optional.empty();
-    }
-
-    @Override
-    Optional<IStandardDataSelector> getDataSelector(DataExportOccurrence occurrence) {
-        return occurrence.getTask().getAggregatedDataSelector().map(IStandardDataSelector.class::cast);
     }
 
     @Override

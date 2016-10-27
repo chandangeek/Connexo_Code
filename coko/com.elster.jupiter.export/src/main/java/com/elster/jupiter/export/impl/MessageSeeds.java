@@ -45,9 +45,8 @@ public enum MessageSeeds implements MessageSeed {
     FTP_DESTINATION_FAILED(1033, "dataexport.ftpDestinationFailed", "Failed to export to ftp(s) destination {0}, due to {1}", Level.SEVERE),
     FTP_DESTINATION_CREATE_FOLDER_FAILED(1034, "dataexport.ftpFolderCreationFailed", "failure creating the parent folder of the export file, due to {1}", Level.SEVERE),
 
-    DEFAULT_MESSAGE_EXPORT_FAILED(1035, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE);
-
-
+    DEFAULT_MESSAGE_EXPORT_FAILED(1035, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE),
+    SOME_USAGEPOINTS_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1036, "dataexport.usagepoint.mismatch", "Some usage points of {0} do not contain the selected reading type(s) that have to be exported.", Level.WARNING),;
 
     private final int number;
     private final String key;

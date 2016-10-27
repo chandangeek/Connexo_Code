@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,11 +19,12 @@ interface IExportTask extends ExportTask, HasAuditInfo {
 
     List<DataExportProperty> getDataExportProperties();
 
-    void setReadingTypeDataSelector(StandardDataSelectorImpl readingTypeDataSelector);
-
-    boolean hasDefaultSelector();
+    void setStandardDataSelectorConfig(DataSelectorConfig dataSelectorConfig);
 
     Destination getCompositeDestination();
 
-    Optional<IStandardDataSelector> getStandardDataSelector();
+    boolean hasDefaultSelector();
+
+    Optional<ReadingDataSelectorConfigImpl> getReadingDataSelectorConfig();
+
 }

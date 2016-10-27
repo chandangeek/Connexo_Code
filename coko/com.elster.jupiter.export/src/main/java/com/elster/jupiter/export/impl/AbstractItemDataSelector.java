@@ -4,10 +4,11 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -39,7 +40,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -133,12 +133,14 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
     }
 
-    abstract Optional<IStandardDataSelector> getDataSelector(DataExportOccurrence occurrence);
+    private Optional<? extends ReadingDataSelectorConfig> getDataSelectorConfig(DataExportOccurrence occurrence) {
+        return ((IExportTask) occurrence.getTask()).getReadingDataSelectorConfig();
+    }
 
     private void warnIfExportPeriodCoversFuture(DataExportOccurrence occurrence, Range<Instant> exportInterval) {
         if (!exportInterval.hasUpperBound() || clock.instant().isBefore(exportInterval.upperEndpoint())) {
-            String relativePeriodName = getDataSelector(occurrence)
-                    .map(StandardDataSelector::getExportPeriod)
+            String relativePeriodName = getDataSelectorConfig(occurrence)
+                    .map(DataSelectorConfig::getExportPeriod)
                     .map(RelativePeriod::getName)
                     .get();
             try (TransactionContext context = transactionService.getContext()) {
@@ -197,8 +199,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
     private Stream<Instant> getSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
         return item.getReadingContainer()
-                // TODO: update this when export is allowed from MDM; empty set means all systems taken into account
-                .getReadingQualities(Collections.emptySet(), QualityCodeIndex.SUSPECT, item.getReadingType(), interval).stream()
+                .getReadingQualities(getQualityCodeSystems(), QualityCodeIndex.SUSPECT, item.getReadingType(), interval).stream()
                 .map(ReadingQualityRecord::getReadingTimestamp);
     }
 
@@ -304,8 +305,9 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     }
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        return getDataSelector(occurrence)
-                .map(selector -> selector.adjustedExportPeriod(occurrence, item))
+        return getDataSelectorConfig(occurrence)
+                .map(ReadingDataSelectorConfig::getStrategy)
+                .map(strategy -> strategy.adjustedExportPeriod(occurrence, item))
                 .orElse(Range.all());
     }
 
