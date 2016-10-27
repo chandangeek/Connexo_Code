@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -58,5 +59,3 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
         return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
     }
 }
-
-
