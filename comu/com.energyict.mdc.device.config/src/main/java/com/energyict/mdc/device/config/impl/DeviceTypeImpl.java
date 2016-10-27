@@ -35,7 +35,6 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
-import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -511,6 +510,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public AllowedCalendar addCalendar(Calendar calendar) {
+        if (!calendar.getCategory().getName().equals("TOU")) {
+            throw new TimeOfUseCalendarOnly(this.getThesaurus());
+        }
         Optional<AllowedCalendar> existingAllowedCalendar = this.allowedCalendars.stream()
                 .filter(allowedCalendar -> !allowedCalendar.isGhost())
                 .filter(allowedCalendar -> allowedCalendar.getCalendar().get().getId() == calendar.getId())
