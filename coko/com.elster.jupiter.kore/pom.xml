@@ -229,6 +229,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>usagepoint.calendar</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>validation</artifactId>
                 <version>4.0.0${revision}</version>
                 <scope>provided</scope>
@@ -311,6 +317,7 @@
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
                 <module>../com.elster.jupiter.systemadmin.rest</module>
+                <module>../com.elster.jupiter.usagepoint.calendar</module>
                 <module>../com.elster.jupiter.validation</module>
                 <module>../com.elster.jupiter.validators</module>
                 <module>../com.elster.jupiter.validation.rest</module>
