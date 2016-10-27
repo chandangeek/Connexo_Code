@@ -31,6 +31,10 @@
 
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>protocol-api</artifactId>
         </dependency>
 

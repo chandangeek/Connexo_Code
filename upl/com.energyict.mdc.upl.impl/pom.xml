@@ -28,6 +28,7 @@
 		<eiserver.version>${project.version}</eiserver.version>
 		<comserver.version>${project.version}</comserver.version>
 		<protocol-api.version>${project.version}</protocol-api.version>
+		<universal-protocol.version>1.0</universal-protocol.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<proguard.maven.version>2.0.11</proguard.maven.version>
 		<!-- Supports Java 7 from version 4.7 -->
@@ -38,6 +39,11 @@
 	<dependencyManagement>
 		<dependencies>
 			<!-- Protocol api -->
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.upl</artifactId>
+				<version>${universal-protocol.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>protocol-api</artifactId>
