@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -41,6 +42,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     //work around
     private AssigneeType assigneeType;
     private Reference<User> user = ValueReference.absent();
+    private Reference<WorkGroup> workGroup = ValueReference.absent();
 
     private Reference<EndDevice> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")

@@ -35,6 +35,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 
 import java.util.Arrays;
 import java.util.ListIterator;
@@ -71,6 +72,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_RULE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_STATUS_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USER_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USER_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_COMMENT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_FK_TO_USER;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_ISSUE_ID;
@@ -81,12 +83,14 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_R
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_STATUS;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_USER;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_COLUMN_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_DEVICE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_STATUS;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_USER;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_COLUMN_DESCRIPTION;
@@ -108,6 +112,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_STATUS;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_USER;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_FK_TO_ACTION_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_FK_TO_RULE;
@@ -263,6 +268,7 @@ public enum TableSpecs {
                     ISSUE_HIST_FK_TO_STATUS,
                     ISSUE_HIST_FK_TO_DEVICE,
                     ISSUE_HIST_FK_TO_USER,
+                    ISSUE_HIST_FK_TO_WORKGROUP,
                     ISSUE_HIST_FK_TO_RULE);
             table.addAuditColumns();
         }
@@ -281,6 +287,7 @@ public enum TableSpecs {
                     OPEN_ISSUE_FK_TO_STATUS,
                     OPEN_ISSUE_FK_TO_DEVICE,
                     OPEN_ISSUE_FK_TO_USER,
+                    OPEN_ISSUE_FK_TO_WORKGROUP,
                     OPEN_ISSUE_FK_TO_RULE);
             table.addAuditColumns();
         }
@@ -299,6 +306,7 @@ public enum TableSpecs {
                     ISSUE_FK_TO_STATUS,
                     ISSUE_FK_TO_DEVICE,
                     ISSUE_FK_TO_USER,
+                    ISSUE_FK_TO_WORKGROUP,
                     ISSUE_FK_TO_RULE);
             table.addAuditColumns();
         }
@@ -383,7 +391,7 @@ public enum TableSpecs {
 	public abstract void addTo(DataModel dataModel);
 
     private static class TableBuilder {
-        private static final int EXPECTED_FK_KEYS_LENGTH = 5;
+        private static final int EXPECTED_FK_KEYS_LENGTH = 6;
 
         static void buildIssueTable(Table<?> table, Column idColumn, String pkKey, String... fkKeys) {
             table.column(ISSUE_COLUMN_DUE_DATE).map("dueDate").number().conversion(NUMBER2INSTANT).add();
@@ -392,6 +400,7 @@ public enum TableSpecs {
             Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
             table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).add();
             Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
+            Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_USER_WORKGROUP).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
             Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
 
@@ -404,6 +413,7 @@ public enum TableSpecs {
             table.foreignKey(fkKeysIter.next()).map("status").on(statusRefIdColumn).references(IssueStatus.class).add();
             table.foreignKey(fkKeysIter.next()).map("device").on(deviceRefIdColumn).references(EndDevice.class).add();
             table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).add();
+            table.foreignKey(fkKeysIter.next()).map("workGroup").on(workGroupRefIdColumn).references(WorkGroup.class).add();
             table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(CreationRule.class).add();
         }
     }
