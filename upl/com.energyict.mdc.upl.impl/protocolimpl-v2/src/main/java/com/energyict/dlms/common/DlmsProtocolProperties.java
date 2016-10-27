@@ -28,7 +28,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String RETRIES = "Retries";
     public static final String FORCED_DELAY = "ForcedDelay";
     public static final String DELAY_AFTER_ERROR = "DelayAfterError";
-    public static final String PROFILE_INTERVAL = MeterProtocol.PROFILEINTERVAL;
+    public static final String PROFILE_INTERVAL = MeterProtocol.Property.PROFILEINTERVAL.getName();
     public static final String CONNECTION = "Connection";
     public static final String SECURITY_LEVEL = "SecurityLevel";
     public static final String CLIENT_MAC_ADDRESS = "ClientMacAddress";
@@ -114,22 +114,22 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
 
     @ProtocolProperty
     public String getPassword() {
-        return getStringValue(MeterProtocol.PASSWORD, "");
+        return getStringValue(MeterProtocol.Property.PASSWORD.getName(), "");
     }
 
     @ProtocolProperty
     public String getDeviceId() {
-        return getStringValue(MeterProtocol.ADDRESS, "");
+        return getStringValue(MeterProtocol.Property.ADDRESS.getName(), "");
     }
 
     @ProtocolProperty
     public String getNodeAddress() {
-        return getStringValue(MeterProtocol.NODEID, "");
+        return getStringValue(MeterProtocol.Property.NODEID.getName(), "");
     }
 
     @ProtocolProperty
     public String getSerialNumber() {
-        return getStringValue(MeterProtocol.SERIALNUMBER, "");
+        return getStringValue(MeterProtocol.Property.SERIALNUMBER.getName(), "");
     }
 
     @ProtocolProperty

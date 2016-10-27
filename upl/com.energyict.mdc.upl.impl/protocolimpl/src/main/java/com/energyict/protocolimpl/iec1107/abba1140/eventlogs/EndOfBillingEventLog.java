@@ -1,19 +1,20 @@
 package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.util.TimeZone;
- 
+
 public class EndOfBillingEventLog extends AbstractEventLog {
 
 	static final String EVENT_NAME 		= "End of billing event";
 	static final int EVENT_CODE 		= MeterEvent.BILLING_ACTION;
 	private static final int INFO_SIZE	= 1;
-	
+
 	private int[] infoField = new int[NUMBER_OF_EVENTS];
-	
+
 	/*
 	 * Constructors
 	 */
@@ -32,7 +33,7 @@ public class EndOfBillingEventLog extends AbstractEventLog {
         }
 		debug();
 	}
-	
+
 	protected void debug() {
 		if (DEBUG<=0) return;
 		System.out.println("count = " + count);
@@ -62,5 +63,5 @@ public class EndOfBillingEventLog extends AbstractEventLog {
 			default: return "Invalid info field: " + infoField;
 		}
 	}
-	
+
 }

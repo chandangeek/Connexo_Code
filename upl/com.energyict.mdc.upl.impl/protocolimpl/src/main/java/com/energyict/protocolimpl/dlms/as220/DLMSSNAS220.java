@@ -17,6 +17,8 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
@@ -25,13 +27,34 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.CosemPDUConnection;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.LLCConnection;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityPolicy;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;
@@ -42,7 +65,12 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, SerialNumberSupport {
@@ -458,18 +486,18 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 }
             }
 
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
             extendedLogging = Integer.parseInt(properties.getProperty(PR_EXTENDED_LOGGING, "0"));
             addressingMode = Integer.parseInt(properties.getProperty(PR_ADDRESSING_MODE, "-1"));
             connectionMode = Integer.parseInt(properties.getProperty(PR_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
 
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
             if ((strID != null) && (strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
 
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD, "00000000");
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "00000000");
             iTimeoutProperty = Integer.parseInt(properties.getProperty(PR_TIMEOUT, "10000").trim());
             iForcedDelay = Integer.parseInt(properties.getProperty(PR_FORCED_DELAY, "10").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(PR_RETRIES, "5").trim());

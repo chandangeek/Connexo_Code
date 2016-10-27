@@ -1,11 +1,19 @@
 package com.energyict.protocolimpl.dlms.edp.registers;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Float64;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.edp.CX20009;
 import com.energyict.protocolimpl.utils.ProtocolTools;

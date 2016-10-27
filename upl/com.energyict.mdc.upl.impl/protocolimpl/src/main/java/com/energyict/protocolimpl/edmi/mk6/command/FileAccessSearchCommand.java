@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk6.core.DateTimeBuilder;
 
@@ -21,50 +22,50 @@ import java.util.Date;
  * @author koen
  */
 public class FileAccessSearchCommand extends AbstractCommand {
-    
+
     private int registerId;
-    
+
     private Date date;
     private long startRecord;
     private int result; // 0 search backwards, 1 search forward
     private int direction;
-    
- 
-    
+
+
+
     /** Creates a new instance of FileAccessSearchCommand */
     public FileAccessSearchCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
 
-    
+
+
 //    public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new FileAccessSearchCommand(null)));
-//    } 
-    
+//    }
+
     protected byte[] prepareBuild() {
         byte[] data = new byte[17];
         data[0] = 'F';
         data[1] = 'S';
-        
+
         data[2] = (byte)((getRegisterId()>>24)&0xFF);
         data[3] = (byte)((getRegisterId()>>16)&0xFF);
         data[4] = (byte)((getRegisterId()>>8)&0xFF);
         data[5] = (byte)((getRegisterId())&0xFF);
-        
+
         data[6] = (byte)((getStartRecord()>>24)&0xFF);
         data[7] = (byte)((getStartRecord()>>16)&0xFF);
         data[8] = (byte)((getStartRecord()>>8)&0xFF);
         data[9] = (byte)((getStartRecord())&0xFF);
-        
+
         byte[] dateData = DateTimeBuilder.getDDMMYYHHMMSSDataFromDate(getDate(), getCommandFactory().getMk6().getTimeZone());
         System.arraycopy(dateData,0,data,10,dateData.length);
-        
+
         data[10+dateData.length]=(byte)getDirection();
-        
+
         return data;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -74,8 +75,8 @@ public class FileAccessSearchCommand extends AbstractCommand {
         strBuff.append("   date="+getDate()+"\n");
         strBuff.append("   result="+getResult()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     protected void parse(byte[] data) throws ProtocolException {
         int offset = 2;
         setRegisterId(ProtocolUtils.getInt(data,offset,4));
@@ -86,11 +87,11 @@ public class FileAccessSearchCommand extends AbstractCommand {
         offset+=DateTimeBuilder.getDateFromDDMMYYHHMMSSSize();
         setResultection(ProtocolUtils.getInt(data,offset++,1));
     }
-    
+
     public int getRegisterId() {
         return registerId;
     }
-    
+
     public void setRegisterId(int registerId) {
         this.registerId = registerId;
     }
@@ -128,7 +129,7 @@ public class FileAccessSearchCommand extends AbstractCommand {
     public void setDirection(int direction) {
         this.direction = direction;
     }
-    
 
-    
+
+
 }

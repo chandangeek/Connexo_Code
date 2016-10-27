@@ -24,9 +24,15 @@
 package com.energyict.protocolimpl.dlms;
 
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
@@ -34,7 +40,20 @@ import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
@@ -46,7 +65,13 @@ import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 @Deprecated
@@ -367,13 +392,13 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
             // KV 19012004
             if ((strID != null) && (strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
 
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());

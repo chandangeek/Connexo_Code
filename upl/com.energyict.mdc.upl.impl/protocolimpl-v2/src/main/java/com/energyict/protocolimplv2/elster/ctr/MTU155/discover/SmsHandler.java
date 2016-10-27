@@ -1,11 +1,16 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageAcknowledgement;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
@@ -23,7 +28,13 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Function;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannelForSms;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AbstractTableQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AckStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayEventsQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECFQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
@@ -276,7 +287,7 @@ public class SmsHandler {
     }
 
     private String getDeviceSerialNumber() {
-        String serial = (String) getAllProperties().getProperty(MeterProtocol.SERIALNUMBER, "");
+        String serial = (String) getAllProperties().getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
         return serial;
     }
 

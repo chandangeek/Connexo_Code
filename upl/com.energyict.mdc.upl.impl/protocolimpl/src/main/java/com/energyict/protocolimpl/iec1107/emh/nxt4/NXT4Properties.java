@@ -79,15 +79,15 @@ public class NXT4Properties implements ConfigurationSupport {
     }
 
     public String getDeviceId() {
-        return protocolProperties.getProperty(MeterProtocol.ADDRESS);
+        return protocolProperties.getProperty(MeterProtocol.Property.ADDRESS.getName());
     }
 
     public String getNodeAddress() {
-        return getProperty(MeterProtocol.NODEID, "");
+        return getProperty(MeterProtocol.Property.NODEID.getName(), "");
     }
 
     public String getPassword() {
-        return getProperty(MeterProtocol.PASSWORD);
+        return getProperty(MeterProtocol.Property.PASSWORD.getName());
     }
 
     public int getIEC1107TimeOut() {

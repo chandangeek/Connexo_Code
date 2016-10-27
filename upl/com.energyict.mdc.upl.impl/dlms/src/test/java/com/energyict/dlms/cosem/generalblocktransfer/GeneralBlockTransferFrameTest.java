@@ -1,8 +1,10 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

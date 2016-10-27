@@ -10,37 +10,38 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.ObisUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeMapper {
-    
+
     S200 s200;
-    
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(S200 s200) {
         this.s200=s200;
     }
-    
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         return (RegisterValue)doGetRegister(obisCode, true);
     }
-    
+
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         if ((obisCode.getA()==1)&&(obisCode.getC()==82)&&(obisCode.getD()==8)&&(obisCode.getE()==0)&&(obisCode.getF()==255)) {
             if (read) {
@@ -51,7 +52,7 @@ public class ObisCodeMapper {
                 return new RegisterInfo(obisCode.getDescription());
             }
         }
-        
+
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
 }

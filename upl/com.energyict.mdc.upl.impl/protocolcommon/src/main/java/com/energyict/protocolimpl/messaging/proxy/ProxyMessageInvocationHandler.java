@@ -1,13 +1,19 @@
 package com.energyict.protocolimpl.messaging.proxy;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.AnnotatedMessaging;
+import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
+import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -25,13 +31,13 @@ public class ProxyMessageInvocationHandler implements InvocationHandler {
         if (message == null) {
             throw new IllegalArgumentException("AnnotatedMessage is required for ProxyMessageInvocationHandler but was [null]!");
         }
-        
+
         final List<RtuMessageDescription> descriptions = AnnotatedMessaging.getDescriptionsForMessageClass(message);
-        
+
         if (descriptions == null || descriptions.size() == 0) {
         	throw new IllegalArgumentException("RtuMessageDescription(s) annotation missing for message [" + message.getName() + "]!");
         }
-        
+
         final Method[] methods = message.getMethods();
         for (final Method method : methods) {
             if (method.isAnnotationPresent(RtuMessageAttribute.class)) {

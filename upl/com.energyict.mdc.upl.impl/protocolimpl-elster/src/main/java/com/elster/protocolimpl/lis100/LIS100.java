@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.lis100;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.elster.protocolimpl.lis100.connection.Lis100Connection;
 import com.elster.protocolimpl.lis100.profile.Lis100Profile;
 import com.elster.protocolimpl.lis100.registers.Lis100Register;
@@ -13,7 +15,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -278,9 +279,9 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
                 }
             }
 
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
 
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getProperty(
                     "Retries", "3").trim());
 

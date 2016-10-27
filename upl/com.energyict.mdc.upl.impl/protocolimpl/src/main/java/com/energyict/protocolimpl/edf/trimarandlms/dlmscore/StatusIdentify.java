@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -18,13 +19,13 @@ import com.energyict.protocol.ProtocolUtils;
  * @author Koen
  */
 public class StatusIdentify {
-    
+
     private String resources;
     private String vendorName;
     private String model;
     private int versionNr;
     int size;
-    
+
     /** Creates a new instance of StatusIdentify */
     public StatusIdentify(byte[] data, int offset) throws ProtocolException {
         size = offset;
@@ -41,7 +42,7 @@ public class StatusIdentify {
         offset++;
         size = offset-size;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -51,11 +52,11 @@ public class StatusIdentify {
         strBuff.append("versionNr="+getVersionNr()+"\n");
         return strBuff.toString();
     }
-    
+
     public int getSize() {
         return size;
     }
-    
+
     public String getResources() {
         return resources;
     }

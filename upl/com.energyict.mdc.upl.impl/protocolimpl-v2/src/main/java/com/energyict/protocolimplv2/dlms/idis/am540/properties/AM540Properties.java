@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
@@ -99,7 +99,7 @@ public class AM540Properties extends IDISProperties {
     }
 
     public int getNodeAddress() {
-        return parseBigDecimalProperty(MeterProtocol.NODEID);
+        return parseBigDecimalProperty(MeterProtocol.Property.NODEID.getName());
     }
 
     /**

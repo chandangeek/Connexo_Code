@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -16,13 +18,11 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
@@ -34,7 +34,6 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -214,13 +213,13 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "900").trim());

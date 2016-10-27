@@ -7,6 +7,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocol.meteridentification.MeterTypeImpl;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -420,7 +421,7 @@ public class FlagIEC1107Connection extends Connection {
                     sendRawData(ack);
                 }
 
-                return new MeterType(strIdent);
+                return new MeterTypeImpl(strIdent);
             }
             catch (StringIndexOutOfBoundsException e) {
                 throw new FlagIEC1107ConnectionException("signOn() error, " + e.getMessage());

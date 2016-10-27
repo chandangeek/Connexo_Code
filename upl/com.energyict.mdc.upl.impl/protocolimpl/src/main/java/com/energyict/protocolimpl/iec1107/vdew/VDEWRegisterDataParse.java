@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -18,16 +19,20 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 /**
  *
  * @author  Koen
- * 
+ *
  * 02/11/2009	JME Parse two character years as follows:
  * 						year 00 -> 50 = 2000 -> 2050
  * 						year 51 -> 99 = 1951 -> 2099
- * 
+ *
  */
 abstract public class VDEWRegisterDataParse {
 
@@ -573,7 +578,7 @@ abstract public class VDEWRegisterDataParse {
 	 * Parse two character years as follows:
 	 * 		year 00 -> 50 = 2000 -> 2050
 	 * 		year 51 -> 99 = 1951 -> 2099
-	 * 
+	 *
 	 * @param year
 	 * @return The correct year in the range of 1951 - 2050
 	 */

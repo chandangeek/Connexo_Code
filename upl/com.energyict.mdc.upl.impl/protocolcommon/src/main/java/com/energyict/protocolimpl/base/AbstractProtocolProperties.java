@@ -9,6 +9,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
+import static com.energyict.protocol.MeterProtocol.Property.PROFILEINTERVAL;
+
 /**
  * Copyrights EnergyICT
  * Date: 5-okt-2010
@@ -22,7 +24,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     public static final String RETRIES = "Retries";
     public static final String FORCED_DELAY = "ForcedDelay";
     public static final String DELAY_AFTER_ERROR = "DelayAfterError";
-    public static final String PROFILE_INTERVAL = MeterProtocol.PROFILEINTERVAL;
+    public static final String PROFILE_INTERVAL = PROFILEINTERVAL.getName();
 
     public static final String DEFAULT_TIMEOUT = "10000";
     public static final String DEFAULT_RETRIES = "3";
@@ -42,22 +44,22 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     @ProtocolProperty
     public String getPassword() {
-        return getStringValue(MeterProtocol.PASSWORD, "");
+        return getStringValue(MeterProtocol.Property.PASSWORD.getName(), "");
     }
 
     @ProtocolProperty
     public String getDeviceId() {
-        return getStringValue(MeterProtocol.ADDRESS, "");
+        return getStringValue(MeterProtocol.Property.ADDRESS.getName(), "");
     }
 
     @ProtocolProperty
     public String getNodeAddress() {
-        return getStringValue(MeterProtocol.NODEID, "");
+        return getStringValue(MeterProtocol.Property.NODEID.getName(), "");
     }
 
     @ProtocolProperty
     public String getSerialNumber() {
-        return getStringValue(MeterProtocol.SERIALNUMBER, "");
+        return getStringValue(MeterProtocol.Property.SERIALNUMBER.getName(), "");
     }
 
     @ProtocolProperty

@@ -10,6 +10,9 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -17,10 +20,8 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.Discover;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.messaging.Message;
@@ -53,24 +54,24 @@ import java.util.TimeZone;
 /**
  *
  * @author Koen
- * 
+ *
  * Changes:
  * 02/01/2009|JME - Added call to doTheGetOptionalKeys() in method doGetOptionalKeys() to read the optional keys from the abstract method, implemented by the protocol who's is extending Modbus
  * 19/03/2009|JME - Added setter for InfoTypeResponseTimeout property.
- * 
+ *
  */
 abstract public class Modbus extends AbstractProtocol implements Discover,MessageProtocol {
-    
+
     abstract protected void doTheConnect() throws IOException;
     abstract protected void doTheDisConnect() throws IOException;
     abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
     abstract protected List doTheGetOptionalKeys();
     abstract protected void initRegisterFactory();
-    
+
     protected ModbusConnection modbusConnection;
     private AbstractRegisterFactory registerFactory=null;
     private int  interframeTimeout;
-            
+
     private String networkId;
     private boolean virtualLoadProfile;
     int responseTimeout;
@@ -82,13 +83,13 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 
     private int registerOrderFixedPoint;
     private int registerOrderFloatingPoint;
-    
+
     /** Creates a new instance of Modbus */
     public Modbus() {
     }
-    
+
     protected void doConnect() throws IOException {
-    	
+
     	try {
     		Thread.sleep(firstTimeDelay);
     	}
@@ -96,27 +97,27 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
             Thread.currentThread().interrupt();
             throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
-    	
+
         doTheConnect();
     }
-    
+
     protected void doDisConnect() throws IOException {
         doTheDisConnect();
     }
-    
-    
+
+
     public void setTime() throws IOException {
     }
-    
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         throw new UnsupportedException();
     }
-    
+
     public BigDecimal getRegisterMultiplier(int address) throws IOException, UnsupportedException {
         throw new UnsupportedException();
     }
 
-    
+
     protected void setInfoTypePhysicalLayer(int physicalLayer) {
     	this.physicalLayer=physicalLayer;
     }
@@ -130,12 +131,12 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","15").trim()));
         setNetworkId(properties.getProperty("NetworkId",""));
         setVirtualLoadProfile(Integer.parseInt(properties.getProperty("VirtualLoadProfile","0").trim())==1);
-        
+
         physicalLayer = Integer.parseInt(properties.getProperty("PhysicalLayer","0").trim());
         responseTimeout = Integer.parseInt(properties.getProperty("ResponseTimeout","200").trim());
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","2000").trim()));
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","2").trim()));
-        
+
         setRegisterOrderFixedPoint(Integer.parseInt(properties.getProperty("RegisterOrderFixedPoint","1").trim()));
         setRegisterOrderFloatingPoint(Integer.parseInt(properties.getProperty("RegisterOrderFloatingPoint","1").trim()));
         firstTimeDelay = Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim());
@@ -144,7 +145,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         nodeAddress = Integer.parseInt(properties.getProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
         doTheValidateProperties(properties);
     }
-    
+
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
         result.add("VirtualLoadProfile");
@@ -158,10 +159,10 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         if (optionalKeys != null) {
 			result.addAll(optionalKeys);
 		}
-        
+
         return result;
     }
-    
+
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         if (connection == 1) {  // 1: use Modbus TCP/IP Frame Format
             modbusConnection = new ModbusTCPConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInterframeTimeout(), responseTimeout, physicalLayer, nodeAddress);
@@ -170,27 +171,27 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         }
         return modbusConnection;
     }
-    
+
     public Date getTime() throws IOException {
         return new Date(); // KV_TO_DO
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return 0; // KV_TO_DO
     }
-    
+
     /*
-     * Override this method if the subclass wants to set a specific register 
+     * Override this method if the subclass wants to set a specific register
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-        
+
     }
-    
+
     /*
-     * Override this method if the subclass wants to get a specific register 
+     * Override this method if the subclass wants to get a specific register
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-        
+
         StringTokenizer strTok = new StringTokenizer(name,",");
         int functioncode=getTokVal(strTok.nextToken());
         int[] vals = new int[strTok.countTokens()];
@@ -200,18 +201,18 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 		}
         return getRegisterFactory().getFunctionCodeFactory().getRequest(functioncode, vals).toString();
     }
-    
+
     private int getTokVal(String tok) {
         if (tok.indexOf("0x")>=0) {
 			return Integer.parseInt(tok.substring(2),16);
 		} else {
 			return Integer.parseInt(tok);
-		} 
+		}
     }
-    
-    
+
+
     /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e 
+     R e g i s t e r P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
@@ -222,21 +223,21 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         }
         // Note: ConnectionExceptions (due to timeout) are not catched, but will be thrown, so the session fails & retries
     }
-    
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        
+
         //return new RegisterInfo(obisCode.getDescription());
-        
+
         return new RegisterInfo(getRegisterFactory().findRegister(obisCode).getName());
-    }    
-    
+    }
+
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         if (extendedLogging==0) {
             StringBuffer strBuff = new StringBuffer();
             Iterator it = getRegisterFactory().getRegisters().iterator();
             while (it.hasNext()) {
                 AbstractRegister ar = (AbstractRegister)it.next();
-//System.out.println("KV_DEBUG> "+ar.getObisCode());                
+//System.out.println("KV_DEBUG> "+ar.getObisCode());
                 if (ar.getObisCode()==null) {
 					strBuff.append(ar.getReg()+"("+ar.getRange()+"), "+ar.getName()+"\n");
 				} else {
@@ -260,11 +261,11 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 			return "";
 		}
     }
-    
-    
+
+
     /****************************************************************************************************************
      * Implementing Modbus interface
-     ****************************************************************************************************************/    
+     ****************************************************************************************************************/
     public ModbusConnection getModbusConnection() {
         return modbusConnection;
     }
@@ -321,7 +322,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     private void setRegisterOrderFloatingPoint(int registerOrderFloatingPoint) {
         this.registerOrderFloatingPoint = registerOrderFloatingPoint;
     }
-    protected int getInfoTypeFirstTimeDelay() { 
+    protected int getInfoTypeFirstTimeDelay() {
 		return firstTimeDelay;
 	}
 	protected void setInfoTypeFirstTimeDelay(int firstTimeDelay) {
@@ -336,26 +337,26 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     protected void setInfoTypeResponseTimeout(int responseTimeout) {
     	this.responseTimeout = responseTimeout;
     }
-	
+
     /*******************************************************************************************
-    M e s s a g e P r o t o c o l  i n t e r f a c e 
+    M e s s a g e P r o t o c o l  i n t e r f a c e
     *******************************************************************************************/
    // message protocol
    public void applyMessages(List messageEntries) throws IOException {
    }
-   
+
    public String stripOffTag(String content) {
 	   return content.substring(content.indexOf(">")+1,content.lastIndexOf("<"));
    }
    public byte[] convertToBytesArray(int[] values) {
 	   byte[] byteArray = new byte[values.length*2];
 	   for (int i=0;i<values.length;i++) {
-		   byteArray[i*2] = (byte)(values[i]>>8); 
-		   byteArray[i*2+1] = (byte)values[i]; 	   
+		   byteArray[i*2] = (byte)(values[i]>>8);
+		   byteArray[i*2+1] = (byte)values[i];
 	   }
 	   return byteArray;
    }
-   
+
    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		try {
 
@@ -421,7 +422,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
                     }
 	                return MessageResult.createSuccess(messageEntry);
 				}
-				
+
 			}
 			else if (writeSingleRegister || writeSingleCoil) {
                 String operation = writeSingleRegister ? "WriteSingleRegister" : "WriteSingleCoil";
@@ -476,7 +477,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         }
        // Note: ConnectionExceptions (due to timeout) will be thrown, so the session fails & retries the message
    }
-   
+
    public List getMessageCategories() {
        List theCategories = new ArrayList();
        // General Parameters
@@ -488,14 +489,14 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
        theCategories.add(cat);
        return doGetMessageCategories(theCategories);
    }
-   
+
    protected MessageResult doQueryMessage(MessageEntry messageEntry) throws IOException {
 	   return MessageResult.createSuccess(messageEntry);
    }
    protected List doGetMessageCategories(List theCategories) {
 	   return theCategories;
    }
-   
+
    protected MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -503,17 +504,17 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
        msgSpec.add(tagSpec);
        return msgSpec;
    }
-   
+
    public String writeMessage(Message msg) {
        return msg.write(this);
    }
    public String writeTag(MessageTag msgTag) {
        StringBuffer buf = new StringBuffer();
-       
+
        // a. Opening tag
        buf.append("<");
        buf.append( msgTag.getName() );
-       
+
        // b. Attributes
        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
            MessageAttribute att = (MessageAttribute)it.next();
@@ -524,7 +525,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
            buf.append("=").append('"').append(att.getValue()).append('"');
        }
        buf.append(">");
-       
+
        // c. sub elements
        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
            MessageElement elt = (MessageElement)it.next();
@@ -538,17 +539,17 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
                buf.append(value);
            }
        }
-       
+
        // d. Closing tag
        buf.append("</");
        buf.append( msgTag.getName() );
        buf.append(">");
-       
-       return buf.toString();    
+
+       return buf.toString();
    }
-   
+
    public String writeValue(MessageValue value) {
        return value.getValue();
-   }	
-	
+   }
+
 }

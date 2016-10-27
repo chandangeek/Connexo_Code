@@ -1,18 +1,24 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.protocol.ProtocolException;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 
 import java.io.IOException;
 import java.util.logging.Level;
 
 /**
- * 
+ *
  * @author gna
- * The P3ImageTransfer Object is created from the DSMR P3 Companion Standard and it is slightly different from the 
+ * The P3ImageTransfer Object is created from the DSMR P3 Companion Standard and it is slightly different from the
  * ImageTransfer Object in the draft of the BlueBook_V9. So remember, this object is NOT completely DLMS compliant.
  * BeginChanges:
  * GNA 30032009 : Added a trimByteArray to reduce the FF blocks.
@@ -25,7 +31,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 	private static int delay = 3000;
 	private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
-	
+
 	private ProtocolLink protocolLink;
 
 	/** Attributes */
@@ -35,7 +41,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 	private Unsigned32 firstMissingBlockOffset = null; // provides offset of the first missing block
 	private BooleanObject transferEnabled = null; // is the enabled status of the image transfer
 	private Structure imageInfo = null; // provides image info for all images
-	
+
 	/** Attribute numbers */
 	private static final int ATTRB_IMAGE_BLOCK_SIZE = 2;
 	private static final int ATTRB_IMAGE_BLOCK_TRANSFER = 3;
@@ -43,20 +49,20 @@ public class P3ImageTransfer extends AbstractCosemObject {
 	private static final int ATTRB_IMAGE_FIRST_MISSING_BLOCK_OFFSET = 5;
 	private static final int ATTRB_TRANSFER_ENABLED = 6;
 	private static final int ATTRB_IMAGES_INFO = 7;
-	
+
 	/** Method invoke */
 	private static final int INITIATE_IMAGE_TRANSFER = 1;
 	private static final int IMAGE_VERIFICTION = 2;
 	private static final int IMAGE_VERIFICATION_ACTIVATION = 3;
-	
+
 	/** Image info */
 	private Unsigned32 size = null; 	// the size of the image
 	private byte[] data = null; // the complete image in byte
 	private int blockCount = -1; // the amount of block numbers
 	private OctetString imageIdentification = null;
 	private OctetString imageSignature = null;
-	
-	
+
+
 	public P3ImageTransfer(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 		this.protocolLink = protocolLink;
@@ -65,10 +71,10 @@ public class P3ImageTransfer extends AbstractCosemObject {
 	protected int getClassId() {
 		return CLASSID;
 	}
-	
+
 	/**
 	 * Start the automatic upgrade procedure
-	 * @param data - the image to transfer 
+	 * @param data - the image to transfer
 	 * @throws java.io.IOException
 	 * @throws InterruptedException
 	 */
@@ -469,5 +475,5 @@ public class P3ImageTransfer extends AbstractCosemObject {
 		b = p.trimByteArray(b2);
 		System.out.println(new String(b));
 	}
-	
+
 }

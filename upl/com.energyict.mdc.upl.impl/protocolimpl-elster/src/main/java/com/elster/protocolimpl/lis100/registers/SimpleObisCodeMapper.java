@@ -3,11 +3,12 @@
  */
 package com.elster.protocolimpl.lis100.registers;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.elster.protocolimpl.lis100.ChannelData;
 import com.elster.protocolimpl.lis100.DeviceData;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;

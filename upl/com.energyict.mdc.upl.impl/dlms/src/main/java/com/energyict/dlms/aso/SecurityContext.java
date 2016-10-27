@@ -1,7 +1,14 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
@@ -15,20 +22,20 @@ import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
 import com.energyict.mdw.core.ECCCurve;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.CodingException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.support.FrameCounterCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;

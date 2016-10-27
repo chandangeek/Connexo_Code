@@ -10,13 +10,14 @@
 
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.edmi.mk10.eventsurvey.Event;
 import com.energyict.protocolimpl.edmi.mk10.eventsurvey.EventSurvey;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.LoadSurvey;

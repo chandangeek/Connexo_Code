@@ -1,19 +1,21 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers;
 
-import java.io.IOException;
-import java.math.*;
+import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public class Non_Signed_1_100_Parser implements Parser {
 
 	private static final int DEBUG = 0;
-	
+
 	public static final String PARSER_NAME = "Non_Signed_1_100_Parser";
-	
+
 	public Object val(int[] values, AbstractRegister register) throws IOException {
 		long value = 0;
 		switch (values.length) {

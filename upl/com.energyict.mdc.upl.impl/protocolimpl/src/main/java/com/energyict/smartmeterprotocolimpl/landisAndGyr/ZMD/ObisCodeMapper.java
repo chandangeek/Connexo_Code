@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -15,7 +17,6 @@ import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;

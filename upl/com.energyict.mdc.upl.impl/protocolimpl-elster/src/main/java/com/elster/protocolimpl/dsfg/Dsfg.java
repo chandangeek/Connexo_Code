@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.dsfg;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
 import com.elster.protocolimpl.dsfg.objects.AbstractObject;
 import com.elster.protocolimpl.dsfg.profile.ArchiveRecordConfig;
@@ -13,7 +15,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -276,7 +277,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getProperty(
                     "Retries", "5").trim());
 

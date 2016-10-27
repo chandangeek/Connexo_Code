@@ -55,8 +55,8 @@ public class G3Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     public String getPassword() {
         String hlsSecret = getStringValue(HLS_SECRET, "");
-        if (hlsSecret == null || hlsSecret.length() == 0 || "".equals(hlsSecret)) {
-            return getStringValue(MeterProtocol.PASSWORD, "");     //Is limited to 20 chars in EiServer!
+        if (hlsSecret == null || hlsSecret.isEmpty() || "".equals(hlsSecret)) {
+            return getStringValue(MeterProtocol.Property.PASSWORD.getName(), "");     //Is limited to 20 chars in EiServer!
         } else {
             return hlsSecret;
         }

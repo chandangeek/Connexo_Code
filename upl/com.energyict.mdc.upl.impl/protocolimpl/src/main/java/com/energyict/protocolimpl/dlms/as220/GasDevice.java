@@ -3,6 +3,8 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -10,7 +12,15 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
@@ -144,8 +154,8 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 	}
 
 	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
-		this.emeterSerialnumber = properties.getProperty(MeterProtocol.NODEID, "");
+		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
+		this.emeterSerialnumber = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
 
 	}
 

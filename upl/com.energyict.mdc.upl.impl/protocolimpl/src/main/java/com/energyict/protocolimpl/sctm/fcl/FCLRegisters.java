@@ -6,28 +6,25 @@
 
 package com.energyict.protocolimpl.sctm.fcl;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocolimpl.sctm.base.*;
-import com.energyict.protocolimpl.metcom.Metcom;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.metcom.Metcom;
+import com.energyict.protocolimpl.sctm.base.AbstractSCTMRegisterReader;
+import com.energyict.protocolimpl.sctm.base.SCTMRegisterSpec;
 
 /**
  *
  * @author  Koen
  */
 public class FCLRegisters extends AbstractSCTMRegisterReader {
-    
+
     /** Creates a new instance of FAFRegisters */
     public FCLRegisters(Metcom metcom) {
         super(metcom);
         initSCTMRegisterSpecs();
     }
-    
+
     private void initSCTMRegisterSpecs() {
-        
+
         /*
          *   ----------- Use of ObisCode D field -----------
          *   D=8 energy cumulated
@@ -41,10 +38,10 @@ public class FCLRegisters extends AbstractSCTMRegisterReader {
          *   D=133 maximum demand B
          *   D=134 maximum demand C
          */
-        
+
         // 16 inputs energy updated every second
         getSctmRegisterSpecs().add(new SCTMRegisterSpec(100,00,16,ObisCode.fromString("1.1.82.8.0.255"),"input @ cumulative energy updated every second"));
-        
+
         // 16 inputs energy updated every tm1
         getSctmRegisterSpecs().add(new SCTMRegisterSpec(104,00,16,ObisCode.fromString("1.1.82.128.0.255"),"input @ cumulative energy updated every tm1"));
         // 4 result energy updated every tm1
@@ -53,9 +50,9 @@ public class FCLRegisters extends AbstractSCTMRegisterReader {
         getSctmRegisterSpecs().add(new SCTMRegisterSpec(105,00,16,ObisCode.fromString("1.1.82.129.0.255"),"input @ cumulative energy updated every tm2"));
         // 4 result energy updated every tm2
         getSctmRegisterSpecs().add(new SCTMRegisterSpec(105,00,4,ObisCode.fromString("1.17.82.129.0.255"),"result @ cumulative energy updated every tm2"));
-        
-    } // private void initSCTMRegisterSpecs()
-    
 
-    
+    } // private void initSCTMRegisterSpecs()
+
+
+
 }

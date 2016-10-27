@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.ametek;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -10,7 +12,6 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.ByteArrayInputStream;

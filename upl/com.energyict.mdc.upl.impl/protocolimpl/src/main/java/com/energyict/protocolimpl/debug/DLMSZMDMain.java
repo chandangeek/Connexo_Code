@@ -46,10 +46,10 @@ public class DLMSZMDMain {
 	private static Properties getProperties() {
 		Properties properties = new Properties();
 
-		properties.setProperty(MeterProtocol.PROFILEINTERVAL, "900");
-		properties.setProperty(MeterProtocol.PASSWORD, "00000000");
-        properties.setProperty(MeterProtocol.NODEID, "3");
-        properties.setProperty(MeterProtocol.ADDRESS, "LGZ80131045");
+		properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
+		properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "00000000");
+        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "3");
+        properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), "LGZ80131045");
 
 		return properties;
 	}

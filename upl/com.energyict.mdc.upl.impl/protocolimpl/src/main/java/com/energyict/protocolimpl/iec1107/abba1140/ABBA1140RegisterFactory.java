@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -18,12 +19,12 @@ import java.util.TreeMap;
 /** @author fbo */
 
 public class ABBA1140RegisterFactory {
-    
+
     static public final int MAX_CMD_REGS=4;
     static public final int MAX_MD_REGS=12;
     static public final int NUMBER_OF_HISTORICAL_REGS=24;
     static public final int NUMBER_OF_DAILY_REGS=14;
-    
+
     private Map registers = new TreeMap();
     private ProtocolLink protocolLink;
     private MeterExceptionInfo meterExceptionInfo;
@@ -104,7 +105,7 @@ public class ABBA1140RegisterFactory {
 	private ABBA1140Register endOfBillingEventLog;
 	private ABBA1140Register meterErrorEventLog;
 	private ABBA1140Register internalBatteryEventLog;
-    
+
     public ABBA1140RegisterFactory() {
         initRegisters();
     }
@@ -116,15 +117,15 @@ public class ABBA1140RegisterFactory {
      */
     public ABBA1140RegisterFactory(
             ProtocolLink protocolLink, MeterExceptionInfo meterExceptionInfo ) {
-        
+
         this.protocolLink = protocolLink;
         this.meterExceptionInfo = meterExceptionInfo;
         this.dataType = new DataType(protocolLink.getTimeZone());
         this.dataIdentityFactory = new ABBA1140DataIdentityFactory(protocolLink,meterExceptionInfo);
         initRegisters();
-        
+
     }
-    
+
     protected ABBA1140DataIdentityFactory getABBA1140DataIdentityFactory() {
         return dataIdentityFactory;
     }
@@ -132,15 +133,15 @@ public class ABBA1140RegisterFactory {
     public ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
     public Map getRegisters() {
         return registers;
     }
-    
+
     public DataType getDataType(){
         return dataType;
     }
-    
+
     public ABBA1140Register getCTPrimary() {
         return cTPrimary;
     }
@@ -372,33 +373,33 @@ public class ABBA1140RegisterFactory {
     public ABBA1140Register getTimeOfUse7() {
         return timeOfUse7;
     }
-    
+
     public ABBA1140Register getDailyHistoricalRegister() {
 		return dailyHistoricalRegister;
 	}
-    
+
     public ABBA1140Register getEndOfBillingPeriod() {
 		return endOfBillingPeriod;
 	}
-    
+
     public ABBA1140Register getFirmwareVersion() {
 		return firmwareVersion;
 	}
-    
+
     // length = -1, not used
     private void initRegisters() {
-        
+
         Unit mWh = Unit.get(BaseUnit.WATTHOUR,-3);
         Unit mvarh = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3);
         Unit mvah = Unit.get(BaseUnit.VOLTAMPEREHOUR, -3);
-        
+
         serialNumber = cr("798", "SerialNumber", ABBA1140RegisterData.ABBA_STRING,0, -1,null );
         schemeID = cr("795", "SchemeID", ABBA1140RegisterData.ABBA_STRING,0,8, null );
         timeDate = cr("861", "TimeDate", ABBA1140RegisterData.ABBA_DATE,0,-1, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
 
         netConsumption = cr("506", "NetConsumption", ABBA1140RegisterData.ABBA_NET_CONSUMPTION, 0, 8, mWh);
         cummulativeRegisters = cr("507", "CummulativeRegisters", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null );
-        
+
         cummMainImport = cr("507", "CummMainImport", ABBA1140RegisterData.ABBA_REGISTER,0,8,mWh);
         cummMainExport = cr("507", "CummMainExport", ABBA1140RegisterData.ABBA_REGISTER,8,8,mWh);
         cummMainQ1 = cr("507", "CummMainQ1", ABBA1140RegisterData.ABBA_REGISTER,16,8,mvarh);
@@ -410,7 +411,7 @@ public class ABBA1140RegisterFactory {
         // reserved for future use
         cummMainCustDef1 = cr("507", "CummMainCustDef1", ABBA1140RegisterData.ABBA_REGISTER,112,8,Unit.get(BaseUnit.COUNT,0));
         cummMainCustDef2 = cr("507", "CummMainCustDef2", ABBA1140RegisterData.ABBA_REGISTER,120,8,Unit.get(BaseUnit.COUNT,0));
-        
+
         timeOfUse0 = cr("508", "TimeOfUse0", ABBA1140RegisterData.ABBA_REGISTER,0,8,null);
         timeOfUse1 = cr("508", "TimeOfUse1", ABBA1140RegisterData.ABBA_REGISTER,8,8,null);
         timeOfUse2 = cr("508", "TimeOfUse2", ABBA1140RegisterData.ABBA_REGISTER,16,8,null);
@@ -419,13 +420,13 @@ public class ABBA1140RegisterFactory {
         timeOfUse5 = cr("508", "TimeOfUse5", ABBA1140RegisterData.ABBA_REGISTER,40,8,null);
         timeOfUse6 = cr("508", "TimeOfUse6", ABBA1140RegisterData.ABBA_REGISTER,48,8,null);
         timeOfUse7 = cr("508", "TimeOfUse7", ABBA1140RegisterData.ABBA_REGISTER,56,8,null);
-        
+
         cummulativeMaximumDemand = cr("509", "CummulativeMaximumDemand", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null );
         cumulativeMaximumDemand0 = cr("509","CumulativeMaximumDemand0", ABBA1140RegisterData.ABBA_CMD,0,9,null);
         cumulativeMaximumDemand1 = cr("509","CumulativeMaximumDemand1", ABBA1140RegisterData.ABBA_CMD,9,9,null);
         cumulativeMaximumDemand2 = cr("509","CumulativeMaximumDemand2", ABBA1140RegisterData.ABBA_CMD,18,9,null);
         cumulativeMaximumDemand3 = cr("509","CumulativeMaximumDemand3", ABBA1140RegisterData.ABBA_CMD,27,9,null);
-        
+
         maximumDemandRegisters = cr("510", "MaximumDemandRegisters", ABBA1140RegisterData.ABBA_BYTEARRAY,0,208, null );
         maximumDemand0 = cr( "510", "MaximumDemand0", ABBA1140RegisterData.ABBA_MD,0,12,null);
         maximumDemand1 = cr( "510", "MaximumDemand1", ABBA1140RegisterData.ABBA_MD,12,12,null);
@@ -435,16 +436,16 @@ public class ABBA1140RegisterFactory {
         maximumDemand5 = cr( "510", "MaximumDemand5", ABBA1140RegisterData.ABBA_MD,60,12,null);
         maximumDemand6 = cr( "510", "MaximumDemand6", ABBA1140RegisterData.ABBA_MD,72,12,null);
         maximumDemand7 = cr( "510", "MaximumDemand7", ABBA1140RegisterData.ABBA_MD,84,12,null);
-        maximumDemand8 = cr( "510", "MaximumDemand8", ABBA1140RegisterData.ABBA_MD,96,12,null); 
+        maximumDemand8 = cr( "510", "MaximumDemand8", ABBA1140RegisterData.ABBA_MD,96,12,null);
         maximumDemand9 = cr( "510", "MaximumDemand9", ABBA1140RegisterData.ABBA_MD,108,12,null);
         maximumDemand10 = cr( "510", "MaximumDemand10", ABBA1140RegisterData.ABBA_MD,120,12,null);
         maximumDemand11 = cr( "510", "MaximumDemand11", ABBA1140RegisterData.ABBA_MD,132,12,null);
-        
+
         historicalRegister = cr("543", "HistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,457, null);
         historicalEvents = cr("544", "HistoricalEvents", ABBA1140RegisterData.ABBA_HISTORICALEVENTS,0,792, null);
-        
+
         dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,302, null);
-        
+
         // event logs
         terminalCoverEventLog = cr("691", "TerminalCoverEventLog", ABBA1140RegisterData.ABBA_TERMINALCOVEREVENTLOG,0,14, null);
         mainCoverEventLog = cr("692", "MainCoverEventLog", ABBA1140RegisterData.ABBA_MAINCOVEREVENTLOG,0,14, null);
@@ -455,42 +456,42 @@ public class ABBA1140RegisterFactory {
         internalBatteryEventLog = cr("697", "InternalBatteryEventLog", ABBA1140RegisterData.ABBA_INTERNALBATTERYEVENTLOG,0,14, null);
         endOfBillingEventLog = cr("699", "EndOfBillingEventLog", ABBA1140RegisterData.ABBA_ENDOFBILLINGEVENTLOG,0,17, null);
         meterErrorEventLog = cr("701", "MeterErrorEventLog", ABBA1140RegisterData.ABBA_METERERROREVENTLOG,0,14, null);
-        
+
         loadProfile = cr("550", "LoadProfile", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null);
-        
+
         /* The 2 ways to specifiy how much load profile data to retrieve:
          * 551: nr of days
          * 554: between from and to */
         loadProfileSet = cr("551", "LoadProfileSet", ABBA1140RegisterData.ABBA_HEX_LE,0,2, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
         loadProfile64Blocks = cr("551", "LoadProfile64Blocks", ABBA1140RegisterData.ABBA_HEX,0,2, null);
         loadProfile256Blocks = cr("551", "LoadProfile256Blocks", ABBA1140RegisterData.ABBA_HEX,2,2, null);
-        
+
         loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA1140RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
-        
+
         systemStatus = cr("724", "SystemStatus", ABBA1140RegisterData.ABBA_SYSTEMSTATUS,0,4, null);
         systemError = cr("724", "SystemError", ABBA1140RegisterData.ABBA_SYSTEMSTATUS,4,4, null);
 
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA1140RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
-        
+
         tariffSources = cr("667", "TariffSources", ABBA1140RegisterData.ABBA_TARIFFSOURCES,0,8, null );
-        
+
         cTPrimaryAndSecundary = cr("616", "CTPrimaryAndSecundary", ABBA1140RegisterData.ABBA_STRING,0,-1, null);
         cTPrimary = cr("616", "CTPrimary", ABBA1140RegisterData.ABBA_HEX,0,4, Unit.get(BaseUnit.UNITLESS,-2));
         cTSecundary = cr("616", "CTSecundary", ABBA1140RegisterData.ABBA_HEX,4,4, Unit.get(BaseUnit.UNITLESS,-2));
-        
+
         loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA1140RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
         integrationPeriod = cr("878", "IntegrationPeriod", ABBA1140RegisterData.ABBA_INTEGRATION_PERIOD,0,1, null);
-        
+
         endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA1140RegisterData.ABBA_HEX, 0, 1, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
         loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA1140RegisterData.ABBA_HEX,0,1, null);
         firmwareVersion = cr("998", "FirmwareVersion", ABBA1140RegisterData.ABBA_STRING, 0, 12, null);
-        
+
     }
-    
+
     /** factory method for ABBARegisters */
     private ABBA1140Register cr(
             String id, String name, int type, int offset, int length, Unit unit ){
-        
+
         ABBA1140Register register =
                 new ABBA1140Register( id, name, type, offset, length, unit,
                 ABBA1140Register.NOT_WRITEABLE, ABBA1140Register.CACHED, this );
@@ -498,55 +499,55 @@ public class ABBA1140RegisterFactory {
         registers.put( name, register );
         return register;
     }
-    
+
     /** factory method for ABBARegisters */
     private ABBA1140Register cr(
             String id, String name, int type, int offset, int length, Unit unit,
             boolean writeable, boolean cached ){
-        
+
         ABBA1140Register register =
-                new ABBA1140Register( id, name, type, offset, length, unit, 
+                new ABBA1140Register( id, name, type, offset, length, unit,
                 writeable, cached, this );
-        
+
         registers.put( name, register );
         return register;
     }
-    
+
     public void setRegister(String name,String value) throws IOException {
         try {
             ABBA1140Register register = findRegister(name);
             if (register.isWriteable()) register.writeRegister(value);
             else throw new IOException("ABBA1140, setRegister, register not writeable");
-            
+
         } catch(FlagIEC1107ConnectionException e) {
             throw new ProtocolConnectionException("ABBA1140, setRegister exception: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public void setRegister(String name,Object object) throws IOException {
         try {
             ABBA1140Register register = findRegister(name);
             if (register.isWriteable()) register.writeRegister(object);
             else throw new ProtocolException("ABBA1140, setRegister, register not writeable");
-            
+
         } catch(FlagIEC1107ConnectionException e) {
             throw new ProtocolConnectionException("ABBA1140, setRegister exception:  "+e.getMessage(), e.getReason());
         }
     }
-    
-    
+
+
     public ABBA1140Register getABBA1140Register(String name) throws IOException {
         return findRegister(name);
     }
-    
+
     public Object getRegister(ABBA1140Register register) throws IOException {
         return getRegister(register.getName(), -1);
     }
-    
+
     public Object getRegister(String name) throws IOException {
         return getRegister(name,-1);
     }
-    
+
     /*  Read a register in the meter, from the current set or a billing set...
      *  @return object the register read
      *  @param billingPoint -1 = current, 0 = last billing point, 1 = 2-throws last billing point, ...
@@ -561,12 +562,12 @@ public class ABBA1140RegisterFactory {
             }
             // billing point register set
             else if ((billingPoint>=0) && (billingPoint<NUMBER_OF_HISTORICAL_REGS)) { //JME: Changed highest billingpoint from 14 to 23 (new firmware stores 24 historical values)
-                
+
                 if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                     // retrieve the billing set data
                     ABBA1140Register register = findRegister("HistoricalRegister");
                     HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint));
-                    
+
                     // find register within the data
                     register2Retrieve = findRegister(name);
                     Object obj = register2Retrieve.parse(historicalValues.getData(register2Retrieve.getDataID()));
@@ -582,12 +583,12 @@ public class ABBA1140RegisterFactory {
                 }
             }
             else if ((billingPoint>=NUMBER_OF_HISTORICAL_REGS) && (billingPoint<(NUMBER_OF_HISTORICAL_REGS + NUMBER_OF_DAILY_REGS))) {
-                    
+
                     if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                         // retrieve the billing set data
                         ABBA1140Register register = findRegister("DailyHistoricalRegister");
                         HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint - NUMBER_OF_HISTORICAL_REGS));
-                        
+
                         // find register within the data
                         register2Retrieve = findRegister(name);
                         Object obj = register2Retrieve.parse(historicalValues.getData(register2Retrieve.getDataID()));
@@ -606,7 +607,7 @@ public class ABBA1140RegisterFactory {
             throw new ProtocolConnectionException("ABBA1140, getRegister, "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
@@ -619,7 +620,7 @@ public class ABBA1140RegisterFactory {
             throw new ProtocolConnectionException("ABBA1140, getRegisterRawData, "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public byte[] getRegisterRawDataStream(String name, int nrOfBlocks) throws IOException {
         try {
             ABBA1140Register register = findRegister(name);
@@ -628,7 +629,7 @@ public class ABBA1140RegisterFactory {
             throw new ProtocolConnectionException("ABBA1140, getRegisterRawDataStream, "+e.getMessage(), e.getReason());
         }
     }
-    
+
     // search the map for the register info
     private ABBA1140Register findRegister(String name) throws IOException {
         ABBA1140Register register = (ABBA1140Register)registers.get(name);
@@ -636,11 +637,11 @@ public class ABBA1140RegisterFactory {
             throw new ProtocolConnectionException("ABBA1140RegisterFactory, findRegister, " + name + " does not exist!");
         } else return register;
     }
-    
+
     public MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
-    
+
     public String toString( ){
         StringBuffer sb = new StringBuffer();
         sb.append( "RegisterFactory \n" );
@@ -659,15 +660,15 @@ public class ABBA1140RegisterFactory {
 	public ABBA1140 getAbba1140() {
 		return abba1140;
 	}
-    
+
 	public ABBA1140Register getLoadProfileDSTConfig() {
 		return loadProfileDSTConfig;
 	}
-	
+
 	public ABBA1140Register getTerminalCoverEventLog() {
 		return terminalCoverEventLog;
 	}
-	
+
 	public ABBA1140Register getMainCoverEventLog() {
 		return mainCoverEventLog;
 	}
@@ -675,23 +676,23 @@ public class ABBA1140RegisterFactory {
 	public ABBA1140Register getPhaseFailureEventLog() {
 		return phaseFailureEventLog;
 	}
-	
+
 	public ABBA1140Register getReverserunEventLog() {
 		return reverserunEventLog;
 	}
-	
+
 	public ABBA1140Register getPowerFailEventLog() {
 		return powerFailEventLog;
 	}
-	
+
 	public ABBA1140Register getTransientEventLog() {
 		return transientEventLog;
 	}
-	
+
 	public ABBA1140Register getEndOfBillingEventLog() {
 		return endOfBillingEventLog;
 	}
-	
+
 	public ABBA1140Register getMeterErrorEventLog() {
 		return meterErrorEventLog;
 	}

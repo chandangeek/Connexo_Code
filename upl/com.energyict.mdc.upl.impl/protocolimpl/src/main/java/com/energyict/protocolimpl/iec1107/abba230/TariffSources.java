@@ -1,29 +1,30 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /** @author  Koen */
 
 public class TariffSources {
-    
+
     private final static int NUMBER_TARIF_REGISTERS = 16;
     int[] regSource = null;
-    
+
     /** Creates a new instance of TariffSources */
     public TariffSources(byte[] data) throws IOException {
         regSource = new int[NUMBER_TARIF_REGISTERS];
         parse(data);
     }
-    
+
     private void parse(byte[] data) throws IOException {
         for (int i=0;i<NUMBER_TARIF_REGISTERS;i++) {
             regSource[i] = ProtocolUtils.getIntLE(data,i,1);
         }
     }
-    
+
     /**
      * Getter for property regSource.
      * @return Value of property regSource.
@@ -31,9 +32,9 @@ public class TariffSources {
     public int[] getRegSource() {
         return this.regSource;
     }
-    
+
     public String toString() {
-        
+
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<NUMBER_TARIF_REGISTERS;i++) {
             try {
@@ -45,5 +46,5 @@ public class TariffSources {
         }
         return strBuff.toString();
     }
-    
+
 }

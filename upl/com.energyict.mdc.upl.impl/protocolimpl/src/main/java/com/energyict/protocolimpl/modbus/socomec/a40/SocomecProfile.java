@@ -1,5 +1,12 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -8,20 +15,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.modbus.core.AbstractRegister;
-import com.energyict.protocolimpl.modbus.core.Modbus;
-
 /**
  * Contains all relevant information about the LoadProfile of the current ModBus meter
- * 
+ *
  * @author gna
  *
  */
 public class SocomecProfile {
-	
+
 	/** The used ModBus meter */
 	private final A40 modbus;
 	/** The used profileInterval */
@@ -30,24 +31,24 @@ public class SocomecProfile {
 	private Integer activeEnergyPointer;
 	/** Points to the current memoryPosition of the ReactiveEnergy profile */
 	private Integer reActiveEnergyPointer;
-	
+
 	private static final int p1StartAddress = Integer.parseInt("12293");	//TODO this is probably 12293 (see doc. the previous object has 3 words and starts form 12290 ...)
 	private static final int p2StartAddress = Integer.parseInt("16793");
 	private static final int q1StartAddress = Integer.parseInt("21293");
 	private static final int q2StartAddress = Integer.parseInt("25793");
 	private static final int[] startAddresses = new int[]{p1StartAddress, p2StartAddress, q1StartAddress, q2StartAddress};
 	private static final int maxProfileBlockSize = Integer.parseInt("4500");
-	
+
 	private static final int normalReadState = 0;
 	private static final int memoryOverFlowedState = 1;
-	
+
 	private int[] startMemoryPointer;
 	private int[] channelInfoRegisters;
 	private List profileIntervalData;
-	
+
 	/** Maximum allowed blocks to read in 1 readAction */
 	private static final int maxReadBlockSize = 100;
-	
+
 	/** The used profileParser */
 	private SocomecProfileParser profileParser;
 
@@ -58,14 +59,14 @@ public class SocomecProfile {
 	SocomecProfile(Modbus modbus){
 		this.modbus = (A40) modbus;
 	}
-	
+
 	final SocomecProfileParser getProfileParser(){
 		if(this.profileParser == null){
 			this.profileParser = new SocomecProfileParser();
 		}
 		return this.profileParser;
 	}
-	
+
 	/**
 	 * @return the number of channels
 	 * @throws IOException if we couldn't read the necessary register
@@ -79,7 +80,7 @@ public class SocomecProfile {
 		}
 		return counter;
 	}
-	
+
 	/**
 	 * Find the requested register
 	 * @param registerName - the name of the register
@@ -106,10 +107,10 @@ public class SocomecProfile {
     	}
     	return false;
 	}
-	
+
 	/**
 	 * Getter for the profileInterval.
-	 * 
+	 *
 	 * @return the profileInterval
 	 * @throws UnsupportedException if the register isn't supported
 	 * @throws IOException if the registername isn't known
@@ -120,7 +121,7 @@ public class SocomecProfile {
 		}
 		return profileInterval.intValue();
 	}
-	
+
 	/**
 	 * Build the profile channelInfos
 	 * @return the list of channelInfos
@@ -131,7 +132,7 @@ public class SocomecProfile {
 		List channelInfos = getProfileParser().parseChannelInfos(getChannelInforRegisters(), multiplier);
 		return channelInfos;
 	}
-	
+
 	/**
 	 * @return the list of channelInfoRegisters
 	 * @throws IOException if the register could not be found
@@ -142,20 +143,20 @@ public class SocomecProfile {
 		}
 		return this.channelInfoRegisters;
 	}
-	
+
 	/**
 	 * Get the IntervalDatas from the given date to now
 	 * @param lastReading the startDate from the interval
 	 * @return a list of {@link IntervalData} objects
-	 * @throws IOException 
-	 * @throws UnsupportedException 
+	 * @throws IOException
+	 * @throws UnsupportedException
 	 */
 	public List getIntervalDatas(Date lastReading) throws UnsupportedException, IOException {
 		boolean dontExit = true;
-		
+
 		generateStartMemoryPointer();
 		Date lastUpdate = getDateTimeLastProfileUpdate();
-		
+
 		for(int i = 0; i < getChannelInforRegisters().length; i++){
 			if(getChannelInforRegisters()[i] == 1){	// the channel is enabled in the profile
 				dontExit = true;
@@ -165,12 +166,12 @@ public class SocomecProfile {
 				int readFromPointer = 0;
 				int readLength = 0;
 				getProfileParser().setLastUpdate(lastUpdate);
-				
+
 				int currentPointer = startMemoryPointer[i];
 				do{
 					switch(currentState){
 					case SocomecProfile.normalReadState:{
-						
+
 						if(((startAddresses[i] + currentPointer) - maxReadBlockSize) > startAddresses[i]){
 							readFromPointer = (startAddresses[i] + currentPointer) - maxReadBlockSize;
 							readLength = maxReadBlockSize;
@@ -181,7 +182,7 @@ public class SocomecProfile {
 							currentPointer = maxProfileBlockSize;
 							currentState = SocomecProfile.memoryOverFlowedState;
 						}
-						
+
 					}break;
 					case SocomecProfile.memoryOverFlowedState:{
 						if(((startAddresses[i] + currentPointer) - maxReadBlockSize) > (startAddresses[i] + startMemoryPointer[i])){
@@ -195,21 +196,21 @@ public class SocomecProfile {
 						}
 					}
 					}
-					
+
 					getProfileParser().addMemoryPointer(readLength);
 					getProfileParser().parseProfileDataBlock(this.modbus.readRawValue(readFromPointer, readLength));
-					
+
 				}while(((IntervalData) getProfileParser().getIntervalDatas().get(getProfileParser().getIntervalDatas().size()-1)).getEndTime().after(lastReading) && dontExit);
-				
+
 				checkForUnnecessaryIntervals(getProfileParser().getIntervalDatas(), lastReading);
 				addValuesToIntervals(getProfileParser().getIntervalDatas());
-				
-			} 
+
+			}
 		}
-		
-		
+
+
 		return this.profileIntervalData;
-		
+
 	}
 
 	/**
@@ -238,7 +239,7 @@ public class SocomecProfile {
 			}
 		}
 	}
-	
+
 	/**
 	 * Generate a helper object for memoryPointing to the start of the 4 profileBuffers
 	 * @throws UnsupportedException if we couldn't read the pointers
@@ -252,12 +253,12 @@ public class SocomecProfile {
 		startMemoryPointer[1] = startedAEMemoryPointer;
 		startMemoryPointer[2] = startedREMemoryPointer;
 		startMemoryPointer[3] = startedREMemoryPointer;
-		
+
 	}
-	
+
 	/**
 	 * Remove unnecessary intervals from the intervalList
-	 * 
+	 *
 	 * @param intervals - the List with the intervals
 	 * @param lastReading - the lastReading to check for
 	 */
@@ -270,7 +271,7 @@ public class SocomecProfile {
 			}
 		}
 	}
-	
+
 	/**
 	 * @return the value of the ActiveEnergy Pointer
 	 * @throws UnsupportedException if the register isn't supported
@@ -280,10 +281,10 @@ public class SocomecProfile {
 		if(this.activeEnergyPointer == null){
 			int[] aePointer = findRegister(RegisterFactory.aePointer).getReadHoldingRegistersRequest().getRegisters();
 			this.activeEnergyPointer = new Integer(getProfileParser().parseEnergyPointer(aePointer));
-		} 
+		}
 		return this.activeEnergyPointer.intValue();
 	}
-	
+
 	/**
 	 * @return the value of the ReactiveEnergy pointer
  	 * @throws UnsupportedException if the register isn't supported
@@ -305,6 +306,6 @@ public class SocomecProfile {
 		int[] dateTimeLastUpdate = findRegister(RegisterFactory.dtLastUpdate).getReadHoldingRegistersRequest().getRegisters();
 		return getProfileParser().parseDateTimeLastUpdate(dateTimeLastUpdate);
 	}
-	
-	
+
+
 }

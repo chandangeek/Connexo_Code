@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
@@ -9,15 +12,36 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.HDLCConnection;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
@@ -28,7 +52,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, RegisterProtocol, SerialNumberSupport {
@@ -126,20 +156,20 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            this.strID = properties.getProperty(MeterProtocol.ADDRESS);
+            this.strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
             // KV 19012004
             if ((this.strID != null) && (this.strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
 
 
-            this.nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            this.nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
             this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            this.strPassword = properties.getProperty(MeterProtocol.PASSWORD, "");
+            this.strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             this.iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());

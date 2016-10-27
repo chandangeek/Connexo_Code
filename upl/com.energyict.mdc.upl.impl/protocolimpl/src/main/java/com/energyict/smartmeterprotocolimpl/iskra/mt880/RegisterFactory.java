@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
@@ -19,7 +21,6 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;

@@ -1,11 +1,12 @@
 /**
- * 
+ *
  */
 package com.elster.protocolimpl.lis200.objects;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.elster.protocolimpl.lis200.commands.ReadArchiveCommand;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
@@ -14,10 +15,10 @@ import java.util.Date;
 
 /**
  * Implementation of a generic archive (LoadProfile)
- * 
+ *
  * @author gna
  * @since 4-mrt-2010
- * 
+ *
  */
 public class GenericArchiveObject extends AbstractObject {
 
@@ -58,10 +59,10 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Initial constructor
-	 * 
+	 *
 	 * @param link
 	 *            - the {@link ProtocolLink}
-	 * 
+	 *
 	 * @param archiveInstance
 	 *            - instance letter of the archive
 	 */
@@ -93,7 +94,7 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Unsupported getter for the default value
-	 * 
+	 *
 	 * @throws IOException
 	 *             because it is not supported
 	 */
@@ -105,9 +106,9 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Get the capturedObjects form the device
-	 * 
+	 *
 	 * @return a string with the captured objects
-	 * 
+	 *
 	 * @throws IOException
 	 *             if a read exception occurred
 	 */
@@ -117,7 +118,7 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Get the Units from the device
-	 * 
+	 *
 	 * @return a String of units
 	 * @throws IOException
 	 *             if something happened during the read
@@ -128,12 +129,12 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Default empty request
-	 * 
+	 *
 	 * @param startAddress
 	 *            - the startAddress for the request
-	 * 
+	 *
 	 * @return the response string from the device
-	 * 
+	 *
 	 * @throws IOException
 	 *             if something happened during the read
 	 */
@@ -146,10 +147,10 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Construct the startAddress
-	 * 
+	 *
 	 * @param attrbDescription
 	 *            - the attribute number to read
-	 * 
+	 *
 	 * @return the constructed startAddress
 	 */
 	private String constructStartAddress(int attrbDescription) {
@@ -158,10 +159,10 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Construct the startAddress
-	 * 
+	 *
 	 * @param attrbDescription
 	 *            - the attribute number to read
-	 * 
+	 *
 	 * @return the constructed startAddress
 	 */
 
@@ -175,13 +176,13 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Request the number of intervals
-	 * 
+	 *
 	 * @param from
 	 *            - the date from where to start reading
-	 * 
+	 *
 	 * @return a number representing the available intervals starting from the
 	 *         from date
-	 * 
+	 *
 	 * @throws IOException
 	 *             if something freaky happened during the read
 	 */
@@ -197,15 +198,15 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Request the raw intervals from the device
-	 * 
+	 *
 	 * @param from
 	 *            - the date to start reading from
-	 * 
+	 *
 	 * @param blockSize
 	 *            - the size of the blocks to read
-	 * 
+	 *
 	 * @return a string containing one or multiple interval records
-	 * 
+	 *
 	 * @throws IOException
 	 *             when an error occurred during the read
 	 */
@@ -215,18 +216,18 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Request the raw intervals from the device
-	 * 
+	 *
 	 * @param from
 	 *            - the date to start reading from
-	 * 
+	 *
 	 * @param to
 	 *            - the date to read to
-	 * 
+	 *
 	 * @param blockSize
 	 *            - the size of the blocks to read
-	 * 
+	 *
 	 * @return a string containing one or multiple interval records
-	 * 
+	 *
 	 * @throws IOException
 	 *             when an error occurred during the read
 	 */
@@ -246,10 +247,10 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Construct a date in the request format
-	 * 
+	 *
 	 * @param date
 	 *            - the date to convert
-	 * 
+	 *
 	 * @return raw date
 	 */
 	private String getDLFormatDate(Date date) {
@@ -262,19 +263,19 @@ public class GenericArchiveObject extends AbstractObject {
 	 * Build up the request string.<br>
 	 * A profile request string has a specific format, it can contain on or more
 	 * of the following elements:
-	 * 
+	 *
 	 * @param columnIndex
 	 *            - the column index of the archive
-	 * 
+	 *
 	 * @param rawFrom
 	 *            - the startDate to read from (null -> unused)
-	 * 
+	 *
 	 * @param rawTo
 	 *            - the toDate to read to (null -> unused)
-	 * 
+	 *
 	 * @param numbOfBlocks
 	 *            - the number of blocks to read (-1 -> unused)
-	 * 
+	 *
 	 * @return the requestData in form of [p]; [v]; [b] where [p] is position,
 	 *         [v] is fromDate, [b] is toDate, [t] is number of blocks
 	 */

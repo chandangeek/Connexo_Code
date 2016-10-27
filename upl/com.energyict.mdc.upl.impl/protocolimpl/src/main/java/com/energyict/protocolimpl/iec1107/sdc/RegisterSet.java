@@ -6,6 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.TimeZoneManager;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.base.DataParser;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.rmi.NoSuchObjectException;
@@ -13,12 +20,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.TimeZoneManager;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocolimpl.base.DataParser;
 /**
  *
  * @author  gna
@@ -27,7 +28,7 @@ import com.energyict.protocolimpl.base.DataParser;
  * @Endchanges
  */
 public class RegisterSet {
-    
+
     private static final int NR_OF_REGISTERS = 32;
     Register[] registers = new Register[NR_OF_REGISTERS];
     int billingPoint;
@@ -38,18 +39,18 @@ public class RegisterSet {
 	private Date billingTimestamp = null;
     int id = 0;
     int dateType = 0;
-    
+
     /** Creates a new instance of RegisterSet */
     public RegisterSet(byte[] data,TimeZone timeZone) throws IOException {
         this.timeZone=timeZone;
         parse(data);
     }
-    
+
     private void parse(byte[] data) throws IOException {
        String strData = new String(data);
        strData = strData.substring(1, strData.length()-1);
        StringTokenizer strTok = new StringTokenizer(strData,"\r\n");
-       calendar = Calendar.getInstance(timeZone); 
+       calendar = Calendar.getInstance(timeZone);
        while(strTok.hasMoreTokens()) {
            String strRegisterExpression = strTok.nextToken();
            if (strRegisterExpression.compareTo("([4])") != 0) {
@@ -57,67 +58,67 @@ public class RegisterSet {
 		}
        }
     }
-    
+
     private void parseRegisterExpression(String strRegisterExpression) throws IOException {
-    	
+
     	DataParser dp = new DataParser(TimeZoneManager.getTimeZone("GMT"));
     	String str = dp.parseBetweenBrackets(strRegisterExpression,0);
     	int type;
     	String typeString = strRegisterExpression.substring(0,strRegisterExpression.indexOf('('));
     	typeString = checkStringForNumbers(typeString);
-    	
+
     	if ( typeString.compareTo("DIAG") == 0 ) {
 			dateType = 1;
 		} else if ( typeString.substring(0, 2).compareTo("DL") == 0 ){
     		dateType = 2;
     		setDates(dateType, typeString, str);
     	}
-    	
+
     	else{
 //    		// Tariff Program
 //    		if ( typeString.compareTo("PR") == 0 ){}
-    		
+
     		// Serial Number
     		if ( ( typeString.compareTo("NS") == 0 ) | ( Integer.parseInt(typeString) == 99 ) ){
     			type = getType(typeString);
     			Quantity qu = new Quantity(new BigDecimal(str),Unit.getUndefined());
     			registers[id] = new Register(type,qu,null,null); id++;
     		}
-    		
+
 //    		// TI Ratio
 //    		else if ( ( Integer.parseInt(typeString) == 90 ) ){}
 
     		// a date or a registervalue
     		else {
-    			
+
     			if (dateType == 1) {
 					setDates(dateType, typeString, str);
 				}
-    			
+
     			if ( (used) & (Integer.parseInt(typeString) != 66) & ( typeString.substring(0, 2).compareTo("DL") != 0 ) ){
     				type = getType(typeString);
-        			
+
         			String acronym = str.split("\\*")[1];
-        			
+
         			if (acronym.compareToIgnoreCase("varh") == 0) {
 						acronym = "varh";
 					}
-        			
+
         			String val = str.split("\\*")[0];
-                   
+
         			Quantity quantity = new Quantity(new BigDecimal(val),Unit.get(acronym));
 
                    	registers[id] = new Register(type, quantity, mdTimestamp, billingTimestamp);
                    	id ++;
 //        			used = true;
-    			}  		   
-    			
+    			}
+
     		}
-//        	else used = false;   		   
+//        	else used = false;
     	}
 
     }
-    
+
     private String checkStringForNumbers(String typeString) {
     	int checker = 0;
     	int[] place = {0,0,0,0,0};
@@ -129,23 +130,23 @@ public class RegisterSet {
     			checker++;
     		}
     	}
-    	
+
     	if ( place [0] == 2 ) {
 			typeString = typeString.substring(0, 2) + Integer.parseInt(typeString.substring(2, 3),16);
 		}
-    	
+
 		return typeString;
 	}
 
 	private int getType(String str) throws NoSuchObjectException{
-    	
+
     	int type = Integer.parseInt(str);
-    	
+
     	if ( (type >= 67) & (type <= 99) ){
     		billingPoint = 0;
     		return type;
     	}
-    		
+
     	else if ( (type >= 671) & (type <= 839) ){
     		billingPoint = type % 10;
     		return type/10;
@@ -156,9 +157,9 @@ public class RegisterSet {
     	} else {
 			throw new NoSuchObjectException("Type "+str+" is not supported");
 		}
-    	
+
     }
-    
+
     private void setDates(int type, String typeString, String str){
 		if ( (dateType == 1) & !used ){
     		// Time
@@ -167,7 +168,7 @@ public class RegisterSet {
     			calendar.set(Calendar.MINUTE, Integer.parseInt(str.substring(2, 4)));
     			calendar.set(Calendar.SECOND, Integer.parseInt(str.substring(4, 6)));
     		}
-    		
+
     		// Date
     		else if ( ( typeString.compareTo("CAL") == 0 ) | ( Integer.parseInt(typeString) == 66) ){
     			calendar.set(Calendar.YEAR, Integer.parseInt(str.substring(0, 4)));
@@ -178,26 +179,26 @@ public class RegisterSet {
     		   	used = true;
     		}
 		}
-		
+
 		else if ( (dateType == 2) & !used ){
-			
+
 			calendar.set(Calendar.YEAR, Integer.parseInt(str.substring(0, 4)));
 			calendar.set(Calendar.MONTH, ( Integer.parseInt(str.substring(5, 7)) -1 ));
 			calendar.set(Calendar.DATE, Integer.parseInt(str.substring(8, 10)));
-			
+
 			calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(str.substring(11, 13)));
 			calendar.set(Calendar.MINUTE, Integer.parseInt(str.substring(14, 16)));
 			calendar.set(Calendar.SECOND, Integer.parseInt(str.substring(17, 19)));
-			
+
 		   	mdTimestamp = Calendar.getInstance(timeZone).getTime();
 		   	billingTimestamp = calendar.getTime();
 			used = true;
 		}
     }
 
-    
-    // methods to search for a certain register starting from an obiscode 
-    
+
+    // methods to search for a certain register starting from an obiscode
+
     public String toString() {
         if (isUsed()) {
             StringBuffer strBuff = new StringBuffer();
@@ -212,8 +213,8 @@ public class RegisterSet {
 			return "RegisterSet "+getBillingPoint()+" is not used\n";
 		}
     }
-    
-    
+
+
     /**
      * Getter for property registers.
      * @return Value of property registers.
@@ -223,7 +224,7 @@ public class RegisterSet {
     }
     public Register getRegister(int index) throws NoSuchRegisterException {
     	index = getRegisterIndex(index);
-    
+
         if ((index >= NR_OF_REGISTERS) || (index < 0)) {
 			throw new NoSuchRegisterException("RegisterSet, getRegister, register with id "+index+" invalid!");
 		}
@@ -232,7 +233,7 @@ public class RegisterSet {
 		}
         return registers[index];
     }
-    
+
     private int getRegisterIndex(int typeNumber) throws NoSuchRegisterException{
     	int number = -1;
     	int teller = 0;
@@ -241,7 +242,7 @@ public class RegisterSet {
 //    			number = teller;
 //    		teller++;
 //    	}while( (number == -1) & (registers[teller] != null));
-    	
+
     	for(teller = 0; teller  < registers.length; teller++){
     		if(registers[teller] != null){
     			if(registers[teller].type == typeNumber) {
@@ -249,10 +250,10 @@ public class RegisterSet {
 				}
     		}
     	}
-    	
+
     	throw new NoSuchRegisterException("RegisterSet, getRegisterIndex, typeNumber not found in registerset.");
     }
-    
+
     static public void main(String[] args) {
         try {
            RegisterSet registerSet = new RegisterSet(com.energyict.protocol.ProtocolUtils.readFile("GTR.txt"),TimeZone.getTimeZone("GMT"));
@@ -262,7 +263,7 @@ public class RegisterSet {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Getter for property billingPoint.
      * @return Value of property billingPoint.
@@ -270,7 +271,7 @@ public class RegisterSet {
     public int getBillingPoint() {
         return billingPoint;
     }
- 
+
     /**
      * Getter for property used.
      * @return Value of property used.
@@ -278,7 +279,7 @@ public class RegisterSet {
     public boolean isUsed() {
         return used;
     }
-    
 
-    
+
+
 }

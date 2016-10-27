@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -7,15 +10,26 @@ import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /*
@@ -102,7 +116,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
 
     int halfDuplex;
 
-    // Time difference in ms between system time and rtu time 
+    // Time difference in ms between system time and rtu time
     private long rtuTimeDelta[];
 
     public rtuplusbus() { // Create an RtuPlusBusFrame instance in order to Read / Write Frames
@@ -152,12 +166,12 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
 
 
             // Node ID or Address
-            liNodeID = Integer.parseInt(properties.getProperty(MeterProtocol.NODEID));
+            liNodeID = Integer.parseInt(properties.getProperty(MeterProtocol.Property.NODEID.getName()));
             if (liNodeID >= 255 || liNodeID < 3) {
                 throw new MissingPropertyException("NodeID for the RtuPlusBus Protocol must be >= 3 and <= 255.  Value is now: " + liNodeID);
             }
             // The Password is an unsigned 32 bits integer
-            llPassword = Long.parseLong(properties.getProperty(MeterProtocol.PASSWORD));
+            llPassword = Long.parseLong(properties.getProperty(MeterProtocol.Property.PASSWORD.getName()));
             if (llPassword <= 0 || llPassword > 0x7FFFFFFF) {
                 throw new MissingPropertyException("Password must be a positive number between 0 and " + 0x7FFFFFFF);
             }

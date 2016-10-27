@@ -1,10 +1,19 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

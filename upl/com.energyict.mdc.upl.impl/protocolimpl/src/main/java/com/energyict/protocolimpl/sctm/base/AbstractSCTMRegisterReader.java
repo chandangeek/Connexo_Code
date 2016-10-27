@@ -6,51 +6,56 @@
 
 package com.energyict.protocolimpl.sctm.base;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
 
-import com.energyict.protocolimpl.metcom.*;
-import com.energyict.protocolimpl.siemens7ED62.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM; // KV 06092005 WVEM
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.metcom.Metcom;
+import com.energyict.protocolimpl.siemens7ED62.SCTMRegister;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author  Koen
  */
 abstract public class AbstractSCTMRegisterReader {
-    
+
     Metcom metcom=null; // KV 06092005 WVEM
     List sctmRegisterSpecs = new ArrayList();
     SiemensSCTM siemensSCTM=null; // KV 06092005 WVEM
-    
+
     /** Creates a new instance of AbstractSCTMRegisterReader */
     public AbstractSCTMRegisterReader(Metcom metcom) {
         this.metcom=metcom;
     }
-    
+
     // KV 06092005 WVEM
     public AbstractSCTMRegisterReader(SiemensSCTM siemensSCTM) {
         this.siemensSCTM=siemensSCTM;
     }
-    
+
     private SiemensSCTM getSCTMConnection() {
-        if (metcom==null) 
+        if (metcom==null)
             return siemensSCTM;
-        else 
+        else
             return metcom.getSCTMConnection();
     }
-    
+
     private SCTMRegister getSCTMRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
         try {
             byte[] data=null;
-            
+
             // KV 06092005 WVEM
             data = getSCTMConnection().sendRequest(getSCTMConnection().TABENQ1,name.getBytes());
-            
+
             if (data==null)
                return null;
             else
@@ -60,14 +65,14 @@ abstract public class AbstractSCTMRegisterReader {
             throw new IOException("AbstractSCTMRegisterReader, getTime, SiemensSCTMException, "+e.getMessage());
         }
     }
-    
+
     public RegisterValue readRegisterValue(ObisCode obisCode) throws IOException {
         if ((obisCode.getA() == 0) &&
             (obisCode.getC() == 96) &&
             (obisCode.getD() == 99)) {
             int address;
             address = (obisCode.getB()*100+obisCode.getE())*100+obisCode.getF();
-            
+
             SCTMRegister sc = getSCTMRegister(String.valueOf(address));
             if (sc == null)
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
@@ -81,7 +86,7 @@ abstract public class AbstractSCTMRegisterReader {
             return new RegisterValue(obisCode,quantity);
         }
     }
-    
+
     public long readRegisterLong(ObisCode obisCode) throws IOException {
         Iterator it = getSctmRegisterSpecs().iterator();
         while(it.hasNext()) {
@@ -94,11 +99,11 @@ abstract public class AbstractSCTMRegisterReader {
                 else
                    return sc.getLongValue();
             }
-            
+
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
-    
+
     public Quantity readRegisterQuantity(ObisCode obisCode) throws IOException {
         Iterator it = getSctmRegisterSpecs().iterator();
         while(it.hasNext()) {
@@ -110,12 +115,12 @@ abstract public class AbstractSCTMRegisterReader {
                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
                 else
                    return sc.getQuantityValue();
-                
+
             }
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
-    
+
     public String getRegisterInfo() throws IOException {
         StringBuffer strBuff=new StringBuffer();
         Iterator it = getSctmRegisterSpecs().iterator();
@@ -125,23 +130,23 @@ abstract public class AbstractSCTMRegisterReader {
             description = description.replaceAll("@", String.valueOf(srs.getObisCode().getB()+(srs.getSubAddressRange()==1?"":".."+((srs.getObisCode().getB()+srs.getSubAddressRange())-1))));
             strBuff.append(srs.getObisCode()+", "+description+" ("+srs.getRegisterSpecAddressRange()+")\n");
         }
-        
+
         strBuff.append("Manufacturer specific codes following format BEEFF (SCTM address) --> 0.B.96.99.E.F (OBIS code)\n");
         return strBuff.toString();
     }
-    
+
     public boolean isManufacturerSpecific(ObisCode obisCode) {
         if ((obisCode.getA() == 0) &&
             (obisCode.getC() == 96) &&
-            (obisCode.getD() == 99)) 
+            (obisCode.getD() == 99))
             return true;
         else
             return false;
-        
+
     }
-    
+
     public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        
+
         if ((obisCode.getA() == 0) &&
             (obisCode.getC() == 96) &&
             (obisCode.getD() == 99)) {
@@ -161,10 +166,10 @@ abstract public class AbstractSCTMRegisterReader {
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
-    
-    
-    
-    
+
+
+
+
     /**
      * Getter for property sctmRegisterSpecs.
      * @return Value of property sctmRegisterSpecs.
@@ -172,7 +177,7 @@ abstract public class AbstractSCTMRegisterReader {
     public java.util.List getSctmRegisterSpecs() {
         return sctmRegisterSpecs;
     }
-    
+
     /**
      * Setter for property sctmRegisterSpecs.
      * @param sctmRegisterSpecs New value of property sctmRegisterSpecs.
@@ -180,7 +185,7 @@ abstract public class AbstractSCTMRegisterReader {
     public void setSctmRegisterSpecs(java.util.List sctmRegisterSpecs) {
         this.sctmRegisterSpecs = sctmRegisterSpecs;
     }
-    
-    
-    
+
+
+
 }

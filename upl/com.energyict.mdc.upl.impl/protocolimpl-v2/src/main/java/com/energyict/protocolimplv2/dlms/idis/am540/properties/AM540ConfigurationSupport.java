@@ -109,7 +109,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     private PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.NODEID);
+        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.Property.NODEID.getName());
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {

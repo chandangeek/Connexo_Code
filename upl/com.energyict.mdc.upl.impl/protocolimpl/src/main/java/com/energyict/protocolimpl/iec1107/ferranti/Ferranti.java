@@ -6,21 +6,19 @@
 
 package com.energyict.protocolimpl.iec1107.ferranti;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -202,13 +200,13 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
@@ -364,81 +362,6 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
 
     private FerrantiProfile getFerrantiProfile() {
         return ferrantiProfile;
-    }
-
-    public static void main(String[] args) {
-
-        Dialer dialer = null;
-        Ferranti ferranti = null;
-        try {
-            dialer = DialerFactory.getDefault().newDialer();
-            dialer.init("COM1", "AT+CBST=71,0,1");
-            dialer.connect("0031652363361", 60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-            ferranti = new Ferranti();
-            Properties properties = new Properties();
-            properties.setProperty(MeterProtocol.ADDRESS, "/KAM500000006723");
-            properties.setProperty(MeterProtocol.PASSWORD, "00000000");
-            properties.setProperty("Retries", "5");
-            properties.setProperty("ProfileInterval", "3600");
-            ferranti.setProperties(properties);
-
-
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                    SerialCommunicationChannel.DATABITS_7,
-                    SerialCommunicationChannel.PARITY_EVEN,
-                    SerialCommunicationChannel.STOPBITS_1);
-
-            // initialize
-            ferranti.init(is, os, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
-
-            System.out.println("Start session");
-
-            // connect
-            ferranti.connect();
-
-            if (DEBUG >= 1) {
-                if (ferranti.getDataReadout() != null) {
-                    System.out.println(new String(ferranti.getDataReadout()));
-                }
-            }
-
-            // get/set time
-            System.out.println(ferranti.getTime());
-            ferranti.setTime();
-
-            // get registers
-            System.out.println(ProtocolUtils.obj2String(ferranti.getRegister("97.97.0")));
-
-            // get meterreadings
-            for (int i = 0; i < ferranti.FERRANTI_NR_OF_METERREADINGS; i++) {
-                System.out.println(ferranti.getMeterReading(i).toString());
-            }
-            System.out.println(ferranti.getMeterReading("0:41.0.0").toString());
-
-            // read profile
-            Calendar from = Calendar.getInstance(ferranti.getTimeZone());
-            from.add(Calendar.DAY_OF_MONTH, -1);
-            Calendar to = Calendar.getInstance(ferranti.getTimeZone());
-            to.add(Calendar.MONTH, +6);
-
-            //ferranti.getFerrantiProfile().doLogMeterDataCollection(ferranti.getProfileData(from.getTime(),true));
-
-            ferranti.getFerrantiProfile().doLogMeterDataCollection(ferranti.getProfileData(from, to));
-            // disconnect
-            ferranti.disconnect();
-
-            System.out.println("End session");
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                ferranti.disconnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     // Implementation of interface ProtocolLink

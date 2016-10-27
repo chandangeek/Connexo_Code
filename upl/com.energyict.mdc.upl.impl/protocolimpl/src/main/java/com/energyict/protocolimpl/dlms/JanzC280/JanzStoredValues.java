@@ -1,11 +1,15 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.HistoricalRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

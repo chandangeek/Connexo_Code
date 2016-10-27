@@ -1,10 +1,13 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

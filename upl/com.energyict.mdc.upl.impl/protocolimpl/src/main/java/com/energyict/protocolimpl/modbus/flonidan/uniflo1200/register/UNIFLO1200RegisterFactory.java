@@ -1,16 +1,17 @@
 /**
  * RegisterFactory.java
- * 
+ *
  * Created on 4-dec-2008, 15:00:50 by jme
- * 
+ *
  */
 
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -28,12 +29,12 @@ import java.util.List;
  * @author jme
  */
 public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
-    
+
 	private static final int DEBUG 						= 0;
 	private UNIFLO1200Registers fwRegisters 			= null;
-    
+
 	public static final String REG_TIME 				= "Time";						// meter time and date
-    public static final String REG_DEVICE_TYPE			= "Device type";				// device type string 
+    public static final String REG_DEVICE_TYPE			= "Device type";				// device type string
     public static final String REG_LOGIN				= "Login";						// register to write password to during login
     public static final String REG_ACTUAL_SECLEVEL		= "ActualSecurityLevel";		// the actual security level after logon
     public static final String REG_SERIAL_NUMBER 		= "SerialNumber";				// the serial number of the device
@@ -56,13 +57,13 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 
     public static final String REG_ALARM_LOG_INDEX 		= "Alarm_Log_INDEX";
     public static final String REG_INTERVAL				= "Interval_Time";
-    
+
     /** Creates a new instance of RegisterFactory */
     public UNIFLO1200RegisterFactory(Modbus modBus) {
         super(modBus);
         init();
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		Unit returnUnit = null;
 		String returnText = null;
@@ -73,20 +74,20 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 		Quantity returnQuantity = null;
 		int returnRtuRegisterID = 0;
 		int returnDecimals = 0;
-        	
+
 		try {
 
 			UNIFLO1200HoldingRegister hr = (UNIFLO1200HoldingRegister) findRegister(obisCode);
-        	
+
         	returnUnit = hr.getUnit();
         	returnDecimals = hr.getScale();
 
         	returnRtuRegisterID = hr.getReg();
         	Object result = hr.value();
         	Class rc = result.getClass();
-        	
+
         	if (DEBUG >= 1) System.out.println("Result class type: " + result.getClass().getName());
-            
+
         	if (rc == String.class)	{
         		returnText = (String)result;
         	}
@@ -109,7 +110,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	else {
         		returnText = result.toString();
         	}
-        	
+
         	return new RegisterValue(obisCode, returnQuantity, returnEventTime, returnFromTime, returnToTime, returnReadTime, returnRtuRegisterID, returnText);
         } catch (ModbusException e) {
             getModBus().getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
@@ -121,9 +122,9 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 	protected void init() {
         try {
         	this.fwRegisters  = new UNIFLO1200Registers(UNIFLO1200Registers.UNIFLO1200_FW_28);
-    	
+
         	setZeroBased(false); // this means that reg2read = reg-1
-        
+
         	// unmapped registers, only for internal use
         	add(UNIFLO1200Registers.V28.WR_SET_PASS, null, REG_LOGIN);
         	add(UNIFLO1200Registers.V28.ACTUAL_SECLEVEL, null, REG_ACTUAL_SECLEVEL);
@@ -133,12 +134,12 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	add(UNIFLO1200Registers.V28.INTERVAL_LOG_SIZE, null, REG_INTERVAL_LOG_SIZE);
         	add(UNIFLO1200Registers.V28.INTERVAL_LOG_WIDTH, null, REG_INTERVAL_LOG_WIDTH);
         	add(UNIFLO1200Registers.V28.INTERVAL_LOG_EEPROM, null, REG_INTERVAL_LOG_EEPROM);
-        	
+
         	add(UNIFLO1200Registers.V28.DAILY_LOG_REG, null, REG_DAILY_LOG_REG);
         	add(UNIFLO1200Registers.V28.DAILY_LOG_INDEX, null, REG_DAILY_LOG_INDEX);
         	add(UNIFLO1200Registers.V28.DAILY_LOG_SIZE, null, REG_DAILY_LOG_SIZE);
         	add(UNIFLO1200Registers.V28.DAILY_LOG_WIDTH, null, REG_DAILY_LOG_WIDTH);
-        	
+
         	add(UNIFLO1200Registers.V28.MONTH_LOG_REG, null, REG_MONTH_LOG_REG);
         	add(UNIFLO1200Registers.V28.MONTH_LOG_INDEX, null, REG_MONTH_LOG_INDEX);
         	add(UNIFLO1200Registers.V28.MONTH_LOG_SIZE, null, REG_MONTH_LOG_SIZE);
@@ -146,14 +147,14 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 
         	add(UNIFLO1200Registers.V28.ALARM_LOG_INDEX, null, REG_ALARM_LOG_INDEX);
 
-        	add(UNIFLO1200Registers.V28.LOG_INTERVAL, fwRegisters.getDataLength(UNIFLO1200Registers.V28.LOG_INTERVAL), 
-					"1.1.1.1.1.1", fwRegisters.getUnitString(UNIFLO1200Registers.V28.LOG_INTERVAL),	
+        	add(UNIFLO1200Registers.V28.LOG_INTERVAL, fwRegisters.getDataLength(UNIFLO1200Registers.V28.LOG_INTERVAL),
+					"1.1.1.1.1.1", fwRegisters.getUnitString(UNIFLO1200Registers.V28.LOG_INTERVAL),
 					REG_INTERVAL, UNIFLO1200Parsers.PARSER_INTERVAL);
 
         	// registers mapped to obiscode
         	add(UNIFLO1200Registers.V28.TIME, "7.1.0.1.2.255", REG_TIME);
         	add(UNIFLO1200Registers.V28.FW_VERSION_TYPE, "7.1.0.2.1.255", REG_DEVICE_TYPE);
-        	
+
         	add(UNIFLO1200Registers.V28.SERIAL_NUMBER, "7.1.96.50.1.255", REG_SERIAL_NUMBER);
 
         	add(UNIFLO1200Registers.V28.PRESS_SERIAL, "7.1.0.2.11.255");
@@ -163,40 +164,40 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	add(UNIFLO1200Registers.V28.ZA, "7.1.53.2.0.255");
 			add(UNIFLO1200Registers.V28.ZB, "7.1.53.11.0.255");
 			add(UNIFLO1200Registers.V28.BATTERY_REMAINING, "0.1.96.6.0.255");
-			
+
 			add(UNIFLO1200Registers.V28.TEMPERATURE, "7.1.41.0.0.255");
 			add(UNIFLO1200Registers.V28.FALLBACK_TEMP, "7.1.41.3.0.255");
 
 			add(UNIFLO1200Registers.V28.PRESSURE, "7.1.42.0.0.255");
 			add(UNIFLO1200Registers.V28.FALLBACK_PRESS, "7.1.42.3.0.255");
-        	
+
 			add(UNIFLO1200Registers.V28.CONVERSION_FACTOR, "7.1.52.0.0.255");
 			add(UNIFLO1200Registers.V28.CORRECTION_FACTOR, "7.1.51.0.0.255");
 
 			add(
-				UNIFLO1200Registers.V28.GAS_CALC_FORMULA, 
-				fwRegisters.getDataLength(UNIFLO1200Registers.V28.GAS_CALC_FORMULA), 
-				"7.1.53.12.0.255", 
-				fwRegisters.getUnitString(UNIFLO1200Registers.V28.GAS_CALC_FORMULA),	
-				fwRegisters.getAddressName(UNIFLO1200Registers.V28.GAS_CALC_FORMULA), 
+				UNIFLO1200Registers.V28.GAS_CALC_FORMULA,
+				fwRegisters.getDataLength(UNIFLO1200Registers.V28.GAS_CALC_FORMULA),
+				"7.1.53.12.0.255",
+				fwRegisters.getUnitString(UNIFLO1200Registers.V28.GAS_CALC_FORMULA),
+				fwRegisters.getAddressName(UNIFLO1200Registers.V28.GAS_CALC_FORMULA),
 				UNIFLO1200Parsers.PARSER_GAS_FORM
 			);
-			
+
 			add(UNIFLO1200Registers.V28.FLOW_MEASURED, "7.1.43.0.0.255");
 			add(UNIFLO1200Registers.V28.FLOW_CORRECTED, "7.1.43.1.0.255");
 			add(UNIFLO1200Registers.V28.FLOW_CONVERTED, "7.1.43.2.0.255");
 
 			add(UNIFLO1200Registers.V28.DENSITY, "7.1.45.0.0.255");
-			
+
 			add(UNIFLO1200Registers.V28.VOLUME_MEASURED, "7.1.0.3.0.255");
 			add(UNIFLO1200Registers.V28.VOLUME_CORRECTED, "7.1.96.50.0.255");
 			add(UNIFLO1200Registers.V28.VOLUME_CONVERTED, "7.1.0.3.3.255");
-			
+
 			add(UNIFLO1200Registers.V28.TEMP_LOW_LIMIT, "7.1.0.5.11.255");
 			add(UNIFLO1200Registers.V28.TEMP_HIGH_LIMIT, "7.1.0.5.12.255");
 			add(UNIFLO1200Registers.V28.PRESS_LOW_LIMIT, "7.1.0.5.13.255");
 			add(UNIFLO1200Registers.V28.PRESS_HIGH_LIMIT, "7.1.0.5.14.255");
-			
+
 			add(UNIFLO1200Registers.V28.METHANE, "7.1.98.1.0.255");
 			add(UNIFLO1200Registers.V28.NITROGEN, "7.1.98.1.1.255");
 			add(UNIFLO1200Registers.V28.CO2, "7.1.98.1.2.255");
@@ -218,25 +219,25 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 			add(UNIFLO1200Registers.V28.N_DECANE, "7.1.98.1.18.255");
 			add(UNIFLO1200Registers.V28.HELIUM, "7.1.98.1.19.255");
 			add(UNIFLO1200Registers.V28.ARGON, "7.1.98.1.20.255");
-			
+
 
 			// The following registers were removed from the obismapping because they contain garbage in the meter.
 			// They are used as temporary registers for the average calculations
-			
+
 //			add(UNIFLO1200Registers.V28.INT_LOG_POWER_AVG, "7.0.0.8.3.1");
 //			add(UNIFLO1200Registers.V28.INT_LOG_TEMP_AVG, "7.0.0.8.3.2");
 //			add(UNIFLO1200Registers.V28.INT_LOG_PRESS_AVG, "7.0.0.8.3.3");
 //			add(UNIFLO1200Registers.V28.INT_LOG_CORR_FLOW_AVG, "7.0.0.8.3.4");
 //			add(UNIFLO1200Registers.V28.INT_LOG_CONV_FLOW_AVG, "7.0.0.8.3.5");
-//			
+//
 //			add(UNIFLO1200Registers.V28.DAILY_LOG_POWER_AVG, "7.0.0.8.4.1");
 //			add(UNIFLO1200Registers.V28.DAILY_LOG_TEMP_AVG, "7.0.0.8.4.2");
 //			add(UNIFLO1200Registers.V28.DAILY_LOG_PRESS_AVG, "7.0.0.8.4.3");
 //			add(UNIFLO1200Registers.V28.DAILY_LOG_CORR_FLOW_AVG, "7.0.0.8.4.4");
 //			add(UNIFLO1200Registers.V28.DAILY_LOG_CONV_FLOW_AVG, "7.0.0.8.4.5");
 
-			
-			
+
+
 			if (DEBUG >= 1) {
 				for (int i = 0; i < 255; i++) {
 					if (i != 244) add(i, new ObisCode(7, 128, 0, 0, 0, i).toString());
@@ -244,7 +245,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 			}
 
 //			add(UNIFLO1200Registers.V28.TURN_OFF_DIAPLAY_AFTER, "0.0.0.0.0.2", "", REG_TURN_OFF_DISP_AFTER);
-			
+
 //			add(UNIFLO1200Registers.V28.ENERGY, "0.0.0.0.0.3", REG_ENERGY);
 //			add(UNIFLO1200Registers.V28.VOLUME_MEASURED, "0.0.0.0.0.4", REG_VOLUME_MEASURED);
 //			add(UNIFLO1200Registers.V28.VOLUME_CONVERTED, "0.0.0.0.0.5", REG_VOLUME_CONVERTED);
@@ -260,21 +261,21 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 			reg.fixParser();
 		}
     }
-    
+
 
 	private void add(int registerIndex, String obisString) throws IOException {
 		this.add(
-				registerIndex, 
-				obisString, 
-				fwRegisters.getAddressName(registerIndex)		
+				registerIndex,
+				obisString,
+				fwRegisters.getAddressName(registerIndex)
 		);
 	}
-	
+
     private void add(int registerIndex, String obisString, String registerName) throws IOException {
-    	this.add(	
-    			registerIndex, 
-    			fwRegisters.getDataLength(registerIndex), 
-    			obisString, fwRegisters.getUnitString(registerIndex), registerName, 
+    	this.add(
+    			registerIndex,
+    			fwRegisters.getDataLength(registerIndex),
+    			obisString, fwRegisters.getUnitString(registerIndex), registerName,
     			fwRegisters.getParser(registerIndex)
     	);
     }
@@ -291,17 +292,17 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	ObisCode obis = ObisCode.fromString(obisString);
         	hr = new UNIFLO1200HoldingRegister(registerAddress, numberOfWords, obis, unit, registerName, slaveID, getModBus().getModbusConnection());
     	}
-    	
+
     	hr.setScale(fwRegisters.getDecimals(registerIndex));
     	hr.setParser(parserString);
     	hr.setOddAddress(fwRegisters.isOddAddr(registerIndex));
     	getRegisters().add(hr);
     }
-    
+
     private ObisCode toObis(String obis) {
         return ObisCode.fromString( obis );
     }
-    
+
     public List getRegisters() {
         return super.getRegisters();
     }
@@ -309,14 +310,14 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
     public UNIFLO1200Registers getFwRegisters() {
 		return fwRegisters;
 	}
-    
+
     //------------------------------------------------------------------------------------------------------------
     // Parser classes
     //------------------------------------------------------------------------------------------------------------
-    
+
     protected void initParsers() {
     	UNIFLO1200Parsers up = new UNIFLO1200Parsers(getModBus().gettimeZone());
-    	
+
     	getParserFactory().addBigDecimalParser(up.new BigDecimalParser());
         getParserFactory().addDateParser(up.new TimeParser());
 
@@ -326,11 +327,11 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_UINT160, up.new UINT160Parser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_UINT320, up.new UINT320Parser());
-        
+
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_GAS_FORM, up.new GasFormulaParser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_INTERVAL, up.new IntervalParser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_STRING, up.new StringParser());
-        
+
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_STR1, up.new STR1Parser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_STR22, up.new STR22Parser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_STR29, up.new STR29Parser());
@@ -341,7 +342,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_UINT8_SWP, up.new UINT8SwappedParser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_STR1_SWP, up.new STR1SwappedParser());
 
-    } 
+    }
 
-} 
+}
 

@@ -6,13 +6,13 @@
 
 package com.energyict.protocolimpl.iec870;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import java.io.IOException;
 import java.util.TimeZone;
 
-import com.energyict.protocol.UnsupportedException;
-
 /**
- * 
+ *
  * @author Koen
  */
 public interface IEC870ProtocolLink {

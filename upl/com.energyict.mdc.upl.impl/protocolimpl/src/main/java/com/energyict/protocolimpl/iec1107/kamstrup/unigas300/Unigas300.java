@@ -6,9 +6,17 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -16,7 +24,12 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -178,19 +191,19 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             checkMissingProperties(properties);
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
-            this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+            this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("Unigas300, validateProperties, NumberFormatException, " + e.getMessage());
         }

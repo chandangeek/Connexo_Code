@@ -1,5 +1,7 @@
 package test.com.energyict.smartmeterprotocolimpl.sdksample;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -162,7 +164,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * @return the version of the meter firmware
      *         </p>
      * @throws java.io.IOException Thrown in case of an exception
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown if method is not supported
      */
     public String getFirmwareVersion() throws IOException {

@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -18,16 +19,16 @@ import java.util.TreeMap;
 /** @author fbo */
 
 public class ABBA230RegisterFactory {
-    
+
     static public final int MAX_CMD_REGS=2;
     static public final int MAX_MD_REGS=2;
-    
+
     private Map registers = new TreeMap();
     private ProtocolLink protocolLink;
     private MeterExceptionInfo meterExceptionInfo;
     private ABBA230DataIdentityFactory dataIdentityFactory;
     private DataType dataType;
-    
+
     private ABBA230Register cTPrimary;
     private ABBA230Register cTPrimaryAndSecundary;
     private ABBA230Register cTSecundary;
@@ -101,7 +102,7 @@ public class ABBA230RegisterFactory {
 
     private ABBA230Register resetRegister;
     private ABBA230Register endOfBillingPeriod;
-    
+
     private ABBA230Register overVoltageEventLog;
     private ABBA230Register underVoltageEventLog;
     private ABBA230Register programmingEventLog;
@@ -113,7 +114,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register powerFailEventLog;
     private ABBA230Register transientEventLog;
     private ABBA230Register endOfBillingEventLog;
-    
+
     private ABBA230Register contactorOpenOpticalLog;
     private ABBA230Register contactorOpenModuleLog;
     private ABBA230Register contactorOpenLoadMonitorLowEventLog;
@@ -126,17 +127,17 @@ public class ABBA230RegisterFactory {
     private ABBA230Register contactorCloseOpticalEventLog;
     private ABBA230Register contactorCloseModuleEventLog;
     private ABBA230Register contactorCloseButtonEventLog;
-    
-    
+
+
     private ABBA230Register meterErrorEventLog;
     private ABBA230Register batteryVoltageLowEventLog;
     private ABBA230Register dspFWVersion;
     private ABBA230Register applFWVersion;
-    
+
     private static final String cummulativeMainId = "507";
     private static final String timeOfUseId = "508";
     private static final String cummulativeMaxDemandId = "509";
-    
+
     private static Unit instrumentationChannelUnitMapping[] = {Unit.get(BaseUnit.AMPERE, -1),
             Unit.get(BaseUnit.VOLT, -1),
             Unit.get(BaseUnit.UNITLESS, 0),
@@ -171,7 +172,7 @@ public class ABBA230RegisterFactory {
 
     SystemStatus systemStatus=null;
     ABBA230 abba230;
-    
+
     /**
      * Creates a new instance of ABBA230RegisterFactory
      * @param abba230
@@ -179,32 +180,32 @@ public class ABBA230RegisterFactory {
      */
     public ABBA230RegisterFactory(
     		ABBA230 abba230, MeterExceptionInfo meterExceptionInfo ) {
-        
+
         this.protocolLink = (ProtocolLink)abba230;
         this.meterExceptionInfo = meterExceptionInfo;
         this.dataType = new DataType(protocolLink.getTimeZone());
         this.dataIdentityFactory = new ABBA230DataIdentityFactory(protocolLink,meterExceptionInfo);
         initRegisters();
         this.abba230=abba230;
-        
+
     }
-    
+
     protected ABBA230DataIdentityFactory getABBA230DataIdentityFactory() {
         return dataIdentityFactory;
     }
-    
+
     protected ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
     protected Map getRegisters() {
         return registers;
     }
-    
+
     DataType getDataType(){
         return dataType;
     }
-    
+
     public ABBA230Register getCTPrimary() {
         return cTPrimary;
     }
@@ -414,20 +415,20 @@ public class ABBA230RegisterFactory {
     public ABBA230Register getTimeOfUse7() {
         return timeOfUse7;
     }
-    
+
     // length = -1, not used
     private void initRegisters() {
-        
+
         Unit mWh = Unit.get(BaseUnit.WATTHOUR,-3);
         Unit mvarh = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3);
         Unit mvah = Unit.get(BaseUnit.VOLTAMPEREHOUR, -3);
-        
+
         serialNumber = cr("798", "SerialNumber", ABBA230RegisterData.ABBA_STRING,0, -1,null );
         schemeID = cr("795", "SchemeID", ABBA230RegisterData.ABBA_STRING,0,8, null );
         timeDate = cr("861", "TimeDate", ABBA230RegisterData.ABBA_DATE,0,-1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        
+
         cummulativeRegisters = cr("507", "CummulativeRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
-        
+
         cummMainImport = cr(cummulativeMainId, "CummMainImport", ABBA230RegisterData.ABBA_REGISTER,0,8,mWh);
         cummMainExport = cr(cummulativeMainId, "CummMainExport", ABBA230RegisterData.ABBA_REGISTER,8,8,mWh);
         cummMainQ1 = cr(cummulativeMainId, "CummMainQ1", ABBA230RegisterData.ABBA_REGISTER,16,8,mvarh);
@@ -439,7 +440,7 @@ public class ABBA230RegisterFactory {
         // reserved for future use
         cummMainvarhImport = cr(cummulativeMainId, "CummMainvarhImport", ABBA230RegisterData.ABBA_REGISTER,112,8,mvarh);
         cummMainvarhExport = cr(cummulativeMainId, "CummMainvarhExport", ABBA230RegisterData.ABBA_REGISTER,120,8,mvarh);
-        
+
         timeOfUse0 = cr(timeOfUseId, "TimeOfUse0", ABBA230RegisterData.ABBA_REGISTER,0,8,null);
         timeOfUse1 = cr(timeOfUseId, "TimeOfUse1", ABBA230RegisterData.ABBA_REGISTER,8,8,null);
         timeOfUse2 = cr(timeOfUseId, "TimeOfUse2", ABBA230RegisterData.ABBA_REGISTER,16,8,null);
@@ -456,21 +457,21 @@ public class ABBA230RegisterFactory {
         timeOfUse13 = cr(timeOfUseId, "TimeOfUse13", ABBA230RegisterData.ABBA_REGISTER,104,8,null);
         timeOfUse14 = cr(timeOfUseId, "TimeOfUse14", ABBA230RegisterData.ABBA_REGISTER,112,8,null);
         timeOfUse15 = cr(timeOfUseId, "TimeOfUse15", ABBA230RegisterData.ABBA_REGISTER,120,8,null);
-        
+
         cummulativeMaximumDemand = cr(cummulativeMaxDemandId, "CummulativeMaximumDemand", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
         cumulativeMaximumDemand0 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand0", ABBA230RegisterData.ABBA_CMD,0,9,null);
         cumulativeMaximumDemand1 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand1", ABBA230RegisterData.ABBA_CMD,9,9,null);
         cumulativeMaximumDemand2 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand2", ABBA230RegisterData.ABBA_CMD,18,9,null);
         cumulativeMaximumDemand3 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand3", ABBA230RegisterData.ABBA_CMD,27,9,null);
-        
+
         maximumDemandRegisters = cr("510", "MaximumDemandRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,24, null );
         maximumDemand0 = cr( "510", "MaximumDemand0", ABBA230RegisterData.ABBA_MD,0,12,null);
         maximumDemand1 = cr( "510", "MaximumDemand1", ABBA230RegisterData.ABBA_MD,12,12,null);
-        
+
         historicalRegister = cr("543", "HistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,302, null);
-        
+
         dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,302, null);
-        
+
 
         // event logs
         overVoltageEventLog = cr("678", "OverVoltageEventLog", ABBA230RegisterData.ABBA_OVERVOLTAGEEVENTLOG,0,83, null);
@@ -507,31 +508,31 @@ public class ABBA230RegisterFactory {
         loadProfileSet = cr("551", "LoadProfileSet", ABBA230RegisterData.ABBA_HEX_LE,0,2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         loadProfile64Blocks = cr("551", "LoadProfile64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
         loadProfile256Blocks = cr("551", "LoadProfile256Blocks", ABBA230RegisterData.ABBA_HEX,2,2, null);
-        
+
         loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA230RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         loadProfileByDate64Blocks = cr("554", "LoadProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
-        
+
         loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA230RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
         loadProfileIntegrationPeriod = cr("878", "LoadProfileIntegrationPeriod", ABBA230RegisterData.ABBA_LOAD_PROFILE_INTEGRATION_PERIOD,0,1, null);
         loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
         /* ------ */
 
         systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,21, null);
-        
+
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA230RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
-        
+
         tariffSources = cr("667", "TariffSources", ABBA230RegisterData.ABBA_TARIFFSOURCES,0,16, null );
-        
+
         cTPrimaryAndSecundary = cr("616", "CTPrimaryAndSecundary", ABBA230RegisterData.ABBA_STRING,0,-1, null);
         cTPrimary = cr("616", "CTPrimary", ABBA230RegisterData.ABBA_BIGDECIMAL,0,4, Unit.get(BaseUnit.UNITLESS,-2));
         cTSecundary = cr("616", "CTSecundary", ABBA230RegisterData.ABBA_BIGDECIMAL,4,2, Unit.get(BaseUnit.UNITLESS,-2));
-        
+
         contactorStatus = cr("411", "ContactorStatus", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
 
         resetRegister = cr("099", "ResetRegister", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        
+
         /* Instrumentation Profile */
         instrumentationProfile = cr("555", "InstrumentationProfile", ABBA230RegisterData.ABBA_BYTEARRAY, 0, -1, null);
          /* The 2 ways to specify how much Instrumentation profile data to retrieve:
@@ -549,11 +550,11 @@ public class ABBA230RegisterFactory {
         instrumentationProfileDSTConfig = cr("776", "InstrumentationProfileDSTConfig", ABBA230RegisterData.ABBA_HEX, 0, 1, null);
         /* ------ */
     }
-    
+
     /** factory method for ABBARegisters */
     private ABBA230Register cr(
             String id, String name, int type, int offset, int length, Unit unit ){
-        
+
         ABBA230Register register =
                 new ABBA230Register( id, name, type, offset, length, unit,
                 ABBA230Register.NOT_WRITEABLE, ABBA230Register.CACHED, this );
@@ -561,20 +562,20 @@ public class ABBA230RegisterFactory {
         registers.put( name, register );
         return register;
     }
-    
+
     /** factory method for ABBARegisters */
     private ABBA230Register cr(
             String id, String name, int type, int offset, int length, Unit unit,
             boolean writeable, boolean cached ){
-        
+
         ABBA230Register register =
-                new ABBA230Register( id, name, type, offset, length, unit, 
+                new ABBA230Register( id, name, type, offset, length, unit,
                 writeable, cached, this );
-        
+
         registers.put( name, register );
         return register;
     }
-    
+
     public void setRegister(String name,String value) throws IOException {
         try {
             ABBA230Register register = findRegister(name);
@@ -583,12 +584,12 @@ public class ABBA230RegisterFactory {
 			} else {
 				throw new IOException("Elster A230, setRegister, register not writeable");
 			}
-            
+
         } catch(FlagIEC1107ConnectionException e) {
             throw new ProtocolConnectionException("Elster A230, setRegister error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public void setRegister(String name,Object object) throws IOException {
         try {
             ABBA230Register register = findRegister(name);
@@ -597,24 +598,24 @@ public class ABBA230RegisterFactory {
 			} else {
 				throw new IOException("Elster A230, setRegister, register not writeable");
 			}
-            
+
         } catch(FlagIEC1107ConnectionException e) {
             throw new ProtocolConnectionException("Elster A230, setRegister error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public ABBA230Register getABBA230Register(String name) throws IOException {
         return findRegister(name);
     }
-    
+
     public Object getRegister(ABBA230Register register) throws IOException {
         return getRegister(register.getName(), -1);
     }
-    
+
     public Object getRegister(String name) throws IOException {
         return getRegister(name,-1);
     }
-    
+
     /*  Read a register in the meter, from the current set or a billing set...
      *  @return object the register read
      *  @param billingPoint -1 = current, 0 = last billing point, 1 = 2-throws last billing point, ...
@@ -629,12 +630,12 @@ public class ABBA230RegisterFactory {
             }
             // billing point register set
             else if ((billingPoint>=0) && (billingPoint<=11)) {
-                
+
                 if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                     // retrieve the billing set data
                     ABBA230Register register = findRegister("HistoricalRegister");
                     HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint));
-                    
+
                     // find register within the data
                     register2Retrieve = findRegister(name);
                     Object obj = register2Retrieve.parse(historicalValues.getData(register2Retrieve.getDataID()));
@@ -648,14 +649,14 @@ public class ABBA230RegisterFactory {
                     register2Retrieve = findRegister(name);
                     return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint));
                 }
-            } 
+            }
             else if ((billingPoint>=12) && (billingPoint<=25)) {
-                
+
                 if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                     // retrieve the billing set data
                     ABBA230Register register = findRegister("DailyHistoricalRegister");
                     HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint-12));
-                    
+
                     // find register within the data
                     register2Retrieve = findRegister(name);
                     Object obj = register2Retrieve.parse(historicalValues.getData(register2Retrieve.getDataID()));
@@ -672,17 +673,17 @@ public class ABBA230RegisterFactory {
             } else {
 				throw new ProtocolException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
 			}
-            
+
         } catch(FlagIEC1107ConnectionException e) {
             throw new ProtocolConnectionException("Elster A230, getRegister error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
-    
+
     public byte[] getRegisterRawData(String name,int dataLength) throws IOException {
         try {
             ABBA230Register register = findRegister(name);
@@ -691,7 +692,7 @@ public class ABBA230RegisterFactory {
             throw new ProtocolConnectionException("Elster A230, getRegisterRawData error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public byte[] getRegisterRawDataStream(String name, int nrOfBlocks) throws IOException {
         try {
             ABBA230Register register = findRegister(name);
@@ -700,7 +701,7 @@ public class ABBA230RegisterFactory {
             throw new ProtocolConnectionException("Elster A230, getRegisterRawDataStream error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     // search the map for the register info
     private ABBA230Register findRegister(String name) throws ProtocolException {
         ABBA230Register register = (ABBA230Register)registers.get(name);
@@ -710,11 +711,11 @@ public class ABBA230RegisterFactory {
 			return register;
 		}
     }
-    
+
     public MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
-    
+
     public String toString( ){
         StringBuffer sb = new StringBuffer();
         sb.append( "RegisterFactory \n" );
@@ -893,5 +894,5 @@ public class ABBA230RegisterFactory {
     	}
     	return systemStatus;
     }
-    
+
 }

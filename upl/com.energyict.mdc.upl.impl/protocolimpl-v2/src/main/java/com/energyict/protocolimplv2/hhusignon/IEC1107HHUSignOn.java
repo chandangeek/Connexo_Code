@@ -15,6 +15,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -97,7 +98,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
 
                 MeterType meterType;
                 try {
-                    meterType = new MeterType(receivedIdentificationString);
+                    meterType = new MeterTypeImpl(receivedIdentificationString);
                 } catch (IOException e) {
                     throw CommunicationException.protocolConnectFailed(e);
                 }

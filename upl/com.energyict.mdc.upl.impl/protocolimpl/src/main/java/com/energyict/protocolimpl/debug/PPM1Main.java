@@ -3,14 +3,19 @@
  */
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,18 +70,18 @@ public class PPM1Main {
 	private static Properties getProperties() {
 		Properties properties = new Properties();
 
-		properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-		properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-		properties.setProperty(MeterProtocol.CORRECTTIME, "0");
+		properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+		properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+		properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
 
 		properties.setProperty("Retries", "3");
 		properties.setProperty("Timeout", "5000");
 
 		properties.setProperty("OPUS", "0");
 
-		properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-		properties.setProperty(MeterProtocol.PASSWORD, "--------");
-		properties.setProperty(MeterProtocol.SERIALNUMBER, "--------K9302433");
+		properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+		properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "--------");
+		properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "--------K9302433");
 
 		return properties;
 	}

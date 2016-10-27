@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
 
 import java.io.IOException;
 
@@ -20,16 +20,16 @@ import java.io.IOException;
  * @author Koen
  */
 public class TOUStatusCommand extends AbstractCommand {
-    
+
     private int status1;
     private int status2;
     private int status3;
-    
+
     /** Creates a new instance of TemplateCommand */
     public TOUStatusCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,11 +39,11 @@ public class TOUStatusCommand extends AbstractCommand {
         strBuff.append("   status3="+getStatus3()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws ProtocolException {
         return new byte[]{(byte)0x81,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setStatus1((int)data[0]&0xFF);

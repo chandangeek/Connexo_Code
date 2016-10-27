@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.BeaconEventPushNotificationConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.BeaconPushEventNotificationAttributesMapping;
 import com.energyict.protocolimpl.utils.ProtocolTools;

@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.math.BigDecimal;
@@ -27,29 +28,29 @@ import java.util.List;
  * @author kvds
  */
 abstract public class AbstractRegisterFactory {
-    
+
     abstract protected int getTimeIndex();
-    
+
     private MBus mBus;
     private List registerValues;
     List dataRecords;
-    
+
     /** Creates a new instance of AbstractRegisterFactory */
     public AbstractRegisterFactory(MBus mBus) {
         this.setMBus(mBus);
-        
+
     }
-    
+
     public RegisterValue findRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
         Iterator it = getRegisterValues().iterator();
         while(it.hasNext()) {
             RegisterValue registerValue = (RegisterValue)it.next();
             if (registerValue.getObisCode().equals(obisCode))
                 return registerValue;
-        }        
+        }
         throw new NoSuchRegisterException("Register "+obisCode+" is not supported!");
     }
-    
+
     public void init(CIField72h cIField72h) { //List dataRecords) {
         this.dataRecords=cIField72h.getDataRecords();
         setRegisterValues(new ArrayList());
@@ -67,7 +68,7 @@ abstract public class AbstractRegisterFactory {
                         strBuff.append(", "+((ValueInformationfieldCoding) block.getValueInformationfieldCodings().get(i)).getDescription());
                     }
                 }
-            
+
                 if (dataRecord.getDataRecordHeader().getDataInformationBlock().getStorageNumber() != 0)
                     strBuff.append(", historical value "+dataRecord.getDataRecordHeader().getDataInformationBlock().getStorageNumber());
                 if (dataRecord.getDataRecordHeader().getDataInformationBlock().getTariffNumber() != 0)
@@ -80,9 +81,9 @@ abstract public class AbstractRegisterFactory {
                 code++;
             }
         }
-        
+
         addHeaderRegisterValues(cIField72h);
-    }    
+    }
 
     private void addHeaderRegisterValues(CIField72h cIField72h) {
         RegisterValue registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.248"),null,null,null,null,new Date(),-1,"MBUS header meter ID "+cIField72h.getMeter3LetterId()+" ("+Integer.toHexString(cIField72h.getManufacturerIdentification())+")");
@@ -96,7 +97,7 @@ abstract public class AbstractRegisterFactory {
         getRegisterValues().add(registerValue);
         //registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.251"),null,null,null,null,new Date(),-1,"MBUS header devicetype "+cIField72h.getDeviceType().toString()+" ("+Integer.toHexString(cIField72h.getDeviceType().getId())+")");
         //getRegisterValues().add(registerValue);
-        
+
         registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.252"),new Quantity(new BigDecimal(cIField72h.getAccessNumber()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header access number");
         getRegisterValues().add(registerValue);
         registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.253"),new Quantity(new BigDecimal(cIField72h.getIdentificationNumber()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header identification number");
@@ -106,12 +107,12 @@ abstract public class AbstractRegisterFactory {
         registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.255"),new Quantity(new BigDecimal(cIField72h.getSignatureField()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header signature field");
         getRegisterValues().add(registerValue);
     }
-    
-    
+
+
     private DataRecord getDataRecord(int index) {
-       return (DataRecord)dataRecords.get(index);   
+       return (DataRecord)dataRecords.get(index);
     }
-    
+
     public MBus getMBus() {
         return mBus;
     }
@@ -127,10 +128,10 @@ abstract public class AbstractRegisterFactory {
     private void setRegisterValues(List registerValues) {
         this.registerValues = registerValues;
     }
-    
+
     public Date getTime() {
         return getDataRecord(getTimeIndex()).getDate();
-        
+
     }
-    
+
 }

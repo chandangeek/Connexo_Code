@@ -6,6 +6,8 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
@@ -14,7 +16,6 @@ import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.methods.USBSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
@@ -698,10 +699,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public final MasterboardSetup getMasterboardSetup() throws NotInObjectListException {
         return new MasterboardSetup(this.protocolLink, this.getObjectReference(MasterboardSetup.getDefaultObisCode()));
     }
-    
+
     /**
      * Returns the Beacon 3100 ConcentratorSetupIC object.
-     * 
+     *
      * @return	The {@link ConcentratorSetup} object.
      */
     public final ConcentratorSetup getConcentratorSetup() {

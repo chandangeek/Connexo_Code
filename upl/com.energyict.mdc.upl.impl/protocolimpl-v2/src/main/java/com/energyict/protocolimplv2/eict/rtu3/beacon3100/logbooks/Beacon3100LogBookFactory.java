@@ -1,13 +1,19 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.upl.ProtocolException;
+
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.NotInObjectListException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 

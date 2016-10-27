@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -24,11 +25,11 @@ import java.util.Date;
  * @author Koen
  */
 public class SelfReadDataRXCommand extends AbstractCommand {
-    
+
     private int selfReadIndex;
     private Date selfReadTimestamp;
     private long batteryCarryOvertime; // from 13h read command
-    private int touStatus; // TOU status (byte 1 of 81h) 
+    private int touStatus; // TOU status (byte 1 of 81h)
     private PreviousIntervalDemandCommand previousIntervalDemandCommand; // 14h
     private PreviousSeasonTOUDataRXCommand previousSeasonTOUDataRXCommand; // ABh
     private RateBinsAndTotalEnergyRXCommand RateBinsAndTotalEnergyRXCommand; // A0h
@@ -38,13 +39,13 @@ public class SelfReadDataRXCommand extends AbstractCommand {
     private CurrentSeasonTOUDemandDataRXCommand currentSeasonTOUDemandDataRXCommand; // ACh
     private PreviousSeasonDemandDataCommand previousSeasonDemandDataCommand; // 4Ch
     private ThirdMetricValuesCommand thirdMetricValuesCommand; // 99h
-    
-    
+
+
     /** Creates a new instance of TemplateCommand */
     public SelfReadDataRXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -64,8 +65,8 @@ public class SelfReadDataRXCommand extends AbstractCommand {
         strBuff.append("   touStatus="+getTouStatus()+"\n");
         return strBuff.toString();
     }
-    
-    
+
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isRX()) {
             if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
@@ -77,7 +78,7 @@ public class SelfReadDataRXCommand extends AbstractCommand {
         else
             throw new ProtocolException("SelfReadDataRXCommand, only for RX meters!");
     }
-    
+
     private void parseTimestamp(byte[] data, int offset) throws ProtocolException {
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
         cal.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[offset]));
@@ -89,57 +90,57 @@ public class SelfReadDataRXCommand extends AbstractCommand {
         cal.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[offset+6])-1);
         setSelfReadTimestamp(cal.getTime());
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         byte[] temp;
         parseTimestamp(data,offset); offset+=7;
         setBatteryCarryOvertime(ParseUtils.getBCD2LongLE(data,offset, 4)); offset+=4;
         setTouStatus((int)data[offset++]&0xFF);
-        
+
         setPreviousIntervalDemandCommand(new PreviousIntervalDemandCommand(getCommandFactory()));
         getPreviousIntervalDemandCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=8;
-        
+
         setPreviousSeasonTOUDataRXCommand(new PreviousSeasonTOUDataRXCommand(getCommandFactory()));
         temp=ProtocolUtils.getSubArray2(data, offset, 300); offset+=300;
         if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
             temp=ProtocolUtils.concatByteArrays(temp, ProtocolUtils.getSubArray2(data, 770, 116));
         getPreviousSeasonTOUDataRXCommand().parse(temp);
-                
+
         setRateBinsAndTotalEnergyRXCommand(new RateBinsAndTotalEnergyRXCommand(getCommandFactory())); // A0h
         getRateBinsAndTotalEnergyRXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=72;
-        
+
         setNegativeEnergyCommand(new NegativeEnergyCommand(getCommandFactory())); // 53h
         temp=ProtocolUtils.getSubArray2(data, offset, 6); offset+=6;
         if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
             temp=ProtocolUtils.concatByteArrays(temp, ProtocolUtils.getSubArray2(data, 926, 6));
         getNegativeEnergyCommand().parse(temp);
-        
+
         setHighestMaximumDemandsCommand(new HighestMaximumDemandsCommand(getCommandFactory())); // 74h
         temp=ProtocolUtils.getSubArray2(data, offset, 70); offset+=70;
         if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
             temp=ProtocolUtils.concatByteArrays(temp, ProtocolUtils.getSubArray2(data, 886, 40));
         getHighestMaximumDemandsCommand().parse(temp);
-        
+
         setCurrentSeasonCumDemandAndLastResetRXCommand(new CurrentSeasonCumDemandAndLastResetRXCommand(getCommandFactory())); // AAh
         getCurrentSeasonCumDemandAndLastResetRXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=120;
-        
+
         setCurrentSeasonTOUDemandDataRXCommand(new CurrentSeasonTOUDemandDataRXCommand(getCommandFactory())); // ACh
         getCurrentSeasonTOUDemandDataRXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=100;
-        
+
         setPreviousSeasonDemandDataCommand(new PreviousSeasonDemandDataCommand(getCommandFactory())); // 4Ch
         temp=ProtocolUtils.getSubArray2(data, offset, 46); offset+=46;
         if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
             temp=ProtocolUtils.concatByteArrays(temp, ProtocolUtils.getSubArray2(data, 734, 18));
         getPreviousSeasonDemandDataCommand().parse(temp);
-        
+
         if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00) {
             temp=ProtocolUtils.concatByteArrays(temp, ProtocolUtils.getSubArray2(data, 752, 18));
             setThirdMetricValuesCommand(new ThirdMetricValuesCommand(getCommandFactory())); // 99h
             getThirdMetricValuesCommand().parse(temp);
         }
-        
-        
+
+
     }
 
     public int getSelfReadIndex() {

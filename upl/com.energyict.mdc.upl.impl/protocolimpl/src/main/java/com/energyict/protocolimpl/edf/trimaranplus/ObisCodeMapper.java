@@ -10,10 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus;
 
-import java.io.IOException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
@@ -25,27 +24,29 @@ import com.energyict.protocolimpl.edf.trimaranplus.core.ParametresP;
 import com.energyict.protocolimpl.edf.trimaranplus.core.Pmax;
 import com.energyict.protocolimpl.edf.trimaranplus.core.TempsFonctionnement;
 
+import java.io.IOException;
+
 /**
  *
  * @author Koen
  */
 public class ObisCodeMapper {
-    
+
     TrimaranPlus trimaranPlus;
-    
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(TrimaranPlus trimaranPlus) {
         this.trimaranPlus=trimaranPlus;
     }
-    
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo(RegisterNameFactory.findObisCode(obisCode));
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 
-        Register register = trimaranPlus.getRegisterFactory().findRegister(obisCode);  
-        
+        Register register = trimaranPlus.getRegisterFactory().findRegister(obisCode);
+
         // cumul register, no from time and to time only for previous month
         if (register.getVariableName().isENERGIE()) {
             Energie energie = trimaranPlus.getTrimaranObjectFactory().readEnergieIndex().getEnergie(register.getVariableName().getCode());
@@ -56,7 +57,7 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode,energie.getIndexEnergie()[register.getIndex()],null,energie.getDateFinPeriode().getCalendar().getTime());
             }
         }
-        
+
         // minuten dat tarief actief is
         if (register.getVariableName().isTEMPS_FONCTIONNEMENT()) {
             TempsFonctionnement tempsFonctionnement = trimaranPlus.getTrimaranObjectFactory().readTempsFonctionnementValues().getTempsFonctionnement(register.getVariableName().getCode());
@@ -67,9 +68,9 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode,tempsFonctionnement.getValueTempsFonctionnement()[register.getIndex()],null,tempsFonctionnement.getDateDebutPeriode().getCalendar().getTime(),tempsFonctionnement.getDateFinPeriode().getCalendar().getTime());
             }
         }
-        
+
         // depassement quadratique et energie de depassement
-        if (register.getVariableName().isDEPASSEMENT_QUADRATIUQUE()) { 
+        if (register.getVariableName().isDEPASSEMENT_QUADRATIUQUE()) {
             if (register.getVariableName().getCode()<1000) {
                 DepassementQuadratique depassementQuadratique = trimaranPlus.getTrimaranObjectFactory().readDepassementQuadratiqueValues().getDepassementQuadratique(register.getVariableName().getCode());
                 if (register.getObisCode().getF() == 255) {
@@ -89,7 +90,7 @@ public class ObisCodeMapper {
                 }
             }
         }
-        
+
         // minuten dat tarief actief is
         if (register.getVariableName().isDUREE_DEPASSEMENT()) {
             DureeDepassement dureeDepassement = trimaranPlus.getTrimaranObjectFactory().readDureeDepassementValues().getDureeDepassement(register.getVariableName().getCode());
@@ -111,7 +112,7 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode,pmax.getValuePmax()[register.getIndex()],null,pmax.getDateDebutPeriode().getCalendar().getTime(),pmax.getDateFinPeriode().getCalendar().getTime());
             }
         }
-        
+
         if (register.getVariableName().isABSTRACT()) {
             if (register.getVariableName().getCode() == 48) {
                 ParametresP param = trimaranPlus.getTrimaranObjectFactory().readParametresP();
@@ -130,13 +131,13 @@ public class ObisCodeMapper {
                 else {
                     return new RegisterValue(obisCode,param.getPS()[register.getIndex()],null,param.getDateDebutPeriode().getCalendar().getTime(),param.getDateFinPeriode().getCalendar().getTime());
                 }
-                
+
             }
         }
-        
-        
+
+
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
-    } // private Object getRegisterValue(ObisCode obisCode, boolean read)    
-    
+
+    } // private Object getRegisterValue(ObisCode obisCode, boolean read)
+
 }

@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -20,26 +21,26 @@ import java.io.IOException;
  * @author Koen
  */
 public class AuthenticationRespAPSE extends AbstractAPSEPDU {
-        
-    
+
+
     /** Creates a new instance of AuthenticationRespAPSE */
     public AuthenticationRespAPSE(APSEPDUFactory aPSEFactory) {
         super(aPSEFactory);
     }
-        
+
     final int AUTHENTICATION_RESP_APSE = 5;
-    
+
     byte[] preparebuild() throws IOException {
         return null;
     }
-    
+
     void parse(byte[] data) throws ProtocolException {
         int offset=0;
         int tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag != AUTHENTICATION_RESP_APSE){
             throw new ProtocolException("AuthenticationRespAPSE, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
         }
-        
+
         offset+=2; // skip the fuzzy ASN.1 - like notation of the length of the bit string
         if (!getAPSEFactory().getAPSEParameters().checkCipheredClientRandom(ProtocolUtils.getSubArray2(data,offset, 8))) {
 			throw new ProtocolException("AuthenticationRespAPSE, parse, ERROR client authentication failed. Probably wrong password!");
@@ -47,8 +48,8 @@ public class AuthenticationRespAPSE extends AbstractAPSEPDU {
         offset+=8; // skip the fuzzy ASN.1 - like notation of the length of the bit string
         offset+=2; // skip the fuzzy ASN.1 - like notation of the length of the bit string
         getAPSEFactory().getAPSEParameters().setServerRandom(ProtocolUtils.getSubArray2(data,offset, 8));
-        
-    }    
 
-    
+    }
+
+
 }

@@ -10,19 +10,28 @@
 
 package com.energyict.protocolimpl.itron.quantum1000;
 
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.ObisUtils;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.DemandRegisterReadings;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.DemandRegisterReadingsType;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.EnergyRegisterValue;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.EnergyRegistersReading;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.MultiplePeaksType;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.PeakValue;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RegisterMap;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.SelfReadDataRecord;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.SelfReadDataUpload;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.SelfReadDemandRegister;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.SelfReadEnergyRegister;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  *

@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -9,17 +12,30 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.support.SerialNumberSupport;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.DataDumpParser;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -33,7 +49,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -205,14 +229,14 @@ public class ABBA1350
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS, "");
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "");
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iForceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "0").trim());
             profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
@@ -232,8 +256,8 @@ public class ABBA1350
                     + e.getMessage());
         }
 
-//		if ((failOnUnitMismatch < 0) || (loadProfileNumber > 1)) 
-//			throw new InvalidPropertyException("Invalid value for failOnUnitMismatch (" + failOnUnitMismatch + ") This property can only be 1 (to enable) or 0 (to disable). "); 
+//		if ((failOnUnitMismatch < 0) || (loadProfileNumber > 1))
+//			throw new InvalidPropertyException("Invalid value for failOnUnitMismatch (" + failOnUnitMismatch + ") This property can only be 1 (to enable) or 0 (to disable). ");
 
         if ((loadProfileNumber < MIN_LOADPROFILE) || (loadProfileNumber > MAX_LOADPROFILE)) {
             throw new InvalidPropertyException("Invalid loadProfileNumber (" + loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE);
@@ -944,108 +968,4 @@ public class ABBA1350
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        ABBA1350 abba = new ABBA1350();
-
-        Dialer dialer = null;
-        try {
-
-            // direct rs232 connection
-            dialer = DialerFactory.getOpticalDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect();
-
-            // setup the properties (see AbstractProtocol for default properties)
-            // protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-
-            properties.setProperty("ChannelMap", "0:0:0:0:0:0");
-            properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-            properties.setProperty("DataReadout", "0");
-            properties.setProperty("ExtendedLogging", "1");
-            properties.setProperty("LoadProfileNumber", "2");
-            properties.setProperty(MeterProtocol.PASSWORD, "00000000");
-            properties.setProperty(MeterProtocol.PROFILEINTERVAL, "600");
-            properties.setProperty("RequestHeader", "0");
-            properties.setProperty("SecurityLevel", "1");
-            properties.setProperty("Timeout", "3000");
-            properties.setProperty("VDEWCompatible", "1");
-            properties.setProperty("Software7E1", "1");
-
-
-            //            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            //            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            //            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            //            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            //            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-            //            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            //            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
-            //            channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
-            //            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
-            //            protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
-            //            scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
-            //            dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
-            //            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            //            vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
-            //            loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
-
-
-            //transfer the properties to the protocol
-            abba.setProperties(properties);
-
-            // depending on the dialer, set the initial (pre-connect) communication parameters
-            //            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-            //                                                                     SerialCommunicationChannel.DATABITS_7,
-            //                                                                     SerialCommunicationChannel.PARITY_NONE,
-            //                                                                     SerialCommunicationChannel.STOPBITS_1);
-            // initialize the protocol
-            abba.init(dialer.getInputStream(), dialer.getOutputStream(), TimeZone.getTimeZone("ECT"), null);
-
-            // if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer)) {
-                ((HHUEnabler) abba).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            }
-
-            abba.connect(); // connect to the meter
-
-            //            int aEnd = 16;
-            //            int bEnd = 16;
-            //            int cEnd = 16;
-            //
-            //            for (int a = 0; a < aEnd; a++) {
-            //                for (int b = 0; b < bEnd; b++) {
-            //                    for (int c = 0; c < cEnd; c++) {
-            //                    	if ((a > 9) || (b > 9) || (c > 9)) {
-            //                    		String reg = 	ProtocolUtils.buildStringHex(a, 1).toUpperCase() + "." +
-            //                    		ProtocolUtils.buildStringHex(b, 1).toUpperCase() + "." +
-            //                    		ProtocolUtils.buildStringHex(c, 1).toUpperCase();
-            //
-            //                    		String result = new String(abba.read(reg));
-            //                    		if (!result.equalsIgnoreCase(reg + "()")) abba.sendDebug(result);
-            //                    	}
-            //                    }
-            //                }
-            //			}
-
-
-            int aEnd = 200;
-            String startString = "1.6.0.99";
-
-            for (int a = 0; a < aEnd; a++) {
-                String reg = startString + ProtocolUtils.buildStringHex(a, 2).toUpperCase();
-                String result = new String(abba.read(reg));
-                if (!result.equalsIgnoreCase(reg + "()")) {
-                    abba.sendDebug(" Reading register " + reg + ": " + result);
-                }
-            }
-
-
-            abba.disconnect();
-            dialer.disConnect();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-} 
+}

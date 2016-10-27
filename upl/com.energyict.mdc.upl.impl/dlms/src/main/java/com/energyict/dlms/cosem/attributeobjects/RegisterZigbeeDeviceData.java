@@ -1,9 +1,10 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 

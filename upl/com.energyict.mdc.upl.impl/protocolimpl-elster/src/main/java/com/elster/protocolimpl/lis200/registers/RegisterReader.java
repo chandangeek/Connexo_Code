@@ -3,21 +3,27 @@
  */
 package com.elster.protocolimpl.lis200.registers;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.elster.protocolimpl.lis200.LIS200Utils;
 import com.elster.protocolimpl.lis200.Lis200Value;
-import com.elster.protocolimpl.lis200.objects.*;
+import com.elster.protocolimpl.lis200.objects.HistoricalValueObject;
+import com.elster.protocolimpl.lis200.objects.MaxDemandObject;
+import com.elster.protocolimpl.lis200.objects.SimpleObject;
+import com.elster.protocolimpl.lis200.objects.StatusObject;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLine;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 
 import static com.elster.protocolimpl.lis200.utils.utils.splitLine;
 

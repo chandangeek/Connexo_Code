@@ -1,11 +1,29 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.protocol.BubbleUp;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveFlowException;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.wavecell.WaveCellConnect;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ParameterFactory;
@@ -13,8 +31,15 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, BubbleUp, IncomingAlarmFrameParser {
 
@@ -220,7 +245,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
-        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME, "0"));
+        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0"));
         multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
 
         verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
@@ -250,7 +275,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
         roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
         connectionMode = Integer.parseInt(properties.getProperty(CONNECTION_PROPERTY, MUC_WAVECELL_CONNECTION).trim());
-        String nodeIdString = properties.getProperty(MeterProtocol.ADDRESS, "-1");
+        String nodeIdString = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "-1");
         try {
             waveFlowId = Integer.parseInt(nodeIdString.trim().length() == 0 ? "-1" : nodeIdString.trim());   //DeviceId
         } catch (NumberFormatException e) {

@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -9,13 +12,11 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
@@ -176,10 +177,10 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
 //			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
 //			int protocolCompatible, Encryptor encryptor,
 //			HalfDuplexController halfDuplexController) throws IOException {
-//		
+//
 //		this.inputStream=inputStream;
 //		this.outputStream=outputStream;
-//							
+//
 //		return null;
 //	}
 

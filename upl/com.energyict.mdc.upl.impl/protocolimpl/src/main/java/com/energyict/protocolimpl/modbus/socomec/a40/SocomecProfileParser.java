@@ -1,5 +1,15 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -9,22 +19,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.ParseUtils;
-
 /**
  * Parse for profile relevant objects.
  * @author gna
  *
  */
 public class SocomecProfileParser {
-	
+
 	private static final int normalState = 0;
 	private static final int timedValue = 1;
 	private static final int powerUp = 2;
@@ -34,39 +35,39 @@ public class SocomecProfileParser {
 	//"Active Energy plus", "Active Energy minus", "Reactive Energy plus", "Reactive Energy minus"
 	private static String[] channelInfoNames = new String[]{"0.1.128.0.0.255", "0.2.128.0.0.255",
 															"0.3.128.0.0.255", "0.4.128.0.0.255"};
-	
+
 	/** ChannelInfoUnits to construct the ChannelInfo List */
 	private static Unit[] channelInfoUnits = new Unit[]{Unit.get(BaseUnit.WATT, -1), Unit.get(BaseUnit.WATT, -1),
 															Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1), Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)};
-	
+
 	/** The current intervalDate */
 	private Calendar intervalDate;
 	/** The current memoryPointer */
 	private int memoryPointer;
 	/** The current profileInterval */
 	private Integer profileInterval;
-	
+
 	/** Contains the values for the meter */
 	private int[] virtualMemory;
-	
+
 	/** The current profileParseState */
 	private int currentState;
-	
+
 	/** The List of {@link IntervalData}s */
 	private List intervalDatas;
 	/** The list of {@link MeterEvent}s */
 	private List meterEvents;
-	
+
 	/** Constructor */
 	protected SocomecProfileParser(){
 		this.memoryPointer = -1;
 		this.currentState = normalState;
 		this.intervalDatas = new ArrayList();
 	}
-	
+
 	/**
 	 * Parse the profileInterval register
-	 * 
+	 *
 	 * @param registers the register read from the ModBus meter
 	 * @return the profileInterval
 	 * @throws UnsupportedException if the registers are empty
@@ -84,7 +85,7 @@ public class SocomecProfileParser {
 	 * Parse the channelInfo registers.
 	 * Maximum four channels (P+, P-, Q+, Q-) will be added according to there appearance.
 	 * The Unit is fixed for all channels to W/10
-	 * 
+	 *
 	 * @param channelInfoRegisters the registers read from the ModBus meter
 	 * @return a List of ChannelInfo
 	 */
@@ -100,7 +101,7 @@ public class SocomecProfileParser {
 
 	/**
 	 * Parse the Pointer to the correct memoryLocation
-	 * 
+	 *
 	 * @param pointer the registers read from the ModBus meter
 	 * @return the value of the pointer
 	 * @throws UnsupportedException if the value of pointer is corrupt
@@ -115,7 +116,7 @@ public class SocomecProfileParser {
 
 	/**
 	 * Parse the OptionSlots
-	 * 
+	 *
 	 * @param optionSlot the registers read from the ModBus meter
 	 * @return an Array of OptionSlots
 	 */
@@ -126,10 +127,10 @@ public class SocomecProfileParser {
 		}
 		return os;
 	}
-	
+
 	/**
 	 * Parse the dateTime of the last profileUpdate
-	 * 
+	 *
 	 * @param dateTime - the registers read from the device
 	 * @return a Date object translated from the input
 	 */
@@ -138,12 +139,12 @@ public class SocomecProfileParser {
 		setLastUpdate(dt.getMeterCalender().getTime());
 		return this.intervalDate.getTime();
 	}
-	
+
 	/**
 	 * Parse a part of the profileDataMemory
-	 * 
+	 *
 	 * We are making abuse of the meterEvents to log the intervalStatusses
-	 * 
+	 *
 	 * @param memoryBlocks - the register read from the device
 	 * @throws IOException when the intervalDate is empty, you need to give at least a startDate
 	 */
@@ -152,13 +153,13 @@ public class SocomecProfileParser {
 		if(this.intervalDate == null){
 			throw new IOException("StartDate can not be empty.");
 		}
-		
+
 		if(this.memoryPointer == -1){
 			return;
 		}
-		
+
 		addVirtualMemory(memoryBlocks);
-		
+
 		do{
 			switch(this.currentState){
 			case normalState:{
@@ -194,7 +195,7 @@ public class SocomecProfileParser {
 				addMeterEvents(new MeterEvent(eventDate.getTime(), MeterEvent.POWERUP));
 				ParseUtils.roundUp2nearestInterval(eventDate, this.profileInterval.intValue());
 				setLastUpdate(eventDate.getTime());
-				
+
 				this.memoryPointer -= 3; //This can cause a negative value
 				if(isItAPowerDown()){
 					this.currentState = powerDown;
@@ -208,42 +209,42 @@ public class SocomecProfileParser {
 				addMeterEvents(new MeterEvent(eventDate.getTime(), MeterEvent.POWERDOWN));
 				ParseUtils.roundDown2nearestInterval(eventDate, this.profileInterval.intValue());
 				setLastUpdate(eventDate.getTime());
-				
+
 				this.memoryPointer -= 3; //This can cause a negative value
 				this.currentState = normalState;
 			}break;
 			default:{
-			throw new IOException("Invalid parseState");	
+			throw new IOException("Invalid parseState");
 			}
 			}
 		}while((this.memoryPointer >= 2) && (!exit) );
-		
+
 		// Apply the meterEvents so we get the statusses
 		applyEvents();
-		
+
 	}
-	
+
     /** <p> Set the interval status based on the {@link MeterEvent}s form the meter </p>
      * @param idList - the IntervalData list
-     */    
+     */
     private void applyEvents() {
         Iterator eventIterator = getMeterEvents().iterator();
         while (eventIterator.hasNext()) {
             applyEvent((MeterEvent) eventIterator.next());
         }
     }
-    
+
     /** <p>Updates the interval status based on the information of a single event. </p>
      * @param event - the event to convert to intervalStatus
      * @param idList - the IntervalData list
-     */    
+     */
     private void applyEvent(MeterEvent event) {
         Iterator intervalIterator = this.intervalDatas.iterator();
         while (intervalIterator.hasNext()) {
             ((IntervalData) intervalIterator.next()).apply(event, this.profileInterval.intValue()/60);
         }
     }
-	
+
 	/**
 	 * Add an interval to the IntervalDataList
 	 */
@@ -257,7 +258,7 @@ public class SocomecProfileParser {
 		this.memoryPointer--;
 		this.intervalDate.add(Calendar.SECOND, -this.profileInterval.intValue());
 	}
-	
+
 	/**
 	 * Check if an interval already exists
 	 * @return true if it's so, false otherwise
@@ -283,7 +284,7 @@ public class SocomecProfileParser {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Check if the memoryPointer currently points to the start of a PowerUp/PowerDown sequence
 	 * @return true if it is, false otherwise
@@ -294,7 +295,7 @@ public class SocomecProfileParser {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Check if the memoryPointer currently points to the start of a PowerDown dateTime
 	 * @return true if it is, false otherwise
@@ -350,7 +351,7 @@ public class SocomecProfileParser {
 	void setIntervalLength(int profileInterval) {
 		this.profileInterval = new Integer(profileInterval);
 	}
-	
+
 	/**
 	 * Getter for the virtualMemory
 	 * @return the virtualMemory
@@ -369,7 +370,7 @@ public class SocomecProfileParser {
 		}
 		this.meterEvents.add(meterEvent);
 	}
-	
+
 	/**
 	 * @return the occurred meterEvents
 	 */
@@ -379,7 +380,7 @@ public class SocomecProfileParser {
 		}
 		return this.meterEvents;
 	}
-	
+
 	/**
 	 * @return all the IntervalDatas calculated from the memoryBlocks
 	 */

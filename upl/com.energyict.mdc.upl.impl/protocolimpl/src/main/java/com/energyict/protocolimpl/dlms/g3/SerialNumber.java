@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**

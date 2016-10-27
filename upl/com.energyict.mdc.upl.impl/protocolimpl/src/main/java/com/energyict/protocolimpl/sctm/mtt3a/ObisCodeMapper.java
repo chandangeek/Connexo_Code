@@ -6,19 +6,22 @@
 
 package com.energyict.protocolimpl.sctm.mtt3a;
 
-import com.energyict.protocol.*;
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
-import com.energyict.protocolimpl.customerconfig.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -28,25 +31,25 @@ public class ObisCodeMapper {
     TimeZone timeZone;
     RegisterConfig regs;
     int autoBillingPointNrOfDigits;
-    
+
     /** Creates a new instance of ObisCodeMapper */
-    
+
     public ObisCodeMapper(SCTMDumpData dump,TimeZone timeZone, RegisterConfig regs,int autoBillingPointNrOfDigits) {
         this.dump=dump;
         this.timeZone=timeZone;
         this.regs=regs;
         this.autoBillingPointNrOfDigits=autoBillingPointNrOfDigits;
     }
-    
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null,null,null,-1);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         return (RegisterValue)doGetRegister(obisCode,true);
     }
-    
+
     public Date getBillingPointTimestamp(int billingPoint) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.add(Calendar.MONTH,(-1)*billingPoint);
@@ -57,13 +60,13 @@ public class ObisCodeMapper {
         calendar.set(Calendar.MILLISECOND,0);
         return calendar.getTime();
     }
-    
+
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         RegisterValue registerValue=null;
         String registerName=null;
         Unit unit = null;
         int billingPoint=-1;
-        
+
         // obis F code
         if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
             billingPoint = obisCode.getF();
@@ -72,7 +75,7 @@ public class ObisCodeMapper {
         else if (obisCode.getF() == 255)
             billingPoint = -1;
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
         if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
@@ -98,7 +101,7 @@ public class ObisCodeMapper {
                 String strReg = regs.getMeterRegisterCode(oc);
                 if (strReg == null)
                     throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-                
+
                 Date billingDate=null;
                 if (billingPoint != -1) {
                     int VZ = dump.getBillingCounter();
@@ -108,13 +111,13 @@ public class ObisCodeMapper {
                     }
                     else if (autoBillingPointNrOfDigits == 0) {
                         strReg = strReg+"*"+(VZ-billingPoint);
-                    } 
+                    }
                     else {
                         strReg = strReg+"*"+ProtocolUtils.buildStringDecimal((VZ-billingPoint), autoBillingPointNrOfDigits);
                     }
-                    billingDate = getBillingPointTimestamp(billingPoint); 
+                    billingDate = getBillingPointTimestamp(billingPoint);
                 }
-                
+
                 Quantity quantity = dump.getRegister(strReg);
                 Date eventDate = dump.getRegisterDateTime(strReg, timeZone);
                 if (quantity != null) {
@@ -130,7 +133,7 @@ public class ObisCodeMapper {
                 return new RegisterInfo(obisCode.getDescription());
             }
         }
-        
+
     } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
-    
+
 } // public class ObisCodeMapper

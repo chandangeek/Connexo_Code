@@ -29,17 +29,17 @@ public class ABBA1140Main extends AbstractDebuggingMain<ABBA1140> {
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-        properties.setProperty(MeterProtocol.PASSWORD, "ABCD0002");
-        properties.setProperty(MeterProtocol.SERIALNUMBER, "07045683");
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "ABCD0002");
+        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "07045683");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "2");
         properties.setProperty("Retries", "2");
         properties.setProperty("Timeout", "35000");
-        properties.setProperty(MeterProtocol.NODEID, "001");
+        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "001");
 
         return properties;
     }

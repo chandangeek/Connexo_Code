@@ -1,6 +1,6 @@
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
 
 /**
  * Exception can be thrown when the state from a Boolean can not be determined

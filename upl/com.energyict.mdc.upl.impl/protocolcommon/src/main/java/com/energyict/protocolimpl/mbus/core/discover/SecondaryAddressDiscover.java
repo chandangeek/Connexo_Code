@@ -1,19 +1,23 @@
 package com.energyict.protocolimpl.mbus.core.discover;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.mbus.core.*;
+import com.energyict.protocolimpl.mbus.core.ApplicationData;
+import com.energyict.protocolimpl.mbus.core.CIField72h;
+import com.energyict.protocolimpl.mbus.core.MBus;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Frame;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class SecondaryAddressDiscover {
 	final int DEBUG=1;
-	
+
 	boolean started=false;
 	int[] id = new int[] { 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf };
 	int idIndex;
@@ -29,7 +33,7 @@ public class SecondaryAddressDiscover {
 	List serialIds = new ArrayList();
 	List<CIField72h> cIField72hs = new ArrayList();
 	MBus mBus;
-	
+
 	public SecondaryAddressDiscover(MBus mBus) {
 		this.mBus=mBus;
 	}
@@ -256,7 +260,7 @@ public class SecondaryAddressDiscover {
     	CIField72h cIField72h = (CIField72h)frame.buildAbstractCIFieldObject(mBus.getTimeZone());
         return cIField72h;
     }
-    
+
     private String findSecondaryAddress() throws IOException {
     	String serialId = doFindSecondaryAddress();
     	if (serialId != null)
@@ -264,22 +268,22 @@ public class SecondaryAddressDiscover {
     	return serialId;
     }
 	private String doFindSecondaryAddress() throws IOException {
-		
+
 		String serid = Long.toHexString(idValue) + "_"
 				+ Integer.toHexString(manufValue) + "_"
 				+ Integer.toHexString(version) + "_"
 				+ Integer.toHexString(medium);
 		if (DEBUG>=1) System.out.println("try selecting " + serid);
-		
+
 		if (mBus != null) {
 			while(true) {
 		    	try {
 			    	IEC870Frame frame =  mBus.getMBusConnection().selectSecondaryAddress(idValue,manufValue,version,medium,true);
 			    	started = true;
-			    	try {	
+			    	try {
 						CIField72h o = getCIField72h();
-						
-						
+
+
 						boolean found=false;
 						for (int i=0;i<cIField72hs.size();i++) {
 							CIField72h comp = (CIField72h)cIField72hs.get(i);
@@ -290,9 +294,9 @@ public class SecondaryAddressDiscover {
 						}
 						if (!found)
 							cIField72hs.add(o);
-						
+
 						return o.header();
-						
+
 			    	}
 			    	catch(IEC870ConnectionException e) {
 						if (DEBUG>=2) System.out.println("getCIField72h() "+e.toString());
@@ -327,7 +331,7 @@ public class SecondaryAddressDiscover {
 		    	}
 		    	catch(IEC870ConnectionException e) {
 					if (DEBUG>=2) System.out.println("selectSecondaryAddress(...) "+e.toString());
-					
+
 		    		if (e.getReason() != mBus.getMBusConnection().getReasonTIMEOUT_ERROR()) {
 						try {
 							Thread.sleep(2500);
@@ -344,12 +348,12 @@ public class SecondaryAddressDiscover {
 		    				continue;
 		    			}
 		    		}
-		    		
+
 		    	}
-		    	
+
 		    	break;
 			} // while(true)
-	    	
+
 		}
 		else {
 			// if (idValue == 0x1FFFFFFF)
@@ -372,13 +376,13 @@ public class SecondaryAddressDiscover {
 					throw new MBusException("collision!");
 				if (idValue == 0x23445678)
 					throw new MBusException("collision!");
-				
+
 				if (idValue == 0x6FFFFFFF)
 					throw new MBusException("collision!");
 				if (idValue == 0x65FFFFFF)
 					return "65121234_1345_aa_4";
-				
-				
+
+
 				// if (idValue == 0x21FFFFFF)
 				// return
 				// "21345678_"+Integer.toHexString(manufValue)+"_"+Integer.toHexString(version)+"_"+Integer.toHexString(medium);
@@ -386,17 +390,17 @@ public class SecondaryAddressDiscover {
 				// return
 				// "24345678_"+Integer.toHexString(manufValue)+"_"+Integer.toHexString(version)+"_"+Integer.toHexString(medium);
 			} else if ((version == 0xFF) && (medium == 0xFF)) {
-	
+
 				if (manufValue == 0x12FF)
 					return "21345678_"+Integer.toHexString(manufValue)+"_" + Integer.toHexString(version) + "_"+ Integer.toHexString(medium);
-				
+
 				if (manufValue == 0x13FF)
 					throw new MBusException("collision!");
 				if (manufValue == 0x1345)
 					throw new MBusException("collision!");
 			}
 			else if (medium == 0xFF) {
-				
+
 				if (version == 0x55)
 					return "21345678_1345_55_"+ Integer.toHexString(medium);
 				if (version == 0xAA)
@@ -406,10 +410,10 @@ public class SecondaryAddressDiscover {
 				if (medium == 0x04)
 					return "21345678_1345_aa_4";
 			}
-			
-			
+
+
 		}
-		
+
 		return null;
 	}
 
@@ -421,14 +425,14 @@ public class SecondaryAddressDiscover {
 		try {
 			SecondaryAddressDiscover o = new SecondaryAddressDiscover(null);
 			o.discover();
-			
+
 			Iterator it = o.serialIds.iterator();
 			while(it.hasNext()) {
-				
+
 				System.out.println(it.next());
-				
+
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -22,7 +23,7 @@ public class NumberOfLoggedRecords extends AbstractParameter {
     protected ParameterId getParameterId() {
 		return ParameterId.NrOfLoggedRecords;
 	}
-	
+
 	@Override
     public void parse(byte[] data) throws IOException {
 		numberOfRecords = ProtocolTools.getUnsignedIntFromBytes(data);

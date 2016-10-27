@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.pact.core.instant;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.pact.core.common.PACTConnection;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 
@@ -21,9 +22,9 @@ import java.util.Map;
  * @author  Koen
  */
 public class InstantaneousFactory {
-    
+
 	public static final int INSTANTANEOUS_QUANTITY=0;
-    
+
     private static Map map = new HashMap();
     static {
         // Voltage and Current
@@ -44,7 +45,7 @@ public class InstantaneousFactory {
         map.put("L3",new Instantaneous("Apparent current, phase 3",Unit.get("A"),INSTANTANEOUS_QUANTITY));
         map.put("LN",new Instantaneous("Apparent current, neutral",Unit.get("A"),INSTANTANEOUS_QUANTITY));
         map.put("L0",new Instantaneous("Residual / neutral current",Unit.get("A"),INSTANTANEOUS_QUANTITY));
-        
+
         // Phase angles and power factors
         map.put("A1",new Instantaneous("Phase angle, V1",Unit.get("°"),INSTANTANEOUS_QUANTITY));
         map.put("A2",new Instantaneous("Phase angle, V2",Unit.get("°"),INSTANTANEOUS_QUANTITY));
@@ -74,7 +75,7 @@ public class InstantaneousFactory {
         map.put("K1",new Instantaneous("Apparent power, phase 1",Unit.get("kVA"),INSTANTANEOUS_QUANTITY));
         map.put("K2",new Instantaneous("Apparent power, phase 2",Unit.get("kVA"),INSTANTANEOUS_QUANTITY));
         map.put("K3",new Instantaneous("Apparent power, phase 3",Unit.get("kVA"),INSTANTANEOUS_QUANTITY));
-        
+
         // Energies
         map.put("UK",new Instantaneous("Active, fundamental, import",Unit.get("kWh"),INSTANTANEOUS_QUANTITY));
         map.put("Uk",new Instantaneous("Active, fundamental, export",Unit.get("kWh"),INSTANTANEOUS_QUANTITY));
@@ -90,29 +91,29 @@ public class InstantaneousFactory {
         map.put("Ua",new Instantaneous("Apparent (see below)",Unit.get("kVAh"),INSTANTANEOUS_QUANTITY));
         map.put("UF",new Instantaneous("Fraud (see below)",Unit.get("kVAh"),INSTANTANEOUS_QUANTITY));
     }
-    
+
     private ProtocolLink protocolLink;
-    
+
     /** Creates a new instance of InstantaneousFactory */
     public InstantaneousFactory(ProtocolLink protocolLink) {
         this.protocolLink=protocolLink;
     }
-    
+
     public Quantity getRegisterValue(String name) throws IOException {
         Instantaneous instantaneous = (Instantaneous)map.get(name);
         if (instantaneous == null) {
 			throw new NoSuchRegisterException("InstantaneousFactory, getRegisterValue, instantaneous register "+name+" not supported!");
 		}
-        
+
         ProcessorType pt = new ProcessorType(getProtocolLink().getPactConnection().sendRequest(PACTConnection.BUILDTYPE));
-        String value = getProtocolLink().getPactConnection().getIntantaneousValue(name); 
-        
+        String value = getProtocolLink().getPactConnection().getIntantaneousValue(name);
+
         //System.out.println("KV_DEBUG> "+pt.toString()+" "+name+"="+parseForQuantity(name,value,instantaneous).toString());
         //... use pt to check for instantaneous values ...
-        
+
         return parseForQuantity(name,value,instantaneous);
     }
-    
+
     private Quantity parseForQuantity(String name,String value,Instantaneous instantaneous) throws IOException {
        int start,i;
        start=-1;
@@ -136,13 +137,13 @@ public class InstantaneousFactory {
        } else {
 		throw new NoSuchRegisterException("InstantaneousFactory, getRegisterValue, instantaneous register "+value+" not supported!");
 	}
-       
+
     } // private Quantity parseForQuantity(String value,Instantaneous instantaneous)
-    
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) { 
+    public static void main(String[] args) {
         try {
            InstantaneousFactory instf = new InstantaneousFactory(null);
            System.out.println(instf.parseForQuantity("V1","KW-14.56",(Instantaneous)InstantaneousFactory.map.get("V1")).toString());
@@ -151,8 +152,8 @@ public class InstantaneousFactory {
             e.printStackTrace();
         }
     }
-    
-    
+
+
     /**
      * Getter for property protocolLink.
      * @return Value of property protocolLink.
@@ -160,7 +161,7 @@ public class InstantaneousFactory {
     public com.energyict.protocolimpl.pact.core.common.ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
     /**
      * Setter for property protocolLink.
      * @param protocolLink New value of property protocolLink.
@@ -169,5 +170,5 @@ public class InstantaneousFactory {
         this.protocolLink = protocolLink;
     }
 
-    
+
 }

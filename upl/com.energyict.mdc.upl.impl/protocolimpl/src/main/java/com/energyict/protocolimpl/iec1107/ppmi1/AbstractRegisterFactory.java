@@ -1,13 +1,19 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.RegisterInformationParser;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.*;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.HistoricalDataSet;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.MaximumDemand;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
 
 import java.io.IOException;
 import java.util.Date;
@@ -16,7 +22,7 @@ import java.util.TreeMap;
 
 /**
  * Abstract RegisterFactory class, containing all the common code of the OPUS and IEC1107 protocol
- * 
+ *
  * @author jme
  */
 public abstract class AbstractRegisterFactory implements RegisterFactory {
@@ -42,7 +48,7 @@ public abstract class AbstractRegisterFactory implements RegisterFactory {
 	/**
 	 * A DataIndentity can contain multiple registers. But what if a Register is
 	 * best composed out of several other registers ?
-	 * 
+	 *
 	 * I will cache this in RegisterFactory, it could be done better .... 741 -
 	 * 745, 751 - 755 Register Allocation
 	 */

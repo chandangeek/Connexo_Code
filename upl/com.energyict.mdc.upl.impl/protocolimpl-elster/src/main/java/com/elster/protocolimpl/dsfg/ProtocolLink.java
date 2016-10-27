@@ -6,8 +6,9 @@
 
 package com.elster.protocolimpl.dsfg;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.util.TimeZone;
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
 
 
 /**
- * 
+ *
  * @author Koen
  */
 public interface ProtocolLink {
@@ -39,10 +40,10 @@ public interface ProtocolLink {
 	int getNrOfRetries();
 
 	boolean isRequestHeader();
-	
+
 	/* added getter for dsfg data */
 	String getArchiveInstance();
-	
+
 	String getRegistrationInstance();
 
 }

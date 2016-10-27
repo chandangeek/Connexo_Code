@@ -1,15 +1,37 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.RegisterCache;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 
 abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RegisterCache {
@@ -177,7 +199,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
         readLoadProfile = "1".equals(properties.getProperty(READ_LOAD_PROFILE_PROPERTY, "1"));
-        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME, "0"));
+        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0"));
         verifyProfileInterval = Boolean.parseBoolean(properties.getProperty(VERIFY_PROFILE_INTERVAL_PROPERTY, "false"));
         serialNumberA = properties.getProperty(SERIAL_NUMBER_A);
         serialNumberB = properties.getProperty(SERIAL_NUMBER_B);
@@ -251,7 +273,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
      * Override this method to requesting the load profile integration time
      *
      * @return integration time in seconds
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException Thrown when something goes wrong
      */

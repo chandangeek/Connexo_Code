@@ -1,10 +1,11 @@
 package com.energyict.dlms.exceptionhandler;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
@@ -74,29 +75,29 @@ public class DLMSIOExceptionHandler {
         }
         return false;
     }
-    
+
     /**
      * Checks whether the returned error is an authorization error (basically an R/W denied).
-     * 
+     *
      * @param 		e		The IO error.
-     * 
+     *
      * @return		<code>true</code> if this concerns an authorization problem, <code>false</code> if not.
      */
     public static final boolean isAuthorizationProblem(final IOException e) {
     	Throwable t = e;
-    	
+
     	while (t != null) {
 	    	if (t instanceof DataAccessResultException) {
 	    		final DataAccessResultException dataAccessResultException = (DataAccessResultException)t;
-	    		
+
 	    		if (dataAccessResultException.getCode() == DataAccessResultCode.RW_DENIED) {
 	    			return true;
 	    		}
 	    	}
-	    	
+
 	    	t = t.getCause();
     	}
-    	
+
     	return false;
     }
 

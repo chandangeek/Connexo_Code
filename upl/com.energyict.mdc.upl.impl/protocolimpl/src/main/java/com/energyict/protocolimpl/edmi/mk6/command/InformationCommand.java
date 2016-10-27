@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -18,17 +19,17 @@ import com.energyict.protocol.ProtocolUtils;
  * @author koen
  */
 public class InformationCommand extends AbstractCommand {
-    
+
     private int registerId;
     private char dataType;
     private char measurementUnit;
     private String description;
-    
+
     /** Creates a new instance of InformationCommand */
     public InformationCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,9 +40,9 @@ public class InformationCommand extends AbstractCommand {
         strBuff.append("   description="+getDescription()+"\n");
         return strBuff.toString();
     }
-    
+
     private final char COMMAND='O'; // 'I'
-    
+
     protected byte[] prepareBuild() {
         if (COMMAND == 'I') {
             byte[] data = new byte[3];
@@ -59,14 +60,14 @@ public class InformationCommand extends AbstractCommand {
             return data;
         }
     }
-    
+
     protected void parse(byte[] data) throws CommandResponseException, ProtocolException {
         int offset = 1;
-        
+
         if (COMMAND != (char)data[0]) {
 			throw new CommandResponseException("InformationCommand, request command "+COMMAND+" != response command "+(char)data[0]);
 		}
-        
+
         if (COMMAND == 'I') {
             int tempRegisterId = ProtocolUtils.getInt(data,offset,2);
             if (tempRegisterId != getRegisterId()) {
@@ -87,37 +88,37 @@ public class InformationCommand extends AbstractCommand {
         setMeasurementUnit((char)data[offset++]);
         setDescription(new String(ProtocolUtils.getSubArray(data, offset, data.length-2)));
     }
-    
+
     public int getRegisterId() {
         return registerId;
     }
-    
+
     public void setRegisterId(int registerId) {
         this.registerId = registerId;
     }
-    
+
     public char getDataType() {
         return dataType;
     }
-    
+
     public void setDataType(char dataType) {
         this.dataType = dataType;
     }
-    
+
     public char getMeasurementUnit() {
         return measurementUnit;
     }
-    
+
     public void setMeasurementUnit(char measurementUnit) {
         this.measurementUnit = measurementUnit;
     }
-    
+
     public String getDescription() {
         return description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
 }

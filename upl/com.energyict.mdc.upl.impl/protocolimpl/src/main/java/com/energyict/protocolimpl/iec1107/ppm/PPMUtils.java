@@ -1,11 +1,16 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,39 +19,39 @@ import java.util.TimeZone;
 
 /**
  * Year offset explaned by example:
- * 
+ *
  * <pre>
- * 
+ *
  *    	TODAY YEAR : 2003
- * 
+ *
  *    	meteryear = [2000] offset=[0] todayYear=2003
  *    	meteryear = [2001] offset=[1] todayYear=2003
  *    	meteryear = [2002] offset=[2] todayYear=2003
  *    	meteryear = [2003] offset=[3] todayYear=2003
- * 
+ *
  *    	TODAY YEAR : 2004
- * 
+ *
  *    	meteryear = [2004] offset=[0] todayYear=2004
  *    	meteryear = [2001] offset=[1] todayYear=2004
  *    	meteryear = [2002] offset=[2] todayYear=2004
  *    	meteryear = [2003] offset=[3] todayYear=2004
- * 
+ *
  *    	TODAY YEAR : 2005
- * 
+ *
  *    	meteryear = [2004] offset=[0] todayYear=2005
  *    	meteryear = [2005] offset=[1] todayYear=2005
  *    	meteryear = [2002] offset=[2] todayYear=2005
  *    	meteryear = [2003] offset=[3] todayYear=2005
- * 
+ *
  *     	TODAY YEAR : 2006
- * 
+ *
  *    	meteryear = [2004] offset=[0] todayYear=2006
  *    	meteryear = [2005] offset=[1] todayYear=2006
  *    	meteryear = [2006] offset=[2] todayYear=2006
  *    	meteryear = [2003] offset=[3] todayYear=2006
- * 
+ *
  * </pre>
- * 
+ *
  * @author fbo
  */
 
@@ -184,7 +189,7 @@ public class PPMUtils {
 
 	/**
 	 * Parse a BCD String from native meter format
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 */
@@ -202,7 +207,7 @@ public class PPMUtils {
 
 	/**
 	 * Parse a Date (7 byte full date)
-	 * 
+	 *
 	 * @param data
 	 * @param offset
 	 * @param timeZone
@@ -232,7 +237,7 @@ public class PPMUtils {
 
 	/**
 	 * Parse a timestamp, 4 byte
-	 * 
+	 *
 	 * @param data
 	 * @param offset
 	 * @param timeZone
@@ -259,7 +264,7 @@ public class PPMUtils {
 
 	/**
 	 * Build a date, a full date (7 byte)
-	 * 
+	 *
 	 * @param date
 	 * @param timeZone
 	 * @return
@@ -326,7 +331,7 @@ public class PPMUtils {
 	/**
 	 * Must be more precise, up to day, for the moment only months are taken
 	 * into consideration.
-	 * 
+	 *
 	 * @param today
 	 * @param offset
 	 * @param timeZone
@@ -364,7 +369,7 @@ public class PPMUtils {
 
 	/**
 	 * Split byte stream for token '#'
-	 * 
+	 *
 	 * @param b
 	 * @param offset
 	 * @return
@@ -390,7 +395,7 @@ public class PPMUtils {
 
 	/**
 	 * Clear hours, minutes and seconds to start at the beginning of the day.
-	 * 
+	 *
 	 * @param c
 	 * @return
 	 */
@@ -403,7 +408,7 @@ public class PPMUtils {
 
 	/**
 	 * Return the number of hours in the day.
-	 * 
+	 *
 	 * @param c
 	 * @return
 	 */
@@ -416,7 +421,7 @@ public class PPMUtils {
 
 	/**
 	 * Special debug stuff
-	 * 
+	 *
 	 * @param b
 	 * @return
 	 */
@@ -429,7 +434,7 @@ public class PPMUtils {
 
 	/**
 	 * Special debug stuff
-	 * 
+	 *
 	 * @param b
 	 * @return
 	 */
@@ -443,7 +448,7 @@ public class PPMUtils {
 
 	/**
 	 * Special debug stuff
-	 * 
+	 *
 	 * @param b
 	 * @return
 	 */
@@ -469,7 +474,7 @@ public class PPMUtils {
 
 	/**
 	 * Store a array of bytes to a file
-	 * 
+	 *
 	 * @param data
 	 * @param fileName
 	 */
@@ -484,7 +489,7 @@ public class PPMUtils {
 
 	/**
 	 * Read a array of bytes from a file
-	 * 
+	 *
 	 * @param fileName
 	 * @return
 	 * @throws IOException

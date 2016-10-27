@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderModelInfo.EncoderModelType;
 
@@ -9,7 +10,7 @@ import java.io.IOException;
 
 public class EncoderModel extends AbstractParameter {
 
-	
+
 	EncoderModel(WaveFlow100mW waveFlow100mW, final int portId) {
 		super(waveFlow100mW);
 		this.portId=portId;
@@ -19,7 +20,7 @@ public class EncoderModel extends AbstractParameter {
 	 * contains the encoder model isd and manufacturer code
 	 */
 	EncoderModelInfo encoderModelInfo;
-	
+
 	final EncoderModelInfo getEncoderModelInfo() {
 		return encoderModelInfo;
 	}
@@ -28,11 +29,11 @@ public class EncoderModel extends AbstractParameter {
 	 * Port A -> portId=0, port B -> portId=1,2,...
 	 */
 	int portId;
-	
+
 	@Override
 	ParameterId getParameterId() {
 		if (portId==0) {
-			return ParameterId.EncoderModelPortA; 
+			return ParameterId.EncoderModelPortA;
 		}
 		else {
 			return ParameterId.EncoderModelPortB;
@@ -42,12 +43,12 @@ public class EncoderModel extends AbstractParameter {
 	@Override
 	void parse(byte[] data) throws IOException {
 		EncoderModelType encoderModelType = EncoderModelType.fromId(WaveflowProtocolUtils.toInt(data[0]));
-		
+
 		int manufacturerId=0xff;
 		if (WaveflowProtocolUtils.toInt(data[1]) != 0xff) {
 			manufacturerId = ProtocolUtils.BCD2hex(data[1]);
 		}
-		
+
 		encoderModelInfo = new EncoderModelInfo(encoderModelType,manufacturerId);
 	}
 

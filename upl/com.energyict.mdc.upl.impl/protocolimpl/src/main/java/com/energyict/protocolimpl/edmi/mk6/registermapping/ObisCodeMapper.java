@@ -10,38 +10,39 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-import java.io.IOException;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edmi.mk6.MK6;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author koen
  */
 public class ObisCodeMapper {
-    
+
     private MK6 mk6;
-            
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(MK6 mk6) {
         this.mk6=mk6;
     }
-    
+
     public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         RegisterValue registerValue=null;
         int billingPoint=-1;
-        
+
         // obis F code
         if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
 			billingPoint = obisCode.getF();
@@ -52,8 +53,8 @@ public class ObisCodeMapper {
 		} else {
 			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 		}
-        
-        // ********************************************************************************* 
+
+        // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
         if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) ||(obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
             return new RegisterValue(obisCode,new Quantity(new BigDecimal(""+mk6.getObicCodeFactory().getBillingInfo().getNrOfBillingResets()),Unit.get("")));
@@ -81,7 +82,7 @@ public class ObisCodeMapper {
             // electricity related registers
             return mk6.getObicCodeFactory().getRegisterValue(obisCode);
         }
-        
+
     } // public RegisterValue getRegisterValue(ObisCode obisCode)
-    
+
 } // public class ObisCodeMapper

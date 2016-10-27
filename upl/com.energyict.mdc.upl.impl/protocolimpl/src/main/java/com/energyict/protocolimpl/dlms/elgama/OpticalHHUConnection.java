@@ -5,9 +5,12 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Copyrights EnergyICT
@@ -61,7 +64,7 @@ public class OpticalHHUConnection implements HHUSignOn {
         ProtocolTools.delay(100);
         set7E1(5);
         readLine();
-        return new MeterType(getReceivedIdent());
+        return new MeterTypeImpl(getReceivedIdent());
     }
 
     private void readIdent() throws IOException {

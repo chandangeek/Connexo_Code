@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.dlms.eictz3;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -10,22 +13,92 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.CapturedObjectsHelper;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
-import com.energyict.protocolimpl.dlms.nta.eventhandling.*;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.DisconnectControlLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.EventsLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.FraudDetectionLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.MbusLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
@@ -41,7 +114,13 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -495,7 +574,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         Properties props = new Properties();
         props.put(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
         props.put(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
-        props.put(MeterProtocol.PASSWORD, password);
+        props.put(MeterProtocol.Property.PASSWORD.getName(), password);
         LocalSecurityProvider lsp = new LocalSecurityProvider(props);
         return lsp;
     }
@@ -1279,15 +1358,16 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @param properties The {@link Properties} that are supplied as configuration to {@link #setProperties(Properties)}.
      */
     private final void configure(final Properties properties) throws InvalidPropertyException {
-        if (properties.containsKey(MeterProtocol.ADDRESS)) {
-            if ((properties.getProperty(MeterProtocol.ADDRESS) != null) && (properties.getProperty(MeterProtocol.ADDRESS).length() <= 16)) {
-                this.deviceId = properties.getProperty(MeterProtocol.ADDRESS);
+        String addressPropertyName = Property.ADDRESS.getName();
+        if (properties.containsKey(addressPropertyName)) {
+            if ((properties.getProperty(addressPropertyName) != null) && (properties.getProperty(addressPropertyName).length() <= 16)) {
+                this.deviceId = properties.getProperty(addressPropertyName);
             } else {
-                throw new InvalidPropertyException("Property [" + MeterProtocol.ADDRESS + "] should have 16 characters or less if it is specified, you specified [" + properties.getProperty(MeterProtocol.ADDRESS).length() + "] characters !");
+                throw new InvalidPropertyException("Property [" + addressPropertyName + "] should have 16 characters or less if it is specified, you specified [" + properties.getProperty(addressPropertyName).length() + "] characters !");
             }
         }
 
-        this.password = properties.getProperty(MeterProtocol.PASSWORD);
+        this.password = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
         this.hdlcTimeout = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, "10000").trim());
         this.protocolRetries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "5").trim());
 
@@ -1306,8 +1386,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
-        this.nodeAddress = properties.getProperty(MeterProtocol.NODEID, "");
-        this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+        this.nodeAddress = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+        this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
         this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1")));
         this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")));
         this.loadProfileObisCode = properties.containsKey(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;

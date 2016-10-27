@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class SystemStatus {
         }
         clockFailureActionMode = ProtocolUtils.getInt(data, 20, 1);
     }
-    
+
     public long getValue() {
         return value;
     }

@@ -1,5 +1,7 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -9,7 +11,6 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;

@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
@@ -17,7 +19,6 @@ import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;

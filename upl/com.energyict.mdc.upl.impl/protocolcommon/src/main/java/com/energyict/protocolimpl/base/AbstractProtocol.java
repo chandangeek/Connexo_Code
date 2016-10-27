@@ -6,6 +6,10 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -15,7 +19,19 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.DialinScheduleProtocol;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 
@@ -24,7 +40,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -123,7 +145,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *
      * @return String with firmware version. This can also contain other important info of the meter.
      * @throws java.io.IOException thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown when that method is not supported
      */
     abstract public String getFirmwareVersion() throws IOException, UnsupportedException;
@@ -188,7 +210,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public AbstractProtocol(Encryptor encryptor) {
         this(false, encryptor);
     }
-    /* Creates a new instance of AbstractProtocol, default constructor 
+    /* Creates a new instance of AbstractProtocol, default constructor
      *  @param requestDataReadout true if the datadump is needed to read registers.
      *         We only use a datadump if there is no possibility in programming mode to read registers individual.
      *         Datadump registers are always cached.
@@ -211,7 +233,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *
      * @param name register name
      * @return Quantity with register value and Unit object
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException thrown when something goes wrong
      */
@@ -232,7 +254,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *
      * @param channelId id of a register.
      * @return Quantity with register value and Unit object
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException thrown when something goes wrong
      */
@@ -276,7 +298,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @param includeEvents eneble or disable requesting of meterevents
      * @return ProfileData object
      * @throws java.io.IOException Thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown when not supported
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
@@ -289,7 +311,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 //    public void setTime() throws IOException {
 //    }
     /*
-     * Override this method if the subclass wants to set a specific register 
+     * Override this method if the subclass wants to set a specific register
      */
 
     /**
@@ -298,15 +320,15 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @param name  For debugging only
      * @param value For debugging only
      * @throws java.io.IOException For debugging only
-     * @throws com.energyict.protocol.NoSuchRegisterException
+     * @throws NoSuchRegisterException
      *                             For debugging only
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             For debugging only
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
     }
     /*
-     * Override this method if the subclass wants to get a specific register 
+     * Override this method if the subclass wants to get a specific register
      */
 
     /**
@@ -315,9 +337,9 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @param name For debugging only
      * @return For debugging only
      * @throws java.io.IOException For debugging only
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             For debugging only
-     * @throws com.energyict.protocol.NoSuchRegisterException
+     * @throws NoSuchRegisterException
      *                             For debugging only
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -367,7 +389,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         result.add(PROP_ADJUST_CHANNEL_MULTIPLIER);
         result.add(PROP_ADJUST_REGISTER_MULTIPLIER);
 
-// if needed, add following codelines into the overridden doGetOptionalKeys() method        
+// if needed, add following codelines into the overridden doGetOptionalKeys() method
 //        result.add("RequestHeader"));
 //        result.add("Scaler"));
 
@@ -450,7 +472,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * Used by the framework
      *
      * @throws java.io.IOException thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             thrown when not supported
      */
     public void initializeDevice() throws IOException, UnsupportedException {
@@ -519,7 +541,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * Override this method to requesting the load profile integration time
      *
      * @return integration time in seconds
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException Thrown when something goes wrong
      */
@@ -531,7 +553,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * Override this method to requesting the nr of load profile channels from the meter. If not overridden, the default implementation uses the ChannelMap object to get the nr of channels. The ChannelMap object is constructed from the ChannelMap custom property containing a comma separated string. The nr of comma separated tokens is the nr of channels.
      *
      * @return nr of load profile channels
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException thrown when something goes wrong
      */
@@ -572,7 +594,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws com.energyict.dialer.connection.ConnectionException
      *          thrown when a connection exception happens
      */
-    /* 
+    /*
      *  Default implementation of the HHU interfacing. These classes can be overridden by
      *  the subclass if the implementation should be different.
      */
@@ -614,8 +636,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      */
     /*
      *  This method must be overridden by the subclass to implement meter specific error
-     *  messages. Us sample code of a static map with error codes below as a sample and 
-     *  use code in method as a sample of how to retrieve the error code.  
+     *  messages. Us sample code of a static map with error codes below as a sample and
+     *  use code in method as a sample of how to retrieve the error code.
      *  This code has been taken from a real protocol implementation.
      */
 /*
@@ -631,14 +653,14 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         if (exceptionInfo != null)
            return id+", "+exceptionInfo;
         else
-           return "No meter specific exception info for "+id; 
+           return "No meter specific exception info for "+id;
         */
         return null;
     }
 
 
     /*******************************************************************************************
-     D i a l i n S c h e d u l e P r o t o c o l  i n t e r f a c e 
+     D i a l i n S c h e d u l e P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
     /**
      * Setter for setting the meters next scheduled dialin time & date. It is the time & date
@@ -687,7 +709,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *  or the meter does not provide a datadump. The method is used by the Hand-Held mechanism to uniquely identify
      *  a meter device (com.energyict.protocolimpl.base.IEC1107HHUConnection).
      *  Use the sample code below as an example how to retrieve the serialnumber from a meter using a level 0
-     *  security (=no password). 
+     *  security (=no password).
      *  This code has been taken from a real protocol implementation.
      */
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
@@ -708,7 +730,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
 
     /*******************************************************************************************
-     G e t t e r s  &  s e t t e r s  o f  p r o p e r t i e s 
+     G e t t e r s  &  s e t t e r s  o f  p r o p e r t i e s
      *******************************************************************************************/
 
     /**
@@ -1064,22 +1086,22 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "10000").trim()));
             setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "5").trim()));
-            roundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORR, "0").trim());
+            roundtripCorrection = Integer.parseInt(properties.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName(), "0").trim());
             securityLevel = Integer.parseInt(properties.getProperty(PROP_SECURITY_LEVEL, "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             echoCancelling = Integer.parseInt(properties.getProperty(PROP_ECHO_CANCELING, "0").trim());
             protocolCompatible = Integer.parseInt(properties.getProperty(PROP_PROTOCOL_COMPATIBLE, "1").trim());
             extendedLogging = Integer.parseInt(properties.getProperty(PROP_EXTENDED_LOGGING, "0").trim());
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
             channelMap = properties.getProperty(PROP_CHANNEL_MAP);
             if (channelMap != null) {
                 protocolChannelMap = new ProtocolChannelMap(channelMap);
             }
-            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL, "900").trim());
+            profileInterval = Integer.parseInt(properties.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900").trim());
             requestHeader = Integer.parseInt(properties.getProperty(PROP_REQUEST_HEADER, "0").trim());
             scaler = Integer.parseInt(properties.getProperty(PROP_SCALER, "0").trim());
             setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "300").trim()));

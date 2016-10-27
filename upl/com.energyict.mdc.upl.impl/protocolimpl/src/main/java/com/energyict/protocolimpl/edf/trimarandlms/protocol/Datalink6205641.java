@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
@@ -22,23 +23,23 @@ import java.io.IOException;
  * @author Koen
  */
 public class Datalink6205641 {
-    
+
     final int DEBUG=0;
-    
-    // KV_DEBUG was 10000           
+
+    // KV_DEBUG was 10000
     final long TIMEOUT=15000; // safety timer
     private final int MAX_DSDU_SIZE=123;
-    
+
     // states
     final int STOPPED=0;
     final int MREC=1;
     final int DFRAME=2;
     final int MSEND=3;
-    
-    
+
+
 
     String[] states = new String[]{"STOPPED","MREC","DFRAME","MSEND"};
-    
+
     // events
     final int NO_EVENT=-1;
     final int DL_REQUEST=0;
@@ -48,9 +49,9 @@ public class Datalink6205641 {
     final int T1_TIMEOUT=4;
 
     String[] events = new String[]{"DL_REQUEST","DL_ABORT","PHY_INDICATE","PHY_ABORT","T1_TIMEOUT"};
-    
+
     int state;
-    
+
     // state machine variables
     private boolean ackExpected;
     private int maxRetry;
@@ -64,48 +65,48 @@ public class Datalink6205641 {
     private boolean strong;
     private boolean checkTimer=false;
     private Connection62056 connection;
-    
-    
+
+
     private int index;
     long protocolTimeout;
-    
+
     /** Creates a new instance of Datalink6205641 */
     public Datalink6205641(Connection62056 connection) {
         this.connection=connection;
     }
-    
+
     public void initDatalink() {
         state=STOPPED;
     }
-    
+
     // from above, the transportlayer
     public void request(DSDU dsdu) throws IOException {
-        
+
         if (DEBUG>=2){
         	System.out.println("KV_DEBUG> "+dsdu);
         }
         setDsdu(dsdu);
         stateMachine(DL_REQUEST);
     }
-    
+
     public void respond() throws IOException {
         connection.getPhysical6205641().respond();
     }
-    
+
     public void abort(boolean strong) throws IOException {
         setStrong(strong);
         stateMachine(DL_ABORT);
     }
-    
+
     // from below, the physicallayer
     public void indicate(Frame frameReceived) throws IOException {
-        
+
         setFrameReceived(frameReceived);
         stateMachine(PHY_INDICATE);
         connection.getTransport6205651().indicate(dsduReceived);
     }
-    
-    
+
+
     private void initTimer() {
 //        protocolTimeout = System.currentTimeMillis() + getConnection().getT1Timeout();
 //        checkTimer=true;
@@ -113,9 +114,9 @@ public class Datalink6205641 {
     private void stopTimer() {
 //        checkTimer=false;
     }
-    
+
     private void stateMachine(int event) throws IOException {
-        
+
         long safetyTimeout = System.currentTimeMillis() + TIMEOUT;
         int retry=0;
         String errorDescription="";
@@ -123,20 +124,20 @@ public class Datalink6205641 {
         while(true) {
             try {
                 switch(state) {
-                    
+
                     case STOPPED: {
-                        
+
                         switch(event) {
-                            
+
                             case DL_REQUEST: {
-                                
+
                                 init();
                                 setSend(false);
                                 setConfirm(true);
                                 state = MREC;
                                 sendFrame(getDsdu());
                             } break; // DL_REQUEST
-                            
+
                             case PHY_INDICATE: {
                                 if (getFrameReceived().isText()) {
                                     if (getFrameReceived().isCheckFrame()) {
@@ -156,37 +157,37 @@ public class Datalink6205641 {
                                     throw new ProtocolException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
                                 }
                             } break; // PHY_INDICATE
-                            
+
                             default:
                                 throw new ProtocolException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
-                            
+
                         } // switch(event)
-                        
+
                     } break; // STOPPED
-                    
+
                     case MREC: {
                         // here we must receive a frame!
                         //if (event != PHY_INDICATE) {
                         if (event == NO_EVENT) {
                             try {
                                 byte[] data = connection.receiveData();
-                                
+
                                 frameReceived = new Frame();
-                                frameReceived.init(data);   
-                                
+                                frameReceived.init(data);
+
                                 event = PHY_INDICATE;
                             }
                             catch(ProtocolConnectionException e) {
-                                throw e;    
+                                throw e;
                             }
                         } // if (event != PHY_INDICATE)
-                        
+
                         switch(event) {
-                            
+
                             case PHY_ABORT: {
                                 throw new DatalinkAbortException("Datalink6205641, stateMachine, Phy abort eror, "+errorDescription, errorNr, true);
                             } // PHY_ABORT
-                            
+
                             case T1_TIMEOUT: {
                                 if (DEBUG>=1) {
 									System.out.println("KV_DEBUG> T1_TIMEOUT in MREC at "+System.currentTimeMillis());
@@ -195,7 +196,7 @@ public class Datalink6205641 {
                                 connection.getPhysical6205641().abort();
                                 throw new DatalinkAbortException("Datalink6205641, stateMachine, EL-4F eror (Expiry of the period T1 without any frame being received)", 4);
                             } // T1_TIMEOUT
-                            
+
                             case DL_ABORT: {
                                 state = STOPPED;
                                 if (isStrong()) {
@@ -211,9 +212,9 @@ public class Datalink6205641 {
                                         throw new IOException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
                                     }
                                 }
-                                
+
                             } break; // DL_ABORT
-                            
+
                             case PHY_INDICATE: {
                                 stopTimer();
                                 state = DFRAME;
@@ -221,21 +222,21 @@ public class Datalink6205641 {
 									System.out.println("KV_DEBUG> PHY_INDICATE "+System.currentTimeMillis());
 								}
                             } break; // PHY_INDICATE
-                            
+
                             default:
                                 throw new IOException("Datalink6205641, stateMachine, invalid state="+states[state]+", event="+events[event]);
-                                
+
                         } // switch(event)
-                        
+
                     } break; // MREC
-                    
+
                     case DFRAME: {
                         boolean ack = isAck();
-                        
+
                         if (DEBUG>=2) {
 							System.out.println("KV_DEBUG> Datalink, DFRAME, getFrameReceived().isCheckFrame()="+getFrameReceived().isCheckFrame()+", isAck()="+ack+", getFrameReceived().isText()="+getFrameReceived().isText());
 						}
-                        
+
                         // Response received
                         if (getFrameReceived().isCheckFrame() && ack && getFrameReceived().isText()) {
                             if (DEBUG>=2) {
@@ -245,17 +246,17 @@ public class Datalink6205641 {
                             toggleConfirm();
                             state = MSEND;
                             dsduReceived = getFrameReceived().getDsdu();
-                            
+
                             if ((previousFrameReceived != null) && (previousFrameReceived.isSend() == frameReceived.isSend()) && !dsduReceived.isEnd()) {
                                 dsduReceived=null;
                                 if (DEBUG>=1) {
 									System.out.println("KV_DEBUG> Datalink, duplicate frame received!");
 								}
-                            }    
+                            }
                             previousFrameReceived = getFrameReceived();
-                            
+
                         }
-                        
+
                         // ACK received
                         if (getFrameReceived().isCheckFrame() && ack && !getFrameReceived().isText()) {
                             if (DEBUG>=2) {
@@ -263,16 +264,16 @@ public class Datalink6205641 {
 							}
                             setAckExpected(false);
                             state = MSEND;
-                            
+
                             previousFrameReceived = getFrameReceived();
-                            
+
                             if ((dsduReceived != null) && (dsduReceived.isEnd())) {
 								return;
 							}
-                            
-                            
+
+
                         }
-                        
+
                         // bad frame retry
                         if (!(getFrameReceived().isCheckFrame() && ack) && (index <= getMaxRetry())) {
                             previousFrameReceived=null;
@@ -283,7 +284,7 @@ public class Datalink6205641 {
                             reSendFrame(); //getDsdu());
                             state = MREC;
                         }
-                        
+
                         // bad frame max retries
                         if (!(getFrameReceived().isCheckFrame() && ack) && (index > getMaxRetry())) {
                             if (DEBUG>=1) {
@@ -294,13 +295,13 @@ public class Datalink6205641 {
                             state = STOPPED;
                             throw new DatalinkAbortException("Datalink6205641, stateMachine, EL-5F eror (MaxRetry repeated transmissions of the same frame without any acknowledgement frame being received)", 5);
                         }
-                        
-                        
+
+
                     } break; // DFRAME
-                    
+
                     case MSEND: {
                         switch(event) {
-                            
+
                             case DL_REQUEST: {
                                 if (DEBUG>=2) {
 									System.out.println("KV_DEBUG> MSEND, send frame "+System.currentTimeMillis());
@@ -309,7 +310,7 @@ public class Datalink6205641 {
                                 state = MREC;
                                 sendFrame(getDsdu());
                             } break; // DL_REQUEST
-                            
+
                             default: {
                                 // send ACK
                                 if (DEBUG>=2) {
@@ -317,26 +318,26 @@ public class Datalink6205641 {
 								}
                                 state = MREC;
                                 sendFrame();
-                                
+
                                 if (dsduReceived != null) {
 									if (DEBUG>=2) {
 										System.out.println("KV_DEBUG> MSEND, send ack, "+dsduReceived);
 									}
 								}
-                                    
+
                                 if ((dsduReceived==null) || ((dsduReceived!=null) && (!dsduReceived.isEnd()))) {
 									return;
 								}
 
                             } break;
-                            
+
                         } // switch(event)
                     } break; // MSEND
-                    
+
                 } // switch(state);
-                
+
                 event = NO_EVENT; // reset event
-            } 
+            }
             catch(PhysicalAbortException e) {
                 if (DEBUG>=1) {
 					System.out.println("KV_DEBUG> Datalink, PhysicalAbortException, "+e.toString()+" at "+System.currentTimeMillis()+", generates PHY_ABORT event!");
@@ -365,29 +366,29 @@ public class Datalink6205641 {
             if (((long) (System.currentTimeMillis() - safetyTimeout)) > 0) {
                 throw new ConnectionException("Datalink6205641, stateMachine, Safety timeout",connection.getTIMEOUT_ERROR());
             } // if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)
-            
+
         } // while(true)
-        
+
         //throw new IOException("Datalink6205641, stateMachine, program flow error!");
-        
+
     } // private void stateMachine(int event)
-    
-    
+
+
     // KV_DEBUG ***DEBUG***
 //    int debugCount=0;
-    
+
     private boolean isAck() {
-        
+
 //        // KV_DEBUG ***DEBUG***
 //        debugCount++;
 //        if ((debugCount%15)==0) {
 //            System.out.print("Simulate BAD FRAME RECEPTION for "+ProtocolUtils.outputHexString(getFrameReceived().getData())+"\n");
 //            return false;
 //        }
-        
+
         return getFrameReceived().isConfirm() == isSend();
     }
-    
+
     private void sendFrame() throws IOException {
         sendFrame(null);
     }
@@ -401,12 +402,12 @@ public class Datalink6205641 {
             frame.init(isSend(),isConfirm(), dsdu);
         }
         //if (DEBUG >=1) System.out.println("KV_DEBUG> "+frame);
-        
+
         previousDsdu = dsdu;
-            
+
         initTimer();
         setIndex(1);
-        
+
         if (DEBUG>=2) {
 			System.out.println("KV_DEBUG> sendFrame(), index="+index+", frame data: "+ProtocolUtils.outputHexString(frame.getData()));
 		}
@@ -430,45 +431,45 @@ public class Datalink6205641 {
 		}
         getConnection().getPhysical6205641().request(frame);
     }
-    
-    
+
+
 //    private boolean checkFrame(Frame frame) throws IOException {
-//        
+//
 //        // KV_TO_DO implement
 //        return false;
 //    }
-    
-    
-    
+
+
+
     private void init() {
         ackExpected = false;
         maxRetry = 5;
     }
-    
+
     private boolean isAckExpected() {
         return ackExpected;
     }
-    
+
     private void setAckExpected(boolean ackExpected) {
         this.ackExpected = ackExpected;
     }
-    
+
     private int getMaxRetry() {
         return maxRetry;
     }
-    
+
     private void setMaxRetry(int maxRetry) {
         this.maxRetry = maxRetry;
     }
-    
+
     private boolean isSend() {
         return send;
     }
-    
+
     private void setSend(boolean send) {
         this.send = send;
     }
-    
+
     private boolean toggleSend() {
         if (isSend()) {
 			setSend(false);
@@ -477,7 +478,7 @@ public class Datalink6205641 {
 		}
         return isSend();
     }
-    
+
     private boolean toggleConfirm() {
         if (isConfirm()) {
 			setConfirm(false);
@@ -486,51 +487,51 @@ public class Datalink6205641 {
 		}
         return isConfirm();
     }
-    
+
     private boolean isConfirm() {
         return confirm;
     }
-    
+
     private void setConfirm(boolean confirm) {
         this.confirm = confirm;
     }
-    
-    
-    
+
+
+
     private DSDU getDsdu() {
         return dsdu;
     }
-    
+
     private void setDsdu(DSDU dsdu) {
         this.dsdu = dsdu;
     }
-    
+
     private Connection62056 getConnection() {
         return connection;
     }
-    
+
     private void setConnection(Connection62056 connection) {
         this.connection = connection;
     }
-    
+
     private int getIndex() {
         return index;
     }
-    
+
     private void setIndex(int index) {
         this.index = index;
     }
-    
+
     private void incIndex() {
         this.index++;
     }
-    
 
-    
+
+
     public boolean isStrong() {
         return strong;
     }
-    
+
     public void setStrong(boolean strong) {
         this.strong = strong;
     }
@@ -546,5 +547,5 @@ public class Datalink6205641 {
     public void setFrameReceived(Frame frameReceived) {
         this.frameReceived = frameReceived;
     }
-    
+
 } // public class Datalink6205641

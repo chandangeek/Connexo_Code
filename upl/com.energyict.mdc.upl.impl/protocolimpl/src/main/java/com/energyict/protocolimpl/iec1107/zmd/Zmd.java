@@ -1,6 +1,13 @@
 package com.energyict.protocolimpl.iec1107.zmd;
 
-import com.energyict.cbo.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
@@ -8,7 +15,16 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParser;
@@ -27,7 +43,14 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -152,19 +175,19 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
                 }
             }
 
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         } catch (NumberFormatException e) {
             String msg = "validateProperties, NumberFormatException, " + e.getMessage();
@@ -660,4 +683,4 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-} 
+}

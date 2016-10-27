@@ -1,29 +1,36 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.ActarisMBusInternalData;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.MBusInternalLogs.HistoricalValue;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class ObisCodeMapper {
-	
+
 	static Map<ObisCode,String> registerMaps = new HashMap<ObisCode, String>();
-	
+
 	static {
 		// get the common obis codes from the common obis code mapper
-		
+
 		// specific Actaris mbus meters registers
 		//registerMaps.put(ObisCode.fromString("0.0.96.6.68.255"), "Port A encoder internal data raw string");
 		//registerMaps.put(ObisCode.fromString("0.0.96.6.69.255"), "Port B encoder internal data raw string");
-		
-		
+
+
 		// MBus data parsed registers
 		registerMaps.put(ObisCode.fromString("0.0.96.99.0.0"), "Fabrication Number");
 		registerMaps.put(ObisCode.fromString("0.0.96.99.0.1"), "Volume");
@@ -43,7 +50,7 @@ public class ObisCodeMapper {
 		registerMaps.put(ObisCode.fromString("0.0.96.99.255.253"), "MBUS header identification number");
 		registerMaps.put(ObisCode.fromString("0.0.96.99.255.254"), "MBUS header status byte");
 		registerMaps.put(ObisCode.fromString("0.0.96.99.255.255"), "MBUS header signature field");
-		
+
 		registerMaps.put(ObisCode.fromString("0.1.96.99.0.0"), "Fabrication Number");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.0.1"), "Volume");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.0.2"), "Volume Flow");
@@ -62,7 +69,7 @@ public class ObisCodeMapper {
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.253"), "MBUS header identification number");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.254"), "MBUS header status byte");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.255"), "MBUS header signature field");
-		
+
         registerMaps.put(ObisCode.fromString("1.1.96.1.0.255"), "Meter serial number on port A");
         registerMaps.put(ObisCode.fromString("1.2.96.1.0.255"), "Meter serial number on port B");
 
@@ -71,7 +78,7 @@ public class ObisCodeMapper {
 
 		registerMaps.put(ObisCode.fromString("8.1.1.0.0.255"), "Port A current index");
 		registerMaps.put(ObisCode.fromString("8.2.1.0.0.255"), "Port B current index");
-		
+
 
 //		for (int historicalIndex=0;historicalIndex<13;historicalIndex++) {
 //			registerMaps.put(ObisCode.fromString("8.1.1.0.0."+historicalIndex), "Port A encoder current index");
@@ -79,41 +86,41 @@ public class ObisCodeMapper {
 //		}
 
 	}
-	
+
 	private Echodis echodis;
-	
+
     /**
      * Creates a new instance of ObisCodeMapper
      */
     public ObisCodeMapper(final Echodis echodis) {
         this.echodis=echodis;
     }
-    
+
     final String getRegisterExtendedLogging() {
-    	
+
     	StringBuilder strBuilder=new StringBuilder();
-    	
+
     	Iterator<Entry<ObisCode,String>> it = registerMaps.entrySet().iterator();
     	while(it.hasNext()) {
     		Entry<ObisCode,String> o = it.next();
     		echodis.getLogger().info(o.getKey().toString()+", "+o.getValue());
     	}
-    	
+
     	strBuilder.append(echodis.getCommonObisCodeMapper().getRegisterExtendedLogging());
-    	
+
     	return strBuilder.toString();
     }
-    
+
     public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
     	String info = registerMaps.get(obisCode);
     	if (info !=null) {
     		return new RegisterInfo(info);
     	}
     	else {
-    		return CommonObisCodeMapper.getRegisterInfo(obisCode); 
+    		return CommonObisCodeMapper.getRegisterInfo(obisCode);
     	}
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 		try {
             if (obisCode.equals(ObisCode.fromString("1.1.96.1.0.255")) || obisCode.equals(ObisCode.fromString("1.2.96.1.0.255"))) {
@@ -148,13 +155,13 @@ public class ObisCodeMapper {
 	    	}
 	    	else if (obisCode.equals(ObisCode.fromString("8.2.1.0.0.255"))) { // Port B
 	    		return echodis.getMbusRegisterValue(ObisCode.fromString("0.1.96.99.0.1"));
-	    	}	    	
+	    	}
 	    	else if ((obisCode.getA()==8) && (obisCode.getC()==1) && (obisCode.getD()==0) && (obisCode.getE()==0)) { // port A
-	    		
+
 	    		int portId = obisCode.getB()-1;
 	    		if ((portId==0) || (portId==1)) {
 	    			int historicalId=obisCode.getF();
-	    			
+
 	    			if (historicalId<0) {
 	    				historicalId = Math.abs(obisCode.getF());
 	    			}
@@ -166,20 +173,20 @@ public class ObisCodeMapper {
 	    			}
 	    		}
 	    	}
-	    	
+
     		try {
     			return echodis.getCommonObisCodeMapper().getRegisterValue(obisCode);
     		}
     		catch(NoSuchRegisterException e) {
     			return echodis.getMbusRegisterValue(obisCode);
     		}
-	    	
+
 		} catch (IOException e) {
-			
+
 			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] has an error ["+e.getMessage()+"]!");
-			
+
 		}
 
     }
-	
+
 }

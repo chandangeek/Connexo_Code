@@ -6,6 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.ppm;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -16,7 +19,18 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -32,7 +46,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -221,20 +242,20 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
           */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.ADDRESS) != null) {
-            this.pAddress = p.getProperty(MeterProtocol.ADDRESS);
+        if (p.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
+            this.pAddress = p.getProperty(MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (p.getProperty(MeterProtocol.NODEID) != null) {
-            this.pNodeId = p.getProperty(MeterProtocol.NODEID);
+        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
+            this.pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
         }
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
-            this.pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            this.pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.PASSWORD) != null) {
-            this.pPassword = p.getProperty(MeterProtocol.PASSWORD);
+        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
+            this.pPassword = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
         }
 
         if (p.getProperty(PK_OPUS) != null) {
@@ -249,8 +270,8 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             this.pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
         }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
-            this.pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.ROUNDTRIPCORR));
+        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            this.pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
         if (p.getProperty(PK_DELAY_AFTER_FAIL) != null) {
@@ -261,8 +282,8 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             this.pRetries = Integer.parseInt(p.getProperty(PK_SECURITY_LEVEL));
         }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
-            this.pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            this.pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_EXTENDED_LOGGING) != null) {

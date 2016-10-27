@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.OctetString;
@@ -18,7 +20,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

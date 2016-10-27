@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
@@ -9,7 +11,6 @@ import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;

@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
@@ -9,7 +11,6 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.GenericDlmsClassAttribute;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.Arrays;

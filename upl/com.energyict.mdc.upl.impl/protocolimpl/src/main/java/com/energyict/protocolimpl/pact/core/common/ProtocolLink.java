@@ -6,13 +6,13 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import com.energyict.protocol.UnsupportedException;
-
 /**
- * 
+ *
  * @author Koen
  */
 public interface ProtocolLink {

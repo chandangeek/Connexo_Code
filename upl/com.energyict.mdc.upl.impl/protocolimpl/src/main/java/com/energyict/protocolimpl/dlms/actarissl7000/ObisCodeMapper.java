@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.dlms.actarissl7000;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -14,9 +16,13 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.DLMSLNSL7000;
@@ -29,22 +35,22 @@ import java.util.Date;
  * @author  Koen
  */
 public class ObisCodeMapper {
-    
+
     DLMSLNSL7000 meterProtocol;
     RegisterProfileMapper registerProfileMapper=null;
-    
-    
+
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(DLMSLNSL7000 meterProtocol) {
         this.meterProtocol = meterProtocol;
         registerProfileMapper = new RegisterProfileMapper(meterProtocol.getCosemObjectFactory(), meterProtocol);
-        
+
     }
-    
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) {
 			return new RegisterInfo(obisCode.getDescription());
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
     	RegisterValue regValue;
     	try {
@@ -59,11 +65,11 @@ public class ObisCodeMapper {
         }
 		return regValue;
     }
-    
+
     private Object doGetRegister(ObisCode obisCode) throws IOException {
         int billingPoint;
-        
-        // ********************************************************************************* 
+
+        // *********************************************************************************
         // Historical data
         if (obisCode.getF() != 255) {
             billingPoint = Math.abs(obisCode.getF());
@@ -75,7 +81,7 @@ public class ObisCodeMapper {
                 if ((obisCode.getA() == 1) && (obisCode.getB() == 1) || (obisCode.getA() == 1) && (obisCode.getC() == 1)) {
                     ObisCode profileObisCode = registerProfileMapper.getMDProfileObisCode(obisCode);
                     if (profileObisCode == null) {
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
+                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
                     }
                     HistoricalValue historicalValue = meterProtocol.getCosemObjectFactory().getStoredValues().getHistoricalValue(profileObisCode);
                     return new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
@@ -86,7 +92,7 @@ public class ObisCodeMapper {
                 }
             }
         }
-        
+
         // *********************************************************************************
         // Billing counter
         if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) {
@@ -151,7 +157,7 @@ public class ObisCodeMapper {
             return new RegisterValue(obisCode, cosemObject.getQuantityValue(), captureTime == null ? billingDate : captureTime, null,
                     cosemObject.getBillingDate(), new Date(), 0, cosemObject.getText());
         }
-        
+
         // *********************************************************************************
         // All other registers
         final UniversalObject uo = meterProtocol.getMeterConfig().findObject(obisCode);
@@ -220,7 +226,7 @@ public class ObisCodeMapper {
         text += "hour: " + dateAndTime[4];
         return new RegisterValue(obisCode,  text);
         }
-        
+
     private RegisterValue getBatteryExpiryDate(ObisCode obisCode) throws IOException {
         Data data = meterProtocol.getCosemObjectFactory().getData(obisCode);
         OctetString octetString = data.getValueAttr().getOctetString();

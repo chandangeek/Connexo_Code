@@ -10,53 +10,57 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.itron.quantum1000.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+import com.energyict.protocolimpl.itron.quantum1000.Quantum1000;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class RegisterMapFactory {
-    
+
     Quantum1000 quantum1000;
-    
+
     List registerMaps;
-    
+
     private final int MAX_TOU_RATES=8;
-    
+
     private final int OBISCODE_D_PROJECTED_DEMAND=200;
-    
+
     // 5 max demand peak values
     private final int OBISCODE_E_MULTIPLE_PEAK_VALUE1=128;
     private final int OBISCODE_E_MULTIPLE_PEAK_VALUE2=129;
     private final int OBISCODE_E_MULTIPLE_PEAK_VALUE3=130;
     private final int OBISCODE_E_MULTIPLE_PEAK_VALUE4=131;
     private final int OBISCODE_E_MULTIPLE_PEAK_VALUE5=132;
-    
+
     // 5 minimum demand peak values
     private final int OBISCODE_E_MULTIPLE_MIN_VALUE1=133;
     private final int OBISCODE_E_MULTIPLE_MIN_VALUE2=134;
     private final int OBISCODE_E_MULTIPLE_MIN_VALUE3=135;
     private final int OBISCODE_E_MULTIPLE_MIN_VALUE4=136;
     private final int OBISCODE_E_MULTIPLE_MIN_VALUE5=137;
-    
+
     /**
-     * Creates a new instance of RegisterMapFactory 
+     * Creates a new instance of RegisterMapFactory
      */
     public RegisterMapFactory(Quantum1000 quantum1000) {
         this.quantum1000=quantum1000;
     }
-    
+
     public void init() throws IOException {
         buildRegisterList();
     }
-    
+
     public String getRegisterInfo() {
         StringBuffer strBuff = new StringBuffer();
         Iterator it = registerMaps.iterator();
@@ -65,11 +69,11 @@ public class RegisterMapFactory {
             strBuff.append(rm);
         }
         return strBuff.toString();
-        
+
     }
-    
+
     public RegisterMap findRegisterMap(ObisCode obisCode) throws IOException {
-        
+
         StringBuffer strBuff = new StringBuffer();
         Iterator it = registerMaps.iterator();
         while(it.hasNext()) {
@@ -78,31 +82,31 @@ public class RegisterMapFactory {
                 return rm;
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
     }
-    
+
     private void buildRegisterList() throws IOException {
-        
+
         registerMaps = new ArrayList();
         int maxRates = quantum1000.getDataDefinitionFactory().isTOUMeter()?MAX_TOU_RATES:0;
-        
+
         EnergyRegisterConfiguration energyRegisterConfiguration = quantum1000.getDataDefinitionFactory().getEnergyRegisterConfiguration();
         EnergyRegister[] registerConfigs = energyRegisterConfiguration.getRegisterConfig();
         for (int register=0;register<registerConfigs.length;register++) {
             if (registerConfigs[register].getQuantityId().isValid()) {
                 for (int rate=0;rate<=maxRates;rate++) {
-                   registerMaps.add(new RegisterMap(ObisCode.fromString("1."+registerConfigs[register].getQuantityId().getObisBField()+"."+registerConfigs[register].getQuantityId().getObisCField()+".8."+rate+".255"), 
-                                    registerConfigs[register].getQuantityId().getDescription(), 
+                   registerMaps.add(new RegisterMap(ObisCode.fromString("1."+registerConfigs[register].getQuantityId().getObisBField()+"."+registerConfigs[register].getQuantityId().getObisCField()+".8."+rate+".255"),
+                                    registerConfigs[register].getQuantityId().getDescription(),
                                     registerConfigs[register].getQuantityId().getUnit().getVolumeUnit(),
                                     register,
-                                    RegisterMap.getREGISTER(), 
+                                    RegisterMap.getREGISTER(),
                                     registerConfigs[register].getMultiplier()));
                 } // for (int rate=1;rate<=MAX_TOU_RATES;rate++)
             } // if (registerConfigs[register].getQuantityId().isValid())
         } // for (int register=0;register<registerConfigs.length;register++)
 
-        
-        
+
+
         DemandRegisterConfiguration demandRegisterConfiguration = quantum1000.getDataDefinitionFactory().getDemandRegisterConfiguration();
         DemandRegister[] demandRegisters = demandRegisterConfiguration.getDemandRegisters();
         int multiplePeakSet=0;
@@ -122,7 +126,7 @@ public class RegisterMapFactory {
                 if (demandRegisters[register].getCoincidentQuantities()[1].isValid()) buildDemandRegisterMap(demandRegisters, demandRegisters[register].getCoincidentQuantities()[1].getUnit(),register, rate, ObisCodeExtensions.OBISCODE_D_COINCIDENT+4,"valleyCoincidentReg2Value"); // valleyCoincidentReg2Value
                 if (demandRegisters[register].getCoincidentQuantities()[2].isValid()) buildDemandRegisterMap(demandRegisters, demandRegisters[register].getCoincidentQuantities()[2].getUnit(),register, rate, ObisCodeExtensions.OBISCODE_D_COINCIDENT+5,"valleyCoincidentReg3Value"); // valleyCoincidentReg3Value
 
-            } // for (int rate=0;rate<=(quantum1000.getDataDefinitionFactory().isTOUMeter()?MAX_TOU_RATES:0);rate++)   
+            } // for (int rate=0;rate<=(quantum1000.getDataDefinitionFactory().isTOUMeter()?MAX_TOU_RATES:0);rate++)
 
             if (demandRegisters[register].isMultipleMinimumRequired()) {
                 for (int peak=0;peak<5;peak++) {
@@ -144,8 +148,8 @@ public class RegisterMapFactory {
                 multiplePeakSet++;
             }
         } // for (int register=0;register<demandRegisters.length;register++)
-        
-        
+
+
         SelfReadGeneralInformation selfReadRegisterInformation = quantum1000.getDataDefinitionFactory().getSelfReadGeneralInformation();
         if (selfReadRegisterInformation.getNumberOfSelfRead() > 0) {
             SelfReadRegisterConfiguration selfReadRegisterConfiguration = quantum1000.getDataDefinitionFactory().getSelfReadRegisterConfiguration();
@@ -155,18 +159,18 @@ public class RegisterMapFactory {
                 if (selfReadRegisterConfigurationTypes[register].getQuantityId().isValid()) {
                     if (selfReadRegisterConfigurationTypes[register].isSelfReadEnergyRegisterType()) {
                         for (int selfRead=0;selfRead<selfReadRegisterInformation.numberOfSelfReadSets();selfRead++) {
-                           registerMaps.add(new RegisterMap(ObisCode.fromString("1."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisBField()+"."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisCField()+".8."+selfReadRegisterConfigurationTypes[register].getId2()+"."+selfRead), 
-                                                            selfReadRegisterConfigurationTypes[register].getQuantityId().getDescription(), 
+                           registerMaps.add(new RegisterMap(ObisCode.fromString("1."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisBField()+"."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisCField()+".8."+selfReadRegisterConfigurationTypes[register].getId2()+"."+selfRead),
+                                                            selfReadRegisterConfigurationTypes[register].getQuantityId().getDescription(),
                                                             selfReadRegisterConfigurationTypes[register].getQuantityId().getUnit().getVolumeUnit(),
-                                                            selfReadRegisterId, 
-                                                            RegisterMap.getSELFREAD(), 
+                                                            selfReadRegisterId,
+                                                            RegisterMap.getSELFREAD(),
                                                             energyRegisterConfiguration.findEnergyRegister(selfReadRegisterConfigurationTypes[register].getQuantityId()).getMultiplier()));
-                           
-                           registerMaps.add(new RegisterMap(ObisCode.fromString("1."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisBField()+"."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisCField()+".9."+selfReadRegisterConfigurationTypes[register].getId2()+"."+selfRead), 
-                                                            selfReadRegisterConfigurationTypes[register].getQuantityId().getDescription(), 
+
+                           registerMaps.add(new RegisterMap(ObisCode.fromString("1."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisBField()+"."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisCField()+".9."+selfReadRegisterConfigurationTypes[register].getId2()+"."+selfRead),
+                                                            selfReadRegisterConfigurationTypes[register].getQuantityId().getDescription(),
                                                             selfReadRegisterConfigurationTypes[register].getQuantityId().getUnit().getVolumeUnit(),
-                                                            selfReadRegisterId, 
-                                                            RegisterMap.getSELFREAD(), 
+                                                            selfReadRegisterId,
+                                                            RegisterMap.getSELFREAD(),
                                                             energyRegisterConfiguration.findEnergyRegister(selfReadRegisterConfigurationTypes[register].getQuantityId()).getMultiplier()));
                         }
                         selfReadRegisterId++;
@@ -184,7 +188,7 @@ public class RegisterMapFactory {
                             if (demandRegisters[register].getCoincidentQuantities()[0].isValid()) buildSelfReadDemandRegisterMap(selfReadRegisterConfigurationTypes, demandRegister.getCoincidentQuantities()[0].getUnit(), register, ObisCodeExtensions.OBISCODE_D_COINCIDENT+3, selfRead, demandRegisterConfiguration, "valleyCoincidentReg1Value",selfReadRegisterId); // valleyCoincidentReg1Value
                             if (demandRegisters[register].getCoincidentQuantities()[1].isValid()) buildSelfReadDemandRegisterMap(selfReadRegisterConfigurationTypes, demandRegister.getCoincidentQuantities()[1].getUnit(), register, ObisCodeExtensions.OBISCODE_D_COINCIDENT+4, selfRead, demandRegisterConfiguration, "valleyCoincidentReg2Value",selfReadRegisterId); // valleyCoincidentReg2Value
                             if (demandRegisters[register].getCoincidentQuantities()[2].isValid()) buildSelfReadDemandRegisterMap(selfReadRegisterConfigurationTypes, demandRegister.getCoincidentQuantities()[2].getUnit(), register, ObisCodeExtensions.OBISCODE_D_COINCIDENT+5, selfRead, demandRegisterConfiguration, "valleyCoincidentReg3Value",selfReadRegisterId); // valleyCoincidentReg3Value
-                            
+
                         }
                         selfReadRegisterId++;
                     }
@@ -192,19 +196,19 @@ public class RegisterMapFactory {
             } // for (int register=0;register<registerConfigs.length;register++)
         } // if (selfReadRegisterInformation.getNumberOfSelfRead() > 0)
     }
-    
+
     private void buildSelfReadDemandRegisterMap(SelfReadRegisterConfigurationType[] selfReadRegisterConfigurationTypes,Unit unit,int register,int dField, int selfRead,DemandRegisterConfiguration demandRegisterConfiguration, int id) throws IOException {
         buildSelfReadDemandRegisterMap(selfReadRegisterConfigurationTypes,unit,register,dField,selfRead,demandRegisterConfiguration, "", id);
     }
     private void buildSelfReadDemandRegisterMap(SelfReadRegisterConfigurationType[] selfReadRegisterConfigurationTypes,Unit unit,int register,int dField, int selfRead,DemandRegisterConfiguration demandRegisterConfiguration, String description, int id) throws IOException {
-       registerMaps.add(new RegisterMap(ObisCode.fromString("1."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisBField()+"."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisCField()+".6."+selfReadRegisterConfigurationTypes[register].getId2()+"."+selfRead), 
-                                        selfReadRegisterConfigurationTypes[register].getQuantityId().getDescription()+", "+description, 
+       registerMaps.add(new RegisterMap(ObisCode.fromString("1."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisBField()+"."+selfReadRegisterConfigurationTypes[register].getQuantityId().getObisCField()+".6."+selfReadRegisterConfigurationTypes[register].getId2()+"."+selfRead),
+                                        selfReadRegisterConfigurationTypes[register].getQuantityId().getDescription()+", "+description,
                                         unit,
-                                        id, 
-                                        RegisterMap.getSELFREAD(), 
+                                        id,
+                                        RegisterMap.getSELFREAD(),
                                         demandRegisterConfiguration.findDemandRegister(selfReadRegisterConfigurationTypes[register].getQuantityId(), selfReadRegisterConfigurationTypes[register].getRegisterType()).getMultiplier()));
     }
-    
+
     private void buildDemandRegisterMap(DemandRegister[] demandRegisters,Unit unit,int register, int rate,int dField) {
         buildDemandRegisterMap(demandRegisters, unit, register, rate, dField,"");
     }
@@ -215,13 +219,13 @@ public class RegisterMapFactory {
         buildDemandRegisterMap(demandRegisters, unit, register, rate, dField,"",register);
     }
     private void buildDemandRegisterMap(DemandRegister[] demandRegisters,Unit unit,int register, int rate,int dField,String description, int id) {
-        registerMaps.add(new RegisterMap(ObisCode.fromString("1."+demandRegisters[register].getQuantityId().getObisBField()+"."+demandRegisters[register].getQuantityId().getObisCField()+"."+dField+"."+rate+".255"), 
-                         demandRegisters[register].getQuantityId().getDescription()+", "+description, 
+        registerMaps.add(new RegisterMap(ObisCode.fromString("1."+demandRegisters[register].getQuantityId().getObisBField()+"."+demandRegisters[register].getQuantityId().getObisCField()+"."+dField+"."+rate+".255"),
+                         demandRegisters[register].getQuantityId().getDescription()+", "+description,
                          unit,
                          id,
-                         RegisterMap.getDEMAND(), 
+                         RegisterMap.getDEMAND(),
                          demandRegisters[register].getMultiplier()));
-        
+
     }
 
     public int getOBISCODE_D_PROJECTED_DEMAND() {
@@ -243,5 +247,5 @@ public class RegisterMapFactory {
     public int getOBISCODE_E_MULTIPLE_MIN_VALUE5() {
         return OBISCODE_E_MULTIPLE_MIN_VALUE5;
     }
-    
+
 }

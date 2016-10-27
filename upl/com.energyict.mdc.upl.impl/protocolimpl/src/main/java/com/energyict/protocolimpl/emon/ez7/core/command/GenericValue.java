@@ -6,12 +6,14 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 /**
- * 
+ *
  * @author Koen
  */
 public interface GenericValue {
 
-	int getValue(int col, int row) throws com.energyict.protocol.UnsupportedException;
+	int getValue(int col, int row) throws UnsupportedException;
 
 }

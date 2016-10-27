@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr50;
 
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -16,7 +17,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.NTA_SIMULATION_TOOL;
+import static com.energyict.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
 /**
  * A collection of general DSMR50 properties.
@@ -92,7 +101,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.NODEID);
+        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.Property.NODEID.getName());
     }
 
     protected PropertySpec callHomeIdPropertySpec() {

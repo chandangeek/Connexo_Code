@@ -7,17 +7,25 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.LookupResources;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.MeterDataReadout;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.meteridentification.*;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocol.meteridentification.MeterId;
+import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Copy of IEC1107HHUConnection, custom addapted for use with Janz C280 DLMS
@@ -277,7 +285,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
                 if (receivedIdent.charAt(0) != '/') {
                     throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 String serialNumber;
 
 
@@ -338,7 +346,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
                 if (receivedIdent.charAt(0) != '/') {
                     throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 byte[] data = null;
                 String result = "";
                 if (modeCDataReadout) {
@@ -459,7 +467,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
                 if (logger.isDebugEnabled()) {
                     logger.debug("--->receivedIdent: " + receivedIdent);
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, PROTOCOL_JANZ);
 
                 // receive dataReadout
@@ -559,9 +567,9 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
 //                flushInputStream();
 //                throw new ConnectionException("disconnectMAC() error, "+e.getMessage());
 //            }
-//            
+//
 //        } // if (hhuConnected==true)
-//        
+//
 //    } // public void disconnectHHU() throws ConnectionException
     private void delay300baudForDatalength(byte[] ack) throws NestedIOException, ConnectionException {
         // calc sleeptime using 300 baud and length of data

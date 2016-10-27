@@ -7,9 +7,10 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
  * Time: 11:36
  */
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.util.Properties;

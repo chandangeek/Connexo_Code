@@ -2,10 +2,15 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dialer.core.*;
-import com.energyict.dialer.coreimpl.OpticalDialer;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.Optical;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 
 import java.io.IOException;
@@ -86,7 +91,7 @@ public abstract class AbstractSmartDebuggingMain<P extends SmartMeterProtocol> {
         }
 
         getMeterProtocol().init(getDialer().getInputStream(), getDialer().getOutputStream(), getTimeZone(), getLogger());
-        if (getDialer() instanceof OpticalDialer) {
+        if (getDialer() instanceof Optical) {
             if (getMeterProtocol() instanceof HHUEnabler) {
                 ((HHUEnabler) getMeterProtocol()).enableHHUSignOn(getDialer().getSerialCommunicationChannel());
             }

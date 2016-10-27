@@ -1,20 +1,38 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.protocol.security.SecurityPropertySet;
+import com.energyict.mdc.protocol.tasks.ClockTask;
+import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
+import com.energyict.mdc.protocol.tasks.LogBooksTask;
+import com.energyict.mdc.protocol.tasks.ProtocolTask;
+import com.energyict.mdc.protocol.tasks.RegistersTask;
+import com.energyict.mdc.tasks.ComTaskEnablement;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
+import com.energyict.mdc.tasks.NextExecutionSpecs;
+import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.tasks.ServerComTask;
+
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.Clock;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.security.SecurityProperty;
-import com.energyict.mdc.protocol.security.SecurityPropertySet;
-import com.energyict.mdc.protocol.tasks.*;
-import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfiguration;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.LoadProfileSpec;
+import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.LogBookSpec;
+import com.energyict.mdw.core.LogBookType;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
@@ -34,7 +52,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -565,7 +588,7 @@ public class MasterDataSerializer {
         allProperties.setProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         allProperties.setProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         allProperties.setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
-        allProperties.setProperty(MeterProtocol.NODEID, BigDecimal.ONE);
+        allProperties.setProperty(MeterProtocol.Property.NODEID.getName(), BigDecimal.ONE);
 
         //No need to send the PSK property
         allProperties.removeProperty(G3Properties.PSK);

@@ -1,13 +1,26 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class Profile {
 
@@ -21,7 +34,7 @@ public class Profile {
 	private List profileParts		= null;
 	private List meterEvents		= null;
 	private Modbus modBus			= null;
-	
+
 	/*
 	 * Constructors
 	 */
@@ -31,7 +44,7 @@ public class Profile {
 		this.profileInfo = new ProfileInfo(this.modBus);
 		this.profileParts = profileInfo.generateProfileParts();
 	}
-	
+
 	/*
 	 * Public getters and setters
 	 */
@@ -51,7 +64,7 @@ public class Profile {
 		channelInfos.add(new ChannelInfo(5, 5, "0.6.128.0.0.255", Unit.get("kvar")));		//Q4
 		channelInfos.add(new ChannelInfo(6, 6, "0.7.128.0.0.255", Unit.get("kvar")));		//Q2
 		channelInfos.add(new ChannelInfo(7, 7, "0.8.128.0.0.255", Unit.get("kvar")));		//Q3
-		
+
 		return channelInfos;
 	}
 
@@ -63,18 +76,18 @@ public class Profile {
 				intervalDatas.addAll(pp.getIntervalDatas(from, to));
 			}
 		}
-		
+
 		if (generateEvents) {
 			this.meterEvents = createEvents(intervalDatas);
 		}
-		
+
 		return filterIntervals(intervalDatas);
 	}
-	
+
 	public List getMeterEvents() {
 		return meterEvents;
 	}
-	
+
 	private List createEvents(List intervalDatas) {
 		List meterEvents = new ArrayList(0);
 		ProfileData profileData = new ProfileData();
@@ -88,19 +101,19 @@ public class Profile {
 				System.out.println();
 			}
 		}
-		
+
 		for (int i = 0; i < intervalDatas.size(); i++) {
 			IntervalData id = (IntervalData) intervalDatas.get(i);
 			int protocolStatus = (id.getProtocolStatus() >> 26) & 0x0F;
 			MeterEvent me = null;
 
 			if (DEBUG >= 1) System.out.println("Events: " + id.getEndTime() + " status = " + ProtocolUtils.buildStringHex(protocolStatus, 8) + " original = " + ProtocolUtils.buildStringHex(id.getProtocolStatus(), 8));
-			
+
 			if (protocolStatus != 0x00) {
 				String eventMessage = "";
 				int eisCode = MeterEvent.OTHER;
 				boolean matchedStatus = false;
-				
+
 				if ((protocolStatus & SETTINGS_CHANGE) != 0) {
 					eventMessage = "Change of settings. ";
 					eisCode = MeterEvent.CONFIGURATIONCHANGE;
@@ -137,12 +150,12 @@ public class Profile {
 				}
 
 			}
-		
+
 		}
 
 		return checkOnOverlappingEvents(meterEvents);
 	}
-	
+
     private static List checkOnOverlappingEvents(List meterEvents) {
     	Map eventsMap = new HashMap();
         int size = meterEvents.size();
@@ -154,13 +167,13 @@ public class Profile {
 	    		time.setTime(time.getTime() + 1000); // add one second
 				eventInMap = (MeterEvent) eventsMap.get(time);
 	    	}
-	    	MeterEvent newMeterEvent= 
+	    	MeterEvent newMeterEvent=
 	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
     		eventsMap.put(time, newMeterEvent);
 	    }
 	    Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
-	    while (it.hasNext()) 
+	    while (it.hasNext())
 	        result.add((MeterEvent) it.next());
 		return result;
     }
@@ -177,19 +190,19 @@ public class Profile {
 		}
 
 		return intervalDatasTemp;
-		
+
     }
-    
+
 	private List filterIntervals(List intervalDatas) throws IOException {
 		List intervalDatasTemp = new ArrayList(0);
 
 		intervalDatasTemp = roundUpIntervalDatas(intervalDatas);
 		intervalDatasTemp = Utils.sortIntervalDatas(intervalDatasTemp);
-		
+
 		//dubbele waarden uitfilteren en optellen
 		intervalDatasTemp = mergeIntervalDatas(intervalDatasTemp);
 		intervalDatasTemp = Utils.sortIntervalDatas(intervalDatasTemp);
-		
+
 		if (DEBUG >= 1) {
 			for (int i = 0; i < intervalDatasTemp.size(); i++) {
 				IntervalData id = (IntervalData)intervalDatasTemp.get(i);
@@ -199,7 +212,7 @@ public class Profile {
 				System.out.println();
 			}
 		}
-		
+
 		return intervalDatasTemp;
 	}
 
@@ -210,10 +223,10 @@ public class Profile {
 	private List mergeIntervalDatas(List intervalDatas) throws ProtocolException {
 		List intervalDatasTemp = new ArrayList(0);
 		IntervalData previousId = null;
-		
+
 		for (int i = 0; i < intervalDatas.size(); i++) {
 			IntervalData currentId = (IntervalData) intervalDatas.get(i);
-			
+
 			if (previousId != null) {
 				if (previousId.getEndTime().getTime() == currentId.getEndTime().getTime()) {
 					previousId = merge(previousId, currentId);
@@ -229,22 +242,22 @@ public class Profile {
 		intervalDatasTemp.add(previousId);
 		return intervalDatasTemp;
 	}
-	
+
 	private IntervalData merge(IntervalData id1, IntervalData id2) throws ProtocolException {
 
-		if (id1.getValueCount() != id2.getValueCount()) 
+		if (id1.getValueCount() != id2.getValueCount())
 			throw new ProtocolException(
 					"Profile.mergeIntervalDatas(id1, id2): Two intervaldatas contains different number of values: " +
 					id1.getValueCount()+"!="+id2.getValueCount()
 			);
 
-		if (id1.getEndTime().getTime() != id2.getEndTime().getTime()) 
+		if (id1.getEndTime().getTime() != id2.getEndTime().getTime())
 			throw new ProtocolException(
 					"Profile.mergeIntervalDatas(id1, id2): Intervaldatas endtime are different from each other: " +
 					id1.getEndTime()+"!="+id2.getEndTime()
 			);
 
-		
+
 		List ivList = new ArrayList(0);
 		IntervalData idReturn = new IntervalData(id1.getEndTime());
 		int ps = id1.getProtocolStatus();
@@ -252,7 +265,7 @@ public class Profile {
 		for (int i = 0; i < id1.getValueCount(); i++) {
 			IntervalValue iv1 = (IntervalValue) id1.getIntervalValues().get(i);
 			IntervalValue iv2 = (IntervalValue) id2.getIntervalValues().get(i);
-			
+
 			Number val1 = iv1.getNumber();
 			Number val2 = iv2.getNumber();
 //			Number val = (Number)(val1.intValue() + val2.intValue());
@@ -261,23 +274,23 @@ public class Profile {
 			int eis1 = iv1.getEiStatus();
 			int eis2 = iv2.getEiStatus();
 			int eis  = IntervalData.OK;
-			
+
 			if ((eis1 == IntervalData.MISSING) && (eis2 == IntervalData.MISSING)) {
-				eis |= IntervalData.MISSING;  
+				eis |= IntervalData.MISSING;
 			} else {
 				eis |= IntervalData.SHORTLONG;
 			}
-			
+
 			idReturn.setProtocolStatus(ps);
-			
+
 			IntervalValue iv = new IntervalValue(new Integer(val), ps, eis);
 			ivList.add(iv);
 		}
-		
+
 		idReturn.setIntervalValues(ivList);
 		idReturn.setProtocolStatus(ps);
-		
+
 		return idReturn;
 	}
-	
+
 }

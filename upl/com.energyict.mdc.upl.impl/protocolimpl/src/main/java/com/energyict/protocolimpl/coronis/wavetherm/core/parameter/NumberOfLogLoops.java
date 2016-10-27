@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.wavetherm.core.parameter;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 
 import java.io.IOException;

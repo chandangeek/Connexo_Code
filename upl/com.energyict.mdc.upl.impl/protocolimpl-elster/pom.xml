@@ -28,6 +28,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>connectiontypes</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>protocolcommon</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

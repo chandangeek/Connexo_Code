@@ -12,7 +12,13 @@ package com.energyict.protocolimpl.edmi.mk6;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -26,7 +32,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  *
@@ -52,7 +62,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	private boolean logOffDisabled = true;
 	private TimeZone timeZone;
 	private boolean useOldProfileFromDate;
-	
+
 	/** Creates a new instance of MK6 */
 	public MK6() {
 	}
@@ -71,7 +81,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	}
 
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"1"));
+		setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(), "1"));
 		setEventLogName(properties.getProperty("EventLogName","Event Log"));
 		setLoadSurveyName(properties.getProperty("LoadSurveyName","Load_Survey"));
 		setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
@@ -163,7 +173,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	 */
 	public TimeZone getTimeZone() {
 		if(this.timeZone == null){
-			this.timeZone = ProtocolUtils.getWinterTimeZone(super.getTimeZone()); 
+			this.timeZone = ProtocolUtils.getWinterTimeZone(super.getTimeZone());
 		}
 		return this.timeZone;
 	}
@@ -217,7 +227,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 
 	/**
 	 * Protected setter for the MK6Connection
-	 * 
+	 *
 	 * @param connection - MK6Connection
 	 */
 	protected void setMK6Connection(MK6Connection connection){

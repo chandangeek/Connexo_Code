@@ -6,7 +6,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.meteridentification.MeterTypeImpl;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -58,7 +58,7 @@ public class IF2HHUSignon implements HHUSignOn {
      *
      * @param strIdent Not used
      * @param meterID  Not used
-     * @return A dummy {@link com.energyict.protocol.meteridentification.MeterType}
+     * @return A dummy {@link MeterTypeImpl}
      * @throws java.io.IOException         If there occurred an error while switching the baudrate
      * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
      */
@@ -72,7 +72,7 @@ public class IF2HHUSignon implements HHUSignOn {
      * @param strIdent Not used
      * @param meterID  Not used
      * @param baudrate The baudrate value to switch to (eg. 9600, 115200, 300, ...)
-     * @return A dummy {@link com.energyict.protocol.meteridentification.MeterType}
+     * @return A dummy {@link MeterTypeImpl}
      * @throws java.io.IOException         If there occurred an error while switching the baudrate
      * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
      */
@@ -87,7 +87,7 @@ public class IF2HHUSignon implements HHUSignOn {
      * @param meterID  Not used
      * @param wakeup   Not used
      * @param baudrate The baudrate value to switch to (eg. 9600, 115200, 300, ...)
-     * @return A dummy {@link com.energyict.protocol.meteridentification.MeterType}
+     * @return A dummy {@link MeterTypeImpl}
      * @throws java.io.IOException         If there occurred an error while switching the baudrate
      * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
      */
@@ -100,7 +100,7 @@ public class IF2HHUSignon implements HHUSignOn {
             Thread.currentThread().interrupt();
             throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
-        return new MeterType(getReceivedIdent());
+        return new MeterTypeImpl(getReceivedIdent());
     }
 
     /**

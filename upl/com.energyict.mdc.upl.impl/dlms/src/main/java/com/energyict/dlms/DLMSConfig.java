@@ -6,8 +6,9 @@
 
 package com.energyict.dlms;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 

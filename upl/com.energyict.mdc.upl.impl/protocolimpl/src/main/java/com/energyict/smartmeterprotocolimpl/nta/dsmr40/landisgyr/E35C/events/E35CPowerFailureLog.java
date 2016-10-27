@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.events;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Utils;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
 
 import java.util.ArrayList;

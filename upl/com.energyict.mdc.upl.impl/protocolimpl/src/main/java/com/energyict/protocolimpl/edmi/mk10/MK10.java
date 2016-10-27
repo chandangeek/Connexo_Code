@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -9,7 +11,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -94,7 +95,7 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		sendDebug("doValidateProperties()");
-		setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"1"));
+		setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(),"1"));
 		validateLoadSurveyNumber(properties.getProperty("LoadSurveyNumber"));
 		setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
 		setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));

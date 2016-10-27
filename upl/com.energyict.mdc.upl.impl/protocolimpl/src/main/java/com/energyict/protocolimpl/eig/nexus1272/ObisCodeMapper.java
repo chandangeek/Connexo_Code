@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
@@ -31,9 +32,9 @@ public class ObisCodeMapper {
 	private BigDecimal CTmultiplier;
 	private boolean isDeltaWired;
 
-	/** Creates a new instance of ObisCodeMapper 
-	 * @param connection 
-	 * @param outputStream 
+	/** Creates a new instance of ObisCodeMapper
+	 * @param connection
+	 * @param outputStream
 	 * @param isDeltaWired */
 	public ObisCodeMapper(NexusCommandFactory nexusCommandFactory, NexusProtocolConnection connection, OutputStream outputStream, ScaledEnergySettingFactory sesf, boolean isDeltaWired) {
 		this.nexusCommandFactory=nexusCommandFactory;
@@ -56,7 +57,7 @@ public class ObisCodeMapper {
 
 		RegisterValue registerValue=null;
 
-		// ********************************************************************************* 
+		// *********************************************************************************
 		// Manufacturer specific
 		// Electricity related ObisRegisters
 		if ((obisCode.getA() == 1) && (obisCode.getB() >= 1) && (obisCode.getB() <= 8)) {
@@ -75,7 +76,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF18());
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.getUndefined()); 
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -92,14 +93,14 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF18());
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.getUndefined()); 
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//196EH-196FH
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -109,7 +110,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF18());
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.getUndefined()); 
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
@@ -134,7 +135,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("W"));  
+							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -154,7 +155,7 @@ public class ObisCodeMapper {
 							return registerValue;
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//1158H-1159H
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -164,7 +165,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("W"));  
+							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -196,7 +197,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -221,7 +222,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -246,12 +247,12 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//1CF7H-1CF8H
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -271,7 +272,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -313,12 +314,12 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF18());
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//1970H-1971H
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -328,7 +329,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF18());
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -348,7 +349,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("W"));  
+							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -363,12 +364,12 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("W"));  
+							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//115AH-115BH
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -378,7 +379,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("W"));  
+							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -386,7 +387,7 @@ public class ObisCodeMapper {
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
-				case 8: 
+				case 8:
 					switch (obisCode.getE()) {
 					case 0:
 						if (read) {
@@ -408,7 +409,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -434,7 +435,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -460,12 +461,12 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//1D01-1D02
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -486,7 +487,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -500,7 +501,7 @@ public class ObisCodeMapper {
 
 			case 3:
 				switch (obisCode.getD()) {
-				case 8: 
+				case 8:
 					switch (obisCode.getE()) {
 					case 0:
 						if (read) {
@@ -522,7 +523,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -597,7 +598,7 @@ public class ObisCodeMapper {
 							return registerValue;
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//1CFB-1CFC
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -642,7 +643,7 @@ public class ObisCodeMapper {
 
 			case 4:
 				switch (obisCode.getD()) {
-				case 8: 
+				case 8:
 					switch (obisCode.getE()) {
 					case 0:
 						if (read) {
@@ -664,7 +665,7 @@ public class ObisCodeMapper {
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
-							Quantity q = new Quantity(bd, unitEnergy);  
+							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -741,7 +742,7 @@ public class ObisCodeMapper {
 							return registerValue;
 						}
 						else return new RegisterInfo(obisCode.getDescription());
-					case 3: 
+					case 3:
 						if (read) {
 							//1D0B-1D0C
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -796,7 +797,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF8();
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -822,7 +823,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("A"));  
+							Quantity q = new Quantity(bd, Unit.get("A"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -866,7 +867,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("V"));  
+							Quantity q = new Quantity(bd, Unit.get("V"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -879,7 +880,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF10();
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -905,7 +906,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("A"));  
+							Quantity q = new Quantity(bd, Unit.get("A"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -918,7 +919,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF10();
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -949,7 +950,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("V"));  
+							Quantity q = new Quantity(bd, Unit.get("V"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -962,7 +963,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF10();
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -988,7 +989,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyCTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("A"));  
+							Quantity q = new Quantity(bd, Unit.get("A"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1032,7 +1033,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF7();
 							bd = applyPTRatio(bd);
-							Quantity q = new Quantity(bd, Unit.get("V"));  
+							Quantity q = new Quantity(bd, Unit.get("V"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1045,7 +1046,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF10();
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1074,7 +1075,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF9();
-							Quantity q = new Quantity(bd, Unit.get("\u00B0"));  
+							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1087,7 +1088,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF9();
-							Quantity q = new Quantity(bd, Unit.get("\u00B0"));  
+							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1105,7 +1106,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF9();
-							Quantity q = new Quantity(bd, Unit.get("\u00B0"));  
+							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1118,7 +1119,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF9();
-							Quantity q = new Quantity(bd, Unit.get("\u00B0"));  
+							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1136,7 +1137,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF9();
-							Quantity q = new Quantity(bd, Unit.get("\u00B0"));  
+							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1149,7 +1150,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF9();
-							Quantity q = new Quantity(bd, Unit.get("\u00B0"));  
+							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1174,7 +1175,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF20()%100000000);
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1189,7 +1190,7 @@ public class ObisCodeMapper {
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF20()%100000000);
 
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}
@@ -1245,7 +1246,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = new BigDecimal(ndp.parseF20()%100000000);
-							Quantity q = new Quantity(bd, Unit.getUndefined());  
+							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 						}

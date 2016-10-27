@@ -1,33 +1,34 @@
 package com.energyict.protocolimpl.elster.opus;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-
 public class ObisCodeMapper {
-	
+
 	private Opus opus = null;
 	private RegisterValue rv;
-	private Quantity q; 
+	private Quantity q;
 	private Calendar calendar;
 	private ArrayList dataArray;
-	
+
 	public ObisCodeMapper(Opus opus) {
 		this.opus = opus;
 	}
 
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws UnsupportedException, NoSuchRegisterException, IOException {
-		if( obisCode.getA()!=1 || 
+		if( obisCode.getA()!=1 ||
 			obisCode.getC()!=0 ||
 			obisCode.getD()!=7 ||
 			obisCode.getE()!=0 ||
@@ -39,15 +40,15 @@ public class ObisCodeMapper {
 		switch(obisCode.getF()){
 			case 255:
 				q = new Quantity(new BigDecimal(subFactory(3,obisCode)), Unit.get(BaseUnit.UNITLESS));
-				rv = new RegisterValue(obisCode, q, null, getTime());				
+				rv = new RegisterValue(obisCode, q, null, getTime());
 				break;
 			case -1:
 				q = new Quantity(new BigDecimal(subFactory(4,obisCode)), Unit.get(BaseUnit.UNITLESS));
-				rv = new RegisterValue(obisCode, q, null, getTime());				
+				rv = new RegisterValue(obisCode, q, null, getTime());
 				break;
 			case 0:
 				q = new Quantity(new BigDecimal(subFactory(5,obisCode)), Unit.get(BaseUnit.UNITLESS));
-				rv = new RegisterValue(obisCode, q, null, getTime());				
+				rv = new RegisterValue(obisCode, q, null, getTime());
 				break;
 			default:
 				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
@@ -57,7 +58,7 @@ public class ObisCodeMapper {
 	private Date getTime() {
 		return calendar.getTime();
 	}
-	
+
 	private int subFactory(int command,ObisCode obisCode) throws IOException{
 		// ALL statemachine 1
 		int channel, readVal, x, y;
@@ -81,7 +82,7 @@ public class ObisCodeMapper {
 				calendar.set(Calendar.SECOND, 	   0);	// reset seconds
 				calendar.set(Calendar.MILLISECOND, 0);	// reset milliseconds
 				long newcal=calendar.getTimeInMillis()+24*3600*1000;
-				calendar.setTimeInMillis(newcal); // midnight 
+				calendar.setTimeInMillis(newcal); // midnight
 			}
 		}
 		return readVal;

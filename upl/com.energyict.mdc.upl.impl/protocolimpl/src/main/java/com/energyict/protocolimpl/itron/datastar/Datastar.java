@@ -10,24 +10,29 @@
 
 package com.energyict.protocolimpl.itron.datastar;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.itron.datastar.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @version  2.0
  * @author   Koenraad Vanderschaeve
  * <P>
  * <B>Description :</B><BR>
- * Class that implements Itron Datastar logger. 
+ * Class that implements Itron Datastar logger.
  * <BR>
  * <B>@beginchanges</B><BR>
 KV|04072007|Add additional multipliers
@@ -35,66 +40,66 @@ KV|04072007|Add additional multipliers
  */
 
 public class Datastar extends SchlumbergerProtocol {
-    
+
     private BasePagesFactory basePagesFactory=null;
-    
+
     private DatastarProfile datastarProfile=null;
     boolean allowClockSet;
 
     public Datastar() {
     }
-    
-    
+
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getFulcrumProfile().getProfileData(lastReading,includeEvents);
-    }    
-    
-    protected void hangup() throws IOException { 
+    }
+
+    protected void hangup() throws IOException {
         getBasePagesFactory().writeBasePage(0x0052, new byte[]{(byte)0xFF});
     }
-    
+
     protected void offLine() throws IOException {
         getBasePagesFactory().writeBasePage(0x0053, new byte[]{(byte)0xFF});
     }
-    
+
     protected void doTheDisConnect() throws IOException {
-        
+
     }
 
     // The Quantuum meter uses only offset addresses in its protocoldoc. S, we need to set the base memory start address...
     protected void doTheConnect() throws IOException {
         getBasePagesFactory().setMemStartAddress(getCommandFactory().getIdentifyCommand().getMemStart());
     }
-    
+
     protected void doTheInit() {
         // specific initialization for the protocol
         setBasePagesFactory(new BasePagesFactory(this));
         setFulcrumProfile(new DatastarProfile(this));
     }
-    
+
     protected void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         allowClockSet = Integer.parseInt(properties.getProperty("AllowClockSet","0").trim()) == 1;
         setDelayAfterConnect(Integer.parseInt(properties.getProperty("DelayAfterConnect","2000").trim()));
     }
-    
+
     protected List doTheDoGetOptionalKeys() {
         List list = new ArrayList();
         list.add("AllowClockSet");
         return list;
     }
-    
+
     public int getProfileInterval() throws UnsupportedException, IOException {
         return getBasePagesFactory().getOperatingSetUpBasePage().getProfileInterval()*60;
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return getBasePagesFactory().getOperatingSetUpBasePage().getNrOfChannels();
     }
-    
+
     public Date getTime() throws IOException {
         return getBasePagesFactory().getRealTimeBasePage().getCalendar().getTime();
     }
-    
+
     public void setTime() throws IOException {
         if (allowClockSet) {
             //getBasePagesFactory().writeBasePage(0x0063, new byte[]{(byte)0xFF}); // WARMST
@@ -107,94 +112,12 @@ public class Datastar extends SchlumbergerProtocol {
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
-    
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "firmware revision="+getBasePagesFactory().getFirmwareAndSoftwareRevision().getFwVersion();
                //", software revision="+getBasePagesFactory().getFirmwareAndSoftwareRevision().getSwVersion()+
                //", options=0x"+Integer.toHexString(getBasePagesFactory().getFirmwareOptionsBasePage().getOptions())+
                //", front end firmware revision="+getBasePagesFactory().getFrontEndFirmwareVersionBasePage().getVersion();
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        Datastar datastar = new Datastar();
-        Dialer dialer=null;
-        try {
-            
-            String[] phones = new String[]{"00016202253220","00018304014086"};
-            String[] passwords = new String[]{"IBEW814",""};
-            int phoneId=1;
-            
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            dialer =DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");
-            
-            
-            dialer.getSerialCommunicationChannel().setBaudrate(1200);
-            
-            dialer.connect(phones[phoneId],60000); 
-            
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[phoneId]);
-            //properties.setProperty("UnitType","QTM");
-            //properties.setProperty(MeterProtocol.NODEID,"T412    ");
-            
-// transfer the properties to the protocol
-            datastar.setProperties(properties);    
-            
-// depending on the dialer, set the initial (pre-connect) communication parameters            
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            datastar.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("MST"),Logger.getLogger("name"));
-            
-// if optical head dialer, enable the HHU signon mechanism
-            
-            System.out.println("*********************** connect() ***********************");
-            
-// connect to the meter            
-            datastar.connect();
-            
-            
-            //System.out.println(datastar.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
-//            System.out.println(datastar.getSerialNumber());
-            System.out.println(datastar.getFirmwareVersion());
-            System.out.println(datastar.getCommandFactory().getIdentifyCommand());
-            System.out.println(datastar.getTime());
-            
-            
-            System.out.println(datastar.getBasePagesFactory().getOperatingSetUpBasePage());
-            System.out.println(datastar.getBasePagesFactory().getMassMemoryBasePages());
-            System.out.println(datastar.getBasePagesFactory().getKYZDividersBasePage());
-            
-//            System.out.println("Meter:  "+datastar.getTime());
-//            System.out.println("System: "+new Date());
-//            datastar.setTime();
-            
-            Calendar from = ProtocolUtils.getCalendar(datastar.getTimeZone());
-            from.add(Calendar.DAY_OF_MONTH,-4);
-            System.out.println(datastar.getProfileData(from.getTime(),true));
-            
-            
-//System.out.println(datastar.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-        
-            datastar.disconnect();
-            
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        
-        
     }
 
     public BasePagesFactory getBasePagesFactory() {
@@ -205,12 +128,10 @@ public class Datastar extends SchlumbergerProtocol {
         this.basePagesFactory = basePagesFactory;
     }
 
-
-
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         StringBuffer strBuff = new StringBuffer();
         ObisCodeMapper ocm = new ObisCodeMapper(this);
-        
+
         // tables
         strBuff.append(getBasePagesFactory().getMassMemoryBasePages());
         strBuff.append(getBasePagesFactory().getCurrentMassMemoryRecordBasePage());
@@ -225,19 +146,19 @@ public class Datastar extends SchlumbergerProtocol {
         strBuff.append(getBasePagesFactory().getPulseMultiplierAndDisplayUnits());
         // registers
         strBuff.append(ocm.getRegisterInfo());
-        
+
         return strBuff.toString();
     }
-    
+
     // RegisterProtocol Interface implementation
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
-    }    
+    }
 
     public DatastarProfile getFulcrumProfile() {
         return datastarProfile;
@@ -246,5 +167,5 @@ public class Datastar extends SchlumbergerProtocol {
     public void setFulcrumProfile(DatastarProfile datastarProfile) {
         this.datastarProfile = datastarProfile;
     }
-    
+
 } // public class Fulcrum extends SchlumbergerProtocol

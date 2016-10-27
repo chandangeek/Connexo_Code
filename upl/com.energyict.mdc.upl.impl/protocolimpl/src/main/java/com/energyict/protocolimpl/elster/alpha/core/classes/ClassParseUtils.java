@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.classes;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -23,24 +24,24 @@ import java.util.TimeZone;
  * @author koen
  */
 public class ClassParseUtils {
-    
+
     /** Creates a new instance of ClassParseUtils */
     public ClassParseUtils() {
     }
-    
-    
-    
+
+
+
     static public Date getDate3(byte[] data, int offset, TimeZone timeZone) throws IOException {
         return getCalendar3(data,offset,timeZone).getTime();
-    }    
+    }
     static public Date getDate5(byte[] data, int offset, TimeZone timeZone) throws IOException {
         return getCalendar5(data,offset,timeZone).getTime();
-    }    
+    }
     static public Date getDate6(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = getCalendar5(data,offset,timeZone);
         cal.set(Calendar.SECOND,ProtocolUtils.getBCD2Int(data,offset+5,1));
         return cal.getTime();
-    }    
+    }
 
     static public Calendar getCalendar3(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
@@ -50,12 +51,12 @@ public class ClassParseUtils {
         cal.set(Calendar.DATE,ProtocolUtils.getBCD2Int(data,offset+2,1));
         return cal;
     }
-    
-    
+
+
     static public Calendar getCalendar5(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = getCalendar3(data, offset, timeZone);
         cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.getBCD2Int(data,offset+3,1));
         cal.set(Calendar.MINUTE,ProtocolUtils.getBCD2Int(data,offset+4,1));
         return cal;
-    }    
+    }
 }

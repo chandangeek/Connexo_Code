@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -7,8 +10,6 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;

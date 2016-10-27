@@ -1,6 +1,13 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import com.energyict.cbo.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
@@ -9,12 +16,31 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.support.SerialNumberSupport;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.DataDumpParser;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -32,7 +58,15 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -216,14 +250,14 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            this.strID = properties.getProperty(MeterProtocol.ADDRESS, "");
-            this.strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-            this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            this.strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "");
+            this.strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
+            this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
             this.iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             this.iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             this.iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            this.nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            this.nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             this.iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             this.iForceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "0").trim());
             this.profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());

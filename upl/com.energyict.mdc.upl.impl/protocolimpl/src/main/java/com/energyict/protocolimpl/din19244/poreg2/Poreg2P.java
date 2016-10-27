@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregConnection;
@@ -39,7 +40,7 @@ public class Poreg2P extends Poreg {
         }
         return messageHandler;
     }
-    
+
     @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         isPoreg2 = false;

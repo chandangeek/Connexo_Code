@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.base;
 
-import java.io.IOException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
 
 /**
  * @author jme

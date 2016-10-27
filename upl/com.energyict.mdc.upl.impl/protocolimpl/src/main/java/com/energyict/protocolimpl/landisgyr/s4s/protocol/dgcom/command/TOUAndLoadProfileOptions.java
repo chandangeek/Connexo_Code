@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -18,9 +19,9 @@ import com.energyict.protocol.ProtocolUtils;
  * @author Koen
  */
 public class TOUAndLoadProfileOptions extends AbstractCommand {
-    
+
     /*
-        byte 0 
+        byte 0
         bit0 Binary Demand only mode, if set
         bit1 Binary TOU capable, if set
         bit2 Binary Load profile enabled, if set
@@ -29,18 +30,18 @@ public class TOUAndLoadProfileOptions extends AbstractCommand {
         bit5 Binary Expanded memory size (128K)
         bit6 Binary kWh only, if set (DX only, not used prior to 2.00)
         bit7 Binary 512K memory size (RX only)
-        
+
         byte 1 & 2
-        BCD Boot signature 12 34    
+        BCD Boot signature 12 34
     */
-    
+
     private int optionalFeatures;
-    
+
     /** Creates a new instance of TemplateCommand */
     public TOUAndLoadProfileOptions(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -49,23 +50,23 @@ public class TOUAndLoadProfileOptions extends AbstractCommand {
         strBuff.append("   optionalFeatures="+Integer.toHexString(getOptionalFeatures())+"\n");
         return strBuff.toString();
     }
-    
+
     public boolean is128KMemory() {
         return (getOptionalFeatures()&0x20) == 0x20;
     }
-    
+
     public boolean isLoadProfileActive() {
         return (getOptionalFeatures()&0x0C) == 0x0C;
     }
-    
+
     protected byte[] prepareBuild() {
         return new byte[]{(byte)0x5A,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws ProtocolException {
         setOptionalFeatures(ProtocolUtils.getInt(data,0, 1));
         // byte 1 and 2 = boot signature BCD 1234
-        
+
     }
 
     public int getOptionalFeatures() {

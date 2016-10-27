@@ -7,6 +7,7 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +101,7 @@ public class EnermetE70XIEC1107Connection extends IEC1107Connection {
             }
         }
 
-        return new MeterType(strIdent);
+        return new MeterTypeImpl(strIdent);
     }
 
     /**

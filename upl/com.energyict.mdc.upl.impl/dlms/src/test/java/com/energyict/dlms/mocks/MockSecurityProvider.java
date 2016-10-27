@@ -1,11 +1,12 @@
 package com.energyict.dlms.mocks;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.security.MessageDigest;

@@ -6,45 +6,46 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author  Koen
  */
 public class MeterReadingProcessor {
-    
+
 	private MeterReadingsInterpreter mri;
 	private MeterReadingIdentifier mrid;
-    
+
     /** Creates a new instance of MeterReadingProcessor */
     public MeterReadingProcessor(MeterReadingsInterpreter mri, MeterReadingIdentifier mrid) {
         this.mri=mri;
         this.mrid=mrid;
     }
-    
+
 //    private int getNrOfChannelDefinitions() {
 //        return mri.getChannelDefinitionRegisters().size();
 //    }
-    
+
     private boolean isMultipleSet() {
         return (mri.getTotalRegisters() == null);
     }
-    
+
     /*
      * For multiple set or single set of history data, get the energytype code into a unit!
-     * 
+     *
      *
      */
     private Unit getUnit(boolean energy) throws PACTProtocolException, NoSuchRegisterException {
@@ -57,14 +58,14 @@ public class MeterReadingProcessor {
             // However, (TA) tariff series clem programs are obsolete.
             // UK : (C5) (code 5 clems
             // all the rest (TPA) : Tariff+ CLEM programs
-            
-//-------------------------------------------------------------------------------    
-//  		|250308| GN Moved this into the "if"      	
+
+//-------------------------------------------------------------------------------
+//  		|250308| GN Moved this into the "if"
 //            TotalRegister tr = getTotalRegister();
 //            Unit unit = EnergyTypeCode.getUnit(tr.getEType(),energy);
-//-------------------------------------------------------------------------------    
+//-------------------------------------------------------------------------------
         	Unit unit = null;
-            
+
             if (mrid.isTotal()) {
             	TotalRegister tr = getTotalRegister();
             	unit = EnergyTypeCode.getUnit(tr.getEType(),energy);
@@ -106,14 +107,14 @@ public class MeterReadingProcessor {
         }
         throw new NoSuchRegisterException("MeterReadingProcessor, getUnit(), No meter reading for "+mrid.toString());
     }
-    
+
     private BigDecimal getMeterFactorMultiplier() throws PACTProtocolException,NoSuchRegisterException {
         BigDecimal bd = getMeterFactor();
         // reduce scale, otherwise 59 numbers after decimal point
         bd=bd.setScale((getMeterFactorExp()<0?Math.abs(getMeterFactorExp()):0),BigDecimal.ROUND_HALF_UP);
         return bd;
     }
-    
+
     private int getMeterFactorExp() throws PACTProtocolException,NoSuchRegisterException {
         if (isMultipleSet()) {
             ChannelDefinitionRegister chdr = getChannelDefinitionRegister();
@@ -126,7 +127,7 @@ public class MeterReadingProcessor {
             return mri.getSurveyFlagsInfo().getMeterFactorExp();
         }
     }
-    
+
     private BigDecimal getMeterFactor() throws PACTProtocolException,NoSuchRegisterException {
         if (isMultipleSet()) {
             ChannelDefinitionRegister chdr = getChannelDefinitionRegister();
@@ -139,7 +140,7 @@ public class MeterReadingProcessor {
             return mri.getSurveyFlagsInfo().getMeterFactor();
         }
     }
-    
+
     private BigDecimal getMDDivisor(char mdType) throws PACTProtocolException,NoSuchRegisterException {
         if (isMultipleSet()) {
             DemandScaling ds = getDemandScaling();
@@ -154,7 +155,7 @@ public class MeterReadingProcessor {
             throw new PACTProtocolException("MeterReadingProcessor, getMDDivisor, wrong MaximumDemand reading block type ("+mdType+")");
         }
     }
-    
+
     private BigDecimal getCMDDivisor(char cmdType) throws PACTProtocolException,NoSuchRegisterException {
         if (isMultipleSet()) {
             DemandScaling ds = getDemandScaling();
@@ -173,7 +174,7 @@ public class MeterReadingProcessor {
             throw new PACTProtocolException("MeterReadingProcessor, getCMDDivisor, wrong CumulativeMaximumDemand reading block type ("+cmdType+")");
         }
     }
-    
+
     //**************************************************************************************************************
     // S I N G L E   S E T   O F   H I S T O R Y   D A T A
     // Get Total, rate, MD or CMD for channel,register,bpindex,triggerchannel
@@ -186,36 +187,36 @@ public class MeterReadingProcessor {
 		}
         return (TotalRegister)mri.getTotalRegisters().get(getChannelNumber());
     } // private TotalRegister getTotalRegister()
-    
+
     private RateRegister getRateRegister() throws PACTProtocolException,NoSuchRegisterException {
         if ((mri.getRateRegisters() == null) || (getChannelNumber() >= mri.getRateRegisters().size())) {
 			throw new NoSuchRegisterException("MeterReadingProcessor, getRateRegister(), No meter reading for "+mrid.toString());
 		}
         return (RateRegister)mri.getRateRegisters().get(getChannelNumber());
     }
-    
+
     private MaximumDemand getMaximumDemand() throws PACTProtocolException,NoSuchRegisterException {
         if (getChannelNumber() >= getMaximumDemands().size()) {
 			throw new NoSuchRegisterException("MeterReadingProcessor, getMaximumDemand(), No meter reading for "+mrid.toString());
 		}
         return (MaximumDemand)getMaximumDemands().get(getChannelNumber());
     }
-    
+
     private TimeDateMD getTimeDateMD() throws PACTProtocolException,NoSuchRegisterException {
         if ((mri.getTimeDateMDs() == null) || (getChannelNumber() >= mri.getTimeDateMDs().size())) {
 			throw new NoSuchRegisterException("MeterReadingProcessor, getTimeDateMD(), No meter reading for "+mrid.toString());
 		}
         return (TimeDateMD)mri.getTimeDateMDs().get(getChannelNumber());
     }
-    
+
     private CumulativeMaximumDemand getCumulativeMaximumDemand() throws PACTProtocolException,NoSuchRegisterException {
         if (getChannelNumber() >= getCumulativeMaximumDemands().size()) {
 			throw new NoSuchRegisterException("MeterReadingProcessor, getCumulativeMaximumDemand(), No meter reading for "+mrid.toString());
 		}
         return (CumulativeMaximumDemand)getCumulativeMaximumDemands().get(getChannelNumber());
     }
-    
-    
+
+
     private List getMaximumDemands() throws PACTProtocolException,NoSuchRegisterException {
         if (mri.getMaximumDemand_ms() != null) {
 			return mri.getMaximumDemand_ms();
@@ -224,7 +225,7 @@ public class MeterReadingProcessor {
 		}
         throw new NoSuchRegisterException("MeterReadingProcessor, getMaximumDemands(), No meter reading for "+mrid.toString());
     }
-    
+
     private List getCumulativeMaximumDemands() throws PACTProtocolException,NoSuchRegisterException {
         if (mri.getCumulativeMaximumDemand_Qs() != null) {
 			return mri.getCumulativeMaximumDemand_Qs();
@@ -233,8 +234,8 @@ public class MeterReadingProcessor {
 		}
         throw new NoSuchRegisterException("MeterReadingProcessor, getCumulativeMaximumDemands(), No meter reading for "+mrid.toString());
     }
-    
-    
+
+
     private int getChannelNumber() throws PACTProtocolException,NoSuchRegisterException {
         if (mrid.isTotal()) {
             if (mrid.isIdETyped()) {
@@ -319,10 +320,10 @@ public class MeterReadingProcessor {
             }
         }
         throw new NoSuchRegisterException("MeterReadingProcessor, getChannelNumber(), No meter reading for "+mrid.toString());
-        
+
     } // private int getChannelNumber() throws PACTProtocolException
-    
-    
+
+
     //**************************************************************************************************************
     // M U L T I P L E   S E T   O F   H I S T O R Y   D A T A
     // Get Total, rate, MD or CMD for channel,register,bpindex,triggerchannel
@@ -345,9 +346,9 @@ public class MeterReadingProcessor {
             }
         }
         throw new NoSuchRegisterException("MeterReadingProcessor, getChannelDefinitionRegister(), No meter reading for "+mrid.toString());
-        
+
     } // private ChannelDefinitionRegister getChannelDefinitionRegister()
-    
+
     private BillingPointIdentifier getBillingPointIdentifier() throws PACTProtocolException,NoSuchRegisterException {
         Iterator it = mri.getBillingPointIdentifiers().iterator();
         while(it.hasNext()) {
@@ -358,7 +359,7 @@ public class MeterReadingProcessor {
         }
         throw new NoSuchRegisterException("No meter reading for "+mrid.toString());
     }
-    
+
     private RateRegisterValue getRateRegisterValue() throws PACTProtocolException,NoSuchRegisterException {
         Iterator it = mri.getRateRegisterValues().iterator();
         while(it.hasNext()) {
@@ -371,8 +372,8 @@ public class MeterReadingProcessor {
         }
         throw new NoSuchRegisterException("No meter reading for "+mrid.toString());
     } // getRateRegisterValue()
-    
-    
+
+
     private DemandScaling getDemandScaling() throws PACTProtocolException,NoSuchRegisterException {
         Iterator it = mri.getDemandScalings().iterator();
         while(it.hasNext()) {
@@ -383,7 +384,7 @@ public class MeterReadingProcessor {
         }
         throw new NoSuchRegisterException("No meter reading for "+mrid.toString());
     } // getDemandScaling()
-    
+
     private CumulativeMaximumDemandRegister getCMDRegister() throws PACTProtocolException,NoSuchRegisterException {
         if (mri.getCumulativeMaximumDemandRegisters() != null) {
             Iterator it = mri.getCumulativeMaximumDemandRegisters().iterator();
@@ -398,7 +399,7 @@ public class MeterReadingProcessor {
         }
         throw new NoSuchRegisterException("No meter reading for "+mrid.toString());
     } // getCMDRegister()
-    
+
     private MaximumDemandRegister getMDRegister() throws PACTProtocolException,NoSuchRegisterException {
         if (mri.getMaximumDemandRegisters() != null) {
             Iterator it = mri.getMaximumDemandRegisters().iterator();
@@ -414,8 +415,8 @@ public class MeterReadingProcessor {
         }
         throw new NoSuchRegisterException("No meter reading for "+mrid.toString());
     } // getMDRegister()
-    
-    
+
+
     //**************************************************************************************************************
     // Get a register using the meteridentification...
     //**************************************************************************************************************
@@ -423,7 +424,7 @@ public class MeterReadingProcessor {
         BigDecimal rawValue=null;
         Date mdTimestamp=null;
         Date billingTimestamp=null;
-        
+
         /****************************************************************************************************/
         /**************************************** ChannelInformation/TotalRegisters ****************************************/
         if (mrid.isTotal()) {
@@ -472,9 +473,9 @@ public class MeterReadingProcessor {
                     rawValue = BigDecimal.valueOf(cmd.getBillingCMD());
                     billingTimestamp = mri.getBillingPoint().getBillingDate();
                 }
-                
+
             }
-            
+
             if (mrid.isModeCalculate()) {
                 rawValue = rawValue.multiply(getMeterFactorMultiplier());
                 rawValue = rawValue.setScale(PactUtils.FRACTIONAL_DIGITS,BigDecimal.ROUND_HALF_UP);
@@ -490,7 +491,7 @@ public class MeterReadingProcessor {
                 Unit unit = Unit.get(chUnit.getDlmsCode(),getMeterFactorExp()+chUnit.getScale());
                 return new RegisterValue(mrid.getObisCode(),new Quantity(rawValue,unit),mdTimestamp,billingTimestamp);
             }
-            
+
         }
         /****************************************************************************************************/
         /****************************************** MaximumDemand *******************************************/
@@ -515,10 +516,10 @@ public class MeterReadingProcessor {
                     mdTimestamp = getTimeDateMD().getBillingTime();
                     billingTimestamp = mri.getBillingPoint().getBillingDate();
                 }
-                
+
                 mdType = md.getType();
             }
-            
+
             if (mrid.isModeCalculate()) {
                 // formula:
                 // (rawValue * getMeterFactorMultiplier()) / getMDDivisor()
@@ -533,7 +534,7 @@ public class MeterReadingProcessor {
                 Unit unit = Unit.get(chUnit.getDlmsCode(),getMeterFactorExp()+chUnit.getScale());
                 return new RegisterValue(mrid.getObisCode(),new Quantity(rawValue,unit),mdTimestamp,billingTimestamp);
             }
-            
+
         }
         /****************************************************************************************************/
         /********************************************** Rate/Tariff ************************************************/
@@ -554,7 +555,7 @@ public class MeterReadingProcessor {
                     billingTimestamp = mri.getBillingPoint().getBillingDate();
                 }
             }
-            
+
             if (mrid.isModeCalculate()) {
                 rawValue = rawValue.multiply(getMeterFactorMultiplier());
                 return new RegisterValue(mrid.getObisCode(),new Quantity(rawValue,getUnit(true)),mdTimestamp,billingTimestamp);
@@ -567,10 +568,10 @@ public class MeterReadingProcessor {
         }
         else if (mrid.isBillingCounter()) {
             if (isMultipleSet()) {
-                return new RegisterValue(mrid.getObisCode(),new Quantity(new Integer(mri.getCounters().getBillingResetCounter()), Unit.get(255)));             
+                return new RegisterValue(mrid.getObisCode(),new Quantity(new Integer(mri.getCounters().getBillingResetCounter()), Unit.get(255)));
             }
             else {
-                return new RegisterValue(mrid.getObisCode(),new Quantity(new Integer(mri.getGeneralInformation().getReadCount()), Unit.get(255)));             
+                return new RegisterValue(mrid.getObisCode(),new Quantity(new Integer(mri.getGeneralInformation().getReadCount()), Unit.get(255)));
             }
         }
         else if (mrid.isBillingTimestamp()) {
@@ -582,13 +583,13 @@ public class MeterReadingProcessor {
                 return new RegisterValue(mrid.getObisCode(),mri.getBillingPoint().getBillingDate());
             }
         }
-        
-        
+
+
         throw new NoSuchRegisterException("No meter reading for "+mrid.toString());
     } // public BigDecimal getValue(MeterReadingIdentifier mrid)
-    
+
     private int getModulo() {
-        
+
         // see section 5.4 of Interpreting Meter Readings
         // we should use commissioned power and meter hardware type (from K block)
         // to calculate other modulo values
@@ -596,6 +597,6 @@ public class MeterReadingProcessor {
         //return 1000000;
         return mri.getProtocolLink().getModulo();
     }
-    
-    
+
+
 }

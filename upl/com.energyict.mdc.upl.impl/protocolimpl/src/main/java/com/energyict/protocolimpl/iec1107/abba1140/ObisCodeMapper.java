@@ -6,10 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 
@@ -24,17 +25,17 @@ import java.util.logging.Logger;
 /** @author Koen */
 
 public class ObisCodeMapper {
-    
+
     static public final int NUMBER_OF_HISTORICAL_REGS=24;
     static public final int NUMBER_OF_DAILY_REGS=14;
 
 	private ABBA1140RegisterFactory rFactory;
-    
+
     /** Creates a new instance of ObisCodeMapping */
     public ObisCodeMapper(ABBA1140RegisterFactory abba1140RegisterFactory) {
         this.rFactory=abba1140RegisterFactory;
     }
-    
+
     static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
@@ -50,15 +51,15 @@ public class ObisCodeMapper {
             throw new NoSuchRegisterException();
         }
     }
-    
+
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
-        
+
         RegisterValue registerValue=null;
         String registerName=null;
         int bp=-1;
         StringBuffer obisTranslation=new StringBuffer();
         Unit unit = null;
-        
+
         // obis F code
         if ((obisCode.getF() >=0) && (obisCode.getF() <= 99))
             bp = obisCode.getF();
@@ -67,12 +68,12 @@ public class ObisCodeMapper {
         else if (obisCode.getF() == 255)
             bp = -1;
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        
+
         /** Billing Point Timestamp */
-        if (obisCode.toString().startsWith("1.1.0.1.2.")) { 
+        if (obisCode.toString().startsWith("1.1.0.1.2.")) {
         	if ((bp >= 0) && (bp < NUMBER_OF_HISTORICAL_REGS)) {
         		if (read) {
         			HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
@@ -84,9 +85,9 @@ public class ObisCodeMapper {
 
 //        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime);
         			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, new Date(), 0, getBillingReason(quantity.intValue()));
-        			
+
         			return registerValue;
-        		} else { 
+        		} else {
         			return new RegisterInfo("billing point "+bp+" timestamp (HistoricalRegister)");
         		}
         	} else if ((bp >= NUMBER_OF_HISTORICAL_REGS) && (bp < (NUMBER_OF_DAILY_REGS + NUMBER_OF_HISTORICAL_REGS))) {
@@ -102,7 +103,7 @@ public class ObisCodeMapper {
         			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, new Date(), 0, "Billing trigger: Daily billing");
 
         			return registerValue;
-        		} else { 
+        		} else {
         			return new RegisterInfo("billing point "+bp+" timestamp (DailyHistoricalRegister)");
         		}
         	} else {
@@ -111,7 +112,7 @@ public class ObisCodeMapper {
         	}
         }
         /** Current System Status */
-        else if (obisCode.toString().startsWith("0.0.96.50.0.255") ) { 
+        else if (obisCode.toString().startsWith("0.0.96.50.0.255") ) {
         	if (read) {
         		SystemStatus ss = (SystemStatus)rFactory.getRegister(rFactory.getSystemStatus());
         		registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(ss.getValue()),Unit.get(255)));
@@ -129,14 +130,14 @@ public class ObisCodeMapper {
         	} else {
         		return new RegisterInfo("Current System Error (32 bit word)");
         	}
-        } else if (obisCode.toString().startsWith("0.0.96.51.0.255") ) { 
+        } else if (obisCode.toString().startsWith("0.0.96.51.0.255") ) {
         	if (read) {
         		registerValue = new RegisterValue(obisCode, rFactory.getAbba1140().getFirmwareVersion());
         		return registerValue;
         	} else {
         		return new RegisterInfo("Device type and version");
         	}
-        } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { 
+        } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) {
             if (read) {
                 long value = (Long) rFactory.getRegister("CTPrimary");
                 registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(value), Unit.get(255)));
@@ -193,13 +194,13 @@ public class ObisCodeMapper {
                 return new RegisterInfo("Net consumption");
             }
         }
-        
+
         // *********************************************************************************
         // Electricity related ObisRegisters
         // verify a & b
         if ((obisCode.getA() != 1) || (obisCode.getB() < 0) || (obisCode.getB() > 3))
             throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
         // obis C code
         if (obisCode.getC() == 1) {
             registerName = "CummMainImport";
@@ -230,15 +231,15 @@ public class ObisCodeMapper {
             }
             registerName = "CummMainCustDef2";
         }
-        
+
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
         if( rFactory != null && obisCode.getF() >= 0 && obisCode.getF() <= 14 ) {
             HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
             if( hv.getBillingDate() ==  null )
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         }
-        
+
         // obis D code
         if (obisCode.getD() == 2) {// cumulative maximum 1  CMD
             // search for right unit (registersource)...
@@ -249,7 +250,7 @@ public class ObisCodeMapper {
                     if (cmd.getRegSource() == EnergyTypeCode.getRegSourceFromObisCCode(obisCode.getC())) {
                         if (unit != null) // in case of customer defined registers unit is defined earlier
                             cmd.setQuantity(new Quantity(cmd.getQuantity().getAmount(),unit.getFlowUnit()));
-                        
+
                         return cmd.toRegisterValue(obisCode);
                     }
                 }
@@ -257,9 +258,9 @@ public class ObisCodeMapper {
                 obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),false));
                 obisTranslation.append(", cumulative maximum demand");
             }
-            
+
         } else if (obisCode.getD() == 6 && obisCode.getB() > 0 ) {// maximum 1 MD
-            
+
            /*
             *   1a 1b 1c
             *   2a 2b 2c
@@ -271,7 +272,7 @@ public class ObisCodeMapper {
             *   Gebruik de Obis B code om te bepalen welk van de 3 registers je wil lezen.
             *
             */
-            
+
             if (read) {
                 for (int i=0;i<ABBA1140RegisterFactory.MAX_MD_REGS;i+=3) {
                     List mds = new ArrayList();
@@ -296,10 +297,10 @@ public class ObisCodeMapper {
                 obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),false));
                 obisTranslation.append(", maximum demand");
             }
-            
+
         } else if (obisCode.getD() == 8) {// time integral 1 TOTAL & RATE
             obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),true));
-            
+
             if (read) {
                 // fbl: bugfix 9/10/2006 extra check on e field.
                 if( obisCode.getE() > 8 ){
@@ -307,14 +308,14 @@ public class ObisCodeMapper {
                     throw new NoSuchRegisterException(msg);
                 }
                 if (obisCode.getE() > 0) {
-                    
+
                     TariffSources ts;
                     if (bp == -1) {
                         ts=(TariffSources)rFactory.getRegister("TariffSources");
                     } else {
                         ts=((HistoricalRegister)rFactory.getRegister( "HistoricalRegister", bp )).getTariffSources();
                     }
-                    
+
                     registerName = "TimeOfUse"+(obisCode.getE()-1);
                     MainRegister mr = (MainRegister)rFactory.getRegister(registerName,bp);
                     if (ts.getRegSource()[obisCode.getE()-1] == EnergyTypeCode.getRegSourceFromObisCCode(obisCode.getC())) {
@@ -329,7 +330,7 @@ public class ObisCodeMapper {
                         String msg = "ObisCode "+obisCode.toString()+" is not supported!";
                         throw new NoSuchRegisterException(msg);
                     }
-                    
+
                 } else {
                     MainRegister mr = (MainRegister)rFactory.getRegister(registerName,bp);
                     if (unit != null) {
@@ -346,22 +347,22 @@ public class ObisCodeMapper {
             String msg = "ObisCode "+obisCode.toString()+" is not supported!";
             throw new NoSuchRegisterException(msg);
         }
-        
+
         if (bp == -1)
             obisTranslation.append(", current value");
         else
             obisTranslation.append(", billing point "+(bp+1));
-        
+
         if (read)
             throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         else
             return new RegisterInfo(obisTranslation.toString());
-        
+
     }
 
 	private String getBillingReason(int billingTrigger) {
 		switch (billingTrigger) {
-			case 0x00: return ""; 
+			case 0x00: return "";
 			case 0x01: return "Billing trigger: Billing date";
 			case 0x02: return "Billing trigger: Season change";
 			case 0x04: return "Billing trigger: Tarif changeover";
@@ -373,7 +374,7 @@ public class ObisCodeMapper {
 			default: return "Unknown billing trigger: " + billingTrigger;
 		}
 	}
-    
+
 	public ABBA1140RegisterFactory getRFactory() {
 		return rFactory;
 	}

@@ -15,7 +15,6 @@ import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -27,6 +26,7 @@ import com.energyict.protocolimpl.dlms.as220.EventNumber;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.dlms.as220.plc.events.PLCLog;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.File;
@@ -501,7 +501,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         System.out.println("Firmware upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
         System.out.println("Firmware after upgrade: " + getMeterProtocol().getFirmwareVersion());
     }
-    
+
     private String getB64EncodedFirmareString() throws IOException {
         File file = new File("C:\\Documents and Settings\\jme\\Desktop\\AM500_20110607_V2.08\\MeterEandis.v2.08_Serial_Release_ImageTransfer.bin");
         FileInputStream fis = null;

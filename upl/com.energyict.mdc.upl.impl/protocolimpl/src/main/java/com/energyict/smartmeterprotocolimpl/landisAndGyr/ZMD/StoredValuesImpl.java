@@ -1,5 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -14,7 +17,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -152,7 +154,7 @@ public class StoredValuesImpl implements StoredValues {
     }
 
     public int getBillingPointCounter() throws IOException {
-        throw new com.energyict.protocol.UnsupportedException();
+        throw new UnsupportedException();
     }
 
 }

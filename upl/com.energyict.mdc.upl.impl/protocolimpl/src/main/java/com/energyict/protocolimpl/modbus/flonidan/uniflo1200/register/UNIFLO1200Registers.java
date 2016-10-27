@@ -1,12 +1,13 @@
 /**
  * UNIFLO_1200v28_Registers.java
- * 
+ *
  * Created on 8-dec-2008, 13:37:23 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 
@@ -25,7 +26,7 @@ public class UNIFLO1200Registers {
     public static final int UNIFLO1200_FW_28 		= 28;
 	public static final int OPTION_LOG_INTERVAL[] 	= {0, 60, 120, 300, 900, 1800, 3600, 7200, 14400};
 
-	
+
 	public static final String OPTION_GAS_CALC_FORMULA[] = {
 		"AGA NX-19 MOD CORR",
 		"AGA 8",
@@ -33,9 +34,9 @@ public class UNIFLO1200Registers {
 		"Z/Zb",
 		"AGA NX-19 MOD HER/WOL"
 	};
-    
+
 	private int fwVersion = 0;
-	
+
 	public UNIFLO1200Registers(int uniflo1200_fw_version) throws IOException {
 		switch (uniflo1200_fw_version) {
 			case UNIFLO1200_FW_25: break;
@@ -44,9 +45,9 @@ public class UNIFLO1200Registers {
 		}
 		this.fwVersion  = uniflo1200_fw_version;
 	}
-	
+
 	public String getUnitString(int addressIndex) throws IOException {
-		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX))
 			throw new IOException("getUnitString() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
 
 		switch (this.fwVersion) {
@@ -55,7 +56,7 @@ public class UNIFLO1200Registers {
 			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
 		}
 	}
-	
+
 	public int getIntervalLogStartAddress() throws IOException {
 		switch (this.fwVersion) {
 			case UNIFLO1200_FW_25: return V25.INTERVAL_LOG_STARTADDRESS;
@@ -79,7 +80,7 @@ public class UNIFLO1200Registers {
 			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
 		}
 	}
-	
+
 	public int getMonthLogStartAddress() throws IOException {
 		switch (this.fwVersion) {
 			case UNIFLO1200_FW_25: return V25.MONTH_LOG_STARTADDRESS;
@@ -87,12 +88,12 @@ public class UNIFLO1200Registers {
 			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
 		}
 	}
-	
+
 	public int getDataType(int addressIndex) throws IOException {
 		int absoluteAddress = getAbsAddr(addressIndex);
 		return (absoluteAddress & 0x00F00000) >> 20;
 	}
-	
+
 	public int getDecimals(int addressIndex) throws IOException {
 		int absoluteAddress = getAbsAddr(addressIndex);
 		return (absoluteAddress & 0x70000000)>>28;
@@ -101,7 +102,7 @@ public class UNIFLO1200Registers {
 	public int getSlaveID(int addressIndex) throws IOException {
 		int absoluteAddress = getAbsAddr(addressIndex);
 		int returnValue = (absoluteAddress & 0x000F0000)>>16;
-		if (returnValue > 8) 
+		if (returnValue > 8)
 			throw new ProtocolException(
 					"Invalid slaveId: " + returnValue +
 					" addressIndex: " + addressIndex +
@@ -109,9 +110,9 @@ public class UNIFLO1200Registers {
 					);
 		return returnValue;
 	}
-	
+
 	public String getAddressName(int addressIndex) throws IOException {
-		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX))
 			throw new IOException("getAddressName() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
 
 		switch (this.fwVersion) {
@@ -121,7 +122,7 @@ public class UNIFLO1200Registers {
 		}
 	}
 
-	
+
 	public String getParser(int addressIndex) throws IOException {
 		int dataType = getDataType(addressIndex);
 		switch (dataType) {
@@ -144,7 +145,7 @@ public class UNIFLO1200Registers {
 			default: throw new IOException("Unknown datatype: " + dataType + " for firmware version " + fwVersion);
 		}
 	}
-	
+
 	public int getDataLength(int addressIndex) throws IOException {
 		int dataType = getDataType(addressIndex);
 		switch (dataType) {
@@ -163,11 +164,11 @@ public class UNIFLO1200Registers {
 			case 0x0C: return UNIFLO1200Parsers.LENGTH_UINT320;
 			case 0x0D: return UNIFLO1200Parsers.LENGTH_REAL320;
 			case 0x0E: return UNIFLO1200Parsers.LENGTH_STR8;
-			case 0x0F: 
+			case 0x0F:
 				try {
 					return Integer.parseInt(getUnitString(addressIndex));
 				} catch (NumberFormatException e) {
-					return 0; 
+					return 0;
 				}
 			default: throw new IOException("Unknown datatype length for dataType: " + dataType + " for firmware version " + fwVersion);
 		}
@@ -177,14 +178,14 @@ public class UNIFLO1200Registers {
 		int absoluteAddress = getAbsAddr(addressIndex) & 0x0000FFFF;
 		return absoluteAddress / 0x02;
 	}
-		
+
 	public boolean isOddAddr(int addressIndex) throws IOException {
 		int absoluteAddress = getAbsAddr(addressIndex) & 0x0000FFFF;
 		return ((absoluteAddress % 2) != 0);
 	}
 
 	public int getAbsAddr(int addressIndex) throws IOException {
-		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX))
 			throw new IOException("getWordAddr() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
 
 		switch (this.fwVersion) {
@@ -193,7 +194,7 @@ public class UNIFLO1200Registers {
 			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
 		}
 	}
-	
+
 	/**
 	 * Checks if a given register is a cumulative register
 	 * @param addressIndex - the number(index) of the register
@@ -201,7 +202,7 @@ public class UNIFLO1200Registers {
 	 * @throws IOException if addressIndex is out of range or firmwareVersion is unknown
 	 */
 	public boolean isCumulative(int addressIndex) throws IOException {
-		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX))
 			throw new IOException("isCumulative() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
 
 		switch (this.fwVersion) {
@@ -210,15 +211,15 @@ public class UNIFLO1200Registers {
 			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
 		}
 	}
-	
+
 	/**
 	 * Returns the cumulative wrapValue
 	 * @param addressIndex - the number(index) of the register
 	 * @return the wrapValue
 	 * @throws IOException if addressIndex is out of range or firmwareVersion is unknown
 	 */
-	public int getCumulativeWrapValue(int addressIndex) throws IOException{ 
-		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+	public int getCumulativeWrapValue(int addressIndex) throws IOException{
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX))
 			throw new IOException("getCumulativeWrapValue() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
 
 		switch (this.fwVersion) {
@@ -241,14 +242,14 @@ public class UNIFLO1200Registers {
 		public static boolean isCumulative(int addressIndex){ return false;}
 		public static int getCumulativeWrapValue(int addressIndex){ return 99999999;}	// unnecessary because it's always false
 	}
-	
+
 	public static class V28 {
 
 		public static final int INTERVAL_LOG_STARTADDRESS 	= 0x0FFE0;
 		public static final int DAILY_LOG_STARTADDRESS 		= 0x04000;
 		public static final int MONTH_LOG_STARTADDRESS 		= 0x07000;
 		public static final int EVENT_LOG_STARTADDRESS		= 0x011A0;
-		
+
 		public static final int ZA 						= 0;
 		public static final int SLAVE_ADDRESS			= 1;
 		public static final int TIME 					= 2;
@@ -308,7 +309,7 @@ public class UNIFLO1200Registers {
 		public static final int POWER_HIGH_LIMIT		= 56;
 		public static final int FALLBACK_PRESS			= 57;
 		public static final int FALLBACK_TEMP			= 58;
-		public static final int TURN_OFF_DIAPLAY_AFTER	= 59; 
+		public static final int TURN_OFF_DIAPLAY_AFTER	= 59;
 		public static final int BASE_PRESS				= 60;
 		public static final int BASE_TEMP				= 61;
 		public static final int MAX_PRESS				= 62;
@@ -505,7 +506,7 @@ public class UNIFLO1200Registers {
 		public static final int TEMP_CALIB_TIME			= 253;
 		public static final int CONVERSION_TABLE_CRC	= 254;
 		public static final int CONV_TABLE_DLL_VERSION	= 255;
-		
+
 		public static final int WR_RESET_ALARM			= 256;
 		public static final int WR_CLEAR_ALARM			= 257;
 		public static final int WR_CLEAR_CONFIG_LOG		= 258;
@@ -741,10 +742,10 @@ public class UNIFLO1200Registers {
 			"Unlock graphic display",      			// 209 265  UnLockDisp                                   UnLock graphic display
 			"Volume control integer part",    		// 210 266  VolCtrlI             m3                 1 01 Vol. control                                                                Vol. ctrl.
 			"Volume control decimal part",    		// 211 267  VolCtrlF             m3                 1 0  Vol. control dec.                                                           Vol. ctrl. dec
-			"Consumption actual hour, int. part",	// 212  VolHourI             m3                 1R0  Current hour incr.                                                          Hour incr. 
+			"Consumption actual hour, int. part",	// 212  VolHourI             m3                 1R0  Current hour incr.                                                          Hour incr.
 			"Consumption actual hour, dec. part",	// 213  VolHourF             m3                 1R0  Current incr. dec.                                                          Hour incr. dec
 			"1. Max hour consumption time",      	// 214  MaxTime                                 1R0  1.Max hour incr. time                                                       1. Max incr. time
-			"1. Max time consumption, int. part",  	// 215  MaxVolI              m3                 1R0  1.Max hour incr.                                                            1. Max incr. 
+			"1. Max time consumption, int. part",  	// 215  MaxVolI              m3                 1R0  1.Max hour incr.                                                            1. Max incr.
 			"1. Max time consumption, dec. part",  	// 216  MaxVolF              m3                 1R0  1.Max hour incr. dec.                                                       1. Max incr. dec
 			"2. Max hour consumption time",      	// 217  MaxTime2                                1R0  2.Max hour incr. time                                                       2. Max time
 			"2. Max time consumption, int. part",   // 218  MaxVolI2             m3                 1R0  2.max hour incr.                                                            2. Max incr.
@@ -785,29 +786,29 @@ public class UNIFLO1200Registers {
 			"Temperature calibrationtime",      	// 253  TempCalTime                             1    Temperature calibration time                                                Temp. cal. Time
 			"Conversion tablechecksum",      		// 254  ConvTableChecksum                       1R   Conversion table checksum                                                   Conv. table chksum
 			"Conversion table DLL version",      	// 255  ConvTableDLLChecksum                    1R   DLL checksum                                                                DLL checksum
-			"",      								// 256                                                                                                                                         
-			"",      								// 257                                                                                                                                         
-			"",      								// 258                                                                                                                                        
-			"",      								// 259                                                                                                                                       
-			"",      								// 260                                                                                                                                         
-			"",      								// 261                                                                                                                                        
-			"",      								// 262                                                                                                                                        
-			"",     								// 263                                                                                                                                      
-			"",      								// 264                                                                                                                                       
-			"",      								// 265                                                                                                                                         
-			"",      								// 266                                                                                                                                       
-			"",      								// 267                                                                                                                                         
-			"",      								// 268                                                                                                                                                
-			"",      								// 269                                                                                                                                               
-			"",      								// 270                                                                                                                                               
-			"",      								// 271                                                                                                                                               
-			"",      								// 272                                                                                                                                               
-			"",      								// 273                                                                                                                                               
-			"",      								// 274                                                                                                                                               
-			"",      								// 275                                                                                                                                               
-			"",      								// 276                                                                                                                                               
+			"",      								// 256
+			"",      								// 257
+			"",      								// 258
+			"",      								// 259
+			"",      								// 260
+			"",      								// 261
+			"",      								// 262
+			"",     								// 263
+			"",      								// 264
+			"",      								// 265
+			"",      								// 266
+			"",      								// 267
+			"",      								// 268
+			"",      								// 269
+			"",      								// 270
+			"",      								// 271
+			"",      								// 272
+			"",      								// 273
+			"",      								// 274
+			"",      								// 275
+			"",      								// 276
 		};
-		
+
 		private static final int ABSOLUTE_ADDRESSES[] = {
 			0x573000B0,   // 0    Za                              R       1R   Za                                                                          Za
 			0x03000001,   // 1    SlaveAdr                                1    Modbus slave address                                                        Modbus address
@@ -1021,10 +1022,10 @@ public class UNIFLO1200Registers {
 			0x02001E18,//209 265  UnLockDisp                                   UnLock graphic display
 			0x832000B8,//210 266  VolCtrlI             m3                 1 01 Vol. control                                                                Vol. ctrl.
 			0xC33000BC,//211 267  VolCtrlF             m3                 1 0  Vol. control dec.                                                           Vol. ctrl. dec
-			0x07200240,   // 212  VolHourI             m3                 1R0  Current hour incr.                                                          Hour incr. 
+			0x07200240,   // 212  VolHourI             m3                 1R0  Current hour incr.                                                          Hour incr.
 			0x47300244,   // 213  VolHourF             m3                 1R0  Current incr. dec.                                                          Hour incr. dec
 			0x07500248,   // 214  MaxTime                                 1R0  1.Max hour incr. time                                                       1. Max incr. time
-			0x0720024C,   // 215  MaxVolI              m3                 1R0  1.Max hour incr.                                                            1. Max incr. 
+			0x0720024C,   // 215  MaxVolI              m3                 1R0  1.Max hour incr.                                                            1. Max incr.
 			0x47300250,   // 216  MaxVolF              m3                 1R0  1.Max hour incr. dec.                                                       1. Max incr. dec
 			0x07500254,   // 217  MaxTime2                                1R0  2.Max hour incr. time                                                       2. Max time
 			0x07200258,   // 218  MaxVolI2             m3                 1R0  2.max hour incr.                                                            2. Max incr.
@@ -1065,27 +1066,27 @@ public class UNIFLO1200Registers {
 			0x0F501CE0,   // 253  TempCalTime                             1    Temperature calibration time                                                Temp. cal. Time
 			0xFA101CEE,   // 254  ConvTableChecksum                       1R   Conversion table checksum                                                   Conv. table chksum
 			0xFA101CF0,   // 255  ConvTableDLLChecksum                    1R                                                                               DLL checksum
-			0x00101E04,   // 256                                                                                                                                          
-			0x00101E06,   // 257                                                                                                                                         
-			0x00101E0A,   // 258                                                                                                                                        
-			0x00101E0C,   // 259                                                                                                                                       
-			0x00101E0E,   // 260                                                                                                                                         
-			0x00101E10,   // 261                                                                                                                                        
-			0x00101E12,   // 262                                                                                                                                        
-			0x00101E14,   // 263                                                                                                                                      
-			0x00101E08,   // 264                                                                                                                                       
-			0x00001E16,   // 265                                                                                                                                         
-			0x00001E18,   // 266                                                                                                                                       
-			0x00001E1A,   // 267                                                                                                                                         
-			0x00101E1C,   // 268                                                                                                                                                
-			0x00101E1E,   // 269                                                                                                                                               
-			0x00101E20,   // 270                                                                                                                                               
-			0x00101E22,   // 271                                                                                                                                               
-			0x00101F00,   // 272                                                                                                                                               
-			0x00101F02,   // 273                                                                                                                                               
-			0x00E01E00,   // 274                                                                                                                                               
-			0x00F01E02,   // 275                                                                                                                                               
-			0x00101E24,   // 276                                                                                                                                               
+			0x00101E04,   // 256
+			0x00101E06,   // 257
+			0x00101E0A,   // 258
+			0x00101E0C,   // 259
+			0x00101E0E,   // 260
+			0x00101E10,   // 261
+			0x00101E12,   // 262
+			0x00101E14,   // 263
+			0x00101E08,   // 264
+			0x00001E16,   // 265
+			0x00001E18,   // 266
+			0x00001E1A,   // 267
+			0x00101E1C,   // 268
+			0x00101E1E,   // 269
+			0x00101E20,   // 270
+			0x00101E22,   // 271
+			0x00101F00,   // 272
+			0x00101F02,   // 273
+			0x00E01E00,   // 274
+			0x00F01E02,   // 275
+			0x00101E24,   // 276
 		};
 
 		private static final String UNITS[] = {
@@ -1128,10 +1129,10 @@ public class UNIFLO1200Registers {
 			"bar",   // 36   Pressure             bar A     U        1R0 1Pressure                                                                    Pressure
 			"°C",    // 37   Temperature          °C                 1R0 1Temperature                                                                 Temperature
 			"",      // 38   Korr                                    1R0 1Conversion factor                                                           Conv. factor
-			
+
 			//FIXME: Onderstaande unit (m3/pulse) onbekend
 			"m3",    // 39   Pulsvalue            m3/pulse  UR       1    Value of pulse                                      0           99999999    Pulse Value
-			
+
 			"m3/h",  // 40   FlowCorr             m3/h               1R0 1Flow corrected                                                              Flow corr.
 			"Nm3/h", // 41   FlowConv             Nm3/h     U        1R0 1Flow conv.                                                                  Flow conv.
 			"m3",    // 42   VolCorr              m3                      Vol. corrected                                      0           99999999
@@ -1304,10 +1305,10 @@ public class UNIFLO1200Registers {
 			"",      // 209 265  UnLockDisp                                   UnLock graphic display
 			"m3",    // 210 266  VolCtrlI             m3                 1 01 Vol. control                                                                Vol. ctrl.
 			"m3",    // 211 267  VolCtrlF             m3                 1 0  Vol. control dec.                                                           Vol. ctrl. dec
-			"m3",    // 212  VolHourI             m3                 1R0  Current hour incr.                                                          Hour incr. 
+			"m3",    // 212  VolHourI             m3                 1R0  Current hour incr.                                                          Hour incr.
 			"m3",    // 213  VolHourF             m3                 1R0  Current incr. dec.                                                          Hour incr. dec
 			"",      // 214  MaxTime                                 1R0  1.Max hour incr. time                                                       1. Max incr. time
-			"m3",    // 215  MaxVolI              m3                 1R0  1.Max hour incr.                                                            1. Max incr. 
+			"m3",    // 215  MaxVolI              m3                 1R0  1.Max hour incr.                                                            1. Max incr.
 			"m3",    // 216  MaxVolF              m3                 1R0  1.Max hour incr. dec.                                                       1. Max incr. dec
 			"",      // 217  MaxTime2                                1R0  2.Max hour incr. time                                                       2. Max time
 			"m3",    // 218  MaxVolI2             m3                 1R0  2.max hour incr.                                                            2. Max incr.
@@ -1348,27 +1349,27 @@ public class UNIFLO1200Registers {
 			"",      // 253  TempCalTime                             1    Temperature calibration time                                                Temp. cal. Time
 			"",      // 254  ConvTableChecksum                       1R   Conversion table checksum                                                   Conv. table chksum
 			"",      // 255  ConvTableDLLChecksum                    1R   DLL checksum                                                                DLL checksum
-			"",      // 256                                                                                                                                         
-			"",      // 257                                                                                                                                         
-			"",      // 258                                                                                                                                        
-			"",      // 259                                                                                                                                       
-			"",      // 260                                                                                                                                         
-			"",      // 261                                                                                                                                        
-			"",      // 262                                                                                                                                        
-			"",      // 263                                                                                                                                      
-			"",      // 264                                                                                                                                       
-			"",      // 265                                                                                                                                         
-			"",      // 266                                                                                                                                       
-			"",      // 267                                                                                                                                         
-			"",      // 268                                                                                                                                                
-			"",      // 269                                                                                                                                               
-			"",      // 270                                                                                                                                               
-			"",      // 271                                                                                                                                               
-			"",      // 272                                                                                                                                               
-			"",      // 273                                                                                                                                               
-			"",      // 274                                                                                                                                               
-			"",      // 275                                                                                                                                               
-			"",      // 276                                                                                                                                               
+			"",      // 256
+			"",      // 257
+			"",      // 258
+			"",      // 259
+			"",      // 260
+			"",      // 261
+			"",      // 262
+			"",      // 263
+			"",      // 264
+			"",      // 265
+			"",      // 266
+			"",      // 267
+			"",      // 268
+			"",      // 269
+			"",      // 270
+			"",      // 271
+			"",      // 272
+			"",      // 273
+			"",      // 274
+			"",      // 275
+			"",      // 276
 
 		};
 
@@ -1377,7 +1378,7 @@ public class UNIFLO1200Registers {
 		static{
 			buildCumulativeHashMap();
 		}
-		
+
 		private static void buildCumulativeHashMap(){
 			CUMULATIVE_REGISTERS.put(new Integer(32), "99999999");
 			CUMULATIVE_REGISTERS.put(new Integer(42), "99999999");
@@ -1387,7 +1388,7 @@ public class UNIFLO1200Registers {
 			CUMULATIVE_REGISTERS.put(new Integer(46), "99999999");	// TODO, chech the wrapValue
 			CUMULATIVE_REGISTERS.put(new Integer(47), "99999999");	// TODO, chech the wrapValue
 			CUMULATIVE_REGISTERS.put(new Integer(95), "99999999");
-			CUMULATIVE_REGISTERS.put(new Integer(96), "99999999");	// TODO, not sure, but in the manual you see a wrapValue	
+			CUMULATIVE_REGISTERS.put(new Integer(96), "99999999");	// TODO, not sure, but in the manual you see a wrapValue
 			CUMULATIVE_REGISTERS.put(new Integer(97), "99999999");	// TODO, not sure, but in the manual you see a wrapValue
 			CUMULATIVE_REGISTERS.put(new Integer(108), "99999999");
 			CUMULATIVE_REGISTERS.put(new Integer(190), "99999999");
@@ -1398,7 +1399,7 @@ public class UNIFLO1200Registers {
 			CUMULATIVE_REGISTERS.put(new Integer(210), "99999999");
 			CUMULATIVE_REGISTERS.put(new Integer(211), "99999999");
 			}
-		
+
 		/**
 		 * Checks if current register is an accumulated value
 		 * @param addressIndex - the number(index) of the register
@@ -1407,7 +1408,7 @@ public class UNIFLO1200Registers {
 		public static boolean isCumulative(int addressIndex){
 			return CUMULATIVE_REGISTERS.containsKey(new Integer(addressIndex));
 		}
-	
+
 		/**
 		 * @param addressIndex - the number(index) of the register
 		 * @return the wrapValue
@@ -1418,5 +1419,5 @@ public class UNIFLO1200Registers {
 	}
 
 
-	
+
 }

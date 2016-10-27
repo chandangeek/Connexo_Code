@@ -1,10 +1,13 @@
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Koen

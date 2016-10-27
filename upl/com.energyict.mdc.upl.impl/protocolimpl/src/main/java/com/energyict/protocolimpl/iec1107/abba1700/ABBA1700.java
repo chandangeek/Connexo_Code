@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -9,7 +12,22 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
@@ -27,7 +45,15 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
@@ -182,8 +208,8 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD, "");
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "2").trim());
             if (iSecurityLevel != 0) {
                 if ("".compareTo(strPassword) == 0) {
@@ -197,12 +223,12 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
             iProtocolRetries = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "2").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "0").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             // 15122003 get the serialNumber
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
 
             // 0 = 16 TOU registers type (most in the UK)
             // 1 = 32 TOU registers type (Portugal, etc...)
@@ -534,7 +560,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         int baudrate = discoverInfo.getBaudrate();
         Properties properties = new Properties();
         properties.setProperty("SecurityLevel", "0");
-        properties.setProperty(MeterProtocol.NODEID, nodeId == null ? "" : nodeId);
+        properties.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");
         setProperties(properties);
         init(serialCommunicationChannel.getInputStream(), serialCommunicationChannel.getOutputStream(), null, null);

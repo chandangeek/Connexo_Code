@@ -1,7 +1,8 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 

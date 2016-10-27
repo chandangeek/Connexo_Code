@@ -1,19 +1,37 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.ActivePassive;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.PrivacyEnhancingDataAggregation;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
-import com.energyict.protocol.*;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**

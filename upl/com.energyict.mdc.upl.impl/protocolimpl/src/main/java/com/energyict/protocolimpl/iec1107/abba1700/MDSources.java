@@ -6,8 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -20,26 +21,26 @@ public class MDSources {
     public MDSources(byte[] data) throws ProtocolException {
         parse(data);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<MD_REGISTERS;i++) {
             try {
-               strBuff.append("(C)MD register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i],false)+"\n");    
+               strBuff.append("(C)MD register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i],false)+"\n");
             }
             catch(NoSuchRegisterException e) {
-               strBuff.append("(C)MD register "+(i+1)+", no source for "+getRegSource()[i]+"\n"); 
+               strBuff.append("(C)MD register "+(i+1)+", no source for "+getRegSource()[i]+"\n");
             }
         }
         return strBuff.toString();
     }
-    
+
     private void parse(byte[] data) throws ProtocolException {
         for (int i=0;i<MD_REGISTERS;i++) {
             regSource[i] = ProtocolUtils.getIntLE(data,i,1);
         }
-    }    
-    
+    }
+
     /**
      * Getter for property regSource.
      * @return Value of property regSource.
@@ -47,6 +48,6 @@ public class MDSources {
     public int[] getRegSource() {
         return this.regSource;
     }
-    
+
 
 }

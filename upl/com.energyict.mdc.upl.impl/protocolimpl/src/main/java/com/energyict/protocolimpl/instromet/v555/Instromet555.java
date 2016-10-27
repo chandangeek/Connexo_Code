@@ -1,7 +1,13 @@
 package com.energyict.protocolimpl.instromet.v555;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.instromet.connection.Command;
@@ -13,10 +19,15 @@ import com.energyict.protocolimpl.instromet.v555.tables.TableFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class Instromet555 extends InstrometProtocol implements SerialNumberSupport {
-	
+
 	private Instromet555Profile instromet555Profile = null;
 	private TableFactory tableFactory = null;
     private CommandFactory commandFactory=null;
@@ -24,15 +35,15 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     private RegisterFactory registerFactory;
     private List wrapValues = new ArrayList();
     private int iRoundtripCorrection;
-	
+
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getInstromet555Profile().getProfileData(lastReading,includeEvents);
     }
-	
+
 	public int getRoundtripCorrection() {
 		return this.iRoundtripCorrection;
 	}
-	
+
 	public RegisterFactory getRegisterFactory() throws IOException {
         if (registerFactory == null) {
             registerFactory = new RegisterFactory(this);
@@ -40,11 +51,11 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
         }
         return registerFactory;
     }
-	
+
 	public TableFactory getTableFactory() {
 		return tableFactory;
 	}
-	
+
 	protected void setWrapValues() throws IOException {
 		String channelMapValue = null;
 		try {
@@ -58,11 +69,11 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
 		}
 		catch (NumberFormatException e) {
 			throw new IOException(
-					"Invalid property values channelmap: should contain numbers: " 
+					"Invalid property values channelmap: should contain numbers: "
 					+ channelMapValue);
 		}
 	}
-	
+
 	public Instromet555Profile getInstromet555Profile() {
         return instromet555Profile;
     }
@@ -70,15 +81,15 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     public void setInstromet555Profile(Instromet555Profile instromet555Profile) {
         this.instromet555Profile = instromet555Profile;
     }
-    
+
     public CommandFactory getCommandFactory() {
         return commandFactory;
     }
 
     private void setCommandFactory(CommandFactory commandFactory) {
         this.commandFactory = commandFactory;
-    }    
-    
+    }
+
     protected void doTheInit() throws IOException {
     	this.getInstrometConnection().setNodeAddress(this.getCommId());
         setCommandFactory(new CommandFactory(this));
@@ -87,11 +98,11 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     	setWrapValues();
     	iRoundtripCorrection=getInfoTypeRoundtripCorrection();
     }
-    
+
     public List getWrapValues() {
     	return wrapValues;
     }
-    
+
     public int getCommId() throws IOException {
     	String nodeAddress = getInfoTypeNodeAddress();
     	if ((nodeAddress == null) || ("".equals(nodeAddress)))
@@ -105,12 +116,12 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     		}
     	}
     }
-   
+
 
 	protected void doConnect() throws IOException {
 		getInstrometConnection().wakeUp();
 	}
-	
+
     public void parseStatus(Response response) throws IOException {
     	byte[] data = response.getData();
     	if (data.length < 2)
@@ -118,7 +129,7 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     	char function = (char) data[0];
     	Command command = new Command(function);
     	if (command.isStatusCommand()) {
-    		StatusCommand statusCommand = 
+    		StatusCommand statusCommand =
     			new StatusCommand(tableFactory.getInstromet555());
     		statusCommand.checkStatusCode((int) data[1]);
     	}
@@ -134,7 +145,7 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
 	}
 
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		
+
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -172,15 +183,15 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
 		response = cfactory.setTimeCommand().invoke();
 		parseStatus(response);
 	}
-	
+
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
-    } 
-    
+    }
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return this.tableFactory.getLoggingConfigurationTable().getChannelInfos().size();
     }

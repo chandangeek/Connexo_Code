@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -164,7 +165,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getHLSSecret() {
         if (this.hlsSecret == null) {
-            this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD, "");
+            this.hlsSecret = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
         }
         byte[] byteWord = new byte[this.hlsSecret.length()];
         for (int i = 0; i < this.hlsSecret.length(); i++) {

@@ -40,11 +40,11 @@ public class DLMSEICT extends DLMSSN
 
     public DLMSEICT() {
     }
-   
+
     protected String getDeviceID() {
         return "EIT";
     }
-    
+
     // Interval List
     private static final byte IL_CAPUTURETIME=0;
     private static final byte IL_EVENT=12;
@@ -55,13 +55,13 @@ public class DLMSEICT extends DLMSSN
     private static final long EV_START_OF_INTERVAL=     0x00080000;
     private static final long EV_FATAL_ERROR=           0x00000001;
     private static final long EV_CORRUPTED_MEASUREMENT= 0x00000004;
-    private static final long EV_TIME_DATE_ADJUSTED=    0x00000020; 
+    private static final long EV_TIME_DATE_ADJUSTED=    0x00000020;
     private static final long EV_POWER_UP=              0x00000040;
     private static final long EV_POWER_DOWN=            0x00000080;
     private static final long EV_EVENT_LOG_CLEARED=     0x00002000;
     private static final long EV_LOAD_PROFILE_CLEARED=  0x00004000;
     private static final long EV_CAPTURED_EVENTS=       0x008860E5; // Add new events...
-    
+
     protected void getEventLog(ProfileData profileDate,Calendar fromCalendar, Calendar toCalendar) throws IOException {
     }
 
@@ -101,15 +101,15 @@ public class DLMSEICT extends DLMSSN
            calendar = ProtocolUtils.initCalendar(false,getTimeZone());
 
         for (i=(intervalList.length-1);i>=0;i--)
-        {  
+        {
             if (isRequestTimeZone()) {
             if (intervalList[i].getField(IL_CAPUTURETIME+11) != 0xff) {
                 if ((intervalList[i].getField(IL_CAPUTURETIME+11)&0x80) == 0x80) calendar = dstCalendar;
                 else calendar = stdCalendar;
-              } 
+              }
               else calendar = stdCalendar;
-            } 
-           
+            }
+
            // Build Timestamp
            calendar.set(Calendar.YEAR,(int)((intervalList[i].getField(IL_CAPUTURETIME)<<8) |
                                             intervalList[i].getField(IL_CAPUTURETIME+1)));
@@ -118,40 +118,40 @@ public class DLMSEICT extends DLMSSN
            calendar.set(Calendar.HOUR_OF_DAY,(int)intervalList[i].getField(IL_CAPUTURETIME+5));
            calendar.set(Calendar.MINUTE,(int)intervalList[i].getField(IL_CAPUTURETIME+6));
            calendar.set(Calendar.SECOND,(int)intervalList[i].getField(IL_CAPUTURETIME+7));
-           
+
            int iField = (int)intervalList[i].getField(IL_EVENT) & (int)EV_CAPTURED_EVENTS;
            iField &= (EV_NORMAL_END_OF_INTERVAL ^ 0xffffffff); // exclude EV_NORMAL_END_OF_INTERVAL bit
            for (int bit=0x1;bit!=0;bit<<=1)
            {
-               if ((iField & bit) != 0)  
+               if ((iField & bit) != 0)
                {
                    profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
                                                        (int)mapLogCodes(bit),
                                                        (int)bit));
                }
            } // for (int bit=0x1;bit!=0;bit<<=1)
-           
+
            // KV 12112002 following the Siemens integration handbook, only exclude profile entries where status & EV_START_OF_INTERVAL is true
            //if ((intervalList[i].getField(IL_EVENT) & EV_NORMAL_END_OF_INTERVAL) != 0)
            if ((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0)
            {
-              // Fill profileData         
+              // Fill profileData
               IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
-              
+
               for (t=0;t<bNROfChannels;t++)
                  intervalData.addValue(new Long(intervalList[i].getField(IL_DEMANDVALUE+t)));
-              
+
               if ((intervalList[i].getField(IL_EVENT) & EV_CORRUPTED_MEASUREMENT) != 0)
                   intervalData.addStatus(IntervalData.CORRUPTED);
-              
-              
+
+
               profileData.addInterval(intervalData);
-              
+
            }
-           
+
         } // for (i=0;i<intervalList.length;i++)
     } // ProfileData buildProfileData(...)
-    
+
     private long mapLogCodes(long lLogCode)
     {
         switch((int)lLogCode)
@@ -171,14 +171,14 @@ public class DLMSEICT extends DLMSSN
         try {
             Iterator iterator= getRequiredKeys().iterator();
             while (iterator.hasNext())
-            { 
+            {
                 String key = (String) iterator.next();
                 if (properties.getProperty(key) == null)
                     throw new MissingPropertyException (key + " key missing");
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
             if (strID.length()>16) throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
             iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
@@ -192,9 +192,9 @@ public class DLMSEICT extends DLMSSN
             iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());
         }
         catch (NumberFormatException e) {
-           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
+           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
         }
     }
-    
-    
+
+
 } // public class DLMSEICT

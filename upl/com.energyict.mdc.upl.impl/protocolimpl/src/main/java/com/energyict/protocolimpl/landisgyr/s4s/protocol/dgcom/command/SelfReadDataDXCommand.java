@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -24,10 +25,10 @@ import java.util.Date;
  * @author Koen
  */
 public class SelfReadDataDXCommand extends AbstractCommand {
-    
+
     private int selfReadIndex;
-    private int touStatus; // TOU status (byte 1 of 81h) 
-    private Date selfReadTimestamp; // 7 bytes Time(3) + Date(4)   
+    private int touStatus; // TOU status (byte 1 of 81h)
+    private Date selfReadTimestamp; // 7 bytes Time(3) + Date(4)
     private long batteryCarryOvertime; // from 13h read command
     private HighestMaximumDemandsCommand highestMaximumDemandsCommand; // 84h
     private RateBinsAndTotalEnergyDXCommand rateBinsAndTotalEnergyDXCommand; // 05h
@@ -36,14 +37,14 @@ public class SelfReadDataDXCommand extends AbstractCommand {
     private CurrentSeasonLastResetValuesDXCommand currentSeasonLastResetValuesDXCommand; // 85h
     private PreviousSeasonTOUDataDXCommand previousSeasonTOUDataDXCommand; // 5Ch
     private PreviousSeasonLastResetValuesDXCommand previousSeasonLastResetValuesDXCommand; // 86h
-    
+
     // 6 reserved bytes
-    
+
     /** Creates a new instance of TemplateCommand */
     public SelfReadDataDXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -61,8 +62,8 @@ public class SelfReadDataDXCommand extends AbstractCommand {
         strBuff.append("   touStatus="+getTouStatus()+"\n");
         return strBuff.toString();
     }
-    
-    
+
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isDX()) {
             setSize(280);
@@ -71,7 +72,7 @@ public class SelfReadDataDXCommand extends AbstractCommand {
         else
             throw new ProtocolException("SelfReadDataDXCommand, only for DX meters!");
     }
-    
+
     private void parseTimestamp(byte[] data, int offset) throws IOException {
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
         cal.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[offset]));
@@ -83,31 +84,31 @@ public class SelfReadDataDXCommand extends AbstractCommand {
         cal.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[offset+6])-1);
         setSelfReadTimestamp(cal.getTime());
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setTouStatus((int)data[offset++]&0xFF);
         parseTimestamp(data,offset); offset+=7;
         setBatteryCarryOvertime(ParseUtils.getBCD2LongLE(data,offset, 4)); offset+=4;
-        
+
         setHighestMaximumDemandsCommand(new HighestMaximumDemandsCommand(getCommandFactory()));
         getHighestMaximumDemandsCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=40;
-        
+
         setRateBinsAndTotalEnergyDXCommand(new RateBinsAndTotalEnergyDXCommand(getCommandFactory()));
         getRateBinsAndTotalEnergyDXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=30;
-        
+
         setCurrentSeasonTOUDemandDataDXCommand(new CurrentSeasonTOUDemandDataDXCommand(getCommandFactory()));
         getCurrentSeasonTOUDemandDataDXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=32;
-        
+
         setCurrentSeasonCumulativeDemandDataDXCommand(new CurrentSeasonCumulativeDemandDataDXCommand(getCommandFactory()));
         getCurrentSeasonCumulativeDemandDataDXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=32;
-        
+
         setCurrentSeasonLastResetValuesDXCommand(new CurrentSeasonLastResetValuesDXCommand(getCommandFactory()));
         getCurrentSeasonLastResetValuesDXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=14;
-        
+
         setPreviousSeasonTOUDataDXCommand(new PreviousSeasonTOUDataDXCommand(getCommandFactory()));
         getPreviousSeasonTOUDataDXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=100;
-        
+
         setPreviousSeasonLastResetValuesDXCommand(new PreviousSeasonLastResetValuesDXCommand(getCommandFactory()));
         getPreviousSeasonLastResetValuesDXCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=14;
     }

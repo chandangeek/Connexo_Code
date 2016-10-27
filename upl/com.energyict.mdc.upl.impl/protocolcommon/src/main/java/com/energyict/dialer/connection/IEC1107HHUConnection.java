@@ -13,6 +13,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterId;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocol.meteridentification.MeterTypeImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -278,7 +279,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
                 if (receivedIdent.charAt(0) != '/') {
                     throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 String serialNumber;
 
 
@@ -338,7 +339,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
                 if (receivedIdent.charAt(0) != '/') {
                     throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 byte[] data = null;
                 String result = "";
                 if (modeCDataReadout) {
@@ -456,7 +457,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
                 if (logger.isDebugEnabled()) {
                     logger.debug("--->receivedIdent: " + receivedIdent);
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, protocol);
 
                 // receive dataReadout

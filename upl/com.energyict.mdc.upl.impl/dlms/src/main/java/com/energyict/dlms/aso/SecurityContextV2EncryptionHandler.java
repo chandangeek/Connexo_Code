@@ -1,10 +1,11 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;

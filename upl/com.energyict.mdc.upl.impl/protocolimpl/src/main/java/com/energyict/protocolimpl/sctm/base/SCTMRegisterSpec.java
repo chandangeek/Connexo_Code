@@ -6,18 +6,14 @@
 
 package com.energyict.protocolimpl.sctm.base;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
  */
 public class SCTMRegisterSpec {
-    
+
     int baseAddress;
     int subAddressOffset;
     int subAddressRange;
@@ -27,7 +23,7 @@ public class SCTMRegisterSpec {
     public SCTMRegisterSpec(int baseAddress, int subAddressOffset, ObisCode obisCode, String description) {
         this(baseAddress,subAddressOffset,1,obisCode,description);
     }
-    
+
     public SCTMRegisterSpec(int baseAddress, int subAddressOffset, int subAddressRange, ObisCode obisCode,String description) {
         this.baseAddress=baseAddress;
         this.subAddressOffset=subAddressOffset;
@@ -36,7 +32,7 @@ public class SCTMRegisterSpec {
         this.obisCodeBase = new ObisCode(obisCode.getA(),1,obisCode.getC(),obisCode.getD(),obisCode.getE(),obisCode.getF());
         this.description=description;
     }
-    
+
     public boolean containsObisCode(ObisCode oc) {
         ObisCode ocBase = new ObisCode(oc.getA(),1,oc.getC(),oc.getD(),oc.getE(),oc.getF());
         // ObisCode match?
@@ -48,7 +44,7 @@ public class SCTMRegisterSpec {
         }
         return false;
     }
-    
+
     public String getRegisterSpecAddress(ObisCode oc) {
         if (containsObisCode(oc)) {
             int subAddress=(oc.getB()-obisCode.getB())+subAddressOffset;
@@ -56,12 +52,12 @@ public class SCTMRegisterSpec {
         }
         return null;
     }
-    
+
     public String getRegisterSpecAddressRange() {
         return ProtocolUtils.buildStringDecimal(baseAddress,3)+ProtocolUtils.buildStringDecimal(subAddressOffset,2)+
                (subAddressRange==1?"":".."+ProtocolUtils.buildStringDecimal(baseAddress,3)+ProtocolUtils.buildStringDecimal(subAddressOffset+subAddressRange-1,2));
     }
-    
+
     /**
      * Getter for property description.
      * @return Value of property description.
@@ -69,14 +65,14 @@ public class SCTMRegisterSpec {
     public java.lang.String getDescription() {
         return description;
     }
-    
+
     /**
      * Getter for property obisCode.
      * @return Value of property obisCode.
      */
     public com.energyict.obis.ObisCode getObisCode() {
         return obisCode;
-    }    
+    }
 
     /**
      * Getter for property subAddressRange.
@@ -85,7 +81,7 @@ public class SCTMRegisterSpec {
     public int getSubAddressRange() {
         return subAddressRange;
     }
-    
 
-    
+
+
 }

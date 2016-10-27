@@ -6,36 +6,37 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class DefaultRegisters extends AbstractLogicalAddress {
-    
-    
+
+
     Quantity activeImport;
     Quantity reactive;
     Quantity apparent;
-    
-    
+
+
     /** Creates a new instance of DefaultRegisters */
     public DefaultRegisters(int id,int size, LogicalAddressFactory laf) throws IOException {
         super(id,size,laf);
     }
-    
+
     public String toString() {
         return "DefaultRegisters: activeImport="+getActiveImport()+", reactive="+getReactive()+", apparent="+getApparent();
     }
-    
+
     public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException {
         // KV TO_DOprotocol doc strates k (x1000)... protocol analysis is different...
         activeImport = new Quantity(BigDecimal.valueOf(ProtocolUtils.getLong(data,0,4)).movePointLeft(getScaler()),Unit.get("kWh"));
@@ -44,7 +45,7 @@ public class DefaultRegisters extends AbstractLogicalAddress {
         // KV TO_DOprotocol doc strates k (x1000)... protocol analysis is different...
         apparent = new Quantity(BigDecimal.valueOf(ProtocolUtils.getLong(data,8,4)).movePointLeft(getScaler()),Unit.get("kVAh"));
     }
-    
+
     public Quantity getTotalValueforObisC(int obisCodeC) throws java.io.IOException {
         if (ObisCode.CODE_C_ACTIVE_IMPORT==obisCodeC)
                 return activeImport;
@@ -52,10 +53,10 @@ public class DefaultRegisters extends AbstractLogicalAddress {
                 return reactive;
         if (9==obisCodeC)
                 return apparent;
-        
-        throw new NoSuchRegisterException("DefaultRegisters, register wit obis code C field "+obisCodeC+" does not exist!"); 
+
+        throw new NoSuchRegisterException("DefaultRegisters, register wit obis code C field "+obisCodeC+" does not exist!");
     }
-    
+
     /**
      * Getter for property activeImport.
      * @return Value of property activeImport.

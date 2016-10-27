@@ -1,5 +1,17 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
+import com.energyict.mdc.ports.InboundComPort;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimePeriod;
 import com.energyict.cpo.PropertySpec;
@@ -14,19 +26,8 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -37,7 +38,13 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**

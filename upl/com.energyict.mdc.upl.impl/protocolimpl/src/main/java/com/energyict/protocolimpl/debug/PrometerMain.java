@@ -2,11 +2,17 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.iec1107.cewe.prometer.Prometer;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -31,17 +37,17 @@ public class PrometerMain extends AbstractDebuggingMain<Prometer> {
     Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-        properties.setProperty(MeterProtocol.PASSWORD, "0000");
-        properties.setProperty(MeterProtocol.SERIALNUMBER, SERIAL);
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "0000");
+        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), SERIAL);
         properties.setProperty("SecurityLevel", "1");
         properties.setProperty("Software7E1", "1");
         properties.setProperty("Retries", "3");
         properties.setProperty("Timeout", "10000");
-        properties.setProperty(MeterProtocol.NODEID, SERIAL);
+        properties.setProperty(MeterProtocol.Property.NODEID.getName(), SERIAL);
 
         return properties;
     }

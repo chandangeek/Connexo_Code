@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
@@ -8,11 +7,13 @@ import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.upl.ProtocolException;
+
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -45,7 +46,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.EndOfDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.StartOfDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.day;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableAutomaticDemandResetAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.hour;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
 
 /**
  * @author sva

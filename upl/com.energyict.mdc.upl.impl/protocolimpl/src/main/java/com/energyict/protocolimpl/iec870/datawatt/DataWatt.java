@@ -6,22 +6,19 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec870.IEC870Connection;
 import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
@@ -236,8 +233,8 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             iIEC870TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "25000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "3").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
@@ -265,78 +262,6 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         } catch (IOException e) {
             throw new ProtocolException("DataWatt, setTime, " + e.getMessage());
         }
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        Dialer dialer = null;
-        DataWatt dataWatt = null;
-        Calendar calendar = null;
-        try {
-            dataWatt = new DataWatt();
-            dialer = DialerFactory.getDefault().newDialer();
-            dialer.init("COM1", "AT+CBST=71,0,1");
-            dialer.connect("0,0031162481265", 60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-            dataWatt = new DataWatt();
-            Properties properties = new Properties();
-            //properties.setProperty(MeterProtocol.ADDRESS,"4");
-            properties.setProperty(MeterProtocol.ADDRESS, "61");
-            properties.setProperty(MeterProtocol.PASSWORD, "");
-            properties.setProperty("Retries", "5");
-            properties.setProperty("ProfileInterval", "300");
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6:2.7");
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6");
-            properties.setProperty("ChannelMap", "1.2"); //:1.5");
-            properties.setProperty("MeterType", "0");
-            dataWatt.setProperties(properties);
-
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                    SerialCommunicationChannel.DATABITS_8,
-                    SerialCommunicationChannel.PARITY_NONE,
-                    SerialCommunicationChannel.STOPBITS_1);
-
-            // initialize
-            dataWatt.init(is, os, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
-
-            System.out.println("Start session");
-            dataWatt.connect();
-
-            //            System.out.println("******************************************** getApplicationFunction().testASDU() ********************************************");
-            //            dataWatt.getApplicationFunction().testASDU();
-
-
-            System.out.println("******************************************** getProfileData() ********************************************");
-            calendar = Calendar.getInstance(dataWatt.getTimeZone());
-            calendar.add(Calendar.HOUR_OF_DAY, -2);
-            dataWatt.getDatawattProfile().doLogMeterDataCollection(dataWatt.getProfileData(calendar.getTime(), true));
-
-
-            System.out.println("******************************************** getMeterReading() ********************************************");
-            System.out.println("Meterreading: " + dataWatt.getMeterReading("1.1").toString());
-
-//            System.out.println("******************************************** setTime() ********************************************");
-//            System.out.println("setTime()");
-//            dataWatt.setTime();
-
-            System.out.println("******************************************** getTime() ********************************************");
-            System.out.println("System: " + new Date());
-            System.out.println("Meter: " + dataWatt.getTime());
-
-
-            dataWatt.disconnect();
-            System.out.println("End session");
-        } catch (LinkException e) {
-            System.out.println("DataWatt, DialerException, " + e.getMessage());
-            dataWatt.disconnect();
-        } catch (IOException e) {
-            System.out.println("DataWatt, IOException, " + e.getMessage());
-            dataWatt.disconnect();
-        }
-
     }
 
     // implementation of IEC870ProtocolLink

@@ -1,5 +1,9 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -9,7 +13,17 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -25,7 +39,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -136,20 +157,20 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     public void setProperties(Properties p) throws InvalidPropertyException,
             MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.ADDRESS) != null) {
-            pAddress = p.getProperty(MeterProtocol.ADDRESS);
+        if (p.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
+            pAddress = p.getProperty(MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (p.getProperty(MeterProtocol.NODEID) != null) {
-            pNodeId = p.getProperty(MeterProtocol.NODEID);
+        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
         }
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.PASSWORD) != null) {
-            pPassword = p.getProperty(MeterProtocol.PASSWORD);
+        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
@@ -160,12 +181,12 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
-            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.ROUNDTRIPCORR)).intValue();
+        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -204,7 +225,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add(MeterProtocol.ADDRESS);
+        result.add(MeterProtocol.Property.ADDRESS.getName());
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_EXTENDED_LOGGING);
@@ -214,7 +235,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#init( java.io.InputStream,
      *      java.io.OutputStream, java.util.TimeZone, java.util.logging.Logger)
      */
@@ -324,7 +345,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.
      *      ProtocolLink#getFlagIEC1107Connection()
      */
@@ -334,7 +355,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107. ProtocolLink#getLogger()
      */
     public Logger getLogger() {
@@ -343,7 +364,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getPassword()
      */
     public String getPassword() {
@@ -352,7 +373,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getTimeZone()
      */
     public TimeZone getTimeZone() {
@@ -370,7 +391,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel,
      *      boolean)
      */
@@ -386,7 +407,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel)
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel)
@@ -396,7 +417,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.HHUEnabler#getHHUDataReadout()
      */
     public byte[] getHHUDataReadout() {
@@ -405,7 +426,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.SerialNumber#getSerialNumber(com.energyict.dialer.core.SerialCommunicationChannel,
      *      java.lang.String)
      */
@@ -416,7 +437,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
         Properties p = new Properties();
         p.setProperty("SecurityLevel", "0");
-        p.setProperty(MeterProtocol.NODEID, nodeId == null ? "" : nodeId);
+        p.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         p.setProperty("IEC1107Compatible", "1");
         setProperties(p);
 
@@ -446,7 +467,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.MeterExceptionInfo#getExceptionInfo(java.lang.String)
      */
     public String getExceptionInfo(String id) {
@@ -462,7 +483,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -471,7 +492,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -604,7 +625,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
      */
     public byte[] getDataReadout() {

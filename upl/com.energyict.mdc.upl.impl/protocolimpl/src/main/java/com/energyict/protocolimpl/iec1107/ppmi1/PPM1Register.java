@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.HistoricalDataParser;
@@ -61,7 +62,7 @@ public class PPM1Register {
 
 	/**
 	 * Creates a new instance of Register
-	 * 
+	 *
 	 * @param dataId
 	 * @param name
 	 * @param type
@@ -76,7 +77,7 @@ public class PPM1Register {
 
 	/**
 	 * Creates a new instance of Register
-	 * 
+	 *
 	 * @param dataId
 	 * @param name
 	 * @param type
@@ -92,7 +93,7 @@ public class PPM1Register {
 
 	/**
 	 * Creates a new instance of Register
-	 * 
+	 *
 	 * @param dataId
 	 * @param name
 	 * @param type
@@ -271,7 +272,7 @@ public class PPM1Register {
 
 	/**
 	 * Parse byte[] to object
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 * @throws IOException

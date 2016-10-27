@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
             return INITIAL_BATTERY_LIFE_COUNT_RTM;
         }
         if (isSRTM() || isEvoHop()) {
-            return INITIAL_BATTERY_LIFE_COUNT_SRTM_AND_EVOHOP;            
+            return INITIAL_BATTERY_LIFE_COUNT_SRTM_AND_EVOHOP;
         }
         return INITIAL_BATTERY_LIFE_COUNT_SRTM_AND_EVOHOP;
     }

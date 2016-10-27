@@ -1,15 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -17,10 +7,28 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.ProtocolException;
+
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
@@ -40,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT

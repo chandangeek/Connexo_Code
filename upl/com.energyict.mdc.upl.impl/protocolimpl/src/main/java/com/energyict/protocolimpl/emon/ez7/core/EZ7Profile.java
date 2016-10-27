@@ -6,10 +6,11 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.emon.ez7.EZ7;
 
 import java.io.IOException;
@@ -21,25 +22,25 @@ import java.util.List;
  * @author  Koen
  */
 public class EZ7Profile {
-    
+
     private static final int NR_OF_CHANNELS=8;
     EZ7 ez7=null;
-    
+
     /** Creates a new instance of EZ7Profile */
     public EZ7Profile(EZ7 ez7) {
         this.ez7=ez7;
     }
-    
+
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         ProfileData profileData = new ProfileData();
         List intervalDatas=new ArrayList();
-        
+
         int dayBlockNr=0;
         for (int i=0;i<ez7.getEz7CommandFactory().getProfileStatus().getNrOfDayBlocks();i++) {
             if (ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(i)!= null) {
                 dayBlockNr=i;
                 if (from.before(ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(i))) {
-                    if (dayBlockNr > 0) 
+                    if (dayBlockNr > 0)
                         dayBlockNr--;
                     break;
                 }
@@ -58,7 +59,7 @@ public class EZ7Profile {
 
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
            if (ez7.getEz7CommandFactory().getHookUp().isChannelEnabled(channel)) {
-              // see EZ7 protocoldescription page 1-28 
+              // see EZ7 protocoldescription page 1-28
               ChannelInfo chi=null;
               if (ez7.getProtocolChannelMap() == null) {
                   chi = ez7.getEz7CommandFactory().getMeterInformation().getChannelInfo(channel,true);
@@ -73,10 +74,10 @@ public class EZ7Profile {
                   }
               }
               profileData.addChannel(chi);
-              
+
            } // if (ez7.getEz7CommandFactory().getHookUp().isChannelEnabled(channel))
         }
-        
+
         if (includeEvents) {
             List meterEvents = new ArrayList();
             meterEvents.addAll(ez7.getEz7CommandFactory().getEventGeneral().toMeterEvents());
@@ -84,7 +85,7 @@ public class EZ7Profile {
             profileData.setMeterEvents(meterEvents);
             profileData.applyEvents(ez7.getProfileInterval()/60);
         }
-        
+
         profileData.sort();
         return profileData;
     }

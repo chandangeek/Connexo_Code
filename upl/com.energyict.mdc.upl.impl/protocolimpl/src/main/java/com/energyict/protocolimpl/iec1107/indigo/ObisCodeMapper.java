@@ -6,16 +6,16 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author  Koen
@@ -26,23 +26,23 @@ public class ObisCodeMapper {
     public ObisCodeMapper(LogicalAddressFactory laf) {
         this.laf=laf;
     }
-    
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         return (RegisterValue)doGetRegister(obisCode,true);
     }
-    
+
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         RegisterValue registerValue=null;
         String registerName=null;
         int billingPoint=-1;
         StringBuffer obisTranslation=new StringBuffer();
         Unit unit = null;
-        
+
         // obis F code
         if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
             billingPoint = obisCode.getF();
@@ -51,37 +51,37 @@ public class ObisCodeMapper {
         else if (obisCode.getF() == 255)
             billingPoint = -1;
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
-        // ********************************************************************************* 
+
+        // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
         if (obisCode.toString().indexOf("1.1.0.1.0.255") != -1) { // billing counter
             if (read) {
                 registerValue = new RegisterValue(obisCode,
-                                                  new Quantity(new BigDecimal(laf.getGeneralMeterData().getNrOfMDResets()),Unit.get(""))); 
+                                                  new Quantity(new BigDecimal(laf.getGeneralMeterData().getNrOfMDResets()),Unit.get("")));
                 return registerValue;
             }
-            else return new RegisterInfo("billing counter"); 
+            else return new RegisterInfo("billing counter");
         } // billing counter
         else if (obisCode.toString().indexOf("1.1.0.1.2.") != -1) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 if (read) {
                    HistoricalData hd = laf.getHistoricalData(billingPoint+1);
                    registerValue = new RegisterValue(obisCode,
-                                                     hd.getBillingDate()); 
+                                                     hd.getBillingDate());
                    return registerValue;
                 }
                 else return new RegisterInfo("billing point "+billingPoint+" timestamp");
             }
             else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         } // // billing point timestamp
-      
+
 
         // *********************************************************************************
         // Electricity related ObisRegisters
         // verify a & b
         if ((obisCode.getA() != 1) || ((obisCode.getB() != 1) && (obisCode.getB() != 2)))
             throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
         // obis C code
         if (obisCode.getC() == 1) {
             registerName = "ActiveImport";
@@ -116,7 +116,7 @@ public class ObisCodeMapper {
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 
         // *************************************************************************************************************
-        // C U M U L A T I V E  M A X I M U M  D E M A N D (OBIC D field 'Cumulative maximum 1' DLMS UA 1000-1 ed.5 page 87/101) 
+        // C U M U L A T I V E  M A X I M U M  D E M A N D (OBIC D field 'Cumulative maximum 1' DLMS UA 1000-1 ed.5 page 87/101)
         if ((obisCode.getD() == ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND) && (obisCode.getB() == 1)) {
            if (read) {
                DemandRegisters dr;
@@ -136,11 +136,11 @@ public class ObisCodeMapper {
            }
            else {
                obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),false));
-               obisTranslation.append(", cumulative maximum demand"); 
+               obisTranslation.append(", cumulative maximum demand");
            }
         }
         // *************************************************************************************************************
-        // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101) 
+        // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101)
         else if ((obisCode.getD() == ObisCode.CODE_D_RISING_DEMAND) && (obisCode.getB() == 1)) {
            if (read) {
                DemandRegisters dr;
@@ -160,11 +160,11 @@ public class ObisCodeMapper {
            }
            else {
                obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),false));
-               obisTranslation.append(", current average"); 
+               obisTranslation.append(", current average");
            }
         }
         // *************************************************************************************************************
-        // M A X I M U M  D E M A N D (OBIC D field 'Maximum 1' DLMS UA 1000-1 ed.5 page 87/101) 
+        // M A X I M U M  D E M A N D (OBIC D field 'Maximum 1' DLMS UA 1000-1 ed.5 page 87/101)
         else if ((obisCode.getD() == ObisCode.CODE_D_MAXIMUM_DEMAND) && (obisCode.getB() == 1)) {
            if (read) {
                DemandRegisters dr;
@@ -185,17 +185,17 @@ public class ObisCodeMapper {
            }
            else {
                obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),false));
-               obisTranslation.append(", maximum demand"); 
+               obisTranslation.append(", maximum demand");
            }
-           
+
         }
         // *************************************************************************************************************
-        // T O T A L & R A T E (OBIC D field 'Time integral 1' DLMS UA 1000-1 ed.5 page 87/101) 
-        else if (obisCode.getD() == ObisCode.CODE_D_TIME_INTEGRAL) {// time integral 1 TOTAL & RATE 
+        // T O T A L & R A T E (OBIC D field 'Time integral 1' DLMS UA 1000-1 ed.5 page 87/101)
+        else if (obisCode.getD() == ObisCode.CODE_D_TIME_INTEGRAL) {// time integral 1 TOTAL & RATE
            obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),true));
-              
+
            if (read) {
-               if ((obisCode.getE() > 0)  && (obisCode.getB() == 1)) { 
+               if ((obisCode.getE() > 0)  && (obisCode.getB() == 1)) {
                    RateRegisters rr;
                    if (billingPoint == -1) {
                       rr = laf.getRateRegisters();
@@ -215,7 +215,7 @@ public class ObisCodeMapper {
                    TotalRegisters tr;
                    DefaultRegisters dr;
                    if (billingPoint == -1) {
-                      if (obisCode.getB() == 1) { 
+                      if (obisCode.getB() == 1) {
                           tr = laf.getTotalRegisters();
                           registerValue = new RegisterValue(obisCode,
                                                             tr.getTotalValueforObisC(obisCode.getC()));
@@ -227,7 +227,7 @@ public class ObisCodeMapper {
                       }
                    }
                    else {
-                      if (obisCode.getB() == 1) { 
+                      if (obisCode.getB() == 1) {
                           tr = laf.getTotalRegisters(billingPoint+1);
                           registerValue = new RegisterValue(obisCode,
                                                             tr.getTotalValueforObisC(obisCode.getC()),
@@ -247,22 +247,22 @@ public class ObisCodeMapper {
            }
            else {
                if (obisCode.getE() > 0) {
-                  obisTranslation.append(", tariff register "+obisCode.getE()); 
+                  obisTranslation.append(", tariff register "+obisCode.getE());
                }
            }
         }
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
         if (billingPoint == -1)
-            obisTranslation.append(", current value"); 
+            obisTranslation.append(", current value");
         else
             obisTranslation.append(", billing point "+(billingPoint+1));
-        
+
         if (read)
            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         else
            return new RegisterInfo(obisTranslation.toString());
-        
-    } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException      
-    
+
+    } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
+
 } // public class ObisCodeMapper

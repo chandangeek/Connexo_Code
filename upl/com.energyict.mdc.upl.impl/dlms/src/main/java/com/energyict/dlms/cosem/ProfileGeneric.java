@@ -6,6 +6,8 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -16,7 +18,6 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +25,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+import static com.energyict.dlms.DLMSCOSEMGlobals.PROFILE_GENERIC_BUFFER;
+import static com.energyict.dlms.DLMSCOSEMGlobals.PROFILE_GENERIC_CAPTURE_OBJECTS;
+import static com.energyict.dlms.DLMSCOSEMGlobals.PROFILE_GENERIC_CAPTURE_PERIOD;
+import static com.energyict.dlms.DLMSCOSEMGlobals.PROFILE_GENERIC_ENTRIES_IN_USE;
+import static com.energyict.dlms.DLMSCOSEMGlobals.PROFILE_GENERIC_PROFILE_ENTRIES;
 
 /**
  * @author Koen

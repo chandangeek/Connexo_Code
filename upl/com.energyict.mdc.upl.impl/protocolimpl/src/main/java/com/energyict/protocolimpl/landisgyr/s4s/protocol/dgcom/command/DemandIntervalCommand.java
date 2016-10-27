@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -18,29 +19,29 @@ import com.energyict.protocol.ProtocolUtils;
  * @author Koen
  */
 public class DemandIntervalCommand extends AbstractCommand {
-    
+
     private int profileInterval; // in minutes
     int subIntervalInMinutes;
     int type;
     int nrOfSubintervals;
-    
+
     /** Creates a new instance of TemplateCommand */
     public DemandIntervalCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DemandIntervalCommand:\n");
         strBuff.append("   profileInterval="+getProfileInterval()+" minutes\n");
         return strBuff.toString();
-    } 
-    
+    }
+
     protected byte[] prepareBuild() {
         return new byte[]{(byte)0x0F,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws ProtocolException {
         subIntervalInMinutes = ProtocolUtils.getInt(data,0, 1);
         type = ProtocolUtils.getInt(data,1, 1);
@@ -55,7 +56,7 @@ public class DemandIntervalCommand extends AbstractCommand {
     public int getNrOfIntervalsPerHour() {
         return 60 / getProfileInterval();
     }
-    
+
     private void setProfileInterval(int profileInterval) {
         this.profileInterval = profileInterval;
     }

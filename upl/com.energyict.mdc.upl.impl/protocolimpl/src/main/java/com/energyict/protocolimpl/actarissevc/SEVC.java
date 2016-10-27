@@ -1,5 +1,9 @@
 package com.energyict.protocolimpl.actarissevc;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -12,7 +16,13 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -24,11 +34,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /*
- * 
+ *
  * @version  1.0
  * @author   Koenraad Vanderschaeve
  * <P>
@@ -335,13 +351,13 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "3").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, ""); // KV 13082003
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), ""); // KV 13082003
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
             setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "0"))); // KV 27022006
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
@@ -440,7 +456,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         Properties properties = new Properties();
-        properties.setProperty(MeterProtocol.PASSWORD, "PASS");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "PASS");
         setProperties(properties);
         init(commChannel.getInputStream(), commChannel.getOutputStream(), null, null);
         enableHHUSignOn(commChannel);

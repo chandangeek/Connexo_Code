@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.modbus.emco;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -19,8 +20,11 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Created by cisac on 11/5/2015.
@@ -136,99 +140,6 @@ public class FP93B extends Modbus {
 
     public boolean isStartRegistersZeroBased() {
         return startRegistersZeroBased;
-    }
-
-    //used for easy test with serial connection
-    static public void main(String[] args) {
-        try {
-            // ********************** Dialer **********************
-            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM5");
-            dialer.getSerialCommunicationChannel().setParams(9600,
-                    SerialCommunicationChannel.DATABITS_8,
-                    SerialCommunicationChannel.PARITY_NONE,
-                    SerialCommunicationChannel.STOPBITS_1);
-            dialer.connect();
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-//            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty("HalfDuplex", "1");
-            properties.setProperty(TIMEZONE, "GMT+3:00");
-            properties.setProperty("PhysicalLayer", "1");
-//            properties.setProperty(START_REGISTERS_ZERO_BASED, "0");
-//            properties.setProperty("RegisterOrderFloatingPoint", "0");
-
-            // ********************** FP93B modbus **********************
-            FP93B protocol = new FP93B();
-
-            protocol.setProperties(properties);
-            protocol.setHalfDuplexController(dialer.getHalfDuplexController());
-            protocol.init(dialer.getInputStream(), dialer.getOutputStream(), TimeZone.getTimeZone("GMT"), Logger.getLogger("name"));
-            protocol.connect();
-
-            System.out.println(protocol.getClass().getName() + " Protocol Time=" + protocol.getTime());
-
-            protocol.setTime();
-            System.out.println("Protocol Time=" + protocol.getTime());
-
-            List<String> obisCodes= new ArrayList<>();
-//            obisCodes.add("6.0.10.0.1.255");
-//            obisCodes.add("7.0.61.0.1.255");
-//            obisCodes.add("7.0.1.0.1.255");
-//            obisCodes.add("7.0.1.0.1.255");
-//            obisCodes.add("7.0.41.0.1.255");
-//            obisCodes.add("7.1.41.0.1.255");
-//            obisCodes.add("7.2.41.0.1.255");
-//            obisCodes.add("7.0.42.0.1.255");
-//            obisCodes.add("7.0.42.0.2.255");
-//            obisCodes.add("7.0.45.0.1.255");
-//            obisCodes.add("5.0.0.4.1.255");
-//            obisCodes.add("6.0.10.0.2.255");
-//            obisCodes.add("7.0.61.0.2.255");
-//            obisCodes.add("7.0.1.0.3.255");
-//            obisCodes.add("7.0.1.0.4.255");
-//            obisCodes.add("6.0.10.0.3.255");
-//            obisCodes.add("7.0.61.0.3.255");
-//            obisCodes.add("7.0.1.0.5.255");
-//            obisCodes.add("7.0.1.0.6.255");
-            obisCodes.add("0.0.97.98.21.255");
-            obisCodes.add("0.0.97.98.22.255");
-//            obisCodes.add("0.0.97.98.23.255");
-
-
-            System.out.println(protocol.readRegister(ObisCode.fromString("0.0.1.0.3.255")));
-            protocol.getRegisterFactory().findRegister(ObisCode.fromString("0.0.1.0.3.255")).getWriteSingleRegister(13);
-            System.out.println(protocol.readRegister(ObisCode.fromString("0.0.1.0.3.255")));
-            System.out.println("Protocol Time=" + protocol.getTime());
-
-            printOutReadings(protocol, obisCodes);
-//            int on = 65280;
-//            int off = 0;
-//            System.out.println(protocol.readRegister(ObisCode.fromString("0.0.97.98.1.255")));
-//            protocol.getRegisterFactory().findRegister(ObisCode.fromString("0.12.97.97.0.255")).getWriteSingleCoil(on);
-//            System.out.println(protocol.readRegister(ObisCode.fromString("0.0.97.98.1.255")));
-//            int nrOfCoilsToChange = 4;
-//            byte [] coilValues = new byte[nrOfCoilsToChange];
-//            for(int i = 0; i < nrOfCoilsToChange; i++){
-//                coilValues[i] = (byte)on;
-//            }
-//            protocol.getRegisterFactory().findRegister(ObisCode.fromString("0.12.97.97.0.255")).getWriteMultipleCoils(coilValues);
-//            System.out.println(protocol.readRegister(ObisCode.fromString("0.0.97.98.1.255")));
-//            System.out.println(protocol.readRegister(ObisCode.fromString("0.0.97.98.2.255")));
-//            System.out.println(protocol.readRegister(ObisCode.fromString("0.0.97.98.3.255")));
-//            System.out.println(protocol.getRegistersInfo(0));
-            System.out.println(protocol.getRegistersInfo(1));
-
-            protocol.disconnect();
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     private static void printOutReadings(FP93B protocol, List<String> obisCodes) throws IOException {

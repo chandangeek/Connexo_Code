@@ -1,7 +1,8 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.Iterator;

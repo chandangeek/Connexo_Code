@@ -1,8 +1,19 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
@@ -137,7 +148,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      *
      * @return the version of the meter firmware
      * @throws java.io.IOException Thrown in case of an exception
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown if method is not supported
      */
     public String getFirmwareVersion() throws IOException {

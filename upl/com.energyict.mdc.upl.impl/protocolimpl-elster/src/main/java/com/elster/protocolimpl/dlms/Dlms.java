@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
@@ -7,7 +9,11 @@ import com.elster.dlms.cosem.applicationlayer.CosemDataAccessException;
 import com.elster.dlms.cosem.classes.class03.ScalerUnit;
 import com.elster.dlms.cosem.classes.common.CosemClassIds;
 import com.elster.dlms.cosem.classes.info.CosemAttributeValidators;
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.elster.dlms.cosem.simpleobjectmodel.CommonDefs;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleClockObject;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleProfileObject;
 import com.elster.dlms.types.basic.CosemAttributeDescriptor;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.elster.dlms.types.basic.ObisCode;
@@ -29,7 +35,18 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
@@ -41,7 +58,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -520,13 +542,13 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getProperty(
                     "Retries", "5").trim());
             //extendedLogging = Integer.parseInt(properties.getProperty(
             //        "ExtendedLogging", "0").trim());
 
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
 
             clientID = getPropertyAsInteger(properties.getProperty(Dlms.CLIENTID));
             serverAddress = getPropertyAsInteger(properties.getProperty(Dlms.SERVERADDRESS, "5959"));

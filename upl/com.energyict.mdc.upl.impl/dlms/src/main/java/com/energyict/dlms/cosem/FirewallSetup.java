@@ -1,47 +1,52 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.attributes.FirewallSetupAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 
-import static com.energyict.dlms.cosem.attributes.FirewallSetupAttributes.*;
+import static com.energyict.dlms.cosem.attributes.FirewallSetupAttributes.ENABLED_BY_DEFAULT;
+import static com.energyict.dlms.cosem.attributes.FirewallSetupAttributes.GPRS_SETUP;
+import static com.energyict.dlms.cosem.attributes.FirewallSetupAttributes.IS_ACTIVE;
+import static com.energyict.dlms.cosem.attributes.FirewallSetupAttributes.LAN_SETUP;
+import static com.energyict.dlms.cosem.attributes.FirewallSetupAttributes.WAN_SETUP;
 import static com.energyict.dlms.cosem.methods.FirewallSetupMethods.ACTIVATE;
 import static com.energyict.dlms.cosem.methods.FirewallSetupMethods.DEACTIVATE;
 
 /**
  * Firewall setup object (RTU+Server custom IC).
- * 
+ *
  * @author alex
  */
 public final class FirewallSetup extends AbstractCosemObject {
-	
+
 	/** The default OBIS code. */
 	private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.128.0.1.255");
-	
+
 	/**
 	 * Firewall configuration for an interface.
-	 * 
+	 *
 	 * @author alex
 	 */
 	public static final class InterfaceFirewallConfiguration {
-		
+
 		/** Allow DLMS. */
 		private final boolean allowDLMS;
-		
+
 		/** Allow HTTP. */
 		private final boolean allowHTTP;
-		
+
 		/** Allow SSH. */
 		private final boolean allowSSH;
-		
+
 		/**
 		 * Create a new instance.
-		 * 
+		 *
 		 * @param 	allowDLMS		Indicates whether to allow DLMS.
 		 * @param 	allowHTTP		Indicates whether to allow HTTP.
 		 * @param 	allowSSH		Indicates whether to allow SSH.
@@ -51,7 +56,7 @@ public final class FirewallSetup extends AbstractCosemObject {
 			this.allowHTTP = allowHTTP;
 			this.allowSSH = allowSSH;
 		}
-		
+
 		/**
 		 * Parses the structure and returns an {@link InterfaceFirewallConfiguration}.
 		 *

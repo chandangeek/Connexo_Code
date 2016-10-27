@@ -1,5 +1,8 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
@@ -7,9 +10,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

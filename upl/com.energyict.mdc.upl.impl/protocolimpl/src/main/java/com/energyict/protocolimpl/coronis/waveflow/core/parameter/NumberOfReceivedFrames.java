@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.utils.ProtocolTools;

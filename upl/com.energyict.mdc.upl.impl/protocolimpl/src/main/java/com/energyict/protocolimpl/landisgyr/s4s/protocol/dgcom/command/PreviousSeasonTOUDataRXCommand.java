@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -23,10 +24,10 @@ import java.util.Date;
  * @author Koen
  */
 public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
-    
+
     public final int NR_OF_RATES=5;
     public final int NR_OF_MAX_DEMANDS=5;
-    
+
     private long[] cumulativeKWDemandInPulsesRates = new long[NR_OF_RATES];
     private int totalNrOfDemandResets;
     private int numberOfOpticalDemandResets;
@@ -34,12 +35,12 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
     private long totalKWHInPulsesAtLastDemandReset;
     private Date timestampOfMaximumKWAtLastDemandReset;
     private int maximumKWInPulsesAtLastDemandReset;
-    
+
     private long[] cumulativeKMDemandInPulsesRates = new long[NR_OF_RATES];
     private long totalKMHInPulsesAtLastDemandReset;
     private Date timestampOfMaximumKMAtLastDemandReset;
     private int maximumKMInPulsesAtLastDemandReset;
-    
+
     private int averagePowerFactorAtLastDemandReset;
     private Date timestampOfWorstPowerFactorAtLastDemandReset;
     private int kWAtWorstPowerFactorInPulsesAtLastDemandReset;
@@ -59,35 +60,35 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
     private long[] kMHInPulsesRate = new long[NR_OF_RATES];
     private long totalKMHInPulses;
     private long totalNegativeKWHInPulses;
-    
+
     // >= firmware version 3.00
     private long leadingKVARHInPulses;
-    
+
     // 5 highest max demands
     private Date[] timestampMaximumDemand = new Date[NR_OF_MAX_DEMANDS];
     private int[] maximumDemandInPulses = new int[NR_OF_MAX_DEMANDS];
     private int[] coincidentDemandInPulses = new int[NR_OF_MAX_DEMANDS];
-    
+
     private Date timestampOfMaximumKW;
     private int maximumKWInPulses;
     private int powerFactorAtMaximumKW;
-    
+
     private Date timestampOfMaximumKM;
     private int maximumKMInPulses;
     private int powerFactorAtMaximumKM;
-    
+
     private Date[] timestampMaximumDemandNonBillingMetric = new Date[NR_OF_MAX_DEMANDS];
     private int[] maximumDemandInPulsesNonBillingMetric = new int[NR_OF_MAX_DEMANDS];
-    
+
     // 84 reserved bytes
-            
-            
+
+
     /** Creates a new instance of TemplateCommand */
     public PreviousSeasonTOUDataRXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
-    
+
+
     private int getHighestIndex() {
         int index=0;
         for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
@@ -96,19 +97,19 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
         }
         return index;
     }
-    
+
     public int getHighestMaxKW() {
         return getMaximumDemandInPulses()[getHighestIndex()];
     }
-    
+
     public Date getHighestMaxKWTimestamp() {
         return getTimestampMaximumDemand()[getHighestIndex()];
     }
-    
+
     public int getHighestCoincident() {
         return getCoincidentDemandInPulses()[getHighestIndex()];
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -188,7 +189,7 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
         return strBuff.toString();
     }
 
-    
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isRX()) {
             if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()<3.00)
@@ -197,39 +198,39 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
                 setSize(500);
             return new byte[]{(byte)0xAB,0,0,0,0,0,0,0,0};
         }
-        else 
+        else
             throw new ProtocolException("PreviousSeasonTOUDataRXCommand, only for RX meters!");
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
 
         for (int i=0;i<NR_OF_RATES;i++) {
-            getCumulativeKWDemandInPulsesRates()[i] = ParseUtils.getBCD2LongLE(data, offset, 6); 
+            getCumulativeKWDemandInPulsesRates()[i] = ParseUtils.getBCD2LongLE(data, offset, 6);
             offset+=6;
         }
-        
-        setTotalNrOfDemandResets((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2; 
-        setNumberOfOpticalDemandResets((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2; 
+
+        setTotalNrOfDemandResets((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
+        setNumberOfOpticalDemandResets((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         setTimestampOfLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         setTotalKWHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;
         setTimestampOfMaximumKWAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
-        setMaximumKWInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
+        setMaximumKWInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2;
 
         for (int i=0;i<NR_OF_RATES;i++) {
-            getCumulativeKMDemandInPulsesRates()[i] = ParseUtils.getBCD2LongLE(data, offset, 6); 
+            getCumulativeKMDemandInPulsesRates()[i] = ParseUtils.getBCD2LongLE(data, offset, 6);
             offset+=6;
         }
         setTotalKMHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;
         setTimestampOfMaximumKMAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
-        setMaximumKMInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
+        setMaximumKMInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2;
 
-        setAveragePowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2; 
+        setAveragePowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         setTimestampOfWorstPowerFactorAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
-        setKWAtWorstPowerFactorInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
+        setKWAtWorstPowerFactorInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2;
         setWorstPowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         setTimestampOfWorstPowerFactorSinceLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
-        setKWAtWorstPowerFactorSinceLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
+        setKWAtWorstPowerFactorSinceLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2;
         setWorstPowerFactorSinceLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         setAveragePowerFactorSinceLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         for (int i=0;i<NR_OF_RATES;i++) {
@@ -237,32 +238,32 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
             offset+=6;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
-            getMaximumKWInPulsesRate()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
-            offset+=2; 
+            getMaximumKWInPulsesRate()[i] = ProtocolUtils.getIntLE(data, offset, 2);
+            offset+=2;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
             getTimestampMaximumKMRate()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone());
             offset+=6;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
-            getMaximumKMInPulsesRate()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
-            offset+=2; 
+            getMaximumKMInPulsesRate()[i] = ProtocolUtils.getIntLE(data, offset, 2);
+            offset+=2;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
-            getCoincidentDemandInPulsesRate()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
-            offset+=2; 
+            getCoincidentDemandInPulsesRate()[i] = ProtocolUtils.getIntLE(data, offset, 2);
+            offset+=2;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
             getPowerFactorAtMaximumDemandRate()[i] = (int)ParseUtils.getBCD2LongLE(data, offset, 2);
-            offset+=2; 
+            offset+=2;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
-            getKWHInPulsesRate()[i] = ParseUtils.getBCD2LongLE(data, offset, 6); 
+            getKWHInPulsesRate()[i] = ParseUtils.getBCD2LongLE(data, offset, 6);
             offset+=6;
         }
         setTotalKWHInPulses(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;
         for (int i=0;i<NR_OF_RATES;i++) {
-            getKMHInPulsesRate()[i] = ParseUtils.getBCD2LongLE(data, offset, 6); 
+            getKMHInPulsesRate()[i] = ParseUtils.getBCD2LongLE(data, offset, 6);
             offset+=6;
         }
         setTotalKMHInPulses(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;
@@ -276,28 +277,28 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
                 getTimestampMaximumDemand()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone());
                 offset+=6;
-                getMaximumDemandInPulses()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
-                offset+=2; 
-            }            
+                getMaximumDemandInPulses()[i] = ProtocolUtils.getIntLE(data, offset, 2);
+                offset+=2;
+            }
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
-                getCoincidentDemandInPulses()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
-                offset+=2; 
+                getCoincidentDemandInPulses()[i] = ProtocolUtils.getIntLE(data, offset, 2);
+                offset+=2;
             }
 
             setTimestampOfMaximumKW(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
-            setMaximumKWInPulses(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
+            setMaximumKWInPulses(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2;
             setPowerFactorAtMaximumKW((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
 
             timestampOfMaximumKM = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()); offset+=6;
-            int maximumKMInPulses = ProtocolUtils.getIntLE(data, offset, 2); offset+=2; 
+            int maximumKMInPulses = ProtocolUtils.getIntLE(data, offset, 2); offset+=2;
             int powerFactorAtMaximumKM = (int)ParseUtils.getBCD2LongLE(data, offset, 2); offset+=2;
-            
+
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
                 getTimestampMaximumDemandNonBillingMetric()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone());
                 offset+=6;
-                getMaximumDemandInPulsesNonBillingMetric()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
-                offset+=2; 
-            }            
+                getMaximumDemandInPulsesNonBillingMetric()[i] = ProtocolUtils.getIntLE(data, offset, 2);
+                offset+=2;
+            }
         }
     }
 

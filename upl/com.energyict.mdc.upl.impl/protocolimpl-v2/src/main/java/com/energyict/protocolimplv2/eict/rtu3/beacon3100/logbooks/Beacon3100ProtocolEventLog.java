@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.DataParseException;
 
 import java.io.IOException;

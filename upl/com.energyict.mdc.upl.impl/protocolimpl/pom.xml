@@ -37,6 +37,11 @@
             <groupId>com.energyict</groupId>
             <artifactId>protocol-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>connectiontypes</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.energyict</groupId>

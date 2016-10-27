@@ -5,8 +5,9 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 
 import java.util.Map;
 
@@ -15,38 +16,38 @@ import java.util.Map;
  * @author  jme
  */
 public class MT83RegisterConfig extends RegisterConfig {
-    
+
     final public int SCALER=3;
-    private static final int DEBUG = 0;  
-    
+    private static final int DEBUG = 0;
+
     /** Creates a new instance of MT83RegisterConfig */
     public MT83RegisterConfig() {
         super();
     }
-    
+
     protected void initRegisterMap() {
-    	
+
     	// Serial, Programming ID and error register
     	addToMap("0.0.96.1.0.255", "Device serial number", null);
     	addToMap("0.0.96.1.1.255", "[Iskra specific] Programming ID", null);
     	addToMap("0.0.97.97.0.255", "Errorcode", null);
-    	
-    	// Voltage phase x Instantaneous value 
+
+    	// Voltage phase x Instantaneous value
     	addToMap("1.1.32.7.0.255", "Voltage phase 1 Instantaneous value", null);
     	addToMap("1.1.52.7.0.255", "Voltage phase 2 Instantaneous value", null);
     	addToMap("1.1.72.7.0.255", "Voltage phase 3 Instantaneous value", null);
 
-    	// Current phase x Instantaneous value 
+    	// Current phase x Instantaneous value
     	addToMap("1.1.31.7.0.255", "Current phase 1 Instantaneous value", null);
     	addToMap("1.1.51.7.0.255", "Current phase 2 Instantaneous value", null);
     	addToMap("1.1.71.7.0.255", "Current phase 3 Instantaneous value", null);
 
-    	// Phi phase x Instantaneous value 
+    	// Phi phase x Instantaneous value
     	addToMap("1.1.81.7.40.255", "Phi (°) phase 1 Instantaneous value", null);
     	addToMap("1.1.81.7.51.255", "Phi (°) phase 2 Instantaneous value", null);
     	addToMap("1.1.81.7.62.255", "Phi (°) phase 3 Instantaneous value", null);
 
-    	// Powerfactor phase x Instantaneous value 
+    	// Powerfactor phase x Instantaneous value
     	addToMap("1.1.33.7.0.255", "Powerfactor phase 1 Instantaneous value", null);
     	addToMap("1.1.53.7.0.255", "Powerfactor phase 2 Instantaneous value", null);
     	addToMap("1.1.73.7.0.255", "Powerfactor phase 3 Instantaneous value", null);
@@ -57,7 +58,7 @@ public class MT83RegisterConfig extends RegisterConfig {
     	// CT and VT numerator
     	addToMap("1.1.0.4.2.255", "Transformer ratio - Current (numerator)", "1.0.0.4.2.255");
     	addToMap("1.1.0.4.3.255", "Transformer ratio - Voltage (numerator)", "1.0.0.4.2.255");
-    	
+
     	// Billing points timestamps
     	addToMap("1.1.0.1.2.255", 6, 0, 14, 1, "1.0.0.1.2.255");
         addToMap("1.1.0.1.2.255", "LastBillingTimeStamp", "1.1.0.1.2.255");
@@ -80,10 +81,10 @@ public class MT83RegisterConfig extends RegisterConfig {
     }
 
 	/**
-     * 
+     *
      * Add list of obiscodes to the map, using the name generated from ObisCode.fromString(String string)<br>
      * The field is the changing obis field (1-6 <=> A-F)
-     * 
+     *
      * @param obisString	The obis code as string eg: "1.0.3.6.0.255"
      * @param field			Obisfield (1-6 <=> A-F)
      * @param startvalue	Startvalue for obisfield
@@ -102,20 +103,20 @@ public class MT83RegisterConfig extends RegisterConfig {
 
     	for (int i = startvalue; i <= endvalue; i++) {
     		oc = new ObisCode(
-    				(field == 1) ? i : oc.getA(), 
-    	    		(field == 2) ? i : oc.getB(), 
-    	    	    (field == 3) ? i : oc.getC(), 
-    	    	    (field == 4) ? i : oc.getD(), 
-    	    	    (field == 5) ? i : oc.getE(), 
-    	    	    (field == 6) ? i : oc.getF());	
+    				(field == 1) ? i : oc.getA(),
+    	    		(field == 2) ? i : oc.getB(),
+    	    	    (field == 3) ? i : oc.getC(),
+    	    	    (field == 4) ? i : oc.getD(),
+    	    	    (field == 5) ? i : oc.getE(),
+    	    	    (field == 6) ? i : oc.getF());
 
     		doc = new ObisCode(
-    				(field == 1) ? i+deviceCodeOffset : doc.getA(), 
-    	    		(field == 2) ? i+deviceCodeOffset : doc.getB(), 
-    	    	    (field == 3) ? i+deviceCodeOffset : doc.getC(), 
-    	    	    (field == 4) ? i+deviceCodeOffset : doc.getD(), 
-    	    	    (field == 5) ? i+deviceCodeOffset : doc.getE(), 
-    	    	    (field == 6) ? i+deviceCodeOffset : doc.getF());	
+    				(field == 1) ? i+deviceCodeOffset : doc.getA(),
+    	    		(field == 2) ? i+deviceCodeOffset : doc.getB(),
+    	    	    (field == 3) ? i+deviceCodeOffset : doc.getC(),
+    	    	    (field == 4) ? i+deviceCodeOffset : doc.getD(),
+    	    	    (field == 5) ? i+deviceCodeOffset : doc.getE(),
+    	    	    (field == 6) ? i+deviceCodeOffset : doc.getF());
 
     		addToMap(oc.toString(), oc.getDescription(), doc.toString());
     	}
@@ -126,7 +127,7 @@ public class MT83RegisterConfig extends RegisterConfig {
     	ObisCode oc = ObisCode.fromString(obisString);
     	map.put(oc,new Register(oc.getDescription(), 0));
     	getDeviceRegisterMapping().put(oc.toString(), oc.getDescription());
-		
+
     	String stringValue = oc.getA() + "." + oc.getB() + "." + oc.getC() + "." + oc.getD() + "." + oc.getE() + ".";
     	for (int i = 0; i <= 14; i++) {
     		oc = ObisCode.fromString(stringValue + i);
@@ -137,24 +138,24 @@ public class MT83RegisterConfig extends RegisterConfig {
 	}
 
      /**
-     * 
+     *
      * Add a single obiscode to the map, using the name generated from ObisCode.fromString(String string)<br>
-     * 
+     *
      * @param obisString	The obis code as string eg: "1.0.3.6.0.255"
      */
     private void addToMap(String obisString, String deviceObisMapping) {
     	this.addToMap(obisString, ObisCode.fromString(obisString).getDescription(), deviceObisMapping);
 	}
-    
+
     /**
-     * 
+     *
      * Add a single obiscode to the map, using the given description as name.
-     * 
+     *
      * @param obisString	The obis code as string eg: "1.0.3.6.0.255"
      * @param description	Description of the obiscode eg: "Billing reset counter"
      */
     private void addToMap(String obisString, String description, String deviceObisMapping) {
-    	map.put(ObisCode.fromString(obisString),new Register(description, 0)); 
+    	map.put(ObisCode.fromString(obisString),new Register(description, 0));
     	if (deviceObisMapping == null) deviceObisMapping = obisString;
     	getDeviceRegisterMapping().put(obisString, deviceObisMapping);
     }
@@ -162,7 +163,7 @@ public class MT83RegisterConfig extends RegisterConfig {
     public int getScaler() {
         return SCALER;
     }
-    
+
     public ObisCode obisToDeviceCode(ObisCode obis) throws NoSuchRegisterException {
     	String deviceCode = (String) getDeviceRegisterMapping().get(obis.toString());
     	if (deviceCode == null) {
@@ -170,7 +171,7 @@ public class MT83RegisterConfig extends RegisterConfig {
     	}
     	return ObisCode.fromString(deviceCode);
 	}
-    
+
     public ObisCode deviceCodeToObis(ObisCode deviceCode) throws NoSuchRegisterException {
        	if (deviceCode == null) throw new NoSuchRegisterException("Register " + deviceCode + " not found!");
     	if (!getDeviceRegisterMapping().containsValue(deviceCode.toString())) return null;
@@ -191,10 +192,10 @@ public class MT83RegisterConfig extends RegisterConfig {
     			obis = deviceCode.toString();
     		}
     	}
-    	 
+
 		return ObisCode.fromString(obis );
 	}
-    
+
     private String genDeviceCode(ObisCode obis) throws NoSuchRegisterException {
         int billing;
         if (!checkRegister(obis)) {

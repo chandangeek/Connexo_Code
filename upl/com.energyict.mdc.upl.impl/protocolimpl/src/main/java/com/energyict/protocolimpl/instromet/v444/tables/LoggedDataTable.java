@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
@@ -12,17 +13,21 @@ import com.energyict.protocolimpl.instromet.v444.Instromet444;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 
 public class LoggedDataTable extends AbstractTable {
-	
+
 	private List intervalDatas = new ArrayList();
 	private int numberOfItemsLogged;
 	private Date lastReading;
 	private int defaultSize = 528;
-	
+
 	public LoggedDataTable(TableFactory tableFactory) {
 		super(tableFactory);
 	}
@@ -30,20 +35,20 @@ public class LoggedDataTable extends AbstractTable {
 		this(tableFactory);
 		this.lastReading = lastReading;
 	}
-	
+
 	public int getTableType() {
 		return 11;
 	}
-	
+
 	public List getIntervalDatas() {
 		return intervalDatas;
 	}
-	
+
 	public void setNumberOfItemsLogged(int numberOfItemsLogged)  {
 		this.numberOfItemsLogged = numberOfItemsLogged;
 	}
-	
-	
+
+
 	protected void parse(byte[] data) throws ProtocolException {
 		Calendar cal = null;
 		//System.out.println("pare logged data");
@@ -56,41 +61,41 @@ public class LoggedDataTable extends AbstractTable {
 		for (int i = 0; i < numberOfRecords; i++) {
 			int status = ProtocolUtils.getIntLE(data, offset, 4);
 			offset = offset + 4;
-			BigDecimal temp = 
+			BigDecimal temp =
 				new BigDecimal(Float.intBitsToFloat(ProtocolUtils.getIntLE(data, offset, 4)));
 			offset = offset + 4;
 			BigDecimal pressure = new BigDecimal(Float.intBitsToFloat(ProtocolUtils.getIntLE(data, offset, 4)));
 			offset = offset + 4;
-			
+
 			int veRemainder = ProtocolUtils.getIntLE(data, offset, 4);
 			offset = offset + 4;
 			long veValue = ProtocolUtils.getLongLE(data, offset, 4);
 			offset = offset + 4;
 			BigDecimal ve = new BigDecimal(veValue).add(new BigDecimal(
 				Float.intBitsToFloat(veRemainder)));
-			
+
 			int vuRemainder = ProtocolUtils.getIntLE(data, offset, 4);
 			offset = offset + 4;
 			long vuValue = ProtocolUtils.getLongLE(data, offset, 4);
 			offset = offset + 4;
 			BigDecimal vu = new BigDecimal(vuValue).add(new BigDecimal(
 				Float.intBitsToFloat(vuRemainder)));
-			
+
 			int vRemainder = ProtocolUtils.getIntLE(data, offset, 4);
 			offset = offset + 4;
 			long vValue = ProtocolUtils.getLongLE(data, offset, 4);
 			offset = offset + 4;
 			BigDecimal v = new BigDecimal(vValue).add(new BigDecimal(
 				Float.intBitsToFloat(vRemainder)));
-			
+
 			int vnRemainder = ProtocolUtils.getIntLE(data, offset, 4);
 			offset = offset + 4;
 			long vnValue = ProtocolUtils.getLongLE(data, offset, 4);
 			offset = offset + 4;
 			BigDecimal vn = new BigDecimal(vnValue).add(new BigDecimal(
 				Float.intBitsToFloat(vnRemainder)));
-			
-			
+
+
 			byte b4 = data[offset];
 			byte b3 = data[offset + 1];
 			byte b2 = data[offset + 2];
@@ -101,8 +106,8 @@ public class LoggedDataTable extends AbstractTable {
 			int day = ProtocolUtils.byte2int(b3) >> 3;
 			int hour = ((ProtocolUtils.byte2int(b3) & (byte)0x07) << 2)
 						+ (ProtocolUtils.byte2int(b4) >> 6);
-			
-			if ((cal == null) || 
+
+			if ((cal == null) ||
 			    ((cal != null) && (!cal.getTimeZone().useDaylightTime()))) {
 				cal = Calendar.getInstance(
 					getTableFactory().getInstromet444().getTimeZone());
@@ -121,7 +126,7 @@ public class LoggedDataTable extends AbstractTable {
 			Date date = cal.getTime();
 			if ((lastReading == null) || (date.after(lastReading))) {
 				IntervalData intervalData = new IntervalData(date);
-				
+
 				intervalData.addValue(new BigDecimal(status));
 				intervalData.addValue(temp);
 				intervalData.addValue(pressure);
@@ -129,7 +134,7 @@ public class LoggedDataTable extends AbstractTable {
 				intervalData.addValue(vu);
 				intervalData.addValue(v);
 				intervalData.addValue(vn);
-				
+
 				/*System.out.println("status: " + status);
 				System.out.println("temp: " + temp);
 				System.out.println("pressure: " + pressure);
@@ -137,16 +142,16 @@ public class LoggedDataTable extends AbstractTable {
 				System.out.println("vu: " + vu);
 				System.out.println("v: " + v);
 				System.out.println("vn: " + vn);*/
-				
+
 				intervalDatas.add(intervalData);
 				//System.out.println(cal.getTime());
 				System.out.println("");
 			}
-			else 
+			else
 				throw new LastReadingReachedException();
 		}
 	}
-	
+
 	/**
 	 * Convert the 4 bits year information to a regular year
 	 * by padding with 2000/2016 <br/>
@@ -166,18 +171,18 @@ public class LoggedDataTable extends AbstractTable {
 	}
 
 	protected void prepareBuild() throws IOException {
-		LoggingConfigurationTable config = 
+		LoggingConfigurationTable config =
 			getTableFactory().getLoggingConfigurationTable();
 		System.out.println(config);
 		setNumberOfItemsLogged(config.getChannelInfos().size());
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.switchToLoggedDataCommand().invoke();
 		parseStatus(response);
     	readHeaders();
 	}
-	
+
 	protected void doBuild() throws IOException {
 		try {
 			int startAddress = 6;
@@ -195,25 +200,25 @@ public class LoggedDataTable extends AbstractTable {
 			System.out.println("Last reading reached");
 		}
 	}
-	
+
 	protected void executeGetDataCommand(int startAddress, int size) throws IOException {
 		System.out.println("startAddress = " + startAddress + ", " + size);
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.readLoggedDataCommand(startAddress, size).invoke();
 		parseStatus(response);
 		parseWrite(response);
 	}
-	
+
 	protected int getEndAddress() {
 		System.out.println("logged data table length: " + getTableLength());
 		int tableLength = getTableLength();
 		int bytesPerRecord = 8 + 8 + 8 + 8 + 4 + 4 + 4 + 4; // Vn, Vu, V, Ve, pressure, Temp, status, time
 		return ((((tableLength - 6) / bytesPerRecord)) * bytesPerRecord) + 6;
-		
+
 	}
-	
+
 	static public void main(String[] argv) throws Exception {
 
 		Dialer dialer =DialerFactory.getDefault().newDialer();
@@ -230,7 +235,7 @@ public class LoggedDataTable extends AbstractTable {
         		TimeZone.getDefault(),
         		Logger.getLogger("name"));
         instromet.connect();
-        LoggingConfigurationTable table = 
+        LoggingConfigurationTable table =
         	instromet.getTableFactory().getLoggingConfigurationTable();
         System.out.println(table.getChannelInfos().size());
         System.out.println(table);
@@ -238,17 +243,17 @@ public class LoggedDataTable extends AbstractTable {
         cal.set(Calendar.HOUR_OF_DAY, 0);
         //instromet.getTableFactory().getLoggedDataTable(cal.getTime());
         System.out.println(instromet.getTime());
-        System.out.println("peak: " + 
+        System.out.println("peak: " +
         		instromet.getTableFactory().getPeakHourPeakDayTable().getPeak());
-        System.out.println("peak time: " + 
+        System.out.println("peak time: " +
         		instromet.getTableFactory().getPeakHourPeakDayTable().getPeakTime());
-        /*System.out.println("uncorrected: " + 
+        /*System.out.println("uncorrected: " +
         		instromet.getTableFactory().getCountersTable().getUnCorrectedVolume());
-    
-        System.out.println("corrected: " + 
+
+        System.out.println("corrected: " +
         		instromet.getTableFactory().getCountersTable().getCorrectedVolume());*/
     }
 
-        
+
 
 }

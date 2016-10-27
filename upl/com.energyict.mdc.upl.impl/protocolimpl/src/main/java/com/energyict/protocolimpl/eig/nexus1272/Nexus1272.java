@@ -1,15 +1,29 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.interval.TimeSeriesGenerator;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.eig.nexus1272.command.*;
+import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
+import com.energyict.protocolimpl.eig.nexus1272.command.AuthenticationCommand;
+import com.energyict.protocolimpl.eig.nexus1272.command.Command;
+import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
+import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
+import com.energyict.protocolimpl.eig.nexus1272.command.SetTimeCommand;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
@@ -21,7 +35,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
 

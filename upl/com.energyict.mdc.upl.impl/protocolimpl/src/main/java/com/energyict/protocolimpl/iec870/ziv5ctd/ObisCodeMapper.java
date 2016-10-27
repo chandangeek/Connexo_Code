@@ -6,6 +6,14 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,13 +21,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 
 /**
  * So in the case of input:
@@ -41,27 +42,27 @@ import com.energyict.protocol.RegisterValue;
  * @author  fbo */
 
 public class ObisCodeMapper {
-    
+
     private Ziv5Ctd ziv = null;
     private RegisterFactory rFactory = null;
-    
+
     /** Collection for sorting the keys */
     private ArrayList keys = new ArrayList();
     /** HashMap with the ValueFactories per ObisCode  */
     private HashMap oMap = new HashMap();
-    
+
     /** Creates a new instance of ObisCodeMapping */
     ObisCodeMapper(Ziv5Ctd ziv, RegisterFactory registerFactory) throws IOException {
         this.ziv = ziv;
         this.rFactory=registerFactory;
         init();
     }
-    
+
     /** @return a RegisterInfo for the obiscode */
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo( obisCode.getDescription() );
     }
-    
+
     /** @return a RegisterValue for the obiscode */
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         ValueFactory vFactory = (ValueFactory)get( obisCode );
@@ -69,19 +70,19 @@ public class ObisCodeMapper {
             throw new NoSuchRegisterException();
         return vFactory.getRegisterValue(obisCode);
     }
-    
+
     /** Retrieves objects from the ObisCodeMap */
     public ValueFactory get( ObisCode o ) {
         return (ValueFactory)oMap.get( new ObisCodeWrapper( o ) );
     }
-    
+
     /** Add objects to the ObisCodeMap */
     public void put( ObisCode o, ValueFactory f ) {
         ObisCodeWrapper ocw = new ObisCodeWrapper(o);
         keys.add( ocw );
         oMap.put( ocw, f );
     }
-    
+
     /** @return construct extended logging */
     public String getExtendedLogging( ) throws IOException {
         StringBuffer result = new StringBuffer();
@@ -93,7 +94,7 @@ public class ObisCodeMapper {
         }
         return result.toString();
     }
-    
+
     /** @return get Values for all available obiscodes */
     public String getDebugLogging( ) throws IOException {
         StringBuffer result = new StringBuffer();
@@ -106,7 +107,7 @@ public class ObisCodeMapper {
         }
         return result.toString();
     }
-    
+
     /** @return short desciption of ALL the possibly available obiscodes */
     public String toString( ){
         StringBuffer result = new StringBuffer();
@@ -119,7 +120,7 @@ public class ObisCodeMapper {
         }
         return result.toString();
     }
-    
+
     /** This is the init for the actual values, this method does not
      * read any register configuration information, since that requires
      * communication.
@@ -127,7 +128,7 @@ public class ObisCodeMapper {
      * @throws IOException
      */
     private void init( ) throws IOException {
-        
+
     ObisCode o = null;
 
     // create obiscodes for time register
@@ -181,9 +182,9 @@ public class ObisCodeMapper {
             return rFactory.getInformationObjectC0().getQ4();
         }
     });
-        
+
     ///////////////////////////////////////////////////////////////////////
-        
+
     int [] contract = { 128, 129, 130 };
     for( int c = 0; c < contract.length; c ++ ){
     final String cDescription = ", Contract " + (c+1);
@@ -436,7 +437,7 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getEventTime( ) throws IOException { 
+        Date getEventTime( ) throws IOException {
             return rFactory.getInfo87(ci).getPeriod(ri).getMaxPotentiaDate();
         }
         public String toString(){
@@ -458,7 +459,7 @@ public class ObisCodeMapper {
                 return rFactory.getInfo87(ci).getPeriod(ri).getMaxPotentia();
             }
         }
-        Date getEventTime( ) throws IOException { 
+        Date getEventTime( ) throws IOException {
             return rFactory.getInfo87(ci).getPeriod(ri).getMaxPotentiaDate();
         }
         public String toString(){
@@ -469,28 +470,28 @@ public class ObisCodeMapper {
     }
 
     }
-        
-    /** __________________ HISTORICAL REGISTERS __________________ */ 
 
-    for( int bpi = 0; bpi < 15; bpi ++ ){ 
+    /** __________________ HISTORICAL REGISTERS __________________ */
+
+    for( int bpi = 0; bpi < 15; bpi ++ ){
     final int bp = bpi;
-            
-    for( int c = 0; c < contract.length; c ++ ){    
+
+    for( int c = 0; c < contract.length; c ++ ){
     final String cDescription = ", Contract " + (c+1);
     final int ci = c;
 
     int [] rate = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     for( int r = 0; r < rate.length; r++ ){
         final int ri = r;
-        
+
         // Time
         o = ObisCode.fromString("1.1.0.1.2." + bpi);
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -503,16 +504,16 @@ public class ObisCodeMapper {
             return obisCode.getDescription() + cDescription;
         }
         });
-        
-            
+
+
         // Active Input
         o = ObisCode.fromString("1." + contract[c] + ".1.9." + rate[r] + "." + bpi);
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -526,10 +527,10 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -542,9 +543,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -558,7 +559,7 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -571,9 +572,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -587,10 +588,10 @@ public class ObisCodeMapper {
                 return getI88p().getIncrementalA();
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -603,14 +604,14 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
 
-        Quantity getQuantity() throws IOException {                
+        Quantity getQuantity() throws IOException {
             boolean isImport = rFactory.getInfoObject96(ci).isImport();
             Unit unit = Unit.get( "kWh" );
             if( isImport ){
@@ -619,7 +620,7 @@ public class ObisCodeMapper {
                 return getI88p().getAbsoluteA();
             }
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -632,9 +633,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -648,10 +649,10 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -664,12 +665,12 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
-        }                
+        }
 
         Quantity getQuantity() throws IOException {
             boolean isImport = rFactory.getInfoObject96(ci).isImport();
@@ -680,7 +681,7 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -693,9 +694,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -709,10 +710,10 @@ public class ObisCodeMapper {
                 return getI88p().getIncrementalRc();
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -725,9 +726,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -735,9 +736,9 @@ public class ObisCodeMapper {
         Quantity getQuantity() throws IOException {
 
             InformationObject88Period i88p = null;
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                ( i88p = rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) ) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                ( i88p = rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) ) == null )
                 throwException(obisCode);
 
             boolean isImport = rFactory.getInfoObject96(ci).isImport();
@@ -748,7 +749,7 @@ public class ObisCodeMapper {
                 return i88p.getAbsoluteRc();
             }
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -761,9 +762,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -778,10 +779,10 @@ public class ObisCodeMapper {
                 return getI88p().getIncrementalRi();
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -794,14 +795,14 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
 
-        Quantity getQuantity() throws IOException {                
+        Quantity getQuantity() throws IOException {
             boolean isImport = rFactory.getInfoObject96(ci).isImport();
             Unit unit = Unit.get( "kvar" );
             if( isImport ){
@@ -810,7 +811,7 @@ public class ObisCodeMapper {
                 return getI88p().getAbsoluteRi();
             }
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -823,9 +824,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -839,10 +840,10 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -855,9 +856,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -872,7 +873,7 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
         public String toString(){
@@ -885,9 +886,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -902,13 +903,13 @@ public class ObisCodeMapper {
                 return new Quantity( new BigDecimal( 0 ), unit );
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
-        Date getEventTime( ) throws IOException { 
+        Date getEventTime( ) throws IOException {
             return getI88p().getMaxPotentiaDate();
         }
         public String toString(){
@@ -921,9 +922,9 @@ public class ObisCodeMapper {
         put( o, new ValueFactory( o ){
 
         InformationObject88Period getI88p() throws IOException {
-            if( rFactory.getInfoObject88(ci) == null  || 
-                rFactory.getInfoObject88(ci).get(bp) == null ||  
-                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )  
+            if( rFactory.getInfoObject88(ci) == null  ||
+                rFactory.getInfoObject88(ci).get(bp) == null ||
+                rFactory.getInfoObject88(ci).get(bp).getPeriod(ri) == null )
                 throwException(obisCode);
             return rFactory.getInfoObject88(ci).get(bp).getPeriod(ri);
         }
@@ -937,13 +938,13 @@ public class ObisCodeMapper {
                 return getI88p().getMaxPotentia();
             }
         }
-        Date getFromTime( ) throws IOException { 
+        Date getFromTime( ) throws IOException {
             return getI88p().getStartPeriod();
         }
-        Date getToTime( ) throws IOException { 
+        Date getToTime( ) throws IOException {
             return getI88p().getEndPeriod();
         }
-        Date getEventTime( ) throws IOException { 
+        Date getEventTime( ) throws IOException {
             return getI88p().getMaxPotentiaDate();
         }
         public String toString(){
@@ -951,10 +952,10 @@ public class ObisCodeMapper {
         }
         });
     }
-    }       
-    }    
     }
-    
+    }
+    }
+
     /** @return list of all ObisCodes supported by the currently connected
      * meter.  Does this by trial and error. */
     private List getMeterSupportedObisCodes( ) throws IOException {
@@ -974,7 +975,7 @@ public class ObisCodeMapper {
         }
         return validObisCodes;
     }
-    
+
     /** Shorthand notation for throwing NoSuchRegisterException
      * @throws NoSuchRegisterException  */
     private void throwException( ObisCode obisCode ) throws NoSuchRegisterException {
@@ -982,7 +983,7 @@ public class ObisCodeMapper {
         String msg = "ObisCode " + ob +" is not supported!";
         throw new NoSuchRegisterException(msg);
     }
-    
+
     /** the java version of a closure ( aka a nice function pointer ) */
     abstract class ValueFactory {
         ObisCode obisCode = null;
@@ -995,7 +996,7 @@ public class ObisCodeMapper {
         Date getFromTime( ) throws IOException      { return null; };
         Date getToTime( ) throws IOException        { return new Date(); };
         ObisCode getObisCode( ) throws IOException  { return obisCode;   };
-        
+
         RegisterValue getRegisterValue( ObisCode obisCode ) throws IOException  {
             Quantity q = getQuantity();
             if( q == null ) throwException( obisCode );
@@ -1004,12 +1005,12 @@ public class ObisCodeMapper {
             Date t = getToTime();
             return new RegisterValue( obisCode, q, e, f, t );
         }
-        
+
         public String toString(){
             return obisCode.getDescription();
         }
     }
-    
+
     /** The ObisCodeMapper works with a Map that links the available obis
      * codes to ValueFactories that can retrieve data from the RegisterFactory.
      *
@@ -1021,51 +1022,51 @@ public class ObisCodeMapper {
      * periods.
      */
     static class ObisCodeWrapper implements Comparable  {
-        
+
         private ObisCode obisCode;
-        
+
         private String os;
         private String reversedOs;
-        
+
         ObisCodeWrapper( ObisCode oc ){
             obisCode = oc;
-            
+
             os = obisCode.getA() + "." + obisCode.getB() + "." +
                     obisCode.getC() + "." + obisCode.getD() + "." +
                     obisCode.getE() + "." + Math.abs( obisCode.getF() );
-            
+
             reversedOs = new StringBuffer( os ).reverse().toString();
         }
-        
+
         public boolean equals( Object o ){
             if(!(o instanceof ObisCodeWrapper))
                 return false;
-            
+
             ObisCodeWrapper other = (ObisCodeWrapper)o;
             return  os.equals( other.os );
         }
-        
+
         public int hashCode( ){
             return os.hashCode();
         }
-        
+
         public String toString(){
             return "ObisCode: "  + obisCode;
         }
-        
+
         public int compareTo(Object o) {
             ObisCodeWrapper other = (ObisCodeWrapper)o;
             return reversedOs.compareTo(other.reversedOs);
         }
-        
+
     }
-    
+
     public static void main(String [] args) throws Exception {
-        
+
         ObisCodeMapper ocm = new ObisCodeMapper(null,null);
-        
+
         System.out.println( ocm );
-        
+
     }
-    
+
 }

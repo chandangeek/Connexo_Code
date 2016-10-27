@@ -10,32 +10,31 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup;
 
-import com.energyict.cbo.*;
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeMapper {
-    
+
     Kamstrup kamstrup;
-    
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(Kamstrup kamstrup) {
         this.kamstrup=kamstrup;
     }
-    
-    
+
+
     public String getRegisterInfo() {
         StringBuffer strBuff = new StringBuffer();
         RegisterMappingFactory rmf = new RegisterMappingFactory();
@@ -47,13 +46,13 @@ public class ObisCodeMapper {
         }
         return strBuff.toString();
     }
-    
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         RegisterMappingFactory rmf = new RegisterMappingFactory();
         RegisterMapping rm = rmf.findRegisterMapping(obisCode);
         return new RegisterInfo(rm.getDescription()+", "+rm.getRegisterCode());
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         RegisterMappingFactory rmf = new RegisterMappingFactory();
         String registerCode = rmf.findRegisterCode(obisCode);
@@ -67,8 +66,8 @@ public class ObisCodeMapper {
         else if (o instanceof String) {
             return new RegisterValue(obisCode,(String)o);
         }
-        
+
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-    }    
-    
+    }
+
 }

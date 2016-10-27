@@ -1,11 +1,23 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
@@ -22,8 +34,12 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache, SerialNumberSupport {
 
@@ -308,7 +324,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
-        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME, "0"));
+        correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0"));
         correctWaveflowTime = Integer.parseInt(properties.getProperty("correctWaveflowTime", "0"));
         verifyProfileInterval = Boolean.parseBoolean(properties.getProperty("verifyProfileInterval", "false"));
         isOldFirmware = "1".equalsIgnoreCase(properties.getProperty("isOldFirmware", "0"));

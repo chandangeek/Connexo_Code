@@ -10,7 +10,8 @@
 
 package com.energyict.dlms;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;

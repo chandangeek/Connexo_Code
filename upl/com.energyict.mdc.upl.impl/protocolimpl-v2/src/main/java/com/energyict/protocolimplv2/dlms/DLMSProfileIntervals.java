@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.NullData;
@@ -9,7 +11,6 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.io.IOException;

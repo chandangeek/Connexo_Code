@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.common.DLMSStoredValues;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -22,14 +23,14 @@ import java.io.IOException;
  * @author Koen
  */
 public class SelfReadConfigurationCommand extends AbstractCommand {
-    
+
     private int nrOfSelfReadsToStore;
-    
+
     public final int TYPEMASK = 0x0F;
     public final int DAY_OF_MONTH = 1;
     public final int HOURS_PAST_THE_LAST_ONE = 2;
-    
-            
+
+
     private int typeOfSelfRead;
     /* bits 0..3 Type of self read,
                  0 for no automatic self reads,
@@ -42,20 +43,20 @@ public class SelfReadConfigurationCommand extends AbstractCommand {
                  0 for no self read,
                  1 for self read on NO hardware input,
                  2 is not defined,
-                 3 for self read on hardware input    
+                 3 for self read on hardware input
      */
-    
+
      private int autoSelfReadConfig; // Not used when no automatic self reads or daily self reads are used
      /* byte 2 is day of month for day of month self reads Byte 3 is not used in this case (BCD).
       * bytes 2 - 3 is number of hours past the last demand reset for self read on hours past last one (Hex).
       */
-    
-    
+
+
     /** Creates a new instance of TemplateCommand */
     public SelfReadConfigurationCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -65,11 +66,11 @@ public class SelfReadConfigurationCommand extends AbstractCommand {
         strBuff.append("   typeOfSelfRead="+getTypeOfSelfRead()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws ProtocolException {
         return new byte[]{(byte)0x88,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setNrOfSelfReadsToStore((int)ParseUtils.getBCD2LongLE(data, offset++, 1));
@@ -105,7 +106,7 @@ public class SelfReadConfigurationCommand extends AbstractCommand {
     public void setAutoSelfReadConfig(int autoSelfReadConfig) {
         this.autoSelfReadConfig = autoSelfReadConfig;
     }
-    
-    
-    
+
+
+
 }

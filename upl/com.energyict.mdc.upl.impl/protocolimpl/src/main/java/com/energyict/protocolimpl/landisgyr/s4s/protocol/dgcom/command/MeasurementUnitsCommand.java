@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -21,24 +22,24 @@ import java.io.IOException;
  * @author Koen
  */
 public class MeasurementUnitsCommand extends AbstractCommand {
-    
+
     /*
         00h kWh (for billing metric only)
         02h kVARh rms (not valid after 2.11)
         03h kVAh rms
         04h kQh (not valid in 3.00 or greater)
         06h kVARh time delay
-        11h kVAh time delay (valid with 2.12 or greater)    
+        11h kVAh time delay (valid with 2.12 or greater)
      **/
     private int selectableMetric;
     private int billingMetric;
     private int thirdMetric;
-    
+
     /** Creates a new instance of TemplateCommand */
     public MeasurementUnitsCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     private Unit getUnit(int val) {
         switch(val) {
             case 0x0:
@@ -54,10 +55,10 @@ public class MeasurementUnitsCommand extends AbstractCommand {
             case 0x11:
                 return Unit.get("kVAh");
         }
-        
+
         return Unit.get("");
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -67,7 +68,7 @@ public class MeasurementUnitsCommand extends AbstractCommand {
         strBuff.append("   thirdMetric="+getThirdMetric()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if ((getCommandFactory().getFirmwareVersionCommand().isRX())) {
             if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
@@ -76,15 +77,15 @@ public class MeasurementUnitsCommand extends AbstractCommand {
                 return new byte[]{(byte)0xA4,0,0,0,0,0,0,0,0};
         }
         else throw new ProtocolException("MeasurementUnitsCommand, only for RX meters!");
-        
+
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         setSelectableMetric(ProtocolUtils.getInt(data,0, 1));
         setBillingMetric(ProtocolUtils.getInt(data,1, 1));
         if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
             setThirdMetric(ProtocolUtils.getInt(data,2, 1));
-        
+
     }
 
     public int getSelectableMetric() {
@@ -110,7 +111,7 @@ public class MeasurementUnitsCommand extends AbstractCommand {
     private void setThirdMetric(int thirdMetric) {
         this.thirdMetric = thirdMetric;
     }
-    
+
     public Unit getSelectableMetricUnit(boolean energy) {
         return energy?getUnit(selectableMetric):getUnit(selectableMetric).getFlowUnit();
     }

@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.instromet.core.InstrometProtocol;
 
 public class StatusCommand extends AbstractCommand {
-	
+
 	private int status;
-	
+
 	public StatusCommand(InstrometProtocol instrometProtocol) {
 		super(instrometProtocol);
 	}
@@ -18,7 +19,7 @@ public class StatusCommand extends AbstractCommand {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	
+
 	public void checkStatusCode(int statusCode) throws ProtocolException {
 		if (statusCode == 0) // OK
 			return;
@@ -40,7 +41,7 @@ public class StatusCommand extends AbstractCommand {
 			throw new ProtocolException("Status code 11 was returned: Table Switch provided was invalid");
 		else
 			throw new ProtocolException("Invalid status code returned: " + statusCode);
-		
+
 	}
 
 }

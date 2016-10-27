@@ -6,8 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -21,12 +22,12 @@ import java.util.Map;
  * @author  Koen
  */
 public class ABBA1700DataIdentityFactory {
-    
+
     private Map rawRegisters = new HashMap();
     private ProtocolLink protocolLink=null;
     private MeterExceptionInfo meterExceptionInfo=null; // KV 19012004
     private ABBA1700MeterType meterType;
-    
+
     /**
      * Creates a new instance of ABBA1700DataIdentityFactory
      */
@@ -37,7 +38,7 @@ public class ABBA1700DataIdentityFactory {
         initRegisters();
         initLocals();
     }
-    
+
     private void initLocals() {
         Iterator iterator = rawRegisters.values().iterator();
         while(iterator.hasNext()) {
@@ -107,17 +108,17 @@ public class ABBA1700DataIdentityFactory {
         // Battery status
         rawRegisters.put("546", new ABBA1700DataIdentity(12, ABBA1700DataIdentity.NOT_STREAMEABLE));
     }
-    
+
     protected ProtocolLink getProtocolLink() {
-       return protocolLink;   
+       return protocolLink;
     }
-    
+
     protected Map getRawRegisters() {
-       return rawRegisters;   
+       return rawRegisters;
     }
 
     public void setDataIdentity(String dataID,String value) throws IOException {
-        
+
         try {
            ABBA1700DataIdentity rawRegister = findRawRegister(dataID);
            rawRegister.writeRawRegister(dataID,value);
@@ -126,9 +127,9 @@ public class ABBA1700DataIdentityFactory {
            throw new ProtocolConnectionException("ABBA1700DataIdentityFactory, setDataIdentity error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public void invokeDataIdentity(String dataID) throws IOException {
-        
+
         try {
            ABBA1700DataIdentity rawRegister = findRawRegister(dataID);
            rawRegister.writeRawRegister(dataID,"");
@@ -137,7 +138,7 @@ public class ABBA1700DataIdentityFactory {
            throw new ProtocolConnectionException("ABBA1700DataIdentityFactory, setDataIdentity error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     // search the map for the register info
 
     private ABBA1700DataIdentity findRawRegister(String dataID) throws ProtocolException {
@@ -161,9 +162,9 @@ public class ABBA1700DataIdentityFactory {
            throw new ProtocolConnectionException("ABBA1700DataIdentityFactory, getDataIdentityStream error: "+e.getMessage(), e.getReason());
         }
     }
-    
+
     public byte[] getDataIdentity(String dataID,boolean cached,int dataLength, int set) throws IOException {
-        
+
         try {
            ABBA1700DataIdentity rawRegister = findRawRegister(dataID);
            return rawRegister.readRawRegister(dataID,cached,(dataLength==-1?rawRegister.getLength():dataLength),set);
@@ -181,5 +182,5 @@ public class ABBA1700DataIdentityFactory {
     // KV 19012004
     public com.energyict.protocol.MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
-    }    
+    }
 }

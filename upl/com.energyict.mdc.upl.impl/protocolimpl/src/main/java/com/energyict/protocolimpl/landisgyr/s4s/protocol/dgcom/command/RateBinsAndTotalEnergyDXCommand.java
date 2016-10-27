@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -21,16 +22,16 @@ import java.io.IOException;
  * @author Koen
  */
 public class RateBinsAndTotalEnergyDXCommand extends AbstractCommand {
-    
+
     public final int NR_OF_RATES=4;
     private long[] ratekWHInPulses = new long[NR_OF_RATES];
     private long totalKWHInPulses;
-    
+
     /** Creates a new instance of TemplateCommand */
     public RateBinsAndTotalEnergyDXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
      public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -42,14 +43,14 @@ public class RateBinsAndTotalEnergyDXCommand extends AbstractCommand {
         strBuff.append("   totalKWHInPulses="+getTotalKWHInPulses()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isDX())
             return new byte[]{(byte)0x05,0,0,0,0,0,0,0,0};
         else
             throw new ProtocolException("RateBinsAndTotalEnergyDXCommand, only for DX meters!");
     }
-    
+
     protected void parse(byte[] data) throws ProtocolException {
         int offset=0;
         for (int i=0;i<NR_OF_RATES;i++) {

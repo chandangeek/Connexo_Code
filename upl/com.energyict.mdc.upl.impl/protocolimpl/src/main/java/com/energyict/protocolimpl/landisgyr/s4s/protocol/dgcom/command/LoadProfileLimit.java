@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 
@@ -19,16 +20,16 @@ import com.energyict.protocol.ProtocolUtils;
  * @author Koen
  */
 public class LoadProfileLimit extends AbstractCommand {
-    
+
     private final int DEBUG=0;
     private int smallLoadProfilePartitionSize;
     private int largeLoadProfilePartitionSize;
-    
+
     /** Creates a new instance of TemplateCommand */
     public LoadProfileLimit(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -37,12 +38,12 @@ public class LoadProfileLimit extends AbstractCommand {
         strBuff.append("   largeLoadProfilePartitionSize="+getLargeLoadProfilePartitionSize()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws ProtocolException {
          return new byte[]{(byte)0xCE,0,0,0,0,0,0,0,0};
     }
-    
-    
+
+
     protected void parse(byte[] data) throws ProtocolException {
         int offset=0;
         setSmallLoadProfilePartitionSize(ProtocolUtils.getInt(data,offset++,1));

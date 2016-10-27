@@ -29,29 +29,19 @@ public class ABBA230Main extends AbstractDebuggingMain<ABBA230> {
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-        properties.setProperty(MeterProtocol.PASSWORD, "ABCD0002");
-        properties.setProperty(MeterProtocol.SERIALNUMBER, "09045210");
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "ABCD0002");
+        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "09045210");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "2");
         properties.setProperty("Retries", "2");
         properties.setProperty("Timeout", "35000");
-        properties.setProperty(MeterProtocol.NODEID, "001");
+        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "001");
 
         return properties;
-    }
-
-    public static void main(String[] args) throws IOException, LinkException {
-        ABBA230Main main = new ABBA230Main();
-        main.setPhoneNumber("00447975424955");
-        main.setCommPort("COM1");
-        main.setObserverFilename("c:\\logging\\ABBA230\\communications.log");
-        main.setAsciiMode(true);
-        main.setShowCommunication(true);
-        main.run();
     }
 
     @Override

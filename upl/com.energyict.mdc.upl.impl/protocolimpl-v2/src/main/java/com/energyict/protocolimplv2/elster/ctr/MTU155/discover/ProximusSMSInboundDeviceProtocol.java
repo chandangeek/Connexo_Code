@@ -1,19 +1,20 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.cbo.Sms;
-import com.energyict.mdw.core.DeviceOfflineFlags;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
+
+import com.energyict.cbo.Sms;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
@@ -84,7 +85,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
 
             allRelevantProperties.setAllProperties(deviceProtocolProperties);
             allRelevantProperties.setAllProperties(deviceConnectionTypeProperties);
-            allRelevantProperties.setProperty(MeterProtocol.SERIALNUMBER, getDeviceSerialNumber());
+            allRelevantProperties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), getDeviceSerialNumber());
 
             List<SecurityProperty> protocolSecurityProperties = getContext().getInboundDAO().getDeviceProtocolSecurityProperties(this.deviceIdentifier, getContext().getComPort());
             MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport().convertToTypedProperties(protocolSecurityProperties));

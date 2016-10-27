@@ -14,8 +14,11 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 package com.energyict.protocolimpl.dukepower;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
@@ -27,16 +30,12 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -261,7 +260,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.timeZone = timeZone;
-        //this.logger = logger;     
+        //this.logger = logger;
 
         bCRN = 0;
         boolAbort = false;
@@ -640,7 +639,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
         blockscount = lNROfBlocks - 1;
         do {
-//System.out.println("KV_DEBUG> blockscount "+blockscount);            
+//System.out.println("KV_DEBUG> blockscount "+blockscount);
             for (lMBN = (blockscount % 256); lMBN >= 0; lMBN--) {
 //System.out.println("KV_DEBUG> lMBN "+lMBN);
                 if (!sendAndWaitForDataBlock(iProtocolTimeoutProperty, iProtocolRetriesProperty, RemoteDataBlockBuffer, MasterDataBlockAckBuffer)) {
@@ -656,14 +655,14 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 //                   if (((lMBN == (lNROfBlocks-1)) || (lMBN == (lNROfBlocks-2))) && (includeEvents)) {
                     if (((lMBN == (blockscount % 256)) || (lMBN == ((blockscount % 256) - 1))) && (includeEvents)) {
 
-//System.out.println("KV_DEBUG> event block lMBN "+lMBN);                       
+//System.out.println("KV_DEBUG> event block lMBN "+lMBN);
                         parseEvents(RemoteDataBlockBuffer, profileData, bYear);
 
                         if (lMBN == ((blockscount % 256) - 1)) {
                             includeEvents = false;
                         }
                     } else {
-//System.out.println("KV_DEBUG> interval block lMBN "+lMBN);                       
+//System.out.println("KV_DEBUG> interval block lMBN "+lMBN);
                         parseIntervals(RemoteDataBlockBuffer, profileData, bNROfChannels, bYear);
                     }
                 }
@@ -736,7 +735,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                 return (MeterEvent.OTHER);
         } // switch(iLogCode)
 
-    } // private void mapLogCodes(int iLogCode) 
+    } // private void mapLogCodes(int iLogCode)
 
     private void parseIntervals(byte[] byteReceiveBuffer, ProfileData profileData, byte bNROfChannels, byte bYear) throws IOException {
         for (int i = 0; i < (int) (256 / 2); i++) // 1 block contains 128 interval values
@@ -744,11 +743,11 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             channelValues[bChannelNR] = new Long(((long) byteReceiveBuffer[RDB_DATA + i * 2] & 0x000000FF) * 256 +
                     ((long) byteReceiveBuffer[RDB_DATA + i * 2 + 1] & 0x000000FF));
             if (bChannelNR-- <= 0) {
-                // Fill profileData         
+                // Fill profileData
                 IntervalData intervalData = new IntervalData(new Date(gcalendarEarliestTimeIntervalRequested.getTime().getTime()));
 
                 intervalData.addValues(channelValues);
-                //for (int t=0;t<bNROfChannels;t++) intervalData.addValue(channelValues[t]);        
+                //for (int t=0;t<bNROfChannels;t++) intervalData.addValue(channelValues[t]);
                 profileData.addInterval(intervalData);
 
                 bChannelNR = (byte) (bNROfChannels - (byte) 1);
@@ -828,11 +827,11 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
             if (strID.length() != 7) {
                 throw new InvalidPropertyException("ID must be exact 7 characters.");
             }
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             if (strPassword.length() != 4) {
                 throw new InvalidPropertyException("Password must be exact 4 characters.");
             }
@@ -1278,5 +1277,5 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             return new String(baos.toByteArray());
         }
 
-    } // public String getIResponse()    
+    } // public String getIResponse()
 }

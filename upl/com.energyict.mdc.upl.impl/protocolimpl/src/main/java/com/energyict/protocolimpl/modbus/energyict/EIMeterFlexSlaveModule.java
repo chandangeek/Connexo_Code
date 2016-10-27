@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.modbus.energyict;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
@@ -19,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -45,22 +35,22 @@ public class EIMeterFlexSlaveModule extends Modbus {
     }
 
     @Override
-    protected final void doTheConnect() throws IOException {
+    protected final void doTheConnect() {
     }
 
     @Override
-    protected final void doTheDisConnect() throws IOException {
+    protected final void doTheDisConnect() {
     }
 
     @Override
-    protected final void doTheValidateProperties(final Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    protected final void doTheValidateProperties(final Properties properties) {
         this.setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim()));
         this.setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim()));
     }
 
     @Override
     protected final List<String> doTheGetOptionalKeys() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -104,54 +94,12 @@ public class EIMeterFlexSlaveModule extends Modbus {
     }
 
     @Override
-    public final String getFirmwareVersion() throws IOException, UnsupportedException {
+    public final String getFirmwareVersion() throws IOException {
         return String.valueOf(this.getRegisterFactory().findRegister(FIRMWARE_VERSION_REGISTER_NAME).objectValueWithParser("value0"));
     }
 
-    public final Date getTime() throws IOException {
+    public final Date getTime() {
         return new Date();
     }
 
-    /**
-     * This is used to test the protocol.
-     *
-     * @param 	args		The arguments.
-     */
-    public final static void main(String[] args) {
-        try {
-            final Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            String comport;
-
-            if ((args == null) || (args.length < 1)) {
-                comport = "COM1";
-            } else {
-                comport = args[0];
-            }
-
-            dialer.init(comport);
-            dialer.getSerialCommunicationChannel().setParams(9600, SerialCommunicationChannel.DATABITS_8, SerialCommunicationChannel.PARITY_NONE, SerialCommunicationChannel.STOPBITS_1);
-
-            dialer.connect();
-
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "60");
-            properties.setProperty(MeterProtocol.ADDRESS, "2");
-            properties.setProperty("HalfDuplex", "-1");
-            properties.setProperty("PhysicalLayer", "0");
-
-            final EIMeterFlexSlaveModule eiMeter = new EIMeterFlexSlaveModule();
-            eiMeter.setProperties(properties);
-            eiMeter.setHalfDuplexController(dialer.getHalfDuplexController());
-            eiMeter.init(dialer.getInputStream(), dialer.getOutputStream(), TimeZone.getTimeZone("GMT"), logger);
-
-            eiMeter.connect();
-
-            System.out.println(eiMeter.getFirmwareVersion());
-            System.out.println(eiMeter.getRegisterFactory().findRegister(ObisCode.fromString("1.1.32.7.0.255")).value());
-        } catch (Exception e) {
-            if (logger.isLoggable(Level.SEVERE)) {
-                logger.log(Level.SEVERE, "Error while testing protocol : [" + e.getMessage() + "]", e);
-            }
-        }
-    }
 }

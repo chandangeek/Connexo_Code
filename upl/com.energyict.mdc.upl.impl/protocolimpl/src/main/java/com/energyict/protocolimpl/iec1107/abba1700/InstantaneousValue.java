@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -19,15 +20,15 @@ import java.math.BigDecimal;
  * @author  Koen
  */
 public class InstantaneousValue {
-    
+
     Quantity quantity;
-    
-    
+
+
     /** Creates a new instance of InstantaneousValue */
     public InstantaneousValue(byte[] data) throws ProtocolException {
         parse(data);
     }
-    
+
     private void parse(byte[] data) throws ProtocolException {
         //data = ProtocolUtils.convert2ascii(data);
         if (((int)data[0]&0xFF) == 0xFF)
@@ -41,7 +42,7 @@ public class InstantaneousValue {
         BigDecimal bd = BigDecimal.valueOf(sign * ParseUtils.getBCD2Long(data,0,6),scale);
         setQuantity(new Quantity(bd,Unit.get("")));
     }
-    
+
     /**
      * Getter for property quantity.
      * @return Value of property quantity.
@@ -49,7 +50,7 @@ public class InstantaneousValue {
     public com.energyict.cbo.Quantity getQuantity() {
         return quantity;
     }
-    
+
     /**
      * Setter for property quantity.
      * @param quantity New value of property quantity.
@@ -57,7 +58,7 @@ public class InstantaneousValue {
     public void setQuantity(com.energyict.cbo.Quantity quantity) {
         this.quantity = quantity;
     }
-    
+
     static public void main(String[] args) {
         try {
             {
@@ -76,5 +77,5 @@ public class InstantaneousValue {
             e.printStackTrace();
         }
     }
-    
+
 }

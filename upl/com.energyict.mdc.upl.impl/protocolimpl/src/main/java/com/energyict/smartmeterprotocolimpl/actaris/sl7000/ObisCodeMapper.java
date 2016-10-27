@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
@@ -13,7 +15,6 @@ import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;

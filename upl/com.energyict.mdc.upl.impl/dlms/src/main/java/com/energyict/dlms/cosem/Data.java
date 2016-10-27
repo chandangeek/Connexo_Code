@@ -1,11 +1,18 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.*;
+import com.energyict.mdc.upl.ProtocolException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.Date;

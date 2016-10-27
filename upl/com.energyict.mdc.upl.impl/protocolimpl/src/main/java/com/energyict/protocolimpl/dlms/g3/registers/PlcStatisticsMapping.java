@@ -1,11 +1,15 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
+import com.energyict.dlms.cosem.PLCOFDMType2PHYAndMACCounters;
+import com.energyict.dlms.cosem.SixLowPanAdaptationLayerSetup;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2MACSetupMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2PHYAndMACCountersMapping;

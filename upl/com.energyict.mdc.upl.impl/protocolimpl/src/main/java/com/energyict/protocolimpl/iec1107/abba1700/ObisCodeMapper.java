@@ -6,16 +6,30 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.cbo.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.ProgrammingCounter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.*;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BatterySupportStatusKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.CurrentTransformerRatioPrimary;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.CurrentTransformerRatioSecondary;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.HistoricalValuesKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.ProgrammingCounterKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.SerialNumberKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.VoltageTransformerRatioPrimary;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.VoltageTransformerRatioSecondary;
 
 /**
  * @author Koen
@@ -72,7 +86,7 @@ public class ObisCodeMapper {
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
         }
 
-        // ********************************************************************************* 
+        // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
         if (obisCode.toString().indexOf("1.1.0.1.0.255") != -1) { // billing counter
             if (read) {
@@ -349,11 +363,11 @@ public class ObisCodeMapper {
             *   2a 2b 2c
             *   ...
             *   Search in the 1a, 2a,... values to match the energytype code. Then search for the highest value of the 3.
-            *   We suppost that the energytype code is the same for all 3 MD registers which is not always so. When the 
-            *   configuration changes, it is possible that the energytype code changes in the registers. 
+            *   We suppost that the energytype code is the same for all 3 MD registers which is not always so. When the
+            *   configuration changes, it is possible that the energytype code changes in the registers.
             *   Generate an NoSuchRegisterException wanneer het energytype verschillend is in het te lezen register!
-            *   Gebruik de Obis B code om te bepalen welk van de 3 registers je wil lezen. 
-            *  
+            *   Gebruik de Obis B code om te bepalen welk van de 3 registers je wil lezen.
+            *
             */
 
             if (read) {

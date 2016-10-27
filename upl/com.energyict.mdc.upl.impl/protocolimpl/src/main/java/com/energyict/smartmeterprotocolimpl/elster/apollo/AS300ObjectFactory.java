@@ -1,9 +1,23 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -135,7 +149,7 @@ public class AS300ObjectFactory {
      * @param obisCode the {@link com.energyict.obis.ObisCode} of the object
      * @param classId  the classId of the object (currently 1, 3, 4 and 5 are supported)
      * @return the requested {@link com.energyict.dlms.cosem.CosemObject}
-     * @throws com.energyict.protocol.ProtocolException if a non-implemented object is requested
+     * @throws ProtocolException if a non-implemented object is requested
      */
     public CosemObject getCosemObject(ObisCode obisCode, int classId) throws ProtocolException {
         if (!objectMap.containsKey(obisCode)) {

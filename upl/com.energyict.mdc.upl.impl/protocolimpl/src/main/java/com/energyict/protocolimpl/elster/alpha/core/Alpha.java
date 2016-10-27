@@ -10,18 +10,19 @@
 
 package com.energyict.protocolimpl.elster.alpha.core;
 
-import java.io.IOException;
-import java.util.TimeZone;
-import java.util.logging.Logger;
+import com.energyict.mdc.upl.UnsupportedException;
 
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
 
+import java.io.IOException;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
 /**
- * 
+ *
  * @author koen
  */
 public interface Alpha {

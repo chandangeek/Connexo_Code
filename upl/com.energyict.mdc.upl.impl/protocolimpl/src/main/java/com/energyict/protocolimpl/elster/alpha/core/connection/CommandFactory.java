@@ -10,18 +10,18 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import java.io.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class CommandFactory {
-    
+
     AlphaConnection alphaConnection;
-    
+
     /** Creates a new instance of CommandFactory */
     public CommandFactory(AlphaConnection alphaConnection) {
         this.alphaConnection=alphaConnection;
@@ -31,17 +31,17 @@ public class CommandFactory {
     public void signOn(int deviceNumber, String pass) throws IOException {
         WhoAreYouData wayd = getFunctionWithDataCommand((alphaConnection.getTimeout()/1000)*2).whoAreYou(deviceNumber);
         getFunctionWithDataCommand().passwordCheck(wayd,pass);
-        
+
     }
-    
+
     public void opticalHandshake(SerialCommunicationChannel commChannel,String pass, int dtrBehaviour) throws IOException {
-        commChannel.setBaudrate(1200);  
-        
+        commChannel.setBaudrate(1200);
+
         if (dtrBehaviour == 0)
             commChannel.setDTR(false);
         else if (dtrBehaviour == 1)
             commChannel.setDTR(true);
-        
+
         commChannel.setRTS(false);    // important when using the Elster US optical head. With RTS active, the optical head seams not to work!
         alphaConnection.response2AreYouOK();
         commChannel.setBaudrate(9600);
@@ -50,24 +50,24 @@ public class CommandFactory {
             commChannel.setDTR(false);
         else if (dtrBehaviour == 1)
             commChannel.setDTR(true);
-        
+
         commChannel.setRTS(false);    // important when using the Elster US optical head. With RTS active, the optical head seams not to work!
-        
+
         // KV_TO_DO i am waiting for a good solution. Now we wait for 300 ms and then flush the buffer.
-        alphaConnection.waitForTakeControl(); 
+        alphaConnection.waitForTakeControl();
         alphaConnection.delayAndFlush(300);
-        
+
         getFunctionWithDataCommand().passwordCheck(null,pass);
     }
-    
+
     public void opticalHandshakeOverModemport(String pass) throws IOException {
         alphaConnection.response2AreYouOK();
         // KV_TO_DO i am waiting for a good solution. Now we wait for 300 ms and then flush the buffer.
-        alphaConnection.waitForTakeControl(); 
+        alphaConnection.waitForTakeControl();
         alphaConnection.delayAndFlush(300);
         getFunctionWithDataCommand().passwordCheck(null,pass);
     }
-    
+
     public FunctionWithDataCommand getFunctionWithDataCommand() {
         return getFunctionWithDataCommand(0);
     }
@@ -86,5 +86,5 @@ public class CommandFactory {
     public ShortFormatCommand getShortFormatCommand() {
         return new ShortFormatCommand(alphaConnection);
     }
-    
+
 }

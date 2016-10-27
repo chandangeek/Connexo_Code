@@ -1,5 +1,8 @@
 package test.com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
@@ -9,14 +12,39 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -27,7 +55,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -202,9 +236,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
-        this.nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-        this.deviceId = properties.getProperty(MeterProtocol.ADDRESS, "");
-        this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+        this.nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+        this.deviceId = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "");
+        this.serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
@@ -596,7 +630,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the version of the meter firmware
      *         </p>
      * @throws java.io.IOException Thrown in case of an exception
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown if method is not supported
      */
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -665,7 +699,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return profile data containing interval records and optional meter events between from and to
      *         </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if meter does not support a to date to request the profile data
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
@@ -679,7 +713,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *                  </p><p>
      * @return meter register value as Quantity
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
@@ -692,7 +726,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param name register name
      * @return meter register value as Quantity
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown if the method is not supported by the protocol
      * @throws java.io.IOException Thrown in case of an exception
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
@@ -707,7 +741,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the device's number of logical channels
      *         </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      */
     public int getNumberOfChannels() throws UnsupportedException, IOException {
@@ -720,7 +754,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the device's current profile interval in seconds
      *         </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -746,9 +780,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the value for the specified register
      *         </p><p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
-     * @throws com.energyict.protocol.NoSuchRegisterException
+     * @throws NoSuchRegisterException
      *                             if the device does not support the specified register
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -813,9 +847,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param value to set the register.
      *              </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
-     * @throws com.energyict.protocol.NoSuchRegisterException
+     * @throws NoSuchRegisterException
      *                             if the device does not support the specified register
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
@@ -868,7 +902,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * </p>
      *
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      */
     public void initializeDevice() throws IOException, UnsupportedException {

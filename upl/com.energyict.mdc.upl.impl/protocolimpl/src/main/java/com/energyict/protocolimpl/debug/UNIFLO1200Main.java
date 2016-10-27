@@ -3,14 +3,20 @@
  */
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,7 +112,7 @@ public class UNIFLO1200Main {
 */
 
 
-		try {               
+		try {
 			getUniflo1200().setProperties(getProperties());
 			getUniflo1200().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getUniflo1200().enableHHUSignOn(getDialer().getSerialCommunicationChannel());

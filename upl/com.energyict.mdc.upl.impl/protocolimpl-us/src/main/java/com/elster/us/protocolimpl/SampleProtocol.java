@@ -1,5 +1,8 @@
 package com.elster.us.protocolimpl;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -7,9 +10,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.io.InputStream;

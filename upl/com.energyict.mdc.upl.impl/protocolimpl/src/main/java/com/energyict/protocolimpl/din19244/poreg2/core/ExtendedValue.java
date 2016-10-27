@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
 
 /**
  * Used for profile data entries, register values, ...

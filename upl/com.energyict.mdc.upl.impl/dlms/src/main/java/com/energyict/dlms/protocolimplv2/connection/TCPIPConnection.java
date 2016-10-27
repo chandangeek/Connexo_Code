@@ -1,5 +1,9 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSUtils;
@@ -8,9 +12,6 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationConsumer;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationHandler;
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;

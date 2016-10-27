@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 

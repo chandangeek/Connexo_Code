@@ -2,17 +2,13 @@ package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -50,11 +46,11 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     private Properties getIpProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "900");
-        properties.setProperty(MeterProtocol.PASSWORD, "12345678");
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "12345678");
 
         properties.setProperty("Retries", "10");
         properties.setProperty("Timeout", "60000");
@@ -74,11 +70,11 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     private Properties getOpticalProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "900");
-        properties.setProperty(MeterProtocol.PASSWORD, "12345678");
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "12345678");
 
         properties.setProperty("Retries", "1");
         properties.setProperty("Timeout", "5000");

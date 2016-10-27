@@ -1,9 +1,10 @@
 package com.energyict.dlms.axrdencoding.util;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ import java.util.TimeZone;
  *                deviation highbyte;
  *                defiation lowbyte;
  *                clock status;
- * 
+ *
  *
  *               day of week is ignored: calendar knows this
  *               deviation is ignored: protocol configuration provides timezone

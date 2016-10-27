@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
 
 
 /**
- * 
+ *
  * @author Koen
  */
 public interface ProtocolLink {

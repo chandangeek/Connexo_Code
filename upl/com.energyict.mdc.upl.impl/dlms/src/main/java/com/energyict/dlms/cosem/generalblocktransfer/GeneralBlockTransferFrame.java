@@ -1,8 +1,9 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**

@@ -7,7 +7,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -164,7 +164,7 @@ public class IskraHHUConnection extends IEC1107HHUConnection {
                 if (logger.isDebugEnabled()) {
                     logger.debug("--->receivedIdent: " + receivedIdent);
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, protocol);
 
 //                if (mode == MODE_BINARY_HDLC) {

@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.modbus.veris.hawkeye;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -18,7 +20,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -35,30 +36,30 @@ import java.util.logging.Logger;
  * @author Koen
  */
 public class Hawkeye extends Modbus  {
-    
+
     /**
-     * Creates a new instance of Hawkeye 
+     * Creates a new instance of Hawkeye
      */
     public Hawkeye() {
     }
-    
+
     protected void doTheConnect() throws IOException {
-        
+
     }
-    
+
     protected void doTheDisConnect() throws IOException {
-        
+
     }
-    
+
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","25").trim()));
     }
-    
+
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         return result;
     }
-    
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         //return getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification().toString();
         return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getSlaveId()+", "+getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
@@ -67,16 +68,16 @@ public class Hawkeye extends Modbus  {
     public String getProtocolVersion() {
         return "$Date: 2015-04-09 09:40:57 +0200 (Thu, 09 Apr 2015) $";
     }
-    
+
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
-    
+
     public Date getTime() throws IOException {
         //return getRegisterFactory().findRegister("clock").dateValue();
         return new Date();
     }
-    
+
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (obisCode.equals(ObisCode.fromString("0.0.96.1.0.255"))) {
@@ -90,7 +91,7 @@ public class Hawkeye extends Modbus  {
     public DiscoverResult discover(DiscoverTools discoverTools) {
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMODBUS();
-        
+
         try {
             setProperties(discoverTools.getProperties());
             if (getInfoTypeHalfDuplex() != 0)
@@ -99,7 +100,7 @@ public class Hawkeye extends Modbus  {
             connect();
 
             String fwVersion = getFirmwareVersion();
-            
+
             if (fwVersion.toLowerCase().indexOf("veris format")>=0) {
                 discoverResult.setDiscovered(true);
                 discoverResult.setProtocolName("com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.EictVeris");
@@ -113,7 +114,7 @@ public class Hawkeye extends Modbus  {
             else {
                 discoverResult.setDiscovered(false);
             }
-            
+
             discoverResult.setResult(fwVersion);
             return discoverResult;
         }
@@ -123,7 +124,7 @@ public class Hawkeye extends Modbus  {
             return discoverResult;
         }
         finally {
-           try { 
+           try {
               disconnect();
            }
            catch(IOException e) {
@@ -156,7 +157,7 @@ public class Hawkeye extends Modbus  {
                 Properties properties = new Properties();
                 properties.setProperty("ProfileInterval", "60");
                 //properties.setProperty(MeterProtocol.NODEID,"0");
-                properties.setProperty(MeterProtocol.ADDRESS, "1");
+                properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), "1");
                 properties.setProperty("HalfDuplex", "-1");
 
 //            int ift;
@@ -164,7 +165,7 @@ public class Hawkeye extends Modbus  {
 //                ift=25;
 //            else
 //                ift=Integer.parseInt(args[0]);
-//            
+//
 //            properties.setProperty("InterframeTimeout", ""+ift);
 
 
@@ -195,22 +196,22 @@ public class Hawkeye extends Modbus  {
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.172.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.112.7.0.255")));
-//            
+//
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.31.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.51.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.71.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.11.7.0.255")));
-//            
+//
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.1.6.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.3.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.9.7.0.255")));
-//            
+//
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.21.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.41.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.61.7.0.255")));
-//            
+//
 //            System.out.println(hawkeye.getRegisterFactory().getFunctionCodeFactory().getReportSlaveId());
 
 

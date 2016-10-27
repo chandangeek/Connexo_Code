@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -18,22 +19,22 @@ import com.energyict.protocol.ProtocolUtils;
  * @author koen
  */
 public class FileAccessInfoCommand extends AbstractCommand {
-    
+
     private int registerId;
-    
+
     private long startRecord;
     private long numberOfRecords;
     private int recordSize;
     private int fileType;
     private String fileName;
-    
- 
-    
+
+
+
     /** Creates a new instance of FileAccessInfoCommand */
     public FileAccessInfoCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -46,11 +47,11 @@ public class FileAccessInfoCommand extends AbstractCommand {
         strBuff.append("   fileName="+getFileName()+"\n");
         return strBuff.toString();
     }
-    
+
 //    public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new FileAccessInfoCommand(null)));
-//    } 
-    
+//    }
+
     protected byte[] prepareBuild() {
         byte[] data = new byte[6];
         data[0] = 'F';
@@ -61,7 +62,7 @@ public class FileAccessInfoCommand extends AbstractCommand {
         data[5] = (byte)((getRegisterId())&0xFF);
         return data;
     }
-    
+
     protected void parse(byte[] data) throws ProtocolException {
         int offset = 2;
         setRegisterId(ProtocolUtils.getInt(data,offset,4));
@@ -75,11 +76,11 @@ public class FileAccessInfoCommand extends AbstractCommand {
         setFileType(ProtocolUtils.getInt(data,offset++,1));
         setFileName(new String(ProtocolUtils.getSubArray(data,offset, data.length-2)));
     }
-    
+
     public int getRegisterId() {
         return registerId;
     }
-    
+
     public void setRegisterId(int registerId) {
         this.registerId = registerId;
     }
@@ -123,7 +124,7 @@ public class FileAccessInfoCommand extends AbstractCommand {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-    
 
-    
+
+
 }

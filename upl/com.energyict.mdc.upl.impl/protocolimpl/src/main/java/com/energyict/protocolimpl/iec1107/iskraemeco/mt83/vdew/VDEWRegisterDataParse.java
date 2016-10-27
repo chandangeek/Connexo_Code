@@ -5,9 +5,10 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -24,18 +25,18 @@ import java.util.TimeZone;
  * @author  Koen
  */
 abstract public class VDEWRegisterDataParse {
-    
+
     private static final int DEBUG = 1;
-	
+
 	static public final int MODE_WINTERTIME=0;
     static public final int MODE_SUMMERTIME=1;
     static public final int MODE_UTCTIME=2;
-    
+
     public final static int VDEW_STRING=0;
     public final static int VDEW_DATESTRING=1;
     public final static int VDEW_TIMESTRING=2;
     public final static int VDEW_TIMEDATE=3; // (s)HHMMSS(s)YYMMDD
-    public final static int VDEW_QUANTITY=4; 
+    public final static int VDEW_QUANTITY=4;
     public final static int VDEW_DATE_S_TIME=5; // YYMMDDsHHMMSS where s=0 for normal time, 1 for DST and 2 for UTC
     public final static int VDEW_S_TIME_S_DATE=6; // sHHMMSSsYYMMDD see VDEW_DATE_S_TIME for explanation of 's'
     public final static int VDEW_INTEGER=7;
@@ -48,51 +49,51 @@ abstract public class VDEWRegisterDataParse {
     public final static int VDEW_DATETIME=14; // YYMMDDHHMMSS
     public final static int VDEW_DATETIME_NOSEC = 15; //YYMMDDHHMM
     public static final int VDEW_STRING_VALUE_PAIR = 16;
-    
-    
+
+
     abstract protected Unit getUnit();
     abstract protected int getType();
     abstract protected FlagIEC1107Connection getFlagIEC1107Connection();
     abstract protected ProtocolLink getProtocolLink();
     abstract protected int getOffset();
     abstract protected int getLength();
-    
+
     /** Creates a new instance of VDEWRegisterDataParse */
     public VDEWRegisterDataParse() {
     }
-    
+
     // ********************************* build data to set ***********************************
     protected String buildData(Object object) throws IOException {
         switch(getType()) {
             case VDEW_STRING:
                 return (String)object;
-                
+
             case VDEW_DATESTRING:
                 return buildDate((Date)object,false);
-                
+
             case VDEW_TIMESTRING:
                 return buildTime((Date)object,false);
-                
+
             case VDEW_GMTDATESTRING:
                 return buildDate((Date)object,true);
-                
+
             case VDEW_GMTTIMESTRING:
                 return buildTime((Date)object,true);
-                
+
             case VDEW_DATE_S_TIME:
                 return buildDateSTime((Date)object);
-                
+
             case VDEW_DATETIME:
                 return buildDateTime((Date)object);
-                
+
             case VDEW_TIMEDATE_FERRANTI:
                 return buildTimeDateFerranti((Date)object);
-                
+
             default:
                 throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
         }
     }
-    
+
     private String buildDate(Date date,boolean gmt) {
         Calendar calendar = null;
         byte[] data = new byte[7];
@@ -111,8 +112,8 @@ abstract public class VDEWRegisterDataParse {
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.DAY_OF_MONTH),data,5);
         return new String(data);
     }
-    
-    
+
+
     private String buildTime(Date date, boolean gmt) {
         Calendar calendar = null;
         byte[] data = new byte[7];
@@ -131,7 +132,7 @@ abstract public class VDEWRegisterDataParse {
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.SECOND),data,5);
         return new String(data);
     }
-    
+
     private String buildDateSTime(Date date) {
         Calendar calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         calendar.setTime(date);
@@ -146,7 +147,7 @@ abstract public class VDEWRegisterDataParse {
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.SECOND),data,11);
         return new String(data);
     }
-    
+
     private String buildDateTime(Date date) {
         Calendar calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         calendar.setTime(date);
@@ -159,7 +160,7 @@ abstract public class VDEWRegisterDataParse {
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.SECOND),data,10);
         return new String(data);
     }
-    
+
     private String buildTimeDateFerranti(Date date) {
         Calendar calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         calendar.setTime(date);
@@ -173,52 +174,52 @@ abstract public class VDEWRegisterDataParse {
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.SECOND),data,12);
         return new String(data);
     }
-    
-    
+
+
     // ********************************* parse received data *********************************
     protected Object parse(byte[] data) throws ProtocolException {
         try {
             switch(getType()) {
-                
+
                 case VDEW_S_TIME_S_DATE:
                     return parseSTimeSDate(data);
-                    
+
                 case VDEW_DATE_S_TIME:
                     return parseDateSTime(data);
 
                 case VDEW_TIMEDATE_FERRANTI:
                     return parseTimeDateFerranti(data);
-                    
+
                 case VDEW_TIMEDATE:
                     return parseDate(data);
-                    
+
                 case VDEW_STRING:
                     return new String(data);
-                    
+
                 case VDEW_DATESTRING:
                     return new String(data);
-                    
+
                 case VDEW_TIMESTRING:
                     return new String(data);
-                    
+
                 case VDEW_QUANTITY:
                     return parseQuantity(data);
-                    
+
                 case VDEW_INTEGER:
                     return parseInteger(data);
-                    
+
                 case VDEW_TIME_HHMMSS:
                     return parseTimeHHMMSS(data);
-                    
+
                 case VDEW_DATE_YYMMDD:
                     return parseDateYYMMDD(data);
-                    
+
                 case VDEW_DATE_VALUE_PAIR:
                     return parseDateValuePair(data);
-                    
+
                 case VDEW_DATETIME:
                     return parseDateTimeYYMMDDHHMMSS(data);
-                    
+
                 case VDEW_DATETIME_NOSEC:
                 	return parseDateYYMMDDHHMM(data);
 
@@ -236,7 +237,7 @@ abstract public class VDEWRegisterDataParse {
         }
 
     } // protected Object parse(byte[] data)
-    
+
     private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException {
         StringBuffer strBuff=null;
         int count=0;
@@ -244,11 +245,11 @@ abstract public class VDEWRegisterDataParse {
         Date date = null;
         Unit unit = Unit.getUndefined();
         String text = "";
-        
+
         // format is (number)(YYMMDDHHMM)
         for(int i=0;i<rawdata.length;i++) {
             if (rawdata[i] == '(') {
-               strBuff = new StringBuffer(); 
+               strBuff = new StringBuffer();
             }
             else if (rawdata[i] == ')') {
                 if (count==0) {
@@ -260,10 +261,10 @@ abstract public class VDEWRegisterDataParse {
                        }
                     }
                     catch(NumberFormatException e) {
-                    	
+
                     	// Iskra adds unit to the value: ex (0000.23 kVA)(081105163000)
                     	// so we need to check if there's a valid value followed by a space
-                    	
+
                     	if (strBuff.toString().indexOf(" ") > 0){
                     		try {
                                 value = new BigDecimal(strBuff.toString().substring(0, strBuff.toString().indexOf(" ")));
@@ -273,7 +274,7 @@ abstract public class VDEWRegisterDataParse {
                                 	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "°";
                                 	unit = Unit.get(unitacronym);
                                 	MT83.sendDebug("VDEWRegisterDataParse(): unitacronym = " + unitacronym + " Unit.get() = " + unit, DEBUG);
-                                	if (unit == null) unit = Unit.getUndefined(); 
+                                	if (unit == null) unit = Unit.getUndefined();
                                 }
                     		} catch (NumberFormatException ee) {
                     			value = null;
@@ -281,7 +282,7 @@ abstract public class VDEWRegisterDataParse {
                     	} else {
                     		value = null;
                     	}
- 
+
                     }
                     strBuff=null;
                     count++;
@@ -311,11 +312,11 @@ abstract public class VDEWRegisterDataParse {
         BigDecimal value = null;
         String text = null;
         Unit unit = Unit.getUndefined();
-        
+
         // format is (number)(YYMMDDHHMM)
         for(int i=0;i<rawdata.length;i++) {
             if (rawdata[i] == '(') {
-               strBuff = new StringBuffer(); 
+               strBuff = new StringBuffer();
             }
             else if (rawdata[i] == ')') {
                 if (count==0) {
@@ -327,10 +328,10 @@ abstract public class VDEWRegisterDataParse {
                        }
                     }
                     catch(NumberFormatException e) {
-                    	
+
                     	// Iskra adds unit to the value: ex (0000.23 kVA)(081105163000)
                     	// so we need to check if there's a valid value followed by a space
-                    	
+
                     	if (strBuff.toString().indexOf(" ") > 0){
                     		try {
                                 value = new BigDecimal(strBuff.toString().substring(0, strBuff.toString().indexOf(" ")));
@@ -340,7 +341,7 @@ abstract public class VDEWRegisterDataParse {
                                 	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "°";
                                 	unit = Unit.get(unitacronym);
                                 	MT83.sendDebug("VDEWRegisterDataParse(): unitacronym = " + unitacronym + " Unit.get() = " + unit, DEBUG);
-                                	if (unit == null) unit = Unit.getUndefined(); 
+                                	if (unit == null) unit = Unit.getUndefined();
                                 }
                     		} catch (NumberFormatException ee) {
                     			value = null;
@@ -348,7 +349,7 @@ abstract public class VDEWRegisterDataParse {
                     	} else {
                     		value = null;
                     	}
- 
+
                     }
                     strBuff=null;
                     count++;
@@ -370,13 +371,13 @@ abstract public class VDEWRegisterDataParse {
     private Integer parseInteger(byte[] rawdata) throws IOException {
         return new Integer(Integer.parseInt(findValue(rawdata)));
     }
-    
+
     private Quantity parseQuantity(byte[] rawdata) throws IOException {
         Unit unit = buildUnit(rawdata);
         BigDecimal bd = new BigDecimal(findValue(rawdata));
         return new Quantity(bd,unit);
     }
-    
+
     private Unit buildUnit(byte[] rawdata) throws IOException {
         if (hasAcronym(rawdata)) {
             Unit unit = Unit.get(getUnitAcronym(rawdata));
@@ -390,7 +391,7 @@ abstract public class VDEWRegisterDataParse {
         }
         else return Unit.get("");
     } // private Unit buildUnit(byte[] rawdata)
-    
+
     private String getUnitAcronym(byte[] rawdata) {
         StringBuffer buff = new StringBuffer();
         int state=0;
@@ -400,18 +401,18 @@ abstract public class VDEWRegisterDataParse {
         }
         return buff.toString();
     } // private String findUnitAcronym(byte[] rawdata)
-    
+
     private boolean hasUnitDefined() {
        if (getUnit() == null) return false;
        else return true;
     }
-    
+
     private boolean hasAcronym(byte[] rawdata) {
         String str = new String(rawdata);
         if (str.indexOf("*") == -1) return false;
         else return true;
     }
-    
+
     private String findValue(byte[] rawdata) {
         StringBuffer buff = new StringBuffer();
         for (int i=0;i<rawdata.length;i++) {
@@ -420,7 +421,7 @@ abstract public class VDEWRegisterDataParse {
         }
         return buff.toString();
     } // private String findValue(byte[] rawdata)
-    
+
     private Date parseDateYYMMDDHHMM(byte[] rawdata) throws IOException {
         byte[] data = ProtocolUtils.convert2ascii(rawdata);
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
@@ -432,8 +433,8 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[4]));
         return calendar.getTime();
     }
-    
-    
+
+
     private Date parseDateTimeYYMMDDHHMMSS(byte[] rawdata) throws IOException {
         byte[] data = ProtocolUtils.convert2ascii(rawdata);
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
@@ -446,7 +447,7 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[5]));
         return calendar.getTime();
     }
-    
+
     private Date parseTimeHHMMSS(byte[] rawdata) throws IOException {
         int mode=-1;
         Calendar calendar=null;
@@ -454,19 +455,19 @@ abstract public class VDEWRegisterDataParse {
             mode = (int)ProtocolUtils.bcd2nibble(rawdata,0);
             rawdata = ProtocolUtils.getSubArray(rawdata,1);
         }
-        
+
         if (mode == MODE_UTCTIME)
-            calendar = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("GMT"));        
+            calendar = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("GMT"));
         else
-            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());        
-        
+            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
+
         byte[] data = ProtocolUtils.convert2ascii(rawdata);
         calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[0]));
         calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
         calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[2]));
         return calendar.getTime();
     }
-                    
+
     private Date parseDateYYMMDD(byte[] rawdata) throws IOException {
         int mode=-1;
         Calendar calendar=null;
@@ -475,40 +476,40 @@ abstract public class VDEWRegisterDataParse {
             rawdata = ProtocolUtils.getSubArray(rawdata,1);
         }
         if (mode == MODE_UTCTIME)
-            calendar = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("GMT"));        
+            calendar = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("GMT"));
         else
-            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());        
-        
+            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
+
         byte[] data = ProtocolUtils.convert2ascii(rawdata);
         calendar.set(Calendar.YEAR,ProtocolUtils.BCD2hex(data[0])+2000);
         calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[1])-1);
         calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[2]));
         return calendar.getTime();
     }
-    
+
     private Date parseDate(byte[] rawdata) throws IOException {
         Calendar calendar = null;
         int mode = -1;
         byte[] timedate = new byte[12];
-        
-        if ((rawdata.length%2) != 0) 
+
+        if ((rawdata.length%2) != 0)
             throw new IOException("parseDate, rawdata wrong length ("+rawdata.length+")!");
-        
+
         if (rawdata.length == 14) {
-           timedate = new byte[12]; 
+           timedate = new byte[12];
            mode = (int)ProtocolUtils.bcd2nibble(rawdata,0);
            ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata,1,6),timedate,0);
            ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata,8,6),timedate,6);
            if (mode == MODE_UTCTIME)
-              calendar = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("GMT"));    
+              calendar = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("GMT"));
            else
-              calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());    
+              calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         }
         else {
            ProtocolUtils.arrayCopy(rawdata,timedate,0);
            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         }
-            
+
         byte[] data = ProtocolUtils.convert2ascii(timedate);
         calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[0]));
         calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
@@ -518,7 +519,7 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[5]));
         return calendar.getTime();
     }
-    
+
     private Date parseSTimeSDate(byte[] rawdata) throws IOException {
         if (rawdata.length != 14) throw new IOException("VDEW_S_TIME_S_DATE wrong length!");
         byte[] time = ProtocolUtils.convert2ascii(ProtocolUtils.getSubArray(rawdata,1,6));
@@ -540,7 +541,7 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(time[2]));
         return calendar.getTime();
     }
-    
+
     private Date parseDateSTime(byte[] rawdata) throws IOException {
         if (rawdata.length != 13) throw new IOException("VDEW_DATE_S_TIME wrong length!");
         byte[] date = ProtocolUtils.convert2ascii(ProtocolUtils.getSubArray(rawdata,0,5));
@@ -561,7 +562,7 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(time[2]));
         return calendar.getTime();
     }
-    
+
     private Date parseTimeDateFerranti(byte[] rawdata) throws IOException {
         if (rawdata.length != 14) throw new IOException("VDEW_TIMEDATE_FERRANTI wrong length!");
         Calendar calendar=null;
@@ -575,5 +576,5 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.SECOND,ProtocolUtils.bcd2int(rawdata,12));
         return calendar.getTime();
     }
-    
+
 } // abstract public class VDEWRegisterDataParse

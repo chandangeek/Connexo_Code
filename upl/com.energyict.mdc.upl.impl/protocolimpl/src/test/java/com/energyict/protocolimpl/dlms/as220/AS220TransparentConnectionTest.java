@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.SerialPortStreamConnection;
-import com.energyict.protocolimpl.dlms.as220.AS220TransparentConnection;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 public class AS220TransparentConnectionTest {
 
@@ -23,14 +23,14 @@ public class AS220TransparentConnectionTest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void getTransparentTimeByteArrayTest(){
 		try {
 			SerialCommunicationChannel scom = new SerialPortStreamConnection("TCP1");
 			AS220TransparentConnection connection = new AS220TransparentConnection(scom, 10, 9600, 8, 1, 0, 1, "00000000");
 			assertArrayEquals(new byte[]{0x30, 0x41}, connection.getTransparentTimeByteArray());
-			
+
 			connection = new AS220TransparentConnection(scom, 20, 9600, 8, 1, 0, 1, "00000000");
 			assertArrayEquals(new byte[]{0x31, 0x34}, connection.getTransparentTimeByteArray());
 		} catch (ConnectionException e) {
@@ -38,17 +38,17 @@ public class AS220TransparentConnectionTest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void getCommunicationParametersByteArray(){
 		try {
 			SerialCommunicationChannel scom = new SerialPortStreamConnection("TCP1");
 			AS220TransparentConnection connection = new AS220TransparentConnection(scom, 10, 9600, 8, 1, 0, 1, "00000000");
 			assertArrayEquals(new byte[]{0x35, 0x30}, connection.getCommunicationParametersByteArray());
-			
+
 			connection = new AS220TransparentConnection(scom, 10, 300, 7, 1, 2, 1, "00000000");
 			assertArrayEquals(new byte[]{0x30, 0x37}, connection.getCommunicationParametersByteArray());
-			
+
 		} catch (ConnectionException e) {
 			e.printStackTrace();
 			fail();

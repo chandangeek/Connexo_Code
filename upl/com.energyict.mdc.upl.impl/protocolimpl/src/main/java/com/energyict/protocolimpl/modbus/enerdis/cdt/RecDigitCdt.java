@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -18,76 +19,76 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/** 
- * RecDigit Cct meter is a pulse counter. 
+/**
+ * RecDigit Cct meter is a pulse counter.
  */
 
 abstract public class RecDigitCdt extends Modbus {
-    
+
     private BigDecimal ku;
     private BigDecimal ki;
     private BigDecimal kp;
     private BigDecimal ctRatio;
     private BigDecimal ptRatio;
-    
-    
+
+
     protected void doTheConnect() throws IOException { }
     protected void doTheDisConnect() throws IOException {}
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-    	
-    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer","1").trim()));    	
+
+    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer","1").trim()));
     	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","100").trim()));
-    	
+
     }
-    
-    public String getFirmwareVersion() 
+
+    public String getFirmwareVersion()
         throws IOException, UnsupportedException {
- 
+
         return "unknown";
-            
+
     }
-    
+
     protected List doTheGetOptionalKeys() {
         return new ArrayList();
     }
-    
+
     /**
-     * @param address   offset 
+     * @param address   offset
      * @param length    nr of words
      * @return          int[] 2 bytes per int
      */
     int[] readRawValue(int address, int length)  throws IOException {
-        
+
         HoldingRegister r = new HoldingRegister(address, length);
         r.setRegisterFactory(getRegisterFactory());
         return r.getReadHoldingRegistersRequest().getRegisters();
-    
+
     }
-    
+
     BigDecimal readValue(int address, Type type) throws IOException {
-        
+
         int [] values = readRawValue( address, type.wordSize() );
         return getRecFactory().toBigDecimal(type, values);
-        
+
     }
-    
+
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return getRecFactory().toString();
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
-        return 2; 
+        return 2;
     }
-      
+
     public RegisterFactoryCdtPr getRecFactory( ) {
         return (RegisterFactoryCdtPr)getRegisterFactory();
     }
-    
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
-        return new RegisterInfo( r.getName() ); 
-    }    
-    
+        return new RegisterInfo( r.getName() );
+    }
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
         String key          = r.getName();
@@ -99,7 +100,7 @@ abstract public class RecDigitCdt extends Modbus {
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
         }
     }
-    
+
     /** Transformation coefficient V */
     BigDecimal getKU( ) throws IOException {
         if (ku == null) {
@@ -107,7 +108,7 @@ abstract public class RecDigitCdt extends Modbus {
         }
         return ku;
     }
-    
+
     /** Transformation coefficient I */
     BigDecimal getKI( ) throws IOException {
         if (ki == null) {
@@ -115,7 +116,7 @@ abstract public class RecDigitCdt extends Modbus {
         }
         return ki;
     }
-    
+
     /** Transformation coefficient P */
     BigDecimal getKP( ) throws IOException {
         if (kp == null) {
@@ -123,20 +124,20 @@ abstract public class RecDigitCdt extends Modbus {
         }
         return kp;
     }
-    
+
     BigDecimal getCtRatio( ) throws IOException {
         if( ctRatio == null ) {
-            ctRatio = readValue(0x19fa, Type.REAL_NUMBER); 
+            ctRatio = readValue(0x19fa, Type.REAL_NUMBER);
         }
         return ctRatio;
     }
-   
+
     BigDecimal getPtRatio( ) throws IOException {
         if( ptRatio == null ) {
             ptRatio = readValue(0x19fe, Type.REAL_NUMBER);
         }
-        return ptRatio;        
+        return ptRatio;
     }
 
-    
+
 }

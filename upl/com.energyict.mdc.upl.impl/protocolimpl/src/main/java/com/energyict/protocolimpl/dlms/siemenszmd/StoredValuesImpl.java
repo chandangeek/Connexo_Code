@@ -6,6 +6,9 @@
 
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -20,7 +23,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -31,11 +33,11 @@ import java.util.Iterator;
  * @author  Koen
  */
 public class StoredValuesImpl implements StoredValues {
-    
+
     ProtocolLink protocolLink;
     ProfileGeneric profileGeneric;
     CosemObjectFactory cof;
-    
+
     private static final int INDEX_CLOCK=0;
     private static final int INDEX_RESET_COUNTER=1;
 
@@ -47,26 +49,26 @@ public class StoredValuesImpl implements StoredValues {
         this.protocolLink=cof.getProtocolLink();
         this.cof=cof;
     }
-    
+
     public void retrieve() throws IOException {
         profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
     }
-    
+
     /**
      * Getter for property profileGeneric.
      * @return Value of property profileGeneric.
      */
     public com.energyict.dlms.cosem.ProfileGeneric getProfileGeneric() {
         return profileGeneric;
-    }    
-    
+    }
+
     private int getVZ() throws IOException {
         if (vZ == -1)
-           vZ = (int)cof.getRegister(protocolLink.getMeterConfig().getResetCounterSN()).getValue(); 
+           vZ = (int)cof.getRegister(protocolLink.getMeterConfig().getResetCounterSN()).getValue();
         return vZ;
     }
-    
-    
+
+
     private DataContainer getBuffer() throws IOException {
         if (buffer == null)
             buffer = profileGeneric.getBuffer();
@@ -85,29 +87,29 @@ public class StoredValuesImpl implements StoredValues {
         }
         throw new NoSuchRegisterException("StoredValues, getBillingPointTimeDate, invalid billingpoint "+billingPoint);
     }
-    
-    
+
+
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
-        
+
         int baseObject = protocolLink.getMeterConfig().getSN(obisCode);
         int index = getCapturedObjectIndex(obisCode);
-        CapturedObject cao = getCapturedObject(index); 
+        CapturedObject cao = getCapturedObject(index);
 
-        
+
         int resetCounter = getVZ() - Math.abs(obisCode.getF());
-        
+
         HistoricalValue historicalValue = new HistoricalValue();
-        
+
         for (int i=0;i<getBuffer().getRoot().getNrOfElements();i++) {
             DataStructure ds = (DataStructure)buffer.getRoot().getElement(i);
-            
+
             // if the obiscode F field contains the right resetcounter historical value
             if (((Integer)ds.getElement(INDEX_RESET_COUNTER)).intValue() == resetCounter) {
                 historicalValue.setResetCounter(((Integer)ds.getElement(INDEX_RESET_COUNTER)).intValue());
                 Clock clock = new Clock(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
                 clock.setDateTime((OctetString)ds.getElement(INDEX_CLOCK));
                 historicalValue.setBillingDate(clock.getDateTime());
-                
+
                 if (cao.getClassId() == Register.CLASSID) {
                    Register register = cof.getRegister(protocolLink.getMeterConfig().getSN(obisCode));
                    register.setValue(ds.convert2Long(index));
@@ -125,7 +127,7 @@ public class StoredValuesImpl implements StoredValues {
         }
         throw new NoSuchRegisterException("StoredValues, getHistoricalValue, no register for obisCode "+obisCode);
     }
-    
+
     private int getCapturedObjectIndex(ObisCode obisCode) throws IOException {
         int index=0;
         int nrOfEntries = profileGeneric.getProfileEntries();
@@ -145,22 +147,22 @@ public class StoredValuesImpl implements StoredValues {
         }
         if (index == profileGeneric.getCaptureObjects().size()) //return -1;
             throw new NoSuchRegisterException("StoredValues, register with obiscode "+obisCode+" not found in the historic values list.");
-        
+
         return index;
     }
-    
+
 //    private CapturedObject getCapturedObject(ObisCode obisCode) throws IOException {
 //        return getCapturedObject(getCapturedObjectIndex(obisCode));
 //    }
-    
+
     private CapturedObject getCapturedObject(int index) throws IOException {
-        if ((index >= profileGeneric.getCaptureObjects().size()) || (index<0)) 
+        if ((index >= profileGeneric.getCaptureObjects().size()) || (index<0))
             throw new IOException("StoredValues, getCapturedObject, invalid index in CapturedObject list, "+index);
         return (CapturedObject)profileGeneric.getCaptureObjects().get(index);
     }
-    
+
     public int getBillingPointCounter() throws IOException {
-        throw new com.energyict.protocol.UnsupportedException();
+        throw new UnsupportedException();
     }
-    
+
 }

@@ -10,6 +10,9 @@
 package com.energyict.protocolimpl.siemens7ED62;
 
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -21,18 +24,15 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     private Logger logger;
     private SiemensSCTM siemensSCTM;
 
-    //validateProperties     
+    //validateProperties
     private String strID;
     private int iSCTMTimeoutProperty;
     private int iProtocolRetriesProperty;
@@ -474,15 +474,15 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            iProfileInterval = Integer.parseInt(properties.getProperty(MeterProtocol.PROFILEINTERVAL, "900").trim()); // configured profile interval in seconds
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            iProfileInterval = Integer.parseInt(properties.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
 
             iSCTMTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "2").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             strMeterClass = properties.getProperty("MeterClass", "1");
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals", "0").trim()) == 1 ? true : false;
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "100"));
             nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap", "6"));

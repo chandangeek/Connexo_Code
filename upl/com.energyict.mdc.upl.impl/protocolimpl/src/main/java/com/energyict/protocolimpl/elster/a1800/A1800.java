@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.elster.a1800;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
@@ -10,7 +12,6 @@ import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
@@ -59,20 +60,20 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	private A1800LoadProfile a1800LoadProfile;
 
 	private boolean messageFailed = false;
-	
+
 	private HalfDuplexController halfDuplexController;
 
 	private int rs485RtuPlusServer = 0;
-	
+
 	public A1800() {
-		
+
 	}
-	
+
 	@Override
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         return a1800LoadProfile.getProfileData(from,to,includeEvents);
     }
-	
+
 	@Override
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
 		if (halfDuplexController != null && this.isRS485RtuPlusServer()) {
@@ -89,10 +90,10 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         a1800LoadProfile = new 	A1800LoadProfile(this);
         return c12Layer2;
     }
-	
+
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"0"));
+        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(), "0"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary","0").trim());
@@ -100,8 +101,8 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 
 		this.rs485RtuPlusServer=Integer.parseInt(properties.getProperty("RS485RtuPlusServer","0").trim());
     }
-	
-	protected void doDisConnect() throws IOException {  
+
+	protected void doDisConnect() throws IOException {
 		try {
 			getPSEMServiceFactory().logOff();
 		} catch (ResponseIOException e) {
@@ -118,7 +119,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
     }
 
     /*******************************************************************************************
-    M e s s a g e P r o t o c o l  i n t e r f a c e 
+    M e s s a g e P r o t o c o l  i n t e r f a c e
 	 *******************************************************************************************/
 	// message protocol
 	public void applyMessages(List messageEntries) throws IOException {
@@ -131,14 +132,14 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	}
 	private void importMessage(String message, DefaultHandler handler) throws BusinessException{
         try {
-            
+
             byte[] bai = message.getBytes();
             InputStream i = (InputStream) new ByteArrayInputStream(bai);
-            
+
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             saxParser.parse(i, handler);
-            
+
         } catch (ParserConfigurationException thrown) {
             throw new BusinessException(thrown);
         } catch (SAXException thrown) {
@@ -153,15 +154,15 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		MessageHandler messageHandler = new MessageHandler();
 		String content = messageEntry.getContent();
-		
+
 		boolean success = false;
-		
+
 		try {
-			
+
 			importMessage(content, messageHandler);
 			boolean lpDiv = messageHandler.getType().equals(MessageHandler.SETPDIVISOR);
 			if(lpDiv){
-				
+
 				// Execute the message
 				int channel = messageHandler.getChannel();
 				int divisor = messageHandler.getDivisor();
@@ -179,14 +180,14 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 					index += 1; //1 byte for INT_FMT_CODE1
 					index += getNumberOfChannels() * 2; //2 bytes per channel for SCALARS_SET
 					index += (channel-1) * 2; //2 bytes per channel for DIVISORS_SET
-					
-					
+
+
 					byte[] tableData = ParseUtils.getArrayLE(divisor, 2);
 					getPSEMServiceFactory().partialWriteOffset(tableId, index, tableData);
 					success = true;
 				}
-				
-			} 
+
+			}
 		}
 		catch (ResponseIOException e) {
 			if (e.getMessage().contains("Table 62, Inappropriate Action Requested.")) {
@@ -202,14 +203,14 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 			log(Level.INFO, "Message " + messageEntry.getContent() + " has failed. " + e.getMessage());
 			return MessageResult.createFailed(messageEntry);
 		}
-		
+
 		if(success){
 			return MessageResult.createSuccess(messageEntry);
 		} else {
 			return MessageResult.createFailed(messageEntry);
 		}
 	}
-	
+
 	public void log(Level level, String tekst){
 		this.getLogger().log(level, tekst);
 	}
@@ -276,22 +277,22 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 		buf.append( msgTag.getName() );
 		buf.append(">");
 
-		return buf.toString();    
+		return buf.toString();
 	}
 
 	public String writeValue(MessageValue value) {
 		return value.getValue();
 	}
-	
+
 	protected List<String> doGetOptionalKeys() {
         List<String> result = new ArrayList<String>(super.doGetOptionalKeys());
 
         result.add("HalfDuplex");
 		result.add("RS485RtuPlusServer");
-        
+
         return result;
     }
-	
+
 	private boolean isRS485RtuPlusServer() {
 		return (this.rs485RtuPlusServer  != 0);
 	}

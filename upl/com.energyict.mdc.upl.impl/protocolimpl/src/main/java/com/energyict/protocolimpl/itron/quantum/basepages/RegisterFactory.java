@@ -10,13 +10,15 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.itron.quantum.Quantum;
 
-import com.energyict.obis.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -24,28 +26,28 @@ import com.energyict.obis.*;
  * @author Koen
  */
 public class RegisterFactory {
-    
+
     List registers=null;
     static public final int MAX_NR_OF_PEAKS=5;
     static public final int MAX_NR_OF_RATES=4;
     static public final int MAX_NR_OF_SELFREADS=4;
-    
+
     static public int PRESENT_REGISTERS=255;
     static public int BILLING_REGISTERS=0;
     static public int LAST_SEASON_REGISTERS=1;
-    
-    
+
+
             Quantum quantum;
-            
+
             /** Creates a new instance of RegisterMapping */
             public RegisterFactory(Quantum quantum) {
                 this.quantum=quantum;
             }
-            
+
            public void init() throws IOException {
                 buildRegisters();
             }
-            
+
             private void buildRegisters() throws IOException {
                 int count=0;
                 registers=new ArrayList();
@@ -53,12 +55,12 @@ public class RegisterFactory {
                 while(it.hasNext()) {
                     ProgramEntry p = (ProgramEntry)it.next();
                     if ((!p.isNonRegisterValue()) && (p.getDisplaySetup()!=0)) {
-                        
+
                          UnitTable ut = UnitTable.findUnitTable(p.getRegisterNr());
                          int cField = ut.getObisCField();
                          int dField = ut.getObisDField();
                          int eField = 0;
-                         
+
                          if ((p.getRegisterType() & 0x10) == 0x10) {
                              // tariff registers
                              if ((p.getRegisterType() & 0x8) == 0x8) {
@@ -77,7 +79,7 @@ public class RegisterFactory {
                          else if ((p.getRegisterType() & 0x10) == 0x00) {
                              // per phase registers
                              if ((p.getRegisterType() & 0x8) == 0x8) {
-                                 
+
                              }
                              else if ((p.getRegisterType() & 0x4) == 0x4) {
                                  cField+=60;
@@ -88,17 +90,17 @@ public class RegisterFactory {
                              else if ((p.getRegisterType() & 0x1) == 0x1) {
                                  cField+=20;
                              }
-                             
+
                          } // if ((p.getRegisterType() & 0x10) == 0x00)
-                         
-                         registers.add(new Register(count, ObisCode.fromString("1.1."+cField+"."+dField+"."+eField+".255"), ut));        
+
+                         registers.add(new Register(count, ObisCode.fromString("1.1."+cField+"."+dField+"."+eField+".255"), ut));
                          registers.add(new Register(count, ObisCode.fromString("1.1."+cField+"."+dField+"."+eField+".0"), ut)); // billing registers ?
                          registers.add(new Register(count++, ObisCode.fromString("1.1."+cField+"."+dField+"."+eField+".1"), ut)); // previous season ?
-                         
+
                     } // if ((!p.isNonRegisterValue()) && (p.getDisplaySetup()!=0))
-                    
+
                 } // while(it.hasNext())
-                
+
             } // private void buildRegisters() throws IOException
 
             public Register findRegisterByIndex(int index) throws IOException {
@@ -110,7 +112,7 @@ public class RegisterFactory {
                 }
                 throw new IOException("Register with index "+index+" does not exist!");
             }
-            
+
             public Register findRegisterByObisCode(ObisCode obisCode) throws IOException {
                 Iterator it = registers.iterator();
                 while(it.hasNext()) {
@@ -120,7 +122,7 @@ public class RegisterFactory {
                 }
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
             }
-            
+
             public String getRegisterInfo() {
                 StringBuffer strBuff = new StringBuffer();
                 Iterator it = registers.iterator();

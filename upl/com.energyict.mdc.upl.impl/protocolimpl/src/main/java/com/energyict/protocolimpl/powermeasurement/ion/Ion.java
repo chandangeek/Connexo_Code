@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Utils;
@@ -8,7 +11,15 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -22,7 +33,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -144,8 +160,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         }
 
         try {
-
-            String anId = p.getProperty(MeterProtocol.NODEID);
+            String anId = p.getProperty(MeterProtocol.Property.NODEID.getName());
             if (!Utils.isNull(anId)) {
                 pNodeId = Integer.parseInt(anId);
             }
@@ -159,8 +174,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             pUserId = p.getProperty(PK_USER_ID);
         }
 
-        if (p.getProperty(MeterProtocol.PASSWORD) != null) {
-            pPassword = p.getProperty(MeterProtocol.PASSWORD);
+        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
         }
 
         try {
@@ -171,12 +186,12 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             throw new InvalidPropertyException(e.getMessage());
         }
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
+        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
@@ -187,12 +202,12 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
-            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.ROUNDTRIPCORR));
+        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -233,7 +248,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
      */
     public List getRequiredKeys() {
         List result = new ArrayList(1);
-        result.add(MeterProtocol.NODEID);
+        result.add(MeterProtocol.Property.NODEID.getName());
         return result;
     }
 
@@ -642,7 +657,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
         Properties p = new Properties();
         p.setProperty("SecurityLevel", "0");
-        p.setProperty(MeterProtocol.NODEID, nodeId == null ? "" : nodeId);
+        p.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
 
         setProperties(p);
 

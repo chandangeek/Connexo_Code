@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.meteridentification.MeterType;
 
 import java.io.IOException;

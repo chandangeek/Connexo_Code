@@ -5,10 +5,13 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
-import java.util.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -16,15 +19,15 @@ import com.energyict.protocol.NoSuchRegisterException;
  * @author  Koen
  */
 public abstract class RegisterConfig {
-    
+
     abstract protected Map getRegisterMap();
     abstract protected void initRegisterMap();
     abstract public int getScaler();
-    
+
     Map map = new HashMap();
     Map deviceRegisterMapping = new HashMap();
 
-    
+
     /** Creates a new instance of RegisterMapping */
     protected RegisterConfig() {
         initRegisterMap();
@@ -32,17 +35,17 @@ public abstract class RegisterConfig {
 
     public Map getDeviceRegisterMapping() {
 		return deviceRegisterMapping;
-	} 
+	}
 
     public String getMeterRegisterCode(ObisCode oc) {
         Register register = (Register)getRegisterMap().get(oc);
         if (register == null) return null;
         return oc.toString();
     }
-    
+
     public String getRegisterDescription(ObisCode obis) throws NoSuchRegisterException {
     	Register reg = (Register) getRegisterMap().get(obis);
-    	if (reg == null) { 
+    	if (reg == null) {
     		if (checkRegister(obis)) {
     			reg = new Register(obis.getDescription(), 0);
     		} else {
@@ -51,7 +54,7 @@ public abstract class RegisterConfig {
     	}
     	return reg.getName();
 	}
-    
+
     public String getRegisterInfo() {
         StringBuffer strBuff = new StringBuffer();
         Iterator it = getRegisterMap().keySet().iterator();
@@ -61,20 +64,20 @@ public abstract class RegisterConfig {
         }
         return strBuff.toString();
     }
-    
+
     public boolean checkRegister(ObisCode obis) {
     	if (obis.getA() != 1) return false;
-    	
+
     	switch (obis.getB()) {
     		case 1: break;
     		case 2: break;
     		default: return false;
     	}
 
-    	if (!((obis.getC() >= 1) && (obis.getC() <= 10))) 
-    		if (!((obis.getC() >= 21) && (obis.getC() <= 30))) 
-    			if (!((obis.getC() >= 41) && (obis.getC() <= 50))) 
-    				if (!((obis.getC() >= 61) && (obis.getC() <= 70))) 
+    	if (!((obis.getC() >= 1) && (obis.getC() <= 10)))
+    		if (!((obis.getC() >= 21) && (obis.getC() <= 30)))
+    			if (!((obis.getC() >= 41) && (obis.getC() <= 50)))
+    				if (!((obis.getC() >= 61) && (obis.getC() <= 70)))
     					return false;
 
     	switch (obis.getD()) {

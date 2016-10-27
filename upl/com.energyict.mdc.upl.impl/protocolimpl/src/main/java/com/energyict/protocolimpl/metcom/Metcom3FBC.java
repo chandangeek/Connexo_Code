@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
@@ -25,35 +26,35 @@ import java.util.List;
  */
 @Deprecated //Never released, technical class
 public class Metcom3FBC extends Metcom3 {
-    
+
     private static final int DEBUG = 0;
-    
+
     /** Creates a new instance of Metcom3FAF */
     public Metcom3FBC() {
     }
-    
-    
+
+
     protected BufferStructure getBufferStructure(int bufferNr) throws IOException, UnsupportedException, NoSuchRegisterException {
         try {
             byte[] data = getSCTMConnection().sendRequest(getSCTMConnection().TABENQ3,String.valueOf(20+bufferNr+1).getBytes());
             return new BufferStructure(data);
         }
         catch(SiemensSCTMException e) {
-            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());   
-        }        
+            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());
+        }
     }
-    
-  
+
+
     public String buildDefaultChannelMap() throws IOException {
         return String.valueOf(getBufferStructure().getNrOfChannels());
     }
-  
+
     public String getDefaultChannelMap() {
         return null;
-    }    
-    
+    }
+
     protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException {
-       try { 
+       try {
            ProfileData profileData=null;
            SCTMTimeData from = new SCTMTimeData(calendarFrom);
            SCTMTimeData to = new SCTMTimeData(calendarTo);
@@ -62,14 +63,14 @@ public class Metcom3FBC extends Metcom3 {
            List datas = new ArrayList();
            byte[] profileid = new byte[2];
            byte[] data;
-           
+
            for (int i=0;i<getChannelMap().getNrOfBuffers();i++) {
-               
+
                BufferStructure bs = getBufferStructure(i);
                if (DEBUG >= 1) System.out.println("KV_DEBUG> "+bs);
                bufferStructures.add(bs);
            }
-           
+
            for (int i=0;i<getChannelMap().getNrOfBuffers();i++) {
                if (getChannelMap().useBuffer(i)) {
                    profileid[0] = 0x30;
@@ -87,12 +88,12 @@ public class Metcom3FBC extends Metcom3 {
 
            SCTMProfileMultipleBufferFBC sctmp = new SCTMProfileMultipleBufferFBC(datas,getChannelMap(),bufferStructures);
            profileData = sctmp.getProfileData(getProfileInterval(),getTimeZone(),isRemovePowerOutageIntervals());
-           
+
            if (includeEvents) {
                SCTMSpontaneousBuffer sctmSpontaneousBuffer = new SCTMSpontaneousBuffer(this); //getSCTMConnection(),getTimeZone());
                sctmSpontaneousBuffer.getEvents(calendarFrom,calendarTo,profileData);
                // Apply the events to the channel statusvalues
-               profileData.applyEvents(getProfileInterval()/60); 
+               profileData.applyEvents(getProfileInterval()/60);
            }
            return profileData;
        }

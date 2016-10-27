@@ -1,10 +1,11 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;

@@ -1,6 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba1500;
 
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -11,10 +15,24 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.support.SerialNumberSupport;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.DataDumpParser;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -27,7 +45,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -206,13 +232,13 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
@@ -223,7 +249,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "1").trim());
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "0").trim());
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
             iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getProperty("MaxNrOfDaysProfileData", "0").trim());

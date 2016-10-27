@@ -6,6 +6,7 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -150,7 +151,7 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
                 if (logger.isDebugEnabled()) {
                     logger.debug("--->receivedIdent: " + receivedIdent);
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, protocol);
 
                 if ((strIdentConfig != null) && ("".compareTo(strIdentConfig) != 0)) {

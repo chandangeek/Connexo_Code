@@ -6,16 +6,17 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
-import com.energyict.protocol.NoSuchRegisterException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author  Koen
  */
 public class EnergyTypeCode {
-    
+
     static List list = new ArrayList();
     static {
         list.add(new EnergyTypeCode(1,"Active Import, "));
@@ -30,18 +31,18 @@ public class EnergyTypeCode {
         list.add(new EnergyTypeCode(129,"Reactive, "));
         list.add(new EnergyTypeCode(82,"Unitless Quantity, "));
     }
-    
+
     int obisCCode;
     String description;
-    
+
     /** Creates a new instance of EnergyTypeCode */
     public EnergyTypeCode(int obisCCode,String description) {
         this.obisCCode=obisCCode;
         this.description=description;
     }
-    
+
     static public String getCompountInfoFromObisC(int obisC, boolean energy) throws NoSuchRegisterException {
-               
+
         Iterator it = list.iterator();
         while(it.hasNext()) {
             EnergyTypeCode eit = (EnergyTypeCode)it.next();
@@ -50,7 +51,7 @@ public class EnergyTypeCode {
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getCompountInfoFromObisC, invalid obis C code, "+obisC);
     }
-    
+
     /**
      * Getter for property obisCCode.
      * @return Value of property obisCCode.
@@ -58,7 +59,7 @@ public class EnergyTypeCode {
     public int getObisCCode() {
         return obisCCode;
     }
-    
+
     /**
      * Setter for property obisCCode.
      * @param obisCCode New value of property obisCCode.
@@ -66,7 +67,7 @@ public class EnergyTypeCode {
     public void setObisCCode(int obisCCode) {
         this.obisCCode = obisCCode;
     }
-    
+
     /**
      * Getter for property description.
      * @return Value of property description.
@@ -74,7 +75,7 @@ public class EnergyTypeCode {
     public java.lang.String getDescription() {
         return description;
     }
-    
+
     /**
      * Setter for property description.
      * @param description New value of property description.
@@ -82,10 +83,10 @@ public class EnergyTypeCode {
     public void setDescription(java.lang.String description) {
         this.description = description;
     }
-    
+
     static public void main(String[] agrs) {
         try {
-           System.out.println(EnergyTypeCode.getCompountInfoFromObisC(9,true));  
+           System.out.println(EnergyTypeCode.getCompountInfoFromObisC(9,true));
         }
         catch(Exception e) {
             e.printStackTrace();

@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.elster.alpha.core.connection.ResponseFrame;
 
 import java.io.IOException;
@@ -21,13 +22,13 @@ import java.io.IOException;
  * @author Koen
  */
 abstract public class AbstractClass {
-    
+
     abstract protected void parse(byte[] data) throws IOException;
     abstract protected ClassIdentification getClassIdentification();
-    
+
     //byte[] data;
     ClassFactory classFactory;
-    
+
     /** Creates a new instance of AbstractClass */
     public AbstractClass(ClassFactory classFactory) {
         this.classFactory=classFactory;
@@ -37,7 +38,7 @@ abstract public class AbstractClass {
         // override to provide extra functionality...
         return null;
     }
-    
+
     public void build() throws IOException {
         ResponseFrame responseFrame = classFactory.getCommandFactory().getClassReadCommand().readClass(getClassIdentification().getId(),getClassIdentification().getLength(),getClassIdentification().isMultipleClass());
         if (getClassIdentification().isVerify())
@@ -50,23 +51,23 @@ abstract public class AbstractClass {
                                                                            getClassIdentification().getLength(),
                                                                            prepareWrite());
     }
-    
+
     protected void verifyChecksum(byte[] data) throws ProtocolException {
        int checksum = 0;
        for (int i=0;i<data.length-1;i++) {
            checksum += data[i];
-       }    
+       }
        checksum= ((checksum&0xFF)^0xFF);
-       
-// KV_DEBUG temporary removed!!!       
+
+// KV_DEBUG temporary removed!!!
        if (checksum != (data[data.length-1]&0xFF))
            throw new ProtocolException("AbstractClass, verifyChecksum(), Application layer class checksum wrong! (0x"+Integer.toHexString(checksum)+"!=0x"+Integer.toHexString(data[data.length-1])+")");
     }
-    
 
-    
+
+
     protected ClassFactory getClassFactory() {
         return classFactory;
     }
-    
+
 }

@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.Optical;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MeterProtocol;
@@ -77,7 +77,7 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
     public void initAndConnectMeterProtocol() throws LinkException, IOException, ParseException {
         getMeterProtocol().setProperties(getProperties());
         getMeterProtocol().init(getDialer().getInputStream(), getDialer().getOutputStream(), getTimeZone(), getLogger());
-        if (getDialer() instanceof OpticalDialer) {
+        if (getDialer() instanceof Optical) {
             if (getMeterProtocol() instanceof HHUEnabler) {
                 ((HHUEnabler) getMeterProtocol()).enableHHUSignOn(getDialer().getSerialCommunicationChannel());
             }

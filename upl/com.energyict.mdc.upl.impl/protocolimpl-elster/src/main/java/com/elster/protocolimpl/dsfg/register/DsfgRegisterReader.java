@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.dsfg.register;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.elster.protocolimpl.dsfg.Dsfg;
 import com.elster.protocolimpl.dsfg.DsfgUtils;
 import com.elster.protocolimpl.dsfg.objects.ClockObject;
@@ -9,7 +11,6 @@ import com.elster.protocolimpl.dsfg.telegram.DataElement;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;

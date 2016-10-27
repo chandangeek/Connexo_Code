@@ -34,13 +34,13 @@ public class ABBA1700Main extends AbstractDebuggingMain<ABBA1700> {
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.NODEID, "001");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-        properties.setProperty(MeterProtocol.PASSWORD, "ABCD0002");
-        properties.setProperty(MeterProtocol.SERIALNUMBER, "K10FC00404");
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "001");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "ABCD0002");
+        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "K10FC00404");
         properties.setProperty("Software7E1", "1");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "2");

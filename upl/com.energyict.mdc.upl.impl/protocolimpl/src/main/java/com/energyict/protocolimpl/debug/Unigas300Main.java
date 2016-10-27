@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.*;
+import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMapping;
+import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMappingFactory;
+import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.Unigas300;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,35 +34,20 @@ public class Unigas300Main extends AbstractDebuggingMain<Unigas300> {
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "3600");
-        properties.setProperty(MeterProtocol.PASSWORD, "00000000");
-        properties.setProperty(MeterProtocol.SERIALNUMBER, "");
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "3600");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "00000000");
+        properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "1");
         properties.setProperty("Software7E1", "1");
         properties.setProperty("Retries", "5");
         properties.setProperty("Timeout", "10000");
-        properties.setProperty(MeterProtocol.NODEID, "UNILOG10");
+        properties.setProperty(MeterProtocol.Property.NODEID.getName(), "UNILOG10");
 
         return properties;
-    }
-
-    public static void main(String[] args) throws IOException, LinkException {
-        Unigas300Main main = new Unigas300Main();
-        main.setCommPort("COM1");
-        main.setBaudRate(9600);
-        main.setStopBits(SerialCommunicationChannel.STOPBITS_1);
-        main.setParity(SerialCommunicationChannel.PARITY_NONE);
-        main.setDataBits(SerialCommunicationChannel.DATABITS_8);
-        main.setPhoneNumber("00031627858525");
-        main.setModemInit("ATM0");
-        main.setAsciiMode(true);
-        main.set7E1Mode(true);
-        main.setShowCommunication(true);
-        main.run();
     }
 
     @Override

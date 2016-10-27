@@ -10,19 +10,13 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.ansi.c12.tables.ActualRegisterTable;
@@ -37,6 +31,13 @@ import com.energyict.protocolimpl.elster.a1800.tables.DSPRawInstrumentationCache
 import com.energyict.protocolimpl.elster.a3.tables.ObisCodeDescriptor;
 import com.energyict.protocolimpl.elster.a3.tables.SourceDefinitionTable;
 import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author Koen
@@ -44,7 +45,7 @@ import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
 public class ObisCodeInfoFactory {
 
 	public static int DEBUG = 0;
-	
+
 	List obisCodeInfos;
 	AlphaA3 alphaA3;
 
@@ -100,16 +101,16 @@ public class ObisCodeInfoFactory {
 		switch(fField) {
 		case CURRENT: {
 			registerSetInfo = "current, ";
-		} break; 
+		} break;
 		case PREVIOUS_SEASON: {
 			registerSetInfo = "previous season, ";
-		} break; 
+		} break;
 		case PREVIOUS_DEMAND_RESET: {
 			registerSetInfo = "previous demand reset, ";
-		} break; 
+		} break;
 		default: { // SELF_READ_OFFSET
 			registerSetInfo = "self read, ";
-		} break; 
+		} break;
 		}
 
 		if (fField == CURRENT) {
@@ -142,9 +143,9 @@ public class ObisCodeInfoFactory {
         }
 		for(int tier=0;tier<=art.getNrOfTiers();tier++) {
 			for(int index=0;index<art.getNrOfSummations();index++) {
-				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getSummationSelects()[index]; 
+				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getSummationSelects()[index];
 				if (dataControlEntryIndex != 255) {
-					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex); 
+					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
 					if (obisCodeDescriptor != null) {
 						obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),ObisCode.CODE_D_TIME_INTEGRAL,tier,fField),registerSetInfo+"summation register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getVolumeUnit(),index,dataControlEntryIndex));
 					}
@@ -154,7 +155,7 @@ public class ObisCodeInfoFactory {
 			for(int index=0;index<art.getNrOfDemands();index++) {
 				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getDemandSelects()[index];
 				if (dataControlEntryIndex != 255) {
-					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex); 
+					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
 					if (obisCodeDescriptor != null) {
 						obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),ObisCode.CODE_D_MAXIMUM_DEMAND,tier,fField),registerSetInfo+"max/min demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getFlowUnit(),index,dataControlEntryIndex));
 						if (art.isCumulativeDemandFlag()) {
@@ -164,14 +165,14 @@ public class ObisCodeInfoFactory {
 							obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),CONT_CUMULATIVE_DEMAND,tier,fField),registerSetInfo+"continue cumulative demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getFlowUnit(),index,dataControlEntryIndex));
 						}
 					}
-				} 
+				}
 			}
 
 			for(int index=0;index<art.getNrOfCoinValues();index++) {
 
-				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getCoincidentSelects()[index];            
+				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getCoincidentSelects()[index];
 				if (dataControlEntryIndex != 255) {
-					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex); 
+					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
 					if (obisCodeDescriptor != null) {
 						obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),COIN_DEMAND+index,tier,fField),registerSetInfo+"coincident demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getFlowUnit(),index,dataControlEntryIndex));
 					}
@@ -189,11 +190,11 @@ public class ObisCodeInfoFactory {
 
 		ObisCodeInfo obi = findObisCodeInfo(obisCode);
 		RegisterValue registerValue=null;
-		
+
 		if (computePhaseBInstrumentation(obisCode)) {
         	return getRegisterFromDSPInstrumentationCache(obisCode, obi);
         }
-			 
+
 
 		if (obi.isCurrent()) { // F FIELD
 			RegisterData registerData = alphaA3.getStandardTableFactory().getCurrentRegisterDataTable().getRegisterData();
@@ -230,10 +231,10 @@ public class ObisCodeInfoFactory {
 
 		return registerValue;
 	}
-	
+
 	private RegisterValue getRegisterFromDSPInstrumentationCache(
 			ObisCode obisCode, ObisCodeInfo obi) throws IOException {
-		
+
 		ActualService actualService = alphaA3.getManufacturerTableFactory().getActualService();
         ABBInstrumentConstants abbic = alphaA3.getManufacturerTableFactory().getABBInstrumentConstants();
         DSPRawInstrumentationCache dspic = alphaA3.getManufacturerTableFactory().getDSPRawInstrumentationCache();
@@ -249,14 +250,14 @@ public class ObisCodeInfoFactory {
         	voltAC = voltAC.multiply(vt);
         	return new RegisterValue(obisCode, new Quantity(voltAC, Unit.get(BaseUnit.VOLT)), new Date());
         }
-        
-        
+
+
         // //    	1 - From MT51, determine if phase rotation is ABC or CBA
 //    	2 - Read MT55 to get multiplier values to convert raw Voltage, Current & Energy values from MT71
 //    	Do following steps on each read of MT71
 //    	3 - Read MT71 and convert raw values with MT55 multipliers to engineering units
-    	
-        
+
+
     	BigDecimal voltA = abbic.getVoltage_mult().multiply(dspic.getPhase_a_v_rms());//480.5;
     	BigDecimal currA = abbic.getCurrent_mult().multiply(dspic.getPhase_a_i_rms());
     	BigDecimal wattA = abbic.getWatts_mult().multiply(dspic.getPhase_a_w());
@@ -266,8 +267,8 @@ public class ObisCodeInfoFactory {
     	BigDecimal wattC = abbic.getWatts_mult().multiply(dspic.getPhase_c_w());
     	BigDecimal varC = abbic.getCurrent_mult().multiply(abbic.getVoltage_mult().multiply(dspic.getPhase_c_var()));
     	BigDecimal voltAC = abbic.getVoltage_mult().multiply(dspic.getLine_c_to_a_voltage());//479.2;
-    	
-    	
+
+
     	if(DEBUG>0)System.out.println("voltA: " + voltA);
     	if(DEBUG>0)System.out.println("currA: " + currA);
     	if(DEBUG>0)System.out.println("wattA: " + wattA);
@@ -277,16 +278,16 @@ public class ObisCodeInfoFactory {
     	if(DEBUG>0)System.out.println("wattC: " + wattC);
     	if(DEBUG>0)System.out.println("varC: " + varC);
     	if(DEBUG>0)System.out.println("voltAC: " + voltAC);
-    	
-    	
+
+
     	int rotation = actualService.getRotation();
     	if(DEBUG>0)System.out.println("rotation: " + rotation);
-    	
+
 
 //    	4 - Use Wa and VARa to determine Phase angle of Ia with respect to Vab
 //			=MOD(DEGREES(ATAN(VARa/Wa))+IF(Wa<0,180,0),360)
     	if(DEBUG>0)System.out.println("var/watt: " + varA.doubleValue()/wattA.doubleValue());
-    	
+
     	double pA = 0;
     	if (Double.isNaN(varA.doubleValue()/wattA.doubleValue())) {
     		pA=90;
@@ -297,7 +298,7 @@ public class ObisCodeInfoFactory {
     		pA = Math.toDegrees(Math.atan(varA.doubleValue()/wattA.doubleValue()));
     		if (wattA.doubleValue()<0) {
     			pA += 180;
-    		}    	
+    		}
     		if (pA<0) {
     			pA = pA+360;
     		}
@@ -320,15 +321,15 @@ public class ObisCodeInfoFactory {
     	if (rotation==1) {
     		mult = -1;
     	}
-    	double pvCA = 360+(mult*Math.toDegrees((Math.acos((Math.pow(voltA.doubleValue(),2)+Math.pow(voltC.doubleValue(),2)-Math.pow(voltAC.doubleValue(),2))/(2*voltA.doubleValue()*voltC.doubleValue()))))); 
+    	double pvCA = 360+(mult*Math.toDegrees((Math.acos((Math.pow(voltA.doubleValue(),2)+Math.pow(voltC.doubleValue(),2)-Math.pow(voltAC.doubleValue(),2))/(2*voltA.doubleValue()*voltC.doubleValue())))));
     	pvCA = pvCA % 360;
-    	
+
     	if(DEBUG>0)System.out.println("pvCA: " + pvCA);
 
 //    	7 - Use Wc and VARc to determine Phase angle of Ic with respect to Vcb
 //			Pc=MOD(DEGREES(ATAN(VARc/Wc))+IF(Wc<0,180,0),360)
     	double pC = 0;
-    	
+
     	if (Double.isNaN(varC.doubleValue()/wattC.doubleValue())) {
     		pC=90;
     		if (varC.doubleValue()<0) {
@@ -338,19 +339,19 @@ public class ObisCodeInfoFactory {
     		pC = Math.toDegrees(Math.atan(varC.doubleValue()/wattC.doubleValue()));
     		if (wattC.doubleValue()<0) {
     			pC += 180;
-    		}    	
+    		}
     		if (pC<0) {
     			pC = pC+360;
     		}
     	}
-    	
+
     	if(DEBUG>0)System.out.println("pC: " + pC);
 
 //    	8 - Add the angle from step 4 to the resultant angle from steps 2 & 3 to get the angle of Ic to Vab
 //			Pca=MOD(Pc+PVca,360)
     	double pCA=(pC+pvCA)%360;
     	if(DEBUG>0)System.out.println("pCA " + pCA);
-    	
+
 //    	8a - Use Ic magnitude & phase angle to get real and imaginary components of Ic
 //			Ic_real=Ic*COS(RADIANS(Pca))
 //    		Ic_imag=Ic*SIN(RADIANS(Pca))
@@ -378,14 +379,14 @@ public class ObisCodeInfoFactory {
     		pBA += 180;
     	}
     	pBA = pBA % 360;
-    	
+
     	BigDecimal ct = (BigDecimal)((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[0]).getSet1Constants().getRatioF1();
         ct = apply10Scaler(ct, scale);
         currB = currB.multiply(ct);
-        
+
 		return new RegisterValue(obisCode, new Quantity(currB, Unit.get(BaseUnit.AMPERE)), new Date());
 	}
-	
+
 	private BigDecimal apply10Scaler(BigDecimal bd, int scale) {
         if (scale > 0)
             return(bd.movePointRight(scale));
@@ -394,7 +395,7 @@ public class ObisCodeInfoFactory {
         else
             return bd;
     }
-	
+
 	private boolean computePhaseBInstrumentation(ObisCode obisCode) throws IOException {
 		int c = obisCode.getC();
 		int d = obisCode.getD();
@@ -417,31 +418,31 @@ public class ObisCodeInfoFactory {
 		boolean energy=false;
 
 		if (obi.isTimeIntegral()) { // D FIELD
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getSummations()[registerIndex];
 			energy=true;
 		}
 		else if (obi.isMaximumDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getDemands()[registerIndex].getDemands()[obi.getOccurance()];
 			if (dataBlock.getDemands()[registerIndex].getEventTimes() != null)
 				date = dataBlock.getDemands()[registerIndex].getEventTimes()[obi.getOccurance()];
 		}
 		else if (obi.isCumulativeMaximumDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getDemands()[registerIndex].getCumDemand();
 		}
 		else if (obi.isContCumulativeMaximumDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getDemands()[registerIndex].getContinueCumDemand();
 		}
 		else if (obi.isCoinMaximumDemandDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getCoincidents()[registerIndex].getCoincidentValues()[obi.getOccurance()];
 		}
 		else if (obi.isInstantaneous()) {
 			Number[] data = alphaA3.getStandardTableFactory().getPresentRegisterDataTable().getPresentValues();
-			int registerIndex = obi.getRegisterIndex(); 
+			int registerIndex = obi.getRegisterIndex();
 			value = data[registerIndex];
 		}
 
@@ -451,7 +452,7 @@ public class ObisCodeInfoFactory {
 	}
 
 	private BigDecimal getEngineeringValue(BigDecimal bd, boolean energy, ObisCodeInfo obi) throws IOException {
-		SourceInfo si = new SourceInfo(alphaA3); 
+		SourceInfo si = new SourceInfo(alphaA3);
 		return si.basic2engineering(bd,obi.getDatacontrolEntryIndex(),false,energy);
 	}
 

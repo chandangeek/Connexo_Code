@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.coronis.core.wavecell;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;

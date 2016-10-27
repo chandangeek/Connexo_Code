@@ -1,34 +1,25 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.instromet.connection.Response;
+import com.energyict.protocolimpl.instromet.v555.CommandFactory;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.CRCGenerator;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.instromet.connection.Response;
-import com.energyict.protocolimpl.instromet.v555.CommandFactory;
-import com.energyict.protocolimpl.instromet.v555.Instromet555;
 
 public class LoggedDataTable extends AbstractTable {
-	
+
 	private List intervalDatas = new ArrayList();
 	private int numberOfItemsLogged;
 	private Date lastReading;
 	private int defaultSize; // number of bytes (data) to read with one command
 	private boolean[] isFloatItem;
-	
+
 	public LoggedDataTable(TableFactory tableFactory) {
 		super(tableFactory);
 	}
@@ -36,29 +27,29 @@ public class LoggedDataTable extends AbstractTable {
 		this(tableFactory);
 		this.lastReading = lastReading;
 	}
-	
+
 	public int getTableType() {
 		return 11;
 	}
-	
+
 	public List getIntervalDatas() {
 		return intervalDatas;
 	}
-	
+
 	protected void init() throws IOException {
 		isFloatItem = new boolean[numberOfItemsLogged];
-		LoggingConfigurationTable config = 
+		LoggingConfigurationTable config =
 			getTableFactory().getLoggingConfigurationTable();
 		for (int i = 0; i < numberOfItemsLogged; i++) {
 			isFloatItem[i] = config.isFloatingPoint((numberOfItemsLogged - 1) - i);
 		}
 	}
-	
+
 	public void setNumberOfItemsLogged(int numberOfItemsLogged) throws IOException {
 		this.numberOfItemsLogged = numberOfItemsLogged;
 		setDefaultSize();
 	}
-	
+
 	protected void setDefaultSize() throws IOException {
 		if (numberOfItemsLogged == 1)
 			defaultSize = 1016;
@@ -73,12 +64,12 @@ public class LoggedDataTable extends AbstractTable {
 		else
 			throw new IOException("max number of items to be logged is 5");
 	}
-	
+
 	protected void parse(byte[] data) throws IOException {
 		init();
-		LoggingConfigurationTable config = 
+		LoggingConfigurationTable config =
 			getTableFactory().getLoggingConfigurationTable();
-		
+
 		Calendar cal = null;
 		System.out.println("parse logged data");
 		System.out.println(ProtocolUtils.outputHexString(data));
@@ -114,8 +105,8 @@ public class LoggedDataTable extends AbstractTable {
 			int day = ProtocolUtils.byte2int(b3) >> 3;
 			int hour = ((ProtocolUtils.byte2int(b3) & (byte)0x07) << 2)
 						+ (ProtocolUtils.byte2int(b4) >> 6);
-			
-			if ((cal == null) || 
+
+			if ((cal == null) ||
 			    ((cal != null) && (!cal.getTimeZone().useDaylightTime()))) {
 				cal = Calendar.getInstance(
 					getTableFactory().getInstromet555().getTimeZone());
@@ -135,17 +126,17 @@ public class LoggedDataTable extends AbstractTable {
 			System.out.println("date = " + date);
 			if ((lastReading == null) || (date.after(lastReading))) {
 				IntervalData intervalData = new IntervalData(date);
-				for (int j = 0; j < numberOfItemsLogged; j++) 
+				for (int j = 0; j < numberOfItemsLogged; j++)
 					intervalData.addValue((BigDecimal) values.get(j));
 				intervalDatas.add(intervalData);
 				//System.out.println(cal.getTime());
 				//System.out.println("");
 			}
-			else 
+			else
 				throw new LastReadingReachedException();
 		}
 	}
-	
+
 	/**
 	 * Convert the 4 bits year information to a regular year
 	 * by padding with 2000/2016 <br/>
@@ -165,18 +156,18 @@ public class LoggedDataTable extends AbstractTable {
 	}
 
 	protected void prepareBuild() throws IOException {
-		LoggingConfigurationTable config = 
+		LoggingConfigurationTable config =
 			getTableFactory().getLoggingConfigurationTable();
 		System.out.println(config);
 		setNumberOfItemsLogged(config.getChannelInfos().size());
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.switchToLoggedDataCommand().invoke();
 		parseStatus(response);
     	readHeaders();
 	}
-	
+
 	protected void doBuild() throws IOException {
 		try {
 			int startAddress = 6;
@@ -194,23 +185,23 @@ public class LoggedDataTable extends AbstractTable {
 			System.out.println("Last reading reached");
 		}
 	}
-	
+
 	protected void executeGetDataCommand(int startAddress, int size) throws IOException {
 		System.out.println("startAddress = " + startAddress + ", " + size);
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.readLoggedDataCommand(startAddress, size).invoke();
 		parseStatus(response);
 		parseWrite(response);
 	}
-	
+
 	protected int getEndAddress() {
 		System.out.println("logged data table length: " + getTableLength());
 		int tableLength = getTableLength();
 		int bytesPerRecord = (numberOfItemsLogged * 4) + 4; // 4 extra bytes for time
 		return ((((tableLength - 6) / bytesPerRecord)) * bytesPerRecord) + 6;
-		
+
 	}
 
 	static public void main(String[] argv) throws Exception {
@@ -219,19 +210,19 @@ public class LoggedDataTable extends AbstractTable {
 						1091344844));
 
 		//System.out.println(ProtocolUtils.buildStringHex(150, 4));
-		
+
 		//55 51 00 06 02 04
 
-		
+
 		/*byte byteValue = (byte)0x06;
 		int intValue = (int)byteValue;
 		char charValue = (char) intValue;
 		System.out.println(intValue);
 		System.out.println(charValue);*/
-		
+
 		/*Dialer dialer =DialerFactory.getDirectDialer().newDialer();
         dialer.init("COM1");
-        dialer.connect("",60000); 
+        dialer.connect("",60000);
         Instromet555 instromet = new Instromet555();
         dialer.getSerialCommunicationChannel().setParamsAndFlush(2400,
                 SerialCommunicationChannel.DATABITS_8,
@@ -244,9 +235,9 @@ public class LoggedDataTable extends AbstractTable {
         		Logger.getLogger("name"));
         instromet.connect();
         //instromet.setTime();
-        CorrectorInformationTable table = 
+        CorrectorInformationTable table =
         	instromet.getTableFactory().getCorrectorInformationTable();*/
-		
+
 		/*Dialer dialer =DialerFactory.getDefault().newDialer();
         dialer.init("COM1", "AT+CBST=71");
         dialer.getSerialCommunicationChannel().setParams(9600,
@@ -261,13 +252,13 @@ public class LoggedDataTable extends AbstractTable {
         		TimeZone.getDefault(),
         		Logger.getLogger("name"));
         instromet.connect();
-        LoggingConfigurationTable table = 
+        LoggingConfigurationTable table =
         	instromet.getTableFactory().getLoggingConfigurationTable();
         System.out.println(table.getChannelInfos().size());
         System.out.println(table);
-    
-		
-		
+
+
+
 		/*Calendar cal = Calendar.getInstance();
 		int year = cal.get(Calendar.YEAR) - 2000;
 		int month = cal.get(Calendar.MONTH) + 1;
@@ -300,32 +291,32 @@ public class LoggedDataTable extends AbstractTable {
 		data[1] = ProtocolUtils.hex2BCD(min);
 		data[0] = ProtocolUtils.hex2BCD(sec);
 		System.out.println(ProtocolUtils.outputHexString(data));*/
-        
-        
-        /*byte[] data = {(byte)0x3A , (byte)0x00 , (byte)0x00 , (byte)0x57 , 
-        		       (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , 
+
+
+        /*byte[] data = {(byte)0x3A , (byte)0x00 , (byte)0x00 , (byte)0x57 ,
+        		       (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 ,
         		       (byte)0x00 , (byte)0x01 , (byte)0x0B};
-        
+
         int crc = CRCGenerator.calcCCITTCRCReverse(data);
-        
+
         System.out.println(Integer.toHexString(crc));*/
-        
+
         //dialer.getOutputStream().write(data, 0, 11);
 
-		
-		/*byte[] data= {(byte)0x3A, (byte)0x00, (byte)0x00, (byte)0x57, (byte)0x00   
-		,(byte)0x00 ,(byte)0x00 ,(byte)0x06 ,(byte)0x03 ,(byte)0xFC ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xC1 ,(byte)0x7A   
-		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xC1 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E   
-		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xC1 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20   
-		,(byte)0x00 ,(byte)0x00 ,(byte)0xC1 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xC0 ,(byte)0x7A   
-		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xC0 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E   
-		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xC0 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20   
-		,(byte)0x00 ,(byte)0x00 ,(byte)0xC0 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xBD ,(byte)0x7A   
-		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xBD ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E   
-		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xBD ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20   
-		,(byte)0x00 ,(byte)0x00 ,(byte)0xBD ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xBC ,(byte)0x7A   
-		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xBC ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E   
-		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xBC ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20   
+
+		/*byte[] data= {(byte)0x3A, (byte)0x00, (byte)0x00, (byte)0x57, (byte)0x00
+		,(byte)0x00 ,(byte)0x00 ,(byte)0x06 ,(byte)0x03 ,(byte)0xFC ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xC1 ,(byte)0x7A
+		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xC1 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E
+		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xC1 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20
+		,(byte)0x00 ,(byte)0x00 ,(byte)0xC1 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xC0 ,(byte)0x7A
+		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xC0 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E
+		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xC0 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20
+		,(byte)0x00 ,(byte)0x00 ,(byte)0xC0 ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xBD ,(byte)0x7A
+		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xBD ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E
+		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xBD ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20
+		,(byte)0x00 ,(byte)0x00 ,(byte)0xBD ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0xC0 ,(byte)0xBC ,(byte)0x7A
+		,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x80 ,(byte)0xBC ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E
+		,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20 ,(byte)0x00 ,(byte)0x40 ,(byte)0xBC ,(byte)0x7A ,(byte)0x00 ,(byte)0x30 ,(byte)0x9B ,(byte)0x1E ,(byte)0x00 ,(byte)0x43 ,(byte)0x23 ,(byte)0x20
 		,(byte)0x00 ,(byte)0x00 ,(byte)0xBC ,(byte)0x7A ,(byte)0x00};
 
 		int offset = 4; //3A 00 00 57
@@ -367,11 +358,11 @@ public class LoggedDataTable extends AbstractTable {
 			System.out.println(cal.getTime());
 			System.out.println("");
 		}*/
-		
-		
-		
+
+
+
     }
 
-        
+
 
 }

@@ -1,21 +1,28 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.edf.trimarancje.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
-import org.junit.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.TimeZone;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TrimaranTest {
-	
+
 	private Trimaran cje;
 	private String trimaranProfile = "/com/energyict/protocolimpl/edf/trimaran/TrimaranProfile.bin";
 	private String[] profile = {"/com/energyict/protocolimpl/edf/trimaran/cje/Profile1.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile2.bin",
@@ -37,7 +44,7 @@ public class TrimaranTest {
 	public void tearDown() throws Exception {
 		cje.release();
 	}
-	
+
 	@Test
 	public void profileTest(){
 		try {
@@ -48,17 +55,17 @@ public class TrimaranTest {
 	        FileInputStream fis = new FileInputStream(file);
 	        byte[] data=new byte[(int)file.length()];
 	        fis.read(data);
-	        fis.close();   
+	        fis.close();
 	        cje.getTrimaranProfile().getDemandData().parse(data);
-	        
+
 	        //TODO you should check the values!!
-	        
+
 //	        cje.getTrimaranProfile().incrementPointer();
-//	        
+//
 //	        /* have to check two profiles now */
 //	        cje.getTrimaranProfile().setDemandData(new DemandData(cje.getDataFactory()));
 //	        cje.getTrimaranProfile().getDemandData().parse(data);
-//	        
+//
 //			cje.getProfileData(null, null, false);
 //			// if we can get this far it should be OK ...
 		} catch (UnsupportedException e) {
@@ -69,10 +76,10 @@ public class TrimaranTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	/**
-	 *  this test has to check the V2 of the Trimaran meters 
+	 *  this test has to check the V2 of the Trimaran meters
 	 */
 	public void profileTest2(){
 		cje.setTrimaranProfile(new TrimaranProfile(cje));
@@ -86,10 +93,10 @@ public class TrimaranTest {
 				fis = new FileInputStream(file);
 				byte[] data=new byte[(int)file.length()];
 				fis.read(data);
-				fis.close();   
+				fis.close();
 				cje.getTrimaranProfile().getDemandData().parse(data);
 				cje.getTrimaranProfile().incrementPointer();
-					
+
 			}
 			assertEquals(cje.getTrimaranProfile().getPointer(), 16);
 			cje.getTrimaranProfile().setPointer(1);

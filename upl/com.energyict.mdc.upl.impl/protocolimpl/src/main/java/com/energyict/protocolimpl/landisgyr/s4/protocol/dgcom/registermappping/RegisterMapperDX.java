@@ -10,28 +10,37 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.registermappping;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
-import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.*;
-import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.cbo.*;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.CurrentSeasonCumulativeDemandDataDXCommand;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.CurrentSeasonLastResetValuesDXCommand;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.CurrentSeasonTOUDemandDataDXCommand;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.HighestMaximumDemandsCommand;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.PreviousSeasonLastResetValuesDXCommand;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.PreviousSeasonTOUDataDXCommand;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.RateBinsAndTotalEnergyDXCommand;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.SelfReadDataDXCommand;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  *
  * @author Koen
  */
 public class RegisterMapperDX extends RegisterMapper {
-    
+
     final int MAX_RATES=4;
-    
-    
+
+
     // not mapped
-    //                 - power factors 
-    
+    //                 - power factors
+
     private HighestMaximumDemandsCommand highestMaximumDemandsCommand; // 84h
     private RateBinsAndTotalEnergyDXCommand rateBinsAndTotalEnergyDXCommand; // 05h
     private CurrentSeasonTOUDemandDataDXCommand currentSeasonTOUDemandDataDXCommand; // 61h
@@ -39,19 +48,19 @@ public class RegisterMapperDX extends RegisterMapper {
     private CurrentSeasonLastResetValuesDXCommand currentSeasonLastResetValuesDXCommand; // 85h
     private PreviousSeasonTOUDataDXCommand previousSeasonTOUDataDXCommand; // 5Ch
     private PreviousSeasonLastResetValuesDXCommand previousSeasonLastResetValuesDXCommand; // 86h
-    
-    
+
+
     /** Creates a new instance of RegisterMapper */
     public RegisterMapperDX(S4 s4) throws IOException {
         super(s4);
     }
-    
+
     protected String getBillingExtensionDescription() throws IOException {
         return "The meter contains "+getNrOfBillingPeriods()+" selfread sets of registers (billing point sets)\nHowever, the DX type meter does contain following registers in the billing points: negative energy,  cumulative kW (current and previous season), max demand kW in previous season\n";
     }
-    
+
     protected void buildRegisterValues(int billingPoint) throws IOException {
-        
+
         if (billingPoint == 255) {
             if (!current) {
                 setHighestMaximumDemandsCommand(s4.getCommandFactory().getHighestMaximumDemandsCommand());
@@ -82,43 +91,43 @@ public class RegisterMapperDX extends RegisterMapper {
             } // if (!selfread[billingPoint])
         }
     }
-    
+
     public void doBuildRegisterValues(int billingPoint,Date toTime) throws IOException {
-    
+
         BigDecimal bd;
-        
+
         // Mapping from the dialogs in L&G 1132Com software
         // ********************************************************************************************************************************
         // energy & demand dialog
         // Total kWh
         bd = toEngineeringEnergy(BigDecimal.valueOf(getRateBinsAndTotalEnergyDXCommand().getTotalKWHInPulses()));
         registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.8.0."+billingPoint),new Quantity(bd,Unit.get("kWh")),null,toTime)));
-        
+
         if (billingPoint == 255) { // negative energy does not exist in the selfread data
             // Negative kWh
             bd = toEngineeringEnergy(BigDecimal.valueOf(s4.getCommandFactory().getNegativeEnergyCommand().getNegativeEnergyInPulses()));
             registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.2.8.0.255"),new Quantity(bd,Unit.get("kWh")),null,toTime)));
         }
-        
+
         if (billingPoint == 255) { // cumilative demand does not exist in the selfread data
             // cumulative kW
             bd = toEngineeringDemand(BigDecimal.valueOf(s4.getCommandFactory().getPreviousSeasonDemandDataCommand().getCurrentSeasonCumulativeKWInPulses()));
             registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.2.0.255"),new Quantity(bd,Unit.get("kW")),null,toTime)));
         }
-        
+
         // max demand
         bd = toEngineeringDemand(BigDecimal.valueOf(getHighestMaximumDemandsCommand().getMaxkWInPulses()));
         registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.6.0."+billingPoint),
                                              new Quantity(bd,Unit.get("kW")),
                                              getHighestMaximumDemandsCommand().getMaxkWTimestamp(),toTime)));
-        
-        
+
+
         // ********************************************************************************************************************************
         // previous season energy & demand dialog
         // Total kWh
         bd = toEngineeringEnergy(BigDecimal.valueOf(getPreviousSeasonTOUDataDXCommand().getTotalKWHInPulses()));
         registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.8.6."+billingPoint),new Quantity(bd,Unit.get("kWh")),null,toTime)));
-        
+
         // Negative kWh
         bd = toEngineeringEnergy(BigDecimal.valueOf(getPreviousSeasonTOUDataDXCommand().getTotalNegativeKWHInPulses()));
         registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.2.8.6."+billingPoint),new Quantity(bd,Unit.get("kWh")),null,toTime)));
@@ -127,14 +136,14 @@ public class RegisterMapperDX extends RegisterMapper {
             // cumulative kW
             bd = toEngineeringDemand(BigDecimal.valueOf(s4.getCommandFactory().getPreviousSeasonDemandDataCommand().getPreviousSeasonCumulativeKWInPulses()));
             registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.2.0.255"),new Quantity(bd,Unit.get("kW")),null,toTime)));
-        
+
             // max demand
             bd = toEngineeringDemand(BigDecimal.valueOf(s4.getCommandFactory().getPreviousSeasonDemandDataCommand().getPreviousSeasonMaximumKWInPulses()));
             registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.6.6.255"),
                                                  new Quantity(bd,s4.getCommandFactory().getMeasurementUnitsCommand().getSelectableMetricUnit(false)),
                                                  s4.getCommandFactory().getPreviousSeasonDemandDataCommand().getPreviousSeasonTimestampMaximumKW(),toTime)));
-        }        
-        
+        }
+
         // TOU data dialog
         for (int i=0;i<MAX_RATES;i++) {
             // cumulative kW
@@ -148,7 +157,7 @@ public class RegisterMapperDX extends RegisterMapper {
             bd = toEngineeringEnergy(BigDecimal.valueOf(getRateBinsAndTotalEnergyDXCommand().getRatekWHInPulses()[i]));
             registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.8."+(1+i)+"."+billingPoint),new Quantity(bd,Unit.get("kWh")),null,toTime)));
         } // for (int i=0;i<MAX_RATES;i++)
-        
+
         // Previous season TOU data dialog
         for (int i=0;i<MAX_RATES;i++) {
             // cumulative kW
@@ -162,18 +171,18 @@ public class RegisterMapperDX extends RegisterMapper {
             bd = toEngineeringEnergy(BigDecimal.valueOf(getPreviousSeasonTOUDataDXCommand().getKWHInPulses()[i]));
             registers.add(new Register(new RegisterValue(ObisCode.fromString("1.1.1.8."+(7+i)+"."+billingPoint),new Quantity(bd,Unit.get("kWh")),null,toTime)));
         } // for (int i=0;i<MAX_RATES;i++)
-        
-        
+
+
     } // public void buildRegisterValues() throws IOException
-    
-    
+
+
     private BigDecimal toEngineeringEnergy(BigDecimal bd) throws IOException {
         BigDecimal kf = s4.getCommandFactory().getKFactorCommand().getBdKFactor();
         bd = bd.multiply(kf); // pulses -> wH
         bd = bd.movePointLeft(3); // divide by 1000 Wh -> kWh
         return bd;
     }
-    
+
     private BigDecimal toEngineeringDemand(BigDecimal bd) throws IOException {
         BigDecimal kf = s4.getCommandFactory().getKFactorCommand().getBdKFactor();
         bd = bd.multiply(kf); // pulses -> wH
@@ -239,6 +248,6 @@ public class RegisterMapperDX extends RegisterMapper {
     }
 
 
-    
+
 
 }

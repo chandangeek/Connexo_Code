@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
@@ -41,14 +42,14 @@ import java.util.TimeZone;
  * @author jme
  */
 public class RegisterFactory extends AbstractRegisterFactory {
-    
+
 	private static final int MODBUS_MAX_LENGTH		= 0x007D;
-	
+
 	public HoldingRegister meterInfo;
 	public HoldingRegister writeFunctionReg;
 	public HoldingRegister readProfileReg;
 	public static List enerium200Registers;
-	
+
 	static {
     	addReg(0x0500, 2, "1.1.32.7.0.255", "V", "V1 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
     	addReg(0x0502, 2, "1.1.52.7.0.255", "V", "V2 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
@@ -63,12 +64,12 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	addReg(0x0510, 2, "1.1.51.7.0.255", "A", "I2 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
     	addReg(0x0512, 2, "1.1.71.7.0.255", "A", "I3 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
     	addReg(0x0514, 2, "1.1.91.7.0.255", "A", "In (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	
+
     	addReg(0x0516, 2, "1.1.21.7.0.255", "W", "P1 (1s measurements)", 1, Enerium200Register.SIGNED);
     	addReg(0x0518, 2, "1.1.41.7.0.255", "W", "P2 (1s measurements)", 1, Enerium200Register.SIGNED);
     	addReg(0x051A, 2, "1.1.61.7.0.255", "W", "P3 (1s measurements)", 1, Enerium200Register.SIGNED);
     	addReg(0x051C, 2, "1.1.1.7.0.255",  "W", "Pt (1s measurements)", 1, Enerium200Register.SIGNED);
-    	
+
     	addReg(0x051E, 2, "1.1.23.7.0.255", "var", "Q1 (1s measurements)", 1, Enerium200Register.SIGNED);
     	addReg(0x0520, 2, "1.1.43.7.0.255", "var", "Q2 (1s measurements)", 1, Enerium200Register.SIGNED);
     	addReg(0x0522, 2, "1.1.63.7.0.255", "var", "Q3 (1s measurements)", 1, Enerium200Register.SIGNED);
@@ -78,7 +79,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	addReg(0x0528, 2, "1.1.49.7.0.255", "VA", "S2 (1s measurements)", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x052A, 2, "1.1.69.7.0.255", "VA", "S3 (1s measurements)", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x052C, 2, "1.1.9.7.0.255",  "VA", "St (1s measurements)", 1, Enerium200Register.NON_SIGNED);
-    	
+
     	addReg(0x0536, 1, "1.1.33.7.0.255", "", "Cos phi phase 1 (1s measurements)", 1, Enerium200Register.SIGNED_1_10000);
     	addReg(0x0538, 1, "1.1.53.7.0.255", "", "Cos phi phase 2 (1s measurements)", 1, Enerium200Register.SIGNED_1_10000);
     	addReg(0x053A, 1, "1.1.73.7.0.255", "", "Cos phi phase 3 (1s measurements)", 1, Enerium200Register.SIGNED_1_10000);
@@ -106,7 +107,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	addReg(0x0A1A, 4, "1.1.8.8.0.255", "varh", "Q4 reactive energy", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x0A1E, 4, "1.1.9.8.0.255", "VAh", "Receiver apparent energy", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x0A22, 4, "1.1.10.8.0.255", "VAh", "Generator apparent energy", 1, Enerium200Register.NON_SIGNED);
-    	
+
     	addReg(0x0900, 2, "1.1.32.4.0.255", "V", "V1 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
     	addReg(0x0902, 2, "1.1.52.4.0.255", "V", "V2 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
     	addReg(0x0904, 2, "1.1.72.4.0.255", "V", "V3 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
@@ -143,7 +144,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	addReg(0x0938, 2, "1.1.49.4.0.255", "VA", "S2 (Average)", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x093A, 2, "1.1.69.4.0.255", "VA", "S3 (Average)", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x093C, 2, "1.1.9.4.0.255", "VA", "Sn (Average)", 1, Enerium200Register.NON_SIGNED);
-    	
+
     	addReg(0x0959, 1, "1.1.132.4.0.255", "", "Crest factor V1 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
     	addReg(0x095A, 1, "1.1.133.4.0.255", "", "Crest factor V2 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
     	addReg(0x095B, 1, "1.1.134.4.0.255", "", "Crest factor V3 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
@@ -161,38 +162,38 @@ public class RegisterFactory extends AbstractRegisterFactory {
 		addReg(0x6804, 2, "1.1.0.4.2.255", "", "Primary CT", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x6806, 2, "1.1.0.4.5.255", "", "Secondary CT", 1, Enerium200Register.NON_SIGNED);
 	}
-	
-	
+
+
 	/** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
     }
-    
+
     protected void init() {
 
-    	
+
     	setZeroBased(false);
 
     	meterInfo = (HoldingRegister) new HoldingRegister(0x0000, 0x001E).setParser(MeterInfoParser.PARSER_NAME);
     	meterInfo.setRegisterFactory(this);
-    	
+
     	writeFunctionReg = new HoldingRegister(0xD000, 0x0000);
     	writeFunctionReg.setRegisterFactory(this);
-    	
+
     	readProfileReg = new HoldingRegister(0x2300, 0x0000);
     	readProfileReg.setRegisterFactory(this);
 
 
     }
-    
+
     private static void addReg(int address, int size, String obisCode, String unit, String name, int scaler, int type) {
     	if (enerium200Registers == null) enerium200Registers = new ArrayList(0);
     	name = "[" + ProtocolUtils.buildStringHex(address, 4).toUpperCase() + "h] " + name;
     	Enerium200Register eneriumReg = new Enerium200Register(address, size, ObisCode.fromString(obisCode), Unit.get(unit), name, scaler, type);
     	enerium200Registers.add(eneriumReg);
-    	
+
 	}
-    
+
     public AbstractRegister findRegister(ObisCode obisCode) throws IOException {
     	for (int i = 0; i < getEnerium200Registers().size(); i++) {
 			Enerium200Register er = (Enerium200Register) getEnerium200Registers().get(i);
@@ -216,15 +217,15 @@ public class RegisterFactory extends AbstractRegisterFactory {
 		}
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
-    
+
     private TimeZone getTimeZone() {
     	return getModBus().gettimeZone();
     }
-    
+
     public List getEnerium200Registers() {
 		return enerium200Registers;
 	}
-    
+
     protected void initParsers() {
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
@@ -234,7 +235,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
 //                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
 			}
 		});
-        
+
         getParserFactory().addParser("EnergyParser",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
                 long val=(values[1]<<16)+values[0];
@@ -243,14 +244,14 @@ public class RegisterFactory extends AbstractRegisterFactory {
 //                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
             }
         });
-        
+
         getParserFactory().addParser("FloatingPoint",new Parser() {
             public Object val(int[] values, AbstractRegister register) {
                 int val=(values[0]<<16)+values[1];
                 return new BigDecimal(""+Float.intBitsToFloat(val));
             }
         });
-        
+
         getParserFactory().addParser("emptyParser",new Parser() {
             public Object val(int[] values, AbstractRegister register) {
                 return "emptyParser";
@@ -266,5 +267,5 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getParserFactory().addParser(Signed_1_100_Parser.PARSER_NAME, new Signed_1_100_Parser());
 
     } //private void initParsers()
-    
+
 } // public class RegisterFactory extends AbstractRegisterFactory

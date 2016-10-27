@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
-import com.energyict.cpo.BusinessObject;
-import com.energyict.cpo.ObjectMapperFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.ProtocolDialectProperties;
+
+import com.energyict.cpo.BusinessObject;
+import com.energyict.cpo.ObjectMapperFactory;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Group;
 import com.energyict.protocol.MeterProtocol;
@@ -59,7 +60,7 @@ public class DeviceInfoSerializer {
                 final TypedProperties generalProperties = TypedProperties.empty();
                 generalProperties.setAllProperties(slaveDevice.getProperties());
                 generalProperties.setAllProperties(slaveDevice.getProtocolProperties());
-                generalProperties.setProperty(MeterProtocol.SERIALNUMBER, slaveDevice.getSerialNumber());
+                generalProperties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), slaveDevice.getSerialNumber());
                 generalProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
 
                 //Get the dialect properties, from the Beacon3100 gateway device (configured in its connection task)

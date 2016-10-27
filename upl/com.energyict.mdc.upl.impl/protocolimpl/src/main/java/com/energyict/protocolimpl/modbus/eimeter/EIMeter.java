@@ -3,12 +3,13 @@
  */
 package com.energyict.protocolimpl.modbus.eimeter;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocol.messaging.MessageCategorySpec;

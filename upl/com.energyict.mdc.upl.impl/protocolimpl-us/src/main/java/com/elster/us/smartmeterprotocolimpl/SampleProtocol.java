@@ -1,5 +1,7 @@
 package com.elster.us.smartmeterprotocolimpl;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -13,7 +15,6 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.io.InputStream;

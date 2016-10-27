@@ -33,12 +33,12 @@ import java.util.Iterator;
 import java.util.Properties;
 
 public class DLMSEMO extends DLMSSN {
-    
+
     private static final byte DEBUG=0;
 
     public DLMSEMO() {
     }
-   
+
     protected String getDeviceID() {
         return "EMO";
     }
@@ -47,10 +47,10 @@ public class DLMSEMO extends DLMSSN {
     private static final byte IL_CAPUTURETIME=0;
     private static final byte IL_EVENT=12;
     private static final byte IL_DEMANDVALUE=13;
-    
+
     private static final long EV_FATAL_ERROR=           0x00000001;
     private static final long EV_DST_ACTIVE=            0x00000008;
-    private static final long EV_TIME_DATE_ADJUSTED=    0x00000020; 
+    private static final long EV_TIME_DATE_ADJUSTED=    0x00000020;
     private static final long EV_POWER_DOWN=            0x00000080;
     private static final long EV_CAPTURED_EVENTS=       0x000000A9; // Add new events...
 
@@ -89,15 +89,15 @@ public class DLMSEMO extends DLMSSN {
            calendar = ProtocolUtils.initCalendar(false,getTimeZone());
 
         for (i=(intervalList.length-1);i>=0;i--)
-        {  
+        {
             if (isRequestTimeZone()) {
             if (intervalList[i].getField(IL_CAPUTURETIME+11) != 0xff) {
                 if ((intervalList[i].getField(IL_CAPUTURETIME+11)&0x80) == 0x80) calendar = dstCalendar;
                 else calendar = stdCalendar;
-              } 
+              }
               else calendar = stdCalendar;
-            } 
-           
+            }
+
            // Build Timestamp
            calendar.set(Calendar.YEAR,(int)((intervalList[i].getField(IL_CAPUTURETIME)<<8) |
                                             intervalList[i].getField(IL_CAPUTURETIME+1)));
@@ -106,7 +106,7 @@ public class DLMSEMO extends DLMSSN {
            calendar.set(Calendar.HOUR_OF_DAY,(int)intervalList[i].getField(IL_CAPUTURETIME+5));
            calendar.set(Calendar.MINUTE,(int)intervalList[i].getField(IL_CAPUTURETIME+6));
            calendar.set(Calendar.SECOND,(int)intervalList[i].getField(IL_CAPUTURETIME+7));
-           
+
            int iField = (int)intervalList[i].getField(IL_EVENT) & (int)EV_CAPTURED_EVENTS;
            iField &= (EV_DST_ACTIVE^0xFFFFFFFF); // filter out DST flag
            for (int bit=0x1;bit!=0;bit<<=1) {
@@ -116,27 +116,27 @@ public class DLMSEMO extends DLMSSN {
                                                        (int)bit));
                }
            } // for (int bit=0x1;bit!=0;bit<<=1)
-           
-           // Fill profileData         
+
+           // Fill profileData
            IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
            for (t=0;t<bNROfChannels;t++)
               intervalData.addValue(new Long(intervalList[i].getField(IL_DEMANDVALUE+t)));
-           
+
            if (iField != 0) intervalData.addStatus(IntervalData.CORRUPTED);
-           
+
            if ((intervalList[i].getField(IL_EVENT) & EV_FATAL_ERROR) != 0)
-                  intervalData.addStatus(IntervalData.CORRUPTED);           
+                  intervalData.addStatus(IntervalData.CORRUPTED);
            if ((intervalList[i].getField(IL_EVENT) & EV_TIME_DATE_ADJUSTED) != 0)
-                  intervalData.addStatus(IntervalData.SHORTLONG);           
+                  intervalData.addStatus(IntervalData.SHORTLONG);
            if ((intervalList[i].getField(IL_EVENT) & EV_POWER_DOWN) != 0)
-                  intervalData.addStatus(IntervalData.POWERDOWN);           
-           
+                  intervalData.addStatus(IntervalData.POWERDOWN);
+
            profileData.addInterval(intervalData);
-           
+
         } // for (i=0;i<intervalList.length;i++)
-        
+
     } // ProfileData buildProfileData(...)
-    
+
     private long mapLogCodes(long lLogCode)
     {
         switch((int)lLogCode)
@@ -152,14 +152,14 @@ public class DLMSEMO extends DLMSSN {
         try {
             Iterator iterator= getRequiredKeys().iterator();
             while (iterator.hasNext())
-            { 
+            {
                 String key = (String) iterator.next();
                 if (properties.getProperty(key) == null)
                     throw new MissingPropertyException (key + " key missing");
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
             if (strID.length()>16) throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
             iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
@@ -173,7 +173,7 @@ public class DLMSEMO extends DLMSSN {
             iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());
         }
         catch (NumberFormatException e) {
-           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
+           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
         }
     }
 

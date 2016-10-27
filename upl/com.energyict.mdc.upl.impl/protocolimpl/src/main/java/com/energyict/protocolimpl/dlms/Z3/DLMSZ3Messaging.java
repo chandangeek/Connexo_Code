@@ -11,6 +11,9 @@ package com.energyict.protocolimpl.dlms.Z3;
  *
  */
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -47,12 +50,10 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
@@ -219,7 +220,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
             }
         }
 
-        this.password = properties.getProperty(MeterProtocol.PASSWORD, "");
+        this.password = properties.getProperty(MeterProtocol.Property.PASSWORD.getName(), "");
         this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("ConnectionMode", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
@@ -256,7 +257,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 //			case DLMSCOSEMGlobals.TYPEDESC_ARRAY:{
 //				Array array = new Array();
 ////				array.
-//				
+//
 //			};break;
 
                 case BOOLEAN: {

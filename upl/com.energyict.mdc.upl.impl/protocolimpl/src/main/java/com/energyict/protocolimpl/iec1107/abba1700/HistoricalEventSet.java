@@ -6,10 +6,15 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * @author  Koen
@@ -21,10 +26,10 @@ public class HistoricalEventSet {
     int phaseOverCurrentCount;
     int reverseRunCount;
     int remainingBattSupportTime;
-    
+
     List eventLogEntries=new ArrayList();
     TimeZone timeZone;
-    
+
     /**
      * Creates a new instance of HistoricalEventSet
      */
@@ -32,13 +37,13 @@ public class HistoricalEventSet {
         this.timeZone=timeZone;
         parse(data);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
-        strBuff.append("phaseFailureCount="+getPhaseFailureCount()+"\n"); 
-        strBuff.append("powerFailureCount="+getPowerFailureCount()+"\n"); 
-        strBuff.append("phaseOverCurrentCount="+getPhaseOverCurrentCount()+"\n"); 
-        strBuff.append("reverseRunCount="+getReverseRunCount()+"\n"); 
+        strBuff.append("phaseFailureCount="+getPhaseFailureCount()+"\n");
+        strBuff.append("powerFailureCount="+getPowerFailureCount()+"\n");
+        strBuff.append("phaseOverCurrentCount="+getPhaseOverCurrentCount()+"\n");
+        strBuff.append("reverseRunCount="+getReverseRunCount()+"\n");
         strBuff.append("remainingBattSupporttime="+ getRemainingBattSupportTime()+"\n");
         Iterator it = eventLogEntries.iterator();
         while(it.hasNext()) {
@@ -47,11 +52,11 @@ public class HistoricalEventSet {
         }
         return strBuff.toString();
     }
-    
+
     private void parse(byte[] data) throws ProtocolException {
         long shift;
         Date date;
-        
+
         // Phase failure
         setPhaseFailureCount(ProtocolUtils.getIntLE(data,0,2));
         shift = (long)ProtocolUtils.getIntLE(data,2,4)&0xFFFFFFFFL;
@@ -63,7 +68,7 @@ public class HistoricalEventSet {
         shift = (long)ProtocolUtils.getIntLE(data,10,4)&0xFFFFFFFFL;
         date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
         eventLogEntries.add(new EventLogEntry(date,ProtocolUtils.getIntLE(data,16,1)));
-        
+
         // Power failure
         setPowerFailureCount(ProtocolUtils.getIntLE(data,17,2));
         shift = (long)ProtocolUtils.getIntLE(data,19,4)&0xFFFFFFFFL;
@@ -75,8 +80,8 @@ public class HistoricalEventSet {
         shift = (long)ProtocolUtils.getIntLE(data,27,4)&0xFFFFFFFFL;
         date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
         eventLogEntries.add(new EventLogEntry(date,EventLogEntry.POWER_FAILURE));
-        
-        // Reverse Run 
+
+        // Reverse Run
         setReverseRunCount(ProtocolUtils.getIntLE(data,31,2));
         shift = (long)ProtocolUtils.getIntLE(data,33,4)&0xFFFFFFFFL;
         date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
@@ -87,7 +92,7 @@ public class HistoricalEventSet {
         shift = (long)ProtocolUtils.getIntLE(data,41,4)&0xFFFFFFFFL;
         date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
         eventLogEntries.add(new EventLogEntry(date,EventLogEntry.REVERSE_RUN));
-        
+
         // Overcurrent phase failure
         setPhaseOverCurrentCount(ProtocolUtils.getIntLE(data,45,2));
         shift = (long)ProtocolUtils.getIntLE(data,47,4)&0xFFFFFFFFL;
@@ -99,11 +104,11 @@ public class HistoricalEventSet {
         shift = (long)ProtocolUtils.getIntLE(data,55,4)&0xFFFFFFFFL;
         date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
         eventLogEntries.add(new EventLogEntry(date,EventLogEntry.PHASE_1_OVERCURRENT+ProtocolUtils.getIntLE(data,61,1)));
-        
+
         // Battery support time
         setRemainingBattSupportTime(ProtocolUtils.getIntLE(data,62,4));
     }
-    
+
     /**
      * Getter for property PhaseFailureCount.
      *
@@ -112,7 +117,7 @@ public class HistoricalEventSet {
     public int getPhaseFailureCount() {
         return phaseFailureCount;
     }
-    
+
     /**
      * Setter for property phaseFailureCount.
      *
@@ -121,7 +126,7 @@ public class HistoricalEventSet {
     public void setPhaseFailureCount(int phaseFailureCount) {
         this.phaseFailureCount = phaseFailureCount;
     }
-    
+
     /**
      * Getter for property PowerFailureCount.
      *
@@ -130,7 +135,7 @@ public class HistoricalEventSet {
     public int getPowerFailureCount() {
         return powerFailureCount;
     }
-    
+
     /**
      * Setter for property powerFailureCount.
      *
@@ -139,7 +144,7 @@ public class HistoricalEventSet {
     public void setPowerFailureCount(int powerFailureCount) {
         this.powerFailureCount = powerFailureCount;
     }
-    
+
     /**
      * Getter for property phaseOverCurrentCount.
      *
@@ -148,7 +153,7 @@ public class HistoricalEventSet {
     public int getPhaseOverCurrentCount() {
         return phaseOverCurrentCount;
     }
-    
+
     /**
      * Setter for property phaseOverCurrentCount.
      *
@@ -157,7 +162,7 @@ public class HistoricalEventSet {
     public void setPhaseOverCurrentCount(int phaseOverCurrentCount) {
         this.phaseOverCurrentCount = phaseOverCurrentCount;
     }
-    
+
     /**
      * Getter for property reverseRunCount.
      *
@@ -166,7 +171,7 @@ public class HistoricalEventSet {
     public int getReverseRunCount() {
         return reverseRunCount;
     }
-    
+
     /**
      * Setter for property reverseRunCount.
      *
@@ -175,7 +180,7 @@ public class HistoricalEventSet {
     public void setReverseRunCount(int reverseRunCount) {
         this.reverseRunCount = reverseRunCount;
     }
-    
+
     /**
      * Getter for property remainingBattSupporttime.
      *
@@ -184,7 +189,7 @@ public class HistoricalEventSet {
     public int getRemainingBattSupportTime() {
         return remainingBattSupportTime;
     }
-    
+
     /**
      * Setter for property remainingBattSupporttime.
      *

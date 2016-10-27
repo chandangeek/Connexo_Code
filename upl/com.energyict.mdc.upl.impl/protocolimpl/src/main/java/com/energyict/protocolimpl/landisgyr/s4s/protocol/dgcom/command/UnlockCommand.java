@@ -10,31 +10,32 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolException;
 
 /**
  *
  * @author Koen
  */
 public class UnlockCommand extends AbstractCommand {
-    
-    private String password;  
-    
+
+    private String password;
+
     /** Creates a new instance of TemplateCommand */
     public UnlockCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("UnlockCommand:\n");
         strBuff.append("   password="+getPassword()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     protected byte[] prepareBuild() {
         byte[] data=null;
         data = new byte[]{(byte)0xFF,0,0,0,0,0,0,0,0};
@@ -45,7 +46,7 @@ public class UnlockCommand extends AbstractCommand {
         setResponseData(false);
         return data;
     }
-    
+
     protected void parse(byte[] data) throws ProtocolException, ConnectionException, NestedIOException {
     }
 

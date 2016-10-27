@@ -1,15 +1,12 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimaran2p.core.ArreteJournalier;
@@ -20,21 +17,25 @@ import com.energyict.protocolimpl.edf.trimaran2p.core.TempsFonctionnement;
 import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
 import com.energyict.protocolimpl.edf.trimarandlms.common.RegisterNameFactory;
 
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * @author gna
  *
  */
 public class ObisCodeMapper {
-	
+
 	private Trimaran2P trimaran2P;
 	private Energies energie = null;
 	private ArreteJournalier arreteJournalier = null;
 	private Programmables programmables = null;
 	private TempsFonctionnement tempsFonctionnement = null;
 	private ArreteProgrammables arreteProgrammables = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public ObisCodeMapper() {
 	}
@@ -49,13 +50,13 @@ public class ObisCodeMapper {
 	public static void main(String[] args) {
 
 	}
-	
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo(RegisterNameFactory.findObisCode(obisCode));
     }
 
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-		
+
 		Quantity quan = null;
 		Date toTime = new Date();
 		Calendar tempCalendar = Calendar.getInstance(getTrimaran2P().getTimeZone());
@@ -74,20 +75,20 @@ public class ObisCodeMapper {
 					case 6:{quan = energie.getIxNRJcap(0).add(energie.getNRJcap_Reste(0));};break;
 					case 7:{quan = energie.getIxNRJind(1).add(energie.getNRJind_Reste(1));};break;
 					case 8:{quan = energie.getIxNRJcap(1).add(energie.getNRJcap_Reste(1));};break;
-					
+
 					case 140:{quan = energie.getIxNRJact(0).add(energie.getNRJact_Reste(0));};break;
 					case 141:{quan = energie.getIxNRJact(1).add(energie.getNRJact_Reste(1));};break;
 					case 142:{quan = energie.getIxNRJind(0).add(energie.getNRJind_Reste(0));};break;
 					case 143:{quan = energie.getIxNRJcap(0).add(energie.getNRJcap_Reste(0));};break;
 					case 144:{quan = energie.getIxNRJind(1).add(energie.getNRJind_Reste(1));};break;
 					case 145:{quan = energie.getIxNRJcap(1).add(energie.getNRJcap_Reste(1));};break;
-					
+
 					default:{throw new NoSuchRegisterException("Register with obisCode: " + obisCode.toString() + " is not supported.");}
 					}
 					return new RegisterValue(obisCode, quan, null, toTime);
 				}
 			}
-			
+
 			else if(register.getVariableName().isARRETE_JOURNALIER()){
 				if(arreteJournalier == null) {
 					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
@@ -110,7 +111,7 @@ public class ObisCodeMapper {
 					}
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
-				
+
 				else if(Math.abs(obisCode.getF()) == 21){
 //					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
 					toTime.setTime(tempCalendar.getTimeInMillis());
@@ -126,7 +127,7 @@ public class ObisCodeMapper {
 					}
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
-				
+
 				else if(Math.abs(obisCode.getF()) == 22){
 //					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
 					tempCalendar.add(Calendar.DAY_OF_MONTH, -1);
@@ -143,7 +144,7 @@ public class ObisCodeMapper {
 					}
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
-				
+
 				else if(Math.abs(obisCode.getF()) == 23){
 //					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
 					tempCalendar.add(Calendar.DAY_OF_MONTH, -2);
@@ -161,7 +162,7 @@ public class ObisCodeMapper {
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
 			}
-			
+
 			else if(register.getVariableName().isARRETES_PROGRAMMABLES()){
 				if(programmables == null) {
 					programmables = getTrimaran2P().getTrimaranObjectFactory().readProgrammablesIndex().getProgrammalbes(register.getVariableName().getCode());
@@ -190,7 +191,7 @@ public class ObisCodeMapper {
 					}
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
-				
+
 				else if((Math.abs(obisCode.getF()) == 1) || (Math.abs(obisCode.getF()) == 11)){
 					toTime.setTime(tempCalendar.getTimeInMillis());
 					if(register.getVariableName().getCode() == 120) {
@@ -210,7 +211,7 @@ public class ObisCodeMapper {
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
 			}
-			
+
 			else if(register.getVariableName().isTEMPS_FONCTIONNEMENT()){
 				if(obisCode.getF() == 255){
 					if(tempsFonctionnement == null) {

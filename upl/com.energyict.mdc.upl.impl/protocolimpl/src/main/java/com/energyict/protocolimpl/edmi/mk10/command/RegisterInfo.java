@@ -1,18 +1,19 @@
 /**
  * RegisterInfo.java
- * 
+ *
  * Created on 19-jan-2009, 15:09:15 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.edmi.mk10.command;
+
+import com.energyict.mdc.upl.ProtocolException;
+
+import com.energyict.protocol.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * @author jme

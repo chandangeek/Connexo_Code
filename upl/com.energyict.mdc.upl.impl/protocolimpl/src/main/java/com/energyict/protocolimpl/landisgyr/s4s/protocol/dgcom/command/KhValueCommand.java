@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.math.BigDecimal;
@@ -21,15 +22,15 @@ import java.math.BigDecimal;
  * @author Koen
  */
 public class KhValueCommand extends AbstractCommand {
-    
+
     private int khValue;
     private BigDecimal bdKhFactor;
-    
+
     /** Creates a new instance of TemplateCommand */
     public KhValueCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -37,12 +38,12 @@ public class KhValueCommand extends AbstractCommand {
         strBuff.append("   bdKhFactor="+getBdKhFactor()+"\n");
         strBuff.append("   khValue="+getKhValue()+"\n");
         return strBuff.toString();
-    } 
-    
+    }
+
     protected byte[] prepareBuild() throws ProtocolException {
         return new byte[]{(byte)0x6D,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws ProtocolException {
         int offset=0;
         setKhValue((int)ParseUtils.getBCD2LongLE(data, offset, 3));

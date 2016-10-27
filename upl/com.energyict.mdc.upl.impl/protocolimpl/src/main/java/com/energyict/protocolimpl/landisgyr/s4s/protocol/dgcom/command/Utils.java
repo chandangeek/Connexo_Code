@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -23,12 +24,12 @@ import java.util.TimeZone;
  * @author Koen
  */
 public class Utils {
-    
+
     /** Creates a new instance of Utils */
     public Utils() {
     }
-    
-    
+
+
     static public Date getTimestampwwhhddYYDDMM(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         try {
@@ -48,5 +49,5 @@ public class Utils {
         	else
         		throw new ProtocolException(e);
         }
-    }   
+    }
 }

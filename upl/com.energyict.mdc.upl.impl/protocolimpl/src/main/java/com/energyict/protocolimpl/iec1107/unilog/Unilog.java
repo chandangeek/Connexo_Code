@@ -6,10 +6,19 @@
 
 package com.energyict.protocolimpl.iec1107.unilog;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -20,7 +29,12 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -106,25 +120,25 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      */
     protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
-        if (properties.getProperty(MeterProtocol.ADDRESS) != null) {
-            pAddress = properties.getProperty(MeterProtocol.ADDRESS);
+        if (properties.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
+            pAddress = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.NODEID) != null) {
-            pNodeId = properties.getProperty(MeterProtocol.NODEID);
+        if (properties.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.SERIALNUMBER) != null) {
-            pSerialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+        if (properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.PASSWORD) != null) {
-            pPassword = properties.getProperty(MeterProtocol.PASSWORD);
+        if (properties.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
         }
 
-        if (properties.getProperty(MeterProtocol.PROFILEINTERVAL) != null) {
+        if (properties.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
             pProfileInterval = Integer.parseInt(properties
-                    .getProperty(MeterProtocol.PROFILEINTERVAL));
+                    .getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
         if (properties.getProperty(PK_TIMEOUT) != null) {
@@ -149,9 +163,8 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                     .getProperty(PK_IEC1107_COMPATIBLE));
         }
 
-        if (properties.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
-            pRountTripCorrection = Integer.parseInt(properties
-                    .getProperty(MeterProtocol.ROUNDTRIPCORR));
+        if (properties.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(properties.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
         this.software7E1 = !properties.getProperty(PK_SOFTWARE_7E1, "0").equalsIgnoreCase("0");
@@ -184,7 +197,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_ECHO_CANCELLING);
-        result.add(MeterProtocol.ROUNDTRIPCORR);
+        result.add(MeterProtocol.Property.ROUNDTRIPCORR.getName());
         result.add(PK_SOFTWARE_7E1);
         result.add(PK_CHANNEL_MAP);
         return result;

@@ -1,16 +1,25 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -21,7 +30,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,24 +127,24 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     public void setProperties(Properties p) throws InvalidPropertyException,
             MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.ADDRESS) != null) {
-            pAddress = p.getProperty(MeterProtocol.ADDRESS);
+        if (p.getProperty(MeterProtocol.Property.ADDRESS.getName()) != null) {
+            pAddress = p.getProperty(MeterProtocol.Property.ADDRESS.getName());
         }
 
-        if (p.getProperty(MeterProtocol.NODEID) != null) {
-            pNodeId = p.getProperty(MeterProtocol.NODEID);
+        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
         }
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
+        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.PASSWORD) != null) {
-            pPassword = Integer.parseInt(p.getProperty(MeterProtocol.PASSWORD));
+        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
+            pPassword = Integer.parseInt(p.getProperty(MeterProtocol.Property.PASSWORD.getName()));
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
@@ -140,12 +155,12 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
-            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.ROUNDTRIPCORR)).intValue();
+        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -191,7 +206,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add(MeterProtocol.ADDRESS);
+        result.add(MeterProtocol.Property.ADDRESS.getName());
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_EXTENDED_LOGGING);
@@ -355,7 +370,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         int baudrate = discoverInfo.getBaudrate();
 
         Properties p = new Properties();
-        p.setProperty(MeterProtocol.NODEID, nodeId == null ? "" : nodeId);
+        p.setProperty(MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         setProperties(p);
 
         init(cChannel.getInputStream(), cChannel.getOutputStream(), null, null);
@@ -503,71 +518,6 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
      */
     void setLogger(Logger logger) {
         this.logger = logger;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        Dialer dialer = null;
-        Ziv5Ctd ziv = new Ziv5Ctd();
-        try {
-
-            dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect("", 60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-
-            Properties properties = new Properties();
-            //properties.setProperty(MeterProtocol.ADDRESS,"4");
-            properties.setProperty(MeterProtocol.ADDRESS, "61");
-            properties.setProperty(MeterProtocol.PASSWORD, "2");
-            properties.setProperty("Retries", "5");
-            properties.setProperty("ProfileInterval", "300");
-            //   properties.setProperty(PK_EXTENDED_LOGGING,"1");
-            properties.setProperty(PK_FETCH_PROGRAM_PROFILE, "1");
-            properties.setProperty(MeterProtocol.SERIALNUMBER, "4d940f00");
-
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6:2.7");
-            //properties.setProperty("ChannelMap","1.5:1.7:1.1:2.5:2.6");
-
-            properties.setProperty("ChannelMap", "1.2"); //:1.5");
-            properties.setProperty("MeterType", "0");
-            ziv.setProperties(properties);
-
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                    SerialCommunicationChannel.DATABITS_8,
-                    SerialCommunicationChannel.PARITY_NONE,
-                    SerialCommunicationChannel.STOPBITS_1);
-
-            ziv.init(is, os, TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
-            ziv.connect();
-
-            Calendar c = Calendar.getInstance(ziv.getTimeZone());
-            c.set(2006, 3, 13, 0, 0);
-            Date start = c.getTime();
-
-            c.set(2006, 3, 15, 0, 0);
-            Date end = c.getTime();
-
-
-            ArrayList list =
-                    ziv.rFactory.getMeterEvents(start, end);
-
-
-            Iterator i = list.iterator();
-            while (i.hasNext()) {
-                System.out.println(i.next() + "\n");
-            }
-
-        } catch (LinkException e) {
-            System.out.println("Ziv5Ctd, DialerException, " + e.getMessage());
-            ziv.disconnect();
-        } catch (IOException e) {
-            System.out.println("Ziv5Ctd, IOException, " + e.getMessage());
-            ziv.disconnect();
-        }
-
-
     }
 
 }

@@ -6,28 +6,25 @@
 
 package com.energyict.protocolimpl.sctm.fbc;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocolimpl.sctm.base.*;
-import com.energyict.protocolimpl.metcom.Metcom;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.metcom.Metcom;
+import com.energyict.protocolimpl.sctm.base.AbstractSCTMRegisterReader;
+import com.energyict.protocolimpl.sctm.base.SCTMRegisterSpec;
 
 /**
  *
  * @author  Koen
  */
 public class FBCRegisters extends AbstractSCTMRegisterReader {
-    
+
     /** Creates a new instance of FBCRegisters */
     public FBCRegisters(Metcom metcom) {
         super(metcom);
         initSCTMRegisterSpecs();
     }
-    
+
     private void initSCTMRegisterSpecs() {
-        
+
         /*
          *   ----------- Use of ObisCode D field -----------
          *   D=8 energy cumulated
@@ -41,9 +38,9 @@ public class FBCRegisters extends AbstractSCTMRegisterReader {
          *   D=133 maximum demand B
          *   D=134 maximum demand C
          */
-        
+
         // 16 inputs energy updated every second
         getSctmRegisterSpecs().add(new SCTMRegisterSpec(102,01,16,ObisCode.fromString("1.1.82.8.0.255"),"input @ cumulative energy updated every second"));
-        
+
     } // private void initSCTMRegisterSpecs()
 }

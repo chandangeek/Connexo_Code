@@ -1,13 +1,23 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.upl.ProtocolException;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
+import com.energyict.dlms.cosem.IPv4Setup;
+import com.energyict.dlms.cosem.ObjectDefinition;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
@@ -23,7 +33,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
 /**
  * Copyrights EnergyICT

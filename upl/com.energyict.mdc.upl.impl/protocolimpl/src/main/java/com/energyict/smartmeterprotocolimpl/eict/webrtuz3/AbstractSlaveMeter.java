@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -11,7 +13,6 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,12 +1,23 @@
 package com.elster.us.protocolimpl.landisgyr.quad4;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -16,7 +27,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -150,12 +166,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
          */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
-            pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        if (p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getProperty(MeterProtocol.Property.SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(MeterProtocol.NODEID) != null) {
-            pNodeId = p.getProperty(MeterProtocol.NODEID);
+        if (p.getProperty(MeterProtocol.Property.NODEID.getName()) != null) {
+            pNodeId = p.getProperty(MeterProtocol.Property.NODEID.getName());
             //Node Address must be 7 digits
             if (pNodeId.length() != 7) {
                 throw new InvalidPropertyException("NodeId must be a string of 7 numbers long");
@@ -171,13 +187,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             }
         }
 
-        if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
+        if (p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.Property.PROFILEINTERVAL.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.PASSWORD) != null) {
-
-            String pwd = p.getProperty(MeterProtocol.PASSWORD);
+        if (p.getProperty(MeterProtocol.Property.PASSWORD.getName()) != null) {
+            String pwd = p.getProperty(MeterProtocol.Property.PASSWORD.getName());
             if (pwd == null) {
                 pwd = "    ";
             }
@@ -207,12 +222,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
         }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
-            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.ROUNDTRIPCORR));
+        if (p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        if (p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.Property.CORRECTTIME.getName()));
         }
 
         if (p.getProperty(PK_FORCE_DELAY) != null) {
@@ -306,7 +321,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add(MeterProtocol.NODEID);
+        result.add(MeterProtocol.Property.NODEID.getName());
         result.add(PK_NODE_PREFIX);
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
@@ -359,7 +374,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#connect()
      */
     public void connect() throws IOException {
@@ -391,7 +406,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
      */
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -406,7 +421,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -417,7 +432,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
@@ -426,9 +441,9 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     }
 
-    /* 
+    /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -441,7 +456,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -450,7 +465,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -576,7 +591,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
      */
     public byte[] getDataReadout() {

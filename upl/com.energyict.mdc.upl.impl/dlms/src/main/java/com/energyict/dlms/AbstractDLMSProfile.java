@@ -1,11 +1,12 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 

@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;

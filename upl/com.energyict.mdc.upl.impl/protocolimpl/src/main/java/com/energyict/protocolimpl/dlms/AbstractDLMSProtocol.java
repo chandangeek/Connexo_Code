@@ -388,9 +388,9 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
-        nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-        deviceId = properties.getProperty(MeterProtocol.ADDRESS, "");
-        serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+        nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
+        deviceId = properties.getProperty(MeterProtocol.Property.ADDRESS.getName(), "");
+        serialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
         connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "1"));
         clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32"));
         serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "1"));

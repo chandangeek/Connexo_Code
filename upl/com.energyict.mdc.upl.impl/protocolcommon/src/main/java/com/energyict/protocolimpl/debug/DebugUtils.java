@@ -2,10 +2,15 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cpo.Environment;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 /**

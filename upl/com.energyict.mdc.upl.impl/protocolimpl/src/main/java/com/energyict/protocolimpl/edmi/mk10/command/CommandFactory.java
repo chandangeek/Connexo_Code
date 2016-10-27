@@ -11,7 +11,8 @@
 package com.energyict.protocolimpl.edmi.mk10.command;
 
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 import java.io.IOException;

@@ -1,20 +1,28 @@
 package com.energyict.protocolimpl.messaging.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.messaging.MessageBuilder;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * Copyrights EnergyICT

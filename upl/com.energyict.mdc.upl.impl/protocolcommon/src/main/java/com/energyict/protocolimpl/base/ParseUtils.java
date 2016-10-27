@@ -6,8 +6,9 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -22,14 +23,14 @@ import java.util.TimeZone;
  * @author  Koen
  */
 public class ParseUtils {
-    
+
     final static private int BIG_ENDIAN=0;
     final static private int LITTLE_ENDIAN=1;
-    
+
     /** Creates a new instance of ParseUtils */
     public ParseUtils() {
     }
-    
+
     /**
      * Convert a 32 or 24 bit BCD floating point number to a BigDecimal
      * E.M MM MM MM where M MM MM MM is the 7 digits mantissa and E is the exponent
@@ -48,8 +49,8 @@ public class ParseUtils {
         BigDecimal bd = convertBCDFixedPoint(subData,0,length,(length-1)*8+4);
         bd = bd.movePointRight(exponent);
         return bd;
-    }    
-    
+    }
+
     /**
      * Convert a signed BCD fixed point number to a BigDecimal
      * @return BigDecimal value
@@ -78,15 +79,15 @@ public class ParseUtils {
             val = ParseUtils.getBCD2LongLE(subData, 0, length);
         } else {
             val = ParseUtils.getBCD2Long(subData, 0, length);
-        }        
+        }
         val = val*(sign);
         BigDecimal bd = BigDecimal.valueOf(val);
         bd = bd.movePointLeft(fpBitsRight/4);
         return bd;
-    }    
+    }
 
-    
-    
+
+
     /**
      * Convert a signed fixed point binary number to a BigDecimal
      * @return BigDecimal value
@@ -106,7 +107,7 @@ public class ParseUtils {
     public static BigDecimal convertNormSignedFP2NumberLE(byte data[], int offset, int length, int fpBitsRight) throws IOException {
         return convertNormSignedFP2Number(data,offset,length,LITTLE_ENDIAN,fpBitsRight);
     }
-    
+
     public static BigDecimal convertNormSignedFP2Number(byte data[], int offset, int length, int order, int fpBitsRight) throws IOException {
         long temp=0;
         long lS=0;
@@ -114,36 +115,36 @@ public class ParseUtils {
         long sign=0x1;
         long mask=0;
         long decimal=0x1;
-        
+
         if (length > 8) {
 			throw new ProtocolException("ParseUtils, convertNormSignedFP2Number, invalid length "+length);
 		}
-        
+
         if (order == LITTLE_ENDIAN) {
             temp = ProtocolUtils.getLongLE(data,offset,length);
         } else {
             temp = ProtocolUtils.getLong(data,offset,length);
         }
-        
+
         // build sign
         sign <<= (length*8-1);
-        
+
         // build decimal start fraction
         decimal <<= (fpBitsRight-1);
-        
+
         // build mask
         for (int i=0;i<length;i++) {
 			mask = (mask << 8) | 0xff;
 		}
-            
+
         // sign bit ?
         lS = ((temp & sign) != 0) ? -1 : 1;
-        
+
         // take two's complement
         if (lS==-1) {
 			temp = (temp^mask) + 1;
-		}     
-        
+		}
+
         // calc normalized value
         for (int i=0;i<fpBitsRight;i++) {
            lF = (double)(lF)/2;
@@ -153,14 +154,14 @@ public class ParseUtils {
         }
         // if ((val==0) && (lS==-1)) val=1;
         // use sign bit
-        
+
         temp >>= fpBitsRight;
         BigDecimal bd = BigDecimal.valueOf(temp).add(new BigDecimal(val)).multiply(BigDecimal.valueOf(lS));
         return bd;
-        
+
     } // public static BigDecimal convertNormSignedFP2Number(byte data[], int offset, int length, int order, int fpBitsRight)
-    
-// This is code i got from Marc Hastings at Itron. It does exactly the same as the code in convertNormSignedFP2Number(...)    
+
+// This is code i got from Marc Hastings at Itron. It does exactly the same as the code in convertNormSignedFP2Number(...)
 //    public static BigDecimal convertNormSignedFP2NumberNeg(byte rdata[], int offset, int length, int fpBitsRight) throws IOException {
 //        byte[] uchBuffer = ProtocolUtils.getSubArray2(rdata,offset,length);
 //        boolean sgn = false;
@@ -184,14 +185,14 @@ public class ParseUtils {
 //
 //        BigDecimal bd = new BigDecimal(value * ( sgn ? -1.0F : 1.0F ));
 //        return bd;
-//        
-//    } // public static BigDecimal convertNormSignedFP2NumberNeg(byte data[], int offset, int length, int order, int fpBitsRight)    
-    
+//
+//    } // public static BigDecimal convertNormSignedFP2NumberNeg(byte data[], int offset, int length, int order, int fpBitsRight)
+
     private static int i(byte val) {
         return (int)val&0xFF;
     }
-    
-    
+
+
     public static BigInteger getBigInteger(byte[] byteBuffer,int offset, int length) throws IOException {
         int shift = 0;
         BigInteger bi = BigInteger.ZERO;
@@ -208,8 +209,8 @@ public class ParseUtils {
             throw new ProtocolException("ProtocolUtils, getBigIntegerLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
         }
         return bi;
-    }    
-    
+    }
+
     public static BigInteger getBigIntegerLE(byte[] byteBuffer,int offset, int length) throws IOException {
         int shift = 0;
         BigInteger bi = BigInteger.ZERO;
@@ -226,8 +227,8 @@ public class ParseUtils {
             throw new ProtocolException("ProtocolUtils, getBigIntegerLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
         }
         return bi;
-    }    
-    
+    }
+
     public static byte[] getArray(long val,int nrOfBytes) {
         byte[] data = new byte[nrOfBytes];
         for(int i=0;i<data.length;i++) {
@@ -241,9 +242,9 @@ public class ParseUtils {
             data[i] = (byte)(val >> (i*8));
         }
         return data;
-    }    
-    
-    
+    }
+
+
     // Adjust the year of timeUnderTest in order to match closest to the systemTime
     public static void adjustYear(Calendar systemTime, Calendar timeUnderTest) {
         int systemYear = systemTime.get(Calendar.YEAR);
@@ -257,11 +258,11 @@ public class ParseUtils {
             if ((offset>-1) && (diff2 < diff)) {
                  saveOffset=offset;
             }
-            diff = diff2; 
+            diff = diff2;
         }
         timeUnderTest.set(Calendar.YEAR,systemYear+saveOffset);
-    }    
-    
+    }
+
     // Adjust the year of timeUnderTest in order to match closest to the systemTime BUT timeUnderTest must <= systemTime !!
     public static void adjustYear2(Calendar systemTime, Calendar timeUnderTest) {
         int systemYear = systemTime.get(Calendar.YEAR);
@@ -269,8 +270,8 @@ public class ParseUtils {
         if (timeUnderTest.getTime().after(systemTime.getTime())) {
             timeUnderTest.set(Calendar.YEAR,systemYear-1);
         }
-    }        
-    
+    }
+
     /**
      * Extract an long value from the BCD byte array starting at offset for length.
      * @param byteBuffer byte array
@@ -293,8 +294,8 @@ public class ParseUtils {
         }
         return val;
     }
-    
-    
+
+
     /**
      * Extract a int value from the BCD byte array starting at offset for length. The byte array is in little endial.
      * @return int value
@@ -309,7 +310,7 @@ public class ParseUtils {
         try {
             for(int i = offset; i < (offset+length) ; i++ ) {
                val += ((((ProtocolUtils.byte2int(byteBuffer[i]) >> 4) * 10) + (ProtocolUtils.byte2int(byteBuffer[i]) & 0x0F)) * multiplier);
-               multiplier *= 100; 
+               multiplier *= 100;
             }
         }
         catch(ArrayIndexOutOfBoundsException e) {
@@ -317,21 +318,21 @@ public class ParseUtils {
         }
         return val;
     }
-    
+
     public static void roundUp2nearestInterval(Calendar cal, int profileInterval) throws IOException {
         int rest = (int)(cal.getTime().getTime()/1000) % profileInterval;
         if (rest > 0) {
 			cal.add(Calendar.SECOND,profileInterval - rest);
 		}
     }
-    
+
     public static void roundDown2nearestInterval(Calendar cal, int profileInterval) {
         int rest = (int)(cal.getTime().getTime()/1000) % profileInterval;
         if (rest > 0) {
 			cal.add(Calendar.SECOND,(-1)*rest);
 		}
     }
-    
+
     public static boolean isOnIntervalBoundary(Calendar cal, int profileInterval) {
         if ((cal.getTime().getTime()%(profileInterval*1000)) == 0) {
 			return true;
@@ -339,7 +340,7 @@ public class ParseUtils {
 			return false;
 		}
     }
-    
+
     public static void addIntervalValues(IntervalData intervalData,IntervalData intervalData2Add) {
         IntervalData tempIntervalData = new IntervalData(intervalData.getEndTime());
         for (int i = 0 ; i < intervalData.getIntervalValues().size() ; i++) {
@@ -348,22 +349,22 @@ public class ParseUtils {
         }
         intervalData.setIntervalValues(tempIntervalData.getIntervalValues());
     }
-    
-    
+
+
     public static int getNrOfDays(Date from, Date to, TimeZone timeZone) throws ProtocolException {
         if (to.getTime() < from.getTime()) {
 			throw new ProtocolException("ParseUtils, getNrOfDays, error ("+from+") > ("+to+")");
 		}
         long offset = to.getTime() - from.getTime();
-        final long ONEDAY=24*60*60*1000;    
+        final long ONEDAY=24*60*60*1000;
         long tostd = to.getTime() + (long)timeZone.getOffset(to.getTime());
         long fromstd = from.getTime() + (long)timeZone.getOffset(from.getTime());
         long nrOfDaysToRetrieve = ((tostd/ONEDAY) - (fromstd/ONEDAY)) + 1;
-        return (int)nrOfDaysToRetrieve; 
+        return (int)nrOfDaysToRetrieve;
     }
-    
 
-    
+
+
     /**
      * returns a sub array from index to end
      * @param data source array
@@ -373,10 +374,10 @@ public class ParseUtils {
     public static byte[] getSubArray(byte[] data,int from) {
         byte[] subArray = new byte[data.length-from];
         for (int i=0;i<subArray.length;i++) {
-           subArray[i] = data[i+from]; 
+           subArray[i] = data[i+from];
         }
         return subArray;
-    }    
+    }
 
     /**
      * returns a sub array from index to end
@@ -387,11 +388,11 @@ public class ParseUtils {
     public static byte[] getSubArray(int[] data,int from) {
         byte[] subArray = new byte[data.length-from];
         for (int i=0;i<subArray.length;i++) {
-           subArray[i] = (byte)data[i+from]; 
+           subArray[i] = (byte)data[i+from];
         }
         return subArray;
-    } 
-    
+    }
+
     /**
      * returns a sub array from index to end
      * @param data source array
@@ -402,11 +403,11 @@ public class ParseUtils {
     public static int[] getSubArray(int[] data,int from,int length) {
         int[] subArray = new int[length];
         for (int i=0;i<subArray.length;i++) {
-           subArray[i] = data[i+from]; 
+           subArray[i] = data[i+from];
         }
         return subArray;
-    } 
-    
+    }
+
     /**
      * returns a sub array from offset to offset + length
      * @param data source array
@@ -417,29 +418,29 @@ public class ParseUtils {
     public static byte[] getSubArray(byte[] data,int offset, int length) {
         byte[] subArray = new byte[length];
         for (int i=0;i<subArray.length;i++) {
-           subArray[i] = data[i+offset]; 
+           subArray[i] = data[i+offset];
         }
         return subArray;
-    }    
+    }
     public static byte[] getSubArrayLE(byte[] data,int offset, int length) {
         byte[] subArray = new byte[length];
         for (int i=0;i<subArray.length;i++) {
-           subArray[i] = data[((subArray.length-1)-i)+offset]; 
+           subArray[i] = data[((subArray.length-1)-i)+offset];
         }
         return subArray;
-    }    
-    
-    
+    }
+
+
     public static byte[] convert2ByteArray(int[] data,int from) {
         byte[] subArray = new byte[(data.length-from)*2];
         for (int i=0;i<subArray.length;i+=2) {
-           subArray[i] = (byte)(data[i+from]/256); 
-           subArray[i+1] = (byte)(data[i+from]%256); 
+           subArray[i] = (byte)(data[i+from]/256);
+           subArray[i+1] = (byte)(data[i+from]%256);
         }
         return subArray;
-    } 
-    
-    
+    }
+
+
     /**
      *   Build a hexadecimal String representation from a long value and right space-extend the value to length.
      *   E.g. buildStringHex(10,4) returns "A   " String
@@ -476,7 +477,7 @@ public class ParseUtils {
 		}
         return strbuff.toString();
     }
-    
+
     public static String buildBinaryRepresentation(long val, int nrOfBits) {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<nrOfBits;i++) {
@@ -486,9 +487,9 @@ public class ParseUtils {
 				strBuff.append("0");
 			}
         }
-        return strBuff.toString();        
+        return strBuff.toString();
     }
-    
+
     public static byte[] extendWithNULL(byte[] rdata,int length) {
         byte[] data = new byte[length];
         System.arraycopy(rdata, 0, data, 0, rdata.length);
@@ -496,8 +497,8 @@ public class ParseUtils {
 			data[i]=0;
 		}
         return data;
-        
-    }    
+
+    }
     public static byte[] extendWithChar0(byte[] rdata,int length) {
         byte[] data = new byte[length];
         System.arraycopy(rdata, 0, data, 0, rdata.length);
@@ -505,7 +506,7 @@ public class ParseUtils {
 			data[i]=0x30;
 		}
         return data;
-        
+
     }
     public static byte[] extendWithWhiteSpace(byte[] rdata,int length) {
         byte[] data = new byte[length];
@@ -524,11 +525,11 @@ public class ParseUtils {
             data[i+1]=0x30;
         }
         return data;
-        
-    }    
-    
-    
-    
+
+    }
+
+
+
     public static long signExtend(long value, int nrOfBitsOfBase) {
         if ((value & (1<<(nrOfBitsOfBase-1))) != 0) {
             for (int i=nrOfBitsOfBase ; i<64;i++) {
@@ -537,7 +538,7 @@ public class ParseUtils {
         }
         return value;
     }
-    
+
     public static byte[] createBCDByteArray(long val,int nrOfBCDDigits) {
     	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
     	byte[] data = new byte[arrayLength];
@@ -560,15 +561,15 @@ public class ParseUtils {
     	}
     	return data;
     }
-    
-    
+
+
     public static byte[] applyMask(byte[] temp, long mask) {
         for (int i=0;i<temp.length;i++) {
        	 	temp[i] |= (mask >> (8*i));
         }
         return temp;
     }
-    
+
     public static byte[] createBCDByteArrayLEWithMask(String val,int nrOfBCDDigits) {
     	return createBCDByteArrayLEWithMask(Long.parseLong(val,16),nrOfBCDDigits);
     }
@@ -580,7 +581,7 @@ public class ParseUtils {
     	}
     	return data;
     }
-    
+
     public static byte[] stripByteArrayBrackets(byte[] byteArrayWithBrackets){
     	return (ProtocolUtils.stripBrackets(new String(byteArrayWithBrackets))).getBytes();
     }
@@ -623,40 +624,40 @@ public class ParseUtils {
 
     static public void main(String[] argv) {
         try {
-//            byte[] byteBuffer= new byte[]{(byte)0x09,(byte)0x99,0,0,0,0,0,0,0,0,0}; 
+//            byte[] byteBuffer= new byte[]{(byte)0x09,(byte)0x99,0,0,0,0,0,0,0,0,0};
 //            System.out.println(ParseUtils.getBCD2Long(byteBuffer, 0, 2));
-//            
+//
 //            long val=0x124567;
 //            byte[] data = ParseUtils.getArray(val,3);
 //            System.out.println("val=0x"+Long.toHexString(val)+", "+ProtocolUtils.outputHexString(data));
-//            
-//            val=0x124567; 
+//
+//            val=0x124567;
 //            System.out.println(buildStringHexExtendedWithSpaces(val,7));
-            
-//            byte[] byteBuffer= new byte[]{(byte)0xff,(byte)0xFE,(byte)0x76,(byte)0xF7,(byte)0xF9,(byte)0x20}; 
+
+//            byte[] byteBuffer= new byte[]{(byte)0xff,(byte)0xFE,(byte)0x76,(byte)0xF7,(byte)0xF9,(byte)0x20};
 //            //System.out.println(ParseUtils.convertNormSignedFP2NumberNeg(byteBuffer, 0, 6,16));
 //            //System.out.println(ParseUtils.convertNormSignedFP2Number(byteBuffer, 0, 6,16));
 //            System.out.println(ParseUtils.getBigInteger(byteBuffer, 2, 3));
 //            System.out.println(ParseUtils.getBigIntegerLE(byteBuffer, 2, 3));
-            
+
 //            System.out.println(ProtocolUtils.outputHexString(createBCDByteArrayLEWithMask("FFFFFFFF",8)));
-     
+
 //        	Calendar cal = Calendar.getInstance();
 //        	cal.add(Calendar.DATE, -1);
 //        	System.out.println(ParseUtils.getNrOfDays(cal.getTime(), new Date(), TimeZone.getTimeZone("ECT")));
-        	
+
 //            Calendar systemTime = ProtocolUtils.getCalendar(TimeZone.getTimeZone("CST"));
 //            Calendar timeUnderTest = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("CST"));
 //            timeUnderTest.set(Calendar.MONTH,11);
 //            timeUnderTest.set(Calendar.DAY_OF_MONTH,7);
-//            
+//
 //            ParseUtils.adjustYear(systemTime, timeUnderTest);
-//            
+//
 //            System.out.println("timeUnderTest="+timeUnderTest.getTime());
 //            System.out.println("systemTime="+systemTime.getTime());
-            
+
            // throw new IOException("test");
-        	
+
         	Calendar cal = Calendar.getInstance();
         	cal.set(Calendar.MINUTE,15);
         	cal.set(Calendar.SECOND,0);
@@ -664,13 +665,13 @@ public class ParseUtils {
         	System.out.println(cal.getTime());
         	roundUp2nearestInterval(cal, 900);
         	System.out.println(cal.getTime());
-        	
-        	
+
+
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 
     public static final String asHex(final byte[] data) {
@@ -684,5 +685,5 @@ public class ParseUtils {
         }
         return strBuff.toString();
     }
-    
+
 }

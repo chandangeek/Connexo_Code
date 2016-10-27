@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.coronis.wavelog.core.parameter;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.wavelog.WaveLog;
 
@@ -12,7 +13,7 @@ public class BatteryLifeDateEnd extends AbstractParameter {
 
 	private Calendar calendar;
 
-	
+
 	final Calendar getCalendar() {
 		return calendar;
 	}
@@ -21,7 +22,7 @@ public class BatteryLifeDateEnd extends AbstractParameter {
 		super(waveLog);
 	}
 
-	
+
 	@Override
 	ParameterId getParameterId() {
 		return ParameterId.BatteryLifeDateEnd;
@@ -29,7 +30,7 @@ public class BatteryLifeDateEnd extends AbstractParameter {
 
 	@Override
     protected void parse(byte[] data) throws IOException {
-		
+
 		long date = ProtocolUtils.getLong(data, 0, 7);
 		if (date == 0x01010101010101L) {
 			calendar = null;

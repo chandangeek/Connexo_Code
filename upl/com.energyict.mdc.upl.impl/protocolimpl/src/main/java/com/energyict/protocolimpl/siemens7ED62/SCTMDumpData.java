@@ -6,12 +6,15 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
@@ -22,20 +25,20 @@ import java.util.TimeZone;
  * @author  Koen
  */
 public class SCTMDumpData {
-    
+
 	private static final String FRAME_COUNTER_INDEX = new String(new byte[]{41, 13, 10, 49, 40});
 	private static final char STARTING_BRACKET = '(';
 	private static final char CLOSING_BRACKET = ')';
 	private static final char ASTERISK = '*';
-		
+
 	public static final String ENERMET_DUMP_DATETIME_SIGNATURE="yy-MM-dd HH:mm";
-    
+
     //byte[] frame;
     private String strFrame;
     private int bufferId;
-    
+
     private String datetimeSignature;
-    
+
     /** Creates a new instance of SCTMDumpData */
     public SCTMDumpData(byte[] frame, int bufferId) throws IOException {
         this(frame,ENERMET_DUMP_DATETIME_SIGNATURE,bufferId);
@@ -46,18 +49,18 @@ public class SCTMDumpData {
         if (frame == null) {
 			throw new NoSuchRegisterException("SCTMDumpData, no dump data to parse register value!");
 		}
-        
+
 //        FileOutputStream fos = new FileOutputStream(new File("C:\\dumpDataByteArray.bin"));
 //        fos.write(frame);
-        
+
         strFrame = new String(frame);
-        
+
         // filter out all leading zeros '0' and change .* by *
         strFrame = strFrame.replaceAll("\r\n0", "\r\n");
         strFrame = strFrame.replaceAll("\\.\\*", "*");
-        
+
     }
-    
+
     public String toString() {
         return strFrame;
     }
@@ -94,8 +97,8 @@ public class SCTMDumpData {
     	int index1 = -1;
     	int index2 = 0;
 //    	String strTest = strFrame.substring(64, 69).getBytes();
-    	if(strFrame.indexOf(FRAME_COUNTER_INDEX) < 0){	
-    		/* OLD and INCORRECT method 
+    	if(strFrame.indexOf(FRAME_COUNTER_INDEX) < 0){
+    		/* OLD and INCORRECT method
     		 * We still support this way of getting the billingCounter because this is commonly used code.
     		 * This way of doing always results in 99 (even after an overflow)
     		 */
@@ -114,36 +117,36 @@ public class SCTMDumpData {
                 int value = Integer.parseInt(strFrame.substring(index1+1,index2));
     				if (value>billingCounter) {
 						billingCounter = value;
-					}     
+					}
             }
             catch(NumberFormatException e) {
                 // absorb
             }
         }
-        
+
         return billingCounter;
-    		
+
     	} else {
     		/*
     		 * New and more correct method of getting the billingCounter.
     		 * The billingCounter will normally be the first value before an asterisk (*)
     		 * It is also the value between the '1(??)'
     		 */
-    		
+
     		index1 = strFrame.indexOf(FRAME_COUNTER_INDEX) + FRAME_COUNTER_INDEX.length();
     		index2 = strFrame.indexOf(CLOSING_BRACKET, index1);
     		billingCounter = Integer.parseInt(strFrame.substring(index1,index2));
     		return billingCounter;
-    		
+
     	}
-        
+
     }
-    
+
     public int getBillingCounterLength() {
-        
+
         int length=0;
         int index1=-1;
-        
+
         while(true) {
             index1 = strFrame.indexOf(ASTERISK,index1+1);
             if (index1 == -1) {
@@ -158,16 +161,16 @@ public class SCTMDumpData {
                 int value = Integer.parseInt(strFrame.substring(index1+1,index2));
                 if (strFrame.substring(index1+1,index2).length()>length) {
 					length = strFrame.substring(index1+1,index2).length();
-				}     
+				}
             }
             catch(NumberFormatException e) {
                 // absorb
             }
         }
-        
+
         return length;
     }
-    
+
     public Quantity getRegister(String strReg) throws IOException {
         String strRegister="\n"+strReg;
         Quantity quantity = parseQuantity(searchRegister(strRegister));
@@ -184,7 +187,7 @@ public class SCTMDumpData {
             return quantity;
         }
     }
-    
+
     private String findBaseRegister(String strRegister) throws IOException {
         if (hasBaseRegister(strRegister,".&")) {
 			return doGetBaseRegister(strRegister,".&"); // KV 04102004
@@ -200,7 +203,7 @@ public class SCTMDumpData {
 		}
         return null;
     }
-    
+
     private boolean hasBaseRegister(String strRegister,String strDelimiter) {
         if (strRegister.indexOf(strDelimiter) != -1) {
 			return true;
@@ -208,22 +211,22 @@ public class SCTMDumpData {
 			return false;
 		}
     }
-    
+
     private String doGetBaseRegister(String strRegister,String strDelimiter) throws IOException {
         //StringTokenizer st = new StringTokenizer(strRegister,strDelimiter);
         //return st.nextToken();
         // KV 04102004
         return strRegister.substring(0,strRegister.indexOf(strDelimiter));
     }
-    
+
     public String searchRegister(String strRegister) throws IOException {
        int iIndex = strFrame.indexOf(strRegister+STARTING_BRACKET);
        if (iIndex == -1) {
 		throw new NoSuchRegisterException("SCTMDumpData, searchRegister, register not found");
-	}       
+	}
        return strFrame.substring(iIndex);//-1);
     }
-    
+
     private Quantity parseQuantity(String val) throws IOException {
        StringBuffer stringBufferVal = new StringBuffer();
        StringBuffer stringBufferUnit = new StringBuffer();
@@ -238,20 +241,20 @@ public class SCTMDumpData {
 		} else if (((val.charAt(i) >= '0') && (val.charAt(i) <= '9')) || (val.charAt(i) == '.')) {
                if (state==1) {
 				stringBufferVal.append(val.charAt(i));
-			} 
+			}
            }
            else {
                if (state==2) {
 				stringBufferUnit.append(val.charAt(i));
-			} 
+			}
            }
        } // for (i=0;i<frame.length;i++)
-       
-       Quantity quantity = new Quantity(new BigDecimal(stringBufferVal.toString()), 
+
+       Quantity quantity = new Quantity(new BigDecimal(stringBufferVal.toString()),
                                Unit.get(stringBufferUnit.toString()));
        return quantity;
     }
-    
+
     static public byte[] readFile() {
         try {
             File file = new File("dumpekm.txt");
@@ -266,13 +269,13 @@ public class SCTMDumpData {
         }
         return null;
     }
-    
+
     public static void main(String[] args)
     {
         try {
             //String str = new String("1-1:F.F(00)\r\n1-1:0.0.0(62127388)\r\n1-1:0.1.0(01)\r\n1-1:1.2.1(00000.0*kW)\r\n1-1:1.2.2(00000.0*kW)\r\n1-1:1.2.3(00000.0*kW)\r\n1-1:1.2.4(00000.0*kW)\r\n1-1:1.6.1(000.0*kW)\r\n1-1:1.6.2(000.0*kW)\r\n1-1:1.6.3(000.0*kW)\r\n1-1:1.6.4(000.0*kW)\r\n1-1:1.8.1(0002000.030*kWh)\r\n1-1:1.8.2(0000000.0*kWh)\r\n1-1:1.8.3(0000000.0*kWh)\r\n1-1:1.8.4(0000000.0*kWh)\r\n1-1:5.8.1(9000000.123*kvarh)\r\n1-1:5.8.2(0000000.0*kvarh)\r\n1-1:5.8.3(0000000.0*kvarh)\r\n1-1:5.8.4(0000000.0*kvarh)\r\n1-1:8.8.1(0000000.0*kvarh)\r\n1-1:8.8.2(0000000.0*kvarh)\r\n1-1:8.8.3(0000000.0*kvarh)\r\n1-1:8.8.4(0000000.0*kvarh)\r\n!\r\n");
             //String str = new String("9.2(123456789*Wh)\r\n10.2(0001234*kWh)\r\n10.2&01(1234.567)\r\n9.2*00(0.56789)\r\n10.2*99(0000000)\r\n10.2*98(0000000)\r\n10.2*97(0000000)");
-            
+
             byte[] frame = readFile();
             SCTMDumpData dumpData = new SCTMDumpData(frame,0);
             Quantity q;
@@ -292,11 +295,11 @@ public class SCTMDumpData {
             System.out.println(q.toString());
             Date date = dumpData.getRegisterDateTime("6.1*49",TimeZone.getDefault());
             System.out.println(date.toString());
-            
+
             System.out.println(dumpData.getBillingCounter());
             q = dumpData.getRegister("1"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
             System.out.println(q.toString());
-            
+
 //            q = dumpData.getRegister("6.1*21"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
 //            System.out.println(q.toString());
 //            q = dumpData.getRegister("6.1*22"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
@@ -307,21 +310,21 @@ public class SCTMDumpData {
 //            System.out.println(q.toString());
 //            Date date = dumpData.getRegisterDateTime("8.1",TimeZone.getTimeZone("WET"));
 //            System.out.println(date);
-//            
+//
 //            System.out.println("billingCounter = "+dumpData.getBillingCounter());
-//            
+//
 //            q = dumpData.getRegister("10.2&01"); //dumpData.getRegister("1-1:5.8.1");
 //            System.out.println(q.toString());
 //            q = dumpData.getRegister("9.2*00"); //dumpData.getRegister("1-1:5.8.1");
 //            System.out.println(q.toString());
         }
         catch(Exception  e) {
-           System.out.println(e.getMessage());   
+           System.out.println(e.getMessage());
         }
-        
-        
+
+
     }
-    
+
     /**
      * Getter for property bufferId.
      * @return Value of property bufferId.
@@ -329,5 +332,5 @@ public class SCTMDumpData {
     public int getBufferId() {
         return bufferId;
     }
-    
+
 }

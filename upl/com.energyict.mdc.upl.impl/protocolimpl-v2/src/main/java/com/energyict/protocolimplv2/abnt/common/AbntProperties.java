@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
 
@@ -15,7 +16,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DELAY_AFTER_ERROR;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.RETRIES;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 
 /**
  * @author sva
@@ -51,7 +58,7 @@ public class AbntProperties implements ConfigurationSupport {
      * The SerialNumber of the concentrator
      */
     public String getSerialNumber() {
-        return getProperties().getTypedProperty(MeterProtocol.SERIALNUMBER);
+        return getProperties().getTypedProperty(MeterProtocol.Property.SERIALNUMBER.getName());
     }
 
     public int getReaderSerialNumber() {

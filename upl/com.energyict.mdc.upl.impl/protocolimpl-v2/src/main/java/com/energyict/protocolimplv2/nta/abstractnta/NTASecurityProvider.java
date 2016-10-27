@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.IOException;

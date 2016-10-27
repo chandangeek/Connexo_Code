@@ -1,16 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -32,11 +30,11 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     protected Properties getProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "900");
-        properties.setProperty(MeterProtocol.PASSWORD, "E5i9c3t20");
+        properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+        properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+        properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
+        properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "900");
+        properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "E5i9c3t20");
 
         properties.setProperty("Retries", "10");
         properties.setProperty("Timeout", "60000");

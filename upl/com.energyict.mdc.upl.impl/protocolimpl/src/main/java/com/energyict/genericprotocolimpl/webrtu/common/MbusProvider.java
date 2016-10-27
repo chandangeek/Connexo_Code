@@ -1,12 +1,13 @@
 package com.energyict.genericprotocolimpl.webrtu.common;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 

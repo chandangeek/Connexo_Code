@@ -6,8 +6,9 @@
 
 package com.energyict.dlms;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.StringTokenizer;

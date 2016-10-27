@@ -1,7 +1,8 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 

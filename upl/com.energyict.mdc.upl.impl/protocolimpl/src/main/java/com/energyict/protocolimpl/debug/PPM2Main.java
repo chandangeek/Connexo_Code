@@ -3,13 +3,6 @@
  */
 package com.energyict.protocolimpl.debug;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
@@ -18,6 +11,13 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.iec1107.ppm.PPM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class can be used to test the PPM2 protocol without the need of the
@@ -70,18 +70,18 @@ public class PPM2Main {
 	private static Properties getProperties() {
 		Properties properties = new Properties();
 
-		properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-		properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-		properties.setProperty(MeterProtocol.CORRECTTIME, "0");
+		properties.setProperty(MeterProtocol.Property.MAXTIMEDIFF.getName(), "300");
+		properties.setProperty(MeterProtocol.Property.MINTIMEDIFF.getName(), "1");
+		properties.setProperty(MeterProtocol.Property.CORRECTTIME.getName(), "0");
 
 		properties.setProperty("Retries", "3");
 		properties.setProperty("Timeout", "5000");
 
 		properties.setProperty("OPUS", "0");
 
-		properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-		properties.setProperty(MeterProtocol.PASSWORD, "ABCD0002");
-		properties.setProperty(MeterProtocol.SERIALNUMBER, "--------K9901330");
+		properties.setProperty(MeterProtocol.Property.PROFILEINTERVAL.getName(), "1800");
+		properties.setProperty(MeterProtocol.Property.PASSWORD.getName(), "ABCD0002");
+		properties.setProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "--------K9901330");
 
 		return properties;
 	}

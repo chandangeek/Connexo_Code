@@ -10,10 +10,18 @@
 
 package com.energyict.protocolimpl.itron.sentinel;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
@@ -34,14 +42,16 @@ import com.energyict.protocolimpl.meteridentification.SentinelItron;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+
 /**
  *
  * @author  Koen
  * @author James Fox
- * @beginchanges
- * @endchanges
  */
 public class Sentinel extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
@@ -69,143 +79,6 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
      * Creates a new instance of Sentinel
      */
     public Sentinel() {
-    }
-
-    static public void main(String[] args) {
-        try {
-            String[] phones = new String[]{"2093343019", "166.161.129.236:6100"};
-            String[] passwords = new String[]{"READ", "READ"};
-            String[] securityLevels = new String[]{"1", "1"};
-            int select = 1;
-            String dialInternational = "0001";
-
-            // ********************** Dialer **********************
-            //Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            //Dialer dialer = DialerFactory.getOpticalDialer().newDialer();
-
-            Dialer dialer = DialerFactory.get("IPDIALER").newDialer();
-            dialer.init("TCP01");
-            dialer.connect(phones[select], 90000);
-
-//            Dialer dialer = DialerFactory.getDefault().newDialer();
-//            dialer.init("COM1"); //,"AT&FM0E0Q0V1&C1&D2");
-//            dialer.getSerialCommunicationChannel().setParams(9600,
-//                                                             SerialCommunicationChannel.DATABITS_8,
-//                                                             SerialCommunicationChannel.PARITY_NONE,
-//                                                             SerialCommunicationChannel.STOPBITS_1);
-//            dialer.connect(dialInternational+phones[select],90000);
-//
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-            //properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty(MeterProtocol.PASSWORD, passwords[select]);
-            properties.setProperty("SecurityLevel", securityLevels[select]);
-            properties.setProperty("ChannelMap", "1,1");
-            properties.setProperty("C12UserId", "2");
-
-            // ********************** EictRtuModbus **********************
-            Sentinel sentinel = new Sentinel();
-            if (DialerMarker.hasOpticalMarker(dialer))
-                sentinel.enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            sentinel.setHalfDuplexController(dialer.getHalfDuplexController());
-            sentinel.setProperties(properties);
-            sentinel.init(dialer.getInputStream(), dialer.getOutputStream(), TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
-            sentinel.connect();
-
-
-            System.out.println(sentinel.getDataReadFactory().getConstantsDataRead());
-
-
-            System.out.println(sentinel.getStandardTableFactory().getDeviceIdentificationTable());
-
-            System.out.println(sentinel.getStandardTableFactory().getManufacturerIdentificationTable());
-            System.out.println(sentinel.getStandardTableFactory().getConfigurationTable());
-            System.out.println(sentinel.getStandardTableFactory().getEndDeviceModeAndStatusTable());
-//            System.out.println(sentinel.getManufacturerTableFactory().getGEDeviceTable());
-            System.out.println(sentinel.getStandardTableFactory().getDeviceIdentificationTable());
-//
-            System.out.println(sentinel.getStandardTableFactory().getClockTable());
-
-            //byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            sentinel.getPSEMServiceFactory().secure(password);
-
-            //System.out.println(sentinel.getManufacturerTableFactory().getMeterProgramConstants1());
-            try {
-                System.out.println(sentinel.getStandardTableFactory().getActualLogTable());
-            } catch (IOException e) {
-                System.out.println("Table not supported! " + e.toString());
-            }
-            try {
-                System.out.println(sentinel.getStandardTableFactory().getEventsIdentificationTable());
-            } catch (IOException e) {
-                System.out.println("Table not supported! " + e.toString());
-            }
-
-//            System.out.println(sentinel.getManufacturerTableFactory().getMeterProgramConstants2());
-//            System.out.println(sentinel.getManufacturerTableFactory().getDisplayConfigurationTable());
-//            System.out.println(sentinel.getManufacturerTableFactory().getScaleFactorTable());
-//            System.out.println(sentinel.getManufacturerTableFactory().getElectricalServiceConfiguration());
-//            System.out.println(sentinel.getManufacturerTableFactory().getElectricalServiceStatus());
-//
-            System.out.println(sentinel.getStandardTableFactory().getActualSourcesLimitingTable());
-            System.out.println(sentinel.getStandardTableFactory().getDemandControlTable());
-            System.out.println(sentinel.getStandardTableFactory().getDataControlTable());
-            System.out.println(sentinel.getStandardTableFactory().getConstantsTable());
-            System.out.println(sentinel.getStandardTableFactory().getSourceDefinitionTable());
-            System.out.println(sentinel.getStandardTableFactory().getActualRegisterTable());
-            System.out.println(sentinel.getStandardTableFactory().getDataSelectionTable());
-            System.out.println(sentinel.getStandardTableFactory().getCurrentRegisterDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getPreviousSeasonDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getPreviousDemandResetDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getSelfReadDataTable());
-            //System.out.println(sentinel.getStandardTableFactory().getPresentRegisterSelectionTable());
-            System.out.println(sentinel.getStandardTableFactory().getPresentRegisterDataTable());
-            System.out.println(sentinel.getStandardTableFactory().getActualTimeAndTOUTable());
-            System.out.println(sentinel.getStandardTableFactory().getTimeOffsetTable());
-            System.out.println(sentinel.getStandardTableFactory().getCalendarTable());
-
-
-            // set time
-            //sentinel.setTime();
-
-//            System.out.println(sentinel.getStandardTableFactory().getClockStateTable());
-//            System.out.println(sentinel.getStandardTableFactory().getActualLoadProfileTable());
-//            System.out.println(sentinel.getStandardTableFactory().getLoadProfileControlTable());
-//            System.out.println(sentinel.getStandardTableFactory().getLoadProfileStatusTable());
-
-
-//            byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            sentinel.getPSEMServiceFactory().secure(password);
-
-
-//System.out.println("KV_DEBUG> program manufacturer specific table");
-//sentinel.getPSEMServiceFactory().fullWrite(66, new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//sentinel.getManufacturerTableFactory().getMeterProgramConstants1().setTableData(new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//sentinel.getManufacturerTableFactory().getMeterProgramConstants1().transfer();
-
-
-//            Calendar cal = Calendar.getInstance();
-//            cal.add(Calendar.DAY_OF_MONTH,-4);
-//            System.out.println(sentinel.getProfileData(cal.getTime(),true));
-
-            System.out.println(sentinel.getFirmwareVersion());
-
-
-            sentinel.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -258,15 +131,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     private String replaceSpaces(String c12User) {
-
         return c12User;
-
-//        byte[] temp = new byte[10];
-//        for (int i=0;i<temp.length;i++)
-//            temp[i] = 0x20;
-//        System.arraycopy(c12User.getBytes(), 0, temp, 0, c12User.getBytes().length);
-//        String user = new String(temp);
-//        return user.replace(' ', '\0');
     }
 
     protected void doDisConnect() throws IOException {
@@ -275,7 +140,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"0"));
+        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.Property.NODEID.getName(),"0"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         maxNrPackets = Integer.parseInt(properties.getProperty("MaxNrPackets", "1"), 16);
@@ -284,18 +149,17 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getProperty("ConvertRegisterReadsToKiloUnits", "false"));
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("C12User");
-        result.add("C12UserId");
-        result.add("MaxNrPackets");
-        result.add("ReadLoadProfilesChunked");
-        result.add("ChunkSize");
-        result.add("ConvertRegisterReadsToKiloUnits");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                "C12User",
+                "C12UserId",
+                "MaxNrPackets",
+                "ReadLoadProfilesChunked",
+                "ChunkSize",
+                "ConvertRegisterReadsToKiloUnits");
     }
 
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
@@ -345,14 +209,14 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     /*
      * Override this method if the subclass wants to set a specific register
      */
-    public void setRegister(String name, String value) throws IOException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
 
     }
 
     /*
      * Override this method if the subclass wants to get a specific register
      */
-    public String getRegister(String name) throws IOException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -370,7 +234,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
 
 /*
         strBuff.append(getStandardTableFactory().getConfigurationTable());
@@ -385,51 +249,56 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
         strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n");
 
-        strBuff.append(getDataReadFactory().getConstantsDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCapabilitiesDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getConstantsDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCapabilitiesDataRead()).append("\n");
 
-        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-            strBuff.append(getDataReadFactory().getClockRelatedDataRead()+"\n");
+        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+            strBuff.append(getDataReadFactory().getClockRelatedDataRead()).append("\n");
+        }
 
-        strBuff.append(getDataReadFactory().getQuantityIdentificationDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getQuantityIdentificationDataRead()).append("\n");
 
-        strBuff.append(getDataReadFactory().getCurrentStateDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCurrentEnergyDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCurrentDemandDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getCurrentCumulativeDemandDataRead()+"\n");
-        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-            strBuff.append(getDataReadFactory().getCurrentDemandTimeOfOccurenceDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getCurrentStateDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCurrentEnergyDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCurrentDemandDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getCurrentCumulativeDemandDataRead()).append("\n");
+        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+            strBuff.append(getDataReadFactory().getCurrentDemandTimeOfOccurenceDataRead()).append("\n");
+        }
 
-        strBuff.append(getDataReadFactory().getLastBillingPeriodStateDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getLastBillingPeriodEnergyDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getLastBillingPeriodDemandDataRead()+"\n");
-        strBuff.append(getDataReadFactory().getLastBillingPeriodCumulativeDemandDataRead()+"\n");
-        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-            strBuff.append(getDataReadFactory().getLastBillingPeriodDemandTimeOfOccurenceDataRead()+"\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodStateDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodEnergyDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodDemandDataRead()).append("\n");
+        strBuff.append(getDataReadFactory().getLastBillingPeriodCumulativeDemandDataRead()).append("\n");
+        if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+            strBuff.append(getDataReadFactory().getLastBillingPeriodDemandTimeOfOccurenceDataRead()).append("\n");
+        }
 
 
         if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfTOURates() > 0) {
-            strBuff.append(getDataReadFactory().getLastSeasonStateDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSeasonEnergyDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSeasonDemandDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSeasonCumulativeDemandDataRead()+"\n");
-            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-                strBuff.append(getDataReadFactory().getLastSeasonDemandTimeOfOccurenceDataRead()+"\n");
+            strBuff.append(getDataReadFactory().getLastSeasonStateDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSeasonEnergyDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSeasonDemandDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSeasonCumulativeDemandDataRead()).append("\n");
+            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+                strBuff.append(getDataReadFactory().getLastSeasonDemandTimeOfOccurenceDataRead()).append("\n");
+            }
         }
 
         if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasValidSelfReadData()) {
-            strBuff.append(getDataReadFactory().getLastSelfReadStateDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSelfReadEnergyDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSelfReadDemandDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLastSelfReadCumulativeDemandDataRead()+"\n");
-            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock())
-                strBuff.append(getDataReadFactory().getLastSelfReadDemandTimeOfOccurenceDataRead()+"\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadStateDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadEnergyDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadDemandDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLastSelfReadCumulativeDemandDataRead()).append("\n");
+            if (getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
+                strBuff.append(getDataReadFactory().getLastSelfReadDemandTimeOfOccurenceDataRead()).append("\n");
+            }
         }
 
         if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels() > 0) {
-            strBuff.append(getDataReadFactory().getLoadProfileQuantitiesDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLoadProfilePulseWeightsDataRead()+"\n");
-            strBuff.append(getDataReadFactory().getLoadProfilePreliminaryDataRead() + "\n");
+            strBuff.append(getDataReadFactory().getLoadProfileQuantitiesDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLoadProfilePulseWeightsDataRead()).append("\n");
+            strBuff.append(getDataReadFactory().getLoadProfilePreliminaryDataRead()).append("\n");
 
         }
 
@@ -439,48 +308,90 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
         while(true) {
             try {
-                if (skip<=0) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDeviceIdentificationTable());}
-                if (skip<=1) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConfigurationTable());}
-                if (skip<=2) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEndDeviceModeAndStatusTable());}
-                if (skip<=3) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getManufacturerIdentificationTable());}
-                if (skip<=4) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualSourcesLimitingTable());}
-                if (skip<=5) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getUnitOfMeasureEntryTable(true));}
+                if (skip<=0) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getDeviceIdentificationTable());}
+                if (skip<=1) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getConfigurationTable());}
+                if (skip<=2) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getEndDeviceModeAndStatusTable());}
+                if (skip<=3) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getManufacturerIdentificationTable());}
+                if (skip<=4) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getActualSourcesLimitingTable());}
+                if (skip<=5) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getUnitOfMeasureEntryTable(true));}
 
-                if (skip<=6) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDemandControlTable());}
-                if (skip<=7) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataControlTable());}
-                if (skip<=8) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConstantsTable(true));}
-                if (skip<=9) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSourceDefinitionTable(true));}
-                if (skip<=10) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualRegisterTable());}
-                if (skip<=11) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataSelectionTable());}
-                if (skip<=12) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCurrentRegisterDataTable(true));}
-                if (skip<=13) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousSeasonDataTable(true));}
-                if (skip<=14) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousDemandResetDataTable(true));}
-                if (skip<=15) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSelfReadDataTable(true));}
-                if (skip<=16) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPresentRegisterDataTable(true));}
-                if (skip<=17) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualTimeAndTOUTable());}
-                if (skip<=18) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getTimeOffsetTable());}
-                if (skip<=19) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCalendarTable());}
-                if (skip<=20) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getClockTable());}
-                if (skip<=21) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLoadProfileTable());}
-                if (skip<=22) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileControlTable());}
-                if (skip<=23) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileStatusTable());}
-                if (skip<=24) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLogTable());}
-                if (skip<=25) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventsIdentificationTable());}
-                if (skip<=26) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogControlTable());}
-                if (skip<=27) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogDataTable());}
-                if (skip<=28) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogControlTable());}
-                if (skip<=29) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableHeader());}
+                if (skip<=6) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getDemandControlTable());}
+                if (skip<=7) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getDataControlTable());}
+                if (skip<=8) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getConstantsTable(true));}
+                if (skip<=9) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getSourceDefinitionTable(true));}
+                if (skip<=10) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getActualRegisterTable());}
+                if (skip<=11) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getDataSelectionTable());}
+                if (skip<=12) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getCurrentRegisterDataTable(true));}
+                if (skip<=13) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getPreviousSeasonDataTable(true));}
+                if (skip<=14) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getPreviousDemandResetDataTable(true));}
+                if (skip<=15) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getSelfReadDataTable(true));}
+                if (skip<=16) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getPresentRegisterDataTable(true));}
+                if (skip<=17) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getActualTimeAndTOUTable());}
+                if (skip<=18) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getTimeOffsetTable());}
+                if (skip<=19) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getCalendarTable());}
+                if (skip<=20) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getClockTable());}
+                if (skip<=21) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getActualLoadProfileTable());}
+                if (skip<=22) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getLoadProfileControlTable());}
+                if (skip<=23) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getLoadProfileStatusTable());}
+                if (skip<=24) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getActualLogTable());}
+                if (skip<=25) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getEventsIdentificationTable());}
+                if (skip<=26) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getHistoryLogControlTable());}
+                if (skip<=27) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getHistoryLogDataTable());}
+                if (skip<=28) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getEventLogControlTable());}
+                if (skip<=29) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getEventLogDataTableHeader());}
 //                if (skip<=31) { skip++;strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n"+getManufacturerTableFactory().getFeatureParameters());}
 //                if (skip<=32) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getServiceTypeTable());}
 //                if (skip<=33) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterFactors());}
 //                if (skip<=34) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterStatus());}
 //                if (skip<=35) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getS4Configuration());}
-                if (skip<=36) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getObisCodeInfoFactory().toString());}
+                if (skip<=36) { skip++;
+                    strBuff.append("------------------------------------------------------------------------------------------------\n").append(getObisCodeInfoFactory().toString());}
                 break;
             }
             catch(IOException e) {
 //e.printStackTrace();       // KV_DEBUG
-                strBuff.append("Table not supported! "+e.toString()+"\n");
+                strBuff.append("Table not supported! ").append(e.toString()).append("\n");
             }
         }
 
@@ -500,10 +411,11 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     public int getProfileInterval() throws IOException {
-        if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels()>0)
+        if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels()>0) {
             return getDataReadFactory().getLoadProfilePreliminaryDataRead().getLoadProfileIntervalLength() * 60;
-        else
+        } else {
             return getInfoTypeProfileInterval();
+        }
     }
 
     public TimeZone gettimeZone() {
@@ -535,8 +447,9 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
-        if (obisCodeInfoFactory == null)
-            obisCodeInfoFactory=new ObisCodeInfoFactory(this, convertRegisterReadsToKiloUnits);
+        if (obisCodeInfoFactory == null) {
+            obisCodeInfoFactory = new ObisCodeInfoFactory(this, convertRegisterReadsToKiloUnits);
+        }
         return obisCodeInfoFactory;
     }
 

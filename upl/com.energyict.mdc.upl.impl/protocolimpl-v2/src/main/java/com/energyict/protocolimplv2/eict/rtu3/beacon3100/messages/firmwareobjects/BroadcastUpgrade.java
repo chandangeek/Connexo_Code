@@ -1,31 +1,35 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
-import com.energyict.cpo.ObjectMapperFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.ProtocolException;
+
+import com.energyict.cpo.ObjectMapperFactory;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
@@ -151,7 +155,7 @@ public class BroadcastUpgrade {
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
-        blockTransferProperties.getProperties().setProperty(MeterProtocol.NODEID, BigDecimal.ONE);
+        blockTransferProperties.getProperties().setProperty(MeterProtocol.Property.NODEID.getName(), BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(Beacon3100ConfigurationSupport.READCACHE_PROPERTY, false);
 
         //Note that all meters will have the same AK and broadcast EK. (this is defined in the IDIS P2 spec)

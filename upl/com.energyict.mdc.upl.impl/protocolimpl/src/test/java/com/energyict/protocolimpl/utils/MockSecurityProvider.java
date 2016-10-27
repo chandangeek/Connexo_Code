@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -13,7 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class MockSecurityProvider implements SecurityProvider{
-	
+
 	private String algorithm;
 	private String[] possibleAlgorithms = new String[]{"","","","MD5","SHA-1","GMAC"};
 	private byte[] cTOs;
@@ -23,9 +24,9 @@ public class MockSecurityProvider implements SecurityProvider{
 	private byte[] hlsSecret;
 	private byte[] callingAuthenticationValue;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
-	
+
 	public MockSecurityProvider(){
-		
+
 	}
 
     /**
@@ -74,7 +75,7 @@ public class MockSecurityProvider implements SecurityProvider{
 	public void setAuthenticationKey(byte[] ak){
 		this.authenticationKey = ak;
 	}
-	
+
 	/**
 	 * Getter for the CallingAuthenticationValue (the challenge from the server/meter)
 	 * @return the CallingAuthenticationValue
@@ -102,11 +103,11 @@ public class MockSecurityProvider implements SecurityProvider{
 	public byte[] getGlobalKey() {
 		return this.globalKey;
 	}
-	
+
 	public void setGlobalkey(byte[] gk){
 		this.globalKey = gk;
 	}
-	
+
 	/**
 	 * Getter for the HLSSecret
 	 * @return the HLSSecret
@@ -118,7 +119,7 @@ public class MockSecurityProvider implements SecurityProvider{
 			return hlsSecret;
 		}
 	}
-	
+
 	/**
 	 * Setter of the HLS secret (as a byteArray)
 	 * @param hls - the HLS Secret as a byteArray
@@ -153,15 +154,15 @@ public class MockSecurityProvider implements SecurityProvider{
 	public void setPossibleAlgorithms(String[] possibleAlgorithms) {
 		this.possibleAlgorithms = possibleAlgorithms;
 	}
-	
+
 	public byte[] getCTOs() {
 		return cTOs;
 	}
-    
+
 	public void setCTOs(byte[] os) {
 		cTOs = os;
 	}
-	
+
 	private byte[] encrypt(byte[] plainText) throws IOException {
 		try {
 			byte[] digest;

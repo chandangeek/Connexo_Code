@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -9,9 +11,17 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.MacAddressSetup;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.common.DLMSStoredValues;
@@ -703,7 +713,7 @@ public class PrimeRegisters {
      * @param index         0, 1 or 2.
      * @param objectFactory The COSEM object factory used to fetch the object.
      * @return The register value.
-     * @throws com.energyict.protocol.NoSuchRegisterException If the object could not be obtained or is of the wrong type.
+     * @throws NoSuchRegisterException If the object could not be obtained or is of the wrong type.
      * @throws java.io.IOException                            If an IO error occurs while fetching the object.
      */
     private final RegisterValue getMulticastIdentifier(final CosemObjectFactory objectFactory, final int index) throws NoSuchRegisterException, IOException {

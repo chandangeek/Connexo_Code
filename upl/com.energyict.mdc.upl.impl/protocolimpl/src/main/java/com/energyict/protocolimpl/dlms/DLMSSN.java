@@ -17,6 +17,9 @@
 
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -25,8 +28,29 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.CosemPDUConnection;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -34,7 +58,14 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -45,7 +76,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -732,9 +769,9 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      */
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            configuredSerialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+            configuredSerialNumber = properties.getProperty(MeterProtocol.Property.SERIALNUMBER.getName(), "");
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection

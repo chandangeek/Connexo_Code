@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;

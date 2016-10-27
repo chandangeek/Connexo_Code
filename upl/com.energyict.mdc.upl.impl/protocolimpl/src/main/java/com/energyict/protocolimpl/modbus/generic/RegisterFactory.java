@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.modbus.generic;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.CoilStatusRegister;

@@ -92,7 +92,7 @@ public class Dsmr50Properties extends DlmsProperties {
     }
 
     public int getNodeAddress() {
-        Object nodeAddressObject = getProperties().getTypedProperty(MeterProtocol.NODEID);
+        Object nodeAddressObject = getProperties().getTypedProperty(MeterProtocol.Property.NODEID.getName());
         if (nodeAddressObject == null) {
             return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
         } else if (nodeAddressObject instanceof BigDecimal) {

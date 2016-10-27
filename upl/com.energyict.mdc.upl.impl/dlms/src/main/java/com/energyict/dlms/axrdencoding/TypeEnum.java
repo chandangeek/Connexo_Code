@@ -10,7 +10,7 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
 
 import java.math.BigDecimal;
 

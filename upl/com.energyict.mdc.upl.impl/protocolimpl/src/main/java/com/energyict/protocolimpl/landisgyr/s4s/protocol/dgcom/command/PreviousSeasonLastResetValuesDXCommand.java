@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -23,16 +24,16 @@ import java.util.Date;
  * @author Koen
  */
 public class PreviousSeasonLastResetValuesDXCommand extends AbstractCommand {
-    
+
     private long totalKWHAtLastDemandReset;
     private Date timestampMaxDemandAtLastDemandReset;
     private int maxDemandAtLastDemandReset;
-    
+
     /** Creates a new instance of TemplateCommand */
     public PreviousSeasonLastResetValuesDXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -42,14 +43,14 @@ public class PreviousSeasonLastResetValuesDXCommand extends AbstractCommand {
         strBuff.append("   totalKWHAtLastDemandReset="+getTotalKWHAtLastDemandReset()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isDX())
             return new byte[]{(byte)0x86,0,0,0,0,0,0,0,0};
         else
             throw new ProtocolException("PreviousSeasonLastResetValuesDXCommand, only for DX meters!");
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setTotalKWHAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;

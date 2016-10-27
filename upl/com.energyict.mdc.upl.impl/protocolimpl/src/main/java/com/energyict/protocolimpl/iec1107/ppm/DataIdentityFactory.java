@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 

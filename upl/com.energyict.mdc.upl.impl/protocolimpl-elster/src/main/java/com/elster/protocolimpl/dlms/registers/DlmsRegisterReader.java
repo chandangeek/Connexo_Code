@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.dlms.registers;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.cosem.applicationlayer.CosemDataAccessException;
@@ -21,7 +23,6 @@ import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;

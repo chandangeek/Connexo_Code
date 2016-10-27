@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -22,15 +23,15 @@ import java.math.BigDecimal;
  * @author Koen
  */
 public class KFactorCommand extends AbstractCommand {
-    
+
     private int kFactor;
     private BigDecimal bdKFactor;
-    
+
     /** Creates a new instance of TemplateCommand */
     public KFactorCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,11 +40,11 @@ public class KFactorCommand extends AbstractCommand {
         strBuff.append("   bdKFactor="+getBdKFactor()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws ProtocolException {
         return new byte[]{(byte)0x1F,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setKFactor((int)ParseUtils.getBCD2LongLE(data, offset, 3));

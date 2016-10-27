@@ -6,14 +6,13 @@
 
 package com.energyict.dlms;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

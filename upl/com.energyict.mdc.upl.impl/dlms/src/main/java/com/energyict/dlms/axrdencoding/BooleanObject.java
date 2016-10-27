@@ -1,6 +1,6 @@
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
 
 import java.io.IOException;
 import java.math.BigDecimal;

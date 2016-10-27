@@ -6,11 +6,12 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -28,22 +29,22 @@ public class PowerQuality extends AbstractCommand {
     private static final int DEBUG=0;
     private static final String COMMAND="RL";
     private static final int NR_OF_PHASES=4; // 0..2 3 phases, 3 = total
-    
+
     Quantity[] frequency = new Quantity[NR_OF_PHASES];
     Quantity[] voltage = new Quantity[NR_OF_PHASES];
     Quantity[] phaseAngle = new Quantity[NR_OF_PHASES];
     Quantity[] powerFactor = new Quantity[NR_OF_PHASES];
     Quantity[] amperage = new Quantity[NR_OF_PHASES];
     Quantity[] kwLoad = new Quantity[NR_OF_PHASES];
-    
-    
+
+
     /** Creates a new instance of PowerQuality */
     public PowerQuality(EZ7CommandFactory ez7CommandFactory) {
         super(ez7CommandFactory);
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();    
+        StringBuffer strBuff = new StringBuffer();
         strBuff.append("PowerQuality:\n");
         for (int phase = 0; phase < NR_OF_PHASES; phase++) {
            strBuff.append("phase "+phase+": ");
@@ -56,7 +57,7 @@ public class PowerQuality extends AbstractCommand {
            strBuff.append("\n");
         }
         return strBuff.toString();    }
-    
+
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
@@ -64,10 +65,10 @@ public class PowerQuality extends AbstractCommand {
     }
 
     private void parse(byte[] data) throws NoSuchRegisterException {
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
-        
-        
+        if (DEBUG>=1)
+           System.out.println(new String(data));
+
+
         if (new String(data).indexOf("R?")>=0)
             throw new NoSuchRegisterException("PowerQuality, parse, not supported!");
         CommandParser cp = new CommandParser(data);
@@ -98,7 +99,7 @@ public class PowerQuality extends AbstractCommand {
     private short getSignedShort(String hexString) {
         return ProtocolUtils.getShort(ProtocolTools.getBytesFromHexString(hexString, ""), 0);
     }
-    
+
     /**
      * Getter for property frequency.
      * @return Value of property frequency.
@@ -106,7 +107,7 @@ public class PowerQuality extends AbstractCommand {
     public Quantity getFrequency(int phase) {
         return this.frequency[phase];
     }
-   
+
     /**
      * Getter for property voltage.
      * @return Value of property voltage.
@@ -114,7 +115,7 @@ public class PowerQuality extends AbstractCommand {
     public Quantity getVoltage(int phase) {
         return this.voltage[phase];
     }
-  
+
     /**
      * Getter for property phaseAngle.
      * @return Value of property phaseAngle.
@@ -122,7 +123,7 @@ public class PowerQuality extends AbstractCommand {
     public Quantity getPhaseAngle(int phase) {
         return this.phaseAngle[phase];
     }
- 
+
     /**
      * Getter for property powerFactor.
      * @return Value of property powerFactor.
@@ -130,7 +131,7 @@ public class PowerQuality extends AbstractCommand {
     public Quantity getPowerFactor(int phase) {
         return this.powerFactor[phase];
     }
- 
+
     /**
      * Getter for property amperage.
      * @return Value of property amperage.
@@ -138,7 +139,7 @@ public class PowerQuality extends AbstractCommand {
     public Quantity getAmperage(int phase) {
         return this.amperage[phase];
     }
- 
+
     /**
      * Getter for property kwLoad.
      * @return Value of property kwLoad.
@@ -146,7 +147,7 @@ public class PowerQuality extends AbstractCommand {
     public Quantity getKwLoad(int phase) {
         return this.kwLoad[phase];
     }
-    
 
-    
+
+
 }

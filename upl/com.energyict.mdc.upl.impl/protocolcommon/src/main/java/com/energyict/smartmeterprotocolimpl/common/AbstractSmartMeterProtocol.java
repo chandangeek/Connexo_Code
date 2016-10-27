@@ -1,11 +1,19 @@
 package com.energyict.smartmeterprotocolimpl.common;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.*;
-import com.energyict.protocol.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.TimeZone;

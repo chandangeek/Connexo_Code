@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,21 +14,21 @@ import java.util.List;
  * @author  Koen
  */
 public class BillingSet {
-    
+
     private static final int REASON_COMM=0;
     private static final int REASON_BUTTON=1;
     private static final int REASON_CONTROL_INPUT=2;
     private static final int REASON_INTERNAL=20;
     String[] reasons={"Communication","Reset button","Control input","","","","","","","","","","","","","","","","","","Internal"};
-    
+
     Date billingDate;
     int billingReason;
     int daysSinceLastReset;
     int nrOfResets;
-    
+
     List billingValues = new ArrayList();; // of type BillingValue
-    
-    
+
+
     /** Creates a new instance of BillingSet */
     public BillingSet(Date billingDate, int billingReason, int daysSinceLastReset, int nrOfResets) {
         this.billingDate=billingDate;
@@ -35,7 +36,7 @@ public class BillingSet {
         this.daysSinceLastReset=daysSinceLastReset;
         this.nrOfResets=nrOfResets;
     }
-    
+
     public BillingValue find(ObisCode obisCode) throws NoSuchRegisterException {
         Iterator it = billingValues.iterator();
         while(it.hasNext()) {
@@ -45,11 +46,11 @@ public class BillingSet {
         }
         throw new NoSuchRegisterException("BillingSet, find, no register for obisCode "+obisCode);
     }
-    
+
     public String toString() {
         return "billing on "+getBillingDate()+", reason="+reasons[getBillingReason()]+", days passed="+getDaysSinceLastReset()+", nr of resets="+getNrOfResets();
     }
-    
+
     /**
      * Getter for property billingDate.
      * @return Value of property billingDate.
@@ -129,7 +130,7 @@ public class BillingSet {
     public void setBillingValues(List billingValues) {
         this.billingValues = billingValues;
     }
-    
+
     public void addBillingValue(BillingValue billingValue) {
         getBillingValues().add(billingValue);
     }
@@ -137,9 +138,9 @@ public class BillingSet {
         getBillingValues().addAll(billingValues);
     }
     public BillingValue getBillingValue(int index) {
-        return (BillingValue)getBillingValues().get(index);  
+        return (BillingValue)getBillingValues().get(index);
     }
-    
+
     public BillingValue findBillingValue(ObisCode obisCode) {
         Iterator it = getBillingValues().iterator();
         while(it.hasNext()) {

@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -22,17 +23,17 @@ import java.util.Date;
  * @author Koen
  */
 public class CurrentSeasonTOUDemandDataDXCommand extends AbstractCommand {
-   
+
     public final int NR_OF_RATES=4;
-    
+
     private Date[] maximumKWtimestampsRates = new Date[NR_OF_RATES];
     private int[] maximumKWs = new int[NR_OF_RATES];
-    
+
     /** Creates a new instance of TemplateCommand */
     public CurrentSeasonTOUDemandDataDXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -43,14 +44,14 @@ public class CurrentSeasonTOUDemandDataDXCommand extends AbstractCommand {
         strBuff.append("   maximumKWtimestampsRates["+i+"]="+getMaximumKWtimestampsRates()[i]+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isDX())
             return new byte[]{(byte)0x61,0,0,0,0,0,0,0,0};
         else
             throw new ProtocolException("CurrentSeasonTOUDemandDataDXCommand, only for DX meters!");
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         for (int i=0;i<NR_OF_RATES;i++) {

@@ -9,13 +9,14 @@
  */
 package com.energyict.protocolimpl.modbus.cutlerhammer.iq230;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -41,7 +42,7 @@ public class IQ230 extends Modbus {
     private MultiplierFactory multiplierFactory = null;
 
     /**
-     * Creates a new instance of IQ200 
+     * Creates a new instance of IQ200
      */
     public IQ230() {
     }
@@ -102,7 +103,7 @@ public class IQ230 extends Modbus {
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "900");
             //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS, "13");
+            properties.setProperty(MeterProtocol.Property.ADDRESS.getName(), "13");
             properties.setProperty("HalfDuplex", "1");
             properties.setProperty("RegisterOrderFixedPoint", "1");
 

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.util.Date;
@@ -10,7 +11,7 @@ public class TimeStampInfoPair {
 
     private Date date;
     private int infoIndex;
-	
+
     public TimeStampInfoPair(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
 		long shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL; offset+=4;
 		if (shift > 0) {
@@ -18,7 +19,7 @@ public class TimeStampInfoPair {
 			infoIndex = ProtocolUtils.getInt(data,offset++,1);
 		}
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -27,7 +28,7 @@ public class TimeStampInfoPair {
         strBuff.append("   infoIndex="+getInfoIndex()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
     	return 5;
     }

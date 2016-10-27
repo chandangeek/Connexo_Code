@@ -1,8 +1,12 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
-import com.energyict.cbo.*;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;

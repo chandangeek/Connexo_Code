@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
@@ -10,35 +11,35 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class CorrectorInformationTable extends AbstractTable {
-	
+
 	private Date time;
 	private String firmwareVersion;
 	private String serialNumber;
-	
+
 	public CorrectorInformationTable(TableFactory tableFactory) {
 		super(tableFactory);
 	}
-	
+
 	public Date getTime() {
 		return time;
 	}
-	
+
 	protected void setTime(Date time) {
 		this.time = time;
 	}
-	
+
 	public String getSerialNumber() {
 		return serialNumber;
 	}
-	
+
 	protected void setFirwareVersion(String firmwareVersion) {
 		this.firmwareVersion = firmwareVersion;
 	}
-	
+
 	public String getFirwareVersion() {
 		return firmwareVersion;
 	}
-	
+
 	protected void parse(byte[] data) throws ProtocolException {
 		//System.out.println("parse corrector info");
 		//System.out.println(ProtocolUtils.outputHexString(data));
@@ -60,19 +61,19 @@ public class CorrectorInformationTable extends AbstractTable {
 		cal.set(Calendar.MILLISECOND, 0);
 		//System.out.println(cal.getTime());
 		setTime(cal.getTime());
-		
+
 		serialNumber = "" + ProtocolUtils.getIntLE(data, length - 11, 4);
 		System.out.println("serialNumber = " + serialNumber);
-		
-		/*String version = "Corrector type code " + 
+
+		/*String version = "Corrector type code " +
 		format(ProtocolUtils.BCD2hex(data[3])) +
 		format(ProtocolUtils.BCD2hex(data[2])) +
 		format(ProtocolUtils.BCD2hex(data[1])) +
-		format(ProtocolUtils.BCD2hex(data[0])) +  
-		", S/W version no. " + 
+		format(ProtocolUtils.BCD2hex(data[0])) +
+		", S/W version no. " +
 		format(ProtocolUtils.BCD2hex(data[5])) +
 		format(ProtocolUtils.BCD2hex(data[4]));
-		
+
 		setFirwareVersion(version);*/
 		StringBuffer strBuff = new StringBuffer("Corrector type code ");
 		strBuff.append(String.valueOf((char)ProtocolUtils.convertHexLSB(data[0]&0xFF)));
@@ -90,35 +91,35 @@ public class CorrectorInformationTable extends AbstractTable {
 		strBuff.append(String.valueOf((char)ProtocolUtils.convertHexMSB(data[5]&0xFF)));
 		setFirwareVersion(strBuff.toString());
 		System.out.println("firmwareVersion = " + getFirwareVersion());
-		
+
 	}
-	
+
 	protected String format(int value) {
 		if (value > 9)
 			return "" + value;
 		else
 			return "0" + value;
 	}
-	
+
 	public int getTableType() {
 		return 0;
 	}
-	
+
 	protected void prepareBuild() throws IOException {
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.switchToCorrectorInformation().invoke();
 		if (response == null)
 			throw new ProtocolException("CorrectorInformationTable table switch: No answer from corrector");
 		parseStatus(response);
     	readHeaders();
 	}
-	
+
 	protected void doBuild() throws IOException {
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.readCorrectorInformationCommand().invoke();
 		parseStatus(response);
 	    parseWrite(response);

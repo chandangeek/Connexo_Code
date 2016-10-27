@@ -6,6 +6,9 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -15,10 +18,8 @@ import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
@@ -28,7 +29,6 @@ import com.energyict.protocolimpl.siemens7ED62.SCTMRegister;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,7 +79,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
     private Logger logger;
     private SiemensSCTM siemensSCTM;
 
-    //validateProperties     
+    //validateProperties
     private String strID;
     private String strPassword;
     private String nodeId;
@@ -326,7 +326,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 //    	else if (meterSeconds >= 29){
 //    		delay = ((59 - meterSeconds + offSet) * 1000) - roundTripTime;
 //    	}
-//    	
+//
 //    	else{
 //    		delay = ((offSet - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
 //    	}
@@ -366,7 +366,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 //		else if (meterSeconds >= 29){
 //			delay = ((59 - meterSeconds + 30)*1000);
 //		}
-//		
+//
 //		else{
 //			delay = ((30 - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
 //		}
@@ -489,15 +489,15 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            strID = properties.getProperty(MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getProperty(MeterProtocol.Property.PASSWORD.getName());
             if (strPassword == null) {
                 throw new MissingPropertyException("password key is missing!");
             }
             if ((strPassword.length() != 5) && (strPassword.length() != 8)) {
                 throw new InvalidPropertyException("Password (SCTM ID) must have a length of 5 or 8!");
             }
-            nodeId = properties.getProperty(MeterProtocol.NODEID);
+            nodeId = properties.getProperty(MeterProtocol.Property.NODEID.getName());
             if (nodeId == null) {
                 nodeId = strPassword;
             }

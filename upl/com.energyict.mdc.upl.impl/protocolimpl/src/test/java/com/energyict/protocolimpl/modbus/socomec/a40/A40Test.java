@@ -1,8 +1,13 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusTestConnection;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,16 +21,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.modbus.core.connection.ModbusTestConnection;
-import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class A40Test {
-	
+
 	private static A40 a40;
 	private static Logger logger;
 	private static ModbusTestConnection modbusConnection;
@@ -50,35 +51,35 @@ public class A40Test {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
+
 	@Test
 	public final void functionalTesting(){
-		
+
 		try {
 			modbusConnection.setResponseData(buildResponseData("080000004000ff00ff", Integer.valueOf(3)));
 			assertTrue(a40.getProfile().isSupported());
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}
-		
-		
+
+
 		try {
 			modbusConnection.setResponseData(buildResponseData("080001000100010001", Integer.valueOf(3)));
 			List<ChannelInfo> result = a40.getProfile().getChannelInfos();
 			assertEquals(createExpectedChannelInfos().size(), result.size());
-			
+
 			assertEquals(createExpectedChannelInfos().get(0).getName(), result.get(0).getName());
 			assertEquals(createExpectedChannelInfos().get(0).getChannelId(), result.get(0).getChannelId());
 			assertEquals(createExpectedChannelInfos().get(0).getUnit(), result.get(0).getUnit());
-			
+
 			assertEquals(createExpectedChannelInfos().get(3).getName(), result.get(3).getName());
 			assertEquals(createExpectedChannelInfos().get(3).getChannelId(), result.get(3).getChannelId());
 			assertEquals(createExpectedChannelInfos().get(3).getUnit(), result.get(3).getUnit());
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}
-		
-		
+
+
 		try {
 			modbusConnection.setResponseData(buildResponseData("02016e", Integer.valueOf(3)));
 			assertEquals(366,a40.getProfile().getActiveEnergyPointer());
@@ -88,7 +89,7 @@ public class A40Test {
 			fail(e.getMessage());
 		}
 
-		
+
 		try {
 			modbusConnection.setResponseData(buildResponseData("060b10100f0009", Integer.valueOf(3)));
 			Date dateTime = a40.getProfile().getDateTimeLastProfileUpdate();
@@ -111,11 +112,11 @@ public class A40Test {
 		result.add(new ChannelInfo(3,3,"0.4.128.0.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)));
 		return result;
 	}
-	
+
 	/**
 	 * Create a ResponseData object by using the given parameters
 	 * @param data the data to set
-	 * @param functionCode the function code to set 
+	 * @param functionCode the function code to set
 	 * @return the constructed ResponseData
 	 */
 	private ResponseData buildResponseData(String data, int functionCode){
@@ -125,7 +126,7 @@ public class A40Test {
 	/**
 	 * Create a ResponseData object by using the given parameters
 	 * @param data the data to set
-	 * @param functionCode the function code to set 
+	 * @param functionCode the function code to set
 	 * @return the constructed ResponseData
 	 */
 	private ResponseData buildResponseData(byte[] data, int functionCode){

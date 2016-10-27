@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.EMCO;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -7,11 +10,9 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
@@ -173,7 +174,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
      *
      * @return String with firmware version. This can also contain other important info of the meter.
      * @throws java.io.IOException thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown when that method is not supported
      */
     @Override
@@ -246,7 +247,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
      * @param includeEvents eneble or disable requesting of meterevents
      * @return ProfileData object
      * @throws java.io.IOException Thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown when not supported
      */
     @Override

@@ -1,10 +1,13 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import java.util.Date;
+import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
+
+import java.util.Date;
 
 public class ProfilePartEntry {
 
@@ -23,20 +26,20 @@ public class ProfilePartEntry {
 	private ProfileInfoEntry profileInfoEntry 	= null;
 	private Modbus modBus						= null;
 	private Date timeStamp 						= null;
-	
+
 	private int meterStatusValue				= 0;
-	
+
 	/*
 	 * Constructors
 	 */
 
 	public ProfilePartEntry() {}
-	
+
 	public ProfilePartEntry(byte[] singleProfileEntry, ProfileInfoEntry profileInfoEntry) throws ProtocolException {
 		this.modBus = profileInfoEntry.getModBus();
 		this.profileInfoEntry = profileInfoEntry;
 		this.intervalData = parseSingleEntry(singleProfileEntry);
-		
+
 		if (DEBUG >= 2) System.out.println(this);
 
 	}
@@ -48,22 +51,22 @@ public class ProfilePartEntry {
 	private ProfileInfoEntry getProfileInfoEntry() {
 		return profileInfoEntry;
 	}
-	
+
 	private IntervalData parseSingleEntry(byte[] singleProfileEntry) throws ProtocolException {
 		int channelPos = 0;
 		TimeDateParser td_parser = new TimeDateParser(modBus.gettimeZone());
 		Date timeStamp = td_parser.parseTime(ProtocolUtils.getSubArray2(singleProfileEntry , TIMESTAMP_OFFSET, TIMESTAMP_LENGTH));
-		
+
 		this.timeStamp = timeStamp;
-		
+
 		this.meterStatusValue = ProtocolUtils.getInt(ProtocolUtils.getSubArray2(singleProfileEntry, STATUS_OFFSET, STATUS_LENGTH));
 		if (this.meterStatusValue == 0) return null;
-		
+
 		IntervalData intervalData = new IntervalData(timeStamp, IntervalData.OK, this.meterStatusValue);
-		
+
 		for (int i = 0; i < MAX_CHANNELS; i++) {
 			if (getProfileInfoEntry().isChannelEnabled(i)) {
-				byte[] rawChannelValue = ProtocolUtils.getSubArray2(singleProfileEntry, (channelPos * CHANNEL_LENGTH) + CHANNEL_OFFSET,	CHANNEL_LENGTH); 
+				byte[] rawChannelValue = ProtocolUtils.getSubArray2(singleProfileEntry, (channelPos * CHANNEL_LENGTH) + CHANNEL_OFFSET,	CHANNEL_LENGTH);
 				int channelValue = ProtocolUtils.getInt(rawChannelValue);
 				intervalData.addValue(new Integer(channelValue));
 				intervalData.setEiStatus(i, IntervalData.OK);
@@ -73,7 +76,7 @@ public class ProfilePartEntry {
 				intervalData.setEiStatus(i, IntervalData.MISSING);
 			}
 		}
-		
+
 		if (DEBUG >= 1) {
 			System.out.print("endTime = " + intervalData.getEndTime() + " ");
 			System.out.print("protocol = " + ProtocolUtils.buildStringHex(meterStatusValue, 8)  + " ");
@@ -83,7 +86,7 @@ public class ProfilePartEntry {
 			}
 			System.out.println("");
 		}
-		
+
 		return intervalData;
 	}
 
@@ -98,11 +101,11 @@ public class ProfilePartEntry {
 	public Date getTimeStamp() {
 		return timeStamp;
 	}
-	
+
 	public int getMeterStatusValue() {
 		return meterStatusValue;
 	}
-	
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ProfilePartEntry:");
@@ -112,5 +115,5 @@ public class ProfilePartEntry {
         strBuff.append(" meterStatusValue="+ProtocolUtils.buildStringHex(getMeterStatusValue(), 8));
         return strBuff.toString();
     }
-	
+
 }

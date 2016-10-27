@@ -6,33 +6,31 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 /**
  *
  * @author  Koen
  */
 public class BillingSet {
-    
+
     private static final int REASON_COMM=0;
     private static final int REASON_BUTTON=1;
     private static final int REASON_CONTROL_INPUT=2;
     private static final int REASON_INTERNAL=20;
     String[] reasons={"Communication","Reset button","Control input","Daily","Monthly","","","","","","","","","","","","","","","","Internal"};
-    
+
     Date billingDate;
     int billingReason;
     int daysSinceLastReset;
     int nrOfResets;
-    
+
 //    BillingValue billingValues; // of type BillingValue
     List billingValues = new ArrayList();
-    
-    
+
+
     /** Creates a new instance of BillingSet */
     public BillingSet(Date billingDate, int billingReason, int daysSinceLastReset, int nrOfResets) {
         this.billingDate=billingDate;
@@ -40,7 +38,7 @@ public class BillingSet {
         this.daysSinceLastReset=daysSinceLastReset;
         this.nrOfResets=nrOfResets;
     }
-    
+
 //    public BillingValue find(ObisCode obisCode) throws NoSuchRegisterException {
 //        Iterator it = billingValues.iterator();
 //        while(it.hasNext()) {
@@ -50,15 +48,15 @@ public class BillingSet {
 //        }
 //        throw new NoSuchRegisterException("BillingSet, find, no register for obisCode "+obisCode);
 //    }
-    
+
 //    public BillingValue giveBillingValue(){
 //    	return billingValues;
 //    }
-    
+
     public String toString() {
         return "billing on "+getBillingDate()+", reason="+reasons[getBillingReason()]+", days passed="+getDaysSinceLastReset()+", nr of resets="+getNrOfResets();
     }
-    
+
     /**
      * Getter for property billingDate.
      * @return Value of property billingDate.
@@ -66,7 +64,7 @@ public class BillingSet {
     public java.util.Date getBillingDate() {
         return billingDate;
     }
-    
+
     /**
      * Setter for property billingDate.
      * @param billingDate New value of property billingDate.
@@ -74,7 +72,7 @@ public class BillingSet {
     public void setBillingDate(java.util.Date billingDate) {
         this.billingDate = billingDate;
     }
-    
+
     /**
      * Getter for property billingReason.
      * @return Value of property billingReason.
@@ -82,7 +80,7 @@ public class BillingSet {
     public int getBillingReason() {
         return billingReason;
     }
-    
+
     /**
      * Setter for property billingReason.
      * @param billingReason New value of property billingReason.
@@ -90,7 +88,7 @@ public class BillingSet {
     public void setBillingReason(int billingReason) {
         this.billingReason = billingReason;
     }
-    
+
     /**
      * Getter for property daysSinceLastReset.
      * @return Value of property daysSinceLastReset.
@@ -98,7 +96,7 @@ public class BillingSet {
     public int getDaysSinceLastReset() {
         return daysSinceLastReset;
     }
-    
+
     /**
      * Setter for property daysSinceLastReset.
      * @param daysSinceLastReset New value of property daysSinceLastReset.
@@ -106,7 +104,7 @@ public class BillingSet {
     public void setDaysSinceLastReset(int daysSinceLastReset) {
         this.daysSinceLastReset = daysSinceLastReset;
     }
-    
+
     /**
      * Getter for property nrOfResets.
      * @return Value of property nrOfResets.
@@ -114,7 +112,7 @@ public class BillingSet {
     public int getNrOfResets() {
         return nrOfResets;
     }
-    
+
     /**
      * Setter for property nrOfResets.
      * @param nrOfResets New value of property nrOfResets.
@@ -126,15 +124,15 @@ public class BillingSet {
     public void addBillingValue(BillingValue billingValue) {
     	getBillingValues().add(billingValue);
     }
-    
+
     public List getBillingValues(){
     	return billingValues;
     }
-    
+
 //    public void addBillingValue(BillingValue billingValue){
 //    	this.billingValues = billingValue;
 //    }
-    
+
 //    /**
 //     * Getter for property billingValues.
 //     * @return Value of property billingValues.
@@ -142,7 +140,7 @@ public class BillingSet {
 //    public java.util.List getBillingValues() {
 //        return billingValues;
 //    }
-    
+
 //    /**
 //     * Setter for property billingValues.
 //     * @param billingValues New value of property billingValues.
@@ -150,7 +148,7 @@ public class BillingSet {
 //    public void setBillingValues(java.util.List billingValues) {
 //        this.billingValues = billingValues;
 //    }
-    
+
 //    public void addBillingValue(BillingValue billingValue) {
 //        getBillingValues().add(billingValue);
 //    }
@@ -158,9 +156,9 @@ public class BillingSet {
 //        getBillingValues().addAll(billingValues);
 //    }
 //    public BillingValue getBillingValue(int index) {
-//        return (BillingValue)getBillingValues().get(index);  
+//        return (BillingValue)getBillingValues().get(index);
 //    }
-//    
+//
 //    public BillingValue findBillingValue(ObisCode obisCode) {
 //        Iterator it = getBillingValues().iterator();
 //        while(it.hasNext()) {
@@ -170,5 +168,5 @@ public class BillingSet {
 //        }
 //        return null;
 //    }
-    
+
 }

@@ -10,13 +10,14 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.Discover;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -39,36 +40,36 @@ import java.util.Properties;
  *
  * @author kvds
  */
-abstract public class MBus extends AbstractProtocol implements Discover { 
-    
+abstract public class MBus extends AbstractProtocol implements Discover {
+
     final int DEBUG=1;
-    
+
     abstract protected void doTheConnect() throws IOException;
     abstract protected void doTheDisConnect() throws IOException;
     abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
     abstract protected List doTheGetOptionalKeys();
     abstract protected void initRegisterFactory();
-    
+
     private MBusConnection mBusConnection=null;
     private AbstractRegisterFactory registerFactory=null;
     private CIField72h cIField72h=null;
-    
+
     int secondaryAddressing;
     boolean useZeroBased;
-    
+
     int headerManufacturerCode;
     int headerVersion;
     int headerMedium;
-    
+
     /** Creates a new instance of MBus */
     public MBus() {
     }
-   
-    
-    
+
+
+
     public void doConnect() throws IOException {
         try {
-            
+
             if ((getInfoTypeDeviceID()==null) || (getInfoTypeDeviceID().compareTo("")==0))
                 getMBusConnection().setRTUAddress(253);
             else
@@ -79,7 +80,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
             throw new IOException(e.getMessage());
         }
     }
-    
+
     public void doDisConnect() throws IOException {
         try {
             doTheDisConnect();
@@ -88,15 +89,15 @@ abstract public class MBus extends AbstractProtocol implements Discover {
             getLogger().severe("MBus, doDisConnect() error, "+e.getMessage());
         }
     }
-    
-    
+
+
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","3000").trim()));
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","2").trim()));
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
         setSecondaryAddressing(Integer.parseInt(properties.getProperty("SecondaryAddressing","0")));
         setUseZeroBased(Integer.parseInt(properties.getProperty("DataQuantitiesAreZeroBased", "0")) == 1);
-        
+
         String manufCode = properties.getProperty("HeaderManufacturerCode");
         if (manufCode == null)
         	setHeaderManufacturerCode(0xFFFF);
@@ -114,11 +115,11 @@ abstract public class MBus extends AbstractProtocol implements Discover {
 
         doTheValidateProperties(properties);
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return 0; // KV_TO_DO
     }
-    
+
     protected List doGetOptionalKeys() {
         List list = new ArrayList();
         list.add("SecondaryAddressing");
@@ -126,7 +127,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         list.add("DataQuantitiesAreZeroBased");
         return list;
     }
-    
+
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setMBusConnection(new MBusConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, getTimeZone(), halfDuplexController));
         return getMBusConnection();
@@ -135,7 +136,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         return new Date();
     }
     public void setTime() throws IOException {
-        
+
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -143,18 +144,18 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     }
 
     /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e 
+     R e g i s t e r P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         obisCode=new ObisCode(0,0,96,99,obisCode.getE(),obisCode.getF());
         return getRegisterFactory().findRegisterValue(obisCode);
     }
-    
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         obisCode=new ObisCode(0,0,96,99,obisCode.getE(),obisCode.getF());
         return new RegisterInfo(obisCode.getDescription());
-    }    
-    
+    }
+
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         StringBuffer strBuff = new StringBuffer();
         //getRegisterFactory()
@@ -168,8 +169,8 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         return strBuff.toString();
     }
 
-    
-    
+
+
     public MBusConnection getMBusConnection() {
         return mBusConnection;
     }
@@ -192,18 +193,18 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     }
 
     public List<CIField72h> discoverDeviceSerialNumbers() throws IOException {
-    	
+
     	SecondaryAddressDiscover o = new SecondaryAddressDiscover(this);
     	o.discover();
     	List<CIField72h> cIField72hs = o.getCIField72hs();
-    	
+
     	return cIField72hs;
     }
-    
+
     private String buildSerialId(long id,int manuf,int version,int medium) {
     	return id+"_"+manuf+"_"+version+"_"+medium;
     }
-    
+
     public CIField72h getCIField72h() throws IOException {
         if (cIField72h==null) {
         	ApplicationData frame = getMBusConnection().sendREQ_UD2().getASDU();
