@@ -2,9 +2,9 @@ package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.groups.spi.EndDeviceQueryProvider;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.spi.QueryProvider;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.util.conditions.Condition;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -17,9 +17,11 @@ public interface MeteringGroupsService {
 
     String COMPONENTNAME = "MTG";
 
-    UsagePointGroupBuilder.QueryUsagePointGroupBuilder createQueryUsagePointGroup(Condition condition);
+    <T extends Group<?>> Optional<T> findGroupByName(String name, Class<T> api);
 
-    UsagePointGroupBuilder.EnumeratedUsagePointGroupBuilder createEnumeratedUsagePointGroup();
+    GroupBuilder.QueryGroupBuilder<UsagePoint, ? extends QueryUsagePointGroup> createQueryUsagePointGroup(SearchablePropertyValue... conditions);
+
+    GroupBuilder.EnumeratedGroupBuilder<UsagePoint, ? extends EnumeratedUsagePointGroup> createEnumeratedUsagePointGroup(UsagePoint... usagePoints);
 
     Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
 
@@ -29,11 +31,13 @@ public interface MeteringGroupsService {
 
     Optional<UsagePointGroup> findUsagePointGroup(long id);
 
-    Optional<UsagePointGroup> findUsagePointGroupByName(String name);
+    default Optional<UsagePointGroup> findUsagePointGroupByName(String name) {
+        return findGroupByName(name, UsagePointGroup.class);
+    }
 
-    EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder createQueryEndDeviceGroup(SearchablePropertyValue... conditions);
+    GroupBuilder.QueryGroupBuilder<EndDevice, ? extends QueryEndDeviceGroup> createQueryEndDeviceGroup(SearchablePropertyValue... conditions);
 
-    EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder createEnumeratedEndDeviceGroup(EndDevice... endDevices);
+    GroupBuilder.EnumeratedGroupBuilder<EndDevice, ? extends EnumeratedEndDeviceGroup> createEnumeratedEndDeviceGroup(EndDevice... endDevices);
 
     Optional<QueryEndDeviceGroup> findQueryEndDeviceGroup(long id);
 
@@ -54,9 +58,11 @@ public interface MeteringGroupsService {
 
     Optional<EndDeviceGroup> findAndLockEndDeviceGroupByIdAndVersion(long id, long version);
 
-    Optional<EndDeviceGroup> findEndDeviceGroupByName(String name);
+    default Optional<EndDeviceGroup> findEndDeviceGroupByName(String name) {
+        return findGroupByName(name, EndDeviceGroup.class);
+    }
 
-    void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);
+    void addQueryProvider(QueryProvider<?> queryProvider);
 
     Query<EndDeviceGroup> getEndDeviceGroupQuery();
 
@@ -66,7 +72,7 @@ public interface MeteringGroupsService {
 
     List<UsagePointGroup> findUsagePointGroups();
 
-    Optional<EndDeviceQueryProvider> pollEndDeviceQueryProvider(String name, Duration duration) throws InterruptedException;
+    Optional<QueryProvider<?>> pollQueryProvider(String name, Duration duration) throws InterruptedException;
 
     Query<UsagePointGroup> getUsagePointGroupQuery();
 

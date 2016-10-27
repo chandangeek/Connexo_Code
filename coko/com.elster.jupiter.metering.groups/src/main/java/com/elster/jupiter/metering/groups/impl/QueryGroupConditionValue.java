@@ -9,9 +9,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 
-class QueryEndDeviceGroupConditionValue {
+abstract class QueryGroupConditionValue {
     enum Fields {
-        DEVICE_GROUP_CONDITION("deviceGroupCondition"),
+        GROUP_CONDITION("groupCondition"),
         VALUE("value"),
         POSITION("position");
         private final String javaFieldName;
@@ -26,7 +26,7 @@ class QueryEndDeviceGroupConditionValue {
     }
 
     @IsPresent
-    private Reference<QueryEndDeviceGroupCondition> deviceGroupCondition = ValueReference.absent();
+    private Reference<QueryGroupCondition> groupCondition = ValueReference.absent();
     @NotNull
     @Size(min = 1, max = Table.SHORT_DESCRIPTION_LENGTH)
     private String value;
@@ -42,11 +42,11 @@ class QueryEndDeviceGroupConditionValue {
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
-    QueryEndDeviceGroupConditionValue() {
+    QueryGroupConditionValue() {
     }
 
-    QueryEndDeviceGroupConditionValue init(QueryEndDeviceGroupCondition deviceGroupCondition, String value) {
-        this.deviceGroupCondition.set(deviceGroupCondition);
+    QueryGroupConditionValue init(QueryGroupCondition groupCondition, String value) {
+        this.groupCondition.set(groupCondition);
         this.value = value;
         return this;
     }

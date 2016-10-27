@@ -6,19 +6,14 @@ import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
 
 public enum EventType {
-    ENDDEVICEGROUP_VALIDATE_DELETED("enddevicegroup/VALIDATE_DELETE");
+    ENDDEVICEGROUP_VALIDATE_DELETED("enddevicegroup/VALIDATE_DELETE"),
+    USAGEPOINTGROUP_VALIDATE_DELETED("usagepointgroup/VALIDATE_DELETE");
 
     private static final String NAMESPACE = "com/elster/jupiter/metering/groups/";
     private final String topic;
-    private boolean hasMRID;
 
     EventType(String topic) {
         this.topic = topic;
-    }
-
-    EventType(String topic, boolean mRID) {
-        this.topic = topic;
-        this.hasMRID = mRID;
     }
 
     public String topic() {
@@ -39,6 +34,4 @@ public enum EventType {
     EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
         return eventTypeBuilder;
     }
-
-
 }

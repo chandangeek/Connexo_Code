@@ -285,7 +285,7 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @Test
-    public void testAmrIdQuey() {
+    public void testAmrIdQuery() {
         int NUMBER_OF_DEVICES_IN_GROUP = 24;
         List<EndDevice> endDevices = new ArrayList<>();
         MeteringService meteringService = injector.getInstance(MeteringService.class);

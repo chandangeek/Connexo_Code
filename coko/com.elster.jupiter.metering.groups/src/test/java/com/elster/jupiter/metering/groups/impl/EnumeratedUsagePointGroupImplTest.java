@@ -1,17 +1,22 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.groups.UsagePointMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
+import org.osgi.framework.BundleContext;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.junit.Before;
@@ -31,32 +36,38 @@ public class EnumeratedUsagePointGroupImplTest {
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    private DataMapper<EnumeratedUsagePointGroupImpl.EntryImpl> entryMapper;
+    private DataMapper<EnumeratedUsagePointGroupImpl.UsagePointEntryImpl> entryMapper;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private QueryService queryService;
+    @Mock
+    private BundleContext bundleContext;
 
     @Before
     public void setUp() {
-        when(dataModel.mapper(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenReturn(entryMapper);
-        when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenAnswer(invocationOnMock -> new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel, meteringService));
+        when(dataModel.mapper(EnumeratedUsagePointGroupImpl.UsagePointEntryImpl.class)).thenReturn(entryMapper);
+        when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.UsagePointEntryImpl.class)).thenAnswer(invocationOnMock -> new EnumeratedUsagePointGroupImpl.UsagePointEntryImpl(dataModel));
     }
 
     @Test
     public void testGetMembersRange() {
-        EnumeratedUsagePointGroupImpl group = new EnumeratedUsagePointGroupImpl(dataModel);
+        EnumeratedUsagePointGroupImpl group = new EnumeratedUsagePointGroupImpl(dataModel, eventService, queryService, meteringService,
+                new ExecutionTimerServiceImpl(bundleContext).newTimer("Timer", ChronoUnit.MINUTES.getDuration()));
         group.add(usagePoint, range(instant(2013, 2, 3), instant(2013, 2, 14)));
         group.add(usagePoint, range(instant(2013, 2, 20), instant(2013, 2, 27)));
 
-        List<UsagePointMembership> members = group.getMembers(range(instant(2013, 2, 12), instant(2013, 3, 5)));
+        List<Membership<UsagePoint>> members = group.getMembers(range(instant(2013, 2, 12), instant(2013, 3, 5)));
 
         assertThat(members).hasSize(1);
-        UsagePointMembership usagePointMembership = members.get(0);
+        Membership<UsagePoint> usagePointMembership = members.get(0);
         assertThat(usagePointMembership.getRanges()).isEqualTo(ImmutableRangeSet.<Instant>builder()
-        		.add(range(instant(2013, 2, 12), instant(2013, 2, 14)))
+                .add(range(instant(2013, 2, 12), instant(2013, 2, 14)))
                 .add(range(instant(2013, 2, 20), instant(2013, 2, 27)))
                 .build());
-        assertThat(usagePointMembership.getUsagePoint()).isEqualTo(usagePoint);
-
+        assertThat(usagePointMembership.getMember()).isEqualTo(usagePoint);
     }
 
     private Range<Instant> range(Instant start, Instant end) {
@@ -66,6 +77,4 @@ public class EnumeratedUsagePointGroupImplTest {
     private Instant instant(int year, int monthOfYear, int dayOfMonth) {
         return LocalDate.of(year, monthOfYear, dayOfMonth).atStartOfDay(ZoneId.systemDefault()).toInstant();
     }
-
-
 }

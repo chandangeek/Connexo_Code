@@ -1,27 +1,35 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 
 import com.google.common.collect.Range;
+import org.osgi.framework.BundleContext;
 
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.google.common.collect.Range.atLeast;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.verify;
@@ -41,25 +49,37 @@ public class EnumeratedUsagePointGroupTest {
     @Mock
     private UsagePoint usagePoint1, usagePoint2, usagePoint3;
     @Mock
-    private DataMapper<EnumeratedUsagePointGroupImpl.EntryImpl> entryFactory;
+    private DataMapper<EnumeratedUsagePointGroupImpl.UsagePointEntryImpl> entryFactory;
     @Mock
     private DataModel dataModel;
     @Mock
     private DataMapper<EnumeratedUsagePointGroup> groupFactory;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private QueryService queryService;
+    @Mock
+    private BundleContext bundleContext;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
+    @Captor
+    private ArgumentCaptor<List<EnumeratedUsagePointGroupImpl.UsagePointEntryImpl>> listCaptor;
 
     @Before
     public void setUp() {
-        when(dataModel.mapper(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenReturn(entryFactory);
-        when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenAnswer(invocationOnMock -> new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel, meteringService));
+        when(dataModel.mapper(EnumeratedUsagePointGroupImpl.UsagePointEntryImpl.class)).thenReturn(entryFactory);
+        when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.UsagePointEntryImpl.class)).thenAnswer(invocationOnMock -> new EnumeratedUsagePointGroupImpl.UsagePointEntryImpl(dataModel));
         when(dataModel.mapper(EnumeratedUsagePointGroup.class)).thenReturn(groupFactory);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+//        when(validator.validate(anyObject(), anyVararg())).thenReturn(Collections.emptySet());
 
-        usagePointGroup = new EnumeratedUsagePointGroupImpl(dataModel);
-    }
-
-    @After
-    public void tearDown() {
+        usagePointGroup = new EnumeratedUsagePointGroupImpl(dataModel, eventService, queryService, meteringService,
+                new ExecutionTimerServiceImpl(bundleContext).newTimer("Timer", ChronoUnit.MINUTES.getDuration()));
     }
 
     @Test
@@ -109,11 +129,14 @@ public class EnumeratedUsagePointGroupTest {
 
     @Test
     public void testGetMembers() {
+        when(usagePoint1.getName()).thenReturn("usagePoint1");
+        when(usagePoint2.getName()).thenReturn("usagePoint2");
         usagePointGroup.add(usagePoint1, Range.closedOpen(START,END));
         usagePointGroup.add(usagePoint2, Range.closedOpen(START,END));
         usagePointGroup.add(usagePoint3, Range.lessThan(BEFORE));
 
-        assertThat(usagePointGroup.getMembers(MIDDLE)).doesNotContain(usagePoint3)
+        assertThat(usagePointGroup.getMembers(MIDDLE))
+                .doesNotContain(usagePoint3)
                 .contains(usagePoint1, usagePoint2)
                 .hasSize(2);
     }
@@ -131,7 +154,7 @@ public class EnumeratedUsagePointGroupTest {
 
     @Test
     public void testAddWithNegativeInfinity() {
-        EnumeratedUsagePointGroup.Entry entry1 = usagePointGroup.add(usagePoint1, Range.closedOpen(MIDDLE, AFTER));
+        usagePointGroup.add(usagePoint1, Range.closedOpen(MIDDLE, AFTER));
 
         EnumeratedUsagePointGroup.Entry entry2 = usagePointGroup.add(usagePoint1, Range.lessThan(END));
 
@@ -140,80 +163,78 @@ public class EnumeratedUsagePointGroupTest {
 
     @Test
     public void testAddWithPositiveInfinity() {
-        EnumeratedUsagePointGroup.Entry entry1 = usagePointGroup.add(usagePoint1, Range.closedOpen(MIDDLE, AFTER));
+        usagePointGroup.add(usagePoint1, Range.closedOpen(MIDDLE, AFTER));
 
-        EnumeratedUsagePointGroup.Entry entry2 = usagePointGroup.add(usagePoint1, Range.atLeast(START));
+        EnumeratedUsagePointGroup.Entry entry2 = usagePointGroup.add(usagePoint1, atLeast(START));
 
-        assertThat(entry2.getRange()).isEqualTo(Range.atLeast(START));
+        assertThat(entry2.getRange()).isEqualTo(atLeast(START));
     }
 
     @Test
     public void testIsMember() {
-        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Range.closedOpen(BEFORE, AFTER));
+        usagePointGroup.add(usagePoint1, Range.closedOpen(BEFORE, AFTER));
 
         assertThat(usagePointGroup.isMember(usagePoint1, MIDDLE)).isTrue();
-
     }
 
     @Test
     public void testRemove() {
-        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Range.closedOpen(BEFORE, AFTER));
+        EnumeratedUsagePointGroup.Entry<UsagePoint> entry = usagePointGroup.add(usagePoint1, Range.closedOpen(BEFORE, AFTER));
 
         usagePointGroup.remove(entry);
 
         assertThat(usagePointGroup.isMember(usagePoint1, MIDDLE)).isFalse();
-
     }
 
     @Test
     public void testSaveNew() {
         usagePointGroup.save();
 
-        verify(dataModel.mapper(EnumeratedUsagePointGroup.class)).persist(usagePointGroup);
+        verify(dataModel).persist(usagePointGroup);
     }
 
     @Test
     public void testSaveNewWithEntries() {
-        usagePointGroup.add(usagePoint1, Range.atLeast(START));
+        usagePointGroup.add(usagePoint1, atLeast(START));
 
         usagePointGroup.save();
 
-        verify(dataModel.mapper(EnumeratedUsagePointGroup.class)).persist(usagePointGroup);
-        ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
+        verify(dataModel).persist(usagePointGroup);
         verify(entryFactory).persist(listCaptor.capture());
 
-        List<?> list = listCaptor.getValue();
+        List<EnumeratedUsagePointGroupImpl.UsagePointEntryImpl> list = listCaptor.getValue();
         assertThat(list).hasSize(1);
-        EnumeratedUsagePointGroup.Entry entry = (EnumeratedUsagePointGroup.Entry) list.get(0);
-        assertThat(entry.getUsagePoint()).isEqualTo(usagePoint1);
-        assertThat(entry.getRange()).isEqualTo(Range.atLeast(START));
+        EnumeratedUsagePointGroupImpl.UsagePointEntryImpl entry = list.get(0);
+        assertThat(entry.getMember()).isEqualTo(usagePoint1);
+        assertThat(entry.getRange()).isEqualTo(atLeast(START));
     }
 
     @Test
     public void testSaveUpdate() {
         simulateSaved();
 
-        usagePointGroup.save();
+        usagePointGroup.update();
 
-        verify(dataModel.mapper(EnumeratedUsagePointGroup.class)).update(usagePointGroup);
+        verify(dataModel).update(usagePointGroup);
     }
 
     @Test
     public void testSaveUpdateWithEntries() {
         simulateSaved();
 
-        EnumeratedUsagePointGroupImpl.EntryImpl entry1 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint1, Range.atLeast(START));
-        EnumeratedUsagePointGroupImpl.EntryImpl entry2 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint2, Range.atLeast(START));
+        EnumeratedUsagePointGroupImpl.UsagePointEntryImpl entry1 = new EnumeratedUsagePointGroupImpl.UsagePointEntryImpl(dataModel);
+        entry1.init(usagePointGroup, usagePoint1, Range.atLeast(START));
+        EnumeratedUsagePointGroupImpl.UsagePointEntryImpl entry2 = new EnumeratedUsagePointGroupImpl.UsagePointEntryImpl(dataModel);
+        entry2.init(usagePointGroup, usagePoint2, Range.atLeast(START));
 
-        when(entryFactory.find("usagePointGroup", usagePointGroup)).thenReturn(Arrays.asList(entry1, entry2));
+        when(entryFactory.find("group", usagePointGroup)).thenReturn(Arrays.asList(entry1, entry2));
 
         usagePointGroup.endMembership(usagePoint1, END);
         usagePointGroup.add(usagePoint3, Range.atLeast(END));
 
-        usagePointGroup.save();
+        usagePointGroup.update();
 
         verify(entryFactory).update(Arrays.asList(entry1, entry2));
-        ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
         verify(entryFactory).persist(listCaptor.capture());
         assertThat(listCaptor.getValue()).hasSize(1);
     }
@@ -221,5 +242,4 @@ public class EnumeratedUsagePointGroupTest {
     private void simulateSaved() {
         field("id").ofType(Long.TYPE).in(usagePointGroup).set(ID);
     }
-
 }

@@ -22,6 +22,11 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -32,7 +37,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.conditions.Operator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -45,6 +49,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
@@ -76,11 +81,12 @@ public class QueryUsagePointGroupImplIT {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private SearchDomain searchDomain;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
     private class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(UserService.class).toInstance(userService);
@@ -123,7 +129,10 @@ public class QueryUsagePointGroupImplIT {
         }
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(MeteringGroupsService.class).addQueryProvider(
+                    injector.getInstance(SimpleUsagePointQueryProvider.class));
+            when(searchDomain.getId()).thenReturn("UsagePoint");
+            injector.getInstance(SearchService.class).register(searchDomain);
             return null;
         });
     }
@@ -144,19 +153,33 @@ public class QueryUsagePointGroupImplIT {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            meteringGroupsService.createQueryUsagePointGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", UP_MRID)))
-                    .setMRID("mine")
+            meteringGroupsService.createQueryUsagePointGroup(
+                    mockSearchablePropertyValue("mRID", SearchablePropertyOperator.EQUAL, Collections.singletonList("*(*")))
+                    .setMRID("MDM:mine")
+                    .setName("mine")
+                    .setSearchDomain(searchDomain)
+                    .setQueryProviderName("com.elster.jupiter.metering.groups.impl.SimpleUsagePointQueryProvider")
                     .create();
             ctx.commit();
         }
 
-        Optional<UsagePointGroup> found = meteringGroupsService.findUsagePointGroup("mine");
+        Optional<UsagePointGroup> found = meteringGroupsService.findUsagePointGroup("MDM:mine");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(QueryUsagePointGroup.class);
         QueryUsagePointGroup group = (QueryUsagePointGroup) found.get();
+        assertThat(group.getName()).isEqualTo("mine");
         List<UsagePoint> members = group.getMembers(ZonedDateTime.of(2014, 1, 23, 14, 54, 0, 0, ZoneId.systemDefault()).toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(usagePoint.getId());
     }
 
+    private SearchablePropertyValue mockSearchablePropertyValue(String property, SearchablePropertyOperator operator, List<String> values) {
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = property;
+        valueBean.operator = operator;
+        valueBean.values = values;
+        SearchableProperty searchableProperty = mock(SearchableProperty.class);
+        when(searchableProperty.getName()).thenReturn(property);
+        return new SearchablePropertyValue(searchableProperty, valueBean);
+    }
 }

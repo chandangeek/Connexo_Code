@@ -24,5 +24,4 @@ public class MeteringGroupsModule extends AbstractModule {
 
         bind(MeteringGroupsService.class).to(MeteringGroupsServiceImpl.class).in(Scopes.SINGLETON);
     }
-
 }
