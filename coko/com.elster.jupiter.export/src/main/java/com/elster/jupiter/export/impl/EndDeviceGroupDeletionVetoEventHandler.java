@@ -18,7 +18,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 
-
 /**
  * Copyrights EnergyICT
  * Date: 27/03/2014
@@ -70,5 +69,4 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     public String getTopicMatcher() {
         return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
     }
-
 }
