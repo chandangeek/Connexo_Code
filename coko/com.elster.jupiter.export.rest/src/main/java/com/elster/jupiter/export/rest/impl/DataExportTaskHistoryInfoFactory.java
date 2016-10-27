@@ -3,21 +3,27 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
+import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -25,6 +31,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.elster.jupiter.export.rest.impl.TranslationKeys.NONRECURRING;
 import static com.elster.jupiter.export.rest.impl.TranslationKeys.ON_REQUEST;
@@ -90,14 +97,18 @@ public class DataExportTaskHistoryInfoFactory {
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
                         .orElseGet(dataExportOccurrence::getTask));
 
-        version.getReadingTypeDataSelector(dataExportOccurrence.getStartDate().get())
-                .map(StandardDataSelector::getStrategy)
-                .flatMap(DataExportStrategy::getUpdatePeriod)
-                .map(relativePeriod -> relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(dataExportOccurrence.getTriggerTime(), ZoneId.systemDefault())))
-                .ifPresent(interval -> {
-                    info.updatePeriodFrom = interval.lowerEndpoint();
-                    info.updatePeriodTo = interval.upperEndpoint();
-                });
+        version.getStandardDataSelectorConfig(dataExportOccurrence.getStartDate().get())
+                .ifPresent(selectorConfig ->
+                        selectorConfig.apply(DefaultConfigVisitor.forReadingSelector(readingDataSelectorConfig -> {
+                            Optional<RelativePeriod> updatePeriod = readingDataSelectorConfig.getStrategy().getUpdatePeriod();
+                            if (updatePeriod.isPresent()) {
+                                Range<Instant> interval = updatePeriod.get()
+                                        .getOpenClosedInterval(ZonedDateTime.ofInstant(dataExportOccurrence.getTriggerTime(), ZoneId.systemDefault()));
+                                info.updatePeriodFrom = interval.lowerEndpoint();
+                                info.updatePeriodTo = interval.upperEndpoint();
+                            }
+                        }))
+                );
 
         info.task = dataExportTaskInfoFactory.asInfoWithoutHistory(version);
         populateForReadingTypeDataExportTask(info, version, dataExportOccurrence);
@@ -126,13 +137,30 @@ public class DataExportTaskHistoryInfoFactory {
 
     private void populateForReadingTypeDataExportTask(DataExportTaskHistoryInfo info, ExportTask version, DataExportOccurrence dataExportOccurrence) {
         ReadingTypeInfoFactory readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
-        version.getReadingTypeDataSelector(dataExportOccurrence.getStartDate().get()).ifPresent(readingTypeDataSelector -> {
-            info.task.standardDataSelector = new StandardDataSelectorInfo();
-            info.task.standardDataSelector.populateFrom(readingTypeDataSelector, thesaurus);
-            for (ReadingType readingType : readingTypeDataSelector.getReadingTypes(dataExportOccurrence.getStartDate().get())) {
-                info.task.standardDataSelector.readingTypes.add(readingTypeInfoFactory.from(readingType));
-            }
-        });
+        version.getStandardDataSelectorConfig(dataExportOccurrence.getStartDate().get())
+                .ifPresent(selector -> selector.apply(
+                        new DefaultConfigVisitor() {
+                            @Override
+                            public void visit(MeterReadingSelectorConfig config) {
+                                info.task.standardDataSelector = new StandardDataSelectorInfo();
+                                info.task.standardDataSelector.populateFrom(config);
+                                addReadingTypes(config);
+                            }
+
+                            @Override
+                            public void visit(UsagePointReadingSelectorConfig config) {
+                                info.task.standardDataSelector = new StandardDataSelectorInfo();
+                                info.task.standardDataSelector.populateFrom(config);
+                                addReadingTypes(config);
+                            }
+
+                            private void addReadingTypes(ReadingDataSelectorConfig config) {
+                                for (ReadingType readingType : config.getReadingTypes(dataExportOccurrence.getStartDate().get())) {
+                                    info.task.standardDataSelector.readingTypes.add(readingTypeInfoFactory.from(readingType));
+                                }
+                            }
+                        }
+                ));
     }
 
     private DestinationType typeOf(DataExportDestination destination) {
@@ -183,5 +211,66 @@ public class DataExportTaskHistoryInfoFactory {
 
     private String fromTemporalExpression(TemporalExpression scheduleExpression) {
         return timeService.toLocalizedString(scheduleExpression);
+    }
+
+    private static class DefaultConfigVisitor implements DataSelectorConfig.DataSelectorConfigVisitor {
+
+        Consumer<MeterReadingSelectorConfig> meterReadingSelectorProcessor;
+        Consumer<UsagePointReadingSelectorConfig> upReadingSelectorProcessor;
+        Consumer<ReadingDataSelectorConfig> readingSelectorProcessor;
+        Consumer<EventSelectorConfig> eventSelectorProcessor;
+
+        static DefaultConfigVisitor forMeterReadingSelector(Consumer<MeterReadingSelectorConfig> function) {
+            DefaultConfigVisitor visitor = new DefaultConfigVisitor();
+            visitor.meterReadingSelectorProcessor = function;
+            return visitor;
+        }
+
+        static DefaultConfigVisitor forUsagePointReadingSelector(Consumer<UsagePointReadingSelectorConfig> function) {
+            DefaultConfigVisitor visitor = new DefaultConfigVisitor();
+            visitor.upReadingSelectorProcessor = function;
+            return visitor;
+        }
+
+        static DefaultConfigVisitor forReadingSelector(Consumer<ReadingDataSelectorConfig> function) {
+            DefaultConfigVisitor visitor = new DefaultConfigVisitor();
+            visitor.readingSelectorProcessor = function;
+            return visitor;
+        }
+
+        static DefaultConfigVisitor forEventSelector(Consumer<EventSelectorConfig> function) {
+            DefaultConfigVisitor visitor = new DefaultConfigVisitor();
+            visitor.eventSelectorProcessor = function;
+            return visitor;
+        }
+
+        @Override
+        public void visit(MeterReadingSelectorConfig config) {
+            if (meterReadingSelectorProcessor != null) {
+                meterReadingSelectorProcessor.accept(config);
+            }
+            applyReadingSelectorProcessor(config);
+        }
+
+        @Override
+        public void visit(UsagePointReadingSelectorConfig config) {
+            if (upReadingSelectorProcessor != null) {
+                upReadingSelectorProcessor.accept(config);
+            }
+            applyReadingSelectorProcessor(config);
+        }
+
+        @Override
+        public void visit(EventSelectorConfig config) {
+            if (eventSelectorProcessor != null) {
+                eventSelectorProcessor.accept(config);
+            }
+        }
+
+        private void applyReadingSelectorProcessor(ReadingDataSelectorConfig config) {
+            if (readingSelectorProcessor != null) {
+                readingSelectorProcessor.accept(config);
+            }
+        }
     }
 }

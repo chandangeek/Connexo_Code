@@ -4,16 +4,21 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
-import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.security.Privileges;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
@@ -35,6 +40,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -59,9 +65,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -73,6 +78,7 @@ public class DataExportTaskResource {
     private final DataExportService dataExportService;
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
+    private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final PropertyValueInfoService propertyValueInfoService;
@@ -82,13 +88,14 @@ public class DataExportTaskResource {
     private final DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory;
 
     @Inject
-    public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService,
+    public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, MeteringService meteringService,
                                   Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService,
                                   ConcurrentModificationExceptionFactory conflictFactory, DataSourceInfoFactory dataSourceInfoFactory,
                                   DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory) {
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
+        this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.propertyValueInfoService = propertyValueInfoService;
@@ -190,7 +197,8 @@ public class DataExportTaskResource {
                         .exportComplete(info.standardDataSelector.exportComplete)
                         .exportUpdate(info.standardDataSelector.exportUpdate);
                 info.standardDataSelector.readingTypes.stream()
-                        .map(r -> r.mRID)
+                        .map(r -> meteringService.getReadingType(r.mRID))
+                        .flatMap(Functions.asStream())
                         .forEach(selectorBuilder::fromReadingType);
                 selectorBuilder.endSelection();
             } else if (info.dataSelector.selectorType == SelectorType.DEFAULT_EVENTS) {
@@ -267,52 +275,112 @@ public class DataExportTaskResource {
                 }
                 String selectorString = task.getDataSelectorFactory().getName();
                 SelectorType selectorType = SelectorType.forSelector(selectorString);
-                if (selectorType.equals(SelectorType.DEFAULT_READINGS)) {
-                    StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-                    selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
-                    selector.setExportUpdate(info.standardDataSelector.exportUpdate);
-                    selector.setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod));
-                    selector.setUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow));
-                    selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
-                    selector.setExportOnlyIfComplete(info.standardDataSelector.exportComplete);
-                    selector.setValidatedDataOption(info.standardDataSelector.validatedDataOption);
-                    selector.setExportContinuousData(info.standardDataSelector.exportContinuousData);
-                    selector.save();
-                    updateReadingTypes(info, task);
-                } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)) {
-                    EventDataSelector selector = task.getEventDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-                    selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
-                    selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
-                    updateEvents(info, task);
-                }
+                task.getStandardDataSelectorConfig()
+                        .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST))
+                        .apply(new StandardDataSelectorUpdater(selectorType, info));
             }
 
             updateProperties(info, task);
             updateDestinations(info, task);
-
             task.update();
             context.commit();
             return Response.status(Response.Status.CREATED).entity(dataExportTaskInfoFactory.asInfo(task)).build();
         }
     }
 
-    private void updateEvents(DataExportTaskInfo info, ExportTask task) {
-        EventDataSelector selector = task.getEventDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-        Set<String> toRemove = selector.getEventTypeFilters().stream()
-                .filter(t -> info.standardDataSelector.eventTypeCodes
-                        .stream()
-                        .map(r -> r.eventFilterCode)
-                        .noneMatch(m -> t.getCode().equals(m)))
+    private class StandardDataSelectorUpdater implements DataSelectorConfig.DataSelectorConfigVisitor {
+
+        private final SelectorType selectorType;
+        private final DataExportTaskInfo info;
+
+        StandardDataSelectorUpdater(SelectorType selectorType, DataExportTaskInfo info) {
+            this.selectorType = selectorType;
+            this.info = info;
+        }
+
+        @Override
+        public void visit(MeterReadingSelectorConfig config) {
+            if (!selectorType.equals(SelectorType.DEFAULT_READINGS)) {
+                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+            config.startUpdate()
+                    .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                    .setExportUpdate(info.standardDataSelector.exportUpdate)
+                    .setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
+                    .setUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
+                    .setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
+                    .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
+                    .setValidatedDataOption(info.standardDataSelector.validatedDataOption)
+                    .setExportContinuousData(info.standardDataSelector.exportContinuousData)
+                    .complete();
+            updateReadingTypes(config, info);
+            config.save();
+        }
+
+        @Override
+        public void visit(UsagePointReadingSelectorConfig config) {
+            if (!selectorType.equals(SelectorType.DEFAULT_USAGE_POINT_READINGS)) {
+                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+            config.startUpdate()
+                    .setUsagePointGroup(usagePointGroup(info.standardDataSelector.usagePointGroup.id))
+                    .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                    .setExportContinuousData(info.standardDataSelector.exportContinuousData)
+                    .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
+                    .setValidatedDataOption(info.standardDataSelector.validatedDataOption)
+                    .complete();
+            updateReadingTypes(config, info);
+            config.save();
+        }
+
+        @Override
+        public void visit(EventSelectorConfig config) {
+            if (!selectorType.equals(SelectorType.DEFAULT_EVENTS)) {
+                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+            config.startUpdate()
+                    .setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
+                    .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                    .complete();
+            updateEvents(config, info);
+            config.save();
+        }
+    }
+
+    private void updateReadingTypes(ReadingDataSelectorConfig selectorConfig, DataExportTaskInfo exportTaskInfo) {
+        ReadingDataSelectorConfig.Updater updater = selectorConfig.startUpdate();
+
+        // process removed reading types
+        selectorConfig.getReadingTypes().stream()
+                .filter(readingType -> exportTaskInfo.standardDataSelector.readingTypes.stream().map(info -> info.mRID).noneMatch(readingType::equals))
+                .forEach(updater::removeReadingType);
+
+        // process added reading types
+        exportTaskInfo.standardDataSelector.readingTypes.stream()
+                .map(info -> info.mRID)
+                .filter(mRID -> selectorConfig.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(mRID::equals))
+                .map(meteringService::getReadingType)
+                .flatMap(Functions.asStream())
+                .forEach(updater::addReadingType);
+    }
+
+    private void updateEvents(EventSelectorConfig selectorConfig, DataExportTaskInfo info) {
+        EventSelectorConfig.Updater updater = selectorConfig.startUpdate();
+
+        // process removed event types
+        selectorConfig.getEventTypeFilters().stream()
+                .filter(t -> info.standardDataSelector.eventTypeCodes.stream().map(r -> r.eventFilterCode).noneMatch(m -> t.getCode().equals(m)))
                 .map(EndDeviceEventTypeFilter::getCode)
-                .collect(Collectors.toSet());
-        toRemove.forEach(selector::removeEventTypeFilter);
+                .forEach(updater::removeEventTypeFilter);
+
+        // process added event types
         info.standardDataSelector.eventTypeCodes.stream()
                 .map(r -> r.eventFilterCode)
-                .filter(m -> selector.getEventTypeFilters()
+                .filter(m -> selectorConfig.getEventTypeFilters()
                         .stream()
                         .map(EndDeviceEventTypeFilter::getCode)
-                        .noneMatch(s -> s.equals(m)))
-                .forEach(selector::addEventTypeFilter);
+                        .noneMatch(m::equals))
+                .forEach(updater::addEventTypeFilter);
     }
 
     @GET
@@ -357,17 +425,36 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public PagedInfoList getDataSources(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         ExportTask task = findTaskOrThrowException(id, appCode);
-        List<DataSourceInfo> infos = task.getReadingTypeDataSelector()
-                .map(readingTypeDataSelector -> getDataSources(readingTypeDataSelector, queryParameters))
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(dataSourceInfoFactory::asInfo)
-                .collect(Collectors.toList());
+        List<DataSourceInfo> infos = new ArrayList<>();
+        task.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
+                new DataSelectorConfig.DataSelectorConfigVisitor() {
+                    @Override
+                    public void visit(MeterReadingSelectorConfig config) {
+                        infos.addAll(getDataSources(config));
+                    }
+
+                    @Override
+                    public void visit(UsagePointReadingSelectorConfig config) {
+                        infos.addAll(getDataSources(config));
+                    }
+
+                    @Override
+                    public void visit(EventSelectorConfig config) {
+                        // no data sources
+                    }
+
+                    private List<DataSourceInfo> getDataSources(ReadingDataSelectorConfig config) {
+                        return fetchDataSources(config, queryParameters).stream()
+                                .map(dataSourceInfoFactory::asInfo)
+                                .collect(Collectors.toList());
+                    }
+                }
+        ));
         return PagedInfoList.fromPagedList("dataSources", infos, queryParameters);
     }
 
-    private List<? extends ReadingTypeDataExportItem> getDataSources(StandardDataSelector standardDataSelector, JsonQueryParameters queryParameters) {
-        List<ReadingTypeDataExportItem> activeExportItems = standardDataSelector.getExportItems().stream()
+    private List<? extends ReadingTypeDataExportItem> fetchDataSources(ReadingDataSelectorConfig readingDataSelectorConfig, JsonQueryParameters queryParameters) {
+        List<ReadingTypeDataExportItem> activeExportItems = readingDataSelectorConfig.getExportItems().stream()
                 .filter(ReadingTypeDataExportItem::isActive)
                 .filter(item -> item.getLastRun().isPresent())
                 .collect(Collectors.toList());
@@ -406,17 +493,6 @@ public class DataExportTaskResource {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> dataExportService.findExportTask(info.id).map(ExportTask::getVersion).orElse(null))
                         .supplier());
-    }
-
-    private void updateReadingTypes(DataExportTaskInfo info, ExportTask task) {
-        StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-        selector.getReadingTypes().stream()
-                .filter(rt -> info.standardDataSelector.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> rt.getMRID().equals(m)))
-                .forEach(selector::removeReadingType);
-        info.standardDataSelector.readingTypes.stream()
-                .map(r -> r.mRID)
-                .filter(m -> selector.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(s -> s.equals(m)))
-                .forEach(selector::addReadingType);
     }
 
     private void updateProperties(DataExportTaskInfo info, ExportTask task) {
@@ -467,9 +543,12 @@ public class DataExportTaskResource {
         return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
 
+    private EndDeviceGroup endDeviceGroup(Object endDeviceGroupId) {
+        return meteringGroupsService.findEndDeviceGroup((int) endDeviceGroupId).orElse(null);
+    }
 
-    private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
-        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
+    private UsagePointGroup usagePointGroup(Object usagePointGroupId) {
+        return meteringGroupsService.findUsagePointGroup((int) usagePointGroupId).orElse(null);
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {

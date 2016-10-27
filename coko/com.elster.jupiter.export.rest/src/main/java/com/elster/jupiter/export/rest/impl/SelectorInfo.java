@@ -12,10 +12,8 @@ public class SelectorInfo {
 
     public String name;
     public String displayName;
-    public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
+    public List<PropertyInfo> properties = new ArrayList<>();
     public SelectorType selectorType;
-
-
 
     public SelectorInfo(String name, String displayName, List<PropertyInfo> properties, SelectorType selectorType) {
         this.name = name;

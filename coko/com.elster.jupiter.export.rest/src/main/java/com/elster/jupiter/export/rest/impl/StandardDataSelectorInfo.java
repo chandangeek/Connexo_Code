@@ -2,13 +2,14 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
-import com.elster.jupiter.export.EventDataExportStrategy;
-import com.elster.jupiter.export.EventDataSelector;
-import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.EventSelectorConfig;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
 import java.util.ArrayList;
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
 public class StandardDataSelectorInfo {
 
     public long id;
-    public MeterGroupInfo deviceGroup;
+    public IdWithNameInfo deviceGroup;
+    public IdWithNameInfo usagePointGroup;
     public RelativePeriodInfo exportPeriod;
     public boolean exportContinuousData;
     public boolean exportUpdate; // only used from FE to BE
@@ -33,8 +35,8 @@ public class StandardDataSelectorInfo {
     public StandardDataSelectorInfo() {
     }
 
-    public StandardDataSelectorInfo(StandardDataSelector selector, Thesaurus thesaurus) {
-        populateFrom(selector, thesaurus);
+    public StandardDataSelectorInfo(MeterReadingSelectorConfig selector, Thesaurus thesaurus) {
+        populateFrom(selector);
         ReadingTypeInfoFactory readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         readingTypes = selector.getReadingTypes()
                 .stream()
@@ -42,8 +44,17 @@ public class StandardDataSelectorInfo {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public StandardDataSelectorInfo(EventDataSelector selector, Thesaurus thesaurus) {
-        populateFrom(selector, thesaurus);
+    public StandardDataSelectorInfo(UsagePointReadingSelectorConfig selector, Thesaurus thesaurus) {
+        populateFrom(selector);
+        ReadingTypeInfoFactory readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        readingTypes = selector.getReadingTypes()
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public StandardDataSelectorInfo(EventSelectorConfig selector) {
+        populateFrom(selector);
         eventTypeCodes = selector.getEventTypeFilters()
                 .stream()
                 .map(EndDeviceEventTypeFilter::getCode)
@@ -51,23 +62,28 @@ public class StandardDataSelectorInfo {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private void populateFrom(EventDataSelector selector, Thesaurus thesaurus) {
+    private void populateFrom(EventSelectorConfig selector) {
         id = selector.getId();
-        deviceGroup = new MeterGroupInfo(selector.getEndDeviceGroup());
+        deviceGroup = new IdWithNameInfo(selector.getEndDeviceGroup().getId(), selector.getEndDeviceGroup().getName());
         exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
-        EventDataExportStrategy strategy = selector.getEventStrategy();
-        exportContinuousData = strategy.isExportContinuousData();
+        exportContinuousData = selector.getStrategy().isExportContinuousData();
     }
 
-    void populateFrom(StandardDataSelector selector, Thesaurus thesaurus) {
+    void populateFrom(MeterReadingSelectorConfig selector) {
         id = selector.getId();
-        deviceGroup = new MeterGroupInfo(selector.getEndDeviceGroup());
         exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
-        DataExportStrategy strategy = selector.getStrategy();
-        populateFrom(strategy, thesaurus);
+        populateFrom(selector.getStrategy());
+        deviceGroup = new IdWithNameInfo(selector.getEndDeviceGroup().getId(), selector.getEndDeviceGroup().getName());
     }
 
-    private void populateFrom(DataExportStrategy strategy, Thesaurus thesaurus) {
+    void populateFrom(UsagePointReadingSelectorConfig selector) {
+        id = selector.getId();
+        exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
+        populateFrom(selector.getStrategy());
+        usagePointGroup = new IdWithNameInfo(selector.getUsagePointGroup().getId(), selector.getUsagePointGroup().getName());
+    }
+
+    private void populateFrom(DataExportStrategy strategy) {
         exportContinuousData = strategy.isExportContinuousData();
         exportComplete = strategy.isExportCompleteData();
         exportUpdate = strategy.isExportUpdate();
@@ -77,5 +93,4 @@ public class StandardDataSelectorInfo {
                 .ifPresent(relativePeriod -> updateWindow = RelativePeriodInfo.withCategories(relativePeriod));
         validatedDataOption = strategy.getValidatedDataOption();
     }
-
 }

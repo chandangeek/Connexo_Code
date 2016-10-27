@@ -1,7 +1,9 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportDestination;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
@@ -115,12 +117,12 @@ public class DataExportTaskInfoFactory {
     }
 
     private void populateReadingTypeDataExport(DataExportTaskInfo info, ExportTask dataExportTask) {
-        dataExportTask.getReadingTypeDataSelector()
-                .ifPresent(readingTypeDataSelector -> info.standardDataSelector = new StandardDataSelectorInfo(readingTypeDataSelector, thesaurus));
+        dataExportTask.getStandardDataSelectorConfig().map(MeterReadingSelectorConfig.class::cast)
+                .ifPresent(meterReadingDataSelectorConfig -> info.standardDataSelector = new StandardDataSelectorInfo(meterReadingDataSelectorConfig, thesaurus));
     }
 
     private void populateEventTypeDataExport(DataExportTaskInfo info, ExportTask dataExportTask) {
-        dataExportTask.getEventDataSelector()
-                .ifPresent(eventDataSelector -> info.standardDataSelector = new StandardDataSelectorInfo(eventDataSelector, thesaurus));
+        dataExportTask.getStandardDataSelectorConfig().map(EventSelectorConfig.class::cast)
+                .ifPresent(eventDataSelector -> info.standardDataSelector = new StandardDataSelectorInfo(eventDataSelector));
     }
 }

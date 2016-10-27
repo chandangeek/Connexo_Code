@@ -1,15 +1,14 @@
 package com.elster.jupiter.export.rest.impl;
 
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 
 import javax.inject.Inject;
-import java.time.Instant;
 
 public class DataSourceInfoFactory {
 
@@ -23,19 +22,19 @@ public class DataSourceInfoFactory {
     public DataSourceInfo asInfo(ReadingTypeDataExportItem item) {
         DataSourceInfo info = new DataSourceInfo();
         info.occurrenceId = item.getLastOccurrence().map(DataExportOccurrence::getId).orElse(null);
-        item.getLastRun().ifPresent(instant ->
-                info.details = getDataSourceDetails(item.getReadingContainer(), instant)
-        );
         info.readingType = readingTypeInfoFactory.from(item.getReadingType());
+        info.details = getDataSourceDetails(item.getDomainObject());
         item.getLastExportedDate().ifPresent(instant -> info.lastExportedDate = instant);
         return info;
     }
 
-    private DataSourceInfo.DataSource getDataSourceDetails(ReadingContainer readingContainer, Instant instant) {
-        if (readingContainer instanceof Meter) {
-            return readingContainer.getMeter(instant).map(this::asDataSource).orElse(null);
+    private DataSourceInfo.DataSource getDataSourceDetails(IdentifiedObject domainObject) {
+        if (domainObject instanceof Meter) {
+            return asDataSource((Meter) domainObject);
+        } else if (domainObject instanceof UsagePoint) {
+            return asDataSource((UsagePoint) domainObject);
         } else {
-            return readingContainer.getUsagePoint(instant).map(this::asDataSource).orElse(null);
+            return null;
         }
     }
 
