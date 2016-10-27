@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
@@ -19,10 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public interface EndDevice extends IdentifiedObject {
+public interface EndDevice extends HasId, IdentifiedObject {
     String TYPE_IDENTIFIER = "E";
-
-    long getId();
 
     String getSerialNumber();
 
