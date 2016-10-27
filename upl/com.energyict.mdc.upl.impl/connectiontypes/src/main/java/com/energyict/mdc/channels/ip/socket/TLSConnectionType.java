@@ -182,7 +182,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-27 13:09:53 +0200 (Thu, 27 Oct 2016)$";
+        return "$Date: 2016-10-27 14:22:27 +0200 (Thu, 27 Oct 2016)$";
     }
 
     protected class X509TrustManagerImpl implements X509TrustManager {
@@ -246,7 +246,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         X509KeyManager x509KeyManager;
         protected KeyStore keyStore;
 
-        X509KeyManagerImpl(KeyStore keyStore) throws Exception {
+        protected X509KeyManagerImpl(KeyStore keyStore) throws Exception {
             this.keyStore = keyStore;
             KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmfactory.init(keyStore, DLMSKeyStoreParameters.PARAMETERS);
