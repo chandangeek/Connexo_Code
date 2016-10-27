@@ -711,7 +711,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         group
                 .getEntries()
                 .stream()
-                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+                .filter(each -> each.getMember().getId() == endDevice.getId())
                 .findFirst()
                 .ifPresent(group::remove);
     }
