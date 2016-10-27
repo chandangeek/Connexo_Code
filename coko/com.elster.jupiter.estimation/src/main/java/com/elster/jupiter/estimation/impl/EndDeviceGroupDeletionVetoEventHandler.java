@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -13,7 +14,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
 
 /**
  * Copyrights EnergyICT
@@ -64,5 +64,4 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     public String getTopicMatcher() {
         return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
     }
-
 }
