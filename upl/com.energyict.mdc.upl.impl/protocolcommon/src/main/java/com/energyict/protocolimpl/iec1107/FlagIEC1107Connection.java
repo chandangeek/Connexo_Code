@@ -7,10 +7,10 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocol.meteridentification.MeterTypeImpl;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -186,7 +186,7 @@ public class FlagIEC1107Connection extends Connection {
                                  Encryptor encryptor,
                                  HalfDuplexController halfDuplexController,
                                  boolean software7E1,
-                                 Logger logger) throws ConnectionException {
+                                 Logger logger) {
         super((software7E1 ? new Software7E1InputStream(inputStream) : inputStream),
                 (software7E1 ? new Software7E1OutputStream(outputStream) : outputStream), lForceDelay, iEchoCancelling, halfDuplexController);
         this.iMaxRetries = iMaxRetries;
@@ -324,7 +324,7 @@ public class FlagIEC1107Connection extends Connection {
      */
     public void sendBreak() throws NestedIOException, FlagIEC1107ConnectionException {
         try {
-            byte[] buffer = {(byte) SOH, (byte) 0x42, (byte) 0x30, (byte) ETX, (byte) 0x71};
+            byte[] buffer = {SOH, (byte) 0x42, (byte) 0x30, ETX, (byte) 0x71};
             startWriting();
             sendRawData(buffer);
             return;
@@ -348,7 +348,7 @@ public class FlagIEC1107Connection extends Connection {
         return connectMAC(strIdentConfig, strPass, iSecurityLevel, meterID, baudrate);
     }
 
-    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID) throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID) throws IOException {
         return connectMAC(strIdentConfig, strPass, iSecurityLevel, meterID, 0);
     }
 
@@ -411,12 +411,12 @@ public class FlagIEC1107Connection extends Connection {
 
                 if (iIEC1107Compatible == 1) {
                     // protocol mode C, programming mode
-                    byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x31, (byte) 0x0D, (byte) 0x0A};
+                    byte[] ack = {ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x31, (byte) 0x0D, (byte) 0x0A};
                     startWriting();
                     sendRawData(ack);
                 } else {
                     // special case for Elster A1700 meter
-                    byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x36, (byte) 0x0D, (byte) 0x0A};
+                    byte[] ack = {ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x36, (byte) 0x0D, (byte) 0x0A};
                     startWriting();
                     sendRawData(ack);
                 }
@@ -532,7 +532,7 @@ public class FlagIEC1107Connection extends Connection {
                         throw new IOException(resp + " received");
                     } else if (resp.compareTo("(ERR1)") == 0) {
                         throw new IOException(resp + " received");
-                    } else if (resp.indexOf("(ER") != -1) { // IskraEmeco errors...
+                    } else if (resp.contains("(ER")) { // IskraEmeco errors...
                         throw new IOException(resp + " received");
                     }
                     }
@@ -560,9 +560,9 @@ public class FlagIEC1107Connection extends Connection {
     } // public void authenticate(int iSecurityLevel)
 
 
-    public byte[] dataReadout(String strIdent, String meterID) throws IOException, FlagIEC1107ConnectionException {
+    public byte[] dataReadout(String strIdent, String meterID) throws IOException {
         byte[] data = null;
-        if (boolFlagIEC1107Connected == false) {
+        if (!boolFlagIEC1107Connected) {
             try {
                 data = doDataReadout(strIdent, meterID);
             }
@@ -573,7 +573,7 @@ public class FlagIEC1107Connection extends Connection {
         return data;
     } // public void connectMAC() throws HDLCConnectionException
 
-    public byte[] doDataReadout(String strIdentConfig, String meterID) throws IOException, FlagIEC1107ConnectionException {
+    public byte[] doDataReadout(String strIdentConfig, String meterID) throws IOException {
         int iRetries = 0;
         while (true) {
             try {
@@ -587,7 +587,7 @@ public class FlagIEC1107Connection extends Connection {
                     throw new ConnectionException("Invalid IEC1107 meter identification received!");
                 }
 
-                byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x30, (byte) 0x0D, (byte) 0x0A};
+                byte[] ack = {ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x30, (byte) 0x0D, (byte) 0x0A};
                 startWriting();
                 sendRawData(ack);
                 boolFlagIEC1107Connected = true;
@@ -705,7 +705,7 @@ public class FlagIEC1107Connection extends Connection {
 
                 if (returnResult) {
 
-                    if ((errorSignature != null) && (resp.indexOf(errorSignature) != -1)) {
+                    if ((errorSignature != null) && (resp.contains(errorSignature))) {
                         retVal = resp;
                     }
 
@@ -726,9 +726,9 @@ public class FlagIEC1107Connection extends Connection {
 
         return retVal;
 
-    } // public void doSendCommandFrame(byte bCommand,byte[] data) throws FlagIEC1107ConnectionException
+    }
 
-    public void skipCommandMessage() throws NestedIOException, ConnectionException, FlagIEC1107ConnectionException {
+    public void skipCommandMessage() throws NestedIOException, ConnectionException {
         long lMSTimeout;
         int iNewKar;
         byte bState = 0;
@@ -741,7 +741,7 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
             if ((iNewKar = readIn()) != -1) {
                 if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
+                    ProtocolUtils.outputHex(iNewKar);
                 }
 
                 if ((bState == 0) && ((byte) iNewKar == SOH)) {
@@ -754,7 +754,7 @@ public class FlagIEC1107Connection extends Connection {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new FlagIEC1107ConnectionException("skipCommandMessage() timeout error", TIMEOUT_ERROR);
             }
 
@@ -778,7 +778,7 @@ public class FlagIEC1107Connection extends Connection {
      * @throws ConnectionException
      * @throws FlagIEC1107ConnectionException
      */
-    public byte[] receiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public byte[] receiveData() throws IOException {
         return parseDataBetweenBrackets(doReceiveDataRetry(null));
     }
 
@@ -790,7 +790,7 @@ public class FlagIEC1107Connection extends Connection {
      *
      * @param requestObjectId: the objectId sent in the request command
      */
-    public byte[] receiveData(String requestObjectId) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public byte[] receiveData(String requestObjectId) throws IOException {
         return parseDataBetweenBrackets(doReceiveDataRetry(requestObjectId));
     }
 
@@ -855,7 +855,7 @@ public class FlagIEC1107Connection extends Connection {
 
             if ((iNewKar = readIn()) != -1) {
                 if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
+                    ProtocolUtils.outputHex(iNewKar);
                 }
 
                 switch (iState) {
@@ -962,10 +962,10 @@ public class FlagIEC1107Connection extends Connection {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new FlagIEC1107ConnectionException("doReceiveData() response timeout error", TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new FlagIEC1107ConnectionException("doReceiveData() interframe timeout error", TIMEOUT_ERROR);
             }
 
@@ -989,7 +989,7 @@ public class FlagIEC1107Connection extends Connection {
     private static final byte STREAM_STATE_WAIT_FOR_END = 4;
     private static final byte STREAM_STATE_WAIT_FOR_CRC = 5;
 
-    public byte[] receiveStreamData() throws NestedIOException, ConnectionException, FlagIEC1107ConnectionException {
+    public byte[] receiveStreamData() throws NestedIOException, ConnectionException {
         long lMSTimeout, lMSTimeoutInterFrame;
         int iNewKar;
         int state = STREAM_STATE_WAIT_FOR_START;
@@ -1018,7 +1018,7 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
             if ((iNewKar = readIn()) != -1) {
                 if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
+                    ProtocolUtils.outputHex(iNewKar);
                 }
                 brutodata.write(iNewKar);
                 switch (state) {
@@ -1102,10 +1102,10 @@ public class FlagIEC1107Connection extends Connection {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new FlagIEC1107ConnectionException("receiveStreamData() response timeout error", TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new FlagIEC1107ConnectionException("receiveStreamData() interframe timeout error", TIMEOUT_ERROR);
             }
 
@@ -1113,7 +1113,7 @@ public class FlagIEC1107Connection extends Connection {
 
     } // public byte[] receiveStreamData(String str) throws FlagIEC1107ConnectionException
 
-    public String receiveIdent(String str) throws NestedIOException, ConnectionException, FlagIEC1107ConnectionException {
+    public String receiveIdent(String str) throws NestedIOException, ConnectionException {
         long lMSTimeout;
         int iNewKar;
         String strIdent = "";
@@ -1128,7 +1128,7 @@ public class FlagIEC1107Connection extends Connection {
 
             if ((iNewKar = readIn()) != -1) {
                 if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
+                    ProtocolUtils.outputHex(iNewKar);
                 }
 
                 if ((byte) iNewKar == NAK) {
@@ -1159,7 +1159,7 @@ public class FlagIEC1107Connection extends Connection {
                 }
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new FlagIEC1107ConnectionException("receiveIdent() timeout error", TIMEOUT_ERROR);
             }
 

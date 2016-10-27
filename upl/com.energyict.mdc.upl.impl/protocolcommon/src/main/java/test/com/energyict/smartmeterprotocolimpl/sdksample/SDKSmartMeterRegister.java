@@ -3,7 +3,9 @@ package test.com.energyict.smartmeterprotocolimpl.sdksample;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,7 +33,7 @@ public class SDKSmartMeterRegister {
 
     public SDKSmartMeterRegister(String obisCode, String serialNumber, String unit, int divider, int digits) {
         this.register = new Register(-1, ObisCode.fromString(obisCode), serialNumber);
-        this.description = register.getObisCode().getDescription();
+        this.description = register.getObisCode().toString();
         this.divider = divider;
         this.digits = digits;
         this.unit = Unit.get(unit);
@@ -39,7 +41,7 @@ public class SDKSmartMeterRegister {
 
     public SDKSmartMeterRegister(String obisCode, String serialNumber, String unit, int divider) {
         this.register = new Register(-1, ObisCode.fromString(obisCode), serialNumber);
-        this.description = register.getObisCode().getDescription();
+        this.description = register.getObisCode().toString();
         this.divider = divider;
         this.digits = 2;
         this.unit = Unit.get(unit);

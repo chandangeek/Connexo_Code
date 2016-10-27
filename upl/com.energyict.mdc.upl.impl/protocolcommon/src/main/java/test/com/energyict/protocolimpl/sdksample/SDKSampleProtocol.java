@@ -272,7 +272,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         //getLogger().info("call overrided method translateRegister()");
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {

@@ -2,12 +2,13 @@ package com.energyict.protocolimpl.utils;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.StreamConnection;
-import com.energyict.dialer.coreimpl.UDPSession;
 import com.energyict.dialer.serialserviceprovider.SerialPort;
 import com.energyict.protocol.tools.InputStreamObserver;
 import com.energyict.protocol.tools.OutputStreamObserver;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 /**
@@ -124,10 +125,6 @@ public class VirtualSerialCommunicationChannel implements StreamConnection {
     }
 
     public Socket getSocket() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public UDPSession getUdpSession() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

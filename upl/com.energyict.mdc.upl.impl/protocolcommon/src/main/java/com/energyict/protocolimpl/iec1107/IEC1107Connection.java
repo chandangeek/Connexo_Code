@@ -8,11 +8,11 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocol.meteridentification.MeterTypeImpl;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     private static final int STATE_PROGRAMMINGMODE=1;
 
     private int state=STATE_SIGNON;
-    public int checksumMethod=0;
+    private int checksumMethod=0;
     private boolean readoutEnabled = false;
 	private boolean software7E1 = false;
     private boolean noBreakRetry = false;
@@ -114,7 +114,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
      * @param encryptor if the protocol has an encryptor to use for security level 2 password logon
      * @exception ProtocolConnectionException
      */
-    public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible, Encryptor encryptor, String errorSignature, boolean software7E1) throws ConnectionException {
+    public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible, Encryptor encryptor, String errorSignature, boolean software7E1) {
         super((software7E1?new Software7E1InputStream(inputStream):inputStream),
     			(software7E1?new Software7E1OutputStream(outputStream):outputStream), lForceDelay, iEchoCancelling);
         this.iMaxRetries = iMaxRetries;
@@ -129,8 +129,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     } // public FlagIEC1107Connection(...)
 
     /**
-     * Method that requests a MAC disconnect for the IEC1107 layer.
-     * @exception HDLCConnectionException
+     * Requests a MAC disconnect for the IEC1107 layer.
      */
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
         if (boolFlagIEC1107Connected==true) {
@@ -151,16 +150,15 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 }
                 throw new ProtocolConnectionException("disconnectMAC() error, ConnectionException, "+e.getMessage(), e.getReason());
             }
-        } // if (boolFlagIEC1107Connected==true)
-    } // public void disconnectMAC() throws ProtocolConnectionException
+        }
+    }
 
     /**
-     * Method that requests a MAC disconnect for the IEC1107 layer.
-     * @exception HDLCConnectionException
+     * Requests a MAC disconnect for the IEC1107 layer.
      */
     public void sendBreak() throws NestedIOException,ProtocolConnectionException {
         try {
-            byte[] buffer = {(byte)SOH,(byte)0x42,(byte)0x30,(byte)ETX,(byte)0x71};
+            byte[] buffer = {SOH,(byte)0x42,(byte)0x30, ETX,(byte)0x71};
             sendRawData(buffer);
             return;
         }
@@ -173,14 +171,13 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
             }
             throw new ProtocolConnectionException("sendBreak() error, "+e.getMessage(), e.getReason());
         }
-    } // public void sendBreak() throws ProtocolConnectionException
+    }
 
     /**
-     * Method that requests a MAC connection for the HDLC layer. this request negotiates some parameters
+     * Requests a MAC connection for the HDLC layer. this request negotiates some parameters
      * for the buffersizes and windowsizes.
-     * @exception HDLCConnectionException
      */
-    public MeterType connectMAC(String strIdentConfig, String strPass,int iSecurityLevel,String meterID) throws IOException,ProtocolConnectionException {
+    public MeterType connectMAC(String strIdentConfig, String strPass,int iSecurityLevel,String meterID) throws IOException {
         if (boolFlagIEC1107Connected==false) {
 
             MeterType meterType;
@@ -205,13 +202,13 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
             catch(ConnectionException e) {
                 throw new ProtocolConnectionException("connectMAC(), ConnectionException "+e.getMessage(), e.getReason());
             }
-        } // if (boolFlagIEC1107Connected==false
+        }
 
         return null;
 
-    } // public MeterType connectMAC() throws HDLCConnectionException
+    }
 
-    private MeterType signOn(String strIdentConfig, String meterID) throws IOException,NestedIOException,ProtocolConnectionException {
+    private MeterType signOn(String strIdentConfig, String meterID) throws IOException {
         int retries=0;
         if (isNoBreakRetry()) retries = iMaxRetries - 1;
 
@@ -227,12 +224,12 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 String strIdent = new String(ProtocolUtils.getSubArray(strIdentRaw.getBytes(),strIdentRaw.indexOf('/')));
                 if (iIEC1107Compatible == 1) {
                     // protocol mode C, programming mode
-                    byte[] ack={(byte)ACK,(byte)0x30,(byte)strIdent.charAt(4),(byte)0x31,(byte)0x0D,(byte)0x0A};
+                    byte[] ack={ACK,(byte)0x30,(byte)strIdent.charAt(4),(byte)0x31,(byte)0x0D,(byte)0x0A};
                     sendRawData(ack);
                 }
                 else  if (iIEC1107Compatible == 0) {
                     // special case for Elster A1700 meter
-                    byte[] ack={(byte)ACK,(byte)0x30,(byte)strIdent.charAt(4),(byte)0x36,(byte)0x0D,(byte)0x0A};
+                    byte[] ack={ACK,(byte)0x30,(byte)strIdent.charAt(4),(byte)0x36,(byte)0x0D,(byte)0x0A};
                     sendRawData(ack);
                 }
                 else  {
@@ -243,7 +240,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                     // iIEC1107Compatible = 5 = 4800 baud
                     // iIEC1107Compatible = 6 = 9600 baud
 
-                    byte[] ack={(byte)ACK,(byte)0x30,(byte)(0x31+(iIEC1107Compatible-2)),(byte)0x31,(byte)0x0D,(byte)0x0A};
+                    byte[] ack={ACK,(byte)0x30,(byte)(0x31+(iIEC1107Compatible-2)),(byte)0x31,(byte)0x0D,(byte)0x0A};
                     sendRawData(ack);
                     iIEC1107Compatible=1; // set back!
                 }
@@ -254,20 +251,23 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 throw new ProtocolConnectionException("signOn() error, "+e.getMessage());
             }
             catch (ConnectionException e) {
-                if (retries++ >=iMaxRetries) throw new ProtocolConnectionException("signOn() error iMaxRetries, possibly meter not responding or wrong nodeaddress, "+e.getMessage(), MAX_RETRIES_ERROR);
-                else {
+                if (retries++ >=iMaxRetries) {
+                    throw new ProtocolConnectionException("signOn() error iMaxRetries, possibly meter not responding or wrong nodeaddress, " + e.getMessage(), MAX_RETRIES_ERROR);
+                } else {
                     sendBreak();
                     delay(DELAY_AFTER_BREAK); // KV 06102003
                 }
             }
         }
 
-    } // private MeterType signOn(String strIdentConfig, String meterID) throws NestedIOException,ProtocolConnectionException
+    }
 
     private void prepareAuthentication(String strPass) throws NestedIOException,ProtocolConnectionException {
         int iRetries=0;
 
-        if (isNoBreakRetry()) iRetries = iMaxRetries - 1;
+        if (isNoBreakRetry()) {
+            iRetries = iMaxRetries - 1;
+        }
 
         while(true) {
             String pwd = (strPass!=null) ? strPass : "";
@@ -382,7 +382,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 String strIdentRaw = receiveIdent(strIdentConfig);
                 // KV 28072004 remove rubbish at the beginning...
                 String strIdent = new String(ProtocolUtils.getSubArray(strIdentRaw.getBytes(),strIdentRaw.indexOf('/')));
-                byte[] ack={(byte)ACK,(byte)0x30,(byte)strIdent.charAt(4),(byte)0x30,(byte)0x0D,(byte)0x0A};
+                byte[] ack={ACK,(byte)0x30,(byte)strIdent.charAt(4),(byte)0x30,(byte)0x0D,(byte)0x0A};
                 sendRawData(ack);
 
                 boolFlagIEC1107Connected=true;
@@ -523,7 +523,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
     } // public void doSendCommandFrame(byte bCommand,byte[] data) throws ProtocolConnectionException
 
-    public void skipCommandMessage() throws NestedIOException,ConnectionException, ProtocolConnectionException {
+    public void skipCommandMessage() throws NestedIOException,ConnectionException {
         long lMSTimeout;
         int iNewKar;
         byte bState=0;
@@ -535,7 +535,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
+                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
 
                 if ((bState==0) && ((byte)iNewKar == SOH))
                     bState = 1;
@@ -546,7 +546,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ProtocolConnectionException("skipCommandMessage() timeout error", TIMEOUT_ERROR);
             }
 
@@ -619,7 +619,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
+                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
 
                 switch(iState) {
                     case STATE_WAIT_FOR_START: {
@@ -694,10 +694,10 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ProtocolConnectionException("doReceiveData() response timeout error", TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new ProtocolConnectionException("doReceiveData() interframe timeout error", TIMEOUT_ERROR);
             }
         } // while(true)
@@ -718,7 +718,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         delayAndFlush(3000);
     }
 
-    public byte[] receiveStreamData() throws NestedIOException,ConnectionException, ProtocolConnectionException {
+    public byte[] receiveStreamData() throws NestedIOException,ConnectionException {
         long lMSTimeout,lMSTimeoutInterFrame;
         int iNewKar;
         int state=STREAM_STATE_WAIT_FOR_START;
@@ -745,7 +745,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
+                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
                 brutodata.write(iNewKar);
                 switch(state) {
                     case STREAM_STATE_WAIT_FOR_START: {
@@ -813,10 +813,10 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ProtocolConnectionException("receiveStreamData() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new ProtocolConnectionException("receiveStreamData() interframe timeout error",TIMEOUT_ERROR);
             }
 
@@ -824,7 +824,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
     } // public byte[] receiveStreamData(String str) throws ProtocolConnectionException
 
-    public String receiveIdent(String str) throws NestedIOException, ConnectionException, ProtocolConnectionException {
+    public String receiveIdent(String str) throws NestedIOException, ConnectionException {
         long lMSTimeout;
         int iNewKar;
         String strIdent= "";
@@ -838,7 +838,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         while(true) {
 
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
+                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
 
                 if ((byte)iNewKar==NAK) sendBreak();
 
@@ -865,7 +865,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 }
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ProtocolConnectionException("receiveIdent() timeout error", TIMEOUT_ERROR);
             }
 

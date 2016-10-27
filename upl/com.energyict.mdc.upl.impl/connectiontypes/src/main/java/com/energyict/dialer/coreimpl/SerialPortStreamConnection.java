@@ -65,10 +65,10 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
      * doSetParams().
      * Set the communication parameters for the open port.
      *
-     * @param iBaudrate : 300,1200,2400,4800,9600,19200,...
-     * @param iDatabits : SerialPort.DATABITS_x (x=8,7,6,5)
-     * @param iParity   : SerialPort.PARITY_x (x=NONE (0),EVEN (2),ODD (1) ,MARK (3),SPACE (4))
-     * @param iStopbits : SerialPort.STOPBITS_x (x=1 (1),2 (2),1_5 (3))
+     * @param baudrate : 300,1200,2400,4800,9600,19200,...
+     * @param databits : SerialPort.DATABITS_x (x=8,7,6,5)
+     * @param parity   : SerialPort.PARITY_x (x=NONE (0),EVEN (2),ODD (1) ,MARK (3),SPACE (4))
+     * @param stopbits : SerialPort.STOPBITS_x (x=1 (1),2 (2),1_5 (3))
      * @throws IOException
      */
     protected void doSetParams(int baudrate, int databits, int parity, int stopbits) throws IOException {
@@ -469,11 +469,4 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         return null;
     }
 
-    public UDPSession getUdpSession() {
-        return null;
-    }
-
-    // private void doClose()
-
-
-} // SerialPortConnection
+}

@@ -84,25 +84,23 @@ public class ServerDatagramConnection extends StreamPortConnection {
                     udpSession = new UDPSession(this, signature);
                     session = new DatagramConnection(udpSession);
                     sessions.put(signature, session);
-                    session.getUdpSession().receive(receivePacket);
                     return;
                 } else {
                     if (logger.isTraceEnabled()) {
                         logger.trace("UDPSession with signature " + signature + " exist");
                     }
-                    session.getUdpSession().receive(receivePacket);
                 }
             } catch (BindException e) {
                 throw new NestedIOException(e, "BindException, there is already an instance active!");
             } catch (SocketException e) {
-                if (e.toString().indexOf("socket closed") == -1) {
+                if (!e.toString().contains("socket closed")) {
                     throw new NestedIOException(e, "SocketException");
                 }
             } catch (IOException e) {
                 throw new NestedIOException(e, "IOException");
             }
-        } // while(true)
-    } // public Socket listen()
+        }
+    }
 
     /**
      * Wait and accept an incoming DatagramPacket.

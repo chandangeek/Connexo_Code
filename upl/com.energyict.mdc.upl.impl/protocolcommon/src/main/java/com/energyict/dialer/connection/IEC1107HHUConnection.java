@@ -13,7 +13,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterId;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocol.meteridentification.MeterTypeImpl;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -51,7 +51,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
     /**
      * Creates a new instance of IEC1107Connection
      */
-    public IEC1107HHUConnection(SerialCommunicationChannel commChannel, int timeout, int maxRetries, long lForceDelay, int iEchoCancelling) throws ConnectionException {
+    public IEC1107HHUConnection(SerialCommunicationChannel commChannel, int timeout, int maxRetries, long lForceDelay, int iEchoCancelling) {
         super(commChannel.getInputStream(), commChannel.getOutputStream(), lForceDelay, iEchoCancelling);
         this.timeout = timeout;
         this.commChannel = commChannel;
@@ -121,7 +121,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
                 }
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ConnectionException("receiveIdent() timeout error", TIMEOUT_ERROR);
             }
 
@@ -238,10 +238,10 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ConnectionException("doReceiveData() response timeout error", TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new ConnectionException("doReceiveData() interframe timeout error", TIMEOUT_ERROR);
             }
 
@@ -250,11 +250,11 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
 
     } // public byte[] doReceiveData(String str) throws ConnectionException
 
-    public MeterId discover(String[] nodeIds, LookupResources lookupResources) throws IOException, ConnectionException {
+    public MeterId discover(String[] nodeIds, LookupResources lookupResources) throws IOException {
         return discover(nodeIds, false, 0, lookupResources);
     }
 
-    public MeterId discover(String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException, ConnectionException {
+    public MeterId discover(String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException {
         int retries = 0;
         int count = 0;
 
@@ -314,7 +314,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
     } // public String discover(String nodeId)
 
 
-    public String discoverDatadump(boolean saveDataReadout, boolean modeCDataReadout, String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException, ConnectionException {
+    public String discoverDatadump(boolean saveDataReadout, boolean modeCDataReadout, String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException {
         int retries = 0;
         int count = 0;
 
@@ -365,8 +365,8 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
                 }
 
 
-                MeterId meterId = null;
-                String serialNumber = null;
+                MeterId meterId;
+                String serialNumber;
 
                 try {
                     if (meterType.getSerialNumberRegisterNames() == null) {
@@ -402,19 +402,19 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
                 }
                 delay(300);
             }
-        } //  while(true)
-    } // public String discover(String nodeId)
+        }
+    }
 
-    public MeterType signOn(String strIdentConfig, String nodeId) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId) throws IOException {
         return signOn(strIdentConfig, nodeId, 0);
     }
 
-    public MeterType signOn(String strIdentConfig, String nodeId, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId, int baudrate) throws IOException {
         return signOn(strIdentConfig, nodeId, false, baudrate);
     }
 
 
-    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException {
         MeterType meterType;
         if (isDataReadoutEnabled()) {
             meterType = doSignOn(strIdentConfig, nodeId, 0, 0, wakeup, baudrate);
@@ -425,7 +425,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
         return meterType;
     }
 
-    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException {
         int retries = 0;
         while (true) {
             try {
@@ -500,9 +500,9 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
                 }
             }
 
-        } //  while(true)
+        }
 
-    } // private doSignOn() throws ConnectionException
+    }
 
     private void sendProtocolAckAndSwitchBaudrate(MeterType meterType, int mode, int protocol) throws IOException {
         // build and send ack sequence
@@ -534,7 +534,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
         }
     }
 
-    private void delay300baudForDatalength(byte[] ack) throws NestedIOException, ConnectionException {
+    private void delay300baudForDatalength(byte[] ack) {
         // calc sleeptime using 300 baud and length of data
         try {
             Thread.sleep((ack.length * 10 * 1000) / 300);
@@ -572,7 +572,7 @@ public class IEC1107HHUConnection extends Connection implements HHUSignOn {
             long timeout = System.currentTimeMillis() + 2300;
             while (true) {
                 sendOut((byte) 0);
-                if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+                if (System.currentTimeMillis() - timeout > 0) {
                     break;
                 }
             }

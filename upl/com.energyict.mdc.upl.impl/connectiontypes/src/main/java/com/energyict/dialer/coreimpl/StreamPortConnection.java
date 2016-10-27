@@ -16,7 +16,7 @@ import java.net.Socket;
 /**
  * @author Koen
  */
-abstract public class StreamPortConnection extends StreamConnectionImpl {
+public abstract class StreamPortConnection extends StreamConnectionImpl {
 
     private static final Log logger = LogFactory.getLog(StreamPortConnection.class);
 
@@ -64,13 +64,13 @@ abstract public class StreamPortConnection extends StreamConnectionImpl {
             }
         }
 
-    } // protected void doSetParams(int baudrate,int databits, int parity, int stopbits) throws IOException    
+    }
 
     protected void doSetComPort(String strComPort) {
         // use strcomPort...
         // send escape commands
         // <ESC>comPort=COM1,...</ESC>
-    } // protected void doSetComPort(String strComPort)    
+    }
 
 
     private boolean getResponse() throws IOException {
@@ -164,7 +164,7 @@ abstract public class StreamPortConnection extends StreamConnectionImpl {
 
     protected void doRequest2Receive(int nrOfBytes) {
         // rts set to false is done in the virtual com port! Yes, otherwise we encounter lots of timing problems!!
-    } // protected void doRequest2Receive(int nrOfBytes)
+    }
 
     protected void doRequest2SendV25(int nrOfBytes) {
         try {
@@ -184,7 +184,7 @@ abstract public class StreamPortConnection extends StreamConnectionImpl {
 
     protected void doRequest2ReceiveV25(int nrOfBytes) {
         // rts set to false is done in the virtual com port! Yes, otherwise we encounter lots of timing problems!!
-    } // protected void doRequest2Receive(int nrOfBytes)
+    }
 
     protected void doRequest2SendRS485() {
         try {
@@ -202,13 +202,13 @@ abstract public class StreamPortConnection extends StreamConnectionImpl {
 
     protected void doRequest2ReceiveRS485(int nrOfBytes) {
         // rts set to false is done in the virtual com port! Yes, otherwise we encounter lots of timing problems!!
-    } // protected void doRequest2Receive(int nrOfBytes)
+    }
 
     // TODO evt een createVirtual bijmaken om de baudrate te zetten voor de open...
 
     protected void openVirtual() throws IOException {
         if (!boolVirtualOpen) {
-            // use escape sequences to open COMx port remote   
+            // use escape sequences to open COMx port remote
             String escapeSequence = "<ESC>" + COMPORT + "=" + strComPort + ".open</ESC>";
             getOutputStream().write(escapeSequence.getBytes());
             //setParams(baudrate,databits, parity, stopbits); // KV 12012006 removed...
@@ -218,7 +218,7 @@ abstract public class StreamPortConnection extends StreamConnectionImpl {
 
     protected void closeVirtual() throws IOException {
         if (boolVirtualOpen) {
-            // use escape sequences to close COMx port remote   
+            // use escape sequences to close COMx port remote
             String escapeSequence = "<ESC>" + COMPORT + "=" + strComPort + ".close</ESC>";
             getOutputStream().write(escapeSequence.getBytes());
             boolVirtualOpen = false;
@@ -227,10 +227,6 @@ abstract public class StreamPortConnection extends StreamConnectionImpl {
 
     protected SerialPort doGetSerialPort() {
         return null;
-    }
-
-    public UDPSession getUdpSession() {
-        return udpSession;
     }
 
 }

@@ -33,11 +33,11 @@ public class DatagramConnection extends StreamPortConnection {
     //****************************************************************************************
     // Delegate of implementation of interface StreamConnection
     //****************************************************************************************
-    protected void doServerOpen() throws NestedIOException {
+    protected void doServerOpen() throws IOException {
         doOpen();
     }
 
-    protected void doOpen() throws NestedIOException {
+    protected void doOpen() throws IOException {
         if (!boolOpen) {
             try {
                 if (udpSession == null) // KV 03102005
@@ -66,10 +66,10 @@ public class DatagramConnection extends StreamPortConnection {
                     inputStream.close();
                     outputStream.close();
                 } catch (IOException ex) {
-                    throw new NestedIOException(ex);
+                    throw new IOException(ex);
                 }
                 udpSession.close();
-                throw new NestedIOException(e);
+                throw new IOException(e);
             }
         } else {
 
@@ -79,13 +79,11 @@ public class DatagramConnection extends StreamPortConnection {
                 } catch (IOException e) {
                     throw new NestedIOException(e);
                 }
-            } else
-            //System.out.println("DatagramConnection, doOpen(), session for "+getUdpSession().getSignature()+" exists and is already open..."); //
-            {
+            } else {
                 throw new NestedIOException(new IOException("DatagramConnection, doOpen(), Port already open"));
             }
         }
-    } // protected void doOpen(String strPhoneNr) throws NestedIOException,StreamConnectionException 
+    }
 
     protected void doServerClose() throws NestedIOException {
         doClose();
@@ -116,35 +114,6 @@ public class DatagramConnection extends StreamPortConnection {
                 throw new NestedIOException(new IOException("IP port is not open"));
             }
         }
-
-    } // protected void doClose() throws NestedIOException   
-
-
-    //****************************************************************************************
-    // Private core methods
-    //****************************************************************************************
-    private String getIPAddress(String strPhoneNr) throws IOException {
-        String address = strPhoneNr.substring(0, strPhoneNr.indexOf(":"));
-        if (address == null) {
-            throw new IOException("DatagramConnection, getIPAddress, invalid IP connection string " + strPhoneNr);
-        }
-        //address = address.substring(0,address.indexOf(":"));
-        //if (address == null) throw new IOException("DatagramConnection, getIPAddress, invalid IP connection string "+strPhoneNr);
-        return address;
-    }
-
-    private String getTCPPort(String strPhoneNr) throws IOException {
-        String port = strPhoneNr.substring(strPhoneNr.indexOf(":") + 1);
-        if (port == null) {
-            throw new IOException("DatagramConnection, getTCPPort, invalid IP connection string " + strPhoneNr);
-        }
-        int comPortIndex = port.indexOf(":");
-        if (comPortIndex != -1) {
-            String comPort = port.substring(comPortIndex + 1);
-            port = port.substring(0, port.indexOf(":"));
-            setComPort(comPort);
-        }
-        return port;
     }
 
 }

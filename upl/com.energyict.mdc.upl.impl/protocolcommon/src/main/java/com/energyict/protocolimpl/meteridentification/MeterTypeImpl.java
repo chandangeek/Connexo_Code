@@ -15,7 +15,7 @@ import com.energyict.protocol.meteridentification.MeterType;
 import java.io.IOException;
 
 /*
-* @author  Koen
+* @author Koen
 */
 public class MeterTypeImpl implements MeterType {
 

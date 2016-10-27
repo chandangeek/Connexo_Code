@@ -10,8 +10,6 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -40,15 +38,15 @@ import java.util.Properties;
  *
  * @author kvds
  */
-abstract public class MBus extends AbstractProtocol implements Discover {
+public abstract class MBus extends AbstractProtocol implements Discover {
 
     final int DEBUG=1;
 
-    abstract protected void doTheConnect() throws IOException;
-    abstract protected void doTheDisConnect() throws IOException;
-    abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    abstract protected List doTheGetOptionalKeys();
-    abstract protected void initRegisterFactory();
+    protected abstract void doTheConnect() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
+    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+    protected abstract List doTheGetOptionalKeys();
+    protected abstract void initRegisterFactory();
 
     private MBusConnection mBusConnection=null;
     private AbstractRegisterFactory registerFactory=null;
@@ -116,7 +114,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         doTheValidateProperties(properties);
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 0; // KV_TO_DO
     }
 
@@ -139,7 +137,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
 
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "YET UNKNOWN";
     }
 
@@ -153,20 +151,21 @@ abstract public class MBus extends AbstractProtocol implements Discover {
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         obisCode=new ObisCode(0,0,96,99,obisCode.getE(),obisCode.getF());
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         //getRegisterFactory()
         Iterator it = getRegisterFactory().getRegisterValues().iterator();
         while(it.hasNext()) {
             RegisterValue registerValue = (RegisterValue)it.next();
-            strBuff.append(registerValue.toString()+"\n");
+            builder.append(registerValue.toString()).append("\n");
         }
-        if (getCIField72h()!=null)
-            strBuff.append(getCIField72h().header());
-        return strBuff.toString();
+        if (getCIField72h()!=null) {
+            builder.append(getCIField72h().header());
+        }
+        return builder.toString();
     }
 
 
@@ -193,23 +192,17 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     }
 
     public List<CIField72h> discoverDeviceSerialNumbers() throws IOException {
-
     	SecondaryAddressDiscover o = new SecondaryAddressDiscover(this);
     	o.discover();
-    	List<CIField72h> cIField72hs = o.getCIField72hs();
-
-    	return cIField72hs;
-    }
-
-    private String buildSerialId(long id,int manuf,int version,int medium) {
-    	return id+"_"+manuf+"_"+version+"_"+medium;
+        return o.getCIField72hs();
     }
 
     public CIField72h getCIField72h() throws IOException {
         if (cIField72h==null) {
         	ApplicationData frame = getMBusConnection().sendREQ_UD2().getASDU();
-        	if (frame == null)
-        		throw new MBusException("MBus, Framing error!");
+        	if (frame == null) {
+                throw new MBusException("MBus, Framing error!");
+            }
             cIField72h = (CIField72h)frame.buildAbstractCIFieldObject(getTimeZone());
         }
         return cIField72h;
@@ -247,4 +240,5 @@ abstract public class MBus extends AbstractProtocol implements Discover {
 	public void setHeaderMedium(int headerMedium) {
 		this.headerMedium = headerMedium;
 	}
+
 }

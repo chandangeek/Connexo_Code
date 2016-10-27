@@ -4,10 +4,10 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocol.meteridentification.MeterTypeImpl;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -159,12 +159,11 @@ public class Lis200Connection extends FlagIEC1107Connection {
                 }
             }
 
-            if (quitLoop && (answer.length() > 0)) {
+            if (quitLoop && (!answer.isEmpty())) {
                 int p1 = answer.indexOf("(");
                 int p2 = answer.indexOf(")");
                 String d = answer.substring(p1 + 1, p2);
-                MeterType meterType = new MeterTypeImpl("/Els6" + d);
-                return meterType;
+                return new MeterTypeImpl("/Els6" + d);
             }
             return null;
 

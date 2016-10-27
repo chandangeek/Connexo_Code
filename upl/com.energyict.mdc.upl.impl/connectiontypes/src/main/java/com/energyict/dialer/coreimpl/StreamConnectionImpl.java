@@ -7,7 +7,6 @@
 package com.energyict.dialer.coreimpl;
 
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.DialerException;
 import com.energyict.dialer.core.StreamConnection;
@@ -35,51 +34,51 @@ public abstract class StreamConnectionImpl implements StreamConnection {
     // delegate SerialCommunicationChannel interface methods
     //****************************************************************************************
 
-    abstract protected void doSetParams(int iBaudrate, int iDatabits, int iParity, int iStopbits) throws java.io.IOException;
+    protected abstract void doSetParams(int iBaudrate, int iDatabits, int iParity, int iStopbits) throws java.io.IOException;
 
-    abstract protected void doSetComPort(String strComPort);
+    protected abstract void doSetComPort(String strComPort);
 
-    abstract protected boolean doSigCD() throws IOException;
+    protected abstract boolean doSigCD() throws IOException;
 
-    abstract protected boolean doSigCTS() throws IOException;
+    protected abstract boolean doSigCTS() throws IOException;
 
-    abstract protected void doSetDTR(boolean dtr) throws IOException;
+    protected abstract void doSetDTR(boolean dtr) throws IOException;
 
-    abstract protected void doSetRTS(boolean rts) throws IOException;
+    protected abstract void doSetRTS(boolean rts) throws IOException;
 
-    abstract protected boolean doSigDSR() throws IOException;
+    protected abstract boolean doSigDSR() throws IOException;
 
-    abstract protected boolean doSigRing() throws IOException;
+    protected abstract boolean doSigRing() throws IOException;
 
-    abstract protected SerialPort doGetSerialPort();
+    protected abstract SerialPort doGetSerialPort();
 
     //****************************************************************************************
     // delegate HalfDuplexController interface methods
     //****************************************************************************************
 
-    abstract protected void doRequest2Send(int nrOfBytes);
+    protected abstract void doRequest2Send(int nrOfBytes);
 
-    abstract protected void doRequest2Receive(int nrOfBytes);
+    protected abstract void doRequest2Receive(int nrOfBytes);
 
-    abstract protected void doRequest2SendV25(int nrOfBytes);
+    protected abstract void doRequest2SendV25(int nrOfBytes);
 
-    abstract protected void doRequest2ReceiveV25(int nrOfBytes);
+    protected abstract void doRequest2ReceiveV25(int nrOfBytes);
 
-    abstract protected void doRequest2SendRS485();
+    protected abstract void doRequest2SendRS485();
 
-    abstract protected void doRequest2ReceiveRS485(int nrOfBytes);
+    protected abstract void doRequest2ReceiveRS485(int nrOfBytes);
 
     //****************************************************************************************
     // delegate StreamConnection interface methods
     //****************************************************************************************
 
-    abstract protected void doOpen() throws NestedIOException;
+    protected abstract void doOpen() throws IOException;
 
-    abstract protected void doServerOpen() throws NestedIOException;
+    protected abstract void doServerOpen() throws IOException;
 
-    abstract protected void doClose() throws NestedIOException;
+    protected abstract void doClose() throws IOException;
 
-    abstract protected void doServerClose() throws NestedIOException;
+    protected abstract void doServerClose() throws IOException;
 
     //****************************************************************************************
     // Serial communication parameters, default 9600,8,N,1
@@ -205,7 +204,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
      * setParamsAndFlush, setParams.
      * Set the communication parameters for the open port.
      *
-     * @param baudrate : 300,1200,2400,4800,9600,19200,...
      * @param databits : SerialPort.DATABITS_x (x=8,7,6,5)
      * @param parity   : SerialPort.PARITY_x (x=NONE,EVEN,ODD,MARK,SPACE)
      * @param stopbits : SerialPort.STOPBITS_x (x=1,2,1_5)
@@ -330,26 +328,26 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         return boolOpen;
     }
 
-    public void open() throws NestedIOException {
+    public void open() throws IOException {
         doOpen();
     }
 
-    public void serverOpen() throws NestedIOException {
+    public void serverOpen() throws IOException {
         doServerOpen();
     }
 
-    public void close() throws NestedIOException {
+    public void close() throws IOException {
         doClose();
     }
 
-    public void serverClose() throws NestedIOException {
+    public void serverClose() throws IOException {
         doServerClose();
     }
 
-    public void accept() throws NestedIOException {
+    public void accept() throws IOException {
     }
 
-    public void accept(final int timeOut) throws NestedIOException {
+    public void accept(final int timeOut) throws IOException {
     }
 
     //****************************************************************************************
