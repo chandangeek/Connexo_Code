@@ -12,7 +12,6 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -130,11 +129,7 @@ public class DynamicDeviceGroupImplIT {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(YellowfinGroupsService.class);
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-
-            SimpleEndDeviceQueryProvider endDeviceQueryProvider = new SimpleEndDeviceQueryProvider();
-            endDeviceQueryProvider.setMeteringService(meteringService);
-            meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
+            meteringGroupsService.addQueryProvider(new SimpleEndDeviceQueryProvider());
 
             return null;
         });
@@ -157,16 +152,16 @@ public class DynamicDeviceGroupImplIT {
         QueryEndDeviceGroup queryEndDeviceGroup;
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder builder = meteringGroupsService.createQueryEndDeviceGroup();
-            builder.setMRID("mine");
-            builder.setName("mine");
-            builder.setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER);
             SearchDomain searchDomain = mockSearchDomain(EndDevice.class);
-            builder.setSearchDomain(searchDomain);
             SearchableProperty mrid = mockSearchableProperty("mRID");
             when(searchDomain.getProperties()).thenReturn(Collections.singletonList(mrid));
-            builder.withConditions(mockSearchablePropertyValue(mrid, SearchablePropertyOperator.EQUAL, Collections.singletonList(ED_MRID)));
-            queryEndDeviceGroup = builder.create();
+            queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
+                    .setMRID("mine")
+                    .setName("mine")
+                    .setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_END_DEVICE_QUERY_PROVIDER)
+                    .setSearchDomain(searchDomain)
+                    .withConditions(mockSearchablePropertyValue(mrid, SearchablePropertyOperator.EQUAL, Collections.singletonList(ED_MRID)))
+                    .create();
             ctx.commit();
         }
 
