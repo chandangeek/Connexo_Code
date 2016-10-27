@@ -267,9 +267,6 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
 
                 ECDSASignatureImpl signing = new ECDSASignatureImpl(getSecurityContext().getECCCurve());
                 PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-                if (clientPrivateSigningKey == null) {
-                    throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-                }
 
                 byte[] signature = signing.sign(plainText, clientPrivateSigningKey);
                 decryptedResponse = replyToHLSAuthentication(signature);

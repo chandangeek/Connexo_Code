@@ -933,9 +933,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 ephemeralPublicKeyEncoded
         );
         PrivateKey clientPrivateSigningKey = ((GeneralCipheringSecurityProvider) securityProvider).getClientPrivateSigningKey();
-        if (clientPrivateSigningKey == null) {
-            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-        }
         byte[] signature = ecdsaSignature.sign(signData, clientPrivateSigningKey);
 
         byte[] keyData = ProtocolTools.concatByteArrays(ephemeralPublicKeyEncoded, signature);
