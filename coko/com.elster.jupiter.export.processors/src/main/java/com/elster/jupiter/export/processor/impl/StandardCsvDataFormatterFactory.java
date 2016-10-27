@@ -24,7 +24,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
-        property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE},
+        property = {
+                DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE,
+                DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_USAGE_POINT_DATA_TYPE
+        },
         service = DataFormatterFactory.class, immediate = true)
 public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
