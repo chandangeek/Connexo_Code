@@ -20,9 +20,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 header: Uni.I18n.translate('general.register', 'MDC', 'Register'),
                 dataIndex: 'register',
                 renderer: function (value, metaData, record) {
-                    var from = moment(record.get('timeStamp')).subtract(1, 'minutes').valueOf(),
-                        to = moment(record.get('timeStamp')).add(1, 'minutes').valueOf(),
-                        url = '#/devices/' + me.mRID + '/registers/' + value.id + '/data?interval=' + from + '-' + to;
+                    var to = moment(record.get('timeStamp')).add(1, 'minutes').valueOf(),
+                        url = '#/devices/' + me.mRID + '/registers/' + value.id + '/data?interval=-' + to;
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                 },
                 flex: 15
