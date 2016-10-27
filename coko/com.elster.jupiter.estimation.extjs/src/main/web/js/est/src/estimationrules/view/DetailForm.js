@@ -6,7 +6,6 @@ Ext.define('Est.estimationrules.view.DetailForm', {
         'Est.estimationrules.view.ActionMenu'
     ],
     alias: 'widget.estimation-rules-detail-form',
-    ui: 'large',
     title: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
     layout: 'form',
     actionMenuItemId: null,
@@ -72,17 +71,19 @@ Ext.define('Est.estimationrules.view.DetailForm', {
     initComponent: function () {
         var me = this;
 
-        me.tools = [
-            {
-                xtype: 'uni-button-action',
-                itemId: 'estimation-rules-detail-action-menu-button',
-                privileges: Est.privileges.EstimationConfiguration.administrate,
-                menu: {
-                    xtype: 'estimation-rules-action-menu',
-                    itemId: me.actionMenuItemId
+        if(!me.noActionsButton){
+            me.tools = [
+                {
+                    xtype: 'uni-button-action',
+                    itemId: 'estimation-rules-detail-action-menu-button',
+                    privileges: Est.privileges.EstimationConfiguration.administrate,
+                    menu: {
+                        xtype: 'estimation-rules-action-menu',
+                        itemId: me.actionMenuItemId
+                    }
                 }
-            }
-        ];
+            ];
+        }
 
         me.callParent(arguments);
     }
