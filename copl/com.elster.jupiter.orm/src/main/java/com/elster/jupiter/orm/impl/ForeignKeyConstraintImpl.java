@@ -254,8 +254,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
     }
 
     public DataMapperImpl<?> reverseMapper(Field field) {
-        Class<?> clazz = DomainMapper.extractDomainClass(field);
-        return getTable().getDataMapper(clazz);
+        return getTable().getDataMapper(DomainMapper.extractDomainClassIdentifiers(field));
     }
 
     void prepare() {
@@ -267,8 +266,8 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
     void setField(Object target, KeyValue keyValue) {
         Field field = referenceField(target.getClass());
         if (field != null && Reference.class.isAssignableFrom(field.getType())) {
-            Class<?> api = DomainMapper.extractDomainClass(field);
-            DataMapperImpl<?> dataMapper = getReferencedTable().getDataMapper(api);
+            List<Class<?>> apiFragments = DomainMapper.extractDomainClassIdentifiers(field);
+            DataMapperImpl<?> dataMapper = getReferencedTable().getDataMapper(apiFragments);
             Reference<?> reference = new PersistentReference<>(keyValue, dataMapper, forwardEagers);
             try {
                 field.set(target, reference);

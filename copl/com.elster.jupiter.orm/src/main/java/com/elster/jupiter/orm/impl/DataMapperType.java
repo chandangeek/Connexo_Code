@@ -1,12 +1,14 @@
 package com.elster.jupiter.orm.impl;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import com.google.inject.Injector;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.stream.Stream;
 
 abstract class DataMapperType<T> {
 	private final TableImpl<T> table;
@@ -15,6 +17,7 @@ abstract class DataMapperType<T> {
 		this.table = table;
 	}
 	abstract boolean maps(Class<?> clazz);
+	abstract Stream<Class<? extends T>> streamImplementations(List<Class<?>> fragments);
 	abstract DomainMapper getDomainMapper();
 	abstract boolean hasMultiple();
 	abstract T newInstance();

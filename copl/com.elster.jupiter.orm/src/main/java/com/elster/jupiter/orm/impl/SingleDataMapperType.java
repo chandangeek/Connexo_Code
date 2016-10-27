@@ -1,10 +1,11 @@
 package com.elster.jupiter.orm.impl;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class SingleDataMapperType<T> extends DataMapperType<T> {
 	private final Class<? extends T> implementation;
@@ -18,6 +19,12 @@ public class SingleDataMapperType<T> extends DataMapperType<T> {
 	boolean maps(Class<?> clazz) {
 		return implementation == clazz;
 	}
+
+    @Override
+    Stream<Class<? extends T>> streamImplementations(List<Class<?>> fragments) {
+        return Stream.<Class<? extends T>>of(implementation)
+                .filter(impl -> fragments.stream().allMatch(fragment -> fragment.isAssignableFrom(impl)));
+    }
 
 	@Override
 	DomainMapper getDomainMapper() {

@@ -14,7 +14,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public enum DomainMapper {
     FIELDSTRICT(true),
@@ -166,22 +170,23 @@ public enum DomainMapper {
         return result;
     }
 
-    @SuppressWarnings("rawtypes")
-    public static Class<?> extractDomainClass(Field field) {
+    public static List<Class<?>> extractDomainClassIdentifiers(Field field) {
         Type type = field.getGenericType();
         if (type instanceof Class<?>) {
-            return (Class<?>) type;
+            return Collections.singletonList((Class<?>) type);
         } else if (type instanceof ParameterizedType) {
             Type subType = ((ParameterizedType) type).getActualTypeArguments()[0];
             if (subType instanceof Class<?>) {
                 // e.g. Reference<DomainModel>
-                return (Class<?>) subType;
+                return Collections.singletonList((Class<?>) subType);
             } else if (subType instanceof ParameterizedType) {
                 // e.g. Reference<DomainModel<Template>>
-                return (Class<?>) ((ParameterizedType) subType).getRawType();
+                return Collections.singletonList((Class<?>) ((ParameterizedType) subType).getRawType());
             } else if (subType instanceof TypeVariable) {
                 // e.g. Reference<Template extends DomainModel>
-                return (Class<?>) ((TypeVariable) subType).getBounds()[0];
+                return Arrays.stream(((TypeVariable) subType).getBounds())
+                        .map(bound -> (Class<?>) bound)
+                        .collect(Collectors.toList());
             }
         }
         throw new IllegalArgumentException("" + type);
