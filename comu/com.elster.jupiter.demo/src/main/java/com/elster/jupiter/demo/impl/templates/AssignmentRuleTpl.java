@@ -34,6 +34,7 @@ public enum  AssignmentRuleTpl implements Template<AssignmentRule, AssignmentRul
     }
 
     private static class AssignmentRule {
+        //FixMe add support to add work group
         public static final String ASSIGNMENTRULE_TO_MONICA =
                 "import com.elster.jupiter.issue.share.entity.IssueForAssign;\n" +
                         "rule \"Assign to @USERID (default)\"\n" +
@@ -41,7 +42,7 @@ public enum  AssignmentRuleTpl implements Template<AssignmentRule, AssignmentRul
                         "when\n" +
                         "    issue : IssueForAssign(!processed)\n" +
                         "then\n" +
-                        "    issue.assignTo(\"User\", @USERID);\n" +
+                        "    issue.assignTo(@USERID"+"L"+", 1L);\n" +
                         "    update(issue);\n" +
                         "end\n";
         public static final String ASSIGNMENTRULE_TO_SAM =
@@ -51,7 +52,7 @@ public enum  AssignmentRuleTpl implements Template<AssignmentRule, AssignmentRul
                         "when\n" +
                         "    issue : IssueForAssign(reason == \"@REASON\", !processed)\n" +
                         "then\n" +
-                        "    issue.assignTo(\"User\", @USERID);\n" +
+                        "    issue.assignTo(@USERID"+"L"+", 1L);\n" +
                         "    update(issue);\n" +
                         "end\n";
     }
