@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
@@ -48,6 +49,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -98,7 +100,7 @@ public class SchedulingResource {
                     Iterator<ComSchedule> iterator = comSchedules.iterator();
                     while (iterator.hasNext()) {
                         ComSchedule comSchedule = iterator.next();
-                        if (!isValidComSchedule(comSchedule, comTaskEnablements)) {
+                        if (!isValidComSchedule(comSchedule, comTaskEnablements, device.getComTaskExecutions())) {
                             iterator.remove();
                         }
                     }
@@ -123,8 +125,14 @@ public class SchedulingResource {
     }
 
 
-    private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements) {
-        return comTaskEnablements.stream()
+    private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements, List<ComTaskExecution> comTaskExecutions) {
+        boolean alreadyScheduledExecutionForTaskInSchedule = comTaskExecutions.stream()
+                .filter(comTaskExecution -> comTaskExecution instanceof ScheduledComTaskExecution)
+                .map(ComTaskExecution::getComTask)
+                .filter(comSchedule.getComTasks()::contains)
+                .findFirst()
+                .isPresent();
+        return !alreadyScheduledExecutionForTaskInSchedule && comTaskEnablements.stream()
                 .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
                 .findFirst()
                 .isPresent();
