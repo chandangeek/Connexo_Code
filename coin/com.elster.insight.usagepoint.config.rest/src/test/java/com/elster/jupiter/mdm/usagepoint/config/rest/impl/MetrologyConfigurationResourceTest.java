@@ -4,6 +4,8 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -67,6 +69,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Mock
     private ValidationRuleSet vrs, vrs2, vrs3;
     @Mock
+    private EstimationRuleSet ers;
+    @Mock
     private ServiceCategory serviceCategory;
     @Mock
     private MetrologyContract metrologyContract;
@@ -84,6 +88,11 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         ValidationRuleSetVersion validationRuleSetVersion = mockValidationRuleSetVersion(vrs);
         ValidationRuleSetVersion validationRuleSetVersion2 = mockValidationRuleSetVersion(vrs2);
         ValidationRuleSetVersion validationRuleSetVersion3 = mockValidationRuleSetVersion(vrs3);
+        EstimationRule estimationRule = mock(EstimationRule.class);
+        doReturn(Collections.singleton(mockReadingType())).when(estimationRule).getReadingTypes();
+        when(ers.getName()).thenReturn("EstimationRuleSet");
+        when(ers.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(ers.getId()).thenReturn(51L);
         metrologyContract = config1.getContracts().stream().findFirst().get();
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
         metrologyContractInfo.addValidationRuleSets(Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
@@ -105,6 +114,10 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         doReturn(Optional.of(vrs3)).when(validationService).getValidationRuleSet(anyLong());
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(vrs, vrs2));
         when(usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, vrs2, Collections.singletonList(vrs))).thenReturn(true);
+        doReturn(Optional.of(ers)).when(estimationService).getEstimationRuleSet(anyLong());
+        doReturn(Arrays.asList(ers)).when(estimationService).getEstimationRuleSets();
+        when(usagePointConfigurationService.getEstimationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(ers));
+        when(usagePointConfigurationService.isLinkableEstimationRuleSet(metrologyContract, ers, Collections.singletonList(ers))).thenReturn(true);
     }
 
     private ValidationRuleSetVersion mockValidationRuleSetVersion(ValidationRuleSet validationRuleSet) {
@@ -263,6 +276,63 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testRemoveValidationRuleSetConcurrencyCheck() {
+        when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testLinkedEstimationRuleSetsOfMetrologyContract() {
+        String json = target("/metrologyconfigurations/1/contracts").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.contracts[0].estimationRuleSets[0].id")).isEqualTo(51);
+        assertThat(jsonModel.<String>get("$.contracts[0].estimationRuleSets[0].name")).isEqualTo("EstimationRuleSet");
+    }
+
+    @Test
+    public void testLinkableEstimationRuleSetsOfMetrologyContract() {
+        String json = target("/metrologyconfigurations/1/contracts/1").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer>get("$.estimationRuleSets[0].id")).isEqualTo(51);
+        assertThat(jsonModel.<String>get("$.estimationRuleSets[0].name")).isEqualTo("EstimationRuleSet");
+    }
+
+    @Test
+    public void testAddEstimationRuleSetsToMetrologyContract() {
+        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
+        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePointConfigurationService).addEstimationRuleSet(metrologyContract, ers);
+    }
+
+    @Test
+    public void testAddEstimationRuleSetsConcurrencyCheck() {
+        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
+        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
+        when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testRemoveEstimationRuleSetFromMetrologyContract() {
+        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
+        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePointConfigurationService).removeEstimationRuleSet(metrologyContract, ers);
+    }
+
+    @Test
+    public void testRemoveEstimationRuleSetConcurrencyCheck() {
+        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
+        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
