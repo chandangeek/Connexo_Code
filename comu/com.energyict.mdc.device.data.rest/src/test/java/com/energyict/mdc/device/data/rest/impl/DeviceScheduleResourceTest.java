@@ -60,7 +60,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0))
                 .containsKey("id")
-                .containsKey("comTaskInfos")
+                .containsKey("comTask")
                 .containsKey("type");
     }
 
@@ -158,7 +158,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
                 .containsKey("schedule")
                 .containsKey("plannedDate")
                 .containsKey("nextCommunication")
-                .containsKey("comTaskInfos")
+                .containsKey("comTask")
                 .containsKey("type");
     }
 
