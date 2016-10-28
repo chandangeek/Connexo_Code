@@ -93,7 +93,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointCustomPropertySetResource.class,
                 UsagePointOutputResource.class,
                 GoingOnResource.class,
-                RestValidationExceptionMapper.class
+                RestValidationExceptionMapper.class,
+                UsagePointGroupResource.class
         );
     }
 
