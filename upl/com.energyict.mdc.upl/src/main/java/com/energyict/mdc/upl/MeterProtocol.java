@@ -1,5 +1,8 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
@@ -8,13 +11,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.List;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
  * MeterProtocol defines the interface between a data collection
  * system and the meter protocol implementation.
+ * <p>
+ * At configuration time, the getRequiredKeys, getOptionalKeys and setProperties methods
+ * can be called in any sequence </p><p>
  * <p>
  * During normal operations the data collection system will call the
  * methods in the following sequence:
@@ -37,7 +43,7 @@ import java.util.logging.Logger;
  *         KV 15122003 serialnumber of the device
  */
 @ConsumerType
-public interface MeterProtocol {
+public interface MeterProtocol extends HasDynamicProperties, CachingProtocol {
 
     /**
      * Models common properties that can be marked required or optional
@@ -90,18 +96,21 @@ public interface MeterProtocol {
     }
 
     /**
-     * Gets the names of the required properties for this MeterProtocol.
+     * <p>
+     * Sets the protocol specific properties, validating the values against
+     * the appropriate {@link com.energyict.mdc.upl.properties.PropertySpec}.
+     * Note that a property value that does not relate to a PropertySpec is ignored.
+     * </p>
+     * <p>
+     * This method can also be called at device configuration time
+     * to check the validity of the configured values.</p>
      *
-     * @return The List of property names
+     * @param properties contains a set of protocol specific key value pairs
+     * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
      */
-    List<String> getRequiredKeys();
+    void setProperties(Properties properties) throws PropertyValidationException;
 
-    /**
-     * Gets the names of the optional properties for this MeterProtocol.
-     *
-     * @return The List of property names
-     */
-    List<String> getOptionalKeys();
+    String getVersion();
 
     /**
      * <p>
