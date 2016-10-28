@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -130,6 +131,11 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
         public ReadingDataSelectorConfig.Updater setExportOnlyIfComplete(boolean exportOnlyIfCompleteFlag) {
             exportOnlyIfComplete = exportOnlyIfCompleteFlag;
             return this;
+        }
+
+        @Override
+        public DataSelectorConfig complete() {
+            return ReadingDataSelectorConfigImpl.this;
         }
     }
 }

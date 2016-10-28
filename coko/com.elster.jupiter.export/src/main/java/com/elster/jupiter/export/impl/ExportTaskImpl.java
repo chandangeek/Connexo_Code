@@ -172,7 +172,7 @@ final class ExportTaskImpl implements IExportTask {
         } else {
             doUpdate();
         }
-        dataSelectorConfig.getOptional().ifPresent(DataSelectorConfig::save);
+        dataSelectorConfig.getOptional().map(StandardDataSelectorConfigImpl.class::cast).ifPresent(StandardDataSelectorConfigImpl::save);
         recurrentTaskDirty = false;
         propertiesDirty = false;
     }
@@ -187,7 +187,7 @@ final class ExportTaskImpl implements IExportTask {
         }
         properties.clear();
         destinations.clear();
-        dataSelectorConfig.getOptional().ifPresent(DataSelectorConfig::delete);
+        dataSelectorConfig.getOptional().map(StandardDataSelectorConfigImpl.class::cast).ifPresent(StandardDataSelectorConfigImpl::delete);
         dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {

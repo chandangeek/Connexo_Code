@@ -85,6 +85,12 @@ public class EventSelectorConfigImpl extends StandardDataSelectorConfigImpl impl
     }
 
     @Override
+    public void delete() {
+        this.eventTypeFilters.clear();
+        super.delete();
+    }
+
+    @Override
     public EventSelectorConfig.Updater startUpdate() {
         return new UpdaterImpl();
     }

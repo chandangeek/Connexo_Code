@@ -88,12 +88,10 @@ abstract class StandardDataSelectorConfigImpl implements DataSelectorConfig {
         return dataModel;
     }
 
-    @Override
     public void save() {
         Save.action(id).save(getDataModel(), this);
     }
 
-    @Override
     public void delete() {
         getDataModel().remove(this);
     }

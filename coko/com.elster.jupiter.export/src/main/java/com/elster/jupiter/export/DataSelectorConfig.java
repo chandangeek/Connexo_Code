@@ -18,10 +18,6 @@ public interface DataSelectorConfig extends HasAuditInfo {
 
     DataSelector createDataSelector(Logger logger);
 
-    void save();
-
-    void delete();
-
     void apply(DataSelectorConfigVisitor visitor);
 
     History<DataSelectorConfig> getHistory();
