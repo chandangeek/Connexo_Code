@@ -17,6 +17,8 @@ package com.energyict.protocolimpl.dukepower;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -24,9 +26,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.SerialNumber;

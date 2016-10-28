@@ -1,16 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;

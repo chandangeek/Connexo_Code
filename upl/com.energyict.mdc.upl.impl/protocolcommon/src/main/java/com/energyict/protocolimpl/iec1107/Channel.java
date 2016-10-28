@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
 import java.math.BigDecimal;
 /**
@@ -18,11 +18,11 @@ import java.math.BigDecimal;
  *      +7 tells the channel is cumulative and has a 7 digit wrap around value 0000000 -> 9999999 decimal!
  */
 public class Channel {
-    
+
     String register=null;
     boolean cumul=false;
     BigDecimal wrapAroundValue=null;
-    
+
     /** Creates a new instance of Channel */
     public Channel(String strChannel) throws InvalidPropertyException {
         int index=0;
@@ -33,21 +33,21 @@ public class Channel {
             int digits = Integer.parseInt(strChannel.substring(index+1,strChannel.length()));
             wrapAroundValue = new BigDecimal(Math.pow(10, digits));
         }
-        else 
+        else
             register = strChannel;
     }
-    
+
     public String getRegister() {
         return register;
     }
-    
+
     public boolean isCumul() {
         return cumul;
     }
-    
+
     public BigDecimal getWrapAroundValue() {
-        return wrapAroundValue;   
+        return wrapAroundValue;
     }
-    
-    
+
+
 }

@@ -1,6 +1,8 @@
 package com.elster.protocolimpl.lis100;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.elster.protocolimpl.lis100.connection.Lis100Connection;
 import com.elster.protocolimpl.lis100.profile.Lis100Profile;
@@ -10,8 +12,6 @@ import com.elster.protocolimpl.lis100.registers.SimpleObisCodeMapper;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -218,9 +218,9 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
      * Validate certain protocol specific properties
      *
      * @param properties - The properties fetched from the Device
-     * @throws com.energyict.protocol.MissingPropertyException
+     * @throws MissingPropertyException
      *          - if a required property is missed
-     * @throws com.energyict.protocol.InvalidPropertyException
+     * @throws InvalidPropertyException
      *          - if there is a wrong parameter defined
      */
     @SuppressWarnings({"unchecked"})

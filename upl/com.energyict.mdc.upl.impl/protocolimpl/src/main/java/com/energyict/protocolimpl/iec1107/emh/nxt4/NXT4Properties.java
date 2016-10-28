@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.util.ArrayList;

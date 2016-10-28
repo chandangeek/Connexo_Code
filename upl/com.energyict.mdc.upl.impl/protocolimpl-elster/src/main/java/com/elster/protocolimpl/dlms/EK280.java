@@ -1,5 +1,8 @@
 package com.elster.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
@@ -9,8 +12,6 @@ import com.elster.protocolimpl.dlms.registers.DlmsSimpleRegisterDefinition;
 import com.elster.protocolimpl.dlms.registers.HistoricalObisCode;
 import com.elster.protocolimpl.dlms.registers.IReadableRegister;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 
 import java.util.Collections;
 import java.util.List;

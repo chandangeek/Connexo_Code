@@ -18,6 +18,8 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
@@ -50,8 +52,6 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;

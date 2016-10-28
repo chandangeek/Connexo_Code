@@ -11,13 +11,13 @@
 package com.energyict.protocolimpl.modbus.squared.pm800;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;

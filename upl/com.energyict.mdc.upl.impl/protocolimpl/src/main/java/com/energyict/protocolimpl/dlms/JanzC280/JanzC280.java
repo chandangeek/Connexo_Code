@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.dlms.JanzC280;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -28,8 +30,6 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;

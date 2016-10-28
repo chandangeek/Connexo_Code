@@ -1,17 +1,17 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;

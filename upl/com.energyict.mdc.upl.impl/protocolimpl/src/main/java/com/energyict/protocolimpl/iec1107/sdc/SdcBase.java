@@ -7,6 +7,8 @@
 package com.energyict.protocolimpl.iec1107.sdc;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -147,7 +149,7 @@ abstract public class SdcBase extends AbstractProtocol implements SerialNumberSu
         return iec1107Connection;
     }
 
-    protected void doValidateProperties(Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 //    	properties.setProperty("SecurityLevel","0");
     	extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
         this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");

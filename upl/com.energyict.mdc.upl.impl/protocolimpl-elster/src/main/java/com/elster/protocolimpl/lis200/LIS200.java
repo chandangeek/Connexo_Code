@@ -1,5 +1,8 @@
 package com.elster.protocolimpl.lis200;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.lis200.commands.AbstractCommand;
 import com.elster.protocolimpl.lis200.objects.AbstractObject;
@@ -26,9 +29,7 @@ import com.elster.utils.lis200.events.EventInterpreter;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -616,7 +617,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
      *
      * @param mType - type of device (Meter TYPE)
      * @return archive instance (to readout)
-     * @throws com.energyict.protocol.InvalidPropertyException
+     * @throws InvalidPropertyException
      *          - in case of a wrong meterIndex value
      */
     protected int meterIndexToArchiveInstance(String mType)

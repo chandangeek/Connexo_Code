@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;

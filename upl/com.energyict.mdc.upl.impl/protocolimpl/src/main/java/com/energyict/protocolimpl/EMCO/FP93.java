@@ -2,14 +2,14 @@ package com.energyict.protocolimpl.EMCO;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -83,9 +83,9 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
      * Abstract method to add custom properties
      *
      * @param properties The properties map to get properties from.
-     * @throws com.energyict.protocol.MissingPropertyException
+     * @throws MissingPropertyException
      *          Thrown when a particular proiperty is mandatory.
-     * @throws com.energyict.protocol.InvalidPropertyException
+     * @throws InvalidPropertyException
      *          Thrown when a particular property has an invalid value.
      */
     @Override

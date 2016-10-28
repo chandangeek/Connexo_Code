@@ -6,6 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -214,7 +217,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
                     "EmptyNodeAddress");
     }
 
-    protected void doValidateProperties(java.util.Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(java.util.Properties properties) throws MissingPropertyException, InvalidPropertyException {
         statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel","0"));
         readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0"));
         emptyNodeAddress = Integer.parseInt(properties.getProperty("EmptyNodeAddress","0"));

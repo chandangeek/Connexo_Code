@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.migration;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;

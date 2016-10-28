@@ -1,5 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -7,9 +10,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
 

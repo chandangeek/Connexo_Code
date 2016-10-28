@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -26,7 +28,6 @@ import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageEntry;

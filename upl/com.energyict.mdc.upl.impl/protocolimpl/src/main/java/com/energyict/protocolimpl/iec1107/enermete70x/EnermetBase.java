@@ -6,6 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -132,7 +135,7 @@ public abstract class EnermetBase extends AbstractProtocol{
         return iec1107Connection;
     }
 
-    protected void doValidateProperties(Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
     }
 

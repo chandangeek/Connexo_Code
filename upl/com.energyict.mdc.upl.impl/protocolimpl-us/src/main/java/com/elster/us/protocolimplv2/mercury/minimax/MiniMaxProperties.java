@@ -4,9 +4,6 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 
 import java.util.ArrayList;
 import java.util.Collections;

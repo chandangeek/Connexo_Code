@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
@@ -10,8 +12,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;

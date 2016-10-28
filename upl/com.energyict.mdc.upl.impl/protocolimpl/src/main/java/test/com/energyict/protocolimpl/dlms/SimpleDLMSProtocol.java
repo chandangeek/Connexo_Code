@@ -2,6 +2,8 @@ package test.com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
@@ -39,8 +41,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -199,9 +199,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * "password"  (MeterProtocol.PASSWORD) </p>
      *
      * @param properties contains a set of protocol specific key value pairs
-     * @throws com.energyict.protocol.InvalidPropertyException
+     * @throws InvalidPropertyException
      *          if a property value is not compatible with the device type
-     * @throws com.energyict.protocol.MissingPropertyException
+     * @throws MissingPropertyException
      *          if a required property is not present
      */
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {

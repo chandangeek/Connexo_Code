@@ -10,8 +10,9 @@
  */
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -24,22 +25,22 @@ import java.util.Properties;
  */
 @Deprecated
 public class DLMSZMD_EXT extends DLMSZMD{
-	
+
 	private int profileInterval;
-	
+
     public int getProfileInterval() {
         return profileInterval;
-    } 
-    
+    }
+
     public int getNumberOfChannels() {
     	return -1;
     }
-    
+
     public void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException{
     	profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "900"));
     	super.doValidateProperties(properties);
     }
-    
+
     public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
     	if (profileInterval != super.getProfileInterval()){
     		throw new IOException("profile interval setting in eiserver configuration (" + profileInterval + "sec) is different then requested from the meter (" + super.getProfileInterval() + "sec)");

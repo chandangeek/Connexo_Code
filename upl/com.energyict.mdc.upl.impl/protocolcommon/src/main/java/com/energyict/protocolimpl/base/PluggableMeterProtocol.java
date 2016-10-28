@@ -1,7 +1,10 @@
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterProtocol;
 
 /**
  * Abstract Class to map certain <i>new</i> functionality for existing protocols.

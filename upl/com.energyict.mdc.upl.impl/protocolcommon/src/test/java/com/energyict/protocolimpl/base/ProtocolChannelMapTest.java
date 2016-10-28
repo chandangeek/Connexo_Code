@@ -1,15 +1,18 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.InvalidPropertyException;
-import org.junit.Test;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
 import java.util.ArrayList;
 
-import static junit.framework.Assert.*;
+import org.junit.Test;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
 
 /**
  * This is a place holder with only a few basic tests on the ProtocolChannelMap object.
- * We should add more in depth tests in the future 
+ * We should add more in depth tests in the future
  *
  * Copyrights EnergyICT
  * Date: 23-jun-2010

@@ -18,6 +18,8 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
@@ -58,8 +60,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.support.SerialNumberSupport;

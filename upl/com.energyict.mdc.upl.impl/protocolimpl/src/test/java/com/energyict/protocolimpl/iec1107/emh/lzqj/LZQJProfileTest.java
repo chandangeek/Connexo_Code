@@ -1,7 +1,11 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,16 +21,13 @@ import java.util.logging.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna
  * @since 4-feb-2010
- * 
+ *
  */
 public class LZQJProfileTest {
 
@@ -90,7 +91,7 @@ public class LZQJProfileTest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public final void getProfileDataTestWinterToSummer() {
 

@@ -1,10 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;

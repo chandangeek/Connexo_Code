@@ -14,8 +14,9 @@ KV|06092005|VDEW changed to do channel mapping!
 
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.support.SerialNumberSupport;

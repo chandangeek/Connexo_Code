@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.dlms.eictz3;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
@@ -66,13 +68,11 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;

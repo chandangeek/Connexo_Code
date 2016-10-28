@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.cbo.Utils;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;

@@ -6,27 +6,27 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+
+import java.math.BigDecimal;
+import java.util.StringTokenizer;
 
 /**
  *
  * @author  Koen
  * Changes:
  * GN |290808| added billingPeriod ability
- * 
+ *
  * A channel has a (register) code.
  * Use as a registercode is only a hint! With the channelmap, various configurations can be mapped.
  * E.g. 1.0.3+7 where
  *      1.0.3 is the register code
  *      +7 tells the channel is cumulative and has a 7 digit wrap around value 0000000 -> 9999999 decimal!
- *      
+ *
  * A channel can contain daily or monthly values(EIServer 8.0 or Higher)
  * Add a 'd'(daily) or 'm'(monthly) to the specific channel
  * E.g. 1.8.0+9d where
@@ -35,17 +35,17 @@ import com.energyict.protocol.*;
  * 		d indicates the channel contains daily values
  */
 public class ProtocolChannel {
-    
+
     String register=null;
     String billingPeriod = "";
     boolean cumul=false;
     BigDecimal wrapAroundValue=null;
-    
+
     /** Creates a new instance of Channel */
     public ProtocolChannel(String strChannel) throws InvalidPropertyException {
-    	
+
     	strChannel = checkBillingPeriod(strChannel);
-    	
+
         int index=0;
         if ((index=strChannel.indexOf("+")) != -1) {
             cumul = true;
@@ -56,28 +56,28 @@ public class ProtocolChannel {
             if (digits<100)
                 wrapAroundValue = BigDecimal.valueOf(1).movePointRight(digits); //new BigDecimal(Math.pow(10, digits)).;
             else
-                wrapAroundValue = new BigDecimal(""+digits);  
+                wrapAroundValue = new BigDecimal(""+digits);
         }
-        else 
+        else
             register = strChannel;
     }
-    
+
     private String checkBillingPeriod(String str){
     	String strChannel = str.toLowerCase();
     	if(strChannel.contains("d")){
     		setBillingPeriod("d");
     		strChannel = strChannel.replace("d", "");
     	}
-    	
+
     	else if(strChannel.contains("m")){
     		setBillingPeriod("m");
     		strChannel = strChannel.replace("m", "");
     	}
-    	
+
     	return strChannel;
     }
-    
-    
+
+
     private void setBillingPeriod(String string) {
 		this.billingPeriod = string;
 	}
@@ -85,20 +85,20 @@ public class ProtocolChannel {
     public boolean containsDailyValues(){
     	return billingPeriod.contains("d");
     }
-    
+
     public boolean containsMonthlyValues(){
     	return billingPeriod.contains("m");
     }
 
 	public String toString() {
        return "ProtocolChannel: register="+register+", cumul="+cumul+", wrapAroundValue="+wrapAroundValue+
-       (containsDailyValues()?", BillingPeriod: Daily":(containsMonthlyValues()?", BillingPeriod: Monthly":""));    
+       (containsDailyValues()?", BillingPeriod: Daily":(containsMonthlyValues()?", BillingPeriod: Monthly":""));
     }
-    
+
     public String getRegister() {
         return register;
     }
-    
+
     public int getValue() {
     	try {
 			return Integer.parseInt(register);
@@ -106,20 +106,20 @@ public class ProtocolChannel {
 			return 0;
 		}
     }
-    
+
     public int getIntValue(int index) {
         return Integer.parseInt(getValue(index));
     }
-    
+
     public int getNrOfValues() {
         StringTokenizer strTok = new StringTokenizer(getRegister(),".");
         return strTok.countTokens();
     }
-    
+
     /*
      *   If the register is a sequence of numbers, separated by '.', this method
      *   retrieves the individual values.
-     *   @return 
+     *   @return
      */
     public String getValue(int index) {
         StringTokenizer strTok = new StringTokenizer(getRegister(),".");
@@ -128,197 +128,197 @@ public class ProtocolChannel {
             String value=strTok.nextToken();
             if (index == count++)
                 return value;
-            
+
         }
         return null;
     }
-    
+
     public boolean isCumul() {
         return cumul;
     }
-    
+
     public BigDecimal getWrapAroundValue() {
-        return wrapAroundValue;   
+        return wrapAroundValue;
     }
-    
+
     /** Convert this ProtocolChannel to a ChannelInfo.
-     * 
-     * (*) If a channel has exactly 2 values they are interpreted as the C.D 
-     * fields of an obiscode.  This obiscode is then used to deduce the unit of 
-     * the channel.  
+     *
+     * (*) If a channel has exactly 2 values they are interpreted as the C.D
+     * fields of an obiscode.  This obiscode is then used to deduce the unit of
+     * the channel.
      * (*) Contingent cumulative flag and wraparound value are taken into
-     * account.  
+     * account.
      * (*) Multipliers are not supported by ProtoocolChannelMap. (!!)
-     * 
-     * @param id 
+     *
+     * @param id
      * @return ChannelInfo object
      */
     public ChannelInfo toChannelInfo(int id) {
-        
+
         ChannelInfo result = null;
-        
-        
-        if( getNrOfValues() == 2 ) {				/* if there are _exactly_ 2 values, interprete as obis C.D field */ 
-    
+
+
+        if( getNrOfValues() == 2 ) {				/* if there are _exactly_ 2 values, interprete as obis C.D field */
+
             String code = "1.1." + getRegister() + ".0.255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = oc.getUnitElectricity(0);
             result = new ChannelInfo(id, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-    
-        } else if( getNrOfValues() == 3){ 			/* if there are _exactly_ 3  values, interpret as obis C.D.E field */  
-        	
+
+        } else if( getNrOfValues() == 3){ 			/* if there are _exactly_ 3  values, interpret as obis C.D.E field */
+
             String code = "1.0." + getRegister() + ".255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = oc.getUnitElectricity(0);
             result = new ChannelInfo(id, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-            
-        } else if( getNrOfValues() == 5){ 			/* if there are _exactly_   values, interpret as obis A.B.C.D.E field */  
-        	
+
+        } else if( getNrOfValues() == 5){ 			/* if there are _exactly_   values, interpret as obis A.B.C.D.E field */
+
             String code = getRegister() + ".255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = oc.getUnitElectricity(0);
             result = new ChannelInfo(id, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-            
+
         } else if( getValue() != 0 ) {
-            
-            result = new ChannelInfo(id, "channel " + id + " " + 
-            		(containsDailyValues()?"Daily":"") + 
+
+            result = new ChannelInfo(id, "channel " + id + " " +
+            		(containsDailyValues()?"Daily":"") +
             		(containsMonthlyValues()?"Monthly":"") + " ", null );
-            
+
         }
-        
+
         return result;
-        
+
     }
-    
+
     public ChannelInfo toChannelInfo(int id, int chnID) {
-        
+
         ChannelInfo result = null;
-        
-        
-        if( getNrOfValues() == 2 ) {			/* if there are _exactly_ 2 values, interpret as obis C.D field */ 
-    
+
+
+        if( getNrOfValues() == 2 ) {			/* if there are _exactly_ 2 values, interpret as obis C.D field */
+
             String code = "1.1." + getRegister() + ".0.255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = oc.getUnitElectricity(0);
             result = new ChannelInfo(id, chnID, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-    
-        } else if( getNrOfValues() == 3){		/* if there are _exactly_ 3  values, interpret as obis C.D.E field */  
-        	
+
+        } else if( getNrOfValues() == 3){		/* if there are _exactly_ 3  values, interpret as obis C.D.E field */
+
             String code = "1.0." + getRegister() + ".255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = oc.getUnitElectricity(0);
             result = new ChannelInfo(id, chnID, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-            
-        } else if( getNrOfValues() == 5){ 		/* if there are _exactly_   values, interpret as obis A.B.C.D.E field */  
-        	
+
+        } else if( getNrOfValues() == 5){ 		/* if there are _exactly_   values, interpret as obis A.B.C.D.E field */
+
             String code = getRegister() + ".255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = oc.getUnitElectricity(0);
             result = new ChannelInfo(id, chnID, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-            
+
         } else if( getValue() != 0 ) {
-            
-            result = new ChannelInfo(id, "channel " + id + " " + 
-            		(containsDailyValues()?"Daily":"") + 
+
+            result = new ChannelInfo(id, "channel " + id + " " +
+            		(containsDailyValues()?"Daily":"") +
             		(containsMonthlyValues()?"Monthly":"") + " ", null );
-            
+
         }
-        
+
         return result;
-        
+
     }
-    
+
     public ChannelInfo toChannelInfo(int id, int chnID, Unit channelUnit) {
-        
+
         ChannelInfo result = null;
-        
-        
-        if( getNrOfValues() == 2 ) {			/* if there are _exactly_ 2 values, interpret as obis C.D field */ 
-    
+
+
+        if( getNrOfValues() == 2 ) {			/* if there are _exactly_ 2 values, interpret as obis C.D field */
+
             String code = "1.1." + getRegister() + ".0.255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = channelUnit;
             result = new ChannelInfo(id, chnID, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-    
-        } else if( getNrOfValues() == 3){		/* if there are _exactly_ 3  values, interpret as obis C.D.E field */  
-        	
+
+        } else if( getNrOfValues() == 3){		/* if there are _exactly_ 3  values, interpret as obis C.D.E field */
+
             String code = "1.0." + getRegister() + ".255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = channelUnit;
             result = new ChannelInfo(id, chnID, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-            
-        } else if( getNrOfValues() == 5){ 		/* if there are _exactly_   values, interpret as obis A.B.C.D.E field */  
-        	
+
+        } else if( getNrOfValues() == 5){ 		/* if there are _exactly_   values, interpret as obis A.B.C.D.E field */
+
             String code = getRegister() + ".255";
             ObisCode oc = ObisCode.fromString(code);
             String name = "channel " + id + " " +
-            (containsDailyValues()?"Daily":"") + 
+            (containsDailyValues()?"Daily":"") +
     		(containsMonthlyValues()?"Monthly":"") + " " + code;
             Unit unit = channelUnit;
             result = new ChannelInfo(id, chnID, name, unit );
-            
-            if( isCumul() ) 
+
+            if( isCumul() )
                 result.setCumulativeWrapValue(getWrapAroundValue());
-            
+
         } else if( getValue() != 0 ) {
-            
-            result = new ChannelInfo(id, "channel " + id + " " + 
-            		(containsDailyValues()?"Daily":"") + 
+
+            result = new ChannelInfo(id, "channel " + id + " " +
+            		(containsDailyValues()?"Daily":"") +
             		(containsMonthlyValues()?"Monthly":"") + " ", null );
-            
+
         }
-        
+
         return result;
-        
+
     }
-    
+
 }

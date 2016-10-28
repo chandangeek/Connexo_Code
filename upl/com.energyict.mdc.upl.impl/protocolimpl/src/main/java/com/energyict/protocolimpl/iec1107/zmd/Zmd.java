@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.iec1107.zmd;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
@@ -14,9 +16,7 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;

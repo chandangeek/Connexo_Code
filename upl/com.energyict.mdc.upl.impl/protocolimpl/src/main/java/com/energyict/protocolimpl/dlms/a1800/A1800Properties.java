@@ -1,6 +1,9 @@
 
 package com.energyict.protocolimpl.dlms.a1800;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.DlmsSessionProperties;
@@ -9,8 +12,6 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 

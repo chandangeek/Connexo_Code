@@ -3,6 +3,8 @@ package com.energyict.protocolimpl.iec1107.cewe.prometer;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -13,9 +15,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;

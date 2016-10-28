@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -8,11 +10,9 @@ import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;

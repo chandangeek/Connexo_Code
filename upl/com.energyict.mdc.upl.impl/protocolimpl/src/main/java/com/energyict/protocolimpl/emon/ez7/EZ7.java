@@ -8,11 +8,12 @@ package com.energyict.protocolimpl.emon.ez7;
 
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -115,7 +116,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         return ez7Connection;
     }
 
-    protected void doValidateProperties(java.util.Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(java.util.Properties properties) throws MissingPropertyException, InvalidPropertyException {
         //halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","20").trim());
         if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0) && (getInfoTypePassword().length() != 16)) {
             throw new InvalidPropertyException("EZ7, doValidateProperties, password length error! Password must have a length of 16 characters!");

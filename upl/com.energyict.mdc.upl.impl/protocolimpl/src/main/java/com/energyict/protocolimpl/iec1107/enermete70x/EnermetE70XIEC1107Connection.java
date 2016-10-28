@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;

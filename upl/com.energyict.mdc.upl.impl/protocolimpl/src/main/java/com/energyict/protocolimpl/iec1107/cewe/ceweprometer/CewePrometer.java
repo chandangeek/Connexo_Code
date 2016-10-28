@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
@@ -8,8 +10,6 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;

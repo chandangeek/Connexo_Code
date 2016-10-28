@@ -1,6 +1,8 @@
 package com.elster.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.elster.dlms.cosem.applicationlayer.CosemDataAccessException;
 import com.elster.dlms.cosem.classes.common.CosemClassIds;
@@ -31,8 +33,6 @@ import com.elster.protocolimpl.dlms.util.DlmsUtils;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 

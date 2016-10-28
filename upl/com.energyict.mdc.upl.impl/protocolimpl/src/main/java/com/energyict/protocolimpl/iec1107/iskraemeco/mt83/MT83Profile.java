@@ -5,55 +5,70 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannel;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWLogbook;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWProfile;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author  jme
  */
 public class MT83Profile extends VDEWProfile {
-    
+
     private static final int DEBUG=0;
-    
+
     /** Creates a new instance of MT83Profile */
     public MT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
         super(meterExceptionInfo,protocolLink,abstractVDEWRegistry);
     }
-    
+
     private byte[] getRawProfileData(int profileInterval, int profileId) throws IOException {
     	Calendar fromCalendar = Calendar.getInstance();
     	fromCalendar.setTime(new Date());
     	fromCalendar.add(Calendar.SECOND, (profileInterval * (-2)));
-    	
+
     	Calendar toCalendar = Calendar.getInstance();
     	toCalendar.setTime(new Date());
-    	
+
     	return readRawData(fromCalendar, toCalendar, profileId);
     }
-    
+
     public ProtocolChannelMap buildChannelMap(int profileInterval, int profileId) throws IOException {
-    	int numberOfChannels = 0; 
-    	int meterProfileInterval = 0; 
+    	int numberOfChannels = 0;
+    	int meterProfileInterval = 0;
     	byte[] responseData = getRawProfileData(profileInterval, profileId);
     	String channelMapString = "";
-    	
+
     	meterProfileInterval = Integer.valueOf(getDataBetweenBrackets(responseData, 3)).intValue() * 60;
     	numberOfChannels = Integer.valueOf(getDataBetweenBrackets(responseData, 4)).intValue();
-    	
+
     	if (DEBUG>=1) {
 			System.out.println("  Settings profile interval = " + meterProfileInterval);
 			System.out.println("  Meter profile interval =    " + meterProfileInterval);
 			System.out.println("  Number of channels =        " + numberOfChannels);
 		}
-    	
+
 		for (int i = 0; i < numberOfChannels; i++) {
     		String channelMapName = getDataBetweenBrackets(responseData, (i*2) + 5);
     		String channelUnit = getDataBetweenBrackets(responseData, (i*2) + 6);
@@ -61,72 +76,72 @@ public class MT83Profile extends VDEWProfile {
     		if (i>0) channelMapString += ":";
     		channelMapString += channelMapName;
     	}
-    	
+
     	return new ProtocolChannelMap(channelMapString);
 	}
-    
+
     private String getDataBetweenBrackets(byte[] responseData, int bracketNumber) {
     	int bp = 0;
     	String returnValue = null;
-    	
+
     	for (int i = 0; i < bracketNumber; i++) {
     		bp = gotoNextOpenBracket(responseData, bp);
         	if (++bp>responseData.length) break;
 		}
-    	
+
     	if (bp < responseData.length) {
-    		returnValue = new String(ProtocolUtils.getSubArray(responseData, bp, gotoNextCloseBracket(responseData, bp) - 1)); 
-    	} 
-    	
+    		returnValue = new String(ProtocolUtils.getSubArray(responseData, bp, gotoNextCloseBracket(responseData, bp) - 1));
+    	}
+
 		return returnValue;
 	}
-    
+
     public ProfileData getProfileData(Calendar fromCalendar, Calendar toCalendar, int nrOfChannels, int profileId, boolean includeEvents, boolean readCurrentDay) throws IOException {
-        byte[] data; 
+        byte[] data;
         byte[] logbook = null;
-        
-        
+
+
         try {
         	data = readRawData(fromCalendar, toCalendar, profileId);
         } catch (IOException e) {
         	data = null;
         	if (e.getMessage().toUpperCase().indexOf("ER(08)") == -1) throw e;
         }
-        
+
         try {
             if (includeEvents) logbook = new VDEWLogbook(getMeterExceptionInfo(),getProtocolLink()).readRawLogbookData(fromCalendar, toCalendar, 98);
         } catch (IOException e) {
         	logbook = null;
         	if (e.getMessage().toUpperCase().indexOf("ER(08)") == -1) throw e;
         }
-        
+
         return parse(logbook, data, nrOfChannels, readCurrentDay);
     }
-    
+
     private ProfileData parse(byte[] logbook, byte[] data, int nrOfChannels, boolean readCurrentDay) throws IOException {
         ProfileData profileData;
-    	
+
         if (data != null) {
-        	profileData = buildProfileData(data,nrOfChannels); 
+        	profileData = buildProfileData(data,nrOfChannels);
         } else {
         	profileData = new ProfileData();
-        	for (int i = 0; i < nrOfChannels; i++) 
+        	for (int i = 0; i < nrOfChannels; i++)
         		profileData.addChannel(new ChannelInfo(i,"mt83_channel_"+i,Unit.get("")));
         }
-    	
+
         if (logbook != null) addLogbookEvents(logbook,profileData);
-        
+
         // remove current day
         if (!readCurrentDay) {
-            
+
             // today 00:00
             Calendar calLastInterval = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
             calLastInterval.set(Calendar.HOUR_OF_DAY,0);
             calLastInterval.set(Calendar.MINUTE,0);
             calLastInterval.set(Calendar.SECOND,0);
             calLastInterval.set(Calendar.MILLISECOND,0);
-            Date dateLastInterval = calLastInterval.getTime();  
-            
+            Date dateLastInterval = calLastInterval.getTime();
+
             List intervalDatas =  profileData.getIntervalDatas();
             Iterator it = intervalDatas.iterator();
             while(it.hasNext()) {
@@ -135,10 +150,10 @@ public class MT83Profile extends VDEWProfile {
                     it.remove();
             }
         } // if (readCurrentDay)
-                
+
         return profileData;
     }
-    
+
     private int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
             if (responseData[i] == '(') break;
@@ -165,7 +180,7 @@ public class MT83Profile extends VDEWProfile {
         }
         return i;
     }
-    
+
     private Calendar parseDateTime(byte[] data,int iOffset) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
         calendar.clear();
@@ -176,7 +191,7 @@ public class MT83Profile extends VDEWProfile {
         calendar.set(calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,8+iOffset));
         return calendar;
     }
-    
+
     private Calendar parseLogbookDateTime(byte[] data,int iOffset) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
         calendar.clear();
@@ -188,7 +203,7 @@ public class MT83Profile extends VDEWProfile {
         calendar.set(calendar.SECOND,(int)ProtocolUtils.bcd2byte(data,10+iOffset));
         return calendar;
     }
-    
+
     private String parseFindString(byte[] data,int iOffset) {
         int start=0,stop=0,i=0;
         if (iOffset >= data.length) return null;
@@ -203,12 +218,12 @@ public class MT83Profile extends VDEWProfile {
         for (i=0;i<(stop-start-1);i++) strparse[i]=data[i+start+1+iOffset];
         return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
-    
+
     private void verifyChannelMap(ProtocolChannelMap channelMap) throws IOException {
-        if (!getProtocolLink().getProtocolChannelMap().hasEqualRegisters(channelMap)) 
+        if (!getProtocolLink().getProtocolChannelMap().hasEqualRegisters(channelMap))
             throw new InvalidPropertyException("verifyChannelMap() profile channelmap registers ("+channelMap.getChannelRegisterMap()+") different from given configuration channelmap registers ("+getProtocolLink().getChannelMap().getChannelRegisterMap()+")");
     }
-    
+
     ProfileData buildProfileData(byte[] responseData, int nrOfChannels) throws IOException {
         ProfileData profileData;
         Calendar calendar;
@@ -216,13 +231,13 @@ public class MT83Profile extends VDEWProfile {
         byte bNROfValues=0;
         byte bInterval=0;
         String response;
-        int channelMask=0;        
+        int channelMask=0;
         int t;
-        
-        
+
+
         if (DEBUG>=1) MT83.sendDebug(responseData.toString(), DEBUG);
-        
-        
+
+
         // We suppose that the profile contains nr of channels!!
         try {
             calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
@@ -235,41 +250,41 @@ public class MT83Profile extends VDEWProfile {
                 }
                 profileData.addChannel(chi);
             }
-            
+
             int i=0;
             while(true) {
                 if (responseData[i] == 'P') {
                     i+=4; // skip P.0x
                     i=gotoNextOpenBracket(responseData,i);
-                    
+
                     response = parseFindString(responseData,i);
                     calendar = parseDateTime(responseData,i+1);
                     i=gotoNextOpenBracket(responseData,i+1);
                     status = Integer.parseInt(parseFindString(responseData,i),16);
                     eiStatus = MT83CodeMapper.mapInterval2EiStatus(status);
-                    
-                    MT83.sendDebug("Status: " + status + " EIStatus: " + eiStatus, DEBUG);                    
-                    
+
+                    MT83.sendDebug("Status: " + status + " EIStatus: " + eiStatus, DEBUG);
+
                     i=gotoNextOpenBracket(responseData,i+1);
                     bInterval = (byte)Integer.parseInt(parseFindString(responseData,i));
                     i=gotoNextOpenBracket(responseData,i+1);
                     bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
                     if (bNROfValues > nrOfChannels)
                         throw new IOException("buildProfileData() error, mismatch between nrOfChannels (" + nrOfChannels + ") and profile columns (" + bNROfValues + ")! Adjust the ChannelMap!");
-                    
+
                     List channels=new ArrayList();
                     for (t=0;t<bNROfValues;t++) {
                         i=gotoNextOpenBracket(responseData,i+1);
                         // add channel to list
                         channels.add(new ProtocolChannel(parseFindString(responseData,i)));
-                        
+
                         i=gotoNextOpenBracket(responseData,i+1);
                         // set channel unit
                         ((ChannelInfo)profileData.getChannel(t)).setUnit(Unit.get(parseFindString(responseData,i)));
                     }
-                    
+
                     verifyChannelMap(new ProtocolChannelMap(channels));
-                    
+
                     i= gotoNextCR(responseData,i+1);
                 }
                 else if ((responseData[i] == '\r') || (responseData[i] == '\n')) {
@@ -295,10 +310,10 @@ public class MT83Profile extends VDEWProfile {
         catch(IOException e) {
             throw new IOException("buildProfileData> "+e.getMessage());
         }
-        
+
         return profileData;
     } // ProfileData buildProfileData(byte[] responseData) throws IOException
-        
+
     private void addLogbookEvents(byte[] logBook, ProfileData profileData) throws IOException {
         MT83EventType eventtype = null;
         Calendar calendar;
@@ -319,19 +334,19 @@ public class MT83Profile extends VDEWProfile {
                 profileData.addEvent(new MeterEvent(new Date(
 						((Calendar) calendar.clone()).getTime().getTime()),
 						eventtype.getEventCode(),
-						status & 0xFFFF, 
+						status & 0xFFFF,
 						eventtype.getMessage()));
             } // while(true) {
-            
+
             // Check on duplicate event dates/time. CommServer overwrites events with the same timestamp.
             profileData.setMeterEvents(checkOnOverlappingEvents(profileData.getMeterEvents()));
-            
+
         }
         catch(IOException e) {
             throw new IOException("addLogbookEvents> "+e.getMessage());
         }
     }
-    
+
     public static List checkOnOverlappingEvents(List meterEvents) {
     	Map eventsMap = new HashMap();
         int size = meterEvents.size();
@@ -343,16 +358,16 @@ public class MT83Profile extends VDEWProfile {
 	    		time.setTime(time.getTime() + 1000); // add one second
 				eventInMap = (MeterEvent) eventsMap.get(time);
 	    	}
-	    	MeterEvent newMeterEvent= 
+	    	MeterEvent newMeterEvent=
 	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
     		eventsMap.put(time, newMeterEvent);
 	    }
 	    Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
-	    while (it.hasNext()) 
+	    while (it.hasNext())
 	        result.add((MeterEvent) it.next());
 		return result;
     }
-    
+
 } // MT83Profile
 

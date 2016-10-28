@@ -7,6 +7,8 @@
 package com.energyict.protocolimpl.gmc.u1600;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -86,7 +88,7 @@ public class U1600 extends AbstractProtocol {
 
     }
 
-    protected void doValidateProperties(java.util.Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(java.util.Properties properties) throws MissingPropertyException, InvalidPropertyException {
     }
 
 

@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.iec1107.a1440;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
@@ -16,12 +18,10 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -484,7 +484,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return this.logger;
     }
 
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> exceptionInfoMap = new HashMap<>();
 
     static {
         exceptionInfoMap.put("ERROR", "Request could not execute!");
@@ -508,7 +508,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
+        String exceptionInfo = exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {

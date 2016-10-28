@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -25,8 +28,6 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
