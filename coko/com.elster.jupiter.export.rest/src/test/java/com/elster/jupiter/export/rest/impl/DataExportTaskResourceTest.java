@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -17,18 +18,21 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
@@ -58,6 +62,7 @@ import static com.elster.jupiter.export.rest.impl.DataExportTaskResource.X_CONNE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -75,21 +80,21 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     @Mock
     protected ExportTask exportTask;
     @Mock
-    protected StandardDataSelector standardDataSelector;
+    private MeterReadingSelectorConfig selectorConfig;
     @Mock
     private DataSelectorFactory dataSelectorFactory;
     @Mock
     private DataFormatterFactory dataFormatterFactory;
     @Mock
-    protected DataExportOccurrenceFinder dataExportOccurrenceFinder;
+    private DataExportOccurrenceFinder dataExportOccurrenceFinder;
     @Mock
-    protected EndDeviceGroup endDeviceGroup;
+    private EndDeviceGroup endDeviceGroup;
     @Mock
-    protected RelativePeriod exportPeriod;
+    private RelativePeriod exportPeriod;
     @Mock
-    protected DataExportStrategy strategy;
+    private DataExportStrategy strategy;
     @Mock
-    protected QueryExecutor<DataExportOccurrence> queryExecutor;
+    private QueryExecutor<DataExportOccurrence> queryExecutor;
     @Mock
     private FileDestination newDestination;
     @Mock
@@ -100,21 +105,22 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
     @Before
     public void setUpMocks() {
-        builder = FakeBuilder.initBuilderStub(exportTask, DataExportTaskBuilder.class,
+        builder = FakeBuilder.initBuilderStub(exportTask,
+                DataExportTaskBuilder.class,
                 DataExportTaskBuilder.PropertyBuilder.class,
                 DataExportTaskBuilder.CustomSelectorBuilder.class,
                 DataExportTaskBuilder.EventSelectorBuilder.class
         );
         when(transactionService.execute(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         when(dataExportService.findExportTasks()).thenReturn(exportTaskFinder);
-        doReturn(Optional.of(standardDataSelector)).when(exportTask).getReadingTypeDataSelector();
-        when(standardDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
-        when(standardDataSelector.getExportPeriod()).thenReturn(exportPeriod);
+        when(exportTask.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+        when(selectorConfig.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(selectorConfig.getExportPeriod()).thenReturn(exportPeriod);
         when(exportPeriod.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
         when(exportPeriod.getRelativeDateTo()).thenReturn(new RelativeDate());
-        when(standardDataSelector.getStrategy()).thenReturn(strategy);
+        when(selectorConfig.getStrategy()).thenReturn(strategy);
         when(strategy.getUpdateWindow()).thenReturn(Optional.empty());
-        when(standardDataSelector.getStrategy().getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
+        when(strategy.getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
         when(exportTask.getNextExecution()).thenReturn(NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(exportTask.getScheduleExpression()).thenReturn(Never.NEVER);
@@ -200,7 +206,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.name = "newName";
         info.nextRun = Instant.ofEpochMilli(250L);
         info.standardDataSelector = new StandardDataSelectorInfo();
-        info.standardDataSelector.deviceGroup = new MeterGroupInfo();
+        info.standardDataSelector.deviceGroup = new IdWithNameInfo();
         info.standardDataSelector.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
@@ -266,7 +272,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = TASK_ID;
         info.standardDataSelector = new StandardDataSelectorInfo();
-        info.standardDataSelector.deviceGroup = new MeterGroupInfo();
+        info.standardDataSelector.deviceGroup = new IdWithNameInfo();
         info.standardDataSelector.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
@@ -394,49 +400,99 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     }
 
     @Test
-    public void getDataSources() {
+    public void getMeterDataSources() {
         Instant lastRun = Instant.now();
         DataExportOccurrence dataExportOccurrence = mock(DataExportOccurrence.class);
         when(dataExportOccurrence.getId()).thenReturn(13L);
         List<ReadingTypeDataExportItem> items = Arrays.asList(
-                mockExportItem(dataExportOccurrence, mockMeterReadingContainer("SPE001", "001", lastRun), lastRun),
-                mockExportItem(dataExportOccurrence, mockMeterReadingContainer("SPE002", "002", lastRun), lastRun),
-                mockExportItem(dataExportOccurrence, mockMeterReadingContainer("SPE003", "003", lastRun), lastRun)
+                mockExportItem(dataExportOccurrence, mockMeter("SPE001", "001"), lastRun),
+                mockExportItem(dataExportOccurrence, mockMeter("SPE002", "002"), lastRun),
+                mockExportItem(dataExportOccurrence, mockMeter("SPE003", "003"), lastRun)
         );
-        doReturn(items).when(standardDataSelector).getExportItems();
+        MeterReadingSelectorConfig selectorConfig = mock(MeterReadingSelectorConfig.class);
+        when(exportTask.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+        doAnswer(invocationOnMock -> {
+            DataSelectorConfig.DataSelectorConfigVisitor visitor = (DataSelectorConfig.DataSelectorConfigVisitor) invocationOnMock.getArguments()[0];
+            visitor.visit(selectorConfig);
+            return null;
+        }).when(selectorConfig).apply(any());
+        doReturn(items).when(selectorConfig).getExportItems();
 
         // Business method
         String response = target("/dataexporttask/" + TASK_ID + "/datasources")
-                .queryParam("start", 1).queryParam("limit", 1).request().header(X_CONNEXO_APPLICATION_NAME, "MDC").get(String.class);
+                .queryParam("start", 1).queryParam("limit", 1).request()
+                .header(X_CONNEXO_APPLICATION_NAME, "MDC")
+                .get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
         assertThat(jsonModel.<List<?>>get("$.dataSources")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.dataSources[0].mRID")).isEqualTo("SPE002");
+        assertThat(jsonModel.<String>get("$.dataSources[0].name")).isEqualTo("SPE002");
         assertThat(jsonModel.<String>get("$.dataSources[0].serialNumber")).isEqualTo("002");
         assertThat(jsonModel.<String>get("$.dataSources[0].readingType.mRID")).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         assertThat(jsonModel.<Number>get("$.dataSources[0].occurrenceId")).isEqualTo(13);
     }
 
-    private ReadingTypeDataExportItem mockExportItem(DataExportOccurrence dataExportOccurrence, ReadingContainer readingContainer, Instant lastRun) {
+    @Test
+    public void getUsagePointDataSources() {
+        Instant lastRun = Instant.now();
+        DataExportOccurrence dataExportOccurrence = mock(DataExportOccurrence.class);
+        when(dataExportOccurrence.getId()).thenReturn(13L);
+        List<ReadingTypeDataExportItem> items = Arrays.asList(
+                mockExportItem(dataExportOccurrence, mockUsagePoint("UP001", "Under construction"), lastRun),
+                mockExportItem(dataExportOccurrence, mockUsagePoint("UP002", "Connected"), lastRun),
+                mockExportItem(dataExportOccurrence, mockUsagePoint("UP003", "Logically disconnected"), lastRun)
+        );
+        UsagePointReadingSelectorConfig selectorConfig = mock(UsagePointReadingSelectorConfig.class);
+        when(exportTask.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+        doAnswer(invocationOnMock -> {
+            DataSelectorConfig.DataSelectorConfigVisitor visitor = (DataSelectorConfig.DataSelectorConfigVisitor) invocationOnMock.getArguments()[0];
+            visitor.visit(selectorConfig);
+            return null;
+        }).when(selectorConfig).apply(any());
+        doReturn(items).when(selectorConfig).getExportItems();
+
+        // Business method
+        String response = target("/dataexporttask/" + TASK_ID + "/datasources")
+                .queryParam("start", 1).queryParam("limit", 1).request()
+                .header(X_CONNEXO_APPLICATION_NAME, "MDC")
+                .get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<List<?>>get("$.dataSources")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.dataSources[0].name")).isEqualTo("UP002");
+        assertThat(jsonModel.<String>get("$.dataSources[0].connectionState")).isEqualTo("Connected");
+        assertThat(jsonModel.<String>get("$.dataSources[0].readingType.mRID")).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        assertThat(jsonModel.<Number>get("$.dataSources[0].occurrenceId")).isEqualTo(13);
+    }
+
+    private ReadingTypeDataExportItem mockExportItem(DataExportOccurrence dataExportOccurrence, IdentifiedObject domainObject, Instant lastRun) {
         ReadingTypeDataExportItem dataExportItem = mock(ReadingTypeDataExportItem.class);
         when(dataExportItem.isActive()).thenReturn(true);
         when(dataExportItem.getLastRun()).thenReturn(Optional.of(lastRun));
         doReturn(Optional.of(dataExportOccurrence)).when(dataExportItem).getLastOccurrence();
-        when(dataExportItem.getReadingContainer()).thenReturn(readingContainer);
+        when(dataExportItem.getDomainObject()).thenReturn(domainObject);
         ReadingType readingType = mockReadingType();
         when(dataExportItem.getReadingType()).thenReturn(readingType);
         when(dataExportItem.getLastExportedDate()).thenReturn(Optional.empty());
         return dataExportItem;
     }
 
-    private ReadingContainer mockMeterReadingContainer(String name, String serialNumber, Instant instant) {
+    private IdentifiedObject mockMeter(String name, String serialNumber) {
         Meter meter = mock(Meter.class);
-        when(meter.getMeter(instant)).thenReturn(Optional.of(meter));
-        when(meter.getMRID()).thenReturn(name);
+        when(meter.getName()).thenReturn(name);
         when(meter.getSerialNumber()).thenReturn(serialNumber);
         return meter;
+    }
+
+    private IdentifiedObject mockUsagePoint(String name, String connectionState) {
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getName()).thenReturn(name);
+        when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState);
+        return usagePoint;
     }
 
     public ReadingType mockReadingType() {
