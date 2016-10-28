@@ -11,12 +11,20 @@ package com.energyict.mdc.upl.properties;
  */
 public class InvalidPropertyException extends PropertyValidationException {
 
-    public InvalidPropertyException() {
-        super();
+    public static InvalidPropertyException forNameAndValue(String propertyName, Object value) {
+        return new InvalidPropertyException(String.valueOf(value) + " is not a valid value for property " + propertyName);
     }
 
-    public InvalidPropertyException(String msg) {
-        super(msg);
+    public static InvalidPropertyException forNameAndValue(String propertyName, Object value, Exception cause) {
+        return new InvalidPropertyException(cause, String.valueOf(value) + " is not a valid value for property " + propertyName);
+    }
+
+    private InvalidPropertyException(String message) {
+        super(message);
+    }
+
+    private InvalidPropertyException(Exception e, String msg) {
+        super(e, msg);
     }
 
 }

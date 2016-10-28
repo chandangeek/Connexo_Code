@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  *         KV 15122003 serialnumber of the device
  */
 @ConsumerType
-public interface MeterProtocol extends HasDynamicProperties, CachingProtocol {
+public interface MeterProtocol extends HasDynamicProperties {
 
     /**
      * Models common properties that can be marked required or optional
@@ -109,8 +109,6 @@ public interface MeterProtocol extends HasDynamicProperties, CachingProtocol {
      * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
      */
     void setProperties(Properties properties) throws PropertyValidationException;
-
-    String getVersion();
 
     /**
      * <p>

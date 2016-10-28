@@ -11,12 +11,12 @@ package com.energyict.mdc.upl.properties;
  */
 public class MissingPropertyException extends PropertyValidationException {
 
-    public MissingPropertyException() {
-        super();
+    public static MissingPropertyException forName(String propertyName) {
+        return new MissingPropertyException("Property " + propertyName + " is required");
     }
 
-    public MissingPropertyException(String msg) {
-        super(msg);
+    private MissingPropertyException(String message) {
+        super(message);
     }
 
 }
