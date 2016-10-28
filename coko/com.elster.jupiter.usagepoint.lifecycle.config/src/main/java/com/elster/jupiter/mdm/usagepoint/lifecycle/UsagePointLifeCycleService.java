@@ -16,7 +16,13 @@ public interface UsagePointLifeCycleService {
 
     UsagePointLifeCycle newUsagePointLifeCycle(String name);
 
+    UsagePointLifeCycle cloneUsagePointLifeCycle(String name, UsagePointLifeCycle source);
+
     Optional<UsagePointTransition> findUsagePointTransition(long id);
 
     Optional<UsagePointTransition> findAndLockUsagePointTransitionByIdAndVersion(long id, long version);
+
+    MicroAction getMicroActionByKey(MicroAction.Key key);
+
+    MicroCheck getMicroCheckByKey(MicroCheck.Key key);
 }

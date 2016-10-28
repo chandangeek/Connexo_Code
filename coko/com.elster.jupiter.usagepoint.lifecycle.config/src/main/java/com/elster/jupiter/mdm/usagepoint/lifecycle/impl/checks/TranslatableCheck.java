@@ -1,12 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl.checks;
 
-import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 
-public abstract class TranslatableCheck implements MicroCheck {
+public abstract class TranslatableCheck implements ServerMicroCheck {
     private Thesaurus thesaurus;
 
     protected final Thesaurus getThesaurus() {
@@ -31,5 +30,23 @@ public abstract class TranslatableCheck implements MicroCheck {
     @Override
     public String getCategoryName() {
         return this.thesaurus.getString(MicroCategoryTranslationKeys.Keys.NAME_PREFIX + getKey().getCategory().name(), getKey().getCategory().name());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TranslatableCheck that = (TranslatableCheck) o;
+        return getKey() != null ? getKey().equals(that.getKey()) : that.getKey() == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getKey() != null ? getKey().hashCode() : 0;
     }
 }

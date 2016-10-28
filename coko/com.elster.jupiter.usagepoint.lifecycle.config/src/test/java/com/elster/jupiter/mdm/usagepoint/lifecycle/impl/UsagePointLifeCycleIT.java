@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointLifeCycleIT extends BaseTestIT {
@@ -111,5 +111,24 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         Set<MicroAction> microActions = transition.getActions();
         assertThat(microActions).hasSize(1);
         assertThat(microActions.iterator().next().getKey()).isEqualTo(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS);
+    }
+
+    @Test
+    @Transactional
+    public void testCanCloneLifeCycle() {
+        UsagePointLifeCycleService service = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycleImpl source = (UsagePointLifeCycleImpl) service.newUsagePointLifeCycle("Test");
+        UsagePointState state1 = source.newState("State 1").setInitial().complete();
+        UsagePointState state2 = source.newState("State 2").complete();
+        source.newTransition("tr1", state1, state2).complete();
+
+        UsagePointLifeCycleImpl clone = (UsagePointLifeCycleImpl) service.cloneUsagePointLifeCycle("Clone", source);
+        assertThat(clone.getName()).isEqualTo("Clone");
+        assertThat(clone.getStates().size()).isEqualTo(source.getStates().size());
+        assertThat(clone.getTransitions().size()).isEqualTo(source.getTransitions().size());
+        assertThat(clone.getStateMachine()).isNotEqualTo(source.getStateMachine());
+        assertThat(clone.getStateMachine().getName()).isEqualTo("Clone");
+        assertThat(clone.getStateMachine().getStates().size()).isEqualTo(source.getStateMachine().getStates().size());
+        assertThat(clone.getStateMachine().getTransitions().size()).isEqualTo(source.getStateMachine().getTransitions().size());
     }
 }

@@ -3,6 +3,8 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroActionFactory;
@@ -140,8 +142,6 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                 bind(UserService.class).toInstance(userService);
                 bind(FiniteStateMachineService.class).toInstance(stateMachineService);
                 bind(EventService.class).toInstance(eventService);
-                bind(UsagePointMicroActionFactory.class).toInstance(microActionFactory);
-                bind(UsagePointMicroCheckFactory.class).toInstance(microCheckFactory);
             }
         };
     }
@@ -195,6 +195,11 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     }
 
     @Override
+    public UsagePointLifeCycle cloneUsagePointLifeCycle(String name, UsagePointLifeCycle source) {
+        return this.dataModel.getInstance(UsagePointLifeCycleBuilderImpl.class).cloneUsagePointLifeCycle(name, source);
+    }
+
+    @Override
     public Optional<UsagePointTransition> findUsagePointTransition(long id) {
         return this.dataModel.mapper(UsagePointTransition.class).getOptional(id);
     }
@@ -202,5 +207,15 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     @Override
     public Optional<UsagePointTransition> findAndLockUsagePointTransitionByIdAndVersion(long id, long version) {
         return this.dataModel.mapper(UsagePointTransition.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public MicroAction getMicroActionByKey(MicroAction.Key key) {
+        return this.microActionFactory.from(key);
+    }
+
+    @Override
+    public MicroCheck getMicroCheckByKey(MicroCheck.Key key) {
+        return this.microCheckFactory.from(key);
     }
 }

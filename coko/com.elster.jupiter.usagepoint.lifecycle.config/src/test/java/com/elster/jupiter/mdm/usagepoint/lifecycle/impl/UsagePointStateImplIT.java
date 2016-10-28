@@ -7,11 +7,13 @@ import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointStateImplIT extends BaseTestIT {
@@ -88,5 +90,23 @@ public class UsagePointStateImplIT extends BaseTestIT {
         assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount + 1);
 
         testState.remove();
+    }
+
+    @Test
+    @Transactional
+    public void testAfterCloneLifeCycleWeHaveTheSameState() {
+        UsagePointLifeCycle source = getTestLifeCycle();
+        UsagePointState state = source.newState("State 1").setInitial().complete();
+
+        UsagePointLifeCycle cloned = get(UsagePointLifeCycleService.class).cloneUsagePointLifeCycle("Cloned", source);
+
+        assertThat(cloned.getStates().size()).isEqualTo(source.getStates().size());
+        Optional<UsagePointState> cloned1 = cloned.getStates().stream().filter(candidate -> candidate.getName().equals(state.getName())).findFirst();
+        assertThat(cloned1).isPresent();
+        assertThat(cloned1.get().getId()).isNotEqualTo(state.getId());
+        assertThat(cloned1.get().isInitial()).isEqualTo(state.isInitial());
+        assertThat(cloned1.get().getDefaultState()).isEqualTo(state.getDefaultState());
+        assertThat(cloned1.get().getOnEntryProcesses()).containsExactlyElementsOf(state.getOnEntryProcesses());
+        assertThat(cloned1.get().getOnExitProcesses()).containsExactlyElementsOf(state.getOnExitProcesses());
     }
 }

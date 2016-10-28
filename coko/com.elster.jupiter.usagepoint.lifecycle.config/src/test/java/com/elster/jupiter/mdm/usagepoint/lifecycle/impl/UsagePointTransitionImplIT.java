@@ -19,7 +19,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointTransitionImplIT extends BaseTestIT {
@@ -132,5 +133,59 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         transition = get(UsagePointLifeCycleService.class).findAndLockUsagePointTransitionByIdAndVersion(transition.getId(), transition.getVersion()).get();
         assertThat(transition.getTriggeredBy()).isPresent();
         assertThat(transition.getTriggeredBy().get().getEventType()).isEqualTo(eventType);
+    }
+
+    @Test
+    @Transactional
+    public void testCanCloneTransitionWithTriggeredBy() {
+        com.elster.jupiter.events.EventType eventType = get(EventService.class).buildEventTypeWithTopic("usage/point/lifecycle/test")
+                .name("TEST")
+                .component(UsagePointLifeCycleService.COMPONENT_NAME)
+                .category("Crud")
+                .scope("System")
+                .shouldPublish()
+                .enableForUseInStateMachines()
+                .create();
+        StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
+        UsagePointTransition transition = this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withLevels(EnumSet.of(UsagePointTransition.Level.TWO, UsagePointTransition.Level.FOUR))
+                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .triggeredBy(triggeredBy)
+                .complete();
+
+        UsagePointLifeCycle clonedLifeCycle = get(UsagePointLifeCycleService.class).cloneUsagePointLifeCycle("Cloned", this.lifeCycle);
+        UsagePointTransition cloned = clonedLifeCycle.getTransitions().stream().filter(candidate -> candidate.getName().equals(transition.getName())).findFirst().get();
+        assertThat(cloned.getId()).isNotEqualTo(transition.getId());
+        assertThat(cloned.getLevels()).containsExactlyElementsOf(transition.getLevels());
+        assertThat(cloned.getActions()).containsExactlyElementsOf(transition.getActions());
+        assertThat(cloned.getChecks()).containsExactlyElementsOf(transition.getChecks());
+        assertThat(cloned.getFrom().getName()).isEqualTo(transition.getFrom().getName());
+        assertThat(cloned.getTo().getName()).isEqualTo(transition.getTo().getName());
+        assertThat(cloned.getTriggeredBy()).isEqualTo(transition.getTriggeredBy());
+    }
+
+    @Test
+    @Transactional
+    public void testCanCloneCustomTransition() {
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withLevels(EnumSet.of(UsagePointTransition.Level.TWO, UsagePointTransition.Level.FOUR))
+                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .complete();
+
+        UsagePointLifeCycle clonedLifeCycle = get(UsagePointLifeCycleService.class).cloneUsagePointLifeCycle("Cloned", this.lifeCycle);
+        UsagePointTransitionImpl cloned = (UsagePointTransitionImpl) clonedLifeCycle.getTransitions().stream()
+                .filter(candidate -> candidate.getName().equals(transition.getName())).findFirst().get();
+        assertThat(cloned.getId()).isNotEqualTo(transition.getId());
+        assertThat(cloned.getLevels()).containsExactlyElementsOf(transition.getLevels());
+        assertThat(cloned.getActions()).containsExactlyElementsOf(transition.getActions());
+        assertThat(cloned.getChecks()).containsExactlyElementsOf(transition.getChecks());
+        assertThat(cloned.getFrom().getName()).isEqualTo(transition.getFrom().getName());
+        assertThat(cloned.getTo().getName()).isEqualTo(transition.getTo().getName());
+        assertThat(cloned.getTriggeredBy()).isEqualTo(transition.getTriggeredBy());
+        assertThat(cloned.getFsmTransition().getId()).isNotEqualTo(transition.getFsmTransition().getId());
+        assertThat(cloned.getFsmTransition().getEventType().getSymbol()).isNotEqualTo(transition.getFsmTransition().getEventType().getSymbol());
+
     }
 }

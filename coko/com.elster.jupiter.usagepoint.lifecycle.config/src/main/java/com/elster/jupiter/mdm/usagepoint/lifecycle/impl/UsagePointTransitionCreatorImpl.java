@@ -89,7 +89,7 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
                 .complete()
                 .getOutgoingStateTransitions().stream().filter(t -> t.getEventType().getSymbol().equals(eventTypeSymbol)).findFirst()
                 .get();
-        transition.setTransition(fsmTransition);
+        transition.setFsmTransition(fsmTransition);
         this.dataModel.update(transition);
         this.lifeCycle.touch();
         return transition;

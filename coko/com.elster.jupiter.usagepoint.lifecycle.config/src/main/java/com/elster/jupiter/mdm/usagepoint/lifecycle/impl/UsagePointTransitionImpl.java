@@ -6,8 +6,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroActionFactory;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointMicroCheckFactory;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 import com.elster.jupiter.orm.Table;
@@ -80,13 +79,11 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private Set<MicroAction> microActions;
     private Set<MicroCheck> microChecks;
 
-    private final UsagePointMicroActionFactory microActionFactory;
-    private final UsagePointMicroCheckFactory microCheckFactory;
+    private final UsagePointLifeCycleService usagePointLifeCycleService;
 
     @Inject
-    public UsagePointTransitionImpl(UsagePointMicroActionFactory microActionFactory, UsagePointMicroCheckFactory microCheckFactory) {
-        this.microActionFactory = microActionFactory;
-        this.microCheckFactory = microCheckFactory;
+    public UsagePointTransitionImpl(UsagePointLifeCycleService usagePointLifeCycleService) {
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
     }
 
     UsagePointTransitionImpl init(UsagePointLifeCycle lifeCycle, String name, UsagePointState fromState, UsagePointState toState) {
@@ -121,8 +118,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         int mask = 1;
         for (MicroCheck.Key key : MicroCheck.Key.values()) {
             if ((this.checkBits & mask) != 0) {
-                // The bit corresponding to the current microCheck is set so add it to the set.
-                this.microChecks.add(this.microCheckFactory.from(key));
+                this.microChecks.add(this.usagePointLifeCycleService.getMicroCheckByKey(key));
             }
             mask = mask << 1;
         }
@@ -133,8 +129,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         int mask = 1;
         for (MicroAction.Key key : MicroAction.Key.values()) {
             if ((this.actionBits & mask) != 0) {
-                // The bit corresponding to the current microAction is set so add it to the set.
-                this.microActions.add(this.microActionFactory.from(key));
+                this.microActions.add(this.usagePointLifeCycleService.getMicroActionByKey(key));
             }
             mask = mask << 1;
         }
@@ -237,7 +232,11 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         postLoadActions();
     }
 
-    void setTransition(StateTransition fsmTransition) {
+    StateTransition getFsmTransition() {
+        return this.fsmTransition.get();
+    }
+
+    void setFsmTransition(StateTransition fsmTransition) {
         this.fsmTransition.set(fsmTransition);
         postLoadStates();
     }

@@ -3,7 +3,11 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.DefaultState;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
@@ -12,7 +16,11 @@ import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class UsagePointLifeCycleBuilderImpl {
     private static final String FSM_NAME_PREFIX = UsagePointLifeCycleService.COMPONENT_NAME + "_";
@@ -28,17 +36,23 @@ public class UsagePointLifeCycleBuilderImpl {
         this.thesaurus = thesaurus;
     }
 
-    private UsagePointLifeCycle getLifeCycle(String name, Consumer<UsagePointLifeCycle> transitionBuilder, Provider<FiniteStateMachine> stateMachineBuilder) {
+    public UsagePointLifeCycle getDefaultLifeCycleWithName(String name) {
+        return getLifeCycle(name, () -> getDefaultFiniteStateMachine(name), this::addDefaultTransitions);
+    }
+
+    public UsagePointLifeCycle cloneUsagePointLifeCycle(String name, UsagePointLifeCycle source) {
+        UsagePointLifeCycleImpl sourceImpl = (UsagePointLifeCycleImpl) source;
+        return getLifeCycle(name, () -> this.stateMachineService.cloneFiniteStateMachine(sourceImpl.getStateMachine(), name),
+                target -> cloneTransitions(sourceImpl, target));
+    }
+
+    private UsagePointLifeCycle getLifeCycle(String name, Provider<FiniteStateMachine> stateMachineBuilder, Consumer<UsagePointLifeCycleImpl> transitionBuilder) {
         UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
         lifeCycle.setName(name);
         lifeCycle.setStateMachine(stateMachineBuilder.get());
         lifeCycle.save();
         transitionBuilder.accept(lifeCycle);
         return lifeCycle;
-    }
-
-    public UsagePointLifeCycle getDefaultLifeCycleWithName(String name) {
-        return getLifeCycle(name, this::addDefaultTransitions, () -> getDefaultFiniteStateMachine(name));
     }
 
     private FiniteStateMachine getDefaultFiniteStateMachine(String name) {
@@ -57,7 +71,7 @@ public class UsagePointLifeCycleBuilderImpl {
                 .orElseThrow(() -> new IllegalArgumentException("Can't find state with key:  " + state.getKey()));
     }
 
-    private void addDefaultTransitions(UsagePointLifeCycle lifeCycle) {
+    private void addDefaultTransitions(UsagePointLifeCycleImpl lifeCycle) {
         lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL).format(),
                 getState(lifeCycle, DefaultState.UNDER_CONSTRUCTION), getState(lifeCycle, DefaultState.CONNECTED)).complete();
         lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_SEAL).format(),
@@ -68,5 +82,26 @@ public class UsagePointLifeCycleBuilderImpl {
                 getState(lifeCycle, DefaultState.CONNECTED), getState(lifeCycle, DefaultState.DEMOLISHED)).complete();
         lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_PHYSICALLY_DISCONNECTED).format(),
                 getState(lifeCycle, DefaultState.PHYSICALLY_DISCONNECTED), getState(lifeCycle, DefaultState.DEMOLISHED)).complete();
+    }
+
+    private void cloneTransitions(UsagePointLifeCycleImpl source, UsagePointLifeCycleImpl target) {
+        // clean-up cloned fsm transitions
+        FiniteStateMachineUpdater stateMachineUpdater = target.getStateMachine().startUpdate();
+        target.getStateMachine().getStates().stream()
+                .map(State::getOutgoingStateTransitions)
+                .flatMap(Collection::stream)
+                .forEach(transition -> stateMachineUpdater.state(transition.getFrom().getId()).prohibit(transition.getEventType()).complete());
+        stateMachineUpdater.complete();
+
+        Map<String, UsagePointState> statesMap = target.getStates().stream()
+                .collect(Collectors.toMap(state -> ((UsagePointStateImpl) state).getState().getName(), Function.identity()));
+        source.getTransitions().forEach(sourceTransition -> target.newTransition(sourceTransition.getName(),
+                statesMap.get(((UsagePointStateImpl) sourceTransition.getFrom()).getState().getName()),
+                statesMap.get(((UsagePointStateImpl) sourceTransition.getTo()).getState().getName()))
+                .withLevels(sourceTransition.getLevels())
+                .withChecks(sourceTransition.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toSet()))
+                .withActions(sourceTransition.getActions().stream().map(MicroAction::getKey).collect(Collectors.toSet()))
+                .triggeredBy(sourceTransition.getTriggeredBy().orElse(null))
+                .complete());
     }
 }
