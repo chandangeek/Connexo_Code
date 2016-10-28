@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -44,6 +45,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -382,7 +385,10 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Collections.emptyList();
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
+        return keys;
     }
 
 }
