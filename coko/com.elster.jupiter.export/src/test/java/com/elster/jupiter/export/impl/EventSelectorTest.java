@@ -4,7 +4,7 @@ import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.EventDataExportStrategy;
-import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterEventData;
 import com.elster.jupiter.metering.EndDevice;
@@ -57,7 +57,7 @@ public class EventSelectorTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private EventDataSelector selector;
+    private EventSelectorConfig eventSelectorConfig;
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
@@ -78,7 +78,7 @@ public class EventSelectorTest {
     public void setUp() {
         when(dataModel.getInstance(EventSelector.class)).thenAnswer(invocation -> new EventSelector(transactionService, dataExportService, clock, thesaurus));
         when(dataExportService.forRoot(anyString())).thenAnswer(invocation -> DefaultStructureMarker.createRoot(clock, (String) invocation.getArguments()[0]));
-        when(selector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(eventSelectorConfig.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(endDeviceGroup.getMembers(any(Range.class))).thenReturn(Arrays.asList(membership1, membership2));
         when(membership1.getEndDevice()).thenReturn(endDevice1);
         when(membership2.getEndDevice()).thenReturn(endDevice2);
@@ -100,17 +100,17 @@ public class EventSelectorTest {
         when(endDevice2.getMRID()).thenReturn("MRID2");
         when(endDevice1.getName()).thenReturn("Device1");
         when(endDevice2.getName()).thenReturn("Device2");
-        when(selector.getEventStrategy()).thenReturn(eventStrategy);
+        when(eventSelectorConfig.getStrategy()).thenReturn(eventStrategy);
         when(eventStrategy.isExportContinuousData()).thenReturn(false);
-        when(selector.getFilterPredicate()).thenReturn(event -> true);
+        when(eventSelectorConfig.getFilterPredicate()).thenReturn(event -> true);
         when(occurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of(defaultSelectorOccurrence));
         RelativePeriod exportPeriod = mock(RelativePeriod.class);
-        when(selector.getExportPeriod()).thenReturn(exportPeriod);
+        when(eventSelectorConfig.getExportPeriod()).thenReturn(exportPeriod);
     }
 
     @Test
     public void testSelection() {
-        EventSelector eventSelector = EventSelector.from(dataModel, selector, Logger.getAnonymousLogger());
+        EventSelector eventSelector = EventSelector.from(dataModel, eventSelectorConfig, Logger.getAnonymousLogger());
 
         Stream<ExportData> exportDataStream = eventSelector.selectData(occurrence);
 
@@ -152,9 +152,9 @@ public class EventSelectorTest {
 
     @Test
     public void testSelectionWithFilter() {
-        when(selector.getFilterPredicate()).thenReturn(event -> Checks.is(event).in(event1, event3, event5));
+        when(eventSelectorConfig.getFilterPredicate()).thenReturn(event -> Checks.is(event).in(event1, event3, event5));
 
-        EventSelector eventSelector = EventSelector.from(dataModel, selector, Logger.getAnonymousLogger());
+        EventSelector eventSelector = EventSelector.from(dataModel, eventSelectorConfig, Logger.getAnonymousLogger());
 
         Stream<ExportData> exportDataStream = eventSelector.selectData(occurrence);
 

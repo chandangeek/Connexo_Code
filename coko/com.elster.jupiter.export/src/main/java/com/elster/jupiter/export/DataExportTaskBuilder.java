@@ -22,11 +22,11 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setDataFormatterFactoryName(String dataFormatter);
 
-    ReadingTypeSelectorBuilder selectingReadingTypes();
+    MeterReadingSelectorBuilder selectingMeterReadings();
+
+    UsagePointReadingSelectorBuilder selectingUsagePointReadings();
 
     EventSelectorBuilder selectingEventTypes();
-
-    AggregatedDataSelectorBuilder selectingAggregatedData();
 
     CustomSelectorBuilder selectingCustom(String dataSelector);
 
@@ -47,27 +47,27 @@ public interface DataExportTaskBuilder {
         DataExportTaskBuilder endSelection();
     }
 
-    interface ReadingTypeSelectorBuilder {
+    interface MeterReadingSelectorBuilder {
 
-        ReadingTypeSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+        MeterReadingSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
 
-        ReadingTypeSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
+        MeterReadingSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
 
-        ReadingTypeSelectorBuilder fromReadingType(ReadingType readingType);
+        MeterReadingSelectorBuilder fromReadingType(ReadingType readingType);
 
-        ReadingTypeSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
+        MeterReadingSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
 
-        ReadingTypeSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+        MeterReadingSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-        ReadingTypeSelectorBuilder exportUpdate(boolean exportUpdate);
+        MeterReadingSelectorBuilder exportUpdate(boolean exportUpdate);
 
-        ReadingTypeSelectorBuilder continuousData(boolean exportContinuousData);
+        MeterReadingSelectorBuilder continuousData(boolean exportContinuousData);
+
+        MeterReadingSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
+
+        MeterReadingSelectorBuilder exportComplete(boolean exportComplete);
 
         DataExportTaskBuilder endSelection();
-
-        ReadingTypeSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
-
-        ReadingTypeSelectorBuilder exportComplete(boolean exportComplete);
     }
 
     interface EventSelectorBuilder {
@@ -82,19 +82,19 @@ public interface DataExportTaskBuilder {
 
     }
 
-    interface AggregatedDataSelectorBuilder {
+    interface UsagePointReadingSelectorBuilder {
 
-        AggregatedDataSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+        UsagePointReadingSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
 
-        AggregatedDataSelectorBuilder fromUsagePointGroup(UsagePointGroup usagePointGroup);
+        UsagePointReadingSelectorBuilder fromUsagePointGroup(UsagePointGroup usagePointGroup);
 
-        AggregatedDataSelectorBuilder fromReadingType(ReadingType readingType);
+        UsagePointReadingSelectorBuilder fromReadingType(ReadingType readingType);
 
-        AggregatedDataSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
+        UsagePointReadingSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
 
-        AggregatedDataSelectorBuilder continuousData(boolean exportContinuousData);
+        UsagePointReadingSelectorBuilder continuousData(boolean exportContinuousData);
 
-        AggregatedDataSelectorBuilder exportComplete(boolean exportComplete);
+        UsagePointReadingSelectorBuilder exportComplete(boolean exportComplete);
 
         DataExportTaskBuilder endSelection();
 

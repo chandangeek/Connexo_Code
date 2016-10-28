@@ -136,10 +136,10 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public StandardSelectorBuilderImpl selectingReadingTypes() {
+    public MeterReadingSelectorBuilder selectingMeterReadings() {
         defaultSelector = SelectorType.READINGTYPES;
         dataSelector = DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
-        return new StandardSelectorBuilderImpl();
+        return new MeterReadingSelectorBuilderImpl();
     }
 
     @Override
@@ -150,10 +150,10 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public AggregatedDataSelectorBuilder selectingAggregatedData() {
+    public UsagePointReadingSelectorBuilder selectingUsagePointReadings() {
         defaultSelector = SelectorType.AGGREGATEDDATA;
         dataSelector = DataExportService.STANDARD_USAGE_POINT_DATA_SELECTOR;
-        return new AggregatedDataSelectorBuilderImpl();
+        return new UsagePointReadingSelectorBuilderImpl();
     }
 
     private class EventSelectorBuilderImpl implements EventSelectorBuilder {
@@ -181,57 +181,57 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
     }
 
-    private class StandardSelectorBuilderImpl implements ReadingTypeSelectorBuilder {
+    private class MeterReadingSelectorBuilderImpl implements MeterReadingSelectorBuilder {
         @Override
-        public StandardSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
+        public MeterReadingSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
             exportPeriod = relativePeriod;
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl fromUpdatePeriod(RelativePeriod relativePeriod) {
+        public MeterReadingSelectorBuilderImpl fromUpdatePeriod(RelativePeriod relativePeriod) {
             updatePeriod = relativePeriod;
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl fromReadingType(ReadingType readingType) {
+        public MeterReadingSelectorBuilderImpl fromReadingType(ReadingType readingType) {
             readingTypes.add(readingType);
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl withValidatedDataOption(ValidatedDataOption option) {
+        public MeterReadingSelectorBuilderImpl withValidatedDataOption(ValidatedDataOption option) {
             validatedDataOption = option;
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl fromEndDeviceGroup(EndDeviceGroup group) {
+        public MeterReadingSelectorBuilderImpl fromEndDeviceGroup(EndDeviceGroup group) {
             endDeviceGroup = group;
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl exportUpdate(boolean update) {
+        public MeterReadingSelectorBuilderImpl exportUpdate(boolean update) {
             exportUpdate = update;
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl continuousData(boolean continuous) {
+        public MeterReadingSelectorBuilderImpl continuousData(boolean continuous) {
             exportContinuousData = continuous;
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl exportComplete(boolean complete) {
+        public MeterReadingSelectorBuilderImpl exportComplete(boolean complete) {
             exportComplete = complete;
             return this;
         }
 
         @Override
-        public StandardSelectorBuilderImpl withUpdateWindow(RelativePeriod window) {
+        public MeterReadingSelectorBuilderImpl withUpdateWindow(RelativePeriod window) {
             updateWindow = window;
             return this;
         }
@@ -242,39 +242,39 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
     }
 
-    private class AggregatedDataSelectorBuilderImpl implements AggregatedDataSelectorBuilder {
+    private class UsagePointReadingSelectorBuilderImpl implements UsagePointReadingSelectorBuilder {
         @Override
-        public AggregatedDataSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
+        public UsagePointReadingSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
             exportPeriod = relativePeriod;
             return this;
         }
 
         @Override
-        public AggregatedDataSelectorBuilderImpl fromReadingType(ReadingType readingType) {
+        public UsagePointReadingSelectorBuilderImpl fromReadingType(ReadingType readingType) {
             readingTypes.add(readingType);
             return this;
         }
 
         @Override
-        public AggregatedDataSelectorBuilderImpl withValidatedDataOption(ValidatedDataOption option) {
+        public UsagePointReadingSelectorBuilderImpl withValidatedDataOption(ValidatedDataOption option) {
             validatedDataOption = option;
             return this;
         }
 
         @Override
-        public AggregatedDataSelectorBuilderImpl continuousData(boolean continuous) {
+        public UsagePointReadingSelectorBuilderImpl continuousData(boolean continuous) {
             exportContinuousData = continuous;
             return this;
         }
 
         @Override
-        public AggregatedDataSelectorBuilderImpl exportComplete(boolean complete) {
+        public UsagePointReadingSelectorBuilderImpl exportComplete(boolean complete) {
             exportComplete = complete;
             return this;
         }
 
         @Override
-        public AggregatedDataSelectorBuilder fromUsagePointGroup(UsagePointGroup group) {
+        public UsagePointReadingSelectorBuilder fromUsagePointGroup(UsagePointGroup group) {
             usagePointGroup = group;
             return this;
         }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -53,8 +54,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -124,16 +125,16 @@ public class StandardDataSelectorImplTest {
     public void setUp() {
         transactionService = new TransactionVerifier();
 
-        doAnswer(invocation -> new StandardDataSelectorImpl(dataModel, meteringService))
-                .when(dataModel).getInstance(StandardDataSelectorImpl.class);
+        doAnswer(invocation -> new MeterReadingSelectorConfigImpl(dataModel))
+                .when(dataModel).getInstance(MeterReadingSelectorConfigImpl.class);
         doAnswer(invocation -> new ReadingTypeInDataSelector(meteringService))
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
-        doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, thesaurus))
-                .when(dataModel).getInstance(ReadingTypeDataSelector.class);
-        doAnswer(invocation -> new ReadingTypeDataItemDataSelector(clock, validationService, thesaurus, transactionService))
-                .when(dataModel).getInstance(AbstractItemDataSelector.class);
+        doAnswer(invocation -> new MeterReadingSelector(dataModel, transactionService, thesaurus))
+                .when(dataModel).getInstance(MeterReadingSelector.class);
+        doAnswer(invocation -> new MeterReadingItemDataSelector(clock, validationService, thesaurus, transactionService))
+                .when(dataModel).getInstance(MeterReadingItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
 
         when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
@@ -186,24 +187,24 @@ public class StandardDataSelectorImplTest {
 
     @Test
     public void testSelectWithUpdate() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
-        selector.setEndDeviceGroup(endDeviceGroup);
-        selector.addReadingType(readingType);
-        selector.setExportUpdate(true);
-        selector.setUpdatePeriod(updatePeriod);
-        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setExportUpdate(true)
+                .setUpdatePeriod(updatePeriod)
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
-
-        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-//                .forEach(IReadingTypeDataExportItem::update);
+        selectorConfig.getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
-        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -226,25 +227,25 @@ public class StandardDataSelectorImplTest {
 
     @Test
     public void testSelectWithUpdateAndWindow() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
-        selector.setEndDeviceGroup(endDeviceGroup);
-        selector.addReadingType(readingType);
-        selector.setExportUpdate(true);
-        selector.setUpdatePeriod(updatePeriod);
-        selector.setUpdateWindow(updateWindow);
-        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setExportUpdate(true)
+                .setUpdatePeriod(updatePeriod)
+                .setUpdateWindow(updateWindow)
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
-
-        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-//                .forEach(IReadingTypeDataExportItem::update);
+        selectorConfig.getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
-        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -272,16 +273,16 @@ public class StandardDataSelectorImplTest {
         when(meter1.toList(eq(readingType), any())).thenReturn(Arrays.asList(END.toInstant()));
         when(meter2.toList(eq(readingType), any())).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
-        selector.setEndDeviceGroup(endDeviceGroup);
-        selector.addReadingType(readingType);
-        selector.setExportUpdate(false);
-        selector.setExportOnlyIfComplete(true);
-        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setExportUpdate(false)
+                .setExportOnlyIfComplete(true)
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
-
-        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
     }
@@ -293,26 +294,26 @@ public class StandardDataSelectorImplTest {
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
-        selector.setEndDeviceGroup(endDeviceGroup);
-        selector.addReadingType(readingType);
-        selector.setExportUpdate(true);
-        selector.setUpdatePeriod(updatePeriod);
-        selector.setUpdateWindow(updateWindow);
-        selector.setExportOnlyIfComplete(true);
-        selector.setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setExportUpdate(true)
+                .setUpdatePeriod(updatePeriod)
+                .setUpdateWindow(updateWindow)
+                .setExportOnlyIfComplete(true)
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
-
-        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-//                .forEach(IReadingTypeDataExportItem::update);
+        selectorConfig.getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
-        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 
@@ -339,31 +340,31 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(Collections.emptySet(), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
+        when(meter1.getReadingQualities(ImmutableSet.of(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
-        selector.setEndDeviceGroup(endDeviceGroup);
-        selector.addReadingType(readingType);
-        selector.setExportUpdate(true);
-        selector.setUpdatePeriod(updatePeriod);
-        selector.setUpdateWindow(updateWindow);
-        selector.setExportOnlyIfComplete(false);
-        selector.setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setExportUpdate(true)
+                .setUpdatePeriod(updatePeriod)
+                .setUpdateWindow(updateWindow)
+                .setExportOnlyIfComplete(false)
+                .setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
-
-        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-//                .forEach(IReadingTypeDataExportItem::update);
+        selectorConfig.getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
-        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -402,26 +403,27 @@ public class StandardDataSelectorImplTest {
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
         when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
-        selector.setEndDeviceGroup(endDeviceGroup);
-        selector.addReadingType(readingType);
-        selector.setExportUpdate(true);
-        selector.setUpdatePeriod(updatePeriod);
-        selector.setUpdateWindow(updateWindow);
-        selector.setExportOnlyIfComplete(false);
-        selector.setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setExportUpdate(true)
+                .setUpdatePeriod(updatePeriod)
+                .setUpdateWindow(updateWindow)
+                .setExportOnlyIfComplete(false)
+                .setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-//                .forEach(IReadingTypeDataExportItem::update);
+        selectorConfig.getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
-        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -455,31 +457,31 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(Collections.emptySet(), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
+        when(meter1.getReadingQualities(ImmutableSet.of(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod);
-        selector.setEndDeviceGroup(endDeviceGroup);
-        selector.addReadingType(readingType);
-        selector.setExportUpdate(true);
-        selector.setUpdatePeriod(updatePeriod);
-        selector.setUpdateWindow(updateWindow);
-        selector.setExportOnlyIfComplete(false);
-        selector.setValidatedDataOption(ValidatedDataOption.EXCLUDE_ITEM);
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setExportUpdate(true)
+                .setUpdatePeriod(updatePeriod)
+                .setUpdateWindow(updateWindow)
+                .setExportOnlyIfComplete(false)
+                .setValidatedDataOption(ValidatedDataOption.EXCLUDE_ITEM);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
-
-        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
 
-//        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
-//                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-//                .forEach(IReadingTypeDataExportItem::update);
+        selectorConfig.getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
-        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 
@@ -501,12 +503,11 @@ public class StandardDataSelectorImplTest {
     @Test
     public void testItemDescription() {
         ReadingTypeDataExportItem item = ReadingTypeDataExportItemImpl.from(
-                dataModel, dataModel.getInstance(StandardDataSelectorImpl.class), meter1, readingType);
+                dataModel, dataModel.getInstance(MeterReadingSelectorConfigImpl.class), meter1, readingType);
         when(meter1.getName()).thenReturn("PeriMeter");
         when(readingType.getFullAliasName()).thenReturn("Odium humani generis");
+
         assertThat(item.getDescription()).isEqualTo("PeriMeter:Odium humani generis");
-        when(meter1.getMeter(any(Instant.class))).thenReturn(Optional.empty());
-        assertThat(item.getDescription()).isEqualTo("Odium humani generis");
     }
 
     private static class FakeRefAny implements RefAny {

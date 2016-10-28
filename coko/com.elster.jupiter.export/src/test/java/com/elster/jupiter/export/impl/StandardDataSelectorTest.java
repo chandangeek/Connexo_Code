@@ -148,11 +148,11 @@ public class StandardDataSelectorTest {
 
         transactionService = new TransactionVerifier(dataFormatter, newItem, existingItem);
 
-        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenAnswer(invocation -> spy(new StandardDataSelectorImpl(dataModel, meteringService)));
+        when(dataModel.getInstance(MeterReadingSelectorConfigImpl.class)).thenAnswer(invocation -> spy(new MeterReadingSelectorConfigImpl(dataModel)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
-        when(dataModel.getInstance(ReadingTypeDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, thesaurus));
-        when(dataModel.getInstance(AbstractItemDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataItemDataSelector(clock, validationService, thesaurus, transactionService));
+        when(dataModel.getInstance(MeterReadingSelector.class)).thenAnswer(invocation -> new MeterReadingSelector(dataModel, transactionService, thesaurus));
+        when(dataModel.getInstance(MeterReadingItemDataSelector.class)).thenAnswer(invocation -> new MeterReadingItemDataSelector(clock, validationService, thesaurus, transactionService));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new MyRefAny(invocation.getArguments()[0]));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
@@ -215,15 +215,15 @@ public class StandardDataSelectorTest {
 
     @Test
     public void testExecuteObsoleteItemIsDeactivated() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod);
-        selector.setEndDeviceGroup(group);
-        selector.addReadingType(readingType1);
-        selector.setEndDeviceGroup(group);
-        existingItem = selector.addExportItem(meter2, readingType1);
-        obsoleteItem = selector.addExportItem(meter3, readingType1);
-//        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportRelativePeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(group)
+                .addReadingType(readingType1);
+        existingItem = selectorConfig.addExportItem(meter2, readingType1);
+        obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        selector.asReadingTypeDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
+        selectorConfig.createDataSelector(logger).selectData(dataExportOccurrence);
 
         InOrder inOrder = inOrder(obsoleteItem);
         inOrder.verify(obsoleteItem).deactivate();
@@ -232,15 +232,15 @@ public class StandardDataSelectorTest {
 
     @Test
     public void testExecuteExistingItemIsUpdated() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod);
-        selector.setEndDeviceGroup(group);
-        selector.addReadingType(readingType1);
-        selector.setEndDeviceGroup(group);
-        existingItem = selector.addExportItem(meter2, readingType1);
-        obsoleteItem = selector.addExportItem(meter3, readingType1);
-//        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportRelativePeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(group)
+                .addReadingType(readingType1);
+        existingItem = selectorConfig.addExportItem(meter2, readingType1);
+        obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        selector.asReadingTypeDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
+        selectorConfig.createDataSelector(logger).selectData(dataExportOccurrence);
 
         InOrder inOrder = inOrder(existingItem);
         inOrder.verify(existingItem).activate();
@@ -248,28 +248,27 @@ public class StandardDataSelectorTest {
 
     @Test
     public void testNewItemIsUpdated() {
-        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod);
-        selector.setEndDeviceGroup(group);
-        selector.addReadingType(readingType1);
-        selector.setEndDeviceGroup(group);
-        existingItem = selector.addExportItem(meter2, readingType1);
-        obsoleteItem = selector.addExportItem(meter3, readingType1);
-//        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
+        MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportRelativePeriod);
+        selectorConfig.startUpdate()
+                .setEndDeviceGroup(group)
+                .addReadingType(readingType1);
+        existingItem = selectorConfig.addExportItem(meter2, readingType1);
+        obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        selector.asReadingTypeDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
+        selectorConfig.createDataSelector(logger).selectData(dataExportOccurrence);
 
-        assertThat(selector.getExportItems())
+        assertThat(selectorConfig.getExportItems())
                 .hasSize(3)
                 .contains(existingItem)
                 .contains(obsoleteItem);
 
         assertThat(obsoleteItem.isActive()).isFalse();
 
-        assertThat(selector.getExportItems().stream()
+        assertThat(selectorConfig.getExportItems().stream()
                 .filter(IReadingTypeDataExportItem::isActive)
                 .count()).isEqualTo(2);
     }
-
 
     private class MyRefAny implements RefAny {
 

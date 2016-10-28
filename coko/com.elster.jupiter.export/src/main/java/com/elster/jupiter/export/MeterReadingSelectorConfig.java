@@ -1,5 +1,6 @@
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.RelativePeriod;
 
@@ -19,9 +20,14 @@ public interface MeterReadingSelectorConfig extends ReadingDataSelectorConfig {
     Updater startUpdate();
 
     interface Updater extends ReadingDataSelectorConfig.Updater {
+        @Override
+        Updater addReadingType(ReadingType readingType);
 
         @Override
-        Updater setExportPeriod(RelativePeriod relativePeriod);
+        Updater removeReadingType(ReadingType readingType);
+
+        @Override
+        Updater setValidatedDataOption(ValidatedDataOption option);
 
         @Override
         Updater setExportContinuousData(boolean exportContinuousData);
@@ -30,7 +36,7 @@ public interface MeterReadingSelectorConfig extends ReadingDataSelectorConfig {
         Updater setExportOnlyIfComplete(boolean exportOnlyIfComplete);
 
         @Override
-        Updater setValidatedDataOption(ValidatedDataOption option);
+        Updater setExportPeriod(RelativePeriod relativePeriod);
 
         Updater setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 

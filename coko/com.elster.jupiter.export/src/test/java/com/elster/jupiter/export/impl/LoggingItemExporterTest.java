@@ -5,7 +5,7 @@ import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
@@ -38,7 +38,6 @@ import org.mockito.junit.MockitoJUnitRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -79,9 +78,11 @@ public class LoggingItemExporterTest {
     @Mock
     private FormattedData formattedData;
     @Mock
-    private ExportTask task;
+    private IExportTask task;
     @Mock
-    private IStandardDataSelector dataSelector;
+    private ReadingDataSelectorConfigImpl readingDataSelectorConfig;
+    @Mock
+    private DataExportStrategy dataExportStrategy;
 
     @Before
     public void setUp() {
@@ -94,7 +95,6 @@ public class LoggingItemExporterTest {
         to = ZonedDateTime.of(2013, 4, 18, 18, 2, 19, 0, ZoneId.systemDefault());
         range = Range.closed(from.toInstant(), to.toInstant());
 
-        doReturn(Optional.of(dataSelector)).when(task).getReadingTypeDataSelector();
         when(meterReadingData.getItem()).thenReturn(item);
         when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);
@@ -110,8 +110,11 @@ public class LoggingItemExporterTest {
         when(thesaurus.getFormat(MessageSeeds.ITEM_FATALLY_FAILED)).thenReturn(fatallyFailedFormat);
         when(fatallyFailedFormat.format(anyVararg())).thenAnswer(invocation ->
                 MessageFormat.format(MessageSeeds.ITEM_FATALLY_FAILED.getDefaultFormat(), invocation.getArguments()[0]));
+
         when(occurrence.getTask()).thenReturn(task);
-        when(dataSelector.adjustedExportPeriod(occurrence, item)).thenReturn(range);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(readingDataSelectorConfig));
+        when(readingDataSelectorConfig.getStrategy()).thenReturn(dataExportStrategy);
+        when(dataExportStrategy.adjustedExportPeriod(occurrence, item)).thenReturn(range);
 
         loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, decorated);
     }
