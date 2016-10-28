@@ -7,11 +7,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,10 +21,11 @@ public class DeviceSchedulesInfo {
     public TemporalExpressionInfo schedule;
     public Instant plannedDate;
     public Instant nextCommunication;
-    public List<ComTaskInfo> comTaskInfos;
+    public ComTaskInfo comTask;
     public ScheduleType type;
     public long version;
     public VersionInfo<String> parent;
+    public boolean active;
 
     public DeviceSchedulesInfo() {
     }
@@ -57,8 +56,7 @@ public class DeviceSchedulesInfo {
             if(!usedComtasks.contains(comTaskEnablement.getComTask().getId())){
                 DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
                 deviceSchedulesInfo.id = comTaskEnablement.getComTask().getId();
-                deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
-                deviceSchedulesInfo.comTaskInfos.addAll(Arrays.asList(ComTaskInfo.from(comTaskEnablement.getComTask())));
+                deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
                 deviceSchedulesInfo.type = ScheduleType.ONREQUEST;
                 deviceSchedulesInfos.add(deviceSchedulesInfo);
             }
@@ -74,10 +72,10 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.schedule = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         deviceSchedulesInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
-        deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
-        deviceSchedulesInfo.comTaskInfos.add(ComTaskInfo.from(comTaskExecution.getComTask()));
+        deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
         deviceSchedulesInfo.type = ScheduleType.SCHEDULED;
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -90,9 +88,9 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.schedule = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         deviceSchedulesInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
-        deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
-        deviceSchedulesInfo.comTaskInfos.add(ComTaskInfo.from(comTaskExecution.getComTask()));
+        deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -104,9 +102,9 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.type = ScheduleType.ADHOC;
         deviceSchedulesInfo.plannedDate = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
-        deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
-        deviceSchedulesInfo.comTaskInfos.add(ComTaskInfo.from(comTaskExecution.getComTask()));
+        deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
