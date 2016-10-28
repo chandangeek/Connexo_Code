@@ -88,6 +88,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
     ],
 
     initComponent: function () {
+
         var me = this,
             grid = me.grid,
             emptyCmp = me.emptyComponent,
