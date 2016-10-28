@@ -11,7 +11,7 @@ import org.junit.rules.TestRule;
 
 public abstract class BaseTestIT {
 
-    protected static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
+    private static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.get(TransactionService.class));

@@ -13,6 +13,7 @@ import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -83,10 +84,12 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private Set<MicroAction> microActions;
     private Set<MicroCheck> microChecks;
 
+    private final DataModel dataModel;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
 
     @Inject
-    public UsagePointTransitionImpl(UsagePointLifeCycleService usagePointLifeCycleService) {
+    public UsagePointTransitionImpl(DataModel dataModel, UsagePointLifeCycleService usagePointLifeCycleService) {
+        this.dataModel = dataModel;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
     }
 
@@ -220,6 +223,11 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         }
     }
 
+    @Override
+    public UsagePointTransitionUpdater startUpdate() {
+        return this.dataModel.getInstance(UsagePointTransitionUpdaterImpl.class).init(this.lifeCycle.get(), this);
+    }
+
     void setLevels(Set<UsagePointTransition.Level> transitionLevels) {
         this.levelBits = 0L;
         if (transitionLevels != null) {
@@ -256,7 +264,9 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     void setFsmTransition(StateTransition fsmTransition) {
         this.fsmTransition.set(fsmTransition);
-        postLoadStates();
+        if (fsmTransition != null) {
+            postLoadStates();
+        }
     }
 
     @Override

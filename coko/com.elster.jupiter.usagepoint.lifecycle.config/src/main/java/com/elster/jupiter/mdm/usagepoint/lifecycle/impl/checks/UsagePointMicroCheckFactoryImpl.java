@@ -11,6 +11,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -51,7 +52,7 @@ public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFact
         this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    @Reference
+    @Activate
     public void activate() {
         this.dataModel.register(getModule());
         addMicroCheckMappings();

@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Set;
 
-public class UsagePointTransitionCreatorImpl implements UsagePointTransition.UsagePointTransitionCreator {
+public class UsagePointTransitionCreatorImpl implements UsagePointTransition.UsagePointTransitionCreator<UsagePointTransitionCreatorImpl> {
     private final DataModel dataModel;
     private final FiniteStateMachineService stateMachineService;
 
@@ -43,25 +43,25 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionCreator triggeredBy(StandardStateTransitionEventType eventType) {
+    public UsagePointTransitionCreatorImpl triggeredBy(StandardStateTransitionEventType eventType) {
         this.eventType = eventType;
         return this;
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionCreator withActions(Set<MicroAction.Key> microActionKeys) {
+    public UsagePointTransitionCreatorImpl withActions(Set<MicroAction.Key> microActionKeys) {
         this.microActionKeys = microActionKeys != null ? Collections.unmodifiableSet(microActionKeys) : Collections.emptySet();
         return this;
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionCreator withChecks(Set<MicroCheck.Key> microCheckKeys) {
+    public UsagePointTransitionCreatorImpl withChecks(Set<MicroCheck.Key> microCheckKeys) {
         this.microCheckKeys = microCheckKeys != null ? Collections.unmodifiableSet(microCheckKeys) : Collections.emptySet();
         return this;
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionCreator withLevels(Set<UsagePointTransition.Level> levels) {
+    public UsagePointTransitionCreatorImpl withLevels(Set<UsagePointTransition.Level> levels) {
         this.levels = levels != null ? Collections.unmodifiableSet(levels) : Collections.emptySet();
         return this;
     }

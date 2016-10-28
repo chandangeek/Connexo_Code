@@ -15,6 +15,7 @@ import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 
 import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,17 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     private UsagePointState state1;
     private UsagePointState state2;
     private UsagePointState state3;
+
+    private com.elster.jupiter.events.EventType createSystemEventType(String eventTypeSymbol) {
+        return get(EventService.class).buildEventTypeWithTopic("usage/point/lifecycle/" + eventTypeSymbol)
+                .name(eventTypeSymbol)
+                .component(UsagePointLifeCycleService.COMPONENT_NAME)
+                .category("Crud")
+                .scope("System")
+                .shouldPublish()
+                .enableForUseInStateMachines()
+                .create();
+    }
 
     @Before
     public void before() {
@@ -119,14 +131,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Test
     @Transactional
     public void testCanCreateWithTriggeredBy() {
-        com.elster.jupiter.events.EventType eventType = get(EventService.class).buildEventTypeWithTopic("usage/point/lifecycle/test")
-                .name("TEST")
-                .component(UsagePointLifeCycleService.COMPONENT_NAME)
-                .category("Crud")
-                .scope("System")
-                .shouldPublish()
-                .enableForUseInStateMachines()
-                .create();
+        com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
         StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
 
         UsagePointTransition transition = this.lifeCycle.newTransition("tr1", this.state1, this.state2)
@@ -140,14 +145,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Test
     @Transactional
     public void testCanCloneTransitionWithTriggeredBy() {
-        com.elster.jupiter.events.EventType eventType = get(EventService.class).buildEventTypeWithTopic("usage/point/lifecycle/test")
-                .name("TEST")
-                .component(UsagePointLifeCycleService.COMPONENT_NAME)
-                .category("Crud")
-                .scope("System")
-                .shouldPublish()
-                .enableForUseInStateMachines()
-                .create();
+        com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
         StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
         UsagePointTransition transition = this.lifeCycle.newTransition("tr1", this.state1, this.state2)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.TWO, UsagePointTransition.Level.FOUR))
@@ -213,14 +211,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Test
     @Transactional
     public void testCanRemoveTransitionWithTriggeredBy() {
-        com.elster.jupiter.events.EventType eventType = get(EventService.class).buildEventTypeWithTopic("usage/point/lifecycle/test")
-                .name("TEST")
-                .component(UsagePointLifeCycleService.COMPONENT_NAME)
-                .category("Crud")
-                .scope("System")
-                .shouldPublish()
-                .enableForUseInStateMachines()
-                .create();
+        com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
         StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.TWO, UsagePointTransition.Level.FOUR))
@@ -235,5 +226,96 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         assertThat(this.lifeCycle.getTransitions().size()).isEqualTo(transitionSize - 1);
         assertThat(this.lifeCycle.getTransitions()).doesNotContain(transition);
         assertThat(get(FiniteStateMachineService.class).findStandardStateTransitionEventType(eventType)).isPresent();
+    }
+
+    @Test
+    @Transactional
+    public void testCanSwitchFromStandardEventToCustom() {
+        com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
+        StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .triggeredBy(triggeredBy)
+                .complete();
+
+        transition.startUpdate().triggeredBy(null).complete();
+
+        assertThat(transition.getTriggeredBy()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testCanSwitchFromCustomEventToStandard() {
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .complete();
+        String symbol = transition.getFsmTransition().getEventType().getSymbol();
+
+        com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
+        StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
+        transition.startUpdate().triggeredBy(triggeredBy).complete();
+
+        assertThat(transition.getTriggeredBy()).isPresent();
+        assertThat(get(FiniteStateMachineService.class).findCustomStateTransitionEventType(symbol)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testCanSwitchFromStandardEventToAnotherStandard() {
+        com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
+        StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .triggeredBy(triggeredBy)
+                .complete();
+
+        eventType = createSystemEventType("TEST2");
+        triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
+        transition.startUpdate().triggeredBy(triggeredBy).complete();
+
+        assertThat(transition.getTriggeredBy()).isPresent();
+        assertThat(transition.getTriggeredBy().get()).isEqualTo(triggeredBy);
+    }
+
+    @Test
+    @Transactional
+    public void testCanChangeTransitionAndPreserveEventType() {
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withLevels(EnumSet.of(UsagePointTransition.Level.THREE))
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .complete();
+        StateTransitionEventType eventType = transition.getFsmTransition().getEventType();
+
+        transition.startUpdate()
+                .withName("tr2")
+                .to(this.state3)
+                .withLevels(EnumSet.of(UsagePointTransition.Level.FOUR))
+                .withActions(null)
+                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .complete();
+
+        assertThat(transition.getName()).isEqualTo("tr2");
+        assertThat(transition.getFrom()).isEqualTo(this.state1);
+        assertThat(transition.getTo()).isEqualTo(this.state3);
+        assertThat(transition.getLevels()).containsExactly(UsagePointTransition.Level.FOUR);
+        assertThat(transition.getActions()).isEmpty();
+        assertThat(transition.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toList())).containsExactly(MicroCheck.Key.ALL_DATA_VALID);
+        assertThat(transition.getFsmTransition().getEventType()).isEqualTo(eventType);
+    }
+
+    @Test
+    @Transactional
+    public void testCanChangeTransitionFromState() {
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .complete();
+        StateTransitionEventType eventType = transition.getFsmTransition().getEventType();
+
+        transition.startUpdate().from(this.state3).complete();
+
+        assertThat(transition.getFrom()).isEqualTo(this.state3);
+        assertThat(transition.getFsmTransition().getEventType()).isNotEqualTo(eventType);
+        assertThat(get(FiniteStateMachineService.class).findCustomStateTransitionEventType(eventType.getSymbol())).isEmpty();
+        assertThat(this.lifeCycle.getTransitions().size()).isEqualTo(transition.getFsmTransition().getFrom().getFiniteStateMachine().getTransitions().size());
     }
 }

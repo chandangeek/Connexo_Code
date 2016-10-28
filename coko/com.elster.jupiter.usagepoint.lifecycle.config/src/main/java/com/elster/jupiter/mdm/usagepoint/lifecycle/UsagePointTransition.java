@@ -53,18 +53,29 @@ public interface UsagePointTransition extends HasId, HasName {
 
     void remove();
 
+    UsagePointTransitionUpdater startUpdate();
+
     long getVersion();
 
-    interface UsagePointTransitionCreator {
+    interface UsagePointTransitionCreator<T extends UsagePointTransitionCreator> {
 
-        UsagePointTransitionCreator triggeredBy(StandardStateTransitionEventType eventType);
+        T triggeredBy(StandardStateTransitionEventType eventType);
 
-        UsagePointTransitionCreator withActions(Set<MicroAction.Key> microActionKeys);
+        T withActions(Set<MicroAction.Key> microActionKeys);
 
-        UsagePointTransitionCreator withChecks(Set<MicroCheck.Key> microCheckKeys);
+        T withChecks(Set<MicroCheck.Key> microCheckKeys);
 
-        UsagePointTransitionCreator withLevels(Set<Level> levels);
+        T withLevels(Set<Level> levels);
 
         UsagePointTransition complete();
+    }
+
+    interface UsagePointTransitionUpdater extends UsagePointTransitionCreator<UsagePointTransitionUpdater> {
+
+        UsagePointTransitionUpdater withName(String name);
+
+        UsagePointTransitionUpdater from(UsagePointState state);
+
+        UsagePointTransitionUpdater to(UsagePointState state);
     }
 }
