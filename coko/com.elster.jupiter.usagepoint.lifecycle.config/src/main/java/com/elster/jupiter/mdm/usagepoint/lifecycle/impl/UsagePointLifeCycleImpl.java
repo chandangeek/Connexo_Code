@@ -54,7 +54,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @Valid
-    private List<UsagePointTransition> transitions = new ArrayList<>();
+    private List<UsagePointTransitionImpl> transitions = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private String userName;
@@ -152,6 +152,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     public void remove() {
         if (getId() > 0) {
             this.eventService.postEvent(EventType.LIFE_CYCLE_BEFORE_DELETE.topic(), this);
+            new ArrayList<>(this.transitions).forEach(UsagePointTransitionImpl::remove);
             this.dataModel.remove(this);
             this.eventService.postEvent(EventType.LIFE_CYCLE_DELETED.topic(), this);
         }
@@ -160,6 +161,11 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     void addTransition(UsagePointTransitionImpl transition) {
         Save.CREATE.validate(this.dataModel, transition);
         this.transitions.add(transition);
+    }
+
+    void removeTransition(UsagePointTransitionImpl transition) {
+        this.transitions.remove(transition);
+        touch();
     }
 
     @Override

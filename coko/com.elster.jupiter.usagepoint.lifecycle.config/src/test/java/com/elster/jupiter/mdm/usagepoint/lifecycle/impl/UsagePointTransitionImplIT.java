@@ -3,8 +3,10 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
@@ -186,6 +188,52 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         assertThat(cloned.getTriggeredBy()).isEqualTo(transition.getTriggeredBy());
         assertThat(cloned.getFsmTransition().getId()).isNotEqualTo(transition.getFsmTransition().getId());
         assertThat(cloned.getFsmTransition().getEventType().getSymbol()).isNotEqualTo(transition.getFsmTransition().getEventType().getSymbol());
+    }
 
+    @Test
+    @Transactional
+    public void testCanRemoveTransition() {
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withLevels(EnumSet.of(UsagePointTransition.Level.FOUR))
+                .complete();
+        FiniteStateMachine stateMachine = ((UsagePointLifeCycleImpl) this.lifeCycle).getStateMachine();
+        int transitionSize = stateMachine.getTransitions().size();
+        StateTransitionEventType eventType = transition.getFsmTransition().getEventType();
+
+        transition.remove();
+
+        assertThat(stateMachine.getTransitions().size()).isEqualTo(transitionSize - 1);
+        assertThat(this.lifeCycle.getTransitions().size()).isEqualTo(transitionSize - 1);
+        assertThat(this.lifeCycle.getTransitions()).doesNotContain(transition);
+        assertThat(get(FiniteStateMachineService.class).findCustomStateTransitionEventType(eventType.getSymbol())).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveTransitionWithTriggeredBy() {
+        com.elster.jupiter.events.EventType eventType = get(EventService.class).buildEventTypeWithTopic("usage/point/lifecycle/test")
+                .name("TEST")
+                .component(UsagePointLifeCycleService.COMPONENT_NAME)
+                .category("Crud")
+                .scope("System")
+                .shouldPublish()
+                .enableForUseInStateMachines()
+                .create();
+        StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withLevels(EnumSet.of(UsagePointTransition.Level.TWO, UsagePointTransition.Level.FOUR))
+                .triggeredBy(triggeredBy)
+                .complete();
+        FiniteStateMachine stateMachine = ((UsagePointLifeCycleImpl) this.lifeCycle).getStateMachine();
+        int transitionSize = stateMachine.getTransitions().size();
+
+        transition.remove();
+
+        assertThat(stateMachine.getTransitions().size()).isEqualTo(transitionSize - 1);
+        assertThat(this.lifeCycle.getTransitions().size()).isEqualTo(transitionSize - 1);
+        assertThat(this.lifeCycle.getTransitions()).doesNotContain(transition);
+        assertThat(get(FiniteStateMachineService.class).findStandardStateTransitionEventType(eventType)).isPresent();
     }
 }

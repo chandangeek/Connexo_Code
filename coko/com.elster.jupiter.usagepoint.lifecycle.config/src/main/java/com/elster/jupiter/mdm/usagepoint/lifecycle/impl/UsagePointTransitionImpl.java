@@ -1,8 +1,12 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
@@ -55,7 +59,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    private Reference<UsagePointLifeCycle> lifeCycle = ValueReference.absent();
+    private Reference<UsagePointLifeCycleImpl> lifeCycle = ValueReference.absent();
     private Reference<StateTransition> fsmTransition = ValueReference.absent();
     @SuppressWarnings("unused")
     private long levelBits;
@@ -86,7 +90,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         this.usagePointLifeCycleService = usagePointLifeCycleService;
     }
 
-    UsagePointTransitionImpl init(UsagePointLifeCycle lifeCycle, String name, UsagePointState fromState, UsagePointState toState) {
+    UsagePointTransitionImpl init(UsagePointLifeCycleImpl lifeCycle, String name, UsagePointState fromState, UsagePointState toState) {
         this.lifeCycle.set(lifeCycle);
         this.name = name;
         this.fromState = fromState;
@@ -200,6 +204,20 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @Override
     public Set<Level> getLevels() {
         return Collections.unmodifiableSet(this.levels);
+    }
+
+    @Override
+    public void remove() {
+        this.lifeCycle.get().removeTransition(this);
+        StateTransition stateTransition = this.fsmTransition.get();
+        State fsmFromState = stateTransition.getFrom();
+        StateTransitionEventType eventType = stateTransition.getEventType();
+        FiniteStateMachineUpdater stateMachineUpdater = fsmFromState.getFiniteStateMachine().startUpdate();
+        stateMachineUpdater.state(fsmFromState.getId()).prohibit(eventType).complete();
+        stateMachineUpdater.complete();
+        if (eventType instanceof CustomStateTransitionEventType) {
+            eventType.delete();
+        }
     }
 
     void setLevels(Set<UsagePointTransition.Level> transitionLevels) {

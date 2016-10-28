@@ -51,6 +51,8 @@ public interface UsagePointTransition extends HasId, HasName {
 
     Set<Level> getLevels();
 
+    void remove();
+
     long getVersion();
 
     interface UsagePointTransitionCreator {
