@@ -3,7 +3,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Status;
-import com.elster.jupiter.calendar.impl.OutOfTheBoxCategory;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -671,7 +670,7 @@ public class DeviceTypeResource {
                 .stream()
                 .filter(calendar -> !usedCalendars.contains(calendar)
                         && calendar.getStatus().equals(Status.ACTIVE)
-                        && calendar.getCategory().getId()==(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get().getId()))
+                        && calendar.getCategory().getId()==(calendarService.findCategoryByName("TOU").get().getId()))
                 .map(calendarInfoFactory::summaryFromCalendar)
                 .collect(Collectors.toList());
 
