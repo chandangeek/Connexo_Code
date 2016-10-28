@@ -1,11 +1,10 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -77,7 +76,7 @@ public class IssuesResource {
         myOpenIssuesInfo.assignedToMeIssues.topMyIssues = new ArrayList<>();
 
         myOpenIssuesInfo.assignedToMeIssues.total = issues.size();
-        myOpenIssuesInfo.assignedToMeIssues.filter.assigneeType = IssueAssignee.Types.USER;
+        myOpenIssuesInfo.assignedToMeIssues.filter.assigneeType = "USER";
         myOpenIssuesInfo.assignedToMeIssues.filter.assigneeId = user.getId();
 
         for (int i = 0; i < TOP_MY_ISSUES_LIMIT && i < issues.size(); i++) {
