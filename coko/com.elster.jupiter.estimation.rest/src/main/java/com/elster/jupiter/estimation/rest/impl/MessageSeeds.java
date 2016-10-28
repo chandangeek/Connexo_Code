@@ -10,6 +10,7 @@ public enum MessageSeeds implements MessageSeed {
     DELETE_TASK_SQL_EXCEPTION(1002, Keys.DELETE_TASK_SQL_EXCEPTION, "Data export task {0} could not be removed. There was a problem accessing the database", Level.SEVERE),
     RUN_TASK_CONCURRENT_TITLE(1003, "RunTaskConcurrentTitle", "Failed to run ''{0}''", Level.SEVERE),
     RUN_TASK_CONCURRENT_BODY(1004, "RunTaskConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
+    RULE_SET_IN_USE(1005, "RuleSetInIse", "''{0}'' can''t be removed since this estimation rule set is used by at least one metrology configuration", Level.SEVERE)
     ;
 
     private final int number;

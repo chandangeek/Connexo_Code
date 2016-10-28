@@ -253,12 +253,18 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response deleteEstimationRuleSet(@PathParam("ruleSetId") final long ruleSetId, EstimationRuleSetInfo info) {
-        transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                findAndLockRuleSet(info).delete();
-            }
-        });
+        EstimationRuleSet ruleSet = findAndLockRuleSet(info);
+        if (estimationService.isEstimationRuleSetInUse(ruleSet) && ruleSet.getQualityCodeSystem()
+                .equals(QualityCodeSystem.MDM)) {
+            throw new EstimationRuleSetInUseLocalizedException(thesaurus, ruleSet);
+        } else {
+            transactionService.execute(new VoidTransaction() {
+                @Override
+                protected void doPerform() {
+                    ruleSet.delete();
+                }
+            });
+        }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
