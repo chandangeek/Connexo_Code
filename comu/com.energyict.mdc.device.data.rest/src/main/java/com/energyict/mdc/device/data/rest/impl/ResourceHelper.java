@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -696,7 +697,8 @@ public class ResourceHelper {
         if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info), newRange);
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange);
         device.save();
     }
 
@@ -706,7 +708,8 @@ public class ResourceHelper {
         if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
-        customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info));
+        customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info));
         device.save();
     }
 
@@ -717,7 +720,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info), newRange, effectiveTimestamp);
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, effectiveTimestamp);
         device.save();
     }
 
@@ -728,7 +732,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), newRange, channel.getDevice()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, channel.getDevice()
                 .getId());
         channel.getChannelSpec().save();
     }
@@ -740,7 +745,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), newRange, effectiveTimestamp, channel
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, effectiveTimestamp, channel
                 .getDevice()
                 .getId());
         channel.getChannelSpec().save();
@@ -753,7 +759,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), newRange, register.getDevice()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, register.getDevice()
                 .getId());
         register.getRegisterSpec().save();
     }
@@ -765,7 +772,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), newRange, effectiveTimestamp, register
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, effectiveTimestamp, register
                 .getDevice()
                 .getId());
         register.getRegisterSpec().save();
@@ -887,7 +895,8 @@ public class ResourceHelper {
                 .orElseThrow(conflictException(info));
 
         if (registeredCustomPropertySet.isEditableByCurrentUser() && matches(info, registeredCustomPropertySet)) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), register.getDevice().getId());
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                    .getPropertySpecs(), info), register.getDevice().getId());
             register.getRegisterSpec().save();
         } else {
             throw conflictException(info).get();
@@ -954,7 +963,9 @@ public class ResourceHelper {
                 .getDeviceType()
                 .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isEditableByCurrentUser()) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), channel.getDevice().getId());
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.get()
+                    .getCustomPropertySet()
+                    .getPropertySpecs(), info), channel.getDevice().getId());
             channel.getChannelSpec().save();
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, info.id);
@@ -968,21 +979,10 @@ public class ResourceHelper {
         return typedProperties;
     }
 
-    private CustomPropertySetValues getCustomPropertySetValues(CustomPropertySetInfo info) {
+    private CustomPropertySetValues getCustomPropertySetValues(List<PropertySpec> propertySpecs, CustomPropertySetInfo info) {
         CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
-        info.properties.forEach(property -> {
-            if (property.getPropertyValueInfo() != null) {
-                if (property.getPropertyValueInfo().getValue() != null && !property.getPropertyValueInfo().getValue().toString().isEmpty()) {
-                    customPropertySetValues.setProperty(property.key, property.getPropertyValueInfo().getValue());
-                } else if (property.getPropertyValueInfo().defaultValue != null && !property.getPropertyValueInfo().defaultValue.toString().isEmpty()) {
-                    customPropertySetValues.setProperty(property.key, property.getPropertyValueInfo().defaultValue);
-                } else if (property.required) {
-                    throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REQUIRED_PROPERTY);
-                }
-            } else if (property.required) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REQUIRED_PROPERTY);
-            }
-        });
+        propertySpecs.forEach(propertySpec ->
+                customPropertySetValues.setProperty(propertySpec.getName(), this.mdcPropertyUtils.findPropertyValue(propertySpec, info.properties)));
         return customPropertySetValues;
     }
 
