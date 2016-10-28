@@ -8,11 +8,8 @@ public class IssueAssigneeInfo {
     private String name;
 
     public IssueAssigneeInfo(IssueAssignee assignee){
-        if (assignee != null && assignee.getType() != null) {
-            this.type = assignee.getType();
-            this.id = assignee.getId();
-            this.name = assignee.getName();
-        }
+        this.name = assignee.getUser().getName();
+        this.id = assignee.getUser().getId();
     }
 
     public IssueAssigneeInfo(String type, Long id, String name) {

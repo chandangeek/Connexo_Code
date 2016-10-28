@@ -12,7 +12,6 @@ import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -23,9 +22,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -36,6 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.FILTER;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
@@ -267,7 +267,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         Map<?, ?> assigneeMap = (Map<?, ?>) issueMap.get("assignee");
         assertThat(assigneeMap.get("id")).isEqualTo(1);
         assertThat(assigneeMap.get("name")).isEqualTo("Admin");
-        assertThat(assigneeMap.get("type")).isEqualTo(IssueAssignee.Types.USER);
+        assertThat(assigneeMap.get("type")).isEqualTo("USER");
 
         Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
         assertThat(deviceMap.get("id")).isEqualTo(1);

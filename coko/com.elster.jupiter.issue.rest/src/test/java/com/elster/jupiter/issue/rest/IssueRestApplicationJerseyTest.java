@@ -171,9 +171,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
 
     protected IssueAssignee mockAssignee(long id, String name, String type){
         IssueAssignee assignee = mock(IssueAssignee.class);
-        when(assignee.getId()).thenReturn(id);
-        when(assignee.getName()).thenReturn(name);
-        when(assignee.getType()).thenReturn(type);
+        when(assignee.getUser().getId()).thenReturn(id);
+        when(assignee.getUser().getName()).thenReturn(name);
         return assignee;
     }
 
@@ -227,7 +226,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     }
 
     protected IssueAssignee getDefaultAssignee(){
-        return mockAssignee(1, "Admin", IssueAssignee.Types.USER);
+        return mockAssignee(1, "Admin", "USER");
     }
 
     protected AssignmentRule mockAssignmentRule(long id, String title, String description, long version, IssueAssignee assignee){

@@ -28,7 +28,7 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
         ActionInfo response = new ActionInfo();
         if (request.assignee != null) {
             for (Issue issue : issueProvider.apply(response)) {
-                issue.assignTo(request.assignee.type, request.assignee.id);
+                issue.assignTo(request.assignee.id, null);
                 issue.addComment(request.comment, performer);
                 issue.update();
                 response.addSuccess(issue.getId());

@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 
@@ -19,11 +18,11 @@ public class AssigneeFilterListInfo {
     }
 
     public AssigneeFilterListInfo(List<User> userList) {
-        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName())).collect(Collectors.toList()));
+        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo("USER", user.getId(), user.getName())).collect(Collectors.toList()));
     }
 
     public AssigneeFilterListInfo addData(List<User> userList) {
-        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName())).collect(Collectors.toList()));
+        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo("USER", user.getId(), user.getName())).collect(Collectors.toList()));
         return this;
     }
 
@@ -39,7 +38,7 @@ public class AssigneeFilterListInfo {
         AssigneeFilterListInfo info = new AssigneeFilterListInfo();
         if (currentUser != null && findMe) {
             // Adding 'Me'
-            info.data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, currentUser.getId(), currentUser.getName()));
+            info.data.add(new IssueAssigneeInfo("USER", currentUser.getId(), currentUser.getName()));
         }  else {
             // Adding 'Unassigned'
             String unassignedText = thesaurus.getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format();

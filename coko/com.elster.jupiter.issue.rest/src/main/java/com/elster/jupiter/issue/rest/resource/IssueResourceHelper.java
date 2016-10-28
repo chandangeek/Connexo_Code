@@ -15,7 +15,6 @@ import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -142,9 +141,7 @@ public class IssueResourceHelper {
             String assigneeType = as.getType();
             Long assigneeId = as.getId();
             if (assigneeId != null && assigneeId > 0) {
-                if (IssueAssignee.Types.USER.equals(assigneeType)) {
                     userService.getUser(assigneeId).ifPresent(filter::addAssignee);
-                }
             } else if (assigneeId != null && assigneeId != 0) {
                 filter.setUnassignedSelected();
             }
