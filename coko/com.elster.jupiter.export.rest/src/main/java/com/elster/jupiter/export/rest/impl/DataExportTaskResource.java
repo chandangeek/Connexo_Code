@@ -187,7 +187,7 @@ public class DataExportTaskResource {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                 }
 
-                DataExportTaskBuilder.ReadingTypeSelectorBuilder selectorBuilder = builder.selectingReadingTypes()
+                DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
                         .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                         .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
                         .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
