@@ -4,8 +4,6 @@ import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.entity.AssigneeDetails;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -145,7 +143,8 @@ public abstract class IssuesGroupOperation {
     }
 
     String getAssigneeCondition() {
-            StringBuilder builder = new StringBuilder();
+        //FixMe check this getAssigneeCondition;
+            /*StringBuilder builder = new StringBuilder();
             for (AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
                 if (builder.length() != 0) {
                     builder.append(" OR ");
@@ -163,7 +162,7 @@ public abstract class IssuesGroupOperation {
             if (builder.length() != 0) {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
-            }
+            }*/
         return "";
     }
 

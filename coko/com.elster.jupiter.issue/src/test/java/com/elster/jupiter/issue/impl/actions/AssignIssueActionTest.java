@@ -12,13 +12,14 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,7 +56,7 @@ public class AssignIssueActionTest extends BaseTest {
         IssueActionResult actionResult = action.initAndValidate(properties).execute(issue);
         
         assertThat(actionResult.isSuccess()).isTrue();
-        assertThat(issue.getAssignee().getId()).isEqualTo(user.getId());
+        assertThat(issue.getAssignee().getUser().getId()).isEqualTo(user.getId());
         assertThat(getIssueComments(issue)).hasSize(1);
         assertThat(getIssueComments(issue).get(0).getComment()).isEqualTo("Comment");
     }

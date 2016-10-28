@@ -1,13 +1,13 @@
 package com.elster.jupiter.issue.share.entity;
 
-import java.time.Instant;
-import java.util.Optional;
-
-import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
+
+import aQute.bnd.annotation.ProviderType;
+
+import java.time.Instant;
+import java.util.Optional;
 
 @ProviderType
 public interface Issue extends Entity {
@@ -43,7 +43,7 @@ public interface Issue extends Entity {
     void setRule(CreationRule rule);
 
     Optional<IssueComment> addComment(String body, User author);
-    void assignTo(String type, long id);
+    void assignTo(Long userId, Long workGroupId);
     void assignTo(IssueAssignee assignee);
     void autoAssign();
 }

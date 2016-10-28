@@ -2,11 +2,11 @@ package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -53,22 +53,22 @@ public class AssignIssueAction extends AbstractIssueAction {
     @Override
     public IssueActionResult execute(Issue issue) {
         DefaultActionResult result = new DefaultActionResult();
-        IssueAssignee assignee = getAssigneeFromParameters(properties).get();
+        IssueAssignee assignee = getAssigneeFromParameters(properties);
         issue.assignTo(assignee);
         issue.update();
         getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User)threadPrincipalService.getPrincipal()));
-        result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED).format(assignee.getName()));
+        result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED).format());
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<IssueAssignee> getAssigneeFromParameters(Map<String, Object> properties) {
+    private IssueAssignee getAssigneeFromParameters(Map<String, Object> properties) {
         Object value = properties.get(ASSIGNEE);
         if (value != null) {
             String assigneeId = getPropertySpec(ASSIGNEE).get().getValueFactory().toStringValue(value);
-            return issueService.findIssueAssignee(AssigneeType.USER, Long.valueOf(assigneeId).longValue());
+            return issueService.findIssueAssignee(Long.valueOf(assigneeId), null);
         }
-        return Optional.empty();
+        return new IssueAssigneeImpl();
     }
 
     private Optional<String> getCommentFromParameters(Map<String, Object> properties) {

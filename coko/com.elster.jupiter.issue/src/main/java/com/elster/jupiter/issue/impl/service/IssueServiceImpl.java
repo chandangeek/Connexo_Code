@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
@@ -22,7 +23,6 @@ import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -427,13 +427,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id) {
-        return assigneeType != null ? assigneeType.getAssignee(this, userService, id) : Optional.empty();
-    }
-
-    @Override
-    public boolean checkIssueAssigneeType(String type) {
-        return AssigneeType.fromString(type) != null;
+    public IssueAssignee findIssueAssignee(Long userId, Long workGroupId) {
+        IssueAssigneeImpl issueAssignee = new IssueAssigneeImpl();
+        issueAssignee.setUser(userId != null ? userService.getUser(userId).orElse(null) : null);
+        issueAssignee.setWorkGroup(workGroupId != null ?userService.getWorkGroup(workGroupId).orElse(null) : null);
+        return issueAssignee;
     }
 
     @Override

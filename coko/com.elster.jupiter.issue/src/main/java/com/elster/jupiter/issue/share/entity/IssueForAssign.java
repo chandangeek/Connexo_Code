@@ -11,6 +11,6 @@ public interface IssueForAssign {
     String getReason();
 
     boolean isProcessed();
-    void assignTo(String type, long assigneeId);
+    void assignTo(Long userId, Long workGroupId);
 
 }
