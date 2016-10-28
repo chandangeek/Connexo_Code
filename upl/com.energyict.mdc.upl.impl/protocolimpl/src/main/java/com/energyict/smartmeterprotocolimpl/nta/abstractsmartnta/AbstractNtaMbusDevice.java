@@ -225,7 +225,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     }
 
     @Override
-    public Object fetchCache(int rtuId) throws SQLException, BusinessException {
+    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
         return null;  //nothing to fetch
     }
 

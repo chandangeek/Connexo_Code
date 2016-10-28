@@ -1,10 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
-import com.energyict.cpo.TypedProperties;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.upl.MeterProtocol;
 
 /**
  * Abstract Class to map certain <i>new</i> functionality for existing protocols.
@@ -15,18 +11,4 @@ import com.energyict.protocol.MeterProtocol;
  * Time: 13:32
  */
 public abstract class PluggableMeterProtocol implements MeterProtocol {
-
-    public void addProperties(TypedProperties properties) {
-        try {
-            setProperties(properties.toStringProperties());
-        } catch (InvalidPropertyException e) {
-            throw new IllegalArgumentException(e);
-        } catch (MissingPropertyException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    public String getVersion() {
-        return getProtocolVersion();
-    }
 }

@@ -126,7 +126,7 @@ public class DummyProtocol implements MeterProtocol {
         throw new UnsupportedOperationException();
     }
 
-    public Object fetchCache(int i) throws SQLException, BusinessException {
+    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
         throw new UnsupportedOperationException();
     }
 

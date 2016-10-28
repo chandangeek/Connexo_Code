@@ -88,7 +88,7 @@ public class SampleProtocol implements SmartMeterProtocol {
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
         return null;
     }
 

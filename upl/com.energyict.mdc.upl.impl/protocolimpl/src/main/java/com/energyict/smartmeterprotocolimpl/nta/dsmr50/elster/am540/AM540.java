@@ -73,9 +73,9 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            RTUCache rtuCache = new RTUCache(rtuid);
+    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
+        if (deviceId != 0) {
+            RTUCache rtuCache = new RTUCache(deviceId);
             try {
                 return rtuCache.getCacheObject();
             } catch (NotFoundException e) {

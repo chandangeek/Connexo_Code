@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
@@ -64,10 +65,10 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     private NXT4RegisterFactory registerFactory;
     private FlagIEC1107Connection flagIEC1107Connection;
 
-    private static Map<String, String> exceptionInfoMap = new HashMap<>();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
 
     static {
-        exceptionInfoMap.put("ERROR", "Request could not be executed!");
+        EXCEPTION_INFO_MAP.put("ERROR", "Request could not be executed!");
     }
 
     @Override
@@ -259,17 +260,12 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     @Override
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        getProperties().validateAndSetProperties(properties);
+        getProperties().setProperties(properties);
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return getProperties().getRequiredKeys();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return getProperties().getOptionalKeys();
+    public List<PropertySpec> getPropertySpecs() {
+        return this.getProperties().getPropertySpecs();
     }
 
     @Override
@@ -358,7 +354,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     @Override
     public String getExceptionInfo(String id) {
-        String exceptionInfo = exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(ProtocolUtils.stripBrackets(id));
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {

@@ -110,7 +110,7 @@ public class SampleProtocol implements MeterProtocol {
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
         return null;
     }
 

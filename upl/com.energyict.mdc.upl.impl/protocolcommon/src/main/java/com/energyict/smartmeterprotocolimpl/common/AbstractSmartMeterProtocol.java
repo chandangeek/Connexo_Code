@@ -64,7 +64,7 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

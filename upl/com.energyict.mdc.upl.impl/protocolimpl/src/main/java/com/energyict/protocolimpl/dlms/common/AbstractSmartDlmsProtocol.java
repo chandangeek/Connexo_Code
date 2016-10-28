@@ -220,17 +220,17 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     /**
      * Fetch the DLMS cache from the database
      *
-     * @param rtuid - the RTU database id
+     * @param deviceId - the RTU database id
      * @return a DLMS cache object
      * @throws java.sql.SQLException if a database access error occurs
      * @throws com.energyict.cbo.BusinessException
      *                               if multiple records were found
      */
     @Override
-    public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+    public Object fetchCache(final int deviceId) throws SQLException, BusinessException {
+        if (deviceId != 0) {
+            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+            RtuDLMS rtu = new RtuDLMS(deviceId);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {

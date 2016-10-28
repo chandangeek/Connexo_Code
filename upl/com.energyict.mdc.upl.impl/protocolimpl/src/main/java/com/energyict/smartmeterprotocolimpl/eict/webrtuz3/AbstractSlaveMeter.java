@@ -102,7 +102,7 @@ public abstract class AbstractSlaveMeter implements SmartMeterProtocol{
     }
 
     @Override
-    public Object fetchCache(int rtuId) throws SQLException, BusinessException {
+    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
         return null;  // nothing to do
     }
 

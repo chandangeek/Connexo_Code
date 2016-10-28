@@ -1,12 +1,10 @@
 package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,39 +23,8 @@ public class NXT4Properties implements ConfigurationSupport {
         this.meterProtocol = meterProtocol;
     }
 
-    /**
-     * Validate and set the given properties.
-     *
-     * @param properties the properties to validate and set
-     * @throws InvalidPropertyException thrown in case a property has an invalid value
-     * @throws MissingPropertyException thrown in case a required property was missing
-     */
-    public void validateAndSetProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        // 1. Validate the properties
-        validateAllRequiredPropertiesAreFilledIn(properties);
-        validateIntegerProperty(properties, "Timeout");
-        validateIntegerProperty(properties, "Retries");
-        validateIntegerProperty(properties, "RoundTripCorrection");
-        validateIntegerProperty(properties, "SecurityLevel");
-        validateIntegerProperty(properties, "EchoCancelling");
-        validateIntegerProperty(properties, "ForcedDelay");
-        validateIntegerProperty(properties, "IEC1107Compatible");
-        validateIntegerProperty(properties, "ProfileInterval");
-        validateIntegerProperty(properties, "RequestHeader");
-        validateIntegerProperty(properties, "DataReadout");
-        validateIntegerProperty(properties, "ExtendedLogging");
-        validateProtocolChannelMap(properties, "ChannelMap");
-
-        // 2. Set the properties
+    public void setProperties(Properties properties) {
         this.protocolProperties = properties;
-    }
-
-    private void validateIntegerProperty(Properties properties, String propertyName) throws InvalidPropertyException {
-        try {
-            Integer.parseInt(properties.getProperty(propertyName, "0"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("Property " + propertyName + " has an invalid value: NumberFormatException, " + e.getMessage());
-        }
     }
 
     private void validateProtocolChannelMap(Properties properties, String propertyName) throws InvalidPropertyException {
@@ -67,14 +34,6 @@ public class NXT4Properties implements ConfigurationSupport {
             throw new InvalidPropertyException("Property " + propertyName + " has an invalid value: InvalidPropertyException, " + e.getMessage());
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("Property " + propertyName + " has an invalid value: NumberFormatException, " + e.getMessage());
-        }
-    }
-
-    private void validateAllRequiredPropertiesAreFilledIn(Properties properties) throws MissingPropertyException {
-        for (Object key : getRequiredKeys()) {
-            if (properties.getProperty((String) key) == null) {
-                throw new MissingPropertyException("Required property " + key + " is missing");
-            }
         }
     }
 
@@ -186,15 +145,20 @@ public class NXT4Properties implements ConfigurationSupport {
         return meterProtocol;
     }
 
-    public List<String> getRequiredKeys() {
-        return new ArrayList<>(0);
+    List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        List<com.energyict.mdc.upl.properties.PropertySpec> specs = new ArrayList<>();
+        this.getIntegerPropertyNames()
+                .stream()
+                .map(name -> UPLPropertySpecFactory.integral(name, false))
+                .forEach(specs::add);
+        specs.add(UPLPropertySpecFactory.channelMap("ChannelMap", false));
+        return specs;
     }
 
-    public List<String> getOptionalKeys() {
+    private List<String> getIntegerPropertyNames() {
         List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
-        result.add("ChannelMap");
         result.add("SecurityLevel");
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");

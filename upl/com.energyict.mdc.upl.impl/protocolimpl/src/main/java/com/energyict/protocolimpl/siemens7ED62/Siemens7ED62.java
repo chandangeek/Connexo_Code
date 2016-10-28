@@ -521,7 +521,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int deviceId) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         return null;
     }
 
