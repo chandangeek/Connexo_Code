@@ -11,7 +11,6 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
@@ -20,9 +19,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -33,8 +32,12 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest {
 
@@ -72,7 +75,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         assertThat(jsonModel.<Boolean>get("$.status.allowForClosing")).isEqualTo(false);
         assertThat(jsonModel.<Number>get("$.assignee.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.assignee.name")).isEqualTo("Admin");
-        assertThat(jsonModel.<String>get("$.assignee.type")).isEqualTo(IssueAssignee.Types.USER);
+        assertThat(jsonModel.<String>get("$.assignee.type")).isEqualTo("USER");
         assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.device.serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
         assertThat(jsonModel.<String>get("$.device.name")).isNull();
