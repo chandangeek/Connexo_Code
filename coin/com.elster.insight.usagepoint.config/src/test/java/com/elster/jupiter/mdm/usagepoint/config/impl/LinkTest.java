@@ -1,6 +1,8 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -58,6 +60,32 @@ public class LinkTest {
             assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(2);
             usagePointConfigurationService.removeValidationRuleSet(contractBilling, vrs1);
             assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(1);
+            context.commit();
+        }
+    }
+
+    @Test
+    public void testMCEstRuleSetLink() {
+        try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
+            UsagePointConfigurationService usagePointConfigurationService = inMemoryBootstrapModule.getUsagePointConfigurationService();
+            ServerMetrologyConfigurationService serverMetrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+            EstimationService estimationService = inMemoryBootstrapModule.getEstimationService();
+            MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+
+            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+            UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = serverMetrologyConfigurationService
+                    .newUsagePointMetrologyConfiguration("Test residential prosumer with 3 meters", serviceCategory).create();
+            MetrologyPurpose purposeBilling = serverMetrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get();
+            MetrologyContract contractBilling = usagePointMetrologyConfiguration.addMandatoryMetrologyContract(purposeBilling);
+            EstimationRuleSet ers1 = estimationService.createEstimationRuleSet("Rule #1", QualityCodeSystem.MDM);
+            usagePointConfigurationService.addEstimationRuleSet(contractBilling, ers1);
+            assertThat(serverMetrologyConfigurationService.findMetrologyConfiguration(usagePointMetrologyConfiguration.getId())).isPresent();
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(1);
+            EstimationRuleSet ers2 = estimationService.createEstimationRuleSet("Rule #2", QualityCodeSystem.MDM);
+            usagePointConfigurationService.addEstimationRuleSet(contractBilling, ers2);
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(2);
+            usagePointConfigurationService.removeEstimationRuleSet(contractBilling, ers1);
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(1);
             context.commit();
         }
     }
