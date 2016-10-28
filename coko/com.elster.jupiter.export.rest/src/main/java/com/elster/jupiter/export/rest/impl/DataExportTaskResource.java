@@ -303,7 +303,7 @@ public class DataExportTaskResource {
             if (!selectorType.equals(SelectorType.DEFAULT_READINGS)) {
                 throw new WebApplicationException(Response.Status.BAD_REQUEST);
             }
-            config.startUpdate()
+            MeterReadingSelectorConfig.Updater updater = config.startUpdate()
                     .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                     .setExportUpdate(info.standardDataSelector.exportUpdate)
                     .setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
@@ -311,10 +311,8 @@ public class DataExportTaskResource {
                     .setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
                     .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
                     .setValidatedDataOption(info.standardDataSelector.validatedDataOption)
-                    .setExportContinuousData(info.standardDataSelector.exportContinuousData)
-                    .complete();
-            updateReadingTypes(config, info);
-            config.save();
+                    .setExportContinuousData(info.standardDataSelector.exportContinuousData);
+            updateReadingTypes(config, updater, info);
         }
 
         @Override
@@ -322,15 +320,13 @@ public class DataExportTaskResource {
             if (!selectorType.equals(SelectorType.DEFAULT_USAGE_POINT_READINGS)) {
                 throw new WebApplicationException(Response.Status.BAD_REQUEST);
             }
-            config.startUpdate()
+            UsagePointReadingSelectorConfig.Updater updater = config.startUpdate()
                     .setUsagePointGroup(usagePointGroup(info.standardDataSelector.usagePointGroup.id))
                     .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                     .setExportContinuousData(info.standardDataSelector.exportContinuousData)
                     .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
-                    .setValidatedDataOption(info.standardDataSelector.validatedDataOption)
-                    .complete();
-            updateReadingTypes(config, info);
-            config.save();
+                    .setValidatedDataOption(info.standardDataSelector.validatedDataOption);
+            updateReadingTypes(config, updater, info);
         }
 
         @Override
@@ -338,18 +334,15 @@ public class DataExportTaskResource {
             if (!selectorType.equals(SelectorType.DEFAULT_EVENTS)) {
                 throw new WebApplicationException(Response.Status.BAD_REQUEST);
             }
-            config.startUpdate()
+            EventSelectorConfig.Updater updater = config.startUpdate()
                     .setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
-                    .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
-                    .complete();
-            updateEvents(config, info);
-            config.save();
+                    .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
+            updateEvents(config, updater, info);
+            updater.complete();
         }
     }
 
-    private void updateReadingTypes(ReadingDataSelectorConfig selectorConfig, DataExportTaskInfo exportTaskInfo) {
-        ReadingDataSelectorConfig.Updater updater = selectorConfig.startUpdate();
-
+    private void updateReadingTypes(ReadingDataSelectorConfig selectorConfig, ReadingDataSelectorConfig.Updater updater, DataExportTaskInfo exportTaskInfo) {
         // process removed reading types
         selectorConfig.getReadingTypes().stream()
                 .filter(readingType -> exportTaskInfo.standardDataSelector.readingTypes.stream().map(info -> info.mRID).noneMatch(readingType::equals))
@@ -364,9 +357,7 @@ public class DataExportTaskResource {
                 .forEach(updater::addReadingType);
     }
 
-    private void updateEvents(EventSelectorConfig selectorConfig, DataExportTaskInfo info) {
-        EventSelectorConfig.Updater updater = selectorConfig.startUpdate();
-
+    private void updateEvents(EventSelectorConfig selectorConfig, EventSelectorConfig.Updater updater, DataExportTaskInfo info) {
         // process removed event types
         selectorConfig.getEventTypeFilters().stream()
                 .filter(t -> info.standardDataSelector.eventTypeCodes.stream().map(r -> r.eventFilterCode).noneMatch(m -> t.getCode().equals(m)))
