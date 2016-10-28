@@ -321,15 +321,15 @@ Ext.define('Imt.controller.History', {
                                     route: 'estimation/:tab:',
                                     controller: 'Imt.metrologyconfiguration.controller.EstimationConfiguration',
                                     action: 'showEstimationConfiguration',
-                                    // privileges: Imt.privileges.MetrologyConfig.viewValidation,
+                                    privileges: Imt.privileges.MetrologyConfig.viewEstimation,
                                     items: {
-                                        // add: {
-                                        //     title: Uni.I18n.translate('estimation.addRuleSet', 'IMT', 'Add estimation rule set'),
-                                        //     route: 'add',
-                                        //     controller: 'Imt.metrologyconfiguration.controller.EstimationConfiguration',
-                                        //     action: 'showAddEstimationRuleSets',
-                                        //     // privileges: Imt.privileges.MetrologyConfig.adminValidation
-                                        // }
+                                        add: {
+                                            title: Uni.I18n.translate('estimation.addRuleSet', 'IMT', 'Add estimation rule set'),
+                                            route: 'add',
+                                            controller: 'Imt.metrologyconfiguration.controller.EstimationConfiguration',
+                                            action: 'showAddEstimationRuleSets',
+                                            privileges: Imt.privileges.MetrologyConfig.adminEstimation
+                                        }
                                     }
                                 }
                             }

@@ -1,7 +1,7 @@
 Ext.define('Imt.metrologyconfiguration.model.EstimationRuleSet', {
-    extend: 'Uni.model.Version',
+    extend: 'Ext.data.Model',
     fields: [
-        'id', 'name',
+        'id', 'name', 'inactiveRules', 'activeRules',
         {name: 'currentVersionId', persist: false},
         {name: 'metrologyContract', persist: false},
         {name: 'metrologyContractIsMandatory', persist: false},

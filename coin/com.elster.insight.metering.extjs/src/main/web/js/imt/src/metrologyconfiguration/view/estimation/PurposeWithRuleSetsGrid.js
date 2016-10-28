@@ -47,16 +47,26 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.PurposeWithRuleSetsGrid',
             {
                 header: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                 dataIndex: 'name',
-                flex: 1,
+                flex: 2,
                 renderer: function (value, metaData, record) {
                     return '<a href="' + me.router.getRoute('administration/estimationrulesets/estimationruleset').buildUrl({ruleSetId: record.get('id')}) + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
+                header: Uni.I18n.translate('general.label.activeRules', 'IMT', 'Active rules'),
+                dataIndex: 'activeRules',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.label.inactiveRules', 'IMT', 'Inctive rules'),
+                dataIndex: 'inactiveRules',
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn-remove',
                 itemId: 'remove-rule-set-from-purpose-column',
                 hidden: me.metrologyConfig.get('status').id == 'deprecated',
-                privileges: Imt.privileges.MetrologyConfig.adminValidation,
+                privileges: Imt.privileges.MetrologyConfig.adminEstimation,
                 handler: function (grid, rowIndex, colIndex, item, e, record) {
                     this.fireEvent('removeRuleSetFromPurpose', record);
                 }
@@ -75,9 +85,9 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.PurposeWithRuleSetsGrid',
                 items: [
                     {
                         xtype: 'button',
-                        itemId: 'metrology-config-add-validation-rule-set-btn',
+                        itemId: 'metrology-config-add-estimation-rule-set-btn',
                         text: Uni.I18n.translate('estimation.addRuleSet', 'IMT', 'Add estimation rule set'),
-                        privileges: Imt.privileges.MetrologyConfig.adminValidation,
+                        privileges: Imt.privileges.MetrologyConfig.adminEstimation,
                         action: 'addEstimationRuleSet',
                         href: me.router.getRoute('administration/metrologyconfiguration/view/estimation/add').buildUrl()
                     }

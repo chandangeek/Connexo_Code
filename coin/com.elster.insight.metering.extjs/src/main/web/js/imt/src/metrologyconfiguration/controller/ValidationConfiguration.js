@@ -130,6 +130,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                         metrologyConfigurationId: me.getController('Uni.controller.history.Router').arguments.mcid,
                         action: 'remove'
                     };
+                    purpose.estimationRuleSets().removeAll();
                     purpose.validationRuleSets().removeAll();
                     purpose.validationRuleSets().add(record);
                     purpose.save({
@@ -205,6 +206,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             purpose = purposesCombo.findRecordByValue(purposesCombo.getValue()),
             records = me.getAddValidationRuleSetsView().down('add-validation-rule-sets-to-purpose-grid').getSelectionModel().getSelection();
 
+        purpose.estimationRuleSets().removeAll();
         purpose.validationRuleSets().removeAll();
         purpose.validationRuleSets().add(records);
         purpose.save({

@@ -28,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationConfiguration',
 
         me.content = {
             xtype: 'tabpanel',
-            title: Uni.I18n.translate('usagepoint.dataValidation.estimationConfiguration', 'IMT', 'Estimation configuration'),
+            title: Uni.I18n.translate('usagepoint.dataEstimation.estimationConfiguration', 'IMT', 'Estimation configuration'),
             ui: 'large',
             itemId: 'metrology-configuration-estimation-tab-panel',
             activeTab: 'metrology-configuration-' + me.activeTab,

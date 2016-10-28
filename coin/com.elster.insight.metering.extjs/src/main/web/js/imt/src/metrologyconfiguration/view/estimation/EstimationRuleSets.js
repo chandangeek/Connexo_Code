@@ -6,8 +6,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
         'Imt.metrologyconfiguration.view.estimation.PurposeWithRuleSetsGrid',
         'Imt.metrologyconfiguration.view.estimation.RulesGrid',
         'Est.estimationrules.view.DetailForm',
-        'Imt.metrologyconfiguration.model.EstimationRuleSet',
-        // 'Imt.store.ValidationRules'
+        'Imt.metrologyconfiguration.model.EstimationRuleSet'
     ],
     router: null,
     metrologyConfig: null,
@@ -24,7 +23,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
         if (me.purposes && me.purposes.length) {
             me.emptyComponent = {
                 xtype: 'no-items-found-panel',
-                itemId: 'no-validation-rule-sets-found-panel',
+                itemId: 'no-estimation-rule-sets-found-panel',
                 title: Uni.I18n.translate('usagepoint.estimation.rulesSetGrid.emptyCmp.title', 'IMT', 'No estimation rule sets found'),
                 reasons: [
                     Uni.I18n.translate('usagepoint.estimation.rulesSetGrid.emptyCmp.item1', 'IMT', 'No estimation rule sets have been defined yet.'),
@@ -33,8 +32,8 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
                 stepItems: [
                     {
                         itemId: 'metrology-config-add-estimation-rule-set-empty-msg-btn',
-                        text: Uni.I18n.translate('validation.addRuleSet', 'IMT', 'Add estimation rule set'),
-                        privileges: Imt.privileges.MetrologyConfig.adminValidation,
+                        text: Uni.I18n.translate('estimation.addRuleSet', 'IMT', 'Add estimation rule set'),
+                        privileges: Imt.privileges.MetrologyConfig.adminEstimation,
                         disabled: me.metrologyConfig.get('status').id == 'deprecated',
                         href: me.router.getRoute('administration/metrologyconfiguration/view/estimation/add').buildUrl()
                     }
@@ -114,8 +113,8 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
                 stepItems: [
                     {
                         text: Uni.I18n.translate('estimation.addEstimationRule', 'IMT', 'Add estimation rule'),
-                        itemId: 'purpose-rule-sets-add-rule-button',
-                        privileges: Cfg.privileges.Validation.admin,
+                        itemId: 'est-purpose-rule-sets-add-rule-button',
+                        // privileges: Cfg.privileges.Validation.admin,
                         preventDefault: false
                     }
                 ]
