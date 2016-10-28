@@ -5,6 +5,7 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.time.RelativePeriod;
@@ -19,14 +20,16 @@ import java.util.Optional;
 
 public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTaskBuilder> {
     private final DataExportService dataExportService;
+    private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
     private final TimeService timeService;
 
     private String group;
 
     @Inject
-    public DataExportTaskBuilder(DataExportService dataExportService, MeteringGroupsService meteringGroupsService, TimeService timeService) {
+    public DataExportTaskBuilder(DataExportService dataExportService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, TimeService timeService) {
         super(DataExportTaskBuilder.class);
+        this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
@@ -40,7 +43,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
     @Override
     public Optional<ExportTask> find() {
         Optional<? extends ExportTask> task = dataExportService.getReadingTypeDataExportTaskByName(getName());
-        return Optional.ofNullable((ExportTask) task.orElse(null));
+        return Optional.ofNullable(task.orElse(null));
     }
 
     @Override
@@ -62,15 +65,15 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .setDataFormatterFactoryName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
                 .setNextExecution(startOn.toInstant(ZoneOffset.UTC))
-                .selectingReadingTypes()
+                .selectingMeterReadings()
                 .fromExportPeriod(yesterday.get())
                 .fromUpdatePeriod(yesterday.get())
                 .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .fromEndDeviceGroup(endDeviceGroup.get())
                 .continuousData(false)
                 .exportUpdate(true)
-                .fromReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
-                .fromReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .fromReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get())
+                .fromReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get())
                 .endSelection();
 
         builder.addProperty("formatterProperties.separator").withValue("formatterProperties.separator.semicolon");
