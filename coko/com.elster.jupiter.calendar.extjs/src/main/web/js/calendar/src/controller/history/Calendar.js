@@ -9,7 +9,7 @@ Ext.define('Cal.controller.history.Calendar', {
             route: 'administration',
             disabled: true,
             items: {
-                timeofusecalendars: {
+                calendars: {
                     title: Uni.I18n.translate('general.calendars', 'CAL', 'Calendars'),
                     privileges: Cal.privileges.Calendar.admin,
                     route: 'calendars',
