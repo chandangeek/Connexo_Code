@@ -346,10 +346,19 @@ Ext.define('Imt.controller.History', {
             }
         },
         search: {
-            title: Uni.I18n.translate('general.label.search','IMT','Search'),
+            title: Uni.I18n.translate('general.label.search', 'IMT', 'Search'),
             route: 'search',
             controller: 'Imt.controller.Search',
-            action: 'showOverview'
+            action: 'showOverview',
+            items: {
+                bulkaction: {
+                    title: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
+                    route: 'bulk',
+                    controller: 'Imt.controller.SearchItemsBulkAction',
+                //    privileges: Mdc.privileges.Device.administrateDeviceOrDeviceCommunication,
+                    action: 'showBulkAction'
+                }
+            }
         }
     }
 });

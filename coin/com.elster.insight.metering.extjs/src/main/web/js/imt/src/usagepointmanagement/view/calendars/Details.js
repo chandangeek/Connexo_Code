@@ -4,134 +4,64 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Details', {
     requires: [
         'Uni.view.container.PreviewContainer',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        'Uni.util.FormEmptyMessage',
-        'Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles',
-        'Imt.usagepointmanagement.store.metrologyconfiguration.Purposes',
-        'Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid',
-        'Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid',
-        'Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview'
+        'Imt.usagepointmanagement.view.calendars.Grid',
+        'Imt.usagepointmanagement.view.calendars.Preview',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
     router: null,
     usagePoint: null,
-    meterRolesAvailable: false,
     initComponent: function () {
-        var me = this,
-            meterRolesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles', {data: me.usagePoint.get('metrologyConfiguration_meterRoles')}),
-            purposesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.Purposes', {data: me.usagePoint.get('metrologyConfiguration_purposes')});
-
+        var me = this;
+        me.calendarStore = Ext.getStore('Imt.usagepointmanagement.store.ActiveCalendars') || Ext.create('Imt.usagepointmanagement.store.ActiveCalendars');
         me.content = [
             {
                 title: Uni.I18n.translate('general.label.calendars', 'IMT', 'Calendars'),
                 ui: 'large',
                 flex: 1,
-                itemId: 'metrology-configuration-details-main-panel',
-                tools: [
-                    {
-                        xtype: 'uni-button-action',
-                        margin: '5 0 0 0',
-                        itemId: 'metrology-configuration-details-top-actions-button',
-                        privileges: Imt.privileges.MetrologyConfig.canAdministrate,
-                        menu: {
-                            xtype: 'menu',
-                            itemId: 'metrology-configuration-details-actions-menu',
-                            router: me.router
-                        },
-                        hidden: true
+                itemId: 'calendar-details-main-panel',
+                items: {
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'active-calendars-grid',
+                        itemId: 'active-calendars-grid-grid',
+                        store: me.calendarStore,
+                        router: me.router,
+                        usagePoint: me.usagePoint,
+                        listeners: {
+                            select: {
+                                fn: Ext.bind(me.select, me)
+                            }
+                        }
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'no-calendars-found-panel',
+                        title: Uni.I18n.translate('general.noCalendars', 'IMT', 'No active time of use calendar found'),
+                        reasons: [
+                            Uni.I18n.translate('usagePoint.calendars.empty.reason', 'IMT', 'There is no active calendar')
+                        ],
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('usagePoint.calendars.define', 'IMT', 'Add calendar'),
+                                // privileges: Imt.privileges.UsagePoint.canAdministrate,
+                                href: me.router.getRoute('usagepoints/view/calendars/addcalendar').buildUrl({mRID: me.usagePoint.get('mRID')}),
+                                action: 'define',
+                                itemId: 'define-calendar-configuration'
+                            }
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'activeCalendarPreview',
+                                itemId: 'activeCalendarPreview',
+                                frame: true,
+                                title: ' '
+                            }
+                        ]
                     }
-                ],
-                //items: [
-                //    {
-                //        xtype: 'no-items-found-panel',
-                //        title: Uni.I18n.translate('general.noMetrologyConfiguration', 'IMT', 'No metrology configuration'),
-                //        reasons: [
-                //            Uni.I18n.translate('usagePoint.metrologyConfiguration.empty.reason', 'IMT', 'No metrology configuration has been defined for this usage point yet')
-                //        ],
-                //        itemId: 'no-metrology-configuration-panel',
-                //        stepItems: [
-                //            {
-                //                text: Uni.I18n.translate('usagePoint.metrologyConfiguration.define', 'IMT', 'Define metrology configuration'),
-                //                privileges: Imt.privileges.UsagePoint.canAdministrate,
-                //                href: me.router.getRoute('usagepoints/view/definemetrology').buildUrl(),
-                //                action: 'define',
-                //                itemId: 'define-metrology-configuration'
-                //            }
-                //        ],
-                //        hidden: me.usagePoint.get('metrologyConfiguration')
-                //    },
-                //    {
-                //        xtype: 'form',
-                //        itemId: 'metrology-configuration-details-form',
-                //        hidden: !me.usagePoint.get('metrologyConfiguration'),
-                //        defaults: {
-                //            xtype: 'displayfield',
-                //            padding: 0,
-                //            margin: '0 10 16 0',
-                //            labelWidth: 200
-                //        },
-                //        items: [
-                //            {
-                //                name: 'metrologyConfiguration_status',
-                //                fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status'),
-                //                htmlEncode: false,
-                //                itemId: 'metrology-configuration-details-status',
-                //                renderer: function () {
-                //                    var status = me.usagePoint.get('metrologyConfiguration_status'),
-                //                        icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                //                            + status.name
-                //                            + '"></i>';
-                //                    return status.name + icon;
-                //                }
-                //            },
-                //            {
-                //                fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name'),
-                //                itemId: 'metrology-configuration-details-name',
-                //                renderer: function () {
-                //                    var url = '',
-                //                        result = '',
-                //                        name = me.usagePoint.get('metrologyConfiguration_name'),
-                //                        from = Uni.I18n.translate('metrologyConfigurationDetails.from', 'IMT', 'from'),
-                //                        activationTime = Uni.DateTime.formatDateTimeLong(me.usagePoint.get('metrologyConfiguration_activationTime'));
-                //
-                //                    if (Imt.privileges.MetrologyConfig.canView()) {
-                //                        url = me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: me.usagePoint.get('metrologyConfiguration_id')});
-                //                        result = '<a href="' + url + '">' + Ext.String.htmlEncode(name) + '</a> ' + from + ' ' + activationTime;
-                //                    } else {
-                //                        result = Ext.String.htmlEncode(name) + ' ' + Uni.I18n.translate('metrologyConfigurationDetails.from', 'IMT', 'from') + ' ' + activationTime;
-                //                    }
-                //
-                //                    return result;
-                //                }
-                //            },
-                //            {
-                //                ui: 'medium',
-                //                xtype: 'panel',
-                //                style: 'padding-left: 0; padding-right: 0',
-                //                title: Uni.I18n.translate('general.purposes', 'IMT', 'Purposes'),
-                //                itemId: 'metrology-configuration-purposes-panel',
-                //                items: [
-                //                    {
-                //                        xtype: 'preview-container',
-                //                        grid: {
-                //                            xtype: 'purposes-grid',
-                //                            store: purposesStore,
-                //                            itemId: 'metrology-configuration-purposes-grid'
-                //                        },
-                //                        emptyComponent: {
-                //                            xtype: 'uni-form-empty-message',
-                //                            itemId: 'metrology-configuration-purposes-no-items-found-panel',
-                //                            text: Uni.I18n.translate('metrologyConfigurationDetails.empty.list.item1', 'IMT', 'No purposes have been defined yet.')
-                //                        },
-                //                        previewComponent: {
-                //                            xtype: 'purposes-preview',
-                //                            itemId: 'metrology-configuration-purposes-preview',
-                //                            router: me.router
-                //                        }
-                //                    }
-                //                ]
-                //            }
-                //        ]
-                //    }
-                //]
+                }
             }
         ];
         me.side = [
@@ -158,5 +88,9 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Details', {
     //            itemId: 'metrology-configuration-meter-roles-grid'
     //        });
     //    }
+    },
+
+    select: function(slectionMode,selection){
+        this.down('activeCalendarPreview').loadRecord(selection);
     }
 });
