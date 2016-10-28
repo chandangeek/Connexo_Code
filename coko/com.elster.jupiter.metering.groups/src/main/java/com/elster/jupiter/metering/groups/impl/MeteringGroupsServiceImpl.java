@@ -221,6 +221,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
+    public Query<UsagePointGroup> getQueryUsagePointGroupQuery() {
+        Query<UsagePointGroup> usagePointGroupQuery = queryService.wrap(dataModel.query(UsagePointGroup.class));
+        usagePointGroupQuery.setRestriction(where("class").isEqualTo(QueryUsagePointGroup.TYPE_IDENTIFIER).and(where("label").isEqualTo("MDM")));
+        return usagePointGroupQuery;
+    }
+
+    @Override
     public List<EndDeviceGroup> findEndDeviceGroups() {
         return dataModel.mapper(EndDeviceGroup.class).find();
     }

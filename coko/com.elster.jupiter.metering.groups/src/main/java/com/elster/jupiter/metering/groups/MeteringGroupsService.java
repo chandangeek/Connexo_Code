@@ -68,6 +68,8 @@ public interface MeteringGroupsService {
 
     Query<EndDeviceGroup> getQueryEndDeviceGroupQuery();
 
+    Query<UsagePointGroup> getQueryUsagePointGroupQuery();
+
     List<EndDeviceGroup> findEndDeviceGroups();
 
     List<UsagePointGroup> findUsagePointGroups();
