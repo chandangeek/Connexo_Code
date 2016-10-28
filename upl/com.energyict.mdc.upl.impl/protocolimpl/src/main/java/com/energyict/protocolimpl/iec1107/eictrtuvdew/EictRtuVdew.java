@@ -10,8 +10,6 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -40,8 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,6 +49,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -158,7 +159,6 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
@@ -241,46 +241,24 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ChannelMap");
-        result.add("RequestHeader");
-        result.add("Scaler");
-        result.add("HalfDuplex");
-        result.add("ForcedDelay");
-        result.add("Software7E1");
-        result.add(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName());
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ChannelMap",
+                    "RequestHeader",
+                    "Scaler",
+                    "HalfDuplex",
+                    "ForcedDelay",
+                    "Software7E1",
+                    PROFILEINTERVAL.getName());
     }
 
     public String getProtocolVersion() {
@@ -303,15 +281,11 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
         this.timeZone = timeZone;
         this.logger = logger;
 
-        try {
-            flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty, iProtocolRetriesProperty, forcedDelay, iEchoCancelling, iIEC1107Compatible, null, halfDuplex != 0 ? halfDuplexController : null, software7E1, logger);
-            eictRtuVdewRegistry = new EictRtuVdewRegistry(this, this);
-            eictRtuVdewProfile = new EictRtuVdewProfile(this, this, eictRtuVdewRegistry);
-        } catch (ConnectionException e) {
-            logger.severe("ABBA1500: init(...), " + e.getMessage());
-        }
+        flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty, iProtocolRetriesProperty, forcedDelay, iEchoCancelling, iIEC1107Compatible, null, halfDuplex != 0 ? halfDuplexController : null, software7E1, logger);
+        eictRtuVdewRegistry = new EictRtuVdewRegistry(this, this);
+        eictRtuVdewProfile = new EictRtuVdewProfile(this, this, eictRtuVdewRegistry);
 
-    } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
+    }
 
     /**
      * @throws IOException
@@ -488,7 +462,7 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
     }
 
     public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     // ********************************************************************************************************
@@ -498,7 +472,7 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, iEchoCancelling);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
@@ -523,4 +497,5 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
             getFlagIEC1107Connection().setHalfDuplexController(halfDuplex != 0 ? this.halfDuplexController : null);
         }
     }
-} // public class EictRtuVdew implements MeterProtocol {
+
+}

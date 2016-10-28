@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.dlms.edp;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Wrapper class that holds the EDP DLMS protocol properties, parses them and returns the proper values.
@@ -38,16 +40,15 @@ public class EDPProperties {
         return Integer.parseInt(properties.getProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
     }
 
-    protected List getOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
-        optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
-        optional.add(DlmsProtocolProperties.CONNECTION);
-        optional.add(DlmsProtocolProperties.TIMEOUT);
-        optional.add(DlmsProtocolProperties.RETRIES);
-        optional.add(READCACHE_PROPERTY);
-        return optional;
+    protected List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    DlmsProtocolProperties.CLIENT_MAC_ADDRESS,
+                    PROPNAME_SERVER_UPPER_MAC_ADDRESS,
+                    PROPNAME_SERVER_LOWER_MAC_ADDRESS,
+                    DlmsProtocolProperties.CONNECTION,
+                    DlmsProtocolProperties.TIMEOUT,
+                    DlmsProtocolProperties.RETRIES,
+                    READCACHE_PROPERTY);
     }
 
     public boolean isFirmwareClient() {

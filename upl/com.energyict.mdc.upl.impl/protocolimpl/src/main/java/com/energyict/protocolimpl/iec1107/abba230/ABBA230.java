@@ -17,13 +17,10 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -70,7 +67,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -105,7 +104,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private static final int DEBUG = 0;
 
 
-    boolean firmwareUpgrade = false;
+    private boolean firmwareUpgrade = false;
 
     private static final String CONNECT = "ConnectLoad";
     private static final String DISCONNECT = "DisconnectLoad";
@@ -125,51 +124,51 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /**
      * Property keys specific for AS230 protocol.
      */
-    static final String PK_TIMEOUT = "Timeout";
-    static final String PK_RETRIES = "Retries";
-    static final String PK_FORCED_DELAY = "ForcedDelay";
-    static final String PK_SECURITY_LEVEL = "SecurityLevel";
-    static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
-    static final String PK_ECHO_CANCELING = "EchoCancelling";
+    private static final String PK_TIMEOUT = "Timeout";
+    private static final String PK_RETRIES = "Retries";
+    private static final String PK_FORCED_DELAY = "ForcedDelay";
+    private static final String PK_SECURITY_LEVEL = "SecurityLevel";
+    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
+    private static final String PK_ECHO_CANCELING = "EchoCancelling";
 
-    static final String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
-    static final String INSTRUMENTATION_PROFILE_MODE = "InstrumentationProfileMode";
+    private static final String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
+    private static final String INSTRUMENTATION_PROFILE_MODE = "InstrumentationProfileMode";
 
     /**
      * Property Default values
      */
-    static final String PD_NODE_ID = "";
-    static final int PD_TIMEOUT = 10000;
-    static final int PD_RETRIES = 5;
-    static final int PD_ROUNDTRIP_CORRECTION = 0;
-    static final int PD_SECURITY_LEVEL = 2;
-    static final int PD_EXTENDED_LOGGING = 0;
-    static final int PD_IEC1107_COMPATIBLE = 1;
-    static final int PD_ECHO_CANCELING = 0;
-    static final int PD_FORCED_DELAY = 300;
+    private static final String PD_NODE_ID = "";
+    private static final int PD_TIMEOUT = 10000;
+    private static final int PD_RETRIES = 5;
+    private static final int PD_ROUNDTRIP_CORRECTION = 0;
+    private static final int PD_SECURITY_LEVEL = 2;
+    private static final int PD_EXTENDED_LOGGING = 0;
+    private static final int PD_IEC1107_COMPATIBLE = 1;
+    private static final int PD_ECHO_CANCELING = 0;
+    private static final int PD_FORCED_DELAY = 300;
 
 
     /**
      * Property values Required properties will have NO default value Optional
      * properties make use of default value
      */
-    String pAddress = null;
-    String pNodeId = PD_NODE_ID;
-    String pSerialNumber = null;
-    String pPassword = null;
+    private String pAddress = null;
+    private String pNodeId = PD_NODE_ID;
+    private String pSerialNumber = null;
+    private String pPassword = null;
 
     /* Protocol timeout fail in msec */
-    int pTimeout = PD_TIMEOUT;
+    private int pTimeout = PD_TIMEOUT;
 
     /* Max nr of consecutive protocol errors before end of communication */
-    int pRetries = PD_RETRIES;
-    int forcedDelay = PD_FORCED_DELAY;
+    private int pRetries = PD_RETRIES;
+    private int forcedDelay = PD_FORCED_DELAY;
     /* Offset in ms to the get/set time */
-    int pRoundTripCorrection = PD_ROUNDTRIP_CORRECTION;
-    int pSecurityLevel = PD_SECURITY_LEVEL;
-    int pCorrectTime = 0;
-    int pExtendedLogging = PD_EXTENDED_LOGGING;
+    private int pRoundTripCorrection = PD_ROUNDTRIP_CORRECTION;
+    private int pSecurityLevel = PD_SECURITY_LEVEL;
+    private int pCorrectTime = 0;
+    private int pExtendedLogging = PD_EXTENDED_LOGGING;
     private int pEchoCancelling = PD_ECHO_CANCELING;
     private int pIEC1107Compatible = PD_IEC1107_COMPATIBLE;
 
@@ -248,15 +247,15 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             }
 
             if (p.getProperty(PK_TIMEOUT) != null) {
-                this.pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+                this.pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
             }
 
             if (p.getProperty(PK_RETRIES) != null) {
-                this.pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+                this.pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
             }
 
             if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-                this.pRoundTripCorrection = new Integer(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
+                this.pRoundTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORR.getName()));
             }
 
             if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
@@ -297,23 +296,19 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             }
 
             if (p.getProperty("ForcedDelay") != null) {
-                this.forcedDelay = new Integer(p.getProperty(PK_FORCED_DELAY)).intValue();
+                this.forcedDelay = Integer.parseInt(p.getProperty(PK_FORCED_DELAY));
             }
 
             if (p.getProperty(PK_IEC1107_COMPATIBLE) != null) {
                 this.pIEC1107Compatible = Integer.parseInt(p.getProperty(PK_IEC1107_COMPATIBLE));
             }
 
-            this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
 
-            this.dontSendBreakCommand = !p.getProperty("DisableLogOffCommand", "0").equalsIgnoreCase("0");
-            if (this.dontSendBreakCommand) {
-                this.sendBreakBeforeDisconnect = false;
-            } else {
-                this.sendBreakBeforeDisconnect = true;
-            }
+            this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getProperty("DisableLogOffCommand", "0"));
+            this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
 
-            this.instrumentationProfileMode = !p.getProperty(INSTRUMENTATION_PROFILE_MODE, "0").equalsIgnoreCase("0");
+            this.instrumentationProfileMode = !"0".equalsIgnoreCase(p.getProperty(INSTRUMENTATION_PROFILE_MODE, "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("Elster A230, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -325,42 +320,24 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /* (non-Javadoc)
-    * @see com.energyict.protocol.MeterProtocol#getRequiredKeys()
-    */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getOptionalKeys()
-      */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ExtendedLogging");
-        result.add("EventMapperEnabled");
-        result.add("Software7E1");
-        result.add("ScriptingEnabled");
-        result.add("ForcedDelay");
-        result.add("DisableLogOffCommand");
-        result.add("InstrumentationProfileMode");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ExtendedLogging",
+                    "EventMapperEnabled",
+                    "Software7E1",
+                    "ScriptingEnabled",
+                    "ForcedDelay",
+                    "DisableLogOffCommand",
+                    "InstrumentationProfileMode");
     }
 
     /* (non-Javadoc)
@@ -407,10 +384,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         connect(0);
     }
 
-    /**
-     * @param baudrate
-     * @throws IOException
-     */
     public void connect(int baudrate) throws IOException {
         try {
             getFlagIEC1107Connection().connectMAC(this.pAddress, this.pPassword, this.pSecurityLevel, this.pNodeId, baudrate);
@@ -455,10 +428,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         }
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()
-      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         ABBA230Register r;
         ProfileConfigRegister lpcr;
 
@@ -493,7 +463,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
       * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
       */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-            throws IOException, UnsupportedException {
+            throws IOException {
         return this.profile.getProfileData(from, to, includeEvents);
     }
 
@@ -515,17 +485,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             ((CacheMechanism) getCache()).setCache(null);
 
             long roundtrip = System.currentTimeMillis();
-            Date date = getTime();
             roundtrip = (System.currentTimeMillis() - roundtrip) / 2;
 
-            Calendar calendar = null;
-            calendar = ProtocolUtils.getCalendar(this.timeZone);
+            Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
             calendar.add(Calendar.MILLISECOND, (int) roundtrip);
             getFlagIEC1107Connection().authenticate();
             this.rFactory.setRegister("TimeDate", calendar.getTime());
         } else {
-            Calendar calendar = null;
-            calendar = ProtocolUtils.getCalendar(this.timeZone);
+            Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
             calendar.add(Calendar.MILLISECOND, this.pRoundTripCorrection);
             getFlagIEC1107Connection().authenticate();
             this.rFactory.setRegister("TimeDate", calendar.getTime());
@@ -539,7 +506,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
       */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         String str = "unknown";
         // KV 15122003 only if pAddress is filled in
         if ((this.pAddress != null) && (this.pAddress.length() > 5)) {
@@ -564,7 +531,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getProfileInterval()
       */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return instrumentationProfileMode
                 ? ((Integer) this.rFactory.getRegister("InstrumentationProfileIntegrationPeriod")).intValue()
                 : ((Integer) this.rFactory.getRegister("LoadProfileIntegrationPeriod")).intValue();
@@ -693,7 +660,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
       * @see com.energyict.protocol.MeterExceptionInfo#getExceptionInfo(java.lang.String)
       */
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exceptionInfoMap.get(id);
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -702,14 +669,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
 
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
 
     static {
-        exceptionInfoMap.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
-        exceptionInfoMap.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist in the meter");
-        exceptionInfoMap.put("ERR3", "Invalid Packet Number");
-        exceptionInfoMap.put("ERR5", "Data Identity is locked - pPassword timeout");
-        exceptionInfoMap.put("ERR6", "General Comms error");
+        EXCEPTION_INFO_MAP.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
+        EXCEPTION_INFO_MAP.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist in the meter");
+        EXCEPTION_INFO_MAP.put("ERR3", "Invalid Packet Number");
+        EXCEPTION_INFO_MAP.put("ERR5", "Data Identity is locked - pPassword timeout");
+        EXCEPTION_INFO_MAP.put("ERR6", "General Comms error");
     }
 
     public ABBA230MeterType getAbba230MeterType() {
@@ -721,7 +688,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#getMeterReading(java.lang.String)
       */
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         String msg = "method getMeterReading( String name ) is not supported.";
         throw new UnsupportedException(msg);
     }
@@ -729,7 +696,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
       */
-    public Quantity getMeterReading(int channelID) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelID) throws IOException {
         String msg = "method getMeterReading( int channelID ) is not supported.";
         throw new UnsupportedException(msg);
     }
@@ -787,14 +754,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* method not supported
       * @see com.energyict.protocol.MeterProtocol#initializeDevice()
       */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     /* (non-Javadoc)
       * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
       */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         if (name.compareTo("FIRMWAREPROGRAM") == 0) {
             try {
                 blankCheck();
@@ -900,7 +867,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
       */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
 
         //rFactory.getRegister("BlankCheck");
 
@@ -948,7 +915,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     private void getRegistersInfo() {
 
-        StringBuffer rslt = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         String obisCodeString;
         ObisCode obisCode;
         RegisterInfo obisCodeInfo;
@@ -962,7 +929,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             try {
 
                 TariffSources ts = (TariffSources) this.rFactory.getRegister("TariffSources");
-                ArrayList tarifRegisters = new ArrayList();
+                List tarifRegisters = new ArrayList();
 
                 //            if (billingPoint[bpi] == 255) {
                 //                ts = (TariffSources)rFactory.getRegister("TariffSources");
@@ -998,23 +965,23 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                 }
 
 
-                rslt.append("Billing point: " + billingPoint[bpi] + "\n");
+                builder.append("Billing point: ").append(billingPoint[bpi]).append("\n");
 
                 if (bpi > 0) {
                     try {
                         obisCodeString = "1.1.0.1.2." + billingPoint[bpi];
                         obisCode = ObisCode.fromString(obisCodeString);
                         obisCodeInfo = ObisCodeMapper.getRegisterInfo(obisCode);
-                        rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+                        builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
                         if (this.pExtendedLogging == 2) {
-                            rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                            builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
 
-                rslt.append("Cumulative registers: \n");
+                builder.append("Cumulative registers: \n");
                 List list = EnergyTypeCode.getEnergyTypeCodes();
                 Iterator it = list.iterator();
                 while (it.hasNext()) {
@@ -1024,9 +991,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                         obisCodeString = "1.1." + etc.getObisC() + ".8.0." + billingPoint[bpi];
                         obisCode = ObisCode.fromString(obisCodeString);
                         obisCodeInfo = ObisCodeMapper.getRegisterInfo(obisCode);
-                        rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+                        builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
                         if (this.pExtendedLogging == 2) {
-                            rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                            builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1040,27 +1007,27 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                     }
 
                 }
-                rslt.append("\n");
+                builder.append("\n");
 
-                rslt.append("Tou Registers: \n");
+                builder.append("Tou Registers: \n");
                 it = tarifRegisters.iterator();
                 while (it.hasNext()) {
                     try {
                         obisCodeString = (String) it.next();
                         obisCode = ObisCode.fromString(obisCodeString);
                         obisCodeInfo = ObisCodeMapper.getRegisterInfo(obisCode);
-                        rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+                        builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
                         if (this.pExtendedLogging == 2) {
-                            rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                            builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
 
-                rslt.append("\n");
+                builder.append("\n");
 
-                rslt.append("Cumulative Maximum Demand registers:\n");
+                builder.append("Cumulative Maximum Demand registers:\n");
                 int[] md = {0, 1};
                 for (int i = 0; i < md.length; i++) {
                     try {
@@ -1069,18 +1036,18 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                         obisCodeString = "1." + md[i] + "." + c + ".2.0." + billingPoint[bpi];
                         obisCode = ObisCode.fromString(obisCodeString);
                         obisCodeInfo = ObisCodeMapper.getRegisterInfo(obisCode);
-                        rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+                        builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
                         if (this.pExtendedLogging == 2) {
-                            rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                            builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
 
-                rslt.append("\n");
+                builder.append("\n");
 
-                rslt.append("Maximum demand registers:\n");
+                builder.append("Maximum demand registers:\n");
 
                 int[] cmd = {0, 1};
                 for (int i = 0; i < cmd.length; i++) {
@@ -1095,9 +1062,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                             obisCodeString = "1.1." + c + ".6.0." + billingPoint[bpi];
                             obisCode = ObisCode.fromString(obisCodeString);
                             obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-                            rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+                            builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
                             if (this.pExtendedLogging == 2) {
-                                rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                                builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1108,7 +1075,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                     }
                 }
 
-                rslt.append("\n");
+                builder.append("\n");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1116,13 +1083,13 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         }
 
         try {
-            rslt.append("\n");
+            builder.append("\n");
             obisCodeString = "1.1.0.4.2.255";
             obisCode = ObisCode.fromString(obisCodeString);
             obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-            rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+            builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
             if (this.pExtendedLogging == 2) {
-                rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1132,9 +1099,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             obisCodeString = "1.1.0.4.5.255";
             obisCode = ObisCode.fromString(obisCodeString);
             obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-            rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+            builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
             if (this.pExtendedLogging == 2) {
-                rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1144,9 +1111,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             obisCodeString = "1.0.0.0.1.255";
             obisCode = ObisCode.fromString(obisCodeString);
             obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-            rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+            builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
             if (this.pExtendedLogging == 2) {
-                rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1156,16 +1123,16 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             obisCodeString = "0.0.96.50.0.255";
             obisCode = ObisCode.fromString(obisCodeString);
             obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-            rslt.append(" " + obisCodeString + ", " + obisCodeInfo + "\n");
+            builder.append(" ").append(obisCodeString).append(", ").append(obisCodeInfo).append("\n");
             if (this.pExtendedLogging == 2) {
-                rslt.append(" " + this.rFactory.readRegister(obisCode).toString() + "\n");
+                builder.append(" ").append(this.rFactory.readRegister(obisCode).toString()).append("\n");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        rslt.append("************************* End Extended Logging *********************");
-        this.logger.info(rslt.toString());
+        builder.append("************************* End Extended Logging *********************");
+        this.logger.info(builder.toString());
 
     }
 
@@ -1207,86 +1174,86 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeTag2(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
         if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
+            builder.append("/>");
+            return builder.toString();
         }
-        buf.append(">");
+        builder.append(">");
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue msgValue) {
@@ -1304,23 +1271,23 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
         try {
-            if (messageEntry.getContent().indexOf("<" + DISCONNECT) >= 0) {
+            if (messageEntry.getContent().contains("<" + DISCONNECT)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doDisconnect();
-            } else if (messageEntry.getContent().indexOf("<" + CONNECT) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + CONNECT)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doConnect();
-            } else if (messageEntry.getContent().indexOf("<" + ARM) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + ARM)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doArm();
-            } else if (messageEntry.getContent().indexOf("<" + TARIFFPROGRAM) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + TARIFFPROGRAM)) {
                 this.logger.info("*************************** PROGRAM TARIFF *****************************");
                 int start = messageEntry.getContent().indexOf(TARIFFPROGRAM) + TARIFFPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(TARIFFPROGRAM) - 2;
                 String tariffXMLData = messageEntry.getContent().substring(start, end);
                 TariffSaxParser o = new TariffSaxParser(this.rFactory.getABBA230DataIdentityFactory());
                 o.start(tariffXMLData, false);
-            } else if (messageEntry.getContent().indexOf("<" + FIRMWAREPROGRAM) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + FIRMWAREPROGRAM)) {
                 this.logger.info("*************************** FIRMWARE UPGRADE ***************************");
                 int start = messageEntry.getContent().indexOf(FIRMWAREPROGRAM) + FIRMWAREPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM) - 2;
@@ -1338,7 +1305,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
                 activate();
                 this.firmwareUpgrade = true;
-            } else if (messageEntry.getContent().indexOf("<" + BILLINGRESET) >= 0) {
+            } else if (messageEntry.getContent().contains("<" + BILLINGRESET)) {
                 this.logger.info("************************* MD RESET *************************");
                 int start = messageEntry.getContent().indexOf(BILLINGRESET) + BILLINGRESET.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(BILLINGRESET) - 2;
@@ -1357,14 +1324,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         }
     }
 
-    private void executeDefaultScript() throws IOException {
+    private void executeDefaultScript() {
         if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 2)) {
             ((CacheMechanism) getCache()).setCache(new String[]{"0", null});
             this.nrOfProfileBlocks = ((Integer) ((CacheMechanism) getCache()).getCache()).intValue();
         }
     }
 
-    private void executeRegisterScript() throws IOException {
+    private void executeRegisterScript() {
         if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 1)) {
             // call the scriptexecution  scriptId,script
             String script = instrumentationProfileMode
@@ -1390,4 +1357,5 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     public boolean isInstrumentationProfileMode() {
         return this.instrumentationProfileMode;
     }
+
 }

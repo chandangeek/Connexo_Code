@@ -9,15 +9,12 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -41,7 +38,9 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -130,18 +129,18 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         return dumpData;
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         if (channelId > meterReadings.length) {
             throw new IOException("Siemens7ED62, getMeterReading, invalid channelId");
         }
         return getDumpData().getRegister(meterReadings[channelId]);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         return getDumpData().getRegister(name);
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return nrOfChannels;
     }
 
@@ -157,7 +156,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         return doGetProfileData(calendarFrom, ProtocolUtils.getCalendar(timeZone), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar calendarFrom = ProtocolUtils.getCleanCalendar(timeZone);
         calendarFrom.setTime(from);
         Calendar calendarTo = ProtocolUtils.getCleanCalendar(timeZone);
@@ -258,16 +257,16 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         }
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
 
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return getDumpData().getRegister(name).getAmount().toString();
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -294,9 +293,9 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
             roundTripTime = System.currentTimeMillis() - roundTripTime;
 
             if ((getTimeSetMethod() == 0) || ((Math.abs(systemDate.getTime() - meterDate.getTime()) > 30000))) {
-                siemensSCTM.sendRequest(siemensSCTM.SETTIME, timeData.getSETTIMEData());
+                siemensSCTM.sendRequest(SiemensSCTM.SETTIME, timeData.getSETTIMEData());
                 waitForMinute(calendar);
-                siemensSCTM.sendRequest(siemensSCTM.SSYNC, null);
+                siemensSCTM.sendRequest(SiemensSCTM.SSYNC, null);
             } else {    // the MSYNC method -> not shown in statusBits
 
                 if (DEBUG == 1) {
@@ -317,7 +316,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
                     waitForSubstraction(calendar, meterDate);
                 }
 
-                siemensSCTM.sendRequest(siemensSCTM.MSYNC, null);
+                siemensSCTM.sendRequest(SiemensSCTM.MSYNC, null);
                 if (DEBUG == 1) {
                     logger.info("MeterTime: " + getTime().toString());
                 }
@@ -411,7 +410,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
     public Date getTime() throws IOException {
         try {
-            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ3, siemensSCTM.DATETIME);
+            byte[] data = siemensSCTM.sendRequest(SiemensSCTM.TABENQ3, SiemensSCTM.DATETIME);
             long date = new SCTMTimeData(data).getDate(timeZone).getTime() - iRoundtripCorrection;
             return new Date(date);
         } catch (SiemensSCTMException e) {
@@ -423,7 +422,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -436,33 +435,24 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     public void addProperties(TypedProperties properties) {
     }
 
-    public List getRequiredKeys() {
-        return new ArrayList();
-    }
-
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("EchoCancelling");
-        result.add("MeterClass");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("ForcedDelay");
-        result.add("ChannelMap");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        return result;
+    @Override
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "EchoCancelling",
+                    "MeterClass",
+                    "RemovePowerOutageIntervals",
+                    "LogBookReadCommand",
+                    "ForcedDelay",
+                    "ChannelMap",
+                    "TimeSetMethod",
+                    "Software7E1");
     }
 
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -483,7 +473,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             strMeterClass = properties.getProperty("MeterClass", "1");
             nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals", "0").trim()) == 1 ? true : false;
+            removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals", "0").trim()) == 1;
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "100"));
             nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap", "6"));
             timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod", "0").trim());
@@ -520,7 +510,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         }
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
     }
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -567,7 +557,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
      * R e g i s t e r P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -579,12 +569,12 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
             // *********************************************************************************
             // Billing counter
-            if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) {
+            if ((obisCode.toString().contains("1.0.0.1.0.255")) || (obisCode.toString().contains("1.1.0.1.0.255"))) {
                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(getDumpData().getBillingCounter()), Unit.getUndefined()));
             }
 
             // Billing point timestamp
-            if ((obisCode.toString().indexOf("1.1.0.1.2.") != -1) && obisCode.getF() != 255) {
+            if ((obisCode.toString().contains("1.1.0.1.2.")) && obisCode.getF() != 255) {
                 Date billingDate = getBillingDate(obisCode);
                 if (billingDate != null) {
                     return new RegisterValue(obisCode, billingDate);

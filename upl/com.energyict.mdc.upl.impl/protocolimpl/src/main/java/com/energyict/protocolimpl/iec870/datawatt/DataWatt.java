@@ -6,14 +6,11 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
@@ -26,8 +23,9 @@ import com.energyict.protocolimpl.iec870.IEC870ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +40,7 @@ import java.util.logging.Logger;
  */
 public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLink {
 
-    static public final int MAX_COUNTER = 100000000; // = max counter + 1
+    public static final int MAX_COUNTER = 100000000; // = max counter + 1
 
     private static final int DEBUG = 0;
 
@@ -89,22 +87,22 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         }
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException("DataWatt, getFirmwareVersion");
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         return new Quantity(getDatawattRegistry().getRegister(Channel.parseChannel(name)), Unit.get(""));
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         if (channelId >= getChannelMap().getNrOfChannels()) {
             throw new IOException("DataWatt, getMeterReading, invalid channelId, " + channelId);
         }
         return new Quantity(getDatawattRegistry().getRegister(getChannelMap().getChannel(channelId)), Unit.get(""));
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfChannels();
     }
 
@@ -120,12 +118,12 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         return datawattProfile.getProfileData(fromCalendar, includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
 
@@ -133,32 +131,19 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return getDatawattRegistry().getRegister(Channel.parseChannel(name)).toString();
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("MeterType");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "MeterType");
     }
 
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        result.add("ChannelMap");
-        return result;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.singletonList("ChannelMap");
     }
 
     public Date getTime() throws IOException {
@@ -206,7 +191,7 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         }
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException("DataWatt, initializeDevice");
     }
 
@@ -220,10 +205,9 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
      * </p>
      *
      * @param properties <br>
-     * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
      */
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    private void validateProperties(Properties properties) throws InvalidPropertyException {
         try {
             Iterator iterator = getRequiredKeys().iterator();
             while (iterator.hasNext()) {
@@ -248,14 +232,13 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         }
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException("DataWatt, setRegister");
     }
 
     public void setTime() throws ProtocolException {
         try {
-            Calendar calendar = null;
-            calendar = ProtocolUtils.getCalendar(timeZone);
+            Calendar calendar = ProtocolUtils.getCalendar(timeZone);
             calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
             getApplicationFunction().clockSynchronizationASDU(calendar);
         } catch (IOException e) {

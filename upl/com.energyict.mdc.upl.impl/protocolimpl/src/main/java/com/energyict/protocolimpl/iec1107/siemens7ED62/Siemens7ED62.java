@@ -14,9 +14,6 @@ KV|06092005|VDEW changed to do channel mapping!
 
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
@@ -27,6 +24,7 @@ import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -37,9 +35,8 @@ import java.util.Properties;
  */
 public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumberSupport {
 
-
-    Siemens7ED62Registry siemens7ED62Registry=null;
-    Siemens7ED62Profile siemens7ED62Profile=null;
+    private Siemens7ED62Registry siemens7ED62Registry = null;
+    private Siemens7ED62Profile siemens7ED62Profile = null;
 
     /** Creates a new instance of Siemens7ED62 */
     public Siemens7ED62() {
@@ -76,7 +73,7 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
         return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -103,12 +100,12 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
     }
 
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return getSiemens7ED62Registry().getRegister(name).toString();
     }
 
-    protected List doGetOptionalKeys() {
-        return null;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -116,11 +113,10 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
 
     public Date getTime() throws IOException {
         Date dateTime = (Date)getSiemens7ED62Registry().getRegister("DateTime");
-        Date date = new Date(dateTime.getTime()-getRoundtripCorrection());
-        return date;
+        return new Date(dateTime.getTime()-getRoundtripCorrection());
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getChannelMap().getNrOfChannels();
     }
 

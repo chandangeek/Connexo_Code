@@ -6,8 +6,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -54,8 +52,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -415,8 +414,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             }
 
         } catch (DLMSConnectionException e) {
-            IOException exception = new IOException(e.getMessage());
-            exception.initCause(e);
+            IOException exception = new IOException(e.getMessage(), e);
             throw exception;
         }
     }
@@ -473,8 +471,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             }
 
         } catch (IOException e) {
-            IOException exception = new IOException("connect() error, " + e.getMessage());
-            exception.initCause(e);
+            IOException exception = new IOException("connect() error, " + e.getMessage(), e);
             throw exception;
         }
 
@@ -607,10 +604,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }
@@ -632,7 +626,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws UnsupportedException
      *                             Thrown if method is not supported
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "UnKnow";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -701,7 +695,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws UnsupportedException
      *                             if meter does not support a to date to request the profile data
      */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -716,7 +710,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *                             if the device does not support this operation
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -730,7 +724,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws java.io.IOException Thrown in case of an exception
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -743,7 +737,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws UnsupportedException
      *                             if the device does not support this operation
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -756,7 +750,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws UnsupportedException
      *                             if the device does not support this operation
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return 900;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -784,7 +778,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws NoSuchRegisterException
      *                             if the device does not support the specified register
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return doGetRegister(name);
     }
 
@@ -851,7 +845,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws NoSuchRegisterException
      *                             if the device does not support the specified register
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         boolean classSpecified = false;
         if (name.indexOf(':') >= 0) {
             classSpecified = true;
@@ -904,7 +898,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws UnsupportedException
      *                             if the device does not support this operation
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -990,57 +984,37 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * Returns a list of required property keys
-     *
-     * @return a List of String objects
-     */
-    public List getRequiredKeys() {
-        List<String> requiredKeys = new ArrayList<String>();
-        return requiredKeys;
-    }
-
-    /**
-     * Returns a list of optional property keys
-     *
-     * @return a List of String objects
-     */
-    public List getOptionalKeys() {
-        List<String> optionalKeys = new ArrayList<String>();
-        optionalKeys.add("ForceDelay");
-        optionalKeys.add("TimeOut");
-        optionalKeys.add("Retries");
-        optionalKeys.add("Connection");
-        optionalKeys.add("SecurityLevel");
-        optionalKeys.add("ClientMacAddress");
-        optionalKeys.add("ServerUpperMacAddress");
-        optionalKeys.add("ServerLowerMacAddress");
-        optionalKeys.add("InformationFieldSize");
-        optionalKeys.add("LoadProfileId");
-        optionalKeys.add("AddressingMode");
-        optionalKeys.add("MaxMbusDevices");
-        optionalKeys.add("IIAPInvokeId");
-        optionalKeys.add("IIAPPriority");
-        optionalKeys.add("IIAPServiceClass");
-        optionalKeys.add("Manufacturer");
-        optionalKeys.add("InformationFieldSize");
-        optionalKeys.add("RoundTripCorrection");
-        optionalKeys.add("IpPortNumber");
-        optionalKeys.add("WakeUp");
-        optionalKeys.add("CipheringType");
-        optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optionalKeys.add(NTASecurityProvider.MASTERKEY);
-        return optionalKeys;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "ForceDelay",
+                    "TimeOut",
+                    "Retries",
+                    "Connection",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "ServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "InformationFieldSize",
+                    "LoadProfileId",
+                    "AddressingMode",
+                    "MaxMbusDevices",
+                    "IIAPInvokeId",
+                    "IIAPPriority",
+                    "IIAPServiceClass",
+                    "Manufacturer",
+                    "InformationFieldSize",
+                    "RoundTripCorrection",
+                    "IpPortNumber",
+                    "WakeUp",
+                    "CipheringType",
+                    NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY,
+                    NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY,
+                    NTASecurityProvider.MASTERKEY);
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
@@ -1048,7 +1022,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.timeOut, this.retries, 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.timeOut, this.retries, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(enableDataReadout);

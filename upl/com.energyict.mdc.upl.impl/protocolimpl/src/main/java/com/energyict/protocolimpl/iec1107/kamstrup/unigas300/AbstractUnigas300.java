@@ -4,8 +4,6 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -111,20 +108,6 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
         }
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    protected abstract List<String> getOptionalKeys();
-
-    protected abstract List<String> getRequiredKeys();
-
     /**
      * Read the profiledata from now - 10 days until now.
      *
@@ -169,7 +152,7 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      * @throws UnsupportedException
      * @throws IOException
      */
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException("Method 'getMeterReading(String name)' not supported in the Unigas300 protocol.");
     }
 
@@ -181,7 +164,7 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      * @throws UnsupportedException
      * @throws IOException
      */
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException("Method 'getMeterReading(int channelId)' not supported in the Unigas300 protocol.");
     }
 
@@ -194,7 +177,7 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException("Method 'getRegister(String name)' not supported in the Unigas300 protocol.");
     }
 
@@ -207,7 +190,7 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException("Method 'getRegister(String name)' not supported in the Unigas300 protocol.");
     }
 
@@ -217,7 +200,7 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException("Method 'initializeDevice()' not supported in the Unigas300 protocol.");
     }
 
@@ -288,6 +271,5 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      */
     public void release() throws IOException {
     }
-
 
 }

@@ -6,8 +6,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -39,7 +37,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -280,44 +280,25 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        return new ArrayList(0);
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ChannelMap");
-        result.add("RequestHeader");
-        result.add("DataReadout");
-        result.add("ExtendedLogging");
-        result.add("VDEWCompatible");
-        result.add("Software7E1");
-        result.add("FixedProfileTimeZone");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ChannelMap",
+                    "RequestHeader",
+                    "DataReadout",
+                    "ExtendedLogging",
+                    "VDEWCompatible",
+                    "Software7E1",
+                    "FixedProfileTimeZone");
     }
 
     public String getProtocolVersion() {
@@ -792,23 +773,21 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
 
     public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     private void getRegistersInfo() {
-        StringBuffer strBuff = new StringBuffer();
-
-
+        StringBuilder builder = new StringBuilder();
         if (isDataReadout()) {
-            strBuff.append("******************* ExtendedLogging *******************\n");
-            strBuff.append(new String(getDataReadout()));
+            builder.append("******************* ExtendedLogging *******************\n");
+            builder.append(new String(getDataReadout()));
         } else {
-            strBuff.append("******************* ExtendedLogging *******************\n");
-            strBuff.append("All OBIS codes are translated to EDIS codes but not all codes are configured in the meter.\n");
-            strBuff.append("It is not possible to retrieve a list with all registers in the meter. Consult the configuration of the meter.");
-            strBuff.append("\n");
+            builder.append("******************* ExtendedLogging *******************\n");
+            builder.append("All OBIS codes are translated to EDIS codes but not all codes are configured in the meter.\n");
+            builder.append("It is not possible to retrieve a list with all registers in the meter. Consult the configuration of the meter.");
+            builder.append("\n");
         }
-        logger.info(strBuff.toString());
+        logger.info(builder.toString());
 
     }
 
@@ -860,11 +839,6 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         this.timeZone = timeZone;
     }
 
-    /**
-     * Setter for the ProfileHelper
-     *
-     * @param value
-     */
     public void profileHelperSetter(boolean value) {
         this.profileHelper = value;
     }

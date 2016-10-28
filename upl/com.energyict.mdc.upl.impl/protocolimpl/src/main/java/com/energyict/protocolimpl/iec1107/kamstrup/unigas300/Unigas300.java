@@ -7,7 +7,6 @@
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
@@ -23,8 +22,9 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -147,9 +147,8 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
      * @param includeEvents
      * @return
      * @throws IOException
-     * @throws UnsupportedException
      */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -201,7 +200,7 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
             this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("Unigas300, validateProperties, NumberFormatException, " + e.getMessage());
@@ -209,42 +208,21 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
 
     }
 
-    /**
-     * Get the required keys for the Unigas300 protocol.
-     * If a key is required, but not entered during the protocol execution,
-     * the validateProperties method will throw an MissingPropertyException
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /**
-     * Get the optional keys for the Unigas300 protocol.
-     * If a key is optional, but not entered during the protocol execution,
-     * the default value will be used, and the protocol will continue execution.
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ExtendedLogging");
-        result.add("Software7E1");
-        return result;
+    public List<String> getOptionalKeys() {
+        return  Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ExtendedLogging",
+                    "Software7E1");
     }
 
-    /**
-     * The protocol version
-     *
-     * @return
-     */
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
@@ -254,9 +232,8 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
      *
      * @return
      * @throws IOException
-     * @throws UnsupportedException
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         try {
             return ((String) getUnigas300Registry().getRegister(RegisterMappingFactory.FW_VERSION_D));
         } catch (IOException e) {
@@ -287,11 +264,6 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         return deviceSerialNumber;
     }
 
-    /**
-     * Getter for the serial number property
-     *
-     * @return
-     */
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -308,7 +280,7 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
             ObisCodeMapper ocm = new ObisCodeMapper(this);
             return ocm.getRegisterValue(obisCode);
         } catch (Exception e) {
-            if ((e instanceof IOException) && (e.getMessage().indexOf("not initialized") != -1)) {
+            if ((e instanceof IOException) && (e.getMessage().contains("not initialized"))) {
                 return new RegisterValue(obisCode, "No value available");
             }
             throw new NoSuchRegisterException("Problems while reading register " + obisCode + ": " + e.getMessage());

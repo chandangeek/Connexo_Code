@@ -11,7 +11,6 @@
 package test.com.energyict.protocolimpl.eicttest;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -49,6 +48,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -62,12 +62,11 @@ import java.util.Properties;
  */
 public class EICTTestProtocol extends AbstractProtocol implements MessageProtocol  {
 
-	private static final Date Date = null;
-	private static String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
-	private static String FIRMWAREPROGRAM_DISPLAY_1 = "Upgrade Meter Firmware 1";
-	private static String FIRMWAREPROGRAM_DISPLAY_2 = "Upgrade Meter Firmware 2";
-	private static String FIRMWAREPROGRAM_DISPLAY_3 = "Upgrade Meter Firmware 3";
-	private static String INCLUDE_FILE_TAG = "FirmwareFileID";
+	private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
+	private static final String FIRMWAREPROGRAM_DISPLAY_1 = "Upgrade Meter Firmware 1";
+	private static final String FIRMWAREPROGRAM_DISPLAY_2 = "Upgrade Meter Firmware 2";
+	private static final String FIRMWAREPROGRAM_DISPLAY_3 = "Upgrade Meter Firmware 3";
+	private static final String INCLUDE_FILE_TAG = "FirmwareFileID";
 
 	private CacheObject cache;
 
@@ -87,7 +86,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     // message protocol
     public void applyMessages(List messageEntries) throws IOException {
         Iterator it = messageEntries.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             MessageEntry messageEntry = (MessageEntry)it.next();
             //System.out.println(messageEntry);
         }
@@ -165,43 +164,43 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append( msgTag.getName() );
+        builder.append("<");
+        builder.append( msgTag.getName() );
 
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = (MessageAttribute)it.next();
-            if ((att.getValue()==null) || (att.getValue().length()==0)) {
+            if ((att.getValue()==null) || (att.getValue().isEmpty())) {
 				continue;
 			}
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = (MessageElement)it.next();
             if (elt.isTag()) {
-				buf.append( writeTag((MessageTag)elt) );
+				builder.append( writeTag((MessageTag)elt) );
 			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue)elt);
-                if ((value==null) || (value.length()==0)) {
+                if ((value==null) || (value.isEmpty())) {
 					return "";
 				}
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append( msgTag.getName() );
-        buf.append(">");
+        builder.append("</");
+        builder.append( msgTag.getName() );
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {
@@ -236,7 +235,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
         ProfileData pd = new ProfileData();
 
-		boolean isCumulative = false;
+		boolean isCumulative;
 		if (getLoadProfileObisCode().getD() == 1) {
 			isCumulative = false;
 		} else if (getLoadProfileObisCode().getD() == 2) {
@@ -246,7 +245,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 					+ getLoadProfileObisCode().toString());
 		}
 
-		if (isCumulative == false) {
+		if (!isCumulative) {
 			pd.addChannel(new ChannelInfo(0, 0, "EICT test profile "
 					+ getLoadProfileObisCode().toString() + " channel 1", Unit
 					.get("kWh")));
@@ -340,7 +339,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         while(cal.getTime().before(now)) {
            IntervalData id = new IntervalData(cal.getTime());
 
-			if (isCumulative == false) {
+			if (!isCumulative) {
 				id.addValue(calculateValue(cal, 10000, 1000));
 				id.addValue(calculateValue(cal, 1000, 50));
 				id.addValue(calculateValue(cal, 20, 5));
@@ -397,7 +396,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 	}
 
 	private BigDecimal calculateValueCumulative(Calendar cal, long amplitude)
-			throws UnsupportedException, IOException {
+			throws IOException {
 		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
 				.get(Calendar.DST_OFFSET));
 		long localTime = (cal.getTime().getTime() + utcOffset) / 1000; // seconds
@@ -456,8 +455,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
      R e g i s t e r P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        //getLogger().info("call overridden method translateRegister()");
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -497,8 +495,10 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 		}
         ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
 		cal.set(Calendar.MILLISECOND, 0);
-		if((cal.getTime().getTime() % (15*60*1000)) == 0) // insert a suspected value every 15 minutes
+		if ((cal.getTime().getTime() % (15*60*1000)) == 0) // insert a suspected value every 15 minutes
+		{
 			suspect = true;
+		}
 
         if (obisCode.getA() == 1) {
 			if (obisCode.getD() == 8) {
@@ -513,19 +513,21 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 	        }
 	        else {
 	        	if (obisCode.getE() > 0) {
-					Quantity quantity = null;
-					if(suspect==false)
-						quantity = new Quantity(new BigDecimal("12345678.8").multiply(new BigDecimal("2")),Unit.get("kWh"));
-					else
-						quantity = new Quantity(new BigDecimal("11945679.8").multiply(new BigDecimal("2")),Unit.get("kWh"));
+					Quantity quantity;
+					if (!suspect) {
+						quantity = new Quantity(new BigDecimal("12345678.8").multiply(new BigDecimal("2")), Unit.get("kWh"));
+					} else {
+						quantity = new Quantity(new BigDecimal("11945679.8").multiply(new BigDecimal("2")), Unit.get("kWh"));
+					}
 					return new RegisterValue(obisCode, quantity, eventTime, fromTime, toTime);
 	        	}
 	        	else {
-					Quantity quantity = null;
-					if(suspect==false)
-						quantity = new Quantity(new BigDecimal("12345678.8"),Unit.get("kWh"));
-					else
-						quantity = new Quantity(new BigDecimal("11945679.8"),Unit.get("kWh"));
+					Quantity quantity;
+					if (!suspect) {
+						quantity = new Quantity(new BigDecimal("12345678.8"), Unit.get("kWh"));
+					} else {
+						quantity = new Quantity(new BigDecimal("11945679.8"), Unit.get("kWh"));
+					}
 					return new RegisterValue(obisCode, quantity, eventTime, fromTime, toTime);
 	        	}
 	        }
@@ -539,12 +541,10 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
        	setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
     }
 
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        //add new properties here, e.g. below
-        list.add("EICTTestProperty");
-        list.add("LoadProfileObisCode");
-        return list;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                "EICTTestProperty",
+                "LoadProfileObisCode");
     }
 
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
@@ -555,7 +555,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return connection;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
         getLogger().info("--> report the nr of load profile channels in the meter here");
         return 2;
@@ -579,7 +579,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         //return "EICT Test protocol version";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
         return "EICT Test firmware version";

@@ -13,7 +13,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FAF;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,10 +26,10 @@ KV|23032005|Changed header to be compatible with protocol version tool
  * @endchanges
  */
 public class FAF20 extends Metcom3FAF implements RegisterProtocol {
-   
+
     FAF20Registers fafRegisters=null;
-    
-    /** Creates a new instance of MTT3A */ 
+
+    /** Creates a new instance of MTT3A */
     public FAF20() {
         fafRegisters = new FAF20Registers(this);
     }
@@ -41,24 +41,24 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList(); 
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("HalfDuplex");
-        result.add("ChannelMap");
-        result.add("ExtendedLogging");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("ForcedDelay");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        return result;
-    }    
-    
-    
+    @Override
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "HalfDuplex",
+                    "ChannelMap",
+                    "ExtendedLogging",
+                    "RemovePowerOutageIntervals",
+                    "LogBookReadCommand",
+                    "ForcedDelay",
+                    "TimeSetMethod",
+                    "Software7E1");
+    }
+
+
     /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    R e g i s t e r P r o t o c o l  i n t e r f a c e
     *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         //return ObisCodeMapper.getRegisterInfo(obisCode);
@@ -69,10 +69,10 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
         //return ocm.getRegisterValue(obisCode);
         return fafRegisters.readRegisterValue(obisCode);
     }
-    
+
     public String getRegistersInfo(int extendedLogging) throws IOException {
         //return regs.getRegisterInfo();
         return fafRegisters.getRegisterInfo();
     }
-    
+
 }

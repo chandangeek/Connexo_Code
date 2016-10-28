@@ -6,8 +6,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -52,7 +50,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -192,14 +192,14 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         }
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (this.profileInterval == -1) {
             this.profileInterval = (int) (getCosemObjectFactory().getData(EK2xxRegisters.PROFILE_INTERVAL).getValue() & 0xEFFFFFFF);
         }
         return this.profileInterval;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             this.numberOfChannels = getCapturedObjects().getNROfChannels();
         }
@@ -257,49 +257,72 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     }
 
     protected String getRegistersInfo(int extendedLogging) {
-        StringBuffer strBuff = new StringBuffer();
-        String regInfo = "";
+        StringBuilder builder = new StringBuilder();
+        String regInfo;
         if (extendedLogging < 1) {
             return "";
         }
 
         try {
-            strBuff.append("********************* All instantiated objects in the meter *********************\n");
+            builder.append("********************* All instantiated objects in the meter *********************\n");
             for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
                 UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
                 ObisCode obis = uo.getObisCode();
                 regInfo = obis.toString() + " = " + translateRegister(obis).toString();
-                strBuff.append(regInfo + "\n");
+                builder.append(regInfo).append("\n");
             }
-            strBuff.append("*********************************************************************************\n");
+            builder.append("*********************************************************************************\n");
             for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
                 UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
                 ObisCode obis = uo.getObisCode();
                 if (getEk2xxRegisters().isProfileObject(obis)) {
                     ProfileGeneric profile = getCosemObjectFactory().getProfileGeneric(obis);
 
-                    strBuff.append(
-                            "profile generic = " + profile.toString() + "\n" +
-                                    "\t" + "obisCode = " + obis.toString() + "\n" +
-                                    "\t" + "getCapturePeriod = " + profile.getCapturePeriod() + "\n" +
-                                    "\t" + "getNumberOfProfileChannels = " + profile.getNumberOfProfileChannels() + "\n" +
-                                    "\t" + "getProfileEntries = " + profile.getProfileEntries() + "\n" +
-                                    "\t" + "getResetCounter = " + profile.getResetCounter() + "\n" +
-                                    "\t" + "getScalerUnit = " + profile.getScalerUnit() + "\n" +
-                                    "\t" + "containsCapturedObjects = " + profile.containsCapturedObjects() + "\n" +
-                                    "\t" + "getEntriesInUse = " + profile.getEntriesInUse() + "\n"
-
-                    );
+                    builder.append("profile generic = ")
+                            .append(profile.toString())
+                            .append("\n")
+                            .append("\t")
+                            .append("obisCode = ")
+                            .append(obis.toString())
+                            .append("\n")
+                            .append("\t")
+                            .append("getCapturePeriod = ")
+                            .append(profile.getCapturePeriod())
+                            .append("\n")
+                            .append("\t")
+                            .append("getNumberOfProfileChannels = ")
+                            .append(profile.getNumberOfProfileChannels())
+                            .append("\n")
+                            .append("\t")
+                            .append("getProfileEntries = ")
+                            .append(profile.getProfileEntries())
+                            .append("\n")
+                            .append("\t")
+                            .append("getResetCounter = ")
+                            .append(profile.getResetCounter())
+                            .append("\n")
+                            .append("\t")
+                            .append("getScalerUnit = ")
+                            .append(profile.getScalerUnit())
+                            .append("\n")
+                            .append("\t")
+                            .append("containsCapturedObjects = ")
+                            .append(profile.containsCapturedObjects())
+                            .append("\n")
+                            .append("\t")
+                            .append("getEntriesInUse = ")
+                            .append(profile.getEntriesInUse())
+                            .append("\n");
 
                 }
             }
-            strBuff.append("*********************************************************************************\n\n");
+            builder.append("*********************************************************************************\n\n");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
@@ -316,15 +339,15 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         }
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getCosemObjectFactory().getData(EK2xxRegisters.SOFTWARE_VERSION).getString();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException("getMeterReading(int channelId) is not suported!!!");
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException("getMeterReading(String name) is not suported!!!");
     }
 
@@ -339,7 +362,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return getProfileData(lastReading, calendar.getTime(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Date now = new Date();
         if (to.compareTo(now) >= 0) {
             to = now;
@@ -352,7 +375,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         Calendar fromDate_ptr = ProtocolUtils.getCleanCalendar(getTimeZone());
         Calendar toDate_ptr = ProtocolUtils.getCleanCalendar(getTimeZone());
-        Date profileDate = null;
+        Date profileDate;
         boolean lastRead = false;
         boolean dataReceived = false;
 
@@ -381,7 +404,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
             profileDate = this.ek2xxProfile.getDateFromDataContainer(dc);
 
             if (profileDate == null) {
-                if (dataReceived == true) {
+                if (dataReceived) {
                     lastRead = true;
                 }
             } else {
@@ -405,15 +428,15 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return profileData;
     }
 
-    private CapturedObjects getCapturedObjects() throws UnsupportedException, IOException {
+    private CapturedObjects getCapturedObjects() throws IOException {
         return getEk2xxProfile().getCapturedObjects();
-    } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
+    }
 
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -446,19 +469,19 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException("initializeDevice() is not suported!!!");
     }
 
     public void release() throws IOException {
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException("setRegister() not suported!");
     }
 
     public void setTime() throws IOException {
-        Calendar calendar = null;
+        Calendar calendar;
         if (this.iRequestTimeZone != 0) {
             calendar = ProtocolUtils.getCalendar(getTimeZone());
         } else {
@@ -474,15 +497,15 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         byteTimeBuffer[0] = 1;
         byteTimeBuffer[1] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[2] = 12; // length
-        byteTimeBuffer[3] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[4] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[5] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[6] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteTimeBuffer[3] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[4] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[5] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[6] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteTimeBuffer[7] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[10] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[8] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[9] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[10] = (byte) calendar.get(Calendar.SECOND);
         byteTimeBuffer[11] = (byte) 0xFF;
         byteTimeBuffer[12] = (byte) 0x80;
         byteTimeBuffer[13] = 0x00;
@@ -524,41 +547,25 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         getDLMSConnection().setHHUSignOn(hhuSignOn, this.nodeId);
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList(0);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RequestTimeZone");
-        result.add("RequestClockObject");
-        result.add("SecurityLevel");
-        result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
-        result.add("ExtendedLogging");
-        result.add("AddressingMode");
-        result.add("EventIdIndex");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RequestTimeZone",
+                    "RequestClockObject",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "ServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "ExtendedLogging",
+                    "AddressingMode",
+                    "EventIdIndex");
     }
 
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /*
-      * Public getters and setters
-      */
 
     public String getPassword() {
         return this.strPassword;

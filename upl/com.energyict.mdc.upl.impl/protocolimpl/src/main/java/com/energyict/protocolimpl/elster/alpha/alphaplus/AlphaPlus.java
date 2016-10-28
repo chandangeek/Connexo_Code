@@ -10,8 +10,6 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -44,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -89,13 +88,14 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
 
     protected void doConnect() throws IOException {
         // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-        if (commChannel!=null)
+        if (commChannel!=null) {
             commandFactory.opticalHandshake(commChannel, getInfoTypePassword(), getDtrBehaviour());
-        else {
-            if (opticalHandshakeOverModemport==1)
+        } else {
+            if (opticalHandshakeOverModemport==1) {
                 commandFactory.opticalHandshakeOverModemport(getInfoTypePassword());
-            else
-                commandFactory.signOn(getInfoTypeNodeAddressNumber(),getInfoTypePassword());
+            } else {
+                commandFactory.signOn(getInfoTypeNodeAddressNumber(), getInfoTypePassword());
+            }
         }
 
         // set packetsize so that all Multiple (lenh lenl) packets behave corect (lenh bit 7 last packet)
@@ -118,20 +118,19 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         totalRegisterRate = Integer.parseInt(properties.getProperty("TotalRegisterRate","1").trim());
         opticalHandshakeOverModemport =  Integer.parseInt(properties.getProperty("OpticalHandshakeOverModemport","0").trim());
     }
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("WhoAreYouTimeout");
-        result.add("TotalRegisterRate");
-        result.add("OpticalHandshakeOverModemport");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "WhoAreYouTimeout",
+                    "TotalRegisterRate",
+                    "OpticalHandshakeOverModemport");
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         int pi = getClassFactory().getClass14LoadProfileConfiguration().getLoadProfileInterval();
         return pi==0?getInfoTypeProfileInterval():pi;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getClassFactory().getClass14LoadProfileConfiguration().getNrOfChannels();
     }
 
@@ -154,7 +153,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         try {
            return getClassFactory().getClass8FirmwareConfiguration().getFirmwareVersion();
         }
@@ -173,19 +172,22 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
 
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
-        List passwords = discoverInfo.getPasswords();
+        List<String> passwords = discoverInfo.getPasswords();
 
-        if (DEBUG>=1) System.out.println("alphaPlus, getSerialNumber, "+discoverInfo);
+        if (DEBUG>=1) {
+            System.out.println("alphaPlus, getSerialNumber, " + discoverInfo);
+        }
 
-        if (passwords==null)
-            passwords = new ArrayList();
+        if (passwords==null) {
+            passwords = new ArrayList<>();
+        }
 
-        if (passwords.size()==0)
+        if (passwords.isEmpty()) {
             passwords.add("00000000");
+        }
 
-        int retries=0;
         for (int i=0;i<passwords.size();i++) {
-            String password = (String)passwords.get(i);
+            String password = passwords.get(i);
 //            while(true) {
                 try {
                     Properties properties = new Properties();
@@ -196,7 +198,9 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
                     //getCommandFactory().getFunctionWithDataCommand().whoAreYou(0);
                     String serialNumber =  Long.toString(getClassFactory().getSerialNumber()); //getSerialNumber();
                    // disconnect(); // no disconnect because the meter will hangup the link... disconnect contains an EZ7 protocol command to the meter that hangup the link!
-                    if (DEBUG>=1) System.out.println("alphaPlus, getSerialNumber, serialNumber="+serialNumber+" size="+serialNumber.length());
+                    if (DEBUG>=1) {
+                        System.out.println("alphaPlus, getSerialNumber, serialNumber=" + serialNumber + " size=" + serialNumber.length());
+                    }
                     return serialNumber;
                 }
                 catch(IOException ex) {
@@ -210,8 +214,9 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     //                    // absorb
     //                }
 
-                    if (i==(passwords.size()-1))
+                    if (i==(passwords.size()-1)) {
                         throw ex;
+                    }
                 }
 //            }
         }
@@ -232,43 +237,43 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         getBillingDataRegisterFactory().buildAll();
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
-        strBuff.append("************************ CLASSES READ ************************\n");
-        strBuff.append(getClassFactory().getClass0ComputationalConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass2IdentificationAndDemandData()+"\n");
-        strBuff.append(getClassFactory().getClass31ModemBillingCallConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass32ModemAlarmCallConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass33ModemConfigurationInfo()+"\n");
-        strBuff.append(getClassFactory().getClass6MeteringFunctionBlock()+"\n");
-        strBuff.append(getClassFactory().getClass7MeteringFunctionBlock()+"\n");
-        strBuff.append(getClassFactory().getClass8FirmwareConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass14LoadProfileConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass9Status1()+"\n");
-        strBuff.append(getClassFactory().getClass10Status2()+"\n");
+        builder.append("************************ CLASSES READ ************************\n");
+        builder.append(getClassFactory().getClass0ComputationalConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass2IdentificationAndDemandData()).append("\n");
+        builder.append(getClassFactory().getClass31ModemBillingCallConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass32ModemAlarmCallConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass33ModemConfigurationInfo()).append("\n");
+        builder.append(getClassFactory().getClass6MeteringFunctionBlock()).append("\n");
+        builder.append(getClassFactory().getClass7MeteringFunctionBlock()).append("\n");
+        builder.append(getClassFactory().getClass8FirmwareConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass14LoadProfileConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass9Status1()).append("\n");
+        builder.append(getClassFactory().getClass10Status2()).append("\n");
 
-        strBuff.append("************************ CLASS11 Current billing registers ************************\n");
+        builder.append("************************ CLASS11 Current billing registers ************************\n");
         Iterator it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.CURRENT_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
-            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
+            builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
-        strBuff.append("************************ CLASS12 Previous month billing registers ************************\n");
+        builder.append("************************ CLASS12 Previous month billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_MONTH_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
-            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
+            builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
-        strBuff.append("************************ CLASS13 Previous season billing registers ************************\n");
+        builder.append("************************ CLASS13 Previous season billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_SEASON_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
-            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
+            builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public CommandFactory getCommandFactory() {
@@ -290,6 +295,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     public AlphaPlusProfile getAlphaPlusProfile() {
         return alphaPlusProfile;
     }
+
     public AlphaConnection getAlphaConnection() {
         return alphaConnection;
     }
@@ -336,7 +342,4 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         return totalRegisterRate;
     }
 
-    private void setTotalRegisterRate(int totalRegisterRate) {
-        this.totalRegisterRate = totalRegisterRate;
-    }
 }

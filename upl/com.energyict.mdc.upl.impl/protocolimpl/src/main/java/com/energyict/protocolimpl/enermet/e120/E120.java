@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -20,7 +18,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -64,24 +64,24 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     /** Maximum nr of intervals that can be fetched in 1 SeriesOnCount request */
     private static final int FETCH_LIMIT = 306;
 
-    final static MessageFormat ERROR_0 = new MessageFormat(
+    static final MessageFormat ERROR_0 = new MessageFormat(
             "Configured profile interval size differs from requested size " +
             "(configured={0}s, meter={1}s)" );
-    final static MessageFormat ERROR_1 = new MessageFormat(
+    static final MessageFormat ERROR_1 = new MessageFormat(
             "Found different nr of entries in: \n {0} \n {1} ");
 
     /** Property Default values */
-    final static int PD_RETRIES = 5;
+    static final int PD_RETRIES = 5;
     /** Property default for the channel configuration */
-    final static String PD_CHANNEL_MAP = "1.29+10:0:0:0";
+    static final String PD_CHANNEL_MAP = "1.29+10:0:0:0";
 
     /** Property keys specific for E120 protocol. */
-    final static String PK_TIMEOUT = "Timeout";
-    final static String PK_RETRIES = "Retries";
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_USER_ID = "userId";
-    final static String PK_PASSWORD = "password";
-    final static String PK_CHANNEL_MAP = "ChannelMap";
+    private static final String PK_TIMEOUT = "Timeout";
+    private static final String PK_RETRIES = "Retries";
+    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    private static final String PK_USER_ID = "userId";
+    private static final String PK_PASSWORD = "password";
+    private static final String PK_CHANNEL_MAP = "ChannelMap";
 
     private String pUserId;
     private String pPassword;
@@ -133,14 +133,17 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
      */
     protected void doConnect() throws IOException {
 
-        if( !connection.connect(pUserId, pPassword).isOk() )
+        if( !connection.connect(pUserId, pPassword).isOk() ) {
             throw new IOException("connect failed");
+        }
 
-        if(pExtendedLogging==1)
+        if (pExtendedLogging==1) {
             getLogger().info(obisCodeMapper.toString());
+        }
 
-        if(pExtendedLogging==2)
+        if (pExtendedLogging==2) {
             getLogger().info(obisCodeMapper.getExtendedLogging());
+        }
 
     }
 
@@ -151,22 +154,17 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         /* do nothing */
     }
 
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        result.add( PK_USER_ID );
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.singletonList(PK_USER_ID);
     }
 
-    protected List doGetOptionalKeys() {
-        return new ArrayList(){
-            {
-                add( com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName() );
-                add( PK_TIMEOUT );
-                add( PK_RETRIES );
-                add( PK_EXTENDED_LOGGING );
-                add( PK_CHANNEL_MAP );
-            }
-        };
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(),
+                    PK_TIMEOUT,
+                    PK_RETRIES,
+                    PK_EXTENDED_LOGGING,
+                    PK_CHANNEL_MAP);
     }
 
     protected void doValidateProperties(Properties p)
@@ -186,11 +184,13 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         }
         pChannelMap = new ProtocolChannelMap( p.getProperty(PK_CHANNEL_MAP) );
 
-        if( propertyExists(p, PK_RETRIES) )
+        if (propertyExists(p, PK_RETRIES)) {
             pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
+        }
 
-        if( propertyExists(p, PK_EXTENDED_LOGGING) )
+        if (propertyExists(p, PK_EXTENDED_LOGGING)) {
             pExtendedLogging = Integer.parseInt(p.getProperty(PK_EXTENDED_LOGGING));
+        }
 
     }
 
@@ -224,8 +224,9 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        if(obisCodeMapper==null)
+        if (obisCodeMapper==null) {
             obisCodeMapper = new ObisCodeMapper(this);
+        }
         return obisCodeMapper.getRegisterInfo(obisCode);
     }
 
@@ -237,7 +238,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "<unknown>";
     }
 
@@ -259,27 +260,33 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-        throws IOException, UnsupportedException {
+        throws IOException {
 
         /* if the to-time is after the metertime, to-time becomes metertime
          * (since you can not fetch future data) */
-        if( getTime().before(to) ) to = getTime();
+        if (getTime().before(to)) {
+            to = getTime();
+        }
 
         List queryArguments = getProfileQueryArguments(from, to);
 
         ProfileMerge profile = new ProfileMerge(this);
 
-        if( pChannelMap.isProtocolChannelEnabled(0) )
+        if (pChannelMap.isProtocolChannelEnabled(0)) {
             fetch(queryArguments, profile, 1);
+        }
 
-        if( pChannelMap.isProtocolChannelEnabled(1) )
+        if (pChannelMap.isProtocolChannelEnabled(1)) {
             fetch(queryArguments, profile, 2);
+        }
 
-        if( pChannelMap.isProtocolChannelEnabled(2) )
+        if (pChannelMap.isProtocolChannelEnabled(2)) {
             fetch(queryArguments, profile, 3);
+        }
 
-        if( pChannelMap.isProtocolChannelEnabled(3) )
+        if (pChannelMap.isProtocolChannelEnabled(3)) {
             fetch(queryArguments, profile, 4);
+        }
 
         return profile.toProfileData(includeEvents);
 
@@ -287,8 +294,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     private void fetch(List fetchList, ProfileMerge profile, int address) throws IOException {
         Iterator i = fetchList.iterator();
-        while( i.hasNext() ) {
-
+        while (i.hasNext()) {
             ProfileQueryArguments pi = (ProfileQueryArguments)i.next();
             Date f = pi.from;
             int nr = pi.nrIntervals;
@@ -296,11 +302,10 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
             Message msg = connection.seriesOnCount(address, f, nr);
             SeriesResponse rsp = (SeriesResponse)msg.getBody();
 
-            if( !rsp.getNackCode().isOk() )
-                throw new IOException("get profiledata " +rsp.getNackCode());
-
+            if (!rsp.getNackCode().isOk()) {
+                throw new IOException("get profiledata " + rsp.getNackCode());
+            }
             profile.merge( rsp );
-
         }
     }
 
@@ -363,7 +368,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         long msFrom = from.getTime() - (from.getTime()%msProfileInterval);
         long msTo   = to.getTime();
 
-        long result = 0;
+        long result;
         result = ( msTo - msFrom ) / msProfileInterval;
         result += ((( msTo - msFrom ) % msProfileInterval ) > 0 ) ? 1 : 0;
 

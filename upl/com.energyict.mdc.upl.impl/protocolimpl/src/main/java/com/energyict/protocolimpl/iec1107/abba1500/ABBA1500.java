@@ -8,8 +8,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -45,7 +43,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -137,16 +137,16 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         return getAbba1500Profile().getProfileData(lastReading, includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         profileDateRead = true;
         return getAbba1500Profile().getProfileData(from, to, includeEvents);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -275,7 +275,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -292,7 +292,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getAbba1500Registry().setRegister(name, value);
     }
 
@@ -302,54 +302,32 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ChannelMap");
-        result.add("RequestHeader");
-        result.add("Scaler");
-        result.add("DataReadout");
-        result.add("ExtendedLogging");
-        result.add("VDEWCompatible");
-        result.add("ForcedDelay");
-        result.add("FirmwareVersion");
-        result.add("Software7E1");
-        result.add("DateFormat");
-        result.add("MaxNrOfDaysProfileData");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ChannelMap",
+                    "RequestHeader",
+                    "Scaler",
+                    "DataReadout",
+                    "ExtendedLogging",
+                    "VDEWCompatible",
+                    "ForcedDelay",
+                    "FirmwareVersion",
+                    "Software7E1",
+                    "DateFormat",
+                    "MaxNrOfDaysProfileData");
     }
 
     /**
@@ -359,7 +337,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return ("Unknown");
     } // public String getFirmwareVersion()
 
@@ -427,14 +405,10 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         }
     }
 
-    private boolean verifyMeterSerialNR() throws IOException {
-        if ((serialNumber == null) ||
+    private boolean verifyMeterSerialNR() {
+        return (serialNumber == null) ||
                 ("".compareTo(serialNumber) == 0) ||
-                (serialNumber.compareTo(getSerialNumber()) == 0)) {
-            return true;
-        } else {
-            return false;
-        }
+                (serialNumber.compareTo(getSerialNumber()) == 0);
     }
 
     public void disconnect() throws IOException {
@@ -446,7 +420,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (requestHeader == 1) {
             return getAbba1500Profile().getProfileHeader().getNrOfChannels();
         } else {
@@ -454,7 +428,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         }
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (requestHeader == 1) {
             return getAbba1500Profile().getProfileHeader().getProfileInterval();
         } else {
@@ -766,21 +740,21 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
 
 
     public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
-    private void getRegistersInfo() throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+    private void getRegistersInfo() {
+        StringBuilder builder = new StringBuilder();
         if (getDataReadoutRequest() == 1) {
-            strBuff.append("******************* ExtendedLogging *******************\n");
-            strBuff.append(new String(getDataReadout()));
+            builder.append("******************* ExtendedLogging *******************\n");
+            builder.append(new String(getDataReadout()));
         } else {
-            strBuff.append("******************* ExtendedLogging *******************\n");
-            strBuff.append("All OBIS codes are translated to EDIS codes but not all codes are configured in the meter.\n");
-            strBuff.append("It is not possible to retrieve a list with all registers in the meter. Consult the configuration of the meter.");
-            strBuff.append("\n");
+            builder.append("******************* ExtendedLogging *******************\n");
+            builder.append("All OBIS codes are translated to EDIS codes but not all codes are configured in the meter.\n");
+            builder.append("It is not possible to retrieve a list with all registers in the meter. Consult the configuration of the meter.");
+            builder.append("\n");
         }
-        logger.info(strBuff.toString());
+        logger.info(builder.toString());
     }
 
 
@@ -827,4 +801,4 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
     public int getMaxNrOfDaysProfileData() {
         return MaxNrOfDaysProfileData;
     }
-} // public class ABBA1500 implements MeterProtocol {
+}

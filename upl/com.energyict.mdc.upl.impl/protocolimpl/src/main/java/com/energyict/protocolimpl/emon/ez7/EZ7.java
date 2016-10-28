@@ -31,7 +31,9 @@ import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -104,8 +106,8 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     }
 
 
-    protected java.util.List doGetOptionalKeys() {
-        return null;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     protected ProtocolConnection doInit(java.io.InputStream inputStream, java.io.OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws java.io.IOException {
@@ -178,63 +180,63 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     public String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("******************************************************************\n");
-        strBuff.append("Manufacturer specific registers with code 0.B.96.99.E.F\n");
-        strBuff.append("B=0, REG, Event General\n");
-        strBuff.append("B=1, REL, Event Load\n");
-        strBuff.append("B=2, RF, Flags status\n");
-        strBuff.append("B=3, RGL, Read group & location & recorder id & serial#\n");
-        strBuff.append("E=row (e.g. 0=LINE-1, 1=LINE-2,... \n");
-        strBuff.append("F=col (0..7) 1 of the 8 values of the data LINE...\n");
-        strBuff.append("******************************************************************\n");
-        strBuff.append("Cumulative energy registers\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("******************************************************************\n");
+        builder.append("Manufacturer specific registers with code 0.B.96.99.E.F\n");
+        builder.append("B=0, REG, Event General\n");
+        builder.append("B=1, REL, Event Load\n");
+        builder.append("B=2, RF, Flags status\n");
+        builder.append("B=3, RGL, Read group & location & recorder id & serial#\n");
+        builder.append("E=row (e.g. 0=LINE-1, 1=LINE-2,... \n");
+        builder.append("F=col (0..7) 1 of the 8 values of the data LINE...\n");
+        builder.append("******************************************************************\n");
+        builder.append("Cumulative energy registers\n");
         for (int channel=1;channel<=8;channel++) {
             for (int tariff=1;tariff<=8;tariff++) {
                 ObisCode obisCode = new ObisCode(1,channel,1,8,tariff,255);
-                strBuff.append(obisCode+", "+obisCode.getDescription()+"\n");
+                builder.append(obisCode).append(", ").append(obisCode.toString()).append("\n");
             }
         }
-        strBuff.append("******************************************************************\n");
-        strBuff.append("Maximum demand registers\n");
+        builder.append("******************************************************************\n");
+        builder.append("Maximum demand registers\n");
         for (int channel=1;channel<=8;channel++) {
             for (int tariff=1;tariff<=8;tariff++) {
                 ObisCode obisCode = new ObisCode(1,channel,1,6,tariff,255);
-                strBuff.append(obisCode+", "+obisCode.getDescription()+"\n");
+                builder.append(obisCode).append(", ").append(obisCode.toString()).append("\n");
             }
         }
-        strBuff.append("******************************************************************\n");
-        strBuff.append("Sliding demand registers (12 x 5 minute sliding demand registers)\n");
+        builder.append("******************************************************************\n");
+        builder.append("Sliding demand registers (12 x 5 minute sliding demand registers)\n");
         for (int channel=1;channel<=8;channel++) {
             for (int tariff=1;tariff<=12;tariff++) {
                 ObisCode obisCode = new ObisCode(1,channel,1,5,tariff,255);
-                strBuff.append(obisCode+", "+tariff+"-the 5 minute sliding demand register\n");
+                builder.append(obisCode).append(", ").append(tariff).append("-the 5 minute sliding demand register\n");
             }
         }
-        strBuff.append("******************************************************************\n");
-        strBuff.append("Power quality, instantaneous values \n");
-        strBuff.append("1.0.1.7.0.255, "+ObisCode.fromString("1.0.1.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.21.7.0.255, "+ObisCode.fromString("1.0.21.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.41.7.0.255, "+ObisCode.fromString("1.0.41.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.61.7.0.255, "+ObisCode.fromString("1.0.61.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.11.7.0.255, "+ObisCode.fromString("1.0.11.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.31.7.0.255, "+ObisCode.fromString("1.0.31.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.51.7.0.255, "+ObisCode.fromString("1.0.51.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.71.7.0.255, "+ObisCode.fromString("1.0.71.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.12.7.0.255, "+ObisCode.fromString("1.0.12.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.32.7.0.255, "+ObisCode.fromString("1.0.32.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.52.7.0.255, "+ObisCode.fromString("1.0.52.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.72.7.0.255, "+ObisCode.fromString("1.0.72.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.13.7.0.255, "+ObisCode.fromString("1.0.13.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.33.7.0.255, "+ObisCode.fromString("1.0.33.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.53.7.0.255, "+ObisCode.fromString("1.0.53.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.73.7.0.255, "+ObisCode.fromString("1.0.73.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.14.7.0.255, "+ObisCode.fromString("1.0.14.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.34.7.0.255, "+ObisCode.fromString("1.0.34.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.54.7.0.255, "+ObisCode.fromString("1.0.54.7.0.255").getDescription()+"\n");
-        strBuff.append("1.0.74.7.0.255, "+ObisCode.fromString("1.0.74.7.0.255").getDescription()+"\n");
+        builder.append("******************************************************************\n");
+        builder.append("Power quality, instantaneous values \n");
+        builder.append("1.0.1.7.0.255, ").append(ObisCode.fromString("1.0.1.7.0.255").toString()).append("\n");
+        builder.append("1.0.21.7.0.255, ").append(ObisCode.fromString("1.0.21.7.0.255").toString()).append("\n");
+        builder.append("1.0.41.7.0.255, ").append(ObisCode.fromString("1.0.41.7.0.255").toString()).append("\n");
+        builder.append("1.0.61.7.0.255, ").append(ObisCode.fromString("1.0.61.7.0.255").toString()).append("\n");
+        builder.append("1.0.11.7.0.255, ").append(ObisCode.fromString("1.0.11.7.0.255").toString()).append("\n");
+        builder.append("1.0.31.7.0.255, ").append(ObisCode.fromString("1.0.31.7.0.255").toString()).append("\n");
+        builder.append("1.0.51.7.0.255, ").append(ObisCode.fromString("1.0.51.7.0.255").toString()).append("\n");
+        builder.append("1.0.71.7.0.255, ").append(ObisCode.fromString("1.0.71.7.0.255").toString()).append("\n");
+        builder.append("1.0.12.7.0.255, ").append(ObisCode.fromString("1.0.12.7.0.255").toString()).append("\n");
+        builder.append("1.0.32.7.0.255, ").append(ObisCode.fromString("1.0.32.7.0.255").toString()).append("\n");
+        builder.append("1.0.52.7.0.255, ").append(ObisCode.fromString("1.0.52.7.0.255").toString()).append("\n");
+        builder.append("1.0.72.7.0.255, ").append(ObisCode.fromString("1.0.72.7.0.255").toString()).append("\n");
+        builder.append("1.0.13.7.0.255, ").append(ObisCode.fromString("1.0.13.7.0.255").toString()).append("\n");
+        builder.append("1.0.33.7.0.255, ").append(ObisCode.fromString("1.0.33.7.0.255").toString()).append("\n");
+        builder.append("1.0.53.7.0.255, ").append(ObisCode.fromString("1.0.53.7.0.255").toString()).append("\n");
+        builder.append("1.0.73.7.0.255, ").append(ObisCode.fromString("1.0.73.7.0.255").toString()).append("\n");
+        builder.append("1.0.14.7.0.255, ").append(ObisCode.fromString("1.0.14.7.0.255").toString()).append("\n");
+        builder.append("1.0.34.7.0.255, ").append(ObisCode.fromString("1.0.34.7.0.255").toString()).append("\n");
+        builder.append("1.0.54.7.0.255, ").append(ObisCode.fromString("1.0.54.7.0.255").toString()).append("\n");
+        builder.append("1.0.74.7.0.255, ").append(ObisCode.fromString("1.0.74.7.0.255").toString()).append("\n");
 
-        return strBuff.toString();
+        return builder.toString();
     }
 
     /**
@@ -267,9 +269,8 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         setProperties(properties);
         init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);
         connect();
-        String serialNumber =  getEz7CommandFactory().getRGLInfo().getSerialNumber();
-       // disconnect(); // no disconnect because the meter will hangup the link... disconnect contains an EZ7 protocol command to the meter that hangup the link!
-        return serialNumber;
+        // disconnect(); // no disconnect because the meter will hangup the link... disconnect contains an EZ7 protocol command to the meter that hangup the link!
+        return getEz7CommandFactory().getRGLInfo().getSerialNumber();
     }
 
 }

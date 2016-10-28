@@ -15,8 +15,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -45,8 +43,9 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -123,7 +122,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(timeZone);
@@ -145,7 +144,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
                 false, isReadCurrentDay());
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         try {
             return (Quantity) getIskraEmecoRegistry().getRegister(name);
         } catch (ClassCastException e) {
@@ -153,7 +152,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         }
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         String[] ISKRAEMECO_METERREADINGS = null;
         try {
             ISKRAEMECO_METERREADINGS = ISKRAEMECO_METERREADINGS_DEFAULT;
@@ -208,7 +207,6 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
@@ -246,7 +244,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
             channelMap = new ChannelMap(properties.getProperty("ChannelMap", "1.5:5.5:8.5"));
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay", "0"));
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -262,7 +260,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return ProtocolUtils.obj2String(getIskraEmecoRegistry().getRegister(name));
     }
 
@@ -275,7 +273,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getIskraEmecoRegistry().setRegister(name, value);
     }
 
@@ -285,47 +283,25 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ChannelMap");
-        result.add("ExtendedLogging");
-        result.add("ReadCurrentDay");
-        result.add("Software7E1");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ChannelMap",
+                    "ExtendedLogging",
+                    "ReadCurrentDay",
+                    "Software7E1");
     }
 
     /** Protocol Version **/
@@ -333,7 +309,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         try {
             return ((String) getIskraEmecoRegistry().getRegister("software revision number"));
         } catch (IOException e) {
@@ -359,11 +335,8 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         } catch (ConnectionException e) {
             logger.severe("ABBA1500: init(...), " + e.getMessage());
         }
-    } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
+    }
 
-    /**
-     * @throws IOException
-     */
     public void connect() throws IOException {
         try {
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
@@ -388,11 +361,11 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfChannels();
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         Object obj = getIskraEmecoRegistry().getRegister("Profile Interval");
         if (obj == null) {
             return iProfileInterval;
@@ -459,7 +432,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, iEchoCancelling);
+                new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
@@ -480,54 +453,54 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
     }
 
     // KV 17022004 implementation of MeterExceptionInfo
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
 
     static {
-        exceptionInfoMap.put("ER01", "Unknown command");
-        exceptionInfoMap.put("ER02", "Invalid command");
-        exceptionInfoMap.put("ER03", "Command format failure");
-        exceptionInfoMap.put("ER04", "Read-only code");
-        exceptionInfoMap.put("ER05", "Write-only code");
-        exceptionInfoMap.put("ER06", "Command => no R/W allowed");
-        exceptionInfoMap.put("ER07", "Access denied");
-        exceptionInfoMap.put("ER08", "Non R3 variable");
-        exceptionInfoMap.put("ER09", "Variable is not command");
-        exceptionInfoMap.put("ER10", "Command not executed");
-        exceptionInfoMap.put("ER11", "Code format error");
-        exceptionInfoMap.put("ER12", "Non data-read-out variable");
-        exceptionInfoMap.put("ER13", "Variable without unit");
-        exceptionInfoMap.put("ER14", "Wrong previous values index");
-        exceptionInfoMap.put("ER15", "Code without offset");
-        exceptionInfoMap.put("ER16", "Wrong offset or number of elements");
-        exceptionInfoMap.put("ER17", "No value for write");
-        exceptionInfoMap.put("ER18", "Array index too high");
-        exceptionInfoMap.put("ER19", "Wrong offset format or field length");
-        exceptionInfoMap.put("ER20", "No response from master");
-        exceptionInfoMap.put("ER21", "Invalid character in R3 blocks");
-        exceptionInfoMap.put("ER22", "Variable without previous values");
-        exceptionInfoMap.put("ER23", "Code does not exist");
-        exceptionInfoMap.put("ER24", "Invalid variable subtag");
-        exceptionInfoMap.put("ER25", "Non-existing register");
-        exceptionInfoMap.put("ER26", "EE write failure");
-        exceptionInfoMap.put("ER27", "Invalid value");
-        exceptionInfoMap.put("ER28", "Invalid time");
-        exceptionInfoMap.put("ER29", "Previous value not valid");
-        exceptionInfoMap.put("ER30", "Previous value empty");
-        exceptionInfoMap.put("ER36", "MD reset lockout active - comm.");
-        exceptionInfoMap.put("ER37", "Load profile value not valid");
-        exceptionInfoMap.put("ER38", "Load profile is empty (no values)");
-        exceptionInfoMap.put("ER39", "No load profile function in the meter");
-        exceptionInfoMap.put("ER40", "Non-existing channel of load profile");
-        exceptionInfoMap.put("ER41", "Load profile start time > end time");
-        exceptionInfoMap.put("ER43", "Error in time format");
-        exceptionInfoMap.put("ER44", "Invalid data-read-out");
-        exceptionInfoMap.put("ER47", "Meter not in auto-scroll mode");
-        exceptionInfoMap.put("ER49", "Error on cumulative maximum");
-        exceptionInfoMap.put("ER53", "Non R5 variable");
+        EXCEPTION_INFO_MAP.put("ER01", "Unknown command");
+        EXCEPTION_INFO_MAP.put("ER02", "Invalid command");
+        EXCEPTION_INFO_MAP.put("ER03", "Command format failure");
+        EXCEPTION_INFO_MAP.put("ER04", "Read-only code");
+        EXCEPTION_INFO_MAP.put("ER05", "Write-only code");
+        EXCEPTION_INFO_MAP.put("ER06", "Command => no R/W allowed");
+        EXCEPTION_INFO_MAP.put("ER07", "Access denied");
+        EXCEPTION_INFO_MAP.put("ER08", "Non R3 variable");
+        EXCEPTION_INFO_MAP.put("ER09", "Variable is not command");
+        EXCEPTION_INFO_MAP.put("ER10", "Command not executed");
+        EXCEPTION_INFO_MAP.put("ER11", "Code format error");
+        EXCEPTION_INFO_MAP.put("ER12", "Non data-read-out variable");
+        EXCEPTION_INFO_MAP.put("ER13", "Variable without unit");
+        EXCEPTION_INFO_MAP.put("ER14", "Wrong previous values index");
+        EXCEPTION_INFO_MAP.put("ER15", "Code without offset");
+        EXCEPTION_INFO_MAP.put("ER16", "Wrong offset or number of elements");
+        EXCEPTION_INFO_MAP.put("ER17", "No value for write");
+        EXCEPTION_INFO_MAP.put("ER18", "Array index too high");
+        EXCEPTION_INFO_MAP.put("ER19", "Wrong offset format or field length");
+        EXCEPTION_INFO_MAP.put("ER20", "No response from master");
+        EXCEPTION_INFO_MAP.put("ER21", "Invalid character in R3 blocks");
+        EXCEPTION_INFO_MAP.put("ER22", "Variable without previous values");
+        EXCEPTION_INFO_MAP.put("ER23", "Code does not exist");
+        EXCEPTION_INFO_MAP.put("ER24", "Invalid variable subtag");
+        EXCEPTION_INFO_MAP.put("ER25", "Non-existing register");
+        EXCEPTION_INFO_MAP.put("ER26", "EE write failure");
+        EXCEPTION_INFO_MAP.put("ER27", "Invalid value");
+        EXCEPTION_INFO_MAP.put("ER28", "Invalid time");
+        EXCEPTION_INFO_MAP.put("ER29", "Previous value not valid");
+        EXCEPTION_INFO_MAP.put("ER30", "Previous value empty");
+        EXCEPTION_INFO_MAP.put("ER36", "MD reset lockout active - comm.");
+        EXCEPTION_INFO_MAP.put("ER37", "Load profile value not valid");
+        EXCEPTION_INFO_MAP.put("ER38", "Load profile is empty (no values)");
+        EXCEPTION_INFO_MAP.put("ER39", "No load profile function in the meter");
+        EXCEPTION_INFO_MAP.put("ER40", "Non-existing channel of load profile");
+        EXCEPTION_INFO_MAP.put("ER41", "Load profile start time > end time");
+        EXCEPTION_INFO_MAP.put("ER43", "Error in time format");
+        EXCEPTION_INFO_MAP.put("ER44", "Invalid data-read-out");
+        EXCEPTION_INFO_MAP.put("ER47", "Meter not in auto-scroll mode");
+        EXCEPTION_INFO_MAP.put("ER49", "Error on cumulative maximum");
+        EXCEPTION_INFO_MAP.put("ER53", "Non R5 variable");
     }
 
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exceptionInfoMap.get(id);
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -564,4 +537,5 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
     public boolean isReadCurrentDay() {
         return readCurrentDay == 1;
     }
-} // public class IskraEmeco implements MeterProtocol {
+
+}

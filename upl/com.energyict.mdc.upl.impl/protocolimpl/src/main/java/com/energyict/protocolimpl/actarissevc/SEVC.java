@@ -8,13 +8,9 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -33,8 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -92,7 +89,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     private int iRoundtripCorrection;
     private String nodeId;  // KV 13082003
 
-
     private TimeZone timeZone;
     private Logger logger;
 
@@ -127,10 +123,9 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
-
 
     private ProfileData doGetProfileData(Calendar fromCalendar, Calendar toCalendar, boolean includeEvents) throws IOException {
         return doGetDemandValues(fromCalendar, toCalendar, includeEvents);
@@ -198,11 +193,11 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
 
     } // private byte[] doReadDatabaseLogbook()
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException("SEVC, using meterreading names is not supported!");
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         Quantity quantity;
         quantity = new Quantity((BigDecimal) doGetMeterReading(channelId), SEVC_METERREADINGSUNITS[channelId]);
         return quantity;
@@ -228,28 +223,21 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         throw new IOException("Not yet implemented!");
     }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
     public void setTime() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         doSetTime(calendar);
-    } // public void setTime() throws IOException
+    }
 
     private void doSetTime(Calendar calendar) throws IOException {
         byte[] byteTimeBuffer = new byte[7];
-        int i;
-        byteTimeBuffer[0] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[1] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[2] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[3] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byteTimeBuffer[4] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[5] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[6] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[0] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[1] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[2] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[3] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byteTimeBuffer[4] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[5] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[6] = (byte) calendar.get(Calendar.SECOND);
 
         try {
             sevciec1107Connection.sendWriteFrame(SEVC_WRITE_HO, byteTimeBuffer);
@@ -257,8 +245,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
             throw new IOException("getTime() error, " + e.getMessage());
         }
 
-    } // private void doSetTime(Calendar calendar)
-
+    }
 
     public Date getTime() throws IOException {
         int iRetries = 0;
@@ -270,12 +257,12 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
                     throw new IOException("getTime() error, wrong framelength! (" + data.length + ")");
                 }
                 Calendar calendar = ProtocolUtils.getCleanCalendar(timeZone);
-                calendar.set(calendar.YEAR, (int) data[0] & 0xff | (((int) data[1] & 0xff) << 8));
-                calendar.set(calendar.MONTH, ((int) data[2] & 0xff) - 1);
-                calendar.set(calendar.DAY_OF_MONTH, (int) data[3] & 0xff);
-                calendar.set(calendar.HOUR_OF_DAY, (int) data[4] & 0xff);
-                calendar.set(calendar.MINUTE, (int) data[5] & 0xff);
-                calendar.set(calendar.SECOND, (int) data[6] & 0xff);
+                calendar.set(Calendar.YEAR, (int) data[0] & 0xff | (((int) data[1] & 0xff) << 8));
+                calendar.set(Calendar.MONTH, ((int) data[2] & 0xff) - 1);
+                calendar.set(Calendar.DAY_OF_MONTH, (int) data[3] & 0xff);
+                calendar.set(Calendar.HOUR_OF_DAY, (int) data[4] & 0xff);
+                calendar.set(Calendar.MINUTE, (int) data[5] & 0xff);
+                calendar.set(Calendar.SECOND, (int) data[6] & 0xff);
                 return new Date(calendar.getTime().getTime() - iRoundtripCorrection);
             } catch (SEVCIEC1107ConnectionException e) {
                 if (e.isReasonTimeout()) {
@@ -291,20 +278,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
 
     public byte getLastProtocolState() {
         return -1;
-    }
-
-    /**
-     * *********************************** MeterProtocol implementation **************************************
-     */
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     @Override
@@ -325,7 +298,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
@@ -373,7 +345,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
 
         if (name.compareTo("GET_CLOCK_OBJECT") == 0) {
             return null;
@@ -394,7 +366,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -404,30 +376,18 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
+    @Override
     public List<String> getRequiredKeys() {
-        return new ArrayList<String>(0);
+        return Collections.emptyList();
     }
 
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
+    @Override
     public List<String> getOptionalKeys() {
-        List<String> result = new ArrayList<String>(2);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("ForcedDelay");
-        return result;
+        return Arrays.asList("Timeout", "Retries", "ForcedDelay");
     }
 
     public String getProtocolVersion() {
@@ -464,24 +424,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         String serialNumber = versionAndSerialNr.substring(versionAndSerialNr.indexOf("EP"));
         disconnect();
         return serialNumber;
-    }
-
-
-    static public void main(String[] args) {
-        try {
-            SEVC sevc = new SEVC();
-            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect();//"",60000);
-
-            //dialer.getSerialCommunicationChannel().setBaudrate(1200);
-            dialer.getSerialCommunicationChannel().setParams(9600, SerialCommunicationChannel.DATABITS_7, SerialCommunicationChannel.PARITY_EVEN, SerialCommunicationChannel.STOPBITS_1);
-            String sn = sevc.getSerialNumber(new DiscoverInfo(dialer.getSerialCommunicationChannel(), ""));
-            System.out.println(sn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -528,14 +470,14 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (bNROfChannels == 0) {
             bNROfChannels = SEVC_NR_OF_CHANNELS;
         }
         return bNROfChannels;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (interval == 0) {
             interval = getSEVCRegisterFactory().getValue("SAV", sevciec1107Connection).intValue() * 60;
         }
@@ -566,7 +508,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws com.energyict.dialer.connection.ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, 0);
+                new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_MANUFACTURER_SPECIFIC_SEVCD);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(enableDataReadout);

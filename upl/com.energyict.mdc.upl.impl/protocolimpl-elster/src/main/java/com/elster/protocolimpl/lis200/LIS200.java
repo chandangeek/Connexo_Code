@@ -2,16 +2,36 @@ package com.elster.protocolimpl.lis200;
 
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.lis200.commands.AbstractCommand;
-import com.elster.protocolimpl.lis200.objects.*;
+import com.elster.protocolimpl.lis200.objects.AbstractObject;
+import com.elster.protocolimpl.lis200.objects.HistoricalValueObject;
+import com.elster.protocolimpl.lis200.objects.IntervalObject;
+import com.elster.protocolimpl.lis200.objects.LockObject;
 import com.elster.protocolimpl.lis200.objects.LockObject.STATE;
+import com.elster.protocolimpl.lis200.objects.MaxDemandObject;
+import com.elster.protocolimpl.lis200.objects.SimpleObject;
+import com.elster.protocolimpl.lis200.objects.StatusObject;
 import com.elster.protocolimpl.lis200.profile.Lis200Profile;
-import com.elster.protocolimpl.lis200.registers.*;
+import com.elster.protocolimpl.lis200.registers.HistoricRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.IRegisterReadable;
+import com.elster.protocolimpl.lis200.registers.Lis200RegisterN;
+import com.elster.protocolimpl.lis200.registers.MaxRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.RegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.RegisterMapN;
+import com.elster.protocolimpl.lis200.registers.RegisterReader;
+import com.elster.protocolimpl.lis200.registers.SimpleRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.StateRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.EventInterpreter;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -19,7 +39,12 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -146,19 +171,17 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
      */
     @Override
     @SuppressWarnings(value = {"unchecked"})
-    protected List doGetOptionalKeys() {
-        List keys = new ArrayList();
-        /* Define the Records in one requestBlock, default this is 10 */
-        keys.add(PROFILE_REQUEST_BLOCK_SIZE);
-        keys.add(USE_LOCK);
-        keys.add(METER_INDEX);
-        keys.add(ARCHIVE_TO_READOUT);
-        keys.add(ARCHIVE_STRUCTURE);
-        keys.add(ARCHIVE_INTERVAL_ADDRESS);
-        keys.add(SUPPRESS_WAKEUP_SEQUENCE);
-        keys.add(DISABLE_AUTO_LOGOFF);
-        keys.add(DELAY_AFTER_CHECK);
-        return keys;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    PROFILE_REQUEST_BLOCK_SIZE,
+                    USE_LOCK,
+                    METER_INDEX,
+                    ARCHIVE_TO_READOUT,
+                    ARCHIVE_STRUCTURE,
+                    ARCHIVE_INTERVAL_ADDRESS,
+                    SUPPRESS_WAKEUP_SEQUENCE,
+                    DISABLE_AUTO_LOGOFF,
+                    DELAY_AFTER_CHECK);
     }
 
     /**
@@ -198,7 +221,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         /* check for lock to open... */
         usedLock = LockObject.CustomerLock;
         final String lockName = properties.getProperty(USE_LOCK, "");
-        if (lockName.length() > 0)
+        if (!lockName.isEmpty())
         {
             usedLock = null;
 
@@ -236,7 +259,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         String strArchive = properties.getProperty(ARCHIVE_TO_READOUT, "");
 
         /* property MeterIndex set ? */
-        if ((strMeterIndex != null) && (strMeterIndex.length() > 0)) {
+        if ((strMeterIndex != null) && (!strMeterIndex.isEmpty())) {
             meterIndex = Integer.parseInt(strMeterIndex);
             if (meterIndex > maxMeterIndex || meterIndex < 1) {
                 throw new InvalidPropertyException(
@@ -248,7 +271,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         }
 
         /* property ArchiveToReadout set? */
-        if ((strArchive != null) && (strArchive.length() > 0)) {
+        if ((strArchive != null) && (!strArchive.isEmpty())) {
             archiveIndex = Integer.parseInt(strArchive);
             if (archiveIndex < 1) {
                 throw new InvalidPropertyException(
@@ -258,14 +281,14 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
 
         /* check if archive structure is given by property */
         String struct = properties.getProperty("ArchiveStructure", "");
-        if ((struct != null) && (struct.length() > 0))
+        if ((struct != null) && (!struct.isEmpty()))
         {
             archiveStructure = struct;
         }
 
         archiveIntervalAddr = properties.getProperty("ArchiveIntervalAddress",
                 "");
-        if (archiveIntervalAddr.length() > 0) {
+        if (!archiveIntervalAddr.isEmpty()) {
             if (!LIS200Utils.isValidLis200Address(archiveIntervalAddr)) {
                 throw new InvalidPropertyException(
                         "Incorrect ArchiveIntervalAddress property. Value is not a valid LIS200 address.");
@@ -393,11 +416,11 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         getLogger().info(
                 "-- Requested Archive instance: " + archiveInstance
                         + ". Archive type is " + archiveType);
-        if (archiveStructure.length() == 0) {
+        if (archiveStructure.isEmpty()) {
             archiveStructure = getStructureForType(archiveTypeNo);
         }
 
-        if ((archiveIntervalAddr.length() == 0) && (archiveTypeNo != 0)) {
+        if ((archiveIntervalAddr.isEmpty()) && (archiveTypeNo != 0)) {
             archiveIntervalAddr = getAddressOfInterval(archiveTypeNo);
         }
 
@@ -405,8 +428,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
                 "-- Requested Archive structure: <" + archiveStructure + ">");
 //        IntervalArchiveRecordConfig recordConfig = new IntervalArchiveRecordConfig(archiveStructure);
 
-        if (archiveIntervalAddr.length() == 0)
-        {
+        if (archiveIntervalAddr.isEmpty()){
             throw new IOException(
                     "ArchiveIntervalAddress is empty. Correct archive to read out or set ArchiveIntervalAddress as property");
         }

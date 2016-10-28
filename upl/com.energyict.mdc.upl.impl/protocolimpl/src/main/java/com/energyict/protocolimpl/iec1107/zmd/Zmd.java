@@ -8,8 +8,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -40,14 +38,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -94,7 +93,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     private byte[] dataReadout;
     private int billingCount = -1;
-    private LinkedHashMap obisMap = new LinkedHashMap();
+    private Map<String, String> obisMap = new LinkedHashMap<>();
 
     private Date lastBillingTime = null;
     private int lastBilling = -1;
@@ -116,22 +115,20 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return profile.getProfileData(lastReading, includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,
-            UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return profile.getProfileData(from, to, includeEvents);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
     public void setTime() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         registry.setRegister("Time", date);
@@ -143,13 +140,6 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return new Date(date.getTime() - iRoundtripCorrection);
     }
 
-
-    /** ************************************ MeterProtocol implementation ************************************** */
-
-    /**
-     * This implementation calls <code> validateProperties </code> and assigns
-     * the argument to the properties field
-     */
     public void setProperties(Properties properties)
             throws MissingPropertyException, InvalidPropertyException {
 
@@ -187,7 +177,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             String msg = "validateProperties, NumberFormatException, " + e.getMessage();
             throw new InvalidPropertyException(msg);
@@ -195,7 +185,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -203,62 +193,39 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return new String(data);
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException,
-            UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         registry.setRegister(name, value);
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        return new ArrayList(0);
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ChannelMap");
-        result.add("ExtendedLogging");
-        result.add("IgnoreSerialNumberCheck");
-        result.add("Software7E1");
-        result.add("ProfileInterval");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ChannelMap",
+                    "ExtendedLogging",
+                    "IgnoreSerialNumberCheck",
+                    "Software7E1",
+                    "ProfileInterval");
     }
 
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return ("Unknown");
     }
 
@@ -291,9 +258,6 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     }
 
-    /**
-     * @throws IOException
-     */
     public void connect() throws IOException {
         try {
 
@@ -333,12 +297,8 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         }
     }
 
-    private boolean verifyMeterSerialNR() throws IOException {
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0) || (serialNumber.compareTo(getSerialNumber()) == 0)) {
-            return true;
-        } else {
-            return false;
-        }
+    private boolean verifyMeterSerialNR() {
+        return (serialNumber == null) || ("".compareTo(serialNumber) == 0) || (serialNumber.compareTo(getSerialNumber()) == 0);
     }
 
     public void disconnect() throws IOException {
@@ -349,11 +309,11 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getProtocolChannelMap().getNrOfProtocolChannels();
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return profileInterval;
     }
 
@@ -437,28 +397,17 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     /* Translate the obis codes to edis codes, and read */
     public RegisterValue readRegister(ObisCode obis) throws IOException {
-
         try {
-
             return toRegisterValue(obis);
-
-        } catch (NoSuchRegisterException e) {
-            throw createNoSuchRegisterException(obis);
-        } catch (FlagIEC1107ConnectionException e) {
+        } catch (NoSuchRegisterException | FlagIEC1107ConnectionException | NumberFormatException e) {
             throw createNoSuchRegisterException(obis);
         } catch (IOException e) {
-            throw createNoSuchRegisterException(obis);
-        } catch (ParseException e) {
-            String m = "obisCode " + obis.toString();
-            throw new NestedIOException(e, m);
-        } catch (NumberFormatException e) {
             throw createNoSuchRegisterException(obis);
         }
 
     }
 
-
-    private RegisterValue toRegisterValue(ObisCode obis) throws IOException, ParseException {
+    private RegisterValue toRegisterValue(ObisCode obis) throws IOException {
 
         if (isTimeCode(obis) && (obis.getF() == 255)) {
             return new RegisterValue(obis, toQuantity(getTime()));
@@ -495,8 +444,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     private String parseText(byte[] data) throws IOException {
         DataParser dp = new DataParser(getTimeZone());
-        String text = dp.parseBetweenBrackets(data, 0, 0);
-        return text;
+        return dp.parseBetweenBrackets(data, 0, 0);
     }
 
     /* Convert Obis code to Edis code. */
@@ -548,7 +496,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     }
 
     /* Read 0.1.0*F: toTime of last billing period */
-    private Date getLastBillTime() throws ParseException, IOException {
+    private Date getLastBillTime() throws IOException {
         if (lastBillingTime == null) {
             lastBillingTime = getDataDumpParser().getRegisterDateTime("0.1.0*" + ProtocolUtils.buildStringDecimal(getBillingCount(), 2), getTimeZone());
         }
@@ -635,23 +583,17 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     }
 
     private void getRegistersInfo() throws IOException {
-
-        StringBuffer rslt = new StringBuffer();
-
+        StringBuilder builder = new StringBuilder();
         Iterator i = obisMap.keySet().iterator();
         while (i.hasNext()) {
-
             String obis = (String) i.next();
             ObisCode oc = ObisCode.fromString(obis);
-
-            rslt.append(obis)
-                    .append(" ")
-                    .append(translateRegister(oc).toString() + "\n");
-
+            builder.append(obis)
+                    .append(" ").append(translateRegister(oc).toString()).append("\n");
             if (extendedLogging == 2) {
                 try {
                     RegisterValue value = readRegister(oc);
-                    rslt.append(value.toString() + "\n");
+                    builder.append(value.toString()).append("\n");
                 } catch (NoSuchRegisterException ex) {
                     // ignore
                 }
@@ -659,18 +601,16 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
         }
 
-        logger.info(rslt.toString());
+        logger.info(builder.toString());
 
     }
 
-    // ********************************************************************************************************
-    // implementation of the HHUEnabler interface
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, true);
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
                 iProtocolRetriesProperty, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);

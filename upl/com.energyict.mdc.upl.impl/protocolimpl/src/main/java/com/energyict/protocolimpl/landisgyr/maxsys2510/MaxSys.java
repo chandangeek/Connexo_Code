@@ -1,13 +1,10 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -27,8 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -74,26 +72,26 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     /**
      * Property keys
      */
-    public final static String PK_NODE_PREFIX = "NodeIdPrefix";
-    public final static String PK_TIMEOUT = "Timeout";
-    public final static String PK_RETRIES = "Retries";
-    public final static String PK_SHOULD_DISCONNECT = "ShouldDisconnect";
-    public final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    public final static String PK_FORCE_DELAY = "ForceDelay";
-    public final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
-    public final static String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
+    public static final String PK_NODE_PREFIX = "NodeIdPrefix";
+    public static final String PK_TIMEOUT = "Timeout";
+    public static final String PK_RETRIES = "Retries";
+    public static final String PK_SHOULD_DISCONNECT = "ShouldDisconnect";
+    public static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    public static final String PK_FORCE_DELAY = "ForceDelay";
+    public static final String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
+    public static final String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
 
     /**
      * Property Default values
      */
-    final static String PD_NODE_PREFIX = "3";   // MSU Slave (used in EU, doesn't work in US)
-    final static String PD_NODE_ID = "";
-    final static int PD_TIMEOUT = 10000;
-    final static int PD_RETRIES = 5;
-    final static int PD_ROUNDTRIP_CORRECTION = 0;
-    final static int PD_SECURITY_LEVEL = 2;
-    final static String PD_EXTENDED_LOGGING = "0";
-    final static int PD_FORCE_DELAY = 250;
+    private static final String PD_NODE_PREFIX = "3";   // MSU Slave (used in EU, doesn't work in US)
+    private static final String PD_NODE_ID = "";
+    private static final int PD_TIMEOUT = 10000;
+    private static final int PD_RETRIES = 5;
+    private static final int PD_ROUNDTRIP_CORRECTION = 0;
+    private static final int PD_SECURITY_LEVEL = 2;
+    private static final String PD_EXTENDED_LOGGING = "0";
+    private static final int PD_FORCE_DELAY = 250;
 
     /**
      * Property values Required properties will have NO default value Optional
@@ -215,11 +213,11 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+            pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
         }
 
         if (p.getProperty(PK_RETRIES) != null) {
-            pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+            pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
         }
 
         if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
@@ -293,43 +291,22 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
         }
     }
 
+    @Override
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
+    }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
-        result.add(PK_NODE_PREFIX);
-        result.add(PK_TIMEOUT);
-        result.add(PK_RETRIES);
-        result.add(PK_EXTENDED_LOGGING);
-        result.add(PK_READ_UNIT1_SERIALNUMBER);
-        result.add(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE);
-        result.add(PK_SHOULD_DISCONNECT);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),
+                    PK_NODE_PREFIX,
+                    PK_TIMEOUT,
+                    PK_RETRIES,
+                    PK_EXTENDED_LOGGING,
+                    PK_READ_UNIT1_SERIALNUMBER,
+                    PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE,
+                    PK_SHOULD_DISCONNECT);
     }
 
     /*
@@ -400,7 +377,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getTable11().getTypeStoreCntrlRcd().getNoOfChnls();
     }
 
@@ -419,62 +396,26 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
         return getProfileData(from, to, includeEvents);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
-     */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        ProfileData pd = getTable12(lastReading, includeEvents).getProfile();
-        return pd;
-
+        return getTable12(lastReading, includeEvents).getProfile();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
-     */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-
         throw new UnsupportedException();
-
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
-     */
-    public int getProfileInterval() throws UnsupportedException, IOException {
-
+    public int getProfileInterval() throws IOException {
         return getTable11().getTypeStoreCntrlRcd().getIntvlInMins() * 60;
-
     }
 
-    /* ___ Implement interface RegisterProtocol ___ */
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
-     */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
-     */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    /**
-     * @throws java.io.IOException
-     */
     void doExtendedLogging() throws IOException {
         if ("1".equals(pExtendedLogging)) {
             logger.log(Level.INFO, obisCodeMapper.getExtendedLogging() + "\n");
@@ -485,32 +426,30 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     }
 
     protected String getSerialNumber(byte[] data) {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < data.length; i++) {
             int bKar = data[i] & 0xFF;
-            strBuff.append(String.valueOf((char) ProtocolUtils.convertHexLSB(bKar)));
-            strBuff.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
+            builder.append(String.valueOf((char) ProtocolUtils.convertHexLSB(bKar)));
+            builder.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
-        StringBuffer rslt = new StringBuffer();
-        rslt.append(getTable0().getTypeMaximumValues().getVersionNumber());
-        rslt.append(" ");
-        rslt.append(getTable0().getTypeMaximumValues().getRevisionNumber());
-        return rslt.toString();
+    public String getFirmwareVersion() throws IOException {
+        return getTable0().getTypeMaximumValues().getVersionNumber() +
+                " " +
+                getTable0().getTypeMaximumValues().getRevisionNumber();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -525,9 +464,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
      * @see com.energyict.protocol.MeterProtocol#setTime()
      */
     public void setTime() throws IOException {
-
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, pRountTripCorrection);
 
         long nowMilli = calendar.getTimeInMillis();
@@ -546,17 +483,16 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
 
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException,
-            UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         // TODO Auto-generated method stub
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         // TODO Auto-generated method stub
     }
 

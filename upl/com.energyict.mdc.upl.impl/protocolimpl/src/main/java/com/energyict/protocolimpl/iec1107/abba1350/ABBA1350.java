@@ -7,8 +7,6 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -48,8 +46,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -77,7 +76,7 @@ public class ABBA1350
         extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
-    private final static int DEBUG = 0;
+    private static final int DEBUG = 0;
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
@@ -137,25 +136,17 @@ public class ABBA1350
         return getAbba1350Profile().getProfileData(lastReading, includeEvents, loadProfileNumber);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,
-            UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getAbba1350Profile().getProfileData(from, to, includeEvents, loadProfileNumber);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
-
-    /**
-     * This method sets the time/date in the remote meter equal to the system
-     * time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
 
     public void setTime() throws IOException {
         if (vdewCompatible == 1) {
@@ -167,21 +158,19 @@ public class ABBA1350
 
 
     private void setTimeAlternativeMethod() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getAbba1350Registry().setRegister("TimeDate2", date);
-    } // public void setTime() throws IOException
+    }
 
     private void setTimeVDEWCompatible() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getAbba1350Registry().setRegister("Time", date);
         getAbba1350Registry().setRegister("Date", date);
-    } // public void setTime() throws IOException
+    }
 
     public Date getTime() throws IOException {
         sendDebug("getTime request !!!", 2);
@@ -247,16 +236,11 @@ public class ABBA1350
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
             loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
-            //failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
-
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "
                     + e.getMessage());
         }
-
-//		if ((failOnUnitMismatch < 0) || (loadProfileNumber > 1))
-//			throw new InvalidPropertyException("Invalid value for failOnUnitMismatch (" + failOnUnitMismatch + ") This property can only be 1 (to enable) or 0 (to disable). ");
 
         if ((loadProfileNumber < MIN_LOADPROFILE) || (loadProfileNumber > MAX_LOADPROFILE)) {
             throw new InvalidPropertyException("Invalid loadProfileNumber (" + loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE);
@@ -268,7 +252,7 @@ public class ABBA1350
         return (dataReadoutRequest == 1);
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -276,69 +260,45 @@ public class ABBA1350
         return new String(data);
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException,
-            UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getAbba1350Registry().setRegister(name, value);
     }
 
     /**
      * this implementation throws UnsupportedException. Subclasses may override
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("LoadProfileNumber");
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("ChannelMap");
-        result.add("RequestHeader");
-        result.add("Scaler");
-        result.add("DataReadout");
-        result.add("ExtendedLogging");
-        result.add("VDEWCompatible");
-        result.add("ForceDelay");
-        result.add("Software7E1");
-        //result.add("FailOnUnitMismatch");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "LoadProfileNumber",
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "ChannelMap",
+                    "RequestHeader",
+                    "Scaler",
+                    "DataReadout",
+                    "ExtendedLogging",
+                    "VDEWCompatible",
+                    "ForceDelay",
+                    "Software7E1");
     }
 
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:40 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (this.firmwareVersion == null) {
-            this.firmwareVersion = (String) getAbba1350Registry().getRegister(abba1350Registry.FIRMWAREID);
+            this.firmwareVersion = (String) getAbba1350Registry().getRegister(ABBA1350Registry.FIRMWAREID);
         }
         return this.firmwareVersion;
     } // public String getFirmwareVersion()
@@ -364,9 +324,6 @@ public class ABBA1350
 
     }
 
-    /**
-     * @throws IOException
-     */
     public void connect() throws IOException {
         try {
             if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (isDataReadout())) {
@@ -423,7 +380,7 @@ public class ABBA1350
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (requestHeader == 1) {
             return getAbba1350Profile().getProfileHeader(loadProfileNumber).getNrOfChannels();
         } else {
@@ -435,7 +392,7 @@ public class ABBA1350
         return iSecurityLevel;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (requestHeader == 1) {
             return getAbba1350Profile().getProfileHeader(loadProfileNumber).getProfileInterval();
         } else {
@@ -490,16 +447,16 @@ public class ABBA1350
         return logger;
     }
 
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
 
     static {
-        exceptionInfoMap.put("ERROR", "Request could not execute!");
-        exceptionInfoMap.put("ERROR01", "A1350 ERROR 01, invalid command!");
-        exceptionInfoMap.put("ERROR06", "A1350 ERROR 06, invalid command!");
+        EXCEPTION_INFO_MAP.put("ERROR", "Request could not execute!");
+        EXCEPTION_INFO_MAP.put("ERROR01", "A1350 ERROR 01, invalid command!");
+        EXCEPTION_INFO_MAP.put("ERROR06", "A1350 ERROR 06, invalid command!");
     }
 
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(ProtocolUtils.stripBrackets(id));
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -531,7 +488,7 @@ public class ABBA1350
         Date eventTime = null;
         Date toTime = null;
         String fs = "";
-        String toTimeString = "";
+        String toTimeString;
         byte[] data;
         byte[] timeStampData;
 
@@ -597,7 +554,7 @@ public class ABBA1350
 
             // try to read the time stamp, and us it as the register toTime.
             try {
-                String billingPoint = "";
+                String billingPoint;
                 if ("1.1.0.1.0.255".equalsIgnoreCase(obis.toString())) {
                     billingPoint = "*" + ProtocolUtils.buildStringDecimal(getBillingCount(), 2);
                 } else {
@@ -643,7 +600,7 @@ public class ABBA1350
                 return new RegisterValue(obis, null, null, null);
             }
 
-            Quantity q = null;
+            Quantity q;
             if (obis.getUnitElectricity(scaler).isUndefined()) {
                 q = new Quantity(bd, obis.getUnitElectricity(0));
             } else {
@@ -726,14 +683,15 @@ public class ABBA1350
         sendDebug(" translateRegister(): " + obisCode.toString(), 2);
         String reginfo = (String) abba1350ObisCodeMapper.getObisMap().get(obisCode.toString());
         if (reginfo == null) {
-            reginfo = obisCode.getDescription();
+            return new RegisterInfo(obisCode.toString());
+        } else {
+            return new RegisterInfo("");
         }
-        return new RegisterInfo("" + reginfo);
     }
 
 
     private void getRegistersInfo() throws IOException {
-        StringBuffer rslt = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         Iterator i = abba1350ObisCodeMapper.getObisMap().keySet().iterator();
         while (i.hasNext()) {
@@ -742,19 +700,19 @@ public class ABBA1350
 
             if (DEBUG >= 5) {
                 try {
-                    rslt.append(translateRegister(oc) + "\n");
-                    rslt.append(readRegister(oc) + "\n");
+                    builder.append(translateRegister(oc)).append("\n");
+                    builder.append(readRegister(oc)).append("\n");
                 } catch (NoSuchRegisterException nsre) {
                     // ignore and continue
                 }
             } else {
-                rslt.append(obis + " " + translateRegister(oc) + "\n");
+                builder.append(obis).append(" ").append(translateRegister(oc)).append("\n");
             }
 
         }
 
         if (logger != null) {
-            logger.info(rslt.toString());
+            logger.info(builder.toString());
         }
     }
 
@@ -787,7 +745,7 @@ public class ABBA1350
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
                 iProtocolRetriesProperty, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
@@ -848,7 +806,7 @@ public class ABBA1350
 
     private String getMeterSerial() throws IOException {
         if (this.meterSerial == null) {
-                this.meterSerial = (String) getAbba1350Registry().getRegister(abba1350Registry.SERIAL);
+                this.meterSerial = (String) getAbba1350Registry().getRegister(ABBA1350Registry.SERIAL);
         }
         return this.meterSerial;
     }
@@ -928,10 +886,10 @@ public class ABBA1350
         }
 
         if (registerName.equals(ABBA1350ObisCodeMapper.FIRMWARE)) {
-            String fw = "";
-            String hw = "";
-            String dev = "";
-            String fwdev = "";
+            String fw;
+            String hw;
+            String dev;
+            String fwdev;
 
             if (iSecurityLevel < 1) {
                 return "Unknown (SecurityLevel to low)";

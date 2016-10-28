@@ -5,8 +5,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -66,7 +64,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     private NXT4RegisterFactory registerFactory;
     private FlagIEC1107Connection flagIEC1107Connection;
 
-    private static Map<String, String> exceptionInfoMap = new HashMap<String, String>();
+    private static Map<String, String> exceptionInfoMap = new HashMap<>();
 
     static {
         exceptionInfoMap.put("ERROR", "Request could not be executed!");
@@ -214,7 +212,6 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
         throw new UnsupportedException();
     }
 
-    //********** Device message support **********//
     public void applyMessages(List messageEntries) throws IOException {
         getMessages().applyMessages(messageEntries);
     }
@@ -239,27 +236,18 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
         return getMessages().writeValue(value);
     }
 
-    //********** Configuration support **********//
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         getProperties().validateAndSetProperties(properties);
     }
 
+    @Override
     public List<String> getRequiredKeys() {
         return getProperties().getRequiredKeys();
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
     public List<String> getOptionalKeys() {
         return getProperties().getOptionalKeys();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     public int getNrOfRetries() {

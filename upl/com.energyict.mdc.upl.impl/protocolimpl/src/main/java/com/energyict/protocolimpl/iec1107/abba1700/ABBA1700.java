@@ -5,8 +5,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -45,7 +43,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -74,7 +74,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     };
 
     // KV 19012004 implementation of MeterExceptionInfo
-    private static final Map<String, String> EXCEPTIONINFOMAP = new HashMap<String, String>();
+    private static final Map<String, String> EXCEPTIONINFOMAP = new HashMap<>();
 
     static {
         EXCEPTIONINFOMAP.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
@@ -115,11 +115,11 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     public ABBA1700() {
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         return (Quantity) getABBA1700RegisterFactory().getRegister(name);
     }
 
-    public Quantity getMeterReading(int channelID) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelID) throws IOException {
         return (Quantity) getABBA1700RegisterFactory().getRegister(ABB1700_REGISTERCONFIG[getABBA1700Profile().getChannelIndex(channelID)]);
     }
 
@@ -146,16 +146,16 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         return this.meterEvents;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         String regName = name;
         int billingPoint = -1;
         String current = getABBA1700RegisterFactory().getRegister(regName, billingPoint).toString();
-        if (name.indexOf("_") != -1) {
+        if (name.contains("_")) {
             String[] strings = name.split("_");
             regName = strings[0];
             billingPoint = Integer.parseInt(strings[1]);
@@ -166,7 +166,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         }
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getABBA1700RegisterFactory().setRegister(name, value);
     }
 
@@ -234,42 +234,30 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
             // -1 = use identification string from signon later...
             abba1700MeterType = new ABBA1700MeterType(Integer.parseInt(properties.getProperty("MeterType", "-1").trim()));
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "300").trim());
-            this.soft7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
-            this.breakBeforeConnect = !properties.getProperty("BreakBeforeConnect", "0").equalsIgnoreCase("0");
+            this.soft7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+            this.breakBeforeConnect = !"0".equalsIgnoreCase(properties.getProperty("BreakBeforeConnect", "0"));
 
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("ABBA1700, validateProperties, NumberFormatException, " + e.getMessage());
         }
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    public List getOptionalKeys() {
-        List<String> result = new ArrayList<String>();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ExtendedLogging");
-        result.add("MeterType");
-        result.add("ForcedDelay");
-        result.add("Software7E1");
-        result.add("BreakBeforeConnect");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ExtendedLogging",
+                    "MeterType",
+                    "ForcedDelay",
+                    "Software7E1",
+                    "BreakBeforeConnect");
     }
 
     /* Protocol version */
@@ -277,7 +265,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (abba1700MeterType != null && abba1700MeterType.isAssigned()) {
             return abba1700MeterType.getFirmwareVersion();
         } else {
@@ -285,7 +273,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         }
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -299,10 +287,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
             log.severe("ABBA1500: init(...), " + e.getMessage());
         }
     }
-
-    /**
-     * @throws IOException
-     */
 
     public void connect() throws IOException {
         connect(0);
@@ -322,7 +306,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
             if (!abba1700MeterType.isAssigned()) {
                 abba1700MeterType.updateWith(meterType);
             }
-            abba1700RegisterFactory = new ABBA1700RegisterFactory((ProtocolLink) this, (MeterExceptionInfo) this, abba1700MeterType); // KV 19012004
+            abba1700RegisterFactory = new ABBA1700RegisterFactory(this, this, abba1700MeterType); // KV 19012004
             abba1700Profile = new ABBA1700Profile(this, getABBA1700RegisterFactory());
         } catch (FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
@@ -337,7 +321,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     private void getRegistersInfo() throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         String code;
         logger.info("************************* Extended Logging *************************");
 
@@ -352,28 +336,28 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                 ts = hdss.getTariffSources();
             }
 
-            strBuff.append("Cumulative registers (total & tariff):\n");
+            builder.append("Cumulative registers (total & tariff):\n");
             List list = EnergyTypeCode.getEnergyTypeCodes();
             Iterator it = list.iterator();
             while (it.hasNext()) {
                 EnergyTypeCode etc = (EnergyTypeCode) it.next();
                 code = "1.1." + etc.getObisC() + ".8.0." + (billingPoint == -1 ? 255 : billingPoint);
-                strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + "\n");
+                builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
                 for (int i = 0; i < ts.getRegSource().length; i++) {
                     if (ts.getRegSource()[i] == etc.getRegSource()) {
                         code = "1.1." + etc.getObisC() + ".8." + (i + 1) + "." + (billingPoint == -1 ? 255 : billingPoint);
-                        strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + "\n");
+                        builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
                     }
                 }
             }
 
-            strBuff.append("Maximum demand registers:\n");
+            builder.append("Maximum demand registers:\n");
             for (int i = 0; i < ABBA1700RegisterFactory.MAX_MD_REGS; i += 3) {
                 try {
                     //MaximumDemand md = (MaximumDemand)abba1700RegisterFactory.getRegister("MaximumDemand"+(i+obisCode.getB()-1),billingPoint);
                     List mds = new ArrayList();
                     for (int j = 0; j < 3; j++) {
-                        mds.add((MaximumDemand) getABBA1700RegisterFactory().getRegister("MaximumDemand" + (i + j), billingPoint));
+                        mds.add(getABBA1700RegisterFactory().getRegister("MaximumDemand" + (i + j), billingPoint));
                     }
                     // sort in accending datetime
                     MaximumDemand.sortOnQuantity(mds);
@@ -392,21 +376,21 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                         if (i == 0) {
                             code = "1." + bField + "." + EnergyTypeCode.getObisCFromRegSource(md.getRegSource(), false) + ".6.0." + (billingPoint == -1 ? 255 : billingPoint);
                             // KV_DEBUG
-                            strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + ", " + md + "\n");
+                            builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append(", ").append(md).append("\n");
 
                             code = "1." + bField + "." + EnergyTypeCode.getObisCFromRegSource(md.getRegSource(), false) + ".6.1." + (billingPoint == -1 ? 255 : billingPoint);
                             // KV_DEBUG
-                            strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + ", " + md + "\n");
+                            builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append(", ").append(md).append("\n");
                         } else {
                             code = "1." + bField + "." + EnergyTypeCode.getObisCFromRegSource(md.getRegSource(), false) + ".6." + ((i / 3) + 1) + "." + (billingPoint == -1 ? 255 : billingPoint);
                             // KV_DEBUG
-                            strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + ", " + md + "\n");
+                            builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append(", ").append(md).append("\n");
                         }
 
 
                     }
                 } catch (NoSuchRegisterException e) {
-                    //strBuff.append("KV_DEBUG> Unknown Code...");
+                    //builder.append("KV_DEBUG> Unknown Code...");
                     // absorb...
                 }
 
@@ -418,36 +402,36 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
 //                  MaximumDemand md = (MaximumDemand)getABBA1700RegisterFactory().getRegister("MaximumDemand"+i,billingPoint);
 //                  code = "1."+((i%3)+1)+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource(),false)+".6.0."+(billingPoint==-1?255:billingPoint);
 //                  // KV_DEBUG
-//                  strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
+//                  builder.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
 //               }
 //               catch(NoSuchRegisterException e) {
-//                   //strBuff.append("KV_DEBUG> Unknown Code...");
+//                   //builder.append("KV_DEBUG> Unknown Code...");
 //                   // absorb...
 //               }
 //            }
 
-            strBuff.append("cumulative maximum demand registers:\n");
+            builder.append("cumulative maximum demand registers:\n");
             for (int i = 0; i < ABBA1700RegisterFactory.MAX_CMD_REGS; i++) {
                 try {
                     CumulativeMaximumDemand cmd = (CumulativeMaximumDemand) getABBA1700RegisterFactory().getRegister("CumulativeMaximumDemand" + i, billingPoint);
                     if (i == 0) {
                         code = "1.1." + EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(), false) + ".2.0." + (billingPoint == -1 ? 255 : billingPoint);
-                        strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + ", " + cmd + "\n");
+                        builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append(", ").append(cmd).append("\n");
 
                         code = "1.1." + EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(), false) + ".2.1." + (billingPoint == -1 ? 255 : billingPoint);
-                        strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + ", " + cmd + "\n");
+                        builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append(", ").append(cmd).append("\n");
                     } else {
                         code = "1.1." + EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(), false) + ".2." + (i + 1) + "." + (billingPoint == -1 ? 255 : billingPoint);
-                        strBuff.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + ", " + cmd + "\n");
+                        builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append(", ").append(cmd).append("\n");
                     }
                 } catch (NoSuchRegisterException e) {
-                    //strBuff.append("KV_DEBUG> Unknown Code...");
+                    //builder.append("KV_DEBUG> Unknown Code...");
                     // absorb...
                 }
             }
         } // for (int billingPoint=-1;billingPoint<12;billingPoint++)
 
-        logger.info(strBuff.toString());
+        logger.info(builder.toString());
 
 
         abba1700RegisterFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
@@ -462,7 +446,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         long channelMask = getABBA1700Profile().getChannelMask();
         int nrOfChannels = 0;
         for (long i = 1; i != 0x10000; i <<= 1) {
@@ -473,7 +457,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         return nrOfChannels;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return ((Integer) getABBA1700RegisterFactory().getRegister("IntegrationPeriod")).intValue() * 60;
     }
 
@@ -542,7 +526,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         this.commChannel = serialCommunicationChannel;
 
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(serialCommunicationChannel, iTimeout, iProtocolRetries, 300, iEchoCancelling);
+                new IEC1107HHUConnection(serialCommunicationChannel, iTimeout, iProtocolRetries, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
@@ -571,7 +555,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) EXCEPTIONINFOMAP.get(id);
+        String exceptionInfo = EXCEPTIONINFOMAP.get(id);
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -599,17 +583,10 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         return false;
     }
 
-    /**
-     * @return
-     */
     public boolean isBreakBeforeConnect() {
         return breakBeforeConnect;
     }
 
-    /**
-     * @param baudRate
-     * @throws IOException
-     */
     private void switchBaudRate(int baudRate) throws IOException {
         if (isBreakBeforeConnect() && (commChannel != null)) {
             commChannel.setParams(baudRate, SerialCommunicationChannel.DATABITS_7, SerialCommunicationChannel.PARITY_EVEN, SerialCommunicationChannel.STOPBITS_1);

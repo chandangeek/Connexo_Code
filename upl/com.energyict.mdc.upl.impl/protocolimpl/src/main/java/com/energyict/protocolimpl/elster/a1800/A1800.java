@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.elster.a1800;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
@@ -69,7 +67,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	}
 
 	@Override
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return a1800LoadProfile.getProfileData(from,to,includeEvents);
     }
 
@@ -107,8 +105,9 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 		} catch (ResponseIOException e) {
 			//if the message could not write the table, the logoff will fail. the message status
 			//will not get updated, will try again next time, will fail, and loop again and again
-			if (!messageFailed)
-				throw(e);
+			if (!messageFailed) {
+				throw (e);
+			}
 		}
     }
 
@@ -133,17 +132,13 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         try {
 
             byte[] bai = message.getBytes();
-            InputStream i = (InputStream) new ByteArrayInputStream(bai);
+            InputStream i = new ByteArrayInputStream(bai);
 
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             saxParser.parse(i, handler);
 
-        } catch (ParserConfigurationException thrown) {
-            throw new BusinessException(thrown);
-        } catch (SAXException thrown) {
-            throw new BusinessException(thrown);
-        } catch (IOException thrown) {
+        } catch (ParserConfigurationException | SAXException | IOException thrown) {
             throw new BusinessException(thrown);
         }
 	}
@@ -174,8 +169,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 				} else {
 					//Execute
 					int tableId = 62;
-					int index = 0;
-					index = getNumberOfChannels()*3; //3 bytes per channel for LP_SEL_SET
+					int index = getNumberOfChannels()*3; //3 bytes per channel for LP_SEL_SET
 					index += 1; //1 byte for INT_FMT_CODE1
 					index += getNumberOfChannels() * 2; //2 bytes per channel for SCALARS_SET
 					index += (channel-1) * 2; //2 bytes per channel for DIVISORS_SET
@@ -242,41 +236,43 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 
 
 	public String writeTag(MessageTag msgTag) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 
 		// a. Opening tag
-		buf.append("<");
-		buf.append( msgTag.getName() );
+		builder.append("<");
+		builder.append( msgTag.getName() );
 
 		// b. Attributes
 		for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
 			MessageAttribute att = (MessageAttribute)it.next();
-			if (att.getValue()==null || att.getValue().length()==0)
+			if (att.getValue()==null || att.getValue().isEmpty()) {
 				continue;
-			buf.append(" ").append(att.getSpec().getName());
-			buf.append("=").append('"').append(att.getValue()).append('"');
+			}
+			builder.append(" ").append(att.getSpec().getName());
+			builder.append("=").append('"').append(att.getValue()).append('"');
 		}
-		buf.append(">");
+		builder.append(">");
 
 		// c. sub elements
 		for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
 			MessageElement elt = (MessageElement)it.next();
-			if (elt.isTag())
-				buf.append( writeTag((MessageTag)elt) );
-			else if (elt.isValue()) {
+			if (elt.isTag()) {
+				builder.append(writeTag((MessageTag) elt));
+			} else if (elt.isValue()) {
 				String value = writeValue((MessageValue)elt);
-				if (value==null || value.length()==0)
+				if (value==null || value.isEmpty()) {
 					return "";
-				buf.append(value);
+				}
+				builder.append(value);
 			}
 		}
 
 		// d. Closing tag
-		buf.append("</");
-		buf.append( msgTag.getName() );
-		buf.append(">");
+		builder.append("</");
+		builder.append( msgTag.getName() );
+		builder.append(">");
 
-		return buf.toString();
+		return builder.toString();
 	}
 
 	public String writeValue(MessageValue value) {
@@ -284,11 +280,9 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	}
 
 	protected List<String> doGetOptionalKeys() {
-        List<String> result = new ArrayList<String>(super.doGetOptionalKeys());
-
+        List<String> result = new ArrayList<>(super.doGetOptionalKeys());
         result.add("HalfDuplex");
 		result.add("RS485RtuPlusServer");
-
         return result;
     }
 

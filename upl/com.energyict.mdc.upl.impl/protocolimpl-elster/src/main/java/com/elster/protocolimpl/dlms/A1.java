@@ -37,8 +37,8 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -54,7 +54,7 @@ public class A1 extends Dlms {
     // property name for scaler
     private final String PROP_SCALERVALUE = "ScalerValue";
     //
-    private final static String OBISCODE_TST = "0.0.1.0.0.255";
+    private static final String OBISCODE_TST = "0.0.1.0.0.255";
 
     protected static final ObisCode OBISCODE_60MPROFILE = new ObisCode(7, 0, 99, 99, 2, 255);
 
@@ -110,7 +110,7 @@ public class A1 extends Dlms {
 
     @Override
     public String getFirmwareVersion() throws IOException {
-        if (firmwareVersion.length() > 0) {
+        if (!firmwareVersion.isEmpty()) {
             return firmwareVersion;
         }
         final CosemAttributeDescriptor value = new CosemAttributeDescriptor(new ObisCode("7.0.0.2.1.255"),
@@ -123,9 +123,7 @@ public class A1 extends Dlms {
     @Override
     @SuppressWarnings({"unchecked"})
     protected List doGetOptionalKeys() {
-        ArrayList<String> optionalKeys = new ArrayList<String>();
-        optionalKeys.add(PROP_SCALERVALUE);
-        return optionalKeys;
+        return Collections.singletonList(PROP_SCALERVALUE);
     }
 
     @Override
@@ -138,7 +136,7 @@ public class A1 extends Dlms {
         logStructure = properties.getProperty(Dlms.LOGSTRUCTURE, "");
 
         String s = properties.getProperty(PROP_SCALERVALUE, "");
-        if (s.length() > 0) {
+        if (!s.isEmpty()) {
             globalScaler = s;
         }
     }
@@ -180,7 +178,7 @@ public class A1 extends Dlms {
             SimpleProfileObject profileObject = (SimpleProfileObject) getObjectManager().getSimpleCosemObject(ocIntervalProfile);
 
             // if archive structure not defined "outside"...
-            if (archiveStructure.length() == 0) {
+            if (archiveStructure.isEmpty()) {
                 if (getSwVersion() == 0) {
                     throw new IOException("getProfileObject: Can't set archive structure (version = 0)");
                 }
@@ -222,7 +220,7 @@ public class A1 extends Dlms {
 
             SimpleProfileObject profileObject = (SimpleProfileObject) getObjectManager().getSimpleCosemObject(ocLogProfile);
 
-            if ((logStructure == null) || (logStructure.length() == 0)) {
+            if ((logStructure == null) || (logStructure.isEmpty())) {
                 if (getSwVersion() == 0) {
                     throw new IOException("getLogProfileObject: Can't set archive structure (version = 0)");
                 }
@@ -284,7 +282,7 @@ public class A1 extends Dlms {
             if (msg == null) {
                 msg = ex.getClass().getName();
             } else {
-                if (msg.equalsIgnoreCase("no value")) {
+                if ("no value".equalsIgnoreCase(msg)) {
                     getLogger().warning(obisCode.toString() + ": no value");
                     throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported by the device/version");
                 }

@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -145,8 +146,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        return getOptionalKeys();
+    protected List<String> doGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -550,10 +551,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }

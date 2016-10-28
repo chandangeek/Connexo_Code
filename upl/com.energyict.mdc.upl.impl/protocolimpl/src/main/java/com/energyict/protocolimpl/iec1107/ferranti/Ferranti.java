@@ -10,8 +10,6 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -28,8 +26,9 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,14 +92,14 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.YEAR, -10);
-        return doGetProfileData(calendar.getTime(), includeEvents);
+        return doGetProfileData(calendar.getTime());
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return doGetProfileData(lastReading, includeEvents);
+        return doGetProfileData(lastReading);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(timeZone);
@@ -110,7 +109,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
                 getNumberOfChannels());
     }
 
-    private ProfileData doGetProfileData(Date lastReading, boolean includeEvents) throws IOException {
+    private ProfileData doGetProfileData(Date lastReading) throws IOException {
         Calendar from = ProtocolUtils.getCleanCalendar(timeZone);
         from.setTime(lastReading);
         return getFerrantiProfile().getProfileData(from,
@@ -125,7 +124,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
                 getNumberOfChannels());
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         try {
             return (Quantity) getFerrantiRegistry().getRegister(name);
         } catch (ClassCastException e) {
@@ -133,7 +132,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         }
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         try {
             if (channelId >= FERRANTI_NR_OF_METERREADINGS) {
                 throw new IOException("Ferranti, getMeterReading, invalid channelId, " + channelId);
@@ -150,8 +149,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
      * @throws IOException
      */
     public void setTime() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getFerrantiRegistry().setRegister("Time in the device", date);
@@ -166,8 +164,6 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         return -1;
     }
 
-    /************************************** MeterProtocol implementation ***************************************/
-
     /**
      * this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field
@@ -175,7 +171,6 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
@@ -210,7 +205,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -226,7 +221,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return ProtocolUtils.obj2String(getFerrantiRegistry().getRegister(name));
     }
 
@@ -239,7 +234,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getFerrantiRegistry().setRegister(name, value);
     }
 
@@ -249,52 +244,30 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ChannelMap");
-        result.add("Software7E1");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ChannelMap",
+                    "Software7E1");
     }
 
     public String getProtocolVersion() {
         return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return ("Unknown");
     } // public String getFirmwareVersion()
 
@@ -318,11 +291,8 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
             logger.severe("ABBA1500: init(...), " + e.getMessage());
         }
 
-    } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
+    }
 
-    /**
-     * @throws IOException
-     */
     public void connect() throws IOException {
         try {
             dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
@@ -347,11 +317,11 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return FERRANTI_NR_OF_PROFILE_CHANNELS;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
 
@@ -414,19 +384,19 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
     }
 
     // KV 17022004 implementation of MeterExceptionInfo
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
 
     static {
-        exceptionInfoMap.put("#ERR00001", "Unknown OBIS code");
-        exceptionInfoMap.put("#ERR00002", "Unknown Read Command");
-        exceptionInfoMap.put("#ERR00003", "Unknown Write Command");
-        exceptionInfoMap.put("#ERR00004", "Bad VHI Id");
-        exceptionInfoMap.put("#ERR00005", "Invalid load profile request");
+        EXCEPTION_INFO_MAP.put("#ERR00001", "Unknown OBIS code");
+        EXCEPTION_INFO_MAP.put("#ERR00002", "Unknown Read Command");
+        EXCEPTION_INFO_MAP.put("#ERR00003", "Unknown Write Command");
+        EXCEPTION_INFO_MAP.put("#ERR00004", "Bad VHI Id");
+        EXCEPTION_INFO_MAP.put("#ERR00005", "Invalid load profile request");
 
     }
 
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exceptionInfoMap.get(id);
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -442,4 +412,4 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         return false;
     }
 
-} // public class Ferranti implements MeterProtocol {
+}

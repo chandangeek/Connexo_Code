@@ -9,8 +9,6 @@ import com.elster.protocolimpl.dsfg.profile.DsfgProfile;
 import com.elster.protocolimpl.dsfg.register.DsfgRegisterReader;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -24,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -118,56 +116,17 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         return "$Date: 2014-10-30 12:00:00 +0100$";
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Arrays.asList(
+                    "RegistrationInstance",
+                    "ArchiveInstance",
+                    "ChannelMap");
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    @SuppressWarnings("unchecked")
-    public List getRequiredKeys() {
-        List result = new ArrayList();
-        result.add("RegistrationInstance");
-        result.add("ArchiveInstance");
-        result.add("ChannelMap");
-        return result;
-    }
-
-    /**
-     * List of optional keys
-     *
-     * @return a list of strings
-     */
-    @SuppressWarnings("unchecked")
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-
-        List result2 = doGetOptionalKeys();
-        if (result2 != null) {
-            result.addAll(result2);
-        }
-        return result;
-    }
-
-    /**
-     * enable derived class to add more keys
-     *
-     * @return a list of keys (Strings)
-     */
-    @SuppressWarnings("unchecked")
-    protected List doGetOptionalKeys() {
-        return null;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries");
     }
 
     /**
@@ -350,7 +309,6 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
 
     public void doValidateProperties(Properties properties) {
     }
-
 
     public String getRegister(String arg0) throws IOException {
         /* dsfg register instances have no register values ! */

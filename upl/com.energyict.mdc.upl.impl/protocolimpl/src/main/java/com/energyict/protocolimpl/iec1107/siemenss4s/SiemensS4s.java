@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -15,8 +14,8 @@ import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
 import com.energyict.protocolimpl.iec1107.siemenss4s.security.SiemensS4sEncryptor;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -86,8 +85,8 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 		this.profileObject = new SiemensS4sProfile(this.objectFactory);
 	}
 
-	protected List doGetOptionalKeys() {
-		return new ArrayList();
+	protected List<String> doGetOptionalKeys() {
+		return Collections.emptyList();
 	}
 
 	/**
@@ -97,7 +96,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 	throws MissingPropertyException, InvalidPropertyException {
 		this.deviceId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
 		this.passWord = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "4281602592");
-		if(this.passWord.equalsIgnoreCase("")){
+		if("".equalsIgnoreCase(this.passWord)){
 			this.passWord = "4281602592";
 		}
 		//TODO set the level in the encryptor
@@ -118,7 +117,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 	/**
 	 * @return the meter his current profileInterval.
 	 */
-	public int getProfileInterval() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+	public int getProfileInterval() throws IOException {
 		return this.profileObject.getProfileInterval();
 	}
 

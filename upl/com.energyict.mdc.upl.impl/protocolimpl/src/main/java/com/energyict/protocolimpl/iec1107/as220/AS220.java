@@ -8,8 +8,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -57,8 +55,9 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,7 +75,7 @@ import java.util.logging.Logger;
  */
 public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol, SerialNumberSupport {
 
-    private final static int DEBUG = 0;
+    private static final int DEBUG = 0;
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
 
     private static final int MIN_LOADPROFILE = 1;
@@ -154,7 +153,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return getProfileData(from, new Date(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
     }
 
@@ -181,11 +180,11 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -298,7 +297,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return (this.dataReadoutRequest == 1) || (this.dataReadoutRequest == 2);
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -306,76 +305,55 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return new String(data);
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
     /**
      * this implementation throws UnsupportedException. Subclasses may override
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        return new ArrayList(0);
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("LoadProfileNumber");
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("ChannelMap");
-        result.add("RequestHeader");
-        result.add("Scaler");
-        result.add("DataReadout");
-        result.add("ExtendedLogging");
-        result.add("VDEWCompatible");
-        result.add("ForceDelay");
-        result.add(PROPERTY_DATE_FORMAT);
-        result.add(PROPERTY_BILLING_DATE_FORMAT);
-        result.add("Software7E1");
-        result.add("HalfDuplex");
-        result.add("FailOnUnitMismatch");
-        result.add("RS485RtuPlusServer");
-        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
-		result.add(INVERT_BILLING_ORDER);
-        result.add(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "LoadProfileNumber",
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "ChannelMap",
+                    "RequestHeader",
+                    "Scaler",
+                    "DataReadout",
+                    "ExtendedLogging",
+                    "VDEWCompatible",
+                    "ForceDelay",
+                    PROPERTY_DATE_FORMAT,
+                    PROPERTY_BILLING_DATE_FORMAT,
+                    "Software7E1",
+                    "HalfDuplex",
+                    "FailOnUnitMismatch",
+                    "RS485RtuPlusServer",
+                    PR_LIMIT_MAX_NR_OF_DAYS,
+		            INVERT_BILLING_ORDER,
+                    USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
     }
 
     public String getProtocolVersion() {
         return "$Date: 2016-05-31 09:07:29 +0300 (Tue, 31 May 2016)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (this.firmwareVersion == null) {
             try {
-                this.firmwareVersion = (String) getAS220Registry().getRegister(this.aS220Registry.FIRMWAREID);
+                this.firmwareVersion = (String) getAS220Registry().getRegister(AS220Registry.FIRMWAREID);
             } catch (IOException e) {
                 // If we use 'DataReadOut' to retrieve registers, the firmware version is extracted from the datadump.
                 // If the datadump doesn't contain the firmware version register (0.2.0), then we get an IOException.
@@ -396,17 +374,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         this.timeZone = timeZone;
         this.logger = logger;
 
-        try {
-            this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
-                    this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1, logger);
-            this.aS220Registry = new AS220Registry(this, this, dateFormat, billingDateFormat);
-            this.aS220Profile = new AS220Profile(this, this, this.aS220Registry);
-
-        } catch (ConnectionException e) {
-            if (logger != null) {
-                logger.severe("AS220: init(...), " + e.getMessage());
-            }
-        }
+        this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
+                this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1, logger);
+        this.aS220Registry = new AS220Registry(this, this, dateFormat, billingDateFormat);
+        this.aS220Profile = new AS220Profile(this, this, this.aS220Registry);
 
     }
 
@@ -461,7 +432,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (this.requestHeader == 1) {
             return getAS220Profile().getProfileHeader(this.loadProfileNumber).getNrOfChannels();
         } else {
@@ -473,7 +444,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return this.iSecurityLevel;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (this.requestHeader == 1) {
             return getAS220Profile().getProfileHeader(this.loadProfileNumber).getProfileInterval();
         } else {
@@ -766,13 +737,13 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         String reginfo = (String) this.aS220ObisCodeMapper.getObisMap().get(obisCode.toString());
         if (reginfo == null) {
-            reginfo = obisCode.getDescription();
+            reginfo = obisCode.toString();
         }
         return new RegisterInfo("" + reginfo);
     }
 
     private void getRegistersInfo() throws IOException {
-        StringBuffer rslt = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         Iterator i = this.aS220ObisCodeMapper.getObisMap().keySet().iterator();
         while (i.hasNext()) {
@@ -781,17 +752,17 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
             if (DEBUG >= 5) {
                 try {
-                    rslt.append(translateRegister(oc) + "\n");
-                    rslt.append(readRegister(oc) + "\n");
+                    builder.append(translateRegister(oc)).append("\n");
+                    builder.append(readRegister(oc)).append("\n");
                 } catch (NoSuchRegisterException nsre) {
                     // ignore and continue
                 }
             } else {
-                rslt.append(obis + " " + translateRegister(oc) + "\n");
+                builder.append(obis).append(" ").append(translateRegister(oc)).append("\n");
             }
         }
 
-        getLogger().info(rslt.toString());
+        getLogger().info(builder.toString());
     }
 
     private void getMeterInfo() throws IOException {
@@ -817,8 +788,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty, 300,
-                this.iEchoCancelling);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty, 300, this.iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
@@ -878,8 +848,8 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         if (this.meterSerial == null) {
             this.meterSerial = (String) getAS220Registry().getRegister(
                     this.useEquipmentIdentifierAsSerial
-                    ? getAS220Registry().IEC1107_ADDRESS_EL
-                    : getAS220Registry().SERIAL
+                    ? AS220Registry.IEC1107_ADDRESS_EL
+                    : AS220Registry.SERIAL
             );
         }
         if(useEquipmentIdentifierAsSerial){
@@ -947,10 +917,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
 
         if (registerName.equals(AS220ObisCodeMapper.FIRMWARE)) {
-            String fw = "";
-            String hw = "";
-            String dev = "";
-            String fwdev = "";
+            String fw;
+            String hw;
+            String dev;
+            String fwdev;
 
             if (this.iSecurityLevel < 1) {
                 return "Unknown (SecurityLevel to low)";

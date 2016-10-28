@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.coronis.wavetalk.core;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -16,17 +14,17 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-abstract public class AbstractWaveTalk extends AbstractProtocol implements ProtocolLink {
+public abstract class AbstractWaveTalk extends AbstractProtocol implements ProtocolLink {
 
-	abstract protected void doTheConnect() throws IOException;
-    abstract protected void doTheInit() throws IOException;
-    abstract protected void doTheDisConnect() throws IOException;
-    abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+	protected abstract void doTheConnect() throws IOException;
+    protected abstract void doTheInit() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
+    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
 
 	/**
 	 * reference to the lower connect latyers of the wavenis stack
@@ -39,8 +37,8 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	private RadioCommandFactory radioCommandFactory;
 
 
-	abstract public AbstractCommonObisCodeMapper getCommonObisCodeMapper();
-	abstract public ParameterFactory getParameterFactory();
+	public abstract AbstractCommonObisCodeMapper getCommonObisCodeMapper();
+	public abstract ParameterFactory getParameterFactory();
 
 	/**
 	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
@@ -53,7 +51,7 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	ObisCode loadProfileObisCode;
 
 
-	final public RadioCommandFactory getRadioCommandFactory() {
+	public final RadioCommandFactory getRadioCommandFactory() {
 		return radioCommandFactory;
 	}
 
@@ -96,7 +94,7 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	}
 
 	@Override
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
         return "N/A";
 	}
 
@@ -120,8 +118,8 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	}
 
 	@Override
-    protected List doGetOptionalKeys() {
-        return new ArrayList();
+    protected List<String> doGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {

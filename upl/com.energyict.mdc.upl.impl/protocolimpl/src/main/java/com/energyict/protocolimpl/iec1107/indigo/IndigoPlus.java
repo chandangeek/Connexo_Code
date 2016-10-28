@@ -6,10 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -19,10 +16,9 @@ import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -83,101 +79,106 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         return indigoProfile.getProfileData(calendarFrom.getTime(),calendarTo.getTime(),isStatusFlagChannel(),isReadCurrentDay());
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
        int nrOfChannels = getLogicalAddressFactory().getMeteringDefinition().getNrOfIntervalRecordingChannels();
-       if ((!(isStatusFlagChannel())) && (getLogicalAddressFactory().getMeteringDefinition().isChannelUnitsStatusFlagsChannel()))
-          return nrOfChannels-1;
+       if ((!(isStatusFlagChannel())) && (getLogicalAddressFactory().getMeteringDefinition().isChannelUnitsStatusFlagsChannel())) {
+           return nrOfChannels - 1;
+       }
        return nrOfChannels;
     }
 
     protected void doConnect() throws java.io.IOException {
-        logicalAddressFactory = new LogicalAddressFactory((ProtocolLink)this,(MeterExceptionInfo)this);
-        indigoProfile = new IndigoProfile((ProtocolLink)this,(MeterExceptionInfo)this,logicalAddressFactory);
+        logicalAddressFactory = new LogicalAddressFactory(this, this);
+        indigoProfile = new IndigoProfile(this, this,logicalAddressFactory);
     }
 
     /*
      *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("************************* Extended Logging *************************\n");
-        strBuff.append(getLogicalAddressFactory().getMeterIdentity().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getMeterStatus().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDefaultStatus().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDateTimeGMT().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDateTimeLocal().toString()+"\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("************************* Extended Logging *************************\n");
+        builder.append(getLogicalAddressFactory().getMeterIdentity().toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getMeterStatus().toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getDefaultStatus().toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getDateTimeGMT().toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getDateTimeLocal().toString()).append("\n");
 
-        strBuff.append(getLogicalAddressFactory().getTotalRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getRateRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDemandRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getDefaultRegisters(extendedLogging-1).toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getHistoricalData(extendedLogging-1).toString()+"\n");
+        builder.append(getLogicalAddressFactory().getTotalRegisters(extendedLogging - 1).toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getRateRegisters(extendedLogging - 1).toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getDemandRegisters(extendedLogging - 1).toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getDefaultRegisters(extendedLogging - 1).toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getHistoricalData(extendedLogging - 1).toString()).append("\n");
 
-        strBuff.append(getLogicalAddressFactory().getMeteringDefinition().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getClockDefinition().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getBillingPeriodDefinition().toString()+"\n");
-        strBuff.append(getLogicalAddressFactory().getGeneralMeterData().toString()+"\n");
+        builder.append(getLogicalAddressFactory().getMeteringDefinition().toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getClockDefinition().toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getBillingPeriodDefinition().toString()).append("\n");
+        builder.append(getLogicalAddressFactory().getGeneralMeterData().toString()).append("\n");
 
 
         for (int i=-1;i<16;i++) {
             int billingPoint;
-            if (i==-1) billingPoint = 255;
-            else billingPoint = i;
-            strBuff.append("Cumulative registers (total & tariff):\n");
+            if (i==-1) {
+                billingPoint = 255;
+            } else {
+                billingPoint = i;
+            }
+            builder.append("Cumulative registers (total & tariff):\n");
             for(int obisC=1;obisC<=9;obisC++) {
                 String code = "1.1."+obisC+".8.0."+billingPoint;
-                strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+                builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
             }
             for(int obisC=1;obisC<=2;obisC++) {
                 for(int obisE=1;obisE<=9;obisE++) {
                     String code = "1.1."+obisC+".8."+obisE+"."+billingPoint;
-                    strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+                    builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
                 }
             }
             String defaultRegCode = "1.2.1.8.0."+billingPoint;
-            strBuff.append(defaultRegCode+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))+" default register\n");
+            builder.append(defaultRegCode).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))).append(" default register\n");
             defaultRegCode = "1.2.9.8.0."+billingPoint;
-            strBuff.append(defaultRegCode+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))+" default register\n");
+            builder.append(defaultRegCode).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))).append(" default register\n");
             defaultRegCode = "1.2.129.8.0."+billingPoint;
-            strBuff.append(defaultRegCode+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))+" default register\n");
+            builder.append(defaultRegCode).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(defaultRegCode))).append(" default register\n");
 
-            strBuff.append("Cumulative maximum demand registers:\n");
-            strBuff.append(buildDemandReg(0,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(1,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(2,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(3,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
+            builder.append("Cumulative maximum demand registers:\n");
+            builder.append(buildDemandReg(0,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
+            builder.append(buildDemandReg(1,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
+            builder.append(buildDemandReg(2,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
+            builder.append(buildDemandReg(3,ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND,billingPoint));
 
-            strBuff.append("Current average registers:\n");
-            strBuff.append(buildDemandReg(0,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(1,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(2,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(3,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
+            builder.append("Current average registers:\n");
+            builder.append(buildDemandReg(0,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
+            builder.append(buildDemandReg(1,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
+            builder.append(buildDemandReg(2,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
+            builder.append(buildDemandReg(3,ObisCode.CODE_D_RISING_DEMAND,billingPoint));
 
-            strBuff.append("Maximum demand registers:\n");
-            strBuff.append(buildDemandReg(0,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(1,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(2,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
-            strBuff.append(buildDemandReg(3,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
+            builder.append("Maximum demand registers:\n");
+            builder.append(buildDemandReg(0,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
+            builder.append(buildDemandReg(1,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
+            builder.append(buildDemandReg(2,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
+            builder.append(buildDemandReg(3,ObisCode.CODE_D_MAXIMUM_DEMAND,billingPoint));
 
-            strBuff.append("General purpose registers:\n");
+            builder.append("General purpose registers:\n");
             if( billingPoint != 255) {
                 String code = "1.1.0.1.2."+billingPoint;
-                strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+                builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
             }
             if( billingPoint == 255) {
                String code = "1.1.0.1.0.255";
-               strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n");
+               builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
             }
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     private String buildDemandReg(int index, int obisD, int billingPoint) throws IOException {
        int obisC;
-       if (obisD == ObisCode.CODE_D_RISING_DEMAND)
-         obisC = DemandRegisters.OBISCMAPPINGRISINGDEMAND[index];
-       else
-         obisC = getLogicalAddressFactory().getHistoricalData(billingPoint==255?0:billingPoint).getObisC(index);
+       if (obisD == ObisCode.CODE_D_RISING_DEMAND) {
+           obisC = DemandRegisters.OBISCMAPPINGRISINGDEMAND[index];
+       } else {
+           obisC = getLogicalAddressFactory().getHistoricalData(billingPoint == 255 ? 0 : billingPoint).getObisC(index);
+       }
        if (obisC != 255) {
           String code = "1.1."+obisC+"."+obisD+".0."+billingPoint;
           return code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+"\n";
@@ -192,8 +193,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     }
 
     public void setTime() throws IOException {
-        Calendar calendar=null;
-        calendar = ProtocolUtils.getCalendar(getTimeZone());
+        Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         calendar.add(Calendar.MILLISECOND,getRoundtripCorrection());
         setTime(calendar.getTime());
     }
@@ -207,12 +207,11 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         }
     }
 
-    protected java.util.List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("StatusFlagChannel");
-        result.add("ReadCurrentDay");
-        result.add("EmptyNodeAddress");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "StatusFlagChannel",
+                    "ReadCurrentDay",
+                    "EmptyNodeAddress");
     }
 
     protected void doValidateProperties(java.util.Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
@@ -222,7 +221,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         setNodeId(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),(emptyNodeAddress==0?"001":"")));
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getLogicalAddressFactory().getMeterIdentity().getSoftwareVersionNumber();
 
     }
@@ -253,19 +252,19 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
      *  This code has been taken from a real protocol implementation.
      */
 
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
     static {
-           exceptionInfoMap.put("ERRDAT","Error setting the time");
-           exceptionInfoMap.put("ERRADD","Protocol error");
+           EXCEPTION_INFO_MAP.put("ERRDAT","Error setting the time");
+           EXCEPTION_INFO_MAP.put("ERRADD","Protocol error");
     }
 
     public String getExceptionInfo(String id) {
-
-        String exceptionInfo = (String)exceptionInfoMap.get(id);
-        if (exceptionInfo != null)
-           return id+", "+exceptionInfo;
-        else
-           return "No meter specific exception info for "+id;
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
+        if (exceptionInfo != null) {
+            return id + ", " + exceptionInfo;
+        } else {
+            return "No meter specific exception info for " + id;
+        }
     }
 
     /*******************************************************************************************

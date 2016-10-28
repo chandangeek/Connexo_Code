@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
@@ -31,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -213,11 +213,13 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
             throw new ApplicationException("Meter firmware version " + getFirmwareVersion() + " is not supported.  " + "Minimum version "+MINIMUM_FW_VERSION+".");
         }
 
-        if(pExtendedLogging==1)
-            getLogger().info(getObisCodeMapper().toString() );
+        if (pExtendedLogging==1) {
+            getLogger().info(getObisCodeMapper().toString());
+        }
 
-        if(pExtendedLogging==2)
+        if (pExtendedLogging==2) {
             getLogger().info(getObisCodeMapper().getExtendedLogging());
+        }
 
     }
 
@@ -232,18 +234,15 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         return connection;
     }
 
-    /** @see AbstractProtocol#getRequiredKeys() */
-    public List getRequiredKeys() {
-        return  new ArrayList();
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /** @see AbstractProtocol#doGetOptionalKeys() */
-    protected List doGetOptionalKeys() {
-        ArrayList result = new ArrayList();
-        result.add( PK_LOGGER );
-        result.add( com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName() );
-        result.add("Software7E1");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                PK_LOGGER,
+                com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(),
+                "Software7E1");
     }
 
     public ObisCodeMapper getObisCodeMapper() throws IOException {
@@ -260,7 +259,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
 
         v = p.getProperty(PK_LOGGER);
         pLogger = (v == null) ? PD_LOGGER : Integer.parseInt(v);
-        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+        this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
 
     }
 
@@ -292,8 +291,8 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     }
 
     /* @see AbstractProtocol#getNumberOfChannels() */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if( channelCount == null ) {
+    public int getNumberOfChannels() throws IOException {
+        if (channelCount == null) {
             channelCount = getRegisters().getrLogChannelCount()[pLogger].asInteger();
         }
         return channelCount.intValue();
@@ -318,7 +317,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     /** Fetch firware version.
      * @see AbstractProtocol#getFirmwareVersion()
      */
-    public FirmwareVersion getFirmwareVersionObject() throws IOException, UnsupportedException {
+    public FirmwareVersion getFirmwareVersionObject() throws IOException {
         if (firmwareVersion == null) {
             String mayor = getRegisters().getrFirmwareVersionOld().asString(0);
             String minor = getRegisters().getrFirmwareVersionOld().asString(1);
@@ -335,7 +334,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     }
 
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getFirmwareVersionObject().getVersionString();
     }
 
@@ -372,7 +371,9 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
             do {
                 String result = getRegisters().getrEventLogNextEvent().getRawData();
                 eof = result.indexOf("(EOF)") != -1;
-                if( !eof ) pd.addEvent( eventParser.parse(result) );
+                if( !eof ) {
+                    pd.addEvent(eventParser.parse(result));
+                }
             } while( !eof );
         }
 
@@ -529,11 +530,13 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     public int getRow(int billingPoint) throws IOException {
 
         /* no need to fetch any historical registers, just return 0 */
-        if(billingPoint==255) return 0;
+        if(billingPoint==255) {
+            return 0;
+        }
 
         /* lazily init the billing points collection */
-        if(billingPoints==null){
-            billingPoints = new ArrayList();
+        if (billingPoints==null) {
+            billingPoints = new ArrayList<>();
             for (int i = 1; i < getRegisters().getrTimestamp().length; i++) {
                 if( ! getRegisters().getrTimestamp()[i].isNullDate() ) {
                     BillingPointIndex bpi = new BillingPointIndex(i, getRegisters().getrTimestamp()[i]);
@@ -544,8 +547,9 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         }
 
         int abs = Math.abs(billingPoint);
-        if( abs < billingPoints.size()   )
+        if (abs < billingPoints.size()) {
             return billingPoints.get(abs).index;
+        }
 
         /* meter does not have data for abs nr of billing points */
         return -1;
@@ -569,37 +573,13 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
                 ti = ti +1;
             }
         }
-        for(int i = 0; i < touMap.length; i++){
-            if(touMap[i]==source) return i;
+        for (int i = 0; i < touMap.length; i++) {
+            if (touMap[i]==source) {
+                return i;
+            }
         }
         return -1;  // not found
     }
-
-    /** method for displaying TOU-select register */
-    private String touToString( ){
-        StringBuffer r = new StringBuffer();
-
-        for(int i = 0; i<touMap.length; i++ ){
-            switch(touMap[i]) {
-                case 0x00: r.append( "active energy imp.    \n" ); break;
-                case 0x01: r.append( "active energy exp.    \n" ); break;
-                case 0x02: r.append( "reactive energy imp.  \n" ); break;
-                case 0x03: r.append( "reactive energy exp.  \n" ); break;
-                case 0x04: r.append( "reactive energy ind.  \n" ); break;
-                case 0x05: r.append( "reactive energy cap.  \n" ); break;
-                case 0x06: r.append( "reactive energy QI    \n" ); break;
-                case 0x07: r.append( "reactive energy QII   \n" ); break;
-                case 0x08: r.append( "reactive energy QIII  \n" ); break;
-                case 0x09: r.append( "reactive energy QIV   \n" ); break;
-                case 0x0A: r.append( "apparent energy imp.  \n" ); break;
-                case 0x0B: r.append( "apparent energy exp.  \n" ); break;
-                default: r.append( "unknown: " + touMap[i] +  "\n" );
-            }
-        }
-
-        return r.toString();
-    }
-
 
     public String getExceptionInfo(String id) {
         return CeweExceptionInfo.getExceptionInfo(id);

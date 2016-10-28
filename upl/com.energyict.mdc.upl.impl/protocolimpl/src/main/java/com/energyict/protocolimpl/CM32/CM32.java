@@ -1,13 +1,6 @@
 package com.energyict.protocolimpl.CM32;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.coreimpl.ATDialer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -21,7 +14,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -47,7 +40,7 @@ public class CM32 extends AbstractProtocol {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 16;
     }
 
@@ -67,8 +60,8 @@ public class CM32 extends AbstractProtocol {
 	protected void doDisConnect() throws IOException {
 	}
 
-	protected List doGetOptionalKeys() {
-		return new ArrayList();
+	protected List<String> doGetOptionalKeys() {
+		return Collections.emptyList();
 	}
 
 	public RegisterFactory getRegisterFactory() throws IOException {
@@ -121,7 +114,7 @@ public class CM32 extends AbstractProtocol {
 
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -144,59 +137,6 @@ public class CM32 extends AbstractProtocol {
 
 	public void setTime() throws IOException {
 		// TODO Auto-generated method stub
-
-	}
-
-	public static void main(String[] args) {
-		try {
-	           int count=0;
-	           System.out.println("start DialerTest");
-	           Dialer dialer = new ATDialer();
-	           dialer.init("COM1");
-	           dialer.connect("000441908257417",60000);
-	           dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-	                   SerialCommunicationChannel.DATABITS_8,
-	                   SerialCommunicationChannel.PARITY_NONE,
-	                   SerialCommunicationChannel.STOPBITS_1);
-
-	           try {
-	               System.out.println("connected, start sending");
-	               byte[] data = {0x65, 0x0B, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x6F};
-	               dialer.getOutputStream().write(data);
-
-
-	               while(true) {
-	                  if (dialer.getInputStream().available() != 0) {
-
-	                      int kar = dialer.getInputStream().read();
-	                      System.out.print((char)kar);
-	                      count=0;
-	                  }
-	                  else {
-	                      Thread.sleep(100);
-	                      if (count++ >= 100) {
-	                          System.out.println();
-	                          System.out.println("KV_DEBUG> connection timeout DialerTest");
-	                          break;
-	                      }
-	                  }
-	               }
-	           }
-	           catch(Exception e){
-	               e.printStackTrace();
-	           }
-	           dialer.disConnect();
-	           System.out.println("end DialerTest");
-	        }
-	        catch(NestedIOException e) {
-	            e.printStackTrace();
-	        }
-	        catch(LinkException e) {
-	            e.printStackTrace();
-	        }
-	        catch(IOException e) {
-	            e.printStackTrace();
-	        }
 	}
 
 	public CM32Connection getCM32Connection() {

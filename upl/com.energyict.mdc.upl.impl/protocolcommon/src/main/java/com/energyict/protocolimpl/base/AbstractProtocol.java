@@ -11,8 +11,6 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -41,6 +39,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -75,14 +74,14 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *
      * @throws IOException Exception thrown when the logon fails.
      */
-    abstract protected void doConnect() throws IOException, ParseException;
+    protected abstract void doConnect() throws IOException, ParseException;
 
     /**
      * Abstract method to implement the logoff
      *
      * @throws IOException thrown when the logoff fails
      */
-    abstract protected void doDisConnect() throws IOException;
+    protected abstract void doDisConnect() throws IOException;
 
     /**
      * Abstract method to add custom properties
@@ -91,14 +90,14 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws MissingPropertyException Thrown when a particular proiperty is mandatory.
      * @throws InvalidPropertyException Thrown when a particular property has an invalid value.
      */
-    abstract protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+    protected abstract void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
 
     /**
      * Abstract method to add the optional custom properties to as string.
      *
      * @return List the optional custom properties list of Strings
      */
-    abstract protected List<String> doGetOptionalKeys();
+    protected abstract List<String> doGetOptionalKeys();
 
     /**
      * Abstract method that implements the construction of all objects needed during the meter protocol session. Last construction is a ProtocolConnection.
@@ -115,7 +114,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @return ProtocolConnection interface. Most of the time a connection class is build that implements the ProtocolConnection interface. Thet connection class contains the datalink and phy communication routiones.
      * @throws java.io.IOException Thrown when something goes wrong
      */
-    abstract protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException;
+    protected abstract ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException;
 
     /**
      * Override this method when requesting time from the meter is needed.
@@ -123,21 +122,21 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @return Date object with the metertime
      * @throws java.io.IOException thrown when something goes wrong
      */
-    abstract public Date getTime() throws IOException;
+    public abstract Date getTime() throws IOException;
 
     /**
      * Override this method when setting the time in the meter is needed
      *
      * @throws java.io.IOException thrown when something goes wrong
      */
-    abstract public void setTime() throws IOException;
+    public abstract void setTime() throws IOException;
 
     /**
      * Override this method to control the protocolversion This method is informational only.
      *
      * @return String with protocol version
      */
-    abstract public String getProtocolVersion();
+    public abstract String getProtocolVersion();
 
     /**
      * Override this method when requesting the meter firmware version is needed. This method is informational only.
@@ -147,7 +146,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws UnsupportedException
      *                             Thrown when that method is not supported
      */
-    abstract public String getFirmwareVersion() throws IOException, UnsupportedException;
+    public abstract String getFirmwareVersion() throws IOException;
     //abstract public String getSerialNumber() throws IOException;
 
     TimeZone timeZone;
@@ -243,7 +242,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 //        throw new UnsupportedException();
 //    }
     // obsolete
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
     // obsolete
@@ -257,7 +256,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *                             thrown when not supported
      * @throws java.io.IOException thrown when something goes wrong
      */
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
     /*
@@ -300,7 +299,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws UnsupportedException
      *                             Thrown when not supported
      */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -324,7 +323,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws UnsupportedException
      *                             For debugging only
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
     }
     /*
      * Override this method if the subclass wants to get a specific register
@@ -341,7 +340,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws NoSuchRegisterException
      *                             For debugging only
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return null;
     }
 
@@ -358,21 +357,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         validateProperties(properties);
     }
 
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
     public List<String> getRequiredKeys() {
-        List<String> result = new ArrayList<String>(0);
-        return result;
+        return Collections.emptyList();
     }
 
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
     public List<String> getOptionalKeys() {
         List<String> result = new ArrayList<String>();
         result.add(PROP_TIMEOUT);
@@ -387,27 +375,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         result.add(PROP_DTR_BEHAVIOUR);
         result.add(PROP_ADJUST_CHANNEL_MULTIPLIER);
         result.add(PROP_ADJUST_REGISTER_MULTIPLIER);
-
-// if needed, add following codelines into the overridden doGetOptionalKeys() method
-//        result.add("RequestHeader"));
-//        result.add("Scaler"));
-
-        List<String> result2 = doGetOptionalKeys();
-        if (result2 != null) {
-            result.addAll(result2);
-        }
+        result.addAll(doGetOptionalKeys());
         return result;
-    }
-
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**
@@ -474,7 +443,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws UnsupportedException
      *                             thrown when not supported
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -544,7 +513,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *                             thrown when not supported
      * @throws java.io.IOException Thrown when something goes wrong
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return profileInterval;
     }
 
@@ -556,7 +525,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *                             thrown when not supported
      * @throws java.io.IOException thrown when something goes wrong
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (protocolChannelMap == null) {
             throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
         }
@@ -611,7 +580,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(commChannel, timeoutProperty, getInfoTypeProtocolRetriesProperty(), 300, echoCancelling);
+                new IEC1107HHUConnection(commChannel, timeoutProperty, getInfoTypeProtocolRetriesProperty(), 300, echoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);

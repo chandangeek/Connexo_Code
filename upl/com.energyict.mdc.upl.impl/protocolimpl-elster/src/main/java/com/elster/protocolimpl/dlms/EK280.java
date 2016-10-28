@@ -12,7 +12,7 @@ import com.elster.protocolimpl.dlms.registers.RegisterMap;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -124,9 +124,9 @@ public class EK280 extends Dlms {
             new DlmsSimpleRegisterDefinition("7.0.0.12.67.255", Ek280Defs.GAV_METHAN_CONT_CURR)
     };
 
-    private final static String OC_TST = "0.0.1.0.0.255";
-    private final static String LP_MONTH = "7.1.99.99.4.255";
-    private final static String MP_MONTH = "7.2.99.99.4.255";
+    private static final String OC_TST = "0.0.1.0.0.255";
+    private static final String LP_MONTH = "7.1.99.99.4.255";
+    private static final String MP_MONTH = "7.2.99.99.4.255";
 
     protected static IReadableRegister[] v2Mappings = {
             new DlmsSimpleRegisterDefinition("7.129.96.5.1.255", new ObisCode("7.129.96.5.1.255")),
@@ -238,19 +238,15 @@ public class EK280 extends Dlms {
     }
 
     @Override
-    @SuppressWarnings({"unchecked"})
-    protected List doGetOptionalKeys() {
-
-        List result = new ArrayList();
-        result.add(EK280.ARCHIVESTRUCTUREVERSION);
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.singletonList(EK280.ARCHIVESTRUCTUREVERSION);
     }
 
     @Override
     protected void validateProperties(Properties properties)
             throws MissingPropertyException, InvalidPropertyException {
         archiveStructureVersion = properties.getProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
-        if (archiveStructureVersion.equalsIgnoreCase("V2")) {
+        if ("V2".equalsIgnoreCase(archiveStructureVersion)) {
             archiveStructure = V2ARCHIVESTRUCTURE;
 
             ocLogProfile = new ObisCode("7.0.99.98.1.255");

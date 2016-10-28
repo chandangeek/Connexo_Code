@@ -1,11 +1,7 @@
 package com.elster.us.protocolimpl;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -16,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -48,7 +45,7 @@ public class SampleProtocol implements MeterProtocol {
         return null;
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return null;
     }
 
@@ -60,23 +57,23 @@ public class SampleProtocol implements MeterProtocol {
         return null;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return null;
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         return null;
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         return null;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 0;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return 0;
     }
 
@@ -84,11 +81,11 @@ public class SampleProtocol implements MeterProtocol {
         return null;
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return null;
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
 
     }
 
@@ -96,7 +93,7 @@ public class SampleProtocol implements MeterProtocol {
 
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
 
     }
 
@@ -120,12 +117,14 @@ public class SampleProtocol implements MeterProtocol {
 
     }
 
+    @Override
     public List<String> getRequiredKeys() {
-        return null;
+        return Collections.emptyList();
     }
 
+    @Override
     public List<String> getOptionalKeys() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -138,13 +137,4 @@ public class SampleProtocol implements MeterProtocol {
 
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return null;
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return null;
-    }
 }

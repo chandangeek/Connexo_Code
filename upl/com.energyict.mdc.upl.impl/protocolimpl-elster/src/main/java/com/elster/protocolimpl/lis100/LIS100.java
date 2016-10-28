@@ -9,8 +9,6 @@ import com.elster.protocolimpl.lis100.registers.RegisterMap;
 import com.elster.protocolimpl.lis100.registers.SimpleObisCodeMapper;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -24,8 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -77,12 +76,6 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     protected String serialNumber;
 
     /**
-     * channel data of all channels
-     */
-//    private HashMap<Integer, ChannelData> channelData = new HashMap<Integer, ChannelData>();
-
-
-    /**
      * initialization -> create connection class
      */
     public void init(InputStream inputStream, OutputStream outputStream,
@@ -97,48 +90,13 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        return new ArrayList();
-    }
-
-    /**
-     * List of optional keys
-     *
-     * @return a list of strings
-     */
-    @SuppressWarnings({"unchecked"})
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        List result2 = doGetOptionalKeys();
-        if (result2 != null) {
-            result.addAll(result2);
-        }
-        return result;
-    }
-
-    /**
-     * enable derived class to add more keys
-     *
-     * @return a list of keys (Strings)
-     */
-    protected List doGetOptionalKeys() {
-        return null;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList("Timeout", "Retries");
     }
 
     /**
@@ -165,7 +123,7 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         getLogger().info("-- Type of device: " + deviceData.getMeterType());
         getLogger().info("---- has channels: " + deviceData.getNumberOfChannels());
 
-        if ((serialNumber != null) && (serialNumber.length() > 0))
+        if ((serialNumber != null) && (!serialNumber.isEmpty()))
         {
             verifySerialNumber();
         }
@@ -255,9 +213,6 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     public DeviceData getDeviceData() {
         return deviceData;
     }
-    // *******************************************************************************************
-    // * C l a s s i m p l e m e n t a t i o n c o d e
-    // *******************************************************************************************/
 
     /**
      * Validate certain protocol specific properties
@@ -272,7 +227,7 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     private void validateProperties(Properties properties)
             throws MissingPropertyException, InvalidPropertyException {
         try {
-            for (String key : (List<String>) getRequiredKeys()) {
+            for (String key : getRequiredKeys()) {
                 if (properties.getProperty(key) == null) {
                     throw new MissingPropertyException(key + " key missing");
                 }

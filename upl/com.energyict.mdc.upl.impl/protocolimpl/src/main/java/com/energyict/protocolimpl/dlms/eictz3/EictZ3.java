@@ -7,8 +7,6 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -112,10 +110,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -548,8 +547,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             this.dlmsConnection.setIskraWrapper(1);
         } catch (final DLMSConnectionException e) {
             // JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
-            final IOException ioException = new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]");
-            ioException.initCause(e);
+            final IOException ioException = new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]", e);
             throw ioException;
         }
     }
@@ -575,8 +573,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         props.put(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
         props.put(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
         props.put(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
-        LocalSecurityProvider lsp = new LocalSecurityProvider(props);
-        return lsp;
+        return new LocalSecurityProvider(props);
     }
 
     /**
@@ -585,7 +582,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The {@link CapturedObjectsHelper}.
      * @throws IOException If something goes wrong.
      */
-    private final CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
+    private CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
         if (this.capturedObjectsHelper == null) {
             logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + this.getLoadprofileObisCode().toString() + "]");
 
@@ -1085,8 +1082,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         } catch (final DLMSConnectionException e) {
             logger.log(Level.SEVERE, "Cannot connect MAC over DLMS connection [mode : " + this.connectionMode + "] due to a DLMS connection error [" + e.getMessage() + "]", e);
             // JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
-            final IOException ioException = new IOException("DLMS connection error when connecting MAC, message was [" + e.getMessage() + "]");
-            ioException.initCause(e);
+            final IOException ioException = new IOException("DLMS connection error when connecting MAC, message was [" + e.getMessage() + "]", e);
             throw ioException;
         }
 
@@ -1297,8 +1293,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             logger.log(Level.SEVERE, "DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
 
             // JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
-            final IOException ioException = new IOException("DLMS connection error when disconnecting from device : [" + e.getMessage() + "]");
-            ioException.initCause(e);
+            final IOException ioException = new IOException("DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
             throw ioException;
         }
     }
@@ -1454,7 +1449,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(final String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(final String name) throws IOException {
         return doGetRegister(name);
     }
 
@@ -1504,7 +1499,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(final String name, final String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(final String name, final String value) throws IOException {
         boolean classSpecified = false;
         if (name.indexOf(':') >= 0) {
             classSpecified = true;
@@ -1523,7 +1518,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @param s The string.
      * @return
      */
-    private final byte[] convert(final String s) {
+    private byte[] convert(final String s) {
         if ((s.length() % 2) != 0) {
             throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
         } else {
@@ -1543,60 +1538,35 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
     public List<String> getRequiredKeys() {
-        final List<String> requiredProperties = new ArrayList<String>();
-
-        return requiredProperties;
+        return Collections.emptyList();
     }
 
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
     public final List<String> getOptionalKeys() {
-        final List<String> optionalProperties = new ArrayList<String>();
-
-        optionalProperties.add("Timeout");
-        optionalProperties.add("Retries");
-        optionalProperties.add("DelayAfterFail");
-        optionalProperties.add("RequestTimeZone");
-        optionalProperties.add("FirmwareVersion");
-        optionalProperties.add("SecurityLevel");
-        optionalProperties.add("ClientMacAddress");
-        optionalProperties.add("iServerUpperMacAddress");
-        optionalProperties.add("ServerLowerMacAddress");
-        optionalProperties.add("ExtendedLogging");
-        optionalProperties.add("AddressingMode");
-        optionalProperties.add("Connection");
-        optionalProperties.add("LoadProfileObisCode");
-        optionalProperties.add("FullLogbook");
-        optionalProperties.add("InformationFieldSize");
-        optionalProperties.add(PROPNAME_MAX_APDU_SIZE);
-        optionalProperties.add(PROPNAME_FORCE_DELAY);
-        optionalProperties.add(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD);
-        optionalProperties.add(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
-
-        return optionalProperties;
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RequestTimeZone",
+                    "FirmwareVersion",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "iServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "ExtendedLogging",
+                    "AddressingMode",
+                    "Connection",
+                    "LoadProfileObisCode",
+                    "FullLogbook",
+                    "InformationFieldSize",
+                    PROPNAME_MAX_APDU_SIZE,
+                    PROPNAME_FORCE_DELAY,
+                    PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD,
+                    PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
     }
 
     public final void setCache(final Object cacheObject) {
@@ -1617,7 +1587,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * As such this method is marked overridable (which translates to non-final in Java).
      * <p/>
      */
-    public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
+    public Object fetchCache(final int rtuid) {
         throw new UnsupportedOperationException("Fetching caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
 
     }
@@ -1628,11 +1598,11 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * As such this method is marked overridable (which translates to non-final in Java).
      * <p/>
      */
-    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) {
         throw new UnsupportedOperationException("Updating caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
     }
 
-    public final void release() throws IOException {
+    public final void release() {
         // Not implemented for this protocol.
     }
 
@@ -1640,7 +1610,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         this.enableHHUSignOn(commChannel, false);
     }
 
-    public final void enableHHUSignOn(final SerialCommunicationChannel commChannel, final boolean datareadout) throws ConnectionException {
+    public final void enableHHUSignOn(final SerialCommunicationChannel commChannel, final boolean datareadout) {
         final HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.hdlcTimeout, this.protocolRetries, 300, 0);
 
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
@@ -1869,7 +1839,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     @SuppressWarnings("unchecked")
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List messageEntries) {
         // Not implemented for this protocol.
     }
 

@@ -4,8 +4,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
@@ -72,16 +70,6 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     public void disconnect() throws IOException {
         this.session.disconnect();
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     public List<String> getRequiredKeys() {
@@ -161,43 +149,43 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     public String writeTag(MessageTag tag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(tag.getName());
+        builder.append("<");
+        builder.append(tag.getName());
 
         // b. Attributes
         for (Iterator it = tag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = tag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("\n\n</");
-        buf.append(tag.getName());
-        buf.append(">");
+        builder.append("\n\n</");
+        builder.append(tag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
 
     }
 
@@ -206,11 +194,11 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     public List<MessageCategorySpec> getMessageCategories() {
-        return new ArrayList<MessageCategorySpec>();
+        return new ArrayList<>();
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
 }

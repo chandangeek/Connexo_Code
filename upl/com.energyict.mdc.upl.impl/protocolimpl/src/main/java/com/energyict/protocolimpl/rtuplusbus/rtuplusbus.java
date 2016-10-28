@@ -1,14 +1,11 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HalfDuplexEnabler;
@@ -22,8 +19,9 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -196,36 +194,23 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    public List getOptionalKeys() {
-        List result = new ArrayList(10);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RtuPlusBusProtocolVersion");
-        result.add("MaximumNumberOfRecords");
-        result.add("HalfDuplex");
-        result.add("ForcedDelay");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RtuPlusBusProtocolVersion",
+                    "MaximumNumberOfRecords",
+                    "HalfDuplex",
+                    "ForcedDelay");
     }
 
 
-    //
-    //  C  O  N  N  E  C  T     A N D    D  I  S  C  O  N  N  E  C  T
-    //
     public void connect() throws IOException {
         try {
             Thread.sleep(5000);
@@ -292,12 +277,6 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
             throw new RtuPlusBusException("Could not logon.");
         }
     }
-
-
-    //
-    //  T  I  M  E
-    //
-
 
     public void setTime() throws IOException {
 
@@ -427,42 +406,27 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
 
     }
 
-    //
-    // R  E  G  I  S  T  E  R  S
-    //
-
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-
-    //
-    //  M E T E R R E A D I N G S
-    //
-
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-
-    //
-    //  D E M A N D   V A L U E S
-    //
-
-
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         int i, j;
         int liNbrOfChannels = 0;
         int liReceivedData[];
@@ -508,7 +472,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return liNbrOfChannels;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException { // Read it from the RTU Structure!!
+    public int getProfileInterval() throws IOException { // Read it from the RTU Structure!!
 //        if (rtuPlusSettings.getProfileInterval() != -1)
 //           return rtuPlusSettings.getProfileInterval();
 //        else
@@ -520,7 +484,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return (getProfileData(new Date(0), includeEvents));
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -608,7 +572,6 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
 
         }
 
-
         // Always include Event Buffers.
         // Read the Logbook
         try {
@@ -631,15 +594,11 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return profileData;
     }
 
-    //
-    //  M  I  S  C  E  L  E  A  N  E  O  U  S
-    //
-
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -707,5 +666,4 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
                 return "unknown";
         }
     }
-}  // End of RtuPlusBus class
-
+}

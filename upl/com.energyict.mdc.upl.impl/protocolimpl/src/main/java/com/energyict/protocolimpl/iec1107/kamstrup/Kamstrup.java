@@ -10,8 +10,6 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -31,8 +29,9 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -95,14 +94,14 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.YEAR, -10);
-        return doGetProfileData(calendar.getTime(), includeEvents);
+        return doGetProfileData(calendar.getTime());
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return doGetProfileData(lastReading, includeEvents);
+        return doGetProfileData(lastReading);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(timeZone);
@@ -113,7 +112,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
                 1);
     }
 
-    private ProfileData doGetProfileData(Date lastReading, boolean includeEvents) throws IOException {
+    private ProfileData doGetProfileData(Date lastReading) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(lastReading);
         return getKamstrupProfile().getProfileData(fromCalendar,
@@ -130,7 +129,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
                 1);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         try {
             return (Quantity) getKamstrupRegistry().getRegister(name);
         } catch (ClassCastException e) {
@@ -138,7 +137,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         }
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         String[] KAMSTRUP_METERREADINGS = null;
         try {
             String revision = (String) getKamstrupRegistry().getRegister("UNIGAS software revision number");
@@ -167,8 +166,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws IOException
      */
     public void setTime() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getKamstrupRegistry().setRegister("0.9.1", date);
@@ -183,8 +181,6 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     public byte getLastProtocolState() {
         return -1;
     }
-
-    /************************************** MeterProtocol implementation ***************************************/
 
     /**
      * this implementation calls <code> validateProperties </code>
@@ -227,7 +223,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -243,7 +239,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return ProtocolUtils.obj2String(getKamstrupRegistry().getRegister(name));
     }
 
@@ -256,7 +252,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getKamstrupRegistry().setRegister(name, value);
     }
 
@@ -266,59 +262,36 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "SecurityLevel",
+                    "EchoCancelling",
+                    "IEC1107Compatible",
+                    "ExtendedLogging",
+                    "Software7E1");
     }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ExtendedLogging");
-        result.add("Software7E1");
-        return result;
-    }
-
 
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         try {
-            return ((String) getKamstrupRegistry().getRegister("CI software revision number") + " " + (String) getKamstrupRegistry().getRegister("UNIGAS software revision number"));
+            return (getKamstrupRegistry().getRegister("CI software revision number") + " " + getKamstrupRegistry().getRegister("UNIGAS software revision number"));
         } catch (IOException e) {
             throw new IOException("Kamstrup, getFirmwareVersion, " + e.getMessage());
         }
-    } // public String getFirmwareVersion()
+    }
 
     /**
      * initializes the receiver
@@ -348,11 +321,8 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
             logger.severe("ABBA1500: init(...), " + e.getMessage());
         }
 
-    } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
+    }
 
-    /**
-     * @throws IOException
-     */
     public void connect() throws IOException {
         try {
             dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
@@ -379,11 +349,11 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return KAMSTRUP_NR_OF_CHANNELS;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
 

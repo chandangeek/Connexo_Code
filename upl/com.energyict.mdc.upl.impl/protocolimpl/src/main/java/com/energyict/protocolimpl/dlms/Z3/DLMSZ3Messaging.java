@@ -1,16 +1,5 @@
 package com.energyict.protocolimpl.dlms.Z3;
 
-/**
- * @author gna
- *
- * This protocol is a copy of the generic one.
- * The message getBudget is deleted and replaced by the standard registers readout.
- *
- * Changes:
- * GNA|22012009| Changed the default profileInterval to 900s instead of 0s because you can not select 0s as an interval.
- *
- */
-
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
@@ -18,8 +7,6 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -78,7 +65,9 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -87,6 +76,16 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author gna
+ *
+ * This protocol is a copy of the generic one.
+ * The message getBudget is deleted and replaced by the standard registers readout.
+ *
+ * Changes:
+ * GNA|22012009| Changed the default profileInterval to 900s instead of 0s because you can not select 0s as an interval.
+ *
+ */
 @Deprecated
 public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessageProtocol, ProtocolLink, RegisterProtocol, Constant {
 
@@ -121,7 +120,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
             this.logger = logger;
             this.timeZone = timeZone;
-            this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this);
+            this.cosemObjectFactory = new CosemObjectFactory(this);
 
             if (this.connectionMode == 0) {
                 this.dlmsConnection = new HDLCConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode);
@@ -182,15 +181,12 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return this.cosemObjectFactory;
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return null;
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-//		throw new UnsupportedException();
+    public String getRegister(String name) throws IOException {
         return Long.toString(getCosemObjectFactory().getRegister(ObisCode.fromString(name)).getValue());
-//		getCosemObjectFactory().getData(ObisCode.fromString(name)).getString();
-//		return getCosemObjectFactory().getGenericRead(ObisCode.fromString(name), 2).getString();
     }
 
     private Clock getClock() throws IOException {
@@ -234,7 +230,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     }
 
     // not supported
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
 //		throw new UnsupportedException();
         String type = value.substring(0, value.indexOf(" "));
         String dataStr = value.substring(value.indexOf(" ") + 1, value.length());
@@ -332,39 +328,26 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         }
     }
 
-    public List getOptionalKeys() {
-
-        List result = new ArrayList(9);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RequestTimeZone");
-        result.add("FirmwareVersion");
-        result.add("SecurityLevel");
-        result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
-        result.add("ExtendedLogging");
-        result.add("LoadProfileId");
-        result.add("AddressingMode");
-        result.add("Connection");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RequestTimeZone",
+                    "FirmwareVersion",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "ServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "ExtendedLogging",
+                    "LoadProfileId",
+                    "AddressingMode",
+                    "Connection");
 
     }
 
-    public List getRequiredKeys() {
-        List result = new ArrayList();
-        return result;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     public String getVersion() {
@@ -500,46 +483,46 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
         if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
+            builder.append("/>");
+            return builder.toString();
         }
-        buf.append(">");
+        builder.append(">");
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue msgValue) {
@@ -574,7 +557,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
                 // Execute the message
                 String digOut = messageHandler.getResult();
-                if (digOut.equals("1") || digOut.equals("2")) {
+                if ("1".equals(digOut) || "2".equals(digOut)) {
                     getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(false));
                     success = true;
 
@@ -587,7 +570,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
                 // Execute the message
                 String digOut = messageHandler.getResult();
-                if (digOut.equals("1") || digOut.equals("2")) {
+                if ("1".equals(digOut) || "2".equals(digOut)) {
                     getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(true));
                     success = true;
 
@@ -608,7 +591,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
             } else if (prepaidConfiguration) {
 
-                /**
+                /*
                  * Note: after the configuration setting we also enable the prepaid configuration!
                  */
 
@@ -637,7 +620,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
             } else if (prepaidAdd) {
 
-                /**
+                /*
                  * Note: after the configuration setting we also enable the prepaid configuration!
                  */
 
@@ -660,7 +643,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                 getCosemObjectFactory().getRegister(loadLimitDurationObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLDuration()).longValue()));
 
                 if (messageHandler.getLLD1Invert() != null) {
-                    if (messageHandler.getLLD1Invert().equalsIgnoreCase("1") || messageHandler.getLLD1Invert().equalsIgnoreCase("0")) {
+                    if ("1".equalsIgnoreCase(messageHandler.getLLD1Invert()) || "0".equalsIgnoreCase(messageHandler.getLLD1Invert())) {
                         getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
                     } else {
                         String error = "Configure LoadLimit message does not contain a valid digital output inverter (1): " + messageHandler.getLLD1Invert() + ", only 1(true) or 0(false) alowed.";
@@ -669,7 +652,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                 }
 
                 if (messageHandler.getLLD2Invert() != null) {
-                    if (messageHandler.getLLD2Invert().equalsIgnoreCase("1") || messageHandler.getLLD2Invert().equalsIgnoreCase("0")) {
+                    if ("1".equalsIgnoreCase(messageHandler.getLLD2Invert()) || "0".equalsIgnoreCase(messageHandler.getLLD2Invert())) {
                         getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new BooleanObject(messageHandler.getLLD2Invert().equals(Integer.toString(1))));
                     } else {
                         String error = "Configure LoadLimit message does not contain a valid digital output inverter (2): " + messageHandler.getLLD2Invert() + ", only 1(true) or 0(false) alowed.";
@@ -678,7 +661,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                 }
 
                 if (messageHandler.getActivateNow() != null) {
-                    if (messageHandler.getActivateNow().equalsIgnoreCase("1") || messageHandler.getActivateNow().equalsIgnoreCase("0")) {
+                    if ("1".equalsIgnoreCase(messageHandler.getActivateNow()) || "0".equalsIgnoreCase(messageHandler.getActivateNow())) {
                         getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(messageHandler.getActivateNow().equals(Integer.toString(1))));
                     } else {
                         String error = "Configure LoadLimit message does not contain a valid activateNow value: " + messageHandler.getActivateNow() + ", only 1(true) or 0(false) alowed.";
@@ -719,19 +702,13 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         try {
 
             byte[] bai = message.getBytes();
-            InputStream i = (InputStream) new ByteArrayInputStream(bai);
+            InputStream i = new ByteArrayInputStream(bai);
 
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             saxParser.parse(i, handler);
 
-        } catch (ParserConfigurationException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        } catch (SAXException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        } catch (IOException thrown) {
+        } catch (ParserConfigurationException | SAXException | IOException thrown) {
             thrown.printStackTrace();
             throw new BusinessException(thrown);
         }
@@ -763,9 +740,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     public void addProperties(Properties properties) {
         try {
             setProperties(properties);
-        } catch (InvalidPropertyException e) {
-            e.printStackTrace();
-        } catch (MissingPropertyException e) {
+        } catch (InvalidPropertyException | MissingPropertyException e) {
             e.printStackTrace();
         }
     }
@@ -793,7 +768,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     }
 
     public boolean isRequestTimeZone() {
-        return (this.requestTimeZone == 1) ? true : false;
+        return (this.requestTimeZone == 1);
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -808,16 +783,16 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return null;
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         return null;
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException,
+    public Quantity getMeterReading(String name) throws
             IOException {
         return null;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 0;
     }
 
@@ -829,15 +804,15 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         throw new UnsupportedException("LoadProfile not supported.");
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("LoadProfile not supported.");
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return 900;
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
     }
 
     public void release() throws IOException {

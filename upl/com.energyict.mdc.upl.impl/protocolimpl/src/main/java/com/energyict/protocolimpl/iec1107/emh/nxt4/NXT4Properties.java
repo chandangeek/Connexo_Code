@@ -190,7 +190,7 @@ public class NXT4Properties implements ConfigurationSupport {
     }
 
     public List<String> getOptionalKeys() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
         result.add("ChannelMap");

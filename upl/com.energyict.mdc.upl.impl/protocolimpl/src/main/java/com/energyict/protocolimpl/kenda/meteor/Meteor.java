@@ -1,12 +1,9 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.DialerCarrierException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -24,8 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -189,7 +187,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
 
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         MeteorFirmwareVersion mfv = (MeteorFirmwareVersion) mcf.transmitData(firmwareVersion, null);
         return mfv.getVersion();
     }
@@ -204,8 +202,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public MeteorPowerFailDetails getPowerFailDetails() throws IOException {
-        MeteorPowerFailDetails mpfd = (MeteorPowerFailDetails) mcf.transmitData(powerFailDetails, null);
-        return mpfd;
+        return (MeteorPowerFailDetails) mcf.transmitData(powerFailDetails, null);
     }
 
     public void setTime() throws IOException {
@@ -213,7 +210,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         // => use only trimmer.
         // the value sent to the meter is added on the RTC value in the meter
         long gettime, settime;
-        byte result = 0;
+        byte result;
         Calendar cal = Calendar.getInstance(timezone);
         Calendar getCal = Calendar.getInstance(timezone);
         getCal.setTime(getTime());
@@ -316,17 +313,17 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return null;
     }
 
-    public Quantity getMeterReading(int arg0) throws UnsupportedException,
+    public Quantity getMeterReading(int arg0) throws
             IOException {
         return null;
     }
 
-    public Quantity getMeterReading(String arg0) throws UnsupportedException,
+    public Quantity getMeterReading(String arg0) throws
             IOException {
         return null;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfUsedProtocolChannels();  // the meter always has the same number of physical channels
     }
 
@@ -340,9 +337,8 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return getProfileData(fromTime, cal.getTime(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date start, Date stop, boolean arg2) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date start, Date stop, boolean arg2) throws IOException {
         long dataInc = 24 * 3600 * 1000;
-        int retry = this.retry;
         boolean firstentry = true;
         Calendar st = Calendar.getInstance(timezone);
         st.setTime(start);
@@ -384,19 +380,18 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return pd;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (fullperstable == null) {
             fullperstable = getFullPersonalityTable();
         }
         return 60 * fullperstable.getDemper();
     }
 
-    public String getRegister(String arg0) throws IOException,
-            UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String arg0) throws IOException {
         throw new UnsupportedException("No registers configured on meter.");
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
     }
 
     public void release() throws IOException {
@@ -419,43 +414,27 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0"));
     }
 
-    public void setRegister(String arg0, String arg1) throws IOException,
-            NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String arg0, String arg1) throws IOException {
     }
 
     public void updateCache(int arg0, Object arg1) throws SQLException,
             BusinessException {
     }
 
-    public List getOptionalKeys() {
-        ArrayList list = new ArrayList();
-        list.add("TimeOut");
-        list.add("Retry");
-        list.add("ChannelMap");
-        list.add("DelayAfterConnect");
-        return list;
-    }
-
-    public List getRequiredKeys() {
-        ArrayList list = new ArrayList();
-        return list;
+    @Override
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "TimeOut",
+                    "Retry",
+                    "ChannelMap",
+                    "DelayAfterConnect");
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * ****************************************************************************************
-     * R e g i s t e r P r o t o c o l  i n t e r f a c e
-     * *****************************************************************************************
-     */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (ocm == null) {
             ocm = new ObisCodeMapper(this);
@@ -464,8 +443,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        RegisterInfo registerInfo = new RegisterInfo("");
-        return registerInfo;
+        return new RegisterInfo("");
     }
 
     public MeteorCommunicationsFactory getMcf() {

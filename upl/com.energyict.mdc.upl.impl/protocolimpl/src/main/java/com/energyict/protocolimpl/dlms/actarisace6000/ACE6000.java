@@ -16,8 +16,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -67,8 +65,9 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -85,9 +84,9 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     private int iInterval = 0;
     private ScalerUnit[] demandScalerUnits = null;
-    String version = null;
-    String serialnr = null;
-    String nodeId;
+    private String version = null;
+    private String serialnr = null;
+    private String nodeId;
 
     private String strID = null;
     private String strPassword = null;
@@ -139,22 +138,15 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private static final int EXCESS_DEMAND = 8192;
     private static final int PARAMETER_PROGRAMMING = 16384;
 
-    // DLMS PDU offsets
-    private static final byte DL_COSEMPDU_DATA_OFFSET = 0x07;
-
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-//    private Properties properties=null;
-
-    // filled in when getTime is invoked!
-//    private int dstFlag; // -1=unknown, 0=not set, 1=set
 
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("SLB");
     private DLMSCache dlmsCache = new DLMSCache();
     private int extendedLogging;
-    int addressingMode;
-    int connectionMode;
+    private int addressingMode;
+    private int connectionMode;
 
     /**
      * Creates a new instance of ACE6000, empty constructor
@@ -1210,7 +1202,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
             // get the first of the list of captured objects
             List allMaximumDemands = getCosemObjectFactory().getProfileGeneric(capturedObjectMDProfile.getLogicalName().getObisCode()).getCaptureObjects();
             CapturedObject capturedObject = (CapturedObject) allMaximumDemands.get(0);
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + (billingPoint ? " (billing point)\n" : "\n"));
+            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
         }
         return strBuff.toString();
     }
@@ -1222,7 +1214,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.5.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + (billingPoint ? " (billing point)\n" : "\n"));
+            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
         }
         return strBuff.toString();
     }
@@ -1234,7 +1226,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.90.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + (billingPoint ? " (billing point)\n" : "\n"));
+            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
         }
         return strBuff.toString();
     }
@@ -1246,7 +1238,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("255.255.98.133.1.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + (billingPoint ? " (billing point)\n" : "\n"));
+            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
         }
         return strBuff.toString();
     }
@@ -1258,7 +1250,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("255.255.98.133.2.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + (billingPoint ? " (billing point)\n" : "\n"));
+            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
         }
         return strBuff.toString();
     }
@@ -1275,7 +1267,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         strBuff.append("********************* All instantiated objects in the meter *********************\n");
         for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-            strBuff.append(uo.getObisCode().toString() + " " + uo.getObisCode().getDescription() + "\n");
+            strBuff.append(uo.getObisCode().toString() + " " + uo.getObisCode().toString() + "\n");
         }
 
         strBuff.append(getAllTotalEnergies(false));
@@ -1299,7 +1291,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + " (load profile)\n");
+            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + " (load profile)\n");
         }
 
         return strBuff.toString();
@@ -1506,48 +1498,24 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         throw new UnsupportedException();
     }
 
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RequestTimeZone");
-        result.add("FirmwareVersion");
-        result.add("SecurityLevel");
-        result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
-        result.add("ExtendedLogging");
-        result.add("AddressingMode");
-        result.add("AlarmStatusFlagChannel");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RequestTimeZone",
+                    "FirmwareVersion",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "ServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "ExtendedLogging",
+                    "AddressingMode",
+                    "AlarmStatusFlagChannel");
     }
 
     public int requestTimeZone() throws IOException {

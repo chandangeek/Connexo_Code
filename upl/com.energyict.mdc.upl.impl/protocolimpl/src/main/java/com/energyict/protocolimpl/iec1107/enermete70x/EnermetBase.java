@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -24,8 +22,8 @@ import com.energyict.protocolimpl.iec1107.IEC1107Connection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +37,7 @@ import java.util.Properties;
  * Remark:
  * KV 08112004 HHU's getSerialNumber() implementation uses securitylevel 1 and password 1. Should have a public read. Mail has been send to Asko!
  */
-abstract public class EnermetBase extends AbstractProtocol{
+public abstract class EnermetBase extends AbstractProtocol{
 
     IEC1107Connection iec1107Connection=null;
     DataReadingCommandFactory dataReadingCommandFactory=null;
@@ -47,7 +45,7 @@ abstract public class EnermetBase extends AbstractProtocol{
     protected boolean software7E1;
     protected boolean testE70xConnection = false;
 
-    abstract protected RegisterConfig getRegs();
+    protected abstract RegisterConfig getRegs();
 
     /** Creates a new instance of EnermetE70X */
     public EnermetBase() {
@@ -59,43 +57,42 @@ abstract public class EnermetBase extends AbstractProtocol{
     }
 
     public void connect() throws IOException {
-    	if(isTestE70xConnection()) {
-    	int logonRetries = getInfoTypeRetries();
+        if (isTestE70xConnection()) {
+            int logonRetries = getInfoTypeRetries();
 
-    	try {
-            while(logonRetries >= 0) {
-            	try {
-            		setMeterType(getProtocolConnection().connectMAC(getStrID(),getStrPassword(),getSecurityLevel(),getNodeId()));
-            		doConnect();
-            		testConnection();
-            		break;
-            	} catch (Exception e) {
-                    logonRetries--;
-            		((IEC1107Connection)getProtocolConnection()).setBoolFlagIEC1107Connected(false);
-            		e.printStackTrace();
-                    if (logonRetries < 0) {
-                        throw new ProtocolConnectionException("Unable to connect to meter after " + getInfoTypeRetries() + " retries, " + e.getMessage());
+            try {
+                while (logonRetries >= 0) {
+                    try {
+                        setMeterType(getProtocolConnection().connectMAC(getStrID(), getStrPassword(), getSecurityLevel(), getNodeId()));
+                        doConnect();
+                        testConnection();
+                        break;
+                    } catch (Exception e) {
+                        logonRetries--;
+                        ((IEC1107Connection) getProtocolConnection()).setBoolFlagIEC1107Connected(false);
+                        e.printStackTrace();
+                        if (logonRetries < 0) {
+                            throw new ProtocolConnectionException("Unable to connect to meter after " + getInfoTypeRetries() + " retries, " + e.getMessage());
+                        }
                     }
                 }
+            } catch (ProtocolConnectionException e) {
+                throw new IOException(e.getMessage());
             }
-        }
-        catch(ProtocolConnectionException e) {
-            throw new IOException(e.getMessage());
-        }
 
-        try {
-            validateDeviceId();
-        }
-        catch(ProtocolConnectionException e) {
-            disconnect();
-            throw new IOException(e.getMessage());
-        }
+            try {
+                validateDeviceId();
+            } catch (ProtocolConnectionException e) {
+                disconnect();
+                throw new IOException(e.getMessage());
+            }
 
-        if (getExtendedLogging() >= 1)
-           getLogger().info(getRegistersInfo(getExtendedLogging()));
-    	} else {
-    		super.connect();
-    	}
+            if (getExtendedLogging() >= 1) {
+                getLogger().info(getRegistersInfo(getExtendedLogging()));
+            }
+        } else {
+            super.connect();
+        }
     }
 
     private void testConnection() throws Exception {
@@ -120,14 +117,12 @@ abstract public class EnermetBase extends AbstractProtocol{
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
        return getEnermetLoadProfile().getNrOfChannels();
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Software7E1");
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.singletonList("Software7E1");
     }
 
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
@@ -138,10 +133,10 @@ abstract public class EnermetBase extends AbstractProtocol{
     }
 
     protected void doValidateProperties(Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
-        this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getDataReadingCommandFactory().getFirmwareVersion();
     }
 
@@ -161,10 +156,6 @@ abstract public class EnermetBase extends AbstractProtocol{
         getDataReadingCommandFactory().setDateTimeGmt(calendar.getTime());
     }
 
-
-    /*******************************************************************************************
-     * g e t t e r s  a n d  s e t t e r s
-     *******************************************************************************************/
 
     /**
      * Getter for property iec1107Connection.
@@ -189,26 +180,26 @@ abstract public class EnermetBase extends AbstractProtocol{
      *  This code has been taken from a real protocol implementation.
      */
 
-    static public final String COMMAND_CANNOT_BE_EXECUTED="([4])";
-    static public final String ERROR_SIGNATURE="([";
+    public static final String COMMAND_CANNOT_BE_EXECUTED="([4])";
+    public static final String ERROR_SIGNATURE="([";
 
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
     static {
-        exceptionInfoMap.put("([1])","General error, insufficient access rights");
-        exceptionInfoMap.put("([2])","The nr of command parameters is not correct");
-        exceptionInfoMap.put("([3])","The value of a command parameters is not valid");
-        exceptionInfoMap.put(COMMAND_CANNOT_BE_EXECUTED,"The command is formally correct, but it cannot be executed in this context");
-        exceptionInfoMap.put("([6])","EEPROM write error");
-        exceptionInfoMap.put("([7])","Core communication error");
+        EXCEPTION_INFO_MAP.put("([1])","General error, insufficient access rights");
+        EXCEPTION_INFO_MAP.put("([2])","The nr of command parameters is not correct");
+        EXCEPTION_INFO_MAP.put("([3])","The value of a command parameters is not valid");
+        EXCEPTION_INFO_MAP.put(COMMAND_CANNOT_BE_EXECUTED,"The command is formally correct, but it cannot be executed in this context");
+        EXCEPTION_INFO_MAP.put("([6])","EEPROM write error");
+        EXCEPTION_INFO_MAP.put("([7])","Core communication error");
     }
 
     public String getExceptionInfo(String id) {
-
-        String exceptionInfo = (String)exceptionInfoMap.get(id);
-        if (exceptionInfo != null)
-            return id+", "+exceptionInfo;
-        else
-            return "No meter specific exception info for "+id;
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
+        if (exceptionInfo != null) {
+            return id + ", " + exceptionInfo;
+        } else {
+            return "No meter specific exception info for " + id;
+        }
     }
 
     /**
@@ -247,4 +238,4 @@ abstract public class EnermetBase extends AbstractProtocol{
 		this.testE70xConnection = testE70xConnection;
 	}
 
-} // class EnermetE70X
+}

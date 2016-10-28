@@ -1,13 +1,9 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -38,8 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,46 +68,46 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     private int dbg = 0;
 
-    final static long FORCE_DELAY = 350;
+    private static final long FORCE_DELAY = 350;
 
     /**
      * Property keys specific for A140 protocol.
      */
-    final static String PK_TIMEOUT = "Timeout";
-    final static String PK_RETRIES = "Retries";
-    final static String PK_SECURITY_LEVEL = "SecurityLevel";
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    private static final String PK_TIMEOUT = "Timeout";
+    private static final String PK_RETRIES = "Retries";
+    static final String PK_SECURITY_LEVEL = "SecurityLevel";
+    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
 
     /**
      * Property Default values
      */
-    final static String PD_NODE_ID = "";
-    final static int PD_TIMEOUT = 10000;
-    final static int PD_RETRIES = 5;
-    final static int PD_ROUNDTRIP_CORRECTION = 0;
-    final static int PD_SECURITY_LEVEL = 2;
-    final static String PD_EXTENDED_LOGGING = "0";
+    private static final String PD_NODE_ID = "";
+    private static final int PD_TIMEOUT = 10000;
+    private static final int PD_RETRIES = 5;
+    private static final int PD_ROUNDTRIP_CORRECTION = 0;
+    private static final int PD_SECURITY_LEVEL = 2;
+    private static final String PD_EXTENDED_LOGGING = "0";
 
     /**
      * Property values Required properties will have NO default value Optional
      * properties make use of default value
      */
-    String pAddress = null;
-    String pNodeId = PD_NODE_ID;
-    String pSerialNumber = null;
-    String pPassword = null;
+    private String pAddress = null;
+    private String pNodeId = PD_NODE_ID;
+    private String pSerialNumber = null;
+    private String pPassword = null;
 
     /* Protocol timeout fail in msec */
-    int pTimeout = PD_TIMEOUT;
+    private int pTimeout = PD_TIMEOUT;
 
     /* Max nr of consecutive protocol errors before end of communication */
-    int pRetries = PD_RETRIES;
+    private int pRetries = PD_RETRIES;
     /* Offset in ms to the get/set time */
-    int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
-    int pSecurityLevel = PD_SECURITY_LEVEL;
-    int pCorrectTime = 0;
+    private int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
+    private int pSecurityLevel = PD_SECURITY_LEVEL;
+    private int pCorrectTime = 0;
 
-    String pExtendedLogging = PD_EXTENDED_LOGGING;
+    private String pExtendedLogging = PD_EXTENDED_LOGGING;
 
     private MeterType meterType = null;
     private RegisterFactory rFactory = null;
@@ -173,15 +170,15 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+            pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
         }
 
         if (p.getProperty(PK_RETRIES) != null) {
-            pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+            pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
         }
 
         if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            pRountTripCorrection = new Integer(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName())).intValue();
+            pRountTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORR.getName()));
         }
 
         if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
@@ -192,44 +189,22 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
         }
 
-        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+        this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
         validateProperties();
 
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-        result.add(PK_TIMEOUT);
-        result.add(PK_RETRIES);
-        result.add(PK_EXTENDED_LOGGING);
-        result.add("Software7E1");
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(),
+                PK_TIMEOUT,
+                PK_RETRIES,
+                PK_EXTENDED_LOGGING,
+                "Software7E1");
     }
 
     /*
@@ -281,7 +256,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         connect(0);
     }
 
-    void connect(int baudRate) throws IOException {
+    private void connect(int baudRate) throws IOException {
         try {
 
             meterType = flagConnection.connectMAC(pAddress, pPassword,
@@ -309,7 +284,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         flagConnection.disconnectMAC();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 1;
     }
 
@@ -336,7 +311,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return rFactory.getLoadProfile().getProfileData(from, to);
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return rFactory.getLoadProfileConfig().getDemandPeriod();
     }
 
@@ -396,7 +371,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,
                                 boolean enableDataReadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel,
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel,
                 pTimeout, pRetries, FORCE_DELAY, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
@@ -448,19 +423,13 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return serialNumber;
     }
 
-    static Map exception = new HashMap();
+    static Map<String, String> exception = new HashMap<>();
 
     static {
-        exception.put("ERR1",
-                "Invalid Command/Function type e.g. other than W1, R1 etc");
-
-        exception.put("ERR2",
-                "Invalid Data Identity Number e.g. Data id does not exist"
-                        + " in the meter");
+        exception.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
+        exception.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist in the meter");
         exception.put("ERR3", "Invalid Packet Number");
-
         exception.put("ERR5", "Data Identity is locked - password timeout");
-
         exception.put("ERR6", "General Comms error");
     }
 
@@ -470,7 +439,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      * @see com.energyict.protocolimpl.base.MeterExceptionInfo#getExceptionInfo(java.lang.String)
      */
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exception.get(id);
+        String exceptionInfo = exception.get(id);
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -504,10 +473,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return rFactory;
     }
 
-    /**
-     * @throws IOException
-     */
-    public void doExtendedLogging() throws IOException {
+    private void doExtendedLogging() throws IOException {
         if ("1".equals(pExtendedLogging)) {
             logger.log(Level.INFO, obisCodeMapper.getExtendedLogging() + "\n");
             if (dbg > 0) {
@@ -520,50 +486,46 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return "$Date: 2015-11-26 15:24:26 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException,
+    public Quantity getMeterReading(int channelId) throws
             IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException,
+    public Quantity getMeterReading(String name) throws
             IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
     public Date getTime() throws IOException {
-        Date date = rFactory.getTimeAndDate().getTime();
-        return date;
+        return rFactory.getTimeAndDate().getTime();
     }
 
     public void setTime() throws IOException {
         getFlagIEC1107Connection().authenticate();
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, pRountTripCorrection);
         rFactory.getTimeAndDate().setTime(calendar.getTime());
         rFactory.getTimeAndDate().write();
     }
 
-    public String getRegister(String name) throws IOException,
-            UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void setRegister(String name, String value) throws IOException,
-            NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         // TODO Auto-generated method stub
 
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         // TODO Auto-generated method stub
     }
 
@@ -591,8 +553,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /* ___ Private property checking ___ */
 
-    private void validateProperties() throws MissingPropertyException,
-            InvalidPropertyException {
+    private void validateProperties() {
 
     }
 

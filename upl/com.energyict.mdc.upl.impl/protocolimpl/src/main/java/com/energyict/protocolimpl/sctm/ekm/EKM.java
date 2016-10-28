@@ -18,7 +18,7 @@ import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,7 +27,7 @@ import java.util.Properties;
  * @author  Koen
  * @beginchanges
 KV|30092004|Initial version
-KV|15022005|Changed RegisterConfig to allow B field obiscodes != 1 
+KV|15022005|Changed RegisterConfig to allow B field obiscodes != 1
 KV|15022005|bugfix  RegisterConfig
 KV|07032005|changes for setTime and use of 8 character SCTM ID
 KV|17032005|Minor bugfixes and improved registerreading
@@ -38,7 +38,7 @@ KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail st
  */
 //com.energyict.protocolimpl.sctm.enermete70x.EKM
 public class EKM extends Metcom2 implements RegisterProtocol {
-    
+
 
     private static final String BILLING_TIME_STAMP_ID = "BillingTimeStampID";
     private static final String BILLINGPOINT_TIMESTAMP_ID_DEFAULT = "40*";
@@ -50,36 +50,36 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     public EKM() {
         genericRegisters = new GenericRegisters(this);
     }
- 
+
     @Override
     protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         billingTimeStampId = properties.getProperty(BILLING_TIME_STAMP_ID);
         super.validateProperties(properties);
     }
 
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("HalfDuplex");
-        result.add("ExtendedLogging");
-        result.add("RemovePowerOutageIntervals");
-        result.add("LogBookReadCommand");
-        result.add("ForcedDelay");
-        result.add("IntervalStatusBehaviour");
-        result.add("AutoBillingPointNrOfDigits");
-        result.add("TimeSetMethod");
-        result.add("Software7E1");
-        result.add(BILLING_TIME_STAMP_ID);
-        return result;
+    @Override
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "HalfDuplex",
+                    "ExtendedLogging",
+                    "RemovePowerOutageIntervals",
+                    "LogBookReadCommand",
+                    "ForcedDelay",
+                    "IntervalStatusBehaviour",
+                    "AutoBillingPointNrOfDigits",
+                    "TimeSetMethod",
+                    "Software7E1",
+                    BILLING_TIME_STAMP_ID);
     }
 
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
-    }    
-    
+    }
+
     /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    R e g i s t e r P r o t o c o l  i n t e r f a c e
     *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode)) {
@@ -98,7 +98,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
             return ocm.getRegisterValue(obisCode);
         }
     }
-    
+
     public String getBillingTimeStampId() {
         if (billingTimeStampId == null) {
             billingTimeStampId = BILLINGPOINT_TIMESTAMP_ID_DEFAULT;
@@ -109,5 +109,5 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return regs.getRegisterInfo()+"\n"+genericRegisters.getRegisterInfo();
     }
-    
+
 }

@@ -33,8 +33,6 @@ import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
@@ -58,7 +56,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -184,41 +184,16 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return "$Date: 2015-11-26 15:25:57 +0200 (Thu, 26 Nov 2015)$";
     }
 
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Arrays.asList(
+                    Dlms.DLMSSECURITYLEVEL,
+                    Dlms.CLIENTID);
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    @SuppressWarnings("unchecked")
-    public List getRequiredKeys() {
-        ArrayList<String> result = new ArrayList<String>();
-        result.add(Dlms.DLMSSECURITYLEVEL);
-        result.add(Dlms.CLIENTID);
-        return result;
-    }
-
-    /**
-     * List of optional keys
-     *
-     * @return a list of strings
-     */
-    @SuppressWarnings("unchecked")
-    public List getOptionalKeys() {
-        List result = new ArrayList();
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
-
         result.add(Dlms.SERVERADDRESS);
         result.add(Dlms.LOGICALDEVICE);
         result.add(Dlms.AUTHENTICATIONKEY);
@@ -230,11 +205,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         result.add(Dlms.ARCHIVESTRUCTURE);
         result.add(Dlms.LOGSTRUCTURE);
         result.add(Dlms.MAXPDUSIZE);
-
-        List result2 = doGetOptionalKeys();
-        if (result2 != null) {
-            result.addAll(result2);
-        }
+        result.addAll(doGetOptionalKeys());
         return result;
     }
 
@@ -243,9 +214,8 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
      *
      * @return a list of keys (Strings)
      */
-    @SuppressWarnings("unchecked")
-    protected List doGetOptionalKeys() {
-        return null;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     /**

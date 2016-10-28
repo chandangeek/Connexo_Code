@@ -28,8 +28,9 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -45,31 +46,29 @@ import java.util.logging.Logger;
  */
 public class Unilog extends AbstractUnilog implements SerialNumberSupport {
 
-    private final static String KAMSTRUP_ID = "/KAM5";
-
     /**
      * Property keys specific for PPM protocol.
      */
-    private final static String PK_TIMEOUT = "Timeout";
-    private final static String PK_RETRIES = "Retries";
-    private final static String PK_FORCE_DELAY = "ForceDelay";
-    private final static String PK_ECHO_CANCELLING = "EchoCancelling";
-    private final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
+    private static final String PK_TIMEOUT = "Timeout";
+    private static final String PK_RETRIES = "Retries";
+    private static final String PK_FORCE_DELAY = "ForceDelay";
+    private static final String PK_ECHO_CANCELLING = "EchoCancelling";
+    private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     private static final String PK_CHANNEL_MAP = "ChannelMap";
 
     /**
      * Property Default values
      */
-    private final static String PD_PASSWORD = "kamstrup";
-    private final static int PD_TIMEOUT = 10000;
-    private final static int PD_RETRIES = 5;
-    private final static int PD_PROFILE_INTERVAL = 3600;
-    private final static long PD_FORCE_DELAY = 170;
-    private final static int PD_ECHO_CANCELING = 0;
-    private final static int PD_IEC1107_COMPATIBLE = 1;
-    private final static int PD_ROUNDTRIP_CORRECTION = 0;
-    private final static int PD_SECURITY_LEVEL = 1;
-    private final static String PD_CHANNEL_MAP = "0,0";
+    private static final String PD_PASSWORD = "kamstrup";
+    private static final int PD_TIMEOUT = 10000;
+    private static final int PD_RETRIES = 5;
+    private static final int PD_PROFILE_INTERVAL = 3600;
+    private static final long PD_FORCE_DELAY = 170;
+    private static final int PD_ECHO_CANCELING = 0;
+    private static final int PD_IEC1107_COMPATIBLE = 1;
+    private static final int PD_ROUNDTRIP_CORRECTION = 0;
+    private static final int PD_SECURITY_LEVEL = 1;
+    private static final String PD_CHANNEL_MAP = "0,0";
 
     /**
      * Property values Required properties will have NO default value Optional
@@ -166,7 +165,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
             pRountTripCorrection = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()));
         }
 
-        this.software7E1 = !properties.getProperty(PK_SOFTWARE_7E1, "0").equalsIgnoreCase("0");
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty(PK_SOFTWARE_7E1, "0"));
 
         if (properties.getProperty(Unilog.PK_CHANNEL_MAP) != null) {
             this.pChannelMap = properties.getProperty(Unilog.PK_CHANNEL_MAP);
@@ -176,30 +175,18 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
 
     }
 
-    /**
-     * The required keys of the protocol
-     *
-     * @return
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    /**
-     * The optional keys of the protocol
-     *
-     * @return
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(PK_TIMEOUT);
-        result.add(PK_RETRIES);
-        result.add(PK_ECHO_CANCELLING);
-        result.add(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName());
-        result.add(PK_SOFTWARE_7E1);
-        result.add(PK_CHANNEL_MAP);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    PK_TIMEOUT,
+                    PK_RETRIES,
+                    PK_ECHO_CANCELLING,
+                    com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName(),
+                    PK_SOFTWARE_7E1,
+                    PK_CHANNEL_MAP);
     }
 
     @Override
@@ -272,7 +259,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      * @throws UnsupportedException
      * @throws IOException
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return pProfileInterval;
     }
 
@@ -286,7 +273,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      * @throws IOException
      * @throws UnsupportedException
      */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -300,8 +287,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      * @throws IOException
      */
     public void setTime() throws IOException {
-        Calendar calendar = null;
-        calendar = ProtocolUtils.getCalendar(getTimeZone());
+        Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         calendar.add(Calendar.MILLISECOND, pRountTripCorrection);
         Date date = calendar.getTime();
         registry.setRegister("0.9.1", date);
@@ -326,7 +312,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      * @throws UnsupportedException
      * @throws IOException
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return protocolChannelMap.getNrOfProtocolChannels();
     }
 
@@ -365,7 +351,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
      * @throws IOException
      * @throws UnsupportedException
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return ("Unknown");
     }
 

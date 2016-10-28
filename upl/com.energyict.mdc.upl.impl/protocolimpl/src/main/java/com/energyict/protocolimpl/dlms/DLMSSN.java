@@ -14,7 +14,6 @@
  *@endchanges
  */
 
-
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
@@ -22,8 +21,6 @@ import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -75,8 +72,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -86,7 +84,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, SerialNumberSupport {
+public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, SerialNumberSupport {
 
     protected abstract String getDeviceID();
 
@@ -318,7 +316,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (iInterval == -1) {
             iInterval = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCapturePeriod();
         }
@@ -332,7 +330,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (iNumberOfChannels == -1) {
             meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
             iNumberOfChannels = meterConfig.getNumberOfChannels();
@@ -340,11 +338,11 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         return iNumberOfChannels;
     } // public int getNumberOfChannels()  throws IOException
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -373,8 +371,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
             }
 
         } catch (DLMSConnectionException e) {
-            IOException exception = new IOException(e.getMessage());
-            exception.initCause(e);
+            IOException exception = new IOException(e.getMessage(), e);
             throw exception;
         }
     }
@@ -422,8 +419,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
             }
 
         } catch (IOException e) {
-            IOException exception = new IOException("connect() error, " + e.getMessage());
-            exception.initCause(e);
+            IOException exception = new IOException("connect() error, " + e.getMessage(), e);
             throw exception;
         }
 
@@ -434,35 +430,44 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     */
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         Iterator it;
 
         // all total and rate values...
-        strBuff.append("********************* All instantiated objects in the meter *********************\n");
+        builder.append("********************* All instantiated objects in the meter *********************\n");
         for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-            strBuff.append(uo.getObisCode().toString() + " " + uo.getObisCode().getDescription() + " - ShortName : " + uo.getBaseName() + " (0x" + Integer.toHexString(uo.getBaseName()) + ") - ClassId : " + uo.getClassID() + "\n");
+            builder.append(uo.getObisCode().toString())
+                    .append(" ")
+                    .append(uo.getObisCode().toString())
+                    .append(" - ShortName : ")
+                    .append(uo.getBaseName())
+                    .append(" (0x")
+                    .append(Integer.toHexString(uo.getBaseName()))
+                    .append(") - ClassId : ")
+                    .append(uo.getClassID())
+                    .append("\n");
         }
 
         if (getDeviceID().compareTo("EIT") != 0) {
             // all billing points values...
-            strBuff.append("********************* Objects captured into billing points *********************\n");
+            builder.append("********************* Objects captured into billing points *********************\n");
             it = getCosemObjectFactory().getStoredValues().getProfileGeneric().getCaptureObjects().iterator();
             while (it.hasNext()) {
                 CapturedObject capturedObject = (CapturedObject) it.next();
-                strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + " (billing point)\n");
+                builder.append(capturedObject.getLogicalName().getObisCode().toString()).append(" ").append(capturedObject.getLogicalName().getObisCode().toString()).append(" (billing point)\n");
             }
         }
 
-        strBuff.append("********************* Objects captured into load profile *********************\n");
+        builder.append("********************* Objects captured into load profile *********************\n");
         it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + " (load profile)\n");
+            builder.append(capturedObject.getLogicalName().getObisCode().toString()).append(" ").append(capturedObject.getLogicalName().getObisCode().toString()).append(" (load profile)\n");
         }
 
-        return strBuff.toString();
+        return builder.toString();
     }
 
     /**
@@ -478,10 +483,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }
@@ -493,7 +495,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws IOException
      */
     public void setTime() throws IOException {
-        Calendar calendar = null;
+        Calendar calendar;
         if (isRequestTimeZone()) {
             if (dstFlag == 0) {
                 calendar = ProtocolUtils.getCalendar(false, requestTimeZone());
@@ -521,15 +523,15 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
 
         byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[1] = 12; // length
-        byteTimeBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[3] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[4] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[5] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteTimeBuffer[2] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[3] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[4] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[5] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[7] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[7] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[8] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[9] = (byte) calendar.get(Calendar.SECOND);
         byteTimeBuffer[10] = (byte) 0xFF;
         byteTimeBuffer[11] = (byte) 0x80;
         byteTimeBuffer[12] = 0x00;
@@ -552,7 +554,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
 
         getCosemObjectFactory().getGenericWrite((short) meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
 
-    } // private void doSetTime(Calendar calendar)
+    }
 
     /**
      * Method that requests the time/date in the remote meter.
@@ -565,11 +567,11 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         Date date = clock.getDateTime();
         dstFlag = clock.getDstFlag();
         return date;
-    } // public Date getTime() throws IOException
+    }
 
     private boolean requestDaylightSavingEnabled() throws IOException {
         return getCosemObjectFactory().getClock().isDsEnabled();
-    } // private boolean requestDaylightSavingEnabled() throws IOException
+    }
 
     /**
      * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
@@ -579,7 +581,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      */
     private void requestObjectList() throws IOException {
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationSN().getBuffer());
-    } // public void requestObjectList() throws IOException
+    }
 
 
     public String getConfiguredSerialNumber() {
@@ -612,7 +614,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @return String representing the version.
      * @throws IOException
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         UniversalObject uo = meterConfig.getVersionObject();
         return getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getString();
     } // public String getFirmwareVersion()
@@ -660,7 +662,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -810,13 +812,12 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
 
         DLMSObis ln = new DLMSObis(name);
 
         if (ln.isLogicalName()) {
-            String str = requestAttribute(meterConfig.getObject(ln).getBaseName(), (short) ((ln.getOffset() - 1) * 8));
-            return str;
+            return requestAttribute(meterConfig.getObject(ln).getBaseName(), (short) ((ln.getOffset() - 1) * 8));
         } else if (name.compareTo("PROGRAM_CONF_CHANGES") == 0) {
             return String.valueOf(requestConfigurationProgramChanges());
         } else if (name.compareTo("GET_CLOCK_OBJECT") == 0) {
@@ -837,7 +838,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -847,58 +848,36 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RequestTimeZone");
-        result.add("RequestClockObject");
-        result.add("SecurityLevel");
-        result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
-        result.add("ExtendedLogging");
-        result.add("AddressingMode");
-        result.add("EventIdIndex");
-        result.add("ChannelMap");
-        result.add("Connection");
-        result.add(PROPNAME_CIPHERING_TYPE);
-        result.add(PROPNAME_IIAP_INVOKE_ID);
-        result.add(PROPNAME_IIAP_PRIORITY);
-        result.add(PROPNAME_IIAP_SERVICE_CLASS);
-        result.add(PROPNAME_MAX_PDU_SIZE);
-        result.add(PROPNAME_IFORCEDELAY_BEFORE_SEND);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    "Timeout",
+                    "Retries",
+                    "DelayAfterFail",
+                    "RequestTimeZone",
+                    "RequestClockObject",
+                    "SecurityLevel",
+                    "ClientMacAddress",
+                    "ServerUpperMacAddress",
+                    "ServerLowerMacAddress",
+                    "ExtendedLogging",
+                    "AddressingMode",
+                    "EventIdIndex",
+                    "ChannelMap",
+                    "Connection",
+                    PROPNAME_CIPHERING_TYPE,
+                    PROPNAME_IIAP_INVOKE_ID,
+                    PROPNAME_IIAP_PRIORITY,
+                    PROPNAME_IIAP_SERVICE_CLASS,
+                    PROPNAME_MAX_PDU_SIZE,
+                    PROPNAME_IFORCEDELAY_BEFORE_SEND);
     }
 
     private void requestClockObject() {
@@ -962,7 +941,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         return getCosemObjectFactory().getGenericRead(iBaseName, iOffset).getValue();
     } // private long requestAttributeLong(int iBaseName,int iOffset) throws IOException
 
-    private String requestAttributeString(int iBaseName, int iOffset) throws IOException {
+    private String requestAttributeString(int iBaseName, int iOffset) {
         return getCosemObjectFactory().getGenericRead(iBaseName, iOffset).toString();
     } // private String requestAttributeString(int iBaseName,int iOffset) throws IOException
 
@@ -1022,7 +1001,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
+                new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -1068,7 +1047,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     }
 
     public StoredValues getStoredValues() {
-        return (StoredValues) storedValuesImpl;
+        return storedValuesImpl;
     }
 
     public void setDLMSConnection(DLMSConnection connection) {

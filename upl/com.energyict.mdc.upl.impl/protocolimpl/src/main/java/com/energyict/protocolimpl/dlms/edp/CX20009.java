@@ -46,9 +46,9 @@ import java.util.logging.Level;
 public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism, SerialNumberSupport {
 
     public static final ObisCode SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
-    public static final ObisCode CORE_FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode APPLICATION_FIRMWARE_VERSION = ObisCode.fromString("1.1.0.2.0.255");
-    public static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
+    private static final ObisCode CORE_FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
+    private static final ObisCode APPLICATION_FIRMWARE_VERSION = ObisCode.fromString("1.1.0.2.0.255");
+    static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
 
     private RegisterReader registerReader = null;
     private EDPProperties edpProperties;
@@ -105,7 +105,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     }
 
     @Override
-    protected List doGetOptionalKeys() {
+    protected List<String> doGetOptionalKeys() {
         return getEdpProperties().getOptionalKeys();
     }
 
@@ -170,17 +170,14 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     public void disconnect() {
         try {
             getDLMSConnection().disconnectMAC();
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     @Override

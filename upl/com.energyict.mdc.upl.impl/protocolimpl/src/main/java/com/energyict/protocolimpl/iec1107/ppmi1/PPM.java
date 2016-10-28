@@ -8,8 +8,6 @@ package com.energyict.protocolimpl.iec1107.ppmi1;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -35,8 +33,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -161,17 +160,16 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
     private static final int PD_SECURITY_LEVEL = 0;
 
     private static final long TIME_SHIFT_RATE = (60 * 10500) / 0x07F;
-    private static final Map exception = new HashMap();
+    private static final Map<String, String> EXCEPTION = new HashMap<>();
 
     static {
-        exception.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
-        exception.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist" + " in the meter");
-        exception.put("ERR3", "Invalid Packet Number");
-        exception.put("ERR5", "Data Identity is locked - password timeout");
-        exception.put("ERR6", "General Comms error");
+        EXCEPTION.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
+        EXCEPTION.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist" + " in the meter");
+        EXCEPTION.put("ERR3", "Invalid Packet Number");
+        EXCEPTION.put("ERR5", "Data Identity is locked - password timeout");
+        EXCEPTION.put("ERR6", "General Comms error");
     }
 
-    /** Property values */
     /**
      * Required properties will have NO default value
      */
@@ -220,12 +218,8 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
     private boolean software7E1 = false;
     private MeterType meterType = null;
 
-    /**
-     * Creates a new instance of PPM
-     */
     public PPM() {
     }
-
 
     @Override
     public String getSerialNumber() {
@@ -236,9 +230,6 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
         }
     }
 
-    /* (non-Javadoc)
-          * @see com.energyict.protocol.MeterProtocol#setProperties(java.util.Properties)
-          */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
         if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
@@ -281,12 +272,12 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
             pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
         }
 
-        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+        this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
 
         validateProperties();
     }
 
-    private void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+    private void validateProperties() throws InvalidPropertyException {
 
         if (pPassword == null) {
             String msg = "";
@@ -391,18 +382,12 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
 
     }
 
-    /**
-     * @throws IOException
-     */
     private void doExtendedLogging() throws IOException {
         if ("1".equals(pExtendedLogging)) {
             this.logger.info(rFactory.getRegisterInformation().getExtendedLogging() + " \n");
         }
     }
 
-    /**
-     * @throws IOException
-     */
     private void validatePassword() throws IOException {
         String pw = (String) rFactory.getRegister(RegisterFactory.R_OPUS_PASSWORD);
         if ((pw != null) && (pPassword != null) && (pw.equals(pPassword))) {
@@ -411,9 +396,7 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
         throw new InvalidPropertyException("Configured password does not match the device opus password!");
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#disconnect()
-      */
+    @Override
     public void disconnect() throws IOException {
         if (!isOpus()) {
             try {
@@ -427,54 +410,30 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                    PK_OPUS,
+                    "Timeout",
+                    "Retries",
+                    PK_EXTENDED_LOGGING,
+                    PK_FORCE_DELAY,
+                    "Software7E1");
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.cbo.ConfigurationSupport#getRequiredKeys()
-      */
-    public List getRequiredKeys() {
-        return new ArrayList(0);
-    }
-
-    /* (non-Javadoc)
-      * @see com.energyict.cbo.ConfigurationSupport#getOptionalKeys()
-      */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(PK_OPUS);
-        result.add("Timeout");
-        result.add("Retries");
-        result.add(PK_EXTENDED_LOGGING);
-        result.add(PK_FORCE_DELAY);
-        result.add("Software7E1");
-        return result;
-    }
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
-      */
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
-      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = profile.getProfileData(from, to, includeEvents);
         return ProtocolTools.clipProfileData(from, to, profileData);
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
-      */
     public Quantity getMeterReading(int channelId) throws IOException {
         LoadProfileDefinition lpd = rFactory.getLoadProfileDefinition();
         List l = lpd.toChannelInfoList();
@@ -527,8 +486,7 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
 
         Date meterTime = getTime();
 
-        Calendar sysCalendar = null;
-        sysCalendar = ProtocolUtils.getCalendar(timeZone);
+        Calendar sysCalendar = ProtocolUtils.getCalendar(timeZone);
         sysCalendar.add(Calendar.MILLISECOND, pRountTripCorrection);
 
         long diff = meterTime.getTime() - sysCalendar.getTimeInMillis();
@@ -573,37 +531,23 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
         return returValue;
     }
 
-    /**
-     * @return
-     */
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return this.flagIEC1107Connection;
     }
 
-    /**
-     * @return
-     */
     public Logger getLogger() {
         return this.logger;
     }
 
-    /**
-     * @return
-     */
     public String getPassword() {
         return pPassword;
     }
 
-    /**
-     * @return
-     */
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel, boolean)
-      */
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, pTimeout, pRetries, pForceDelay, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
@@ -637,7 +581,7 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
       * @see com.energyict.protocolimpl.base.MeterExceptionInfo#getExceptionInfo(java.lang.String)
       */
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exception.get(id);
+        String exceptionInfo = EXCEPTION.get(id);
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -704,23 +648,14 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
         return pRetries;
     }
 
-    /**
-     * @return
-     */
     public long getForceDelay() {
         return pForceDelay;
     }
 
-    /**
-     * @return
-     */
     public long getDelayAfterFail() {
         return pDelayAfterFail;
     }
 
-    /**
-     * @return
-     */
     public long getTimeout() {
         return pTimeout;
     }

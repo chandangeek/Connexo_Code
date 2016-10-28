@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -109,11 +110,11 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
         whoAreYouTimeout = Integer.parseInt(properties.getProperty("WhoAreYouTimeout","300").trim());
         totalRegisterRate = Integer.parseInt(properties.getProperty("TotalRegisterRate","1").trim());
     }
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("WhoAreYouTimeout");
-        result.add("TotalRegisterRate");
-        return result;
+
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "WhoAreYouTimeout",
+                    "TotalRegisterRate");
     }
 
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -209,42 +210,42 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         getBillingDataRegisterFactory().buildAll();
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
-        strBuff.append("************************ CLASSES READ ************************\n");
-        strBuff.append(getClassFactory().getClass0ComputationalConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass2IdentificationAndDemandData()+"\n");
-        strBuff.append(getClassFactory().getClass33ModemConfigurationInfo()+"\n");
-        strBuff.append(getClassFactory().getClass6MeteringFunctionBlock()+"\n");
-        strBuff.append(getClassFactory().getClass7MeteringFunctionBlock()+"\n");
-        strBuff.append(getClassFactory().getClass8FirmwareConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass9Status1()+"\n");
-        strBuff.append(getClassFactory().getClass10Status2()+"\n");
-        strBuff.append(getClassFactory().getClass14LoadProfileConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass16LoadProfileHistory()+"\n");
+        builder.append("************************ CLASSES READ ************************\n");
+        builder.append(getClassFactory().getClass0ComputationalConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass2IdentificationAndDemandData()).append("\n");
+        builder.append(getClassFactory().getClass33ModemConfigurationInfo()).append("\n");
+        builder.append(getClassFactory().getClass6MeteringFunctionBlock()).append("\n");
+        builder.append(getClassFactory().getClass7MeteringFunctionBlock()).append("\n");
+        builder.append(getClassFactory().getClass8FirmwareConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass9Status1()).append("\n");
+        builder.append(getClassFactory().getClass10Status2()).append("\n");
+        builder.append(getClassFactory().getClass14LoadProfileConfiguration()).append("\n");
+        builder.append(getClassFactory().getClass16LoadProfileHistory()).append("\n");
 
-        strBuff.append("************************ CLASS11 Current billing registers ************************\n");
+        builder.append("************************ CLASS11 Current billing registers ************************\n");
         Iterator it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.CURRENT_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
-            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
+            builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
-        strBuff.append("************************ CLASS12 Previous month billing registers ************************\n");
+        builder.append("************************ CLASS12 Previous month billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_MONTH_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
-            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
+            builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
-        strBuff.append("************************ CLASS13 Previous season billing registers ************************\n");
+        builder.append("************************ CLASS13 Previous season billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_SEASON_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
-            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
+            builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public CommandFactory getCommandFactory() {
@@ -269,6 +270,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
     public AlphaBasicProfile getAlphaBasicProfile() {
         return alphaBasicProfile;
     }
+
     public void setDialinScheduleTime(Date date) throws IOException {
         getCommandFactory().getFunctionWithDataCommand().billingReadDialin(date,getTimeZone());
     }
@@ -277,7 +279,4 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
         return totalRegisterRate;
     }
 
-    private void setTotalRegisterRate(int totalRegisterRate) {
-        this.totalRegisterRate = totalRegisterRate;
-    }
 }

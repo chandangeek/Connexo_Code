@@ -1,11 +1,7 @@
 package com.energyict.protocolimpl.migration;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -37,6 +33,16 @@ public class DummyProtocol implements MeterProtocol {
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<String> getOptionalKeys() {
+        return Collections.emptyList();
     }
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -91,11 +97,11 @@ public class DummyProtocol implements MeterProtocol {
         throw new UnsupportedOperationException();
     }
 
-    public String getRegister(String s) throws IOException, NoSuchRegisterException {
+    public String getRegister(String s) throws IOException {
         throw new UnsupportedOperationException();
     }
 
-    public void setRegister(String s, String s1) throws IOException, UnsupportedException {
+    public void setRegister(String s, String s1) throws IOException {
         throw new UnsupportedOperationException();
     }
 
@@ -137,15 +143,4 @@ public class DummyProtocol implements MeterProtocol {
         throw new UnsupportedOperationException();
     }
 
-    //No properties
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    //No properties
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
-    }
 }

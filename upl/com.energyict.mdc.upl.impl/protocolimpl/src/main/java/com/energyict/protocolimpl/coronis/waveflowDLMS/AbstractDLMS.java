@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -34,13 +33,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache, SerialNumberSupport {
+public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache, SerialNumberSupport {
 
     protected enum PairingMeterId {
         AS253(1),
@@ -64,7 +64,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
     }
 
-    static private final int EMETER_NR_OF_CHANNELS = 4;
+    private static final int EMETER_NR_OF_CHANNELS = 4;
     protected static final String PROPERTY_LP_MULTIPLIER = "ApplyLoadProfileMultiplier";
 
     protected abstract void doTheValidateProperties(Properties properties);
@@ -210,7 +210,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
         byte[] ln = getSerialNumberObisCodeForPairingRequest().getLN();
         for (int i = 0; i < 6; i++) {
-            pairingFrame[METER_SERIAL_OBISCODE_OFFSET + i] = (byte) ln[i];
+            pairingFrame[METER_SERIAL_OBISCODE_OFFSET + i] = ln[i];
         }
 
         pairingFrame[1] = (byte) getPairingMeterId().getId();
@@ -287,18 +287,17 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add("correctWaveflowTime");
-        list.add("verifyProfileInterval");
-        list.add("LoadProfileObisCode");
-        list.add("WavenisEncryptionKey");
-        list.add("isOldFirmware");
-        list.add("optimizeChangeContactorStatus");
-        list.add("SerialNumberA");
-        list.add("MaxNumberOfIntervals");
-        list.add(PROPERTY_LP_MULTIPLIER);
-        return list;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                    "correctWaveflowTime",
+                    "verifyProfileInterval",
+                    "LoadProfileObisCode",
+                    "WavenisEncryptionKey",
+                    "isOldFirmware",
+                    "optimizeChangeContactorStatus",
+                    "SerialNumberA",
+                    "MaxNumberOfIntervals",
+                    PROPERTY_LP_MULTIPLIER);
     }
 
     protected ObisCode getClockObisCode() {
@@ -350,7 +349,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
 
         return "N/A";
 
@@ -405,7 +404,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
      * @throws java.io.IOException thrown when somethiong goes wrong
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -520,7 +519,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         return statusAndEvents;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return EMETER_NR_OF_CHANNELS;
     }
 
