@@ -3,12 +3,13 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
+import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.Channel;
@@ -16,20 +17,15 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingContainer;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -76,8 +72,6 @@ public class StandardCsvDataFormatterTest {
     @Mock
     private KpiService kpiService;
     @Mock
-    private ValidationService validationService;
-    @Mock
     private MeteringService meteringService;
     @Mock
     private ValidationEvaluator validationEvaluator;
@@ -86,17 +80,19 @@ public class StandardCsvDataFormatterTest {
     @Mock
     private AppService appService;
     @Mock
-    DataExportOccurrence dataExportOccurrence;
+    private DataExportOccurrence dataExportOccurrence;
     @Mock
-    ReadingTypeDataExportItem item, item1;
+    private ReadingTypeDataExportItem item, item1;
     @Mock
-    MeterReading data, dataLoadProfile;
+    private MeterReading data, dataLoadProfile;
     @Mock
-    Meter meter, meter1;
+    private MeterReadingValidationData suspectData, notValidatedData;
     @Mock
-    MeterActivation meterActivation;
+    private Meter meter, meter1;
     @Mock
-    ChannelsContainer channelsContainer;
+    private MeterActivation meterActivation;
+    @Mock
+    private ChannelsContainer channelsContainer;
     @Mock
     ReadingType readingType, readingType1;
     @Mock
@@ -106,17 +102,13 @@ public class StandardCsvDataFormatterTest {
     @Mock
     IntervalBlock intervalBlock;
     @Mock
-    DataExportProperty propertyExtension, propertyPrefix, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, property, propertyPath;
-    @Mock
-    ReadingQualityRecord readingQuality, readingQuality1;
-    @Mock
     IntervalReading intervalReading, intervalReading1;
     @Mock
-    ReadingContainer readingContainer, readingContainer1;
+    DataExportProperty propertyExtension, propertyPrefix, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, property, propertyPath;
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    DataValidationStatus dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3;
+    DataValidationStatus dataValidationStatus;
     @Mock
     private AppServer appServer;
 
@@ -130,24 +122,10 @@ public class StandardCsvDataFormatterTest {
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.windows());
         Path root = fileSystem.getRootDirectories().iterator().next();
         Files.createTempDirectory(root, "tmp");
-        when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
-        when(validationService.getEvaluator(meter1)).thenReturn(validationEvaluator);
-        doReturn(Optional.of(meterActivation)).when(meter).getMeterActivation(Instant.ofEpochMilli(EPOCH_MILLI));
-        doReturn(Optional.of(meterActivation)).when(meter1).getMeterActivation(Instant.ofEpochMilli(EPOCH_MILLI));
 
-        List<? extends BaseReading> listReadings = Arrays.asList(reading, reading1, reading2);
         when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
         doReturn(Arrays.asList(readingType, readingType1)).when(channel).getReadingTypes();
-        when(readingQuality.isMissing()).thenReturn(true);
-        when(readingQuality1.isMissing()).thenReturn(false);
-        when(validationEvaluator.getValidationStatus(Collections.emptySet(), channel, listReadings))
-                .thenReturn(Arrays.asList(dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3));
         when(dataValidationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
-        when(dataValidationStatus.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
-        when(dataValidationStatus1.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
-        when(dataValidationStatus1.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
-        when(dataValidationStatus2.getValidationResult()).thenReturn(ValidationResult.VALID);
-        when(dataValidationStatus3.getValidationResult()).thenReturn(ValidationResult.NOT_VALIDATED);
 
         TranslatablePropertyValueInfo semicolonValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_SEMICOLON.getKey(), "Semicolon (;)");
         properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, propertyPath);
@@ -167,10 +145,8 @@ public class StandardCsvDataFormatterTest {
         when(propertyPath.getValue()).thenReturn("c:\\export");
         when(dataExportOccurrence.getTriggerTime()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
 
-        when(item.getReadingContainer()).thenReturn(readingContainer);
-        when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.of(meter));
-        when(item1.getReadingContainer()).thenReturn(readingContainer1);
-        when(readingContainer1.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.of(meter1));
+        when(item.getDomainObject()).thenReturn(meter);
+        when(item1.getDomainObject()).thenReturn(meter1);
         when(meter.getMRID()).thenReturn("MRMR");
         when(meter1.getMRID()).thenReturn("MRMRMR");
         when(meter.getName()).thenReturn("Device");
@@ -190,6 +166,8 @@ public class StandardCsvDataFormatterTest {
         when(reading2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(reading2.getValue()).thenReturn(BigDecimal.ZERO);
 
+        when(suspectData.getValidationStatus(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(dataValidationStatus);
+
         when(dataLoadProfile.getReadings()).thenReturn(Collections.emptyList());
         when(dataLoadProfile.getIntervalBlocks()).thenReturn(Collections.singletonList(intervalBlock));
 
@@ -203,16 +181,6 @@ public class StandardCsvDataFormatterTest {
 
         doReturn(Optional.of(readingType)).when(meteringService).getReadingType("0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73");
 
-        List<? extends ReadingQuality> list = Collections.unmodifiableList(Arrays.asList(readingQuality, readingQuality1));
-        doReturn(list).when(reading).getReadingQualities();
-        doReturn(list).when(reading1).getReadingQualities();
-        doReturn(list).when(reading2).getReadingQualities();
-        when(readingQuality.getTypeCode()).thenReturn("2.5.259");
-        when(readingQuality1.getTypeCode()).thenReturn("2.5.258");
-
-        doReturn(list).when(intervalReading).getReadingQualities();
-        doReturn(Collections.emptyList()).when(intervalReading1).getReadingQualities();
-
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(dataExportService.getExportDirectory(appServer)).thenReturn(Optional.of(fileSystem.getPath("c:\\appserver\\export")));
 
@@ -225,7 +193,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        FormattedData formattedData = processor.processData(Stream.of(/*new MeterReadingData(item, dataLoadProfile, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
+        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, dataLoadProfile, notValidatedData, TestDefaultStructureMarker.createRoot(clock, "root"))));
         List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(2);
@@ -234,7 +202,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
-        formattedData = processor.processData(Stream.of(/*new MeterReadingData(item1, this.dataLoadProfile, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
+        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.dataLoadProfile, notValidatedData, TestDefaultStructureMarker.createRoot(clock, "root"))));
         lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(2);
@@ -248,7 +216,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        FormattedData formattedData = processor.processData(Stream.of(/*new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
+        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, data, suspectData, TestDefaultStructureMarker.createRoot(clock, "root"))));
         List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(3);
@@ -258,7 +226,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
-        formattedData = processor.processData(Stream.of(/*new MeterReadingData(item1, this.data, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
+        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.data, suspectData, TestDefaultStructureMarker.createRoot(clock, "root"))));
         lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(3);
@@ -273,18 +241,8 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(Stream.of(/*new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock ,"root"))*/));
+        processor.processData(Stream.of(new MeterReadingData(item, data, notValidatedData, TestDefaultStructureMarker.createRoot(clock, "root"))));
         processor.endItem(item1);
-    }
-
-    @Test(expected = DataExportException.class)
-    public void testNoMeter() {
-        when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.empty());
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), dataExportService);
-
-        processor.startExport(dataExportOccurrence, logger);
-        processor.startItem(item);
-        processor.processData(Stream.of(/*new MeterReadingData(item, data, TestDefaultStructureMarker.createRoot(clock, "root"))*/));
     }
 
     private Map<String, Object> getPropertyMap(List<DataExportProperty> properties) {
