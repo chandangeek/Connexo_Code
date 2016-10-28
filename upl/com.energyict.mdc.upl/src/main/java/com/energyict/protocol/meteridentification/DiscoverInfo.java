@@ -81,7 +81,7 @@ public class DiscoverInfo {
         this.commChannel = commChannel;
     }
 
-    public List getPasswords() {
+    public List<String> getPasswords() {
         return passwords;
     }
 
