@@ -630,9 +630,9 @@ Ext.define('Mdc.controller.history.Setup', {
                         communicationschedules: {
                             title: Uni.I18n.translate('general.communicationPlanning', 'MDC', 'Communication planning'),
                             route: 'communicationplanning',
-                            controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                            controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
                             privileges: Mdc.privileges.Device.deviceOperator,
-                            action: 'showDeviceCommunicationScheduleView',
+                            action: 'showDeviceCommunicationPlanning',
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages,
                             items: {

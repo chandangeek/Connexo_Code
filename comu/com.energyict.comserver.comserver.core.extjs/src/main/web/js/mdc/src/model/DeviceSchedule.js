@@ -15,7 +15,8 @@ Ext.define('Mdc.model.DeviceSchedule', {
         {name: 'schedule', useNull: true},
         {name: 'plannedDate', dateFormat: 'time', type: 'date'},
         {name: 'nextCommunication', dateFormat: 'time', type: 'date'},
-        {name: 'comTaskInfos'},
+        {name: 'comTask'},
+        {name: 'active', type: 'boolean'},
         {name: 'type', type: 'string'}
     ],
     idProperty: 'internalId',
