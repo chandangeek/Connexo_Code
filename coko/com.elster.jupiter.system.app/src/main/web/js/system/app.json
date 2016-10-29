@@ -1,22 +1,20 @@
 {
-    "name": "com.elster.jupiter.system.app",
-
-    "requires": [
-        "com.elster.jupiter.loaderjs@1.2.0",
-        "com.elster.jupiter.unifyingjs@1.2.0",
-        "com.elster.jupiter.users.extjs@1.2.0",
-        "com.elster.jupiter.systemadmin.extjs@1.2.0",
-        "com.elster.jupiter.time.extjs@1.2.0",
-        "com.elster.jupiter.yellowfin.extjs@1.2.0",
-        "com.elster.jupiter.appserver.extjs@1.2.0",
-        "com.elster.jupiter.fileimport.extjs@1.2.0",
-        "com.elster.jupiter.cps.extjs@1.1.0",
-        "com.elster.jupiter.metering.extjs@1.2.0",
-        "com.elster.jupiter.servicecalltype.extjs@1.0.0",
-        "com.elster.jupiter.bpm.extjs@1.2.0",
-        "com.elster.jupiter.calendar.extjs@1.0.0",
-        "com.elster.jupiter.webservices.extjs@1.0.0"
-    ],
-
-    "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"
+  "name": "com.elster.jupiter.system.app",
+  "requires": [
+    "com.elster.jupiter.loaderjs@1.2.1",
+    "com.elster.jupiter.unifyingjs@1.2.1",
+    "com.elster.jupiter.users.extjs@1.2.1",
+    "com.elster.jupiter.systemadmin.extjs@1.2.1",
+    "com.elster.jupiter.time.extjs@1.2.1",
+    "com.elster.jupiter.yellowfin.extjs@1.2.1",
+    "com.elster.jupiter.appserver.extjs@1.2.1",
+    "com.elster.jupiter.fileimport.extjs@1.2.1",
+    "com.elster.jupiter.cps.extjs@1.1.1",
+    "com.elster.jupiter.metering.extjs@1.2.1",
+    "com.elster.jupiter.servicecalltype.extjs@1.0.1",
+    "com.elster.jupiter.bpm.extjs@1.2.1",
+    "com.elster.jupiter.calendar.extjs@1.0.1",
+    "com.elster.jupiter.webservices.extjs@1.0.1"
+  ],
+  "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"
 }
