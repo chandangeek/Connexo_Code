@@ -9,7 +9,7 @@
   "format": "1",
   "local": true,
   "requires": [
-    "com.elster.jupiter.unifyingjs@1.2.0",
-    "com.elster.jupiter.bpm.extjs@1.2.0"
+    "com.elster.jupiter.unifyingjs@1.2.1",
+    "com.elster.jupiter.bpm.extjs@1.2.1"
   ]
 }
