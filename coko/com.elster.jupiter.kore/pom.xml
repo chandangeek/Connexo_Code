@@ -56,7 +56,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>config.extjs</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -152,7 +152,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering</artifactId>
-                <version>4.0.0</version>
+                <version>4.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
