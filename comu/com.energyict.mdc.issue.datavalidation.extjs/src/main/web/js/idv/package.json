@@ -11,7 +11,7 @@
   "requires": [
     "com.elster.jupiter.unifyingjs@1.2.1",
     "com.elster.jupiter.issue.extjs@1.2.1",
-    "com.energyict.mdc.device.data.validation.extjs@1.1.1",
+    "com.energyict.mdc.device.data.validation.extjs@1.2.1",
     "com.energyict.comserver.comserver.core.extjs@1.2.1"
   ]
 }
