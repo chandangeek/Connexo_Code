@@ -1,28 +1,26 @@
 {
-    "name": "com.energyict.mdc.app",
-
-    "requires": [
-        "com.elster.jupiter.loaderjs@1.2.0",
-        "com.elster.jupiter.unifyingjs@1.2.0",
-        "com.elster.jupiter.config.extjs@1.2.0",
-        "com.elster.jupiter.issue.extjs@1.2.0",
-        "com.elster.jupiter.time.extjs@1.2.0",
-        "com.energyict.mdc.issue.datacollection.extjs@1.2.0",
-        "com.energyict.mdc.issue.datavalidation.extjs@1.1.0",
-        "com.energyict.comserver.comserver.core.extjs@1.2.0",
-        "com.energyict.mdc.dashboard.extjs@1.2.0",
-        "com.energyict.mdc.device.data.validation.extjs@1.1.0",
-        "com.elster.jupiter.yellowfin.extjs@1.2.0",
-        "com.energyict.mdc.firmware.extjs@1.1.0",
-        "com.energyict.mdc.device.lifecycle.config.extjs@1.1.0",
-        "com.elster.jupiter.export.extjs@1.2.0",
-        "com.elster.jupiter.estimation.extjs@1.1.0",
-        "com.elster.jupiter.fileimport.extjs@1.2.0",
-        "com.elster.jupiter.bpm.extjs@1.2.0",
-        "com.elster.jupiter.systemadmin.extjs@1.2.0",
-        "com.energyict.mdc.bpm.extjs@1.1.0",
-        "com.elster.jupiter.servicecall.extjs@1.0.0"
-    ],
-
-    "id": "28c552c9-436e-4d93-8f74-038373138820"
+  "name": "com.energyict.mdc.app",
+  "requires": [
+    "com.elster.jupiter.loaderjs@1.2.1",
+    "com.elster.jupiter.unifyingjs@1.2.1",
+    "com.elster.jupiter.config.extjs@1.2.1",
+    "com.elster.jupiter.issue.extjs@1.2.1",
+    "com.elster.jupiter.time.extjs@1.2.1",
+    "com.energyict.mdc.issue.datacollection.extjs@1.2.1",
+    "com.energyict.mdc.issue.datavalidation.extjs@1.1.1",
+    "com.energyict.comserver.comserver.core.extjs@1.2.1",
+    "com.energyict.mdc.dashboard.extjs@1.2.1",
+    "com.energyict.mdc.device.data.validation.extjs@1.1.1",
+    "com.elster.jupiter.yellowfin.extjs@1.2.1",
+    "com.energyict.mdc.firmware.extjs@1.1.1",
+    "com.energyict.mdc.device.lifecycle.config.extjs@1.1.1",
+    "com.elster.jupiter.export.extjs@1.2.1",
+    "com.elster.jupiter.estimation.extjs@1.1.1",
+    "com.elster.jupiter.fileimport.extjs@1.2.1",
+    "com.elster.jupiter.bpm.extjs@1.2.1",
+    "com.elster.jupiter.systemadmin.extjs@1.2.1",
+    "com.energyict.mdc.bpm.extjs@1.1.1",
+    "com.elster.jupiter.servicecall.extjs@1.0.1"
+  ],
+  "id": "28c552c9-436e-4d93-8f74-038373138820"
 }
