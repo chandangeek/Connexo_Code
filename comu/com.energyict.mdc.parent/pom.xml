@@ -79,7 +79,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.app</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -97,7 +97,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.bpm.extjs</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -109,7 +109,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>comserver.core.extjs</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -127,7 +127,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.dashboard.extjs</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -175,7 +175,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.validation.extjs</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -211,7 +211,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config.extjs</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -253,7 +253,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.firmware.extjs</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -283,7 +283,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datacollection.extjs</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -301,7 +301,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datavalidation.extjs</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
