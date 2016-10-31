@@ -4,7 +4,6 @@ import com.elster.jupiter.demo.impl.ConsoleUser;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 
-
 import javax.inject.Inject;
 import java.security.Principal;
 
@@ -59,7 +58,7 @@ public abstract class CommandWithTransaction {
                 System.out.println("Transaction completed successfully");
             } catch (Exception ex) {
                 System.out.println("Transaction failed!");
-                ex.printStackTrace();
+                throw ex;
             } finally {
                 clearPrincipal();
             }
