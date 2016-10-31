@@ -44,7 +44,11 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     ResetLQILogbook(16),
     ResetVoltageCutLogbook(17),
     ReadLogBook(18),
-    ResetSecurityLogbook(19);
+    ResetSecurityLogbook(19),
+    ResetSecurityGroupEventCounterObjects(20,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.securityGroupEventCounters, SecurityEventCounter.getEventCounters())
+    ),
+    ResetAllSecurityGroupEventCounters(21);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.LOG_BOOKS;
 
@@ -99,5 +103,37 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     @Override
     public int getMessageId() {
         return id;
+    }
+
+    public enum SecurityEventCounter {
+        G_EC_01("0.0.96.15.21.255"),
+        G_EC_02("0.0.96.15.22.255"),
+        G_EC_03("0.0.96.15.23.255"),
+        G_EC_04("0.0.96.15.24.255"),
+        G_EC_05("0.0.96.15.25.255"),
+        G_EC_06("0.0.96.15.26.255"),
+        G_EC_07("0.0.96.15.27.255"),
+        G_EC_08("0.0.96.15.28.255"),
+        G_EC_09("0.0.96.15.29.255"),
+        G_EC_10("0.0.96.15.30.255");
+
+        private final String obis;
+
+        private SecurityEventCounter(String obis) {
+            this.obis = obis;
+        }
+
+        public static String[] getEventCounters() {
+            SecurityEventCounter[] allCounters = values();
+            String[] result = new String[allCounters.length];
+            for (int index = 0; index < allCounters.length; index++) {
+                result[index] = allCounters[index].name();
+            }
+            return result;
+        }
+
+        public String getObis() {
+            return obis;
+        }
     }
 }

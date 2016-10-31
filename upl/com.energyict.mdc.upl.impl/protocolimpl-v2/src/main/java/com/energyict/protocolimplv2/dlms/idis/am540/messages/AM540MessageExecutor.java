@@ -3,37 +3,26 @@ package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
@@ -77,6 +66,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 loadProfileOptInOUT(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.SET_DISPLAY_ON_OFF)) {
                 setDiplayOnOff(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects)) {
+                collectedMessage = resetSecurityEventCounterObjects(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetAllSecurityGroupEventCounters)) {
+                collectedMessage = resetAllSecurityEventCounters(collectedMessage, pendingMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -148,14 +141,14 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     }
 
     protected boolean isTemporaryFailure(Throwable e) {
-         if (e == null) {
-             return false;
-         } else if (e instanceof DataAccessResultException) {
-             return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
-         } else {
-             return false;
-         }
-     }
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+        } else {
+            return false;
+        }
+    }
 
     private CollectedMessage updateSupervisionMonitor(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getDeviceMessageAttributeValue()).intValue();
@@ -186,5 +179,38 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE);
         sas.writeExecutedScript(scriptStruct);
+    }
+
+    private CollectedMessage resetSecurityEventCounterObjects(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        String securityGroupEventCounter = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.securityGroupEventCounters).getDeviceMessageAttributeValue();
+        LogBookDeviceMessage.SecurityEventCounter[] counters = new LogBookDeviceMessage.SecurityEventCounter[]{LogBookDeviceMessage.SecurityEventCounter.valueOf(securityGroupEventCounter)};
+        return resetSecurityEventCounterValue(collectedMessage, pendingMessage, counters);
+    }
+
+    private CollectedMessage resetAllSecurityEventCounters(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        return resetSecurityEventCounterValue(collectedMessage, pendingMessage, LogBookDeviceMessage.SecurityEventCounter.values());
+    }
+
+    private CollectedMessage resetSecurityEventCounterValue(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, LogBookDeviceMessage.SecurityEventCounter[] securityGroupEventCounters) {
+        for (LogBookDeviceMessage.SecurityEventCounter securityGroupEventCounter : securityGroupEventCounters) {
+            ObisCode securityGroupEventObis = ObisCode.fromString(securityGroupEventCounter.getObis());
+            try {
+                Data data = getCosemObjectFactory().getData(securityGroupEventObis);
+                data.setValueAttr(new Unsigned16(0));
+            } catch (NotInObjectListException e) {
+                String errorMsg = "Selected security group event counter " + securityGroupEventCounter + " with obisCode = " + securityGroupEventObis + " is not not supported. " + e.getMessage();
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMsg));
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                break;
+            } catch (IOException e) {
+                String errorMsg = "Resetting " + securityGroupEventCounter + " with obisCode = " + securityGroupEventObis + " back to 0, failed. " + e.getMessage();
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                break;
+            }
+        }
+        return collectedMessage;
     }
 }
