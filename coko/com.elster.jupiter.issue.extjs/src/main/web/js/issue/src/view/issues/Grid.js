@@ -62,14 +62,14 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-workgroup',
                 header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
                 xtype: 'isu-workgroup-column',
-                dataIndex: 'assignee',
+                dataIndex: 'workGroupAssignee',
                 flex: 1
             },
             {
                 itemId: 'issues-grid-assignee',
-                header: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
+                header: Uni.I18n.translate('general.user', 'ISU', 'User'),
                 xtype: 'isu-assignee-column',
-                dataIndex: 'assignee',
+                dataIndex: 'userAssignee',
                 flex: 1
             },
             {
