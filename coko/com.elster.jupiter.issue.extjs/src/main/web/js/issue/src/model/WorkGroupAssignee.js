@@ -13,17 +13,5 @@ Ext.define('Isu.model.WorkGroupAssignee', {
             name: 'name',
             type: 'auto'
         }
-    ],
-
-    proxy: {
-        type: 'rest',
-        url: '/api/isu/workGroupAssignee',
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined,
-        reader: {
-            type: 'json',
-            root: 'data'
-        }
-    }
+    ]
 });
