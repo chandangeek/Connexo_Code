@@ -146,6 +146,16 @@ public class IssueResourceHelper {
                 filter.setUnassignedSelected();
             }
         });
+
+        jsonFilter.getLongList("workgroup")
+                .stream().map(id -> userService.getWorkGroup(id).orElse(null))
+                .filter(workGroup -> workGroup != null)
+                .forEach(filter::addWorkGroupAssignee);
+
+        if(jsonFilter.getLongList("workgroup").stream().anyMatch(id -> id == -1L)){
+            filter.setUnassignedWorkGroupSelected();
+        }
+
         jsonFilter.getStringList(IssueRestModuleConst.ISSUE_TYPE).stream()
                 .flatMap(it -> issueService.findIssueType(it).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::addIssueType);
