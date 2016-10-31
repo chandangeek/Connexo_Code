@@ -640,9 +640,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                 add: {
                                     title: Uni.I18n.translate('general.addSharedCommunicationSchedules', 'MDC', 'Add shared communication schedules'),
                                     route: 'add',
-                                    controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
                                     privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                                    action: 'addSharedCommunicationSchedule',
+                                    action: 'showAddSharedSchedule',
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
                                 }
