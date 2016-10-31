@@ -15,6 +15,8 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Condition;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -29,9 +31,12 @@ import java.util.Optional;
 
 import org.junit.Test;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -53,20 +58,22 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
     @Test
     public void testGetQueryUsagePointGroup() throws Exception {
         when(meteringGroupsService.getQueryUsagePointGroupQuery()).thenReturn(usagePointGroupQuery);
-        UsagePointGroup usagePointGroup = mock(UsagePointGroup.class);
+        QueryUsagePointGroup usagePointGroup = mock(QueryUsagePointGroup.class);
         when(usagePointGroup.getId()).thenReturn(13L);
         when(usagePointGroup.getName()).thenReturn("South region");
         when(usagePointGroup.getMRID()).thenReturn("LAPOPKLQKS");
-        when(usagePointGroup.isDynamic()).thenReturn(false);
+        when(usagePointGroup.isDynamic()).thenReturn(true);
         List<UsagePointGroup> usagePointGroups = Collections.singletonList(usagePointGroup);
         when(usagePointGroupQuery.select(anyObject(), anyObject())).thenReturn(usagePointGroups);
 
         String response = target("/usagepointgroups").queryParam("type", "QueryUsagePointGroup").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.usagepointgroups[0].name")).isEqualTo("South region");
-        assertThat(jsonModel.<String>get("$.usagepointgroups[0].mRID")).isEqualTo("LAPOPKLQKS");
-        assertThat(jsonModel.<Integer>get("$.usagepointgroups[0].id")).isEqualTo(13);
+        assertThat(jsonModel.<String>get("$.usagePointGroups[0].name")).isEqualTo("South region");
+        assertThat(jsonModel.<String>get("$.usagePointGroups[0].mRID")).isEqualTo("LAPOPKLQKS");
+        assertThat(jsonModel.<Integer>get("$.usagePointGroups[0].id")).isEqualTo(13);
+        assertThat(jsonModel.<Boolean>get("$.usagePointGroups[0].dynamic")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.usagePointGroups[0].filter")).isEqualTo("[]");
     }
 
     @Test
@@ -76,31 +83,40 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         when(usagePointGroup.getId()).thenReturn(13L);
         when(usagePointGroup.getName()).thenReturn("South region");
         List<UsagePointGroup> usagePointGroups = Collections.singletonList(usagePointGroup);
-        when(usagePointGroupQuery.select(any(), eq(1), eq(11), any())).thenReturn(usagePointGroups);
+        when(usagePointGroupQuery.select(any(Condition.class), anyInt(), anyInt(), any())).thenReturn(usagePointGroups);
 
         String response = target("/usagepointgroups").queryParam("filter", ExtjsFilter.filter("name", "South region"))
                 .queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
+        ArgumentCaptor<Condition> captor = ArgumentCaptor.forClass(Condition.class);
+        verify(usagePointGroupQuery).select(captor.capture(), eq(1), eq(11), any());
+        Condition actual = captor.getValue();
+        assertThat(actual).isInstanceOf(Comparison.class);
+        assertThat(actual.toString()).isEqualTo(where("name").isEqualTo("South region").toString());
+        assertThat(((Comparison)actual).getValues()).containsExactly("South+region");
+
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.usagepointgroups[0].name")).isEqualTo("South region");
+        assertThat(jsonModel.<String>get("$.usagePointGroups[0].name")).isEqualTo("South region");
     }
 
     @Test
     public void testGetUsagePointGroup() throws Exception {
-        when(meteringGroupsService.getUsagePointGroupQuery()).thenReturn(usagePointGroupQuery);
         UsagePointGroup usagePointGroup = mock(UsagePointGroup.class);
         when(usagePointGroup.getId()).thenReturn(13L);
         when(usagePointGroup.getName()).thenReturn("south region");
         when(usagePointGroup.getMRID()).thenReturn("ABC");
-        when(usagePointGroup.getType()).thenReturn("UsagePointGroup");
+        when(usagePointGroup.getVersion()).thenReturn(3L);
         when(usagePointGroup.isDynamic()).thenReturn(false);
-        List<UsagePointGroup> usagePointGroups = Collections.singletonList(usagePointGroup);
-        when(usagePointGroupQuery.select(anyObject(), anyObject())).thenReturn(usagePointGroups);
+        when(meteringGroupsService.findUsagePointGroup(13L)).thenReturn(Optional.of(usagePointGroup));
 
-        String response = target("/usagepointgroups").request().get(String.class);
+        String response = target("/usagepointgroups/13").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(13);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("south region");
+        assertThat(jsonModel.<String>get("$.mRID")).isEqualTo("ABC");
+        assertThat(jsonModel.<Boolean>get("$.dynamic")).isEqualTo(false);
+        assertThat(jsonModel.<Integer>get("$.version")).isEqualTo(3);
     }
 
     @Test

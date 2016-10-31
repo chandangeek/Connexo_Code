@@ -102,7 +102,7 @@ public class UsagePointGroupResource {
             usagePointGroups = query.select(condition, order);
         }
         List<UsagePointGroupInfo> usagePointGroupInfoList = usagePointGroupInfoFactory.from(usagePointGroups);
-        return PagedInfoList.fromPagedList("usagepointgroups", usagePointGroupInfoList, queryParameters);
+        return PagedInfoList.fromPagedList("usagePointGroups", usagePointGroupInfoList, queryParameters);
     }
 
     @GET
