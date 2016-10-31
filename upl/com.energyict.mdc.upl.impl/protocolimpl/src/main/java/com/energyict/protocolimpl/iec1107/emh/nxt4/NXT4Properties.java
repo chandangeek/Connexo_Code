@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
-import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -14,7 +13,7 @@ import java.util.Properties;
  * @author sva
  * @since 4/11/2014 - 13:45
  */
-public class NXT4Properties implements ConfigurationSupport {
+public class NXT4Properties {
 
     private final NXT4 meterProtocol;
     private Properties protocolProperties;
@@ -25,16 +24,6 @@ public class NXT4Properties implements ConfigurationSupport {
 
     public void setProperties(Properties properties) {
         this.protocolProperties = properties;
-    }
-
-    private void validateProtocolChannelMap(Properties properties, String propertyName) throws InvalidPropertyException {
-        try {
-            new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
-        } catch (InvalidPropertyException e) {
-            throw new InvalidPropertyException("Property " + propertyName + " has an invalid value: InvalidPropertyException, " + e.getMessage());
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("Property " + propertyName + " has an invalid value: NumberFormatException, " + e.getMessage());
-        }
     }
 
     public String getDeviceId() {
@@ -151,7 +140,7 @@ public class NXT4Properties implements ConfigurationSupport {
                 .stream()
                 .map(name -> UPLPropertySpecFactory.integral(name, false))
                 .forEach(specs::add);
-        specs.add(UPLPropertySpecFactory.channelMap("ChannelMap", false));
+        specs.add(ProtocolChannelMap.propertySpec("ChannelMap", false));
         return specs;
     }
 
@@ -173,13 +162,4 @@ public class NXT4Properties implements ConfigurationSupport {
         return result;
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
 }

@@ -11,38 +11,15 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-28 (16:32)
  */
-class IntegerPropertySpec implements PropertySpec {
-    private final String name;
-    private final boolean required;
+class IntegerPropertySpec extends AbstractPropertySpec {
 
     IntegerPropertySpec(String name, boolean required) {
-        this.name = name;
-        this.required = required;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return this.getName();
-    }
-
-    @Override
-    public String getDescription() {
-        return null;
-    }
-
-    @Override
-    public boolean isRequired() {
-        return this.required;
+        super(name, required);
     }
 
     @Override
     public boolean validateValue(Object value) throws PropertyValidationException {
-        if (this.required && value == null) {
+        if (this.isRequired() && value == null) {
             throw MissingPropertyException.forName(this.getName());
         } else if (value instanceof Integer) {
             return true;

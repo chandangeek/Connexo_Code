@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -37,7 +36,6 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -330,26 +328,6 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
             strBuilder.append("\n");
         }
         logger.info(strBuilder.toString());
-    }
-
-    @Override
-    public Object getCache() {
-        return null; // Cache mechanism not used for this protocol
-    }
-
-    @Override
-    public void setCache(Object cacheObject) {
-        // Cache mechanism not used for this protocol
-    }
-
-    @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        return null; // Cache mechanism not used for this protocol
-    }
-
-    @Override
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-        // Cache mechanism not used for this protocol
     }
 
     @Override
