@@ -4,4 +4,5 @@ Private-Package:  \
 	com.elster.jupiter.mdm.usagepoint.data.impl.*
 Export-Package:  \
 	com.elster.jupiter.mdm.usagepoint.data, \
-    com.elster.jupiter.mdm.usagepoint.data.exceptions
+    com.elster.jupiter.mdm.usagepoint.data.exceptions, \
+    com.elster.jupiter.mdm.usagepoint.data.security
