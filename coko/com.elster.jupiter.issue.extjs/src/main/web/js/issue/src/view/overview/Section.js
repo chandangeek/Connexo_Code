@@ -44,8 +44,6 @@ Ext.define('Isu.view.overview.Section', {
             }
             Ext.Array.each(store.getRange(), function (record) {
                 if (section == 'assignee') {
-                    queryString[section] = record.get('id') + (record.get('id') == -1 ? ':UnexistingType' : ':USER');
-                } else {
                     queryString[section] = record.get('id');
                 }
                 queryString.groupingType = 'none';
