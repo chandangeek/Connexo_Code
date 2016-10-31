@@ -54,7 +54,12 @@ import java.util.logging.Logger;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author jme
@@ -191,14 +196,14 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integral("Timeout", false),
-                UPLPropertySpecFactory.integral("Retries", false),
-                UPLPropertySpecFactory.integral("RoundtripCorrection", false),
-                UPLPropertySpecFactory.integral("SecurityLevel", false),
+                UPLPropertySpecFactory.integral(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integral(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integral(SECURITYLEVEL.getName(), false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
                 UPLPropertySpecFactory.integral("EchoCancelling", false),
                 UPLPropertySpecFactory.integral("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integral("ProfileInterval", false),
+                UPLPropertySpecFactory.integral(PROFILEINTERVAL.getName(), false),
                 UPLPropertySpecFactory.integral("ExtendedLogging", false),
                 UPLPropertySpecFactory.integral("ReadCurrentDay", false),
                 UPLPropertySpecFactory.integral("LoadProfileNumber", false, Range.closed(LOADPROFILES_FIRST, LOADPROFILES_LAST)),
@@ -211,14 +216,14 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
             strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
             nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "900").trim());
+            iProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay", "0").trim());
             loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1").trim());

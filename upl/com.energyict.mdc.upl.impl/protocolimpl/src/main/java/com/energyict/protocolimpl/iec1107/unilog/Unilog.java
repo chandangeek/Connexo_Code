@@ -161,8 +161,8 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                     .getProperty(PK_IEC1107_COMPATIBLE));
         }
 
-        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-            pRountTripCorrection = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()));
+        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()) != null) {
+            pRountTripCorrection = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()));
         }
 
         this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty(PK_SOFTWARE_7E1, "0"));
@@ -184,7 +184,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                     PK_TIMEOUT,
                     PK_RETRIES,
                     PK_ECHO_CANCELLING,
-                    com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName(),
+                    com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName(),
                     PK_SOFTWARE_7E1,
                     PK_CHANNEL_MAP);
     }

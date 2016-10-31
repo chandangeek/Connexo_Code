@@ -254,8 +254,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                 this.pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
             }
 
-            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-                this.pRoundTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORR.getName()));
+            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()) != null) {
+                this.pRoundTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORRECTION.getName()));
             }
 
             if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {

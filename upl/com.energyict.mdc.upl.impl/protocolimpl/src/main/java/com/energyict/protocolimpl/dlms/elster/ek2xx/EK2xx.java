@@ -58,7 +58,11 @@ import java.util.logging.Logger;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, RegisterProtocol, SerialNumberSupport {
 
@@ -143,13 +147,13 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 UPLPropertySpecFactory.integral("AddressingMode", false),
                 UPLPropertySpecFactory.integral("Connection", false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integral("Timeout", false),
-                UPLPropertySpecFactory.integral("Retries", false),
+                UPLPropertySpecFactory.integral(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
                 UPLPropertySpecFactory.integral("DelayAfterfail", false),
                 UPLPropertySpecFactory.integral("RequestTimeZone", false),
                 UPLPropertySpecFactory.integral("RequestClockObject", false),
-                UPLPropertySpecFactory.integral("RoundtripCorrection", false),
-                UPLPropertySpecFactory.integral("SecurityLevel", false),
+                UPLPropertySpecFactory.integral(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integral(SECURITYLEVEL.getName(), false),
                 UPLPropertySpecFactory.integral("ClientMacAddress", false),
                 UPLPropertySpecFactory.integral("ServerUpperMacAddress", false),
                 UPLPropertySpecFactory.integral("ServerLowerMacAddress", false));
@@ -166,13 +170,13 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
             this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
             this.strPassword = properties.getProperty(PASSWORD.getName(), "");
-            this.iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
+            this.iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
+            this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
             this.iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterfail", "3000").trim());
             this.iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
             this.iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
             this.iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            this.iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());
+            this.iSecurityLevelProperty = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "0").trim());
             this.iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16").trim());
             this.iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
             this.iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());

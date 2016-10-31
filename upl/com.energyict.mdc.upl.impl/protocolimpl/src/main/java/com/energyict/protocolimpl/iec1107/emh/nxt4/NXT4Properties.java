@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+
 /**
  * @author sva
  * @since 4/11/2014 - 13:45
@@ -146,9 +150,9 @@ public class NXT4Properties {
 
     private List<String> getIntegerPropertyNames() {
         List<String> result = new ArrayList<>();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
+        result.add(TIMEOUT.getName());
+        result.add(RETRIES.getName());
+        result.add(SECURITYLEVEL.getName());
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
         result.add("ForcedDelay");

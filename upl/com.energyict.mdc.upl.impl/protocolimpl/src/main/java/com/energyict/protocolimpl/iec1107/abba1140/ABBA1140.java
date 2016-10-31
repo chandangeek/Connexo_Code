@@ -65,8 +65,11 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * ABBA1140.java
@@ -115,9 +118,9 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     /**
      * Property keys specific for A140 protocol.
      */
-    private static final String PK_TIMEOUT = "Timeout";
-    private static final String PK_RETRIES = "Retries";
-    private static final String PK_SECURITY_LEVEL = "SecurityLevel";
+    private static final String PK_TIMEOUT = TIMEOUT.getName();
+    private static final String PK_RETRIES = RETRIES.getName();
+    private static final String PK_SECURITY_LEVEL = SECURITYLEVEL.getName();
     private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     private static final String PK_ECHO_CANCELING = "EchoCancelling";
@@ -208,7 +211,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
                 UPLPropertySpecFactory.integral(PK_TIMEOUT, false),
                 UPLPropertySpecFactory.integral(PK_RETRIES, false),
-                UPLPropertySpecFactory.integral(ROUNDTRIPCORR.getName(), false),
+                UPLPropertySpecFactory.integral(ROUNDTRIPCORRECTION.getName(), false),
                 UPLPropertySpecFactory.integral(CORRECTTIME.getName(), false),
                 UPLPropertySpecFactory.integral(PK_EXTENDED_LOGGING, false),
                 UPLPropertySpecFactory.integral(PK_DELAY_BEFORE_CONNECT, false),
@@ -248,8 +251,8 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
             }
 
-            if (p.getProperty(ROUNDTRIPCORR.getName()) != null) {
-                pRoundTripCorrection = Integer.parseInt(p.getProperty(ROUNDTRIPCORR.getName()));
+            if (p.getProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+                pRoundTripCorrection = Integer.parseInt(p.getProperty(ROUNDTRIPCORRECTION.getName()));
             }
 
             if (p.getProperty(CORRECTTIME.getName()) != null) {
