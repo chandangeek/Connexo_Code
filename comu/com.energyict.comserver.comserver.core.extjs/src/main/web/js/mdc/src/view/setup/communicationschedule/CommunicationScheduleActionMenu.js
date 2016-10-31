@@ -17,6 +17,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu
             itemId: 'deleteCommunicationSchedule',
             action: 'deleteCommunicationSchedule'
 
+        },
+        {
+            text: Uni.I18n.translate('general.clone', 'MDC', 'Clone'),
+            itemId: 'cloneCommunicationSchedule',
+            action: 'cloneCommunicationSchedule'
         }
     ]
 });

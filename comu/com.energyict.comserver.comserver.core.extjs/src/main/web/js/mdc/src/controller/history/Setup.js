@@ -620,7 +620,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('tou.sendTimeOfUseCalendar', 'MDC', 'Send time of use calendar'),
                                     route: 'send',
                                     controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
-                                    privileges:  Mdc.privileges.DeviceCommands.executeCommands,
+                                    privileges: Mdc.privileges.DeviceCommands.executeCommands,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showSendCalendarView'
@@ -2135,6 +2135,20 @@ Ext.define('Mdc.controller.history.Setup', {
                                 privileges: Mdc.privileges.CommunicationSchedule.admin,
                                 controller: 'Mdc.controller.setup.CommunicationSchedules',
                                 action: 'showCommunicationSchedulesEditView'
+                            },
+                            clone: {
+                                title: Uni.I18n.translate('general.cloneSharedCommunicationSchedule', 'MDC', 'Clone shared communication schedules'),
+                                route: 'clone',
+                                controller: 'Mdc.controller.setup.CommunicationSchedules',
+                                privileges: Mdc.privileges.CommunicationSchedule.admin,
+                                action: 'showCommunicationSchedulesCloneView',
+                                callback: function (route) {
+                                    this.getApplication().on('loadCommunicationSchedule', function (record) {
+                                        route.setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", record.get('name'), false));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                }
                             },
                             edit: {
                                 title: Uni.I18n.translate('general.editSharedCommunicationSchedule', 'MDC', 'Edit shared communication schedule'),
