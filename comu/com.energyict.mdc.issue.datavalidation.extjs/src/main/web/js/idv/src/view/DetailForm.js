@@ -84,9 +84,17 @@ Ext.define('Idv.view.DetailForm', {
                         }
                     },
                     {
+                        itemId: 'data-validation-issue-detail-workgroup',
+                        fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDV', 'Workgroup'),
+                        name: 'workGroupAssignee',
+                        renderer: function (value) {
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'IDC', 'None');
+                        }
+                    },
+                    {
                         itemId: 'data-validation-issue-detail-assignee',
-                        fieldLabel: Uni.I18n.translate('general.title.assignee', 'IDV', 'Assignee'),
-                        name: 'assignee',
+                        fieldLabel: Uni.I18n.translate('general.title.user', 'IDV', 'User'),
+                        name: 'userAssignee',
                         renderer: function (value) {
                             return value.name ? value.name : Uni.I18n.translate('general.none', 'IDV', 'None');
                         }
