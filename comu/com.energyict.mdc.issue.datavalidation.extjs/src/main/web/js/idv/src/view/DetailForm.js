@@ -88,7 +88,7 @@ Ext.define('Idv.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDV', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'IDC', 'None');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'IDV', 'None');
                         }
                     },
                     {
