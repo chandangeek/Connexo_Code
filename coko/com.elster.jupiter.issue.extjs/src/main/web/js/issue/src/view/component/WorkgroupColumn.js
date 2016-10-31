@@ -7,7 +7,7 @@ Ext.define('Isu.view.component.WorkgroupColumn', {
     renderer: function (value, metaData, record, rowIndex, colIndex) {
         var result;
 
-        if (!Ext.isEmpty(value)) {
+        if (!Ext.isEmpty(value)&& value.hasOwnProperty('id')) {
             result = '';
 
             result += '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="';

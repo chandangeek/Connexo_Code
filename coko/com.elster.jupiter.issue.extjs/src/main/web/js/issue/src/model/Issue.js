@@ -5,6 +5,7 @@ Ext.define('Isu.model.Issue', {
         'Isu.model.IssueStatus',
         'Isu.model.Device',
         'Isu.model.IssueAssignee',
+        'Isu.model.WorkGroupAssignee',
         'Isu.model.IssueComment',
         'Isu.model.IssueAction'
     ],
@@ -16,7 +17,8 @@ Ext.define('Isu.model.Issue', {
         {name: 'version', type: 'int'},
         {name: 'status', type: 'auto'},
         {name: 'issueType', type: 'auto'},
-        {name: 'assignee', type: 'auto'},
+        {name: 'workGroupAssignee', type: 'auto'},
+        {name: 'userAssignee', type: 'auto'},
         {name: 'reason', type: 'auto'},
         {name: 'device', type: 'auto'},
         {name: 'issueId', type: 'string'},
@@ -37,7 +39,8 @@ Ext.define('Isu.model.Issue', {
         {name: 'reason_name', persist: false, mapping: 'reason.name'},
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'device_name', persist: false, mapping: 'device.name'},
-        {name: 'assignee_name', persist: false, mapping: 'assignee.name'},
+        {name: 'workgroup_name', persist: false, mapping: 'workGroupAssignee.name'},
+        {name: 'assignee_name', persist: false, mapping: 'userAssignee.name'},
         {name: 'assignee_type', persist: false, mapping: 'assignee.type'},
         {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'},
         {name: 'service_location', persist: false, mapping: 'device.serviceLocation.info'},
@@ -76,10 +79,18 @@ Ext.define('Isu.model.Issue', {
         {
             type: 'hasOne',
             model: 'Isu.model.IssueAssignee',
-            associationKey: 'assignee',
-            name: 'assignee',
-            getterName: 'getAssignee',
-            setterName: 'setAssignee'
+            associationKey: 'userAssignee',
+            name: 'userAssignee',
+            getterName: 'geUserAssignee',
+            setterName: 'setUserAssignee'
+        },
+        {
+            type: 'hasOne',
+            model: 'Isu.model.WorkGroupAssignee',
+            associationKey: 'workGroupAssignee',
+            name: 'workGroupAssignee',
+            getterName: 'getWorkGroupAssignee',
+            setterName: 'setWorkGroupAssignee'
         },
         {
             type: 'hasMany',
