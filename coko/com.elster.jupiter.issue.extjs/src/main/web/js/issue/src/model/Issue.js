@@ -5,7 +5,7 @@ Ext.define('Isu.model.Issue', {
         'Isu.model.IssueStatus',
         'Isu.model.Device',
         'Isu.model.IssueAssignee',
-        'Isu.model.WorkGroupAssignee',
+        'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueComment',
         'Isu.model.IssueAction'
     ],
@@ -86,7 +86,7 @@ Ext.define('Isu.model.Issue', {
         },
         {
             type: 'hasOne',
-            model: 'Isu.model.WorkGroupAssignee',
+            model: 'Isu.model.IssueWorkgroupAssignee',
             associationKey: 'workGroupAssignee',
             name: 'workGroupAssignee',
             getterName: 'getWorkGroupAssignee',
