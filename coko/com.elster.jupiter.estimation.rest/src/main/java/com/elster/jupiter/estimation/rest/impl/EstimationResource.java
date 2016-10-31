@@ -12,6 +12,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -24,13 +25,13 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.collections.KPermutation;
@@ -381,17 +382,17 @@ public class EstimationResource {
     @PUT
     @Path("/tasks/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK})
     public Response triggerEstimationTask(EstimationTaskInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
-
-        transactionService.execute(VoidTransaction.of(() -> findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, qualityCodeSystem)
+        findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, qualityCodeSystem)
                 .orElseThrow(conflictFactory.conflict()
                         .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
                         .withActualVersion(() -> findEstimationTaskInApplication(info.id, qualityCodeSystem).map(EstimationTask::getVersion).orElse(null))
                         .supplier())
-                .triggerNow()));
+                .triggerNow();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -399,40 +400,44 @@ public class EstimationResource {
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addEstimationTask(EstimationTaskInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
 
-        try (TransactionContext context = transactionService.getContext()) {
-            EstimationTask dataExportTask = estimationService.newBuilder()
-                    .setName(info.name)
-                    .setQualityCodeSystem(qualityCodeSystem)
-                    .setScheduleExpression(getScheduleExpression(info))
-                    .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
-                    .setPeriod(getRelativePeriod(info.period))
-                    .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id)).create();
-            context.commit();
-            return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(dataExportTask, thesaurus, timeService)).build();
-        }
+        EstimationTask dataExportTask = estimationService.newBuilder()
+                .setName(info.name)
+                .setQualityCodeSystem(qualityCodeSystem)
+                .setScheduleExpression(getScheduleExpression(info))
+                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
+                .setPeriod(getRelativePeriod(info.period))
+                .setEndDeviceGroup(info.deviceGroup!=null ? endDeviceGroup(info.deviceGroup.id) : null)
+                .setUsagePointGroup(info.usagePointGroup!=null ? usagePointGroup(info.usagePointGroup.id) : null)
+                .create();
+
+        return Response.status(Response.Status.CREATED)
+                .entity(new EstimationTaskInfo(dataExportTask, thesaurus, timeService))
+                .build();
+
     }
 
     @DELETE
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response removeEstimationTask(@PathParam("id") long id, EstimationTaskInfo info,
                                          @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
 
         String taskName = "id = " + id;
-        try (TransactionContext context = transactionService.getContext()) {
+        try {
             EstimationTask task = findAndLockTask(info, qualityCodeSystem);
             taskName = task.getName();
             if (!task.canBeDeleted()) {
                 throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
             }
             task.delete();
-            context.commit();
             return Response.status(Response.Status.OK).build();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", taskName);
@@ -442,27 +447,36 @@ public class EstimationResource {
     @PUT
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     @RolesAllowed({Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK})
     public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info,
                                          @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
 
-        try (TransactionContext context = transactionService.getContext()) {
-            EstimationTask task = findAndLockTask(info, qualityCodeSystem);
-            task.setName(info.name);
-            task.setScheduleExpression(getScheduleExpression(info));
-            if (Never.NEVER.equals(task.getScheduleExpression())) {
-                task.setNextExecution(null);
-            } else {
-                task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
-            }
-            task.setPeriod(getRelativePeriod(info.period));
-            task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
-
-            task.update();
-            context.commit();
-            return Response.status(Response.Status.OK).entity(new EstimationTaskInfo(task, thesaurus, timeService)).build();
+        EstimationTask task = findAndLockTask(info, qualityCodeSystem);
+        task.setName(info.name);
+        task.setScheduleExpression(getScheduleExpression(info));
+        if (Never.NEVER.equals(task.getScheduleExpression())) {
+            task.setNextExecution(null);
+        } else {
+            task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         }
+        task.setPeriod(getRelativePeriod(info.period));
+
+        if(info.deviceGroup!=null) {
+            task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
+        }
+        if(info.usagePointGroup!=null){
+            task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+        }
+        if(info.usagePointGroup==null && info.deviceGroup==null){
+            task.setEndDeviceGroup(null);
+            task.setUsagePointGroup(null);
+        }
+
+        task.update();
+        return Response.status(Response.Status.OK).entity(new EstimationTaskInfo(task, thesaurus, timeService)).build();
+
     }
 
     @GET
@@ -590,6 +604,10 @@ public class EstimationResource {
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private UsagePointGroup usagePointGroup(long usagePointGroupId) {
+        return meteringGroupsService.findUsagePointGroup(usagePointGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {

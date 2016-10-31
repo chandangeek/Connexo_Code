@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -19,6 +20,7 @@ public class EstimationTaskInfo {
     public String name = "blank_name";
     public boolean active = true;
     public MeterGroupInfo deviceGroup;
+    public IdWithDisplayValueInfo<Long> usagePointGroup;
     public PeriodicalExpressionInfo schedule;
     public RelativePeriodInfo period;
     public EstimationTaskHistoryInfo lastEstimationOccurrence;
@@ -63,6 +65,7 @@ public class EstimationTaskInfo {
         name = estimationTask.getName();
         active = estimationTask.isActive();
         deviceGroup = new MeterGroupInfo(estimationTask.getEndDeviceGroup());
+        usagePointGroup = new IdWithDisplayValueInfo<>(estimationTask.getUsagePointGroup().getId(), estimationTask.getUsagePointGroup().getName());
         estimationTask.getPeriod().ifPresent(period -> this.period = RelativePeriodInfo.withCategories(period));
 
         Instant nextExecution = estimationTask.getNextExecution();
