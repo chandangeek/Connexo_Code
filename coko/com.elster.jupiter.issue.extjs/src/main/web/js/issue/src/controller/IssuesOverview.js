@@ -98,7 +98,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                 params: {me: true},
                 callback: function (records) {
                     queryString.myopenissues = undefined;
-                    queryString.assignee = records[0].getId();
+                    queryString.userAssignee = records[0].getId();
                     queryString.status = 'status.open';
                     queryString.groupingType = 'none';
                     queryString.sort = ['dueDate', 'modTime'];
@@ -113,7 +113,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                     var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                     if (decoded && decoded.workgroups) {
                         queryString.myworkgroupissues = undefined;
-                        queryString.workgroup = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
+                        queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
                             return wg.id;
                         });
                         queryString.status = undefined;

@@ -38,7 +38,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 itemId: 'issue-workgroup-filter',
-                dataIndex: 'workgroup',
+                dataIndex: 'workGroupAssignee',
                 multiSelect: true,
                 emptyText: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
                 store: 'Isu.store.IssueWorkgroupAssignees',
@@ -50,7 +50,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 itemId: 'issue-assignee-filter',
-                dataIndex: 'assignee',
+                dataIndex: 'userAssignee',
                 multiSelect: true,
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 store: 'Isu.store.IssueAssignees',

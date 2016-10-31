@@ -7,7 +7,7 @@ Ext.define('Isu.model.IssuesFilter', {
         'id',
         'issueType',
         'status',
-        'assignee',
+        'userAssignee',
         'reason',
         'meter',
         'dueDate',
