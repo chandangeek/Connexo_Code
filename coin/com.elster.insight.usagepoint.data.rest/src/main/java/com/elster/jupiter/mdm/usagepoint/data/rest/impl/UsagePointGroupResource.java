@@ -32,6 +32,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -146,6 +147,19 @@ public class UsagePointGroupResource {
         }
         usagePointGroup.update();
         return Response.ok().entity(usagePointGroupInfoFactory.from(usagePointGroup)).build();
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP)
+    public Response removeUsagePointGroup(@PathParam("id") long id, UsagePointGroupInfo info) {
+        info.id = id;
+        resourceHelper.lockUsagePointGroupOrThrowException(info)
+                .delete();
+        return Response.ok().build();
     }
 
     private Query<UsagePointGroup> getUsagePointGroupQueryByType(@QueryParam("type") String typeName) {
