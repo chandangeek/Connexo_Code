@@ -43,11 +43,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             'menuitem[action=removeCommunicationSchedule]': {
                 click: this.removeCommunicationScheduleConfirmation
             },
-            '#addSharedScheduleButtonForm button[action=addAction]': {
-                click: this.saveSharedSchedule
-            }, '#addSharedScheduleButtonForm button[action=cancelAction]': {
-                click: this.cancelSharedScheduleHistory
-            },
             'button[action=addIndividualScheduleAction]': {
                 click: this.saveIndividualSchedule
             },
@@ -141,14 +136,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         });
     },
 
-    addSharedCommunicationScheduleHistory: function () {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/communicationplanning/add';
-    },
-
-    cancelSharedScheduleHistory: function () {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/communicationplanning';
-    },
-
     addSharedCommunicationSchedule: function (mrid) {
         var me = this;
         this.mrid = mrid;
@@ -186,68 +173,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 me.getApplication().fireEvent('loadDevice', device);
             }
         });
-    },
-
-    saveSharedSchedule: function () {
-        var me = this,
-            communicationSchedules = this.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection(),
-            scheduleIds = [],
-            device = me.getAddSharedCommunicationSchedulePage().device,
-            mRID = device.get('mRID'),
-            backUrl = me.getController('Uni.controller.history.Router').getRoute('devices/device/communicationschedules').buildUrl({mRID: mRID});
-
-        if (this.checkValidSelection(communicationSchedules)) {
-            Ext.each(communicationSchedules, function (communicationSchedule) {
-                scheduleIds.push(communicationSchedule.get('id'));
-            });
-
-            Ext.Ajax.request({
-                url: '/api/ddr/devices/'+ mRID +'/sharedschedules',
-                method: 'PUT',
-                params: '',
-                jsonData: {
-                    device: _.pick(device.getRecordData(), 'mRID', 'version', 'parent'),
-                    scheduleIds: scheduleIds
-                },
-                timeout: 180000,
-                backUrl: backUrl,
-                success: function (response) {
-                    location.href = backUrl;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedScheduleSucceeded', 'MDC', 'Shared communication schedule successfully added'));
-                }
-            });
-        }
-    },
-
-
-    checkValidSelection: function (communicationSchedules) {
-        var me = this;
-        me.getUniFormErrorMessage().hide();
-        if (communicationSchedules.length === 1) {
-            return true;
-        } else if (communicationSchedules.length === 0) {
-            me.getUniFormErrorMessage().show();
-            me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one shared communication schedule') + '</span>');
-            me.getWarningMessage().setVisible(true);
-            return false;
-        } else if (communicationSchedules.length > 1) {
-            var valuesToCheck = [];
-            Ext.each(communicationSchedules, function (item) {
-                valuesToCheck.push.apply(valuesToCheck, item.get('comTaskUsages'));
-            });
-            if (_.uniq(valuesToCheck,function (item) {
-                return item.id;
-            }).length === valuesToCheck.length) {
-                me.getUniFormErrorMessage().hide();
-                me.getWarningMessage().setVisible(false);
-                return true;
-            } else {
-                me.getUniFormErrorMessage().show();
-                me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') + '</span>');
-                me.getWarningMessage().setVisible(true);
-                return false;
-            }
-        }
     },
 
     removeSharedCommunicationScheduleConfirmation: function (record2Remove) {

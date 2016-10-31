@@ -99,11 +99,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         availableScheduleStore.load({
             callback: function () {
                 me.getApplication().fireEvent('changecontentevent', widget);
-                if (availableScheduleStore.getCount() === 0) {
-                    widget.down('#addSharedScheduleButtonForm').setVisible(false);
-                } else {
-                    widget.down('#addSharedScheduleButtonForm').setVisible(true);
-                }
+                widget.down('#addSharedScheduleButtonForm').setVisible(availableScheduleStore.getCount() !== 0);
             }
         });
 
