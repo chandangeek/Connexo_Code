@@ -73,7 +73,7 @@ Ext.define('Idc.view.DetailsContainer', {
                     },
                     {
                         itemId: 'data-collection-issue-detail-assignee',
-                        fieldLabel: Uni.I18n.translate('general.title.assignee', 'IDC', 'Assignee'),
+                        fieldLabel: Uni.I18n.translate('general.title.user', 'IDC', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
                             return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'IDC', 'None');
