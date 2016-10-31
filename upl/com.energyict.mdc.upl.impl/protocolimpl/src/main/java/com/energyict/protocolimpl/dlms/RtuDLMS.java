@@ -1,127 +1,80 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Environment;
-import com.energyict.cpo.Transaction;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 
-import java.sql.*;
+import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.UniversalObject;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class RtuDLMS {
-    
-    int confprogchange;
-    int iCount;
-    int rtuid;
-    
-    /** Creates a new instance of RtuDLMS */
-    public RtuDLMS(int rtuid) {
-        confprogchange=-1;
-        this.rtuid = rtuid;
-    }
-    
-    public int getConfProgChange() throws SQLException, BusinessException
-    {
-       PreparedStatement statement = null;
-       ResultSet resultSet = null;
-       Connection connection = getDefaultConnection();
-       
-       try
-       {
-          statement = connection.prepareStatement("select confprogchange from eisdlms where rtuid = ?");
-          statement.setInt(1,rtuid);
-          resultSet = statement.executeQuery();
-          if (!resultSet.next()) throw new NotFoundException("ERROR: No rtu record found!");
-          iCount=0;
-          do
-          {
-              iCount++;
-              // Retrieve field values from ctable
-              confprogchange = resultSet.getInt(1);
-          } while (resultSet.next());
-          
-          if (iCount >1) throw new BusinessException("ERROR: NR of records found > 1!");
-       }
-       finally
-       {
-          if (resultSet != null) resultSet.close();
-          if (statement != null) statement.close();
-       }
-       
-       return confprogchange;
-       
-    } // public int getConfProgChange(int rtuid)
-    
-    synchronized public void setConfProgChange(int confprogchange) throws SQLException
-    {
-       try
-       {
-           doInsert(confprogchange);
-       }
-       catch(SQLException e)
-       {
-          if ("23000".equals(e.getSQLState())) 
-          {
-             doUpdate(confprogchange);
-          }
-          else throw e;   
-       }
-       
-    } // synchronized public void setConfProgChange(int confprogchange) throws SQLException
 
-    private void doUpdate(int confprogchange) throws SQLException
-    {
-       Connection connection = getDefaultConnection(); 
-       PreparedStatement statement = null;
-       
-       try { 
-           String sqlString = "update eisdlms SET confprogchange=? where rtuid = ? ";
-           statement = connection.prepareStatement(sqlString);
-           statement.setInt(1,confprogchange);
-           statement.setInt(2,rtuid);
-           statement.executeUpdate();
-       }
-       catch(SQLException e) {
-          throw e;   
-       }
-       finally {
-          if (statement != null) statement.close();
-       }
-       
-    }
-    
-    void doInsert(int confprogchange) throws SQLException
-    {
-       Connection connection = getDefaultConnection();
-       PreparedStatement statement = connection.prepareStatement(
-    		   "insert into eisdlms (RTUID, CONFPROGCHANGE) values(?,?)");  
-       
-       try {
-    	   statement.setInt(1,rtuid);
-    	   statement.setInt(2, confprogchange);
-           statement.executeUpdate();
-       } finally {
-    	   statement.close();
-       }
-    }
-    
-    private Connection getDefaultConnection() {
-       return Environment.getDefault().getConnection();
+    private int confProgChange;
+    private int deviceId;
+
+    public RtuDLMS(int deviceId) {
+        confProgChange = -1;
+        this.deviceId = deviceId;
     }
 
+    public int getConfProgChange(Connection connection) throws SQLException, ProtocolCacheFetchException {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT confprogchange FROM eisdlms WHERE rtuid = ?")) {
+            statement.setInt(1, deviceId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    throw new ProtocolCacheFetchException("ERROR: No rtu record found!");
+                }
+                int count = 0;
+                do {
+                    count++;
+                    // Retrieve field values from ctable
+                    confProgChange = resultSet.getInt(1);
+                } while (resultSet.next());
 
-    public void saveObjectList(final int confProgChange, final UniversalObject[] universalObject) throws BusinessException, SQLException    {
-        Transaction tr = new Transaction() {
-            public Object doExecute() throws SQLException, BusinessException {
-
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                rtuCache.saveObjectList(universalObject);
-                RtuDLMS.this.setConfProgChange(confProgChange);
-
-                return null;
+                if (count > 1) {
+                    // Should not occur if there is a primary key on eisdlms
+                    throw new ProtocolCacheFetchException("ERROR: NR of records found > 1!");
+                }
             }
-        };
-        MeteringWarehouse.getCurrent().execute(tr);
+        }
+        return confProgChange;
     }
-} // public class RtuDLMS
+
+    public synchronized void setConfProgChange(int confprogchange, Connection connection) throws SQLException {
+        try {
+            doInsert(confprogchange, connection);
+        } catch (SQLException e) {
+            if ("23000".equals(e.getSQLState())) {
+                doUpdate(confprogchange, connection);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private void doInsert(int confProgChange, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO eisdlms (RTUID, CONFPROGCHANGE) VALUES(?,?)")) {
+            statement.setInt(1, deviceId);
+            statement.setInt(2, confProgChange);
+            statement.executeUpdate();
+        }
+    }
+
+    private void doUpdate(int confprogchange, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE eisdlms SET confprogchange=? WHERE rtuid = ? ")) {
+            statement.setInt(1, confprogchange);
+            statement.setInt(2, deviceId);
+            statement.executeUpdate();
+        }
+    }
+
+    public void saveObjectList(int confProgChange, UniversalObject[] universalObject, Connection connection) throws BusinessException, SQLException {
+        RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+        rtuCache.saveObjectList(universalObject, connection);
+        RtuDLMS.this.setConfProgChange(confProgChange, connection);
+    }
+
+}

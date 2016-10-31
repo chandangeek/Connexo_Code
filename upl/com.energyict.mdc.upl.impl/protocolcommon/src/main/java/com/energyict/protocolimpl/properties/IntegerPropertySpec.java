@@ -7,6 +7,10 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.google.common.collect.Range;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Provides an implementation for the {@link PropertySpec} interface for "int" values.
  *
@@ -24,7 +28,12 @@ class IntegerPropertySpec extends AbstractPropertySpec {
 
     IntegerPropertySpec(String name, boolean required, Range<Integer> validRange) {
         super(name, required);
-        this.rangeConstraint = new In(validRange);
+        this.rangeConstraint = new InRange(validRange);
+    }
+
+    IntegerPropertySpec(String name, boolean required, Integer... validValues) {
+        super(name, required);
+        this.rangeConstraint = new InSet(validValues);
     }
 
     @Override
@@ -63,12 +72,12 @@ class IntegerPropertySpec extends AbstractPropertySpec {
 
     /**
      * Provides an implementation for the {@link RangeConstraint} interface
-     * that checks that the value is contained
+     * that checks that the value is contained in a Range.
      */
-    private static class In implements RangeConstraint {
+    private static class InRange implements RangeConstraint {
         private final Range<Integer> range;
 
-        private In(Range<Integer> range) {
+        private InRange(Range<Integer> range) {
             this.range = range;
         }
 
@@ -79,4 +88,28 @@ class IntegerPropertySpec extends AbstractPropertySpec {
             }
         }
     }
+
+    /**
+     * Provides an implementation for the {@link RangeConstraint} interface
+     * that checks that the value is one of the predefined values.
+     */
+    private static class InSet implements RangeConstraint {
+        private final Set<Integer> range;
+
+        private InSet(Integer... range) {
+            this(new HashSet<Integer>(Arrays.asList(range)));
+        }
+
+        private InSet(Set<Integer> range) {
+            this.range = range;
+        }
+
+        @Override
+        public void validateValue(int value, String propertyName) throws InvalidPropertyException {
+            if (!this.range.contains(value)) {
+                throw  new InvalidPropertyException(value + " is not a valid value for property " + propertyName + " because it should be contained in " + Arrays.toString(this.range.toArray(new Integer[this.range.size()])));
+            }
+        }
+    }
+
 }

@@ -21,6 +21,10 @@ public final class UPLPropertySpecFactory {
         return new IntegerPropertySpec(name, required, validRange);
     }
 
+    public static PropertySpec integral(String name, boolean required, int... validValues) {
+        return new IntegerPropertySpec(name, required, validValues);
+    }
+
     public static PropertySpec string(String name, boolean required) {
         return new StringPropertySpec(name, required);
     }
