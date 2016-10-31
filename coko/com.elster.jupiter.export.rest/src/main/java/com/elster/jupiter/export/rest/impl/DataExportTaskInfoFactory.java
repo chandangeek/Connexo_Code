@@ -1,9 +1,11 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportDestination;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
@@ -24,13 +26,17 @@ public class DataExportTaskInfoFactory {
     private final TimeService timeService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final Provider<DataExportTaskHistoryInfoFactory> dataExportTaskHistoryInfoFactoryProvider;
+    private final StandardDataSelectorInfoFactory standardDataSelectorInfoFactory;
 
     @Inject
-    public DataExportTaskInfoFactory(Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService, Provider<DataExportTaskHistoryInfoFactory> dataExportTaskHistoryInfoFactoryProvider) {
+    public DataExportTaskInfoFactory(Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService,
+                                     Provider<DataExportTaskHistoryInfoFactory> dataExportTaskHistoryInfoFactoryProvider,
+                                     StandardDataSelectorInfoFactory standardDataSelectorInfoFactory) {
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.dataExportTaskHistoryInfoFactoryProvider = dataExportTaskHistoryInfoFactoryProvider;
+        this.standardDataSelectorInfoFactory = standardDataSelectorInfoFactory;
     }
 
     public DataExportTaskInfo asInfo(ExportTask exportTask) {
@@ -69,13 +75,6 @@ public class DataExportTaskInfoFactory {
         info.id = dataExportTask.getId();
         info.name = dataExportTask.getName();
         info.active = dataExportTask.isActive();
-        String selector = dataExportTask.getDataSelectorFactory().getName();
-        SelectorType selectorType = SelectorType.forSelector(selector);
-        if (selectorType.equals(SelectorType.DEFAULT_READINGS)) {
-            populateReadingTypeDataExport(info, dataExportTask);
-        } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)) {
-            populateEventTypeDataExport(info, dataExportTask);
-        }
         info.dataProcessor =
                 new ProcessorInfo(
                         dataExportTask.getDataFormatterFactory().getName(),
@@ -83,6 +82,8 @@ public class DataExportTaskInfoFactory {
                         propertyValueInfoService.getPropertyInfos(
                                 dataExportTask.getDataFormatterPropertySpecs(),
                                 dataExportTask.getProperties()));
+        String selector = dataExportTask.getDataSelectorFactory().getName();
+        SelectorType selectorType = SelectorType.forSelector(selector);
         info.dataSelector =
                 new SelectorInfo(
                         dataExportTask.getDataSelectorFactory().getName(),
@@ -91,6 +92,24 @@ public class DataExportTaskInfoFactory {
                                 dataExportTask.getDataSelectorPropertySpecs(),
                                 dataExportTask.getProperties()),
                         selectorType);
+        dataExportTask.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
+                new DataSelectorConfig.DataSelectorConfigVisitor() {
+                    @Override
+                    public void visit(MeterReadingSelectorConfig config) {
+                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                    }
+
+                    @Override
+                    public void visit(UsagePointReadingSelectorConfig config) {
+                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                    }
+
+                    @Override
+                    public void visit(EventSelectorConfig config) {
+                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                    }
+                }
+        ));
 
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {
@@ -114,15 +133,5 @@ public class DataExportTaskInfoFactory {
                 .filter(type -> type.getDestinationClass().isInstance(destination))
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
-    }
-
-    private void populateReadingTypeDataExport(DataExportTaskInfo info, ExportTask dataExportTask) {
-        dataExportTask.getStandardDataSelectorConfig().map(MeterReadingSelectorConfig.class::cast)
-                .ifPresent(meterReadingDataSelectorConfig -> info.standardDataSelector = new StandardDataSelectorInfo(meterReadingDataSelectorConfig, thesaurus));
-    }
-
-    private void populateEventTypeDataExport(DataExportTaskInfo info, ExportTask dataExportTask) {
-        dataExportTask.getStandardDataSelectorConfig().map(EventSelectorConfig.class::cast)
-                .ifPresent(eventDataSelector -> info.standardDataSelector = new StandardDataSelectorInfo(eventDataSelector));
     }
 }

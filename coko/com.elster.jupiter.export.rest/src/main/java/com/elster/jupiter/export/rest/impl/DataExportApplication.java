@@ -54,7 +54,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
         return ImmutableSet.of(
                 DataExportTaskResource.class,
                 ExportDirectoryResource.class,
-                MeterGroupsResource.class,
+                FieldResource.class,
                 FormattersResource.class,
                 SelectorsResource.class);
     }
@@ -129,6 +129,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 bind(DataSourceInfoFactory.class).to(DataSourceInfoFactory.class);
                 bind(DataExportTaskInfoFactory.class).to(DataExportTaskInfoFactory.class);
                 bind(DataExportTaskHistoryInfoFactory.class).to(DataExportTaskHistoryInfoFactory.class);
+                bind(StandardDataSelectorInfoFactory.class).to(StandardDataSelectorInfoFactory.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
