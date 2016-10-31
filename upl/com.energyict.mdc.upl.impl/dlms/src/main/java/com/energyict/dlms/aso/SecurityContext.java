@@ -361,9 +361,6 @@ public class SecurityContext {
         ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         byte[] generalCipheringHeader = createGeneralCipheringHeader();
         PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-        if (clientPrivateSigningKey == null) {
-            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-        }
 
         byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), clientPrivateSigningKey);
 
@@ -489,9 +486,6 @@ public class SecurityContext {
 
                     ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
                     PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-                    if (clientPrivateSigningKey == null) {
-                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-                    }
 
                     byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
 
@@ -633,14 +627,10 @@ public class SecurityContext {
                     }
 
                     if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
-                        /*throw ConnectionCommunicationException.signatureVerificationError();*/
+                        throw ConnectionCommunicationException.signatureVerificationError();
                     }
 
                     PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
-                    if (clientPrivateKeyAgreementKey == null) {
-                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
-                    }
-
                     KeyPair keyAgreementKeyPair = new KeyPair(null, clientPrivateKeyAgreementKey);
                     KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve(), keyAgreementKeyPair);
 

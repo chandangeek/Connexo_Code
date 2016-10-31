@@ -185,9 +185,15 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)
     ),
     IMPORT_CA_CERTIFICATE(40,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateAliasAttributeName)
+            //Referring to an entry in the peristed trust store
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.CACertificateAliasAttributeName)
     ),
-    IMPORT_END_DEVICE_CERTIFICATE(46,
+    IMPORT_CLIENT_END_DEVICE_CERTIFICATE(46,
+            //Referring to an entry in the persisted key store
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.clientCertificateAliasAttributeName)
+    ),
+    IMPORT_SERVER_END_DEVICE_CERTIFICATE(47,
+            //Referring to a certificateWrapper
             PropertySpecFactory.positiveDecimalPropertySpec(DeviceMessageConstants.certificateWrapperIdAttributeName)
     );
 

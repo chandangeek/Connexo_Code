@@ -135,7 +135,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_SUB_CA_CERTIFICATES);
         SUPPORTED_MESSAGES.add(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE);
         SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_CA_CERTIFICATE);
-        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE);
+        SUPPORTED_MESSAGES.add(SecurityMessage.IMPORT_SERVER_END_DEVICE_CERTIFICATE);
         SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER);
         SUPPORTED_MESSAGES.add(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE);
         SUPPORTED_MESSAGES.add(SecurityMessage.GENERATE_KEY_PAIR);
@@ -283,12 +284,20 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
             }
             return macAddresses.toString();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateAliasAttributeName)) {
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.CACertificateAliasAttributeName)) {
             //Load the certificate with that alias from the EIServer DLMS trust store and encode it.
             String alias = (String) messageAttribute;
             String certificateEncoded = new CertificateAlias(alias).getCertificateEncoded();
             if (certificateEncoded == null || certificateEncoded.isEmpty()) {
-                throw new ApplicationException("Certificate with alias '" + alias + "' does not exist in the key store");
+                return "";  //Message executor will recognize this and set the message to failed
+            }
+            return certificateEncoded;
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.clientCertificateAliasAttributeName)) {
+            //Load the certificate with that alias from the EIServer DLMS key store and encode it.
+            String alias = (String) messageAttribute;
+            String certificateEncoded = new PrivateKeyAlias(alias).getCertificateEncoded();
+            if (certificateEncoded == null || certificateEncoded.isEmpty()) {
+                return "";  //Message executor will recognize this and set the message to failed
             }
             return certificateEncoded;
         } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperIdAttributeName)) {
@@ -296,7 +305,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             int id = ((BigDecimal) messageAttribute).intValue();
             CertificateWrapper certificateWrapper = MeteringWarehouse.getCurrent().getCertificateWrapperFactory().findById(id);
             if (certificateWrapper == null) {
-                throw new ApplicationException("CertificateWrapper with id '" + id + "' does not exist in the EIServer database");
+                return "";  //Message executor will recognize this and set the message to failed
             }
             return certificateWrapper.getBase64Certificate();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
@@ -514,10 +523,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         changeSecuritySuite(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
                         changeAuthKey(pendingMessage);
-/*                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_CERTIFICATE)) {
-                        importClientCertificate(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.REMOVE_CLIENT_CERTIFICATE)) {
-                        removeClientCertificate(pendingMessage);*/
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
                         changeEncryptionKey(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
@@ -530,8 +535,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = exportRootCACertificate(collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CA_CERTIFICATE)) {
                         importCACertificate(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE)) {
-                        importEndDeviceCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE)) {
+                        importClientEndDeviceCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
+                        importServerEndDeviceCertificate(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER)) {
                         deleteCertificateBySerialNumber(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE)) {
@@ -678,21 +685,45 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * In case of sub-CA or root-CA certificates, their CN must end in "CA".
      */
     private void importCACertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getDeviceMessageAttributeValue();
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.CACertificateAliasAttributeName).getDeviceMessageAttributeValue();
+        if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
+            throw new ProtocolException("The certificate with the specified alias does not exist in the EIServer persisted trust store");
+        }
+
         byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
         getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
     }
 
     /**
-     * Imports an X.509 v3 certificate of a public key of an end-device.
+     * Imports an X.509 v3 certificate of a public key of this client (ComServer)
      * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
      * In case of client (ComServer) certificates, this is the system title of the ComServer.
+     * <p/>
+     * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
+     */
+    private void importClientEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.clientCertificateAliasAttributeName).getDeviceMessageAttributeValue();
+        if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
+            throw new ProtocolException("The certificate with the specified alias does not exist in the EIServer persisted key store");
+        }
+
+        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
+        getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
+    }
+
+    /**
+     * Imports an X.509 v3 certificate of a public key of a server end-device.
+     * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
      * In case of server (Beacon) certificates, this is the system title of the Beacon device.
      * <p/>
      * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
      */
-    private void importEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    private void importServerEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperIdAttributeName).getDeviceMessageAttributeValue();
+        if (base64EncodedCertificate == null || base64EncodedCertificate.isEmpty()) {
+            throw new ProtocolException("The CertificateWrapper with the given ID does not exist in the EIServer database");
+        }
+
         byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
 
         getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
@@ -830,8 +861,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString() :
                     SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
 
-            //Note that updating the alias security property will also add the given certificate under that alias, to the DLMS key store.
-            //If the key store already contains a certificate for that alias, an error is thrown, and the security property will not be updated either.
+            //Note that updating the CertificateWrapperID security property will also add the given certificate to the CertificateWrapperID table.
+            //If the table already contains a certificate with the same issuerDN and serial number, an error is thrown, and the security property will not be updated either.
             collectedMessage = MdcManager.getCollectedDataFactory().createCollectedMessageWithUpdateSecurityProperty(
                     new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
                     collectedMessage.getMessageIdentifier(),
@@ -842,8 +873,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } else if (SecurityMessage.CertificateType.TLS.equals(certificateType)) {
             propertyName = DlmsSessionProperties.SERVER_TLS_CERTIFICATE;
 
-            //Note that updating the alias general property will also add the given certificate under that alias, to the DLMS key store.
-            //If the key store already contains a certificate for that alias, an error is thrown, and the general property will not be updated either.
+            //Note that updating the CertificateWrapperID general property will also add the given certificate to the CertificateWrapperID table.
+            //If the table already contains a certificate with the same issuerDN and serial number, an error is thrown, and the general property will not be updated either.
             collectedMessage = MdcManager.getCollectedDataFactory().createCollectedMessageWithUpdateGeneralProperty(
                     new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
                     collectedMessage.getMessageIdentifier(),
@@ -851,7 +882,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     propertyValue);
         }
 
-        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number'" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
+        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number '" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
         getLogger().info(msg);
         collectedMessage.setDeviceProtocolInformation(msg);
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -902,9 +933,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 ephemeralPublicKeyEncoded
         );
         PrivateKey clientPrivateSigningKey = ((GeneralCipheringSecurityProvider) securityProvider).getClientPrivateSigningKey();
-        if (clientPrivateSigningKey == null) {
-            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-        }
         byte[] signature = ecdsaSignature.sign(signData, clientPrivateSigningKey);
 
         byte[] keyData = ProtocolTools.concatByteArrays(ephemeralPublicKeyEncoded, signature);

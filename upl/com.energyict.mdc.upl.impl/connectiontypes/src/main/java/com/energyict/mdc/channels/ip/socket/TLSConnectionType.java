@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.ServerLoggableComChannel;
 import com.energyict.mdw.core.DLMSKeyStoreParameters;
 import com.energyict.mdw.core.DLMSKeyStoreUserFile;
+import com.energyict.mdw.core.DLMSKeyStoreUserFileProvider;
 import com.energyict.mdw.crypto.DLMSKeyStoreUserFileProviderImpl;
 import com.energyict.protocol.exceptions.ConnectionException;
 import sun.security.util.DerInputStream;
@@ -33,9 +34,9 @@ import java.util.logging.Logger;
 public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     public static final String TLS_VERSION_PROPERTY_NAME = "TLSVersion";
+    public static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     private static final String TLS_DEFAULT_VERSION = "TLSv1.2";
     private static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
-    private static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     private static final String SEPARATOR = ",";
     private Logger logger;
 
@@ -109,7 +110,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         try {
             final SSLContext sslContext = SSLContext.getInstance(getTLSVersionPropertyValue());
-            DLMSKeyStoreUserFile dlmsKeyStoreUserFile = new DLMSKeyStoreUserFileProviderImpl().getKeyStoreUserFile();
+            DLMSKeyStoreUserFile dlmsKeyStoreUserFile = getDlmsKeyStoreUserFile().getKeyStoreUserFile();
 
             final TrustManager[] trustManagers = getTrustManagers(dlmsKeyStoreUserFile.findOrCreateDLMSTrustStore());
             final KeyManager[] keyManagers = getKeyManagers(dlmsKeyStoreUserFile.findOrCreateDLMSKeyStore());
@@ -126,6 +127,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             String pattern = Environment.getDefault().getTranslation("failedToSetupTLSConnection", "Failed to setup the TLS connection.");
             throw new ConnectionException(pattern, e);
         }
+    }
+
+    protected DLMSKeyStoreUserFileProvider getDlmsKeyStoreUserFile() {
+        return new DLMSKeyStoreUserFileProviderImpl();
     }
 
     private void handlePreferredCipherSuites(SSLSocket socket) throws ConnectionException {
@@ -154,7 +159,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     /**
      * Create a TrustManager based on the persisted trust store of EIServer. This contains sub-CA and root-CA certificates.
      */
-    private TrustManager[] getTrustManagers(KeyStore trustStore) throws ConnectionException {
+    protected TrustManager[] getTrustManagers(KeyStore trustStore) throws ConnectionException {
         try {
             return new TrustManager[]{new X509TrustManagerImpl(trustStore)};
         } catch (Exception e) {
@@ -166,7 +171,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     /**
      * Create a KeyManager based on the persisted key store of EIServer. This contains the private key for TLS and its matching certificate.
      */
-    private KeyManager[] getKeyManagers(KeyStore keyStore) throws ConnectionException {
+    protected KeyManager[] getKeyManagers(KeyStore keyStore) throws ConnectionException {
         try {
             return new KeyManager[]{new X509KeyManagerImpl(keyStore)};
         } catch (Exception e) {
@@ -177,10 +182,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-24 09:40:46 +0200 (Mon, 24 Oct 2016)$";
+        return "$Date: 2016-10-27 14:22:27 +0200 (Thu, 27 Oct 2016)$";
     }
 
-    private class X509TrustManagerImpl implements X509TrustManager {
+    protected class X509TrustManagerImpl implements X509TrustManager {
 
         X509TrustManager x509TrustManager;
 
@@ -236,12 +241,12 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    private class X509KeyManagerImpl implements X509KeyManager {
+    protected class X509KeyManagerImpl implements X509KeyManager {
 
         X509KeyManager x509KeyManager;
-        private KeyStore keyStore;
+        protected KeyStore keyStore;
 
-        X509KeyManagerImpl(KeyStore keyStore) throws Exception {
+        protected X509KeyManagerImpl(KeyStore keyStore) throws Exception {
             this.keyStore = keyStore;
             KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmfactory.init(keyStore, DLMSKeyStoreParameters.PARAMETERS);

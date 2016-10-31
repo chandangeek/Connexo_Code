@@ -78,7 +78,6 @@ public class DeviceMessageConstants {
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
-    public static final String clientCertificateAttributeName = "SecurityMessage.new.clientcertificate";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newhexpassword";
     public static final String preparedDataAttributeName = "SecurityMessage.prepareddata";
@@ -108,7 +107,8 @@ public class DeviceMessageConstants {
     public static final String signedResponsesAttributeName = "SecurityMessage.signedResponses";
     public static final String securitySuiteAttributeName = "SecurityMessage.securitySuite";
     public static final String certificateEntityAttributeName = "SecurityMessage.certificateEntity";
-    public static final String certificateAliasAttributeName = "SecurityMessage.certificateAlias";
+    public static final String CACertificateAliasAttributeName = "SecurityMessage.CACertificateAlias";
+    public static final String clientCertificateAliasAttributeName = "SecurityMessage.clientCertificateAlias";
     public static final String certificateWrapperIdAttributeName = "SecurityMessage.certificateWrapperId";
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateIssuerAttributeName = "SecurityMessage.certificateIssuer";

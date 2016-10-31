@@ -93,16 +93,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
     }
 
     /**
-     * The time to live of a route request table entry.
-     *
-     * @return
-     * @throws IOException
-     */
-    public AbstractDataType readAdpRoutingTupleTTL() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ROUTING_TUPLE_TTL);
-    }
-
-    /**
      * The routing table contains information about the different routes in
      * which the device is implicated.
      *
@@ -178,26 +168,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_WEAK_LQI_VALUE, rawValue);
     }
 
-    /**
-     * @param lowLqiValue
-     * @throws IOException
-     */
-    public void writeLowLqiValue(int lowLqiValue) throws IOException {
-        final Unsigned8 value = new Unsigned8(lowLqiValue);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_LOW_LQI_VALUE, rawValue);
-    }
-
-    /**
-     * @param highLqiValue
-     * @throws IOException
-     */
-    public void writeHighLqiValue(int highLqiValue) throws IOException {
-        final Unsigned8 value = new Unsigned8(highLqiValue);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_HIGH_LQI_VALUE, rawValue);
-    }
-
     public void writeSecurityLevel(int securityLevel) throws IOException {
         final Unsigned8 value = new Unsigned8(securityLevel);
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_SECURITY_LEVEL, value.getBEREncodedByteArray());
@@ -249,16 +219,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         final Unsigned16 value = new Unsigned16(broadcastLogTableTTL);
         final byte[] rawValue = value.getBEREncodedByteArray();
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_BROADCAST_LOG_TABLE_ENTRY_TTL, rawValue);
-    }
-
-    /**
-     * @param routingTupleTTL
-     * @throws IOException
-     */
-    public void writeRoutingTupleTTL(int routingTupleTTL) throws IOException {
-        final Unsigned16 value = new Unsigned16(routingTupleTTL);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ROUTING_TUPLE_TTL, rawValue);
     }
 
     public void writeMaxJoinWaitTime(int waitTime) throws IOException {
