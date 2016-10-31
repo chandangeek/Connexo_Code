@@ -80,7 +80,8 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         doReturn(query).when(estimationService).getEstimationTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
         doReturn(Collections.singletonList(estimationTask)).when(restQuery).select(any(), anyVararg());
-        when(estimationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
+        when(estimationTask.getUsagePointGroup()).thenReturn(Optional.empty());
         when(estimationTask.getPeriod()).thenReturn(Optional.of(period));
         when(estimationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(period.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
