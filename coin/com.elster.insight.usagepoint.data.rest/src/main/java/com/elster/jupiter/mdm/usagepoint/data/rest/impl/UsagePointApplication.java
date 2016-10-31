@@ -26,6 +26,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
@@ -84,6 +85,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile TimeService timeService;
     private volatile LicenseService licenseService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile SearchService searchService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -257,6 +259,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -300,6 +307,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
             bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
+            bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
+            bind(searchService).to(SearchService.class);
         }
     }
 
