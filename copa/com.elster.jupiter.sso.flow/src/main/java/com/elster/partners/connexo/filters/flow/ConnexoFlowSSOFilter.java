@@ -1,6 +1,7 @@
 package com.elster.partners.connexo.filters.flow;
 
 import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService;
+import com.elster.partners.connexo.filters.flow.identity.ConnexoFlowRestProxyManager;
 import com.elster.partners.connexo.filters.flow.identity.ConnexoIdentityService;
 import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
@@ -47,41 +48,36 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
 
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
 
-        if(principal == null || token == null || isForbidden(request, principal)){
+        if (principal == null || token == null || isForbidden(request, principal)) {
             // Not authenticated; redirect to login
             redirectToLogin(request, response);
             identityService.setSubject(null);
-        }
-        else {
-            if ( isLogoutRequest( request ) ) {
+        } else {
+            if (isLogoutRequest(request)) {
                 redirectToLogout(request, response);
                 identityService.setSubject(null);
-            }
-            else {
+            } else {
                 Set<Role> roles = new HashSet<>();
                 Set<Group> groups = new HashSet<>();
-                for(String role : principal.getRoles()) {
+                for (String role : principal.getRoles()) {
                     roles.add(new RoleImpl(role));
-                    groups.add(new GroupImpl(role));
                 }
 
                 // Bug in jBPM 6.4.0 web console - only the default admin role is allowed to access AdministrationPerspective
                 RoleImpl defaultAdmin = new RoleImpl("admin");
-                if(!roles.contains(defaultAdmin)){
+                if (!roles.contains(defaultAdmin)) {
                     roles.add(defaultAdmin);
                 }
 
                 // Bug in jBPM 6.4.0 rest - only the default rest-all role is allowed to access all rest resources
                 RoleImpl defaultRest = new RoleImpl("rest-all");
-                if(!roles.contains(defaultRest)){
+                if (!roles.contains(defaultRest)) {
                     roles.add(defaultRest);
                 }
-
+                ConnexoFlowRestProxyManager.getInstance().getGroupsOf(principal.getName()).stream().forEach(group -> groups.add(new GroupImpl(group)));
                 ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), groups, roles);
                 identityService.setSubject(subject);
-
                 authenticationService.login(subject.getIdentifier(), "");
-
                 filterChain.doFilter(new ConnexoFlowRequestWrapper(subject, request), response);
             }
         }
@@ -94,10 +90,9 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
     private String getConnexoToken(HttpServletRequest request) {
         String token = null;
         String authorization = request.getHeader("Authorization");
-        if(authorization != null && authorization.startsWith("Bearer ")){
+        if (authorization != null && authorization.startsWith("Bearer ")) {
             token = authorization.split(" ")[1];
-        }
-        else {
+        } else {
             Cookie cookies[] = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
@@ -111,7 +106,7 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
         return token;
     }
 
-    private boolean isLogoutRequest( final HttpServletRequest request ) {
+    private boolean isLogoutRequest(final HttpServletRequest request) {
         return request.getRequestURI().endsWith(LOGOUT_URI);
     }
 }

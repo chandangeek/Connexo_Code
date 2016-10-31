@@ -25,7 +25,6 @@ public class ConnexoAuthenticationService implements AuthenticationService {
     public User login(String username, String password) {
         UserImpl user = new UserImpl(username, identityService.getSubject().getRoles(), identityService.getSubject().getGroups());
         userOnThisThread.set(user);
-
         return user;
     }
 
