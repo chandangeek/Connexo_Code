@@ -186,7 +186,7 @@ Ext.define('Isu.controller.IssuesOverview', {
             filterToolbar = me.getFilterToolbar();
 
         switch (button.filterBy) {
-            case 'assignee':
+            case 'userAssignee':
                 if (button.filterValue) {
                     filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id]);
                 } else {

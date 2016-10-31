@@ -5,30 +5,20 @@ Ext.define('Isu.view.component.AssigneeColumn', {
     emptyText: '',
 
     renderer: function (value, metaData, record, rowIndex, colIndex) {
-        var result,
-            tooltip;
+        var result
 
-        if (!Ext.isEmpty(value)) {
-            result = '';
-            if (value.type) {
-                switch(value.type){
-                    case 'USER':
-                        tooltip = Uni.I18n.translate('assignee.tooltip.USER', 'ISU', 'User');
-                        break;
-                    case 'GROUP':
-                        tooltip = Uni.I18n.translate('assignee.tooltip.GROUP', 'ISU', 'User group');
-                        break;
-                    case 'ROLE':
-                        tooltip = Uni.I18n.translate('assignee.tooltip.ROLE', 'ISU', 'User role');
-                        break;
-                }
-                result += '<span class="isu-icon-' + value.type + ' isu-assignee-type-icon" data-qtip="' + tooltip + '"></span> ';
-            }
+        if (value && value.hasOwnProperty('id')){
+            var result = '';
+
+            result += '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="';
+            result += Uni.I18n.translate('assignee.tooltip.USER', 'ISU', 'User');
+            result += '"></span>';
+
             if (value.name) {
                 result += Ext.String.htmlEncode(value.name);
             }
         } else {
-            result = ' '
+            result = ' ';
         }
 
         return result || this.columns[colIndex].emptyText;

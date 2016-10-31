@@ -145,15 +145,27 @@ Ext.define('Isu.view.issues.Preview', {
                             }
                         }
                     },
+
+
                     {
                         xtype: 'filter-display',
-                        itemId: 'issue-preview-assignee',
-                        fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
-                        name: 'assignee',
+                        itemId: 'issue-preview-workgroup',
+                        fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
+                        name: 'workGroupAssignee',
                         renderer: function (value) {
                             return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'ISU', 'None');
                         }
                     },
+                    {
+                        xtype: 'filter-display',
+                        itemId: 'issue-preview-assignee',
+                        fieldLabel: Uni.I18n.translate('general.title.USER', 'ISU', 'User'),
+                        name: 'userAssignee',
+                        renderer: function (value) {
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'ISU', 'None');
+                        }
+                    },
+
                     {
                         itemId: 'issue-preview-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
