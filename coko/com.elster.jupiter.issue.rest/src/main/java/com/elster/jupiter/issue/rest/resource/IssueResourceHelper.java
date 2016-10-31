@@ -136,13 +136,18 @@ public class IssueResourceHelper {
             filter.addDevice(meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).get());
         }
 
-        jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE)
-                .stream().map(id -> userService.getUser(id).orElse(null))
-                .filter(user -> user != null)
-                .forEach(filter::addAssignee);
-
-        if(jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().anyMatch(id -> id == -1L)){
-            filter.setUnassignedSelected();
+        if(jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s-> s == null)){
+            jsonFilter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(id -> userService.getUser(Long.valueOf(id)).orElse(null))
+                    .filter(user -> user != null)
+                    .forEach(filter::addAssignee);
+        }else {
+            jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE)
+                    .stream().map(id -> userService.getUser(id).orElse(null))
+                    .filter(user -> user != null)
+                    .forEach(filter::addAssignee);
+            if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().anyMatch(id -> id == -1L)) {
+                filter.setUnassignedSelected();
+            }
         }
 
         jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP)
