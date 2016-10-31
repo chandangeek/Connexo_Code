@@ -7,8 +7,6 @@ import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
-import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
-import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -161,17 +159,6 @@ public class IssueResourceHelper {
                 .forEach(filter::addIssueType);
         getDueDates(jsonFilter).stream().forEach(dd -> filter.addDueDate(dd.startTime, dd.endTime));
         return filter;
-    }
-
-    public List<IssueAssigneeInfo> getAssignees(JsonQueryFilter filter) {
-        IssueAssigneeInfoAdapter issueAssigneeInfoAdapter = new IssueAssigneeInfoAdapter();
-        return filter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(ai -> {
-            try {
-                return issueAssigneeInfoAdapter.unmarshal(ai);
-            } catch (Exception ex){
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
-            }
-        }).collect(Collectors.toList());
     }
 
     public List<IssueDueDateInfo> getDueDates(JsonQueryFilter filter) {
