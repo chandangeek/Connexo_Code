@@ -55,7 +55,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
-                valueField: 'idx',
+                valueField: 'id',
                 anyMatch: true,
                 queryMode: 'remote',
                 queryParam: 'like',

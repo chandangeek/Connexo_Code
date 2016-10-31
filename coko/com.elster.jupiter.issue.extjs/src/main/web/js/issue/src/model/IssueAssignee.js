@@ -5,7 +5,7 @@ Ext.define('Isu.model.IssueAssignee', {
             name: 'id',
             type: 'int'
         },
-        {
+        /*  {
             name: 'idx',
             type: 'string',
             convert: function (value, record) {
@@ -19,18 +19,18 @@ Ext.define('Isu.model.IssueAssignee', {
 
                 return idx;
             }
-        },
-        {
+         },*/
+        /*  {
             name: 'type',
             type: 'auto'
-        },
+         },*/
         {
             name: 'name',
             type: 'auto'
         }
     ],
 
-    idProperty: 'idx',
+    //idProperty: 'idx',
 
     // GET ?like="operator"
     proxy: {
@@ -41,12 +41,13 @@ Ext.define('Isu.model.IssueAssignee', {
             root: 'data'
         },
         buildUrl: function(request) {
+            return this.url;
             var idx = request.params.id,
                 params;
 
             if (idx) {
                 params = idx.split(':');
-                return this.url + '/' + params[0] + '?assigneeType=' + params[1];
+                return this.url + '/' + params[0];// + '?assigneeType=' + params[1];
             } else {
                 return this.url
             }
