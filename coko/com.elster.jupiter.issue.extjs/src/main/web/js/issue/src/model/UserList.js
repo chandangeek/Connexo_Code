@@ -3,7 +3,7 @@ Ext.define('Isu.model.UserList', {
     fields: [
         {
             name: 'id',
-            type: 'auto'
+            type: 'int'
         },
         {
             name: 'authenticationName',

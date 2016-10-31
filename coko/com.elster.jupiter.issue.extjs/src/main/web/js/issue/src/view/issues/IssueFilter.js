@@ -63,7 +63,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 minChars: 1,
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
-                getParamValue: me.comboGetParamValue,
+                getParamValue1: me.comboGetParamValue,
                 forceSelection: false,
                 listeners: {
                     expand: {
@@ -185,7 +185,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         store.loadData(arr, false);
                         store.lastOptions = {};
                         store.fireEvent('load', store, arr, true);
-                        combo.value = record;
+                        combo.value = arr;
                     }
                 });
             });
