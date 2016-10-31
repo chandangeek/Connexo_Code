@@ -248,6 +248,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
+    public Optional<UsagePointGroup> findAndLockUsagePointGroupByIdAndVersion(long id, long version) {
+        return dataModel.mapper(UsagePointGroup.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public <T extends Group<?>> Optional<T> findGroupByName(String name, Class<T> api) {
         return dataModel.stream(api).filter(Operator.EQUALIGNORECASE.compare("name", name)).findFirst();
     }

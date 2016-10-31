@@ -58,6 +58,8 @@ public interface MeteringGroupsService {
 
     Optional<EndDeviceGroup> findAndLockEndDeviceGroupByIdAndVersion(long id, long version);
 
+    Optional<UsagePointGroup> findAndLockUsagePointGroupByIdAndVersion(long id, long version);
+
     default Optional<EndDeviceGroup> findEndDeviceGroupByName(String name) {
         return findGroupByName(name, EndDeviceGroup.class);
     }
