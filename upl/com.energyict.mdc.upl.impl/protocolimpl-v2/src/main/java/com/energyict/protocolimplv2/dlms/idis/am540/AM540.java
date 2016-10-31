@@ -36,7 +36,9 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
+import com.energyict.protocolimplv2.dlms.idis.am540.events.AM540LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
@@ -259,7 +261,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
-        if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1)
+        if ((initialFrameCounter > cachedFrameCounter) && clientId == EVN_CLIENT_MANAGEMENT) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1). Use initialFC only for client 1, for others read it out
             getLogger().info("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(initialFrameCounter);
             weHaveAFrameCounter = true;
@@ -520,11 +522,20 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         return meterTopology;
     }
 
+    @Override
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
             idisMessaging = new AM540Messaging(this);
         }
         return idisMessaging;
+    }
+
+    @Override
+    protected IDISLogBookFactory getIDISLogBookFactory() {
+        if (idisLogBookFactory == null) {
+            idisLogBookFactory = new AM540LogBookFactory(this);
+        }
+        return idisLogBookFactory;
     }
 
     /**

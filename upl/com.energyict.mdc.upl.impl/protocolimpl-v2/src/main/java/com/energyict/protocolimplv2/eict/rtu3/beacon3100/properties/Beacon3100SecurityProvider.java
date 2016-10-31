@@ -233,13 +233,24 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
         }
     }
 
+    /**
+     * Return the private key from the EIServer key store for the configured alias.
+     * Throw the proper exception if the private key could not be found based on the configured alias.
+     */
     private PrivateKey parsePrivateKey(String propertyName) {
         PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
         if (alias == null) {
-            return null;
+            throw DeviceConfigurationException.missingProperty(propertyName);
         } else {
             try {
                 PrivateKey privateKey = alias.getPrivateKey();
+                if (privateKey == null) {
+                    throw DeviceConfigurationException.invalidPropertyFormat(
+                            propertyName,
+                            alias.getAlias(),
+                            "The configured alias does not refer to an existing entry in the EIServer persisted key store.");
+                }
+
                 if (privateKey instanceof ECPrivateKey) {
 
                     int keySize = KeyUtils.getKeySize(getECCCurve()) / 2;

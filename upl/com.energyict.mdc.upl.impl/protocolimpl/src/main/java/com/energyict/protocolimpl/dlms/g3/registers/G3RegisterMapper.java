@@ -134,6 +134,8 @@ public class G3RegisterMapper {
     private static final ObisCode MAC_SETUP_ATTR2 = ObisCode.fromString("0.2.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR3 = ObisCode.fromString("0.3.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR4 = ObisCode.fromString("0.4.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR5 = ObisCode.fromString("0.5.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR6 = ObisCode.fromString("0.6.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR7 = ObisCode.fromString("0.7.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR8 = ObisCode.fromString("0.8.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR9 = ObisCode.fromString("0.9.29.1.0.255");
@@ -146,6 +148,7 @@ public class G3RegisterMapper {
     private static final ObisCode MAC_SETUP_ATTR16 = ObisCode.fromString("0.16.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR17 = ObisCode.fromString("0.17.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR18 = ObisCode.fromString("0.18.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR19 = ObisCode.fromString("0.19.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR20 = ObisCode.fromString("0.20.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR21 = ObisCode.fromString("0.21.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR22 = ObisCode.fromString("0.22.29.1.0.255");
@@ -527,6 +530,8 @@ public class G3RegisterMapper {
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR2));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR3));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR4));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR5));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR6));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR7));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR8));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR9));
@@ -539,6 +544,7 @@ public class G3RegisterMapper {
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR16));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR17));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR18));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR19));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR20));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR21));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR22));
