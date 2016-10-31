@@ -68,6 +68,11 @@ Ext.define('Idc.controller.Main', {
                         text: Uni.I18n.translate('datacollection.myOpenIssues','IDC','My open issues'),
                         itemId: 'datacollection-my-open-issues',
                         href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datacollection'], myopenissues: true})
+                    },
+                    {
+                        text: Uni.I18n.translate('datacollection.myWorkgroupsIssues', 'IDC', 'My workgroups issues'),
+                        itemId: 'datacollection-my-workgroup-issues',
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datacollection'], myworkgroupissues: true})
                     }
                 ]
             });
