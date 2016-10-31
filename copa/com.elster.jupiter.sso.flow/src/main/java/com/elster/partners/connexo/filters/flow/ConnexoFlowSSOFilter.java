@@ -60,6 +60,9 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 Set<Role> roles = new HashSet<>();
                 Set<Group> groups = new HashSet<>();
                 for (String role : principal.getRoles()) {
+                    if(role.equals("Administrators")){
+                        groups.add(new GroupImpl(role));
+                    }
                     roles.add(new RoleImpl(role));
                 }
 
