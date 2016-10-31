@@ -88,10 +88,12 @@ table.TDefenition tbody tr:nth-child(even)   {
 }
 a:link {
     text-decoration: none;
+	color: #71adc7; 
 }
 
 a:visited {
     text-decoration: none;
+	color: #0083c8;
 }
 
 a:hover{
