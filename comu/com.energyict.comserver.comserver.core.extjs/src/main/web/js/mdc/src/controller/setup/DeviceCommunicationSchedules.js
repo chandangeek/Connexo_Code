@@ -11,8 +11,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleGrid',
         'Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationScheduleGrid',
         'Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationScheduleGrid',
-        'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedule',
-        'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationScheduleGrid',
         'Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp'
     ],
 
@@ -23,53 +21,40 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     ],
 
     refs: [
-        {ref: 'addSharedCommunicationScheduleGrid', selector: '#addSharedCommunicationScheduleGrid'},
         {ref: 'sharedCommunicationScheduleGrid', selector: '#sharedCommunicationScheduleGrid'},
         {ref: 'onRequestCommunicationScheduleGrid', selector: '#onRequestComtaskGrid'},
         {ref: 'individualCommunicationScheduleGrid', selector: '#individualComtaskGrid'},
         {ref: 'scheduleField', selector: '#scheduleField'},
-        {ref: 'warningMessage', selector: '#warningMessage'},
         {ref: 'addButton', selector: '#addButton'},
-        {ref: 'uniFormErrorMessage', selector: '#form-errors'},
-        {ref: 'addSharedCommunicationSchedulePage', selector: 'addSharedCommunicationSchedule'}
 
     ],
 
     init: function () {
-        //this.control({
-        //    '#deviceCommunicationScheduleSetup button[action=addSharedCommunicationSchedule]': {
-        //        click: this.addSharedCommunicationScheduleHistory
-        //    },
-        //    'menuitem[action=addCommunicationSchedule]': {
-        //        click: this.addCommunicationSchedule
-        //    },
-        //    'menuitem[action=runCommunicationSchedule]': {
-        //        click: this.runCommunicationSchedule
-        //    },
-        //    'actioncolumn': {
-        //        removeSharedCommunicationSchedule: this.removeSharedCommunicationScheduleConfirmation
-        //    },
-        //    'menuitem[action=changeCommunicationSchedule]': {
-        //        click: this.changeCommunicationSchedule
-        //    },
-        //    'menuitem[action=removeCommunicationSchedule]': {
-        //        click: this.removeCommunicationScheduleConfirmation
-        //    },
-        //    '#addSharedCommunicationScheduleGrid': {
-        //        selectionchange: this.onSharedComScheduleSelectionChange
-        //    },
-        //    '#addSharedScheduleButtonForm button[action=addAction]': {
-        //        click: this.saveSharedSchedule
-        //    }, '#addSharedScheduleButtonForm button[action=cancelAction]': {
-        //        click: this.cancelSharedScheduleHistory
-        //    },
-        //    'button[action=addIndividualScheduleAction]': {
-        //        click: this.saveIndividualSchedule
-        //    },
-        //    'button[action=changeIndividualScheduleAction]': {
-        //        click: this.updateIndividualSchedule
-        //    }
-        //});
+        this.control({
+            'menuitem[action=runCommunicationSchedule]': {
+                click: this.runCommunicationSchedule
+            },
+            'actioncolumn': {
+                removeSharedCommunicationSchedule: this.removeSharedCommunicationScheduleConfirmation
+            },
+            'menuitem[action=changeCommunicationSchedule]': {
+                click: this.changeCommunicationSchedule
+            },
+            'menuitem[action=removeCommunicationSchedule]': {
+                click: this.removeCommunicationScheduleConfirmation
+            },
+            '#addSharedScheduleButtonForm button[action=addAction]': {
+                click: this.saveSharedSchedule
+            }, '#addSharedScheduleButtonForm button[action=cancelAction]': {
+                click: this.cancelSharedScheduleHistory
+            },
+            'button[action=addIndividualScheduleAction]': {
+                click: this.saveIndividualSchedule
+            },
+            'button[action=changeIndividualScheduleAction]': {
+                click: this.updateIndividualSchedule
+            }
+        });
     },
 
     showDeviceCommunicationScheduleView: function (mrid) {
@@ -201,29 +186,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 me.getApplication().fireEvent('loadDevice', device);
             }
         });
-    },
-
-    onSharedComScheduleSelectionChange: function () {
-        var me = this,
-            communicationSchedules = me.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection();
-        me.getWarningMessage().setVisible(false);
-        me.getUniFormErrorMessage().hide();
-        if (communicationSchedules.length != 1) {
-            var valuesToCheck = [];
-            Ext.each(communicationSchedules, function (item) {
-                valuesToCheck.push.apply(valuesToCheck, item.get('comTaskUsages'));
-            });
-            if (_.uniq(valuesToCheck,function (item) {
-                return item.id;
-            }).length === valuesToCheck.length) {
-                me.getUniFormErrorMessage().hide();
-                me.getWarningMessage().setVisible(false);
-            } else {
-                me.getUniFormErrorMessage().show();
-                me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') + '</span>');
-                me.getWarningMessage().setVisible(true);
-            }
-        }
     },
 
     saveSharedSchedule: function () {

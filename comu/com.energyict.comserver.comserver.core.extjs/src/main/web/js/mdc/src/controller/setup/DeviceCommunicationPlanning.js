@@ -35,6 +35,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             },
             '#addSharedScheduleButtonForm button[action=addAction]': {
                 click: this.addSharedSchedules
+            },
+            '#addSharedCommunicationScheduleGrid': {
+                selectionchange: this.onSharedComScheduleSelectionChange
             }
         })
     },
@@ -180,5 +183,28 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             }
         }
     },
+
+    onSharedComScheduleSelectionChange: function () {
+        var me = this,
+            communicationSchedules = me.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection();
+        me.getWarningMessage().setVisible(false);
+        me.getUniFormErrorMessage().hide();
+        if (communicationSchedules.length != 1) {
+            var valuesToCheck = [];
+            Ext.each(communicationSchedules, function (item) {
+                valuesToCheck.push.apply(valuesToCheck, item.get('comTaskUsages'));
+            });
+            if (_.uniq(valuesToCheck,function (item) {
+                    return item.id;
+                }).length === valuesToCheck.length) {
+                me.getUniFormErrorMessage().hide();
+                me.getWarningMessage().setVisible(false);
+            } else {
+                me.getUniFormErrorMessage().show();
+                me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') + '</span>');
+                me.getWarningMessage().setVisible(true);
+            }
+        }
+    }
 })
 ;
