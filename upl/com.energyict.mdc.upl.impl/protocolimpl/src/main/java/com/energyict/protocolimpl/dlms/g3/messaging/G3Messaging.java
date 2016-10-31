@@ -653,22 +653,6 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final MessageResult writeLowLQIValue(SixLoWPanMessages.SetLowLQIValueMessage message) throws IOException {
-        getLogger().info("Received [SetLowLQIValueMessage]. Writing new value of [" + message.getLowLQIValue() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeLowLqiValue(message.getLowLQIValue());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
-    public final MessageResult writeHighLQIValue(SixLoWPanMessages.SetHighLQIValueMessage message) throws IOException {
-        getLogger().info("Received [SetHighLQIValueMessage]. Writing new value of [" + message.getHighLQIValue() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeHighLqiValue(message.getHighLQIValue());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
     public final MessageResult setSecurityLevel(SixLoWPanMessages.SetSecurityLevel message) throws IOException {
         getLogger().info("Received [SetSecurityLevel]. Writing new value of [" + message.getValue() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
@@ -705,14 +689,6 @@ public class G3Messaging extends AnnotatedMessaging {
         getLogger().info("Received [SetBroadcastLogTableEntryTTLMessage]. Writing new value of [" + message.getBroadcastLogTableEntryTTL() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeBroadcastLogTableTTL(message.getBroadcastLogTableEntryTTL());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
-    public final MessageResult writeRoutingTupleTTLEntryTTL(SixLoWPanMessages.SetRoutingTupleTTLMessage message) throws IOException {
-        getLogger().info("Received [SetRoutingTupleTTLMessage]. Writing new value of [" + message.getRoutingTupleTTL() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeRoutingTupleTTL(message.getRoutingTupleTTL());
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 

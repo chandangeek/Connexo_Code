@@ -57,10 +57,6 @@ public class PLCConfigurationDeviceMessageExecutor {
             setMaxNumberOfHops(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
             setWeakLQIValue(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetLowLQIValueAttributeName)) {
-            setLowLQIValue(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetHighLQIValueAttributeName)) {
-            setHighLQIValue(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSecurityLevel)) {
             setSecurityLevelpendingMessage(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
@@ -167,18 +163,6 @@ public class PLCConfigurationDeviceMessageExecutor {
         int value = getSingleIntegerAttribute(pendingMessage);
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeWeakLqiValue(value);
-    }
-
-    private void setLowLQIValue(OfflineDeviceMessage pendingMessage) throws IOException {
-        int value = getSingleIntegerAttribute(pendingMessage);
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeLowLqiValue(value);
-    }
-
-    private void setHighLQIValue(OfflineDeviceMessage pendingMessage) throws IOException {
-        int value = getSingleIntegerAttribute(pendingMessage);
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeHighLqiValue(value);
     }
 
     private void setSecurityLevelpendingMessage(OfflineDeviceMessage pendingMessage) throws IOException {
