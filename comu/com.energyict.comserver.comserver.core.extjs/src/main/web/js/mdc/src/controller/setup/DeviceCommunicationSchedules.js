@@ -136,45 +136,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         });
     },
 
-    addSharedCommunicationSchedule: function (mrid) {
-        var me = this;
-        this.mrid = mrid;
-        var widget = Ext.widget('addSharedCommunicationSchedule', {mRID: this.mrid});
-
-        var availableScheduleStore = this.getAvailableCommunicationSchedulesForDeviceStore();
-        widget.down('#addSharedCommunicationScheduleGrid').reconfigure(availableScheduleStore);
-        availableScheduleStore.getProxy().pageParam = false;
-        availableScheduleStore.getProxy().limitParam = false;
-        availableScheduleStore.getProxy().startParam = false;
-        availableScheduleStore.getProxy().setExtraParam('filter', Ext.encode([
-            {
-                property: 'mrid',
-                value: mrid
-            },
-            {
-                property: 'available',
-                value: true
-            }
-        ]));
-        availableScheduleStore.load({
-            callback: function () {
-                me.getApplication().fireEvent('changecontentevent', widget);
-                if (availableScheduleStore.getCount() === 0) {
-                    widget.down('#addSharedScheduleButtonForm').setVisible(false);
-                } else {
-                    widget.down('#addSharedScheduleButtonForm').setVisible(true);
-                }
-            }
-        });
-
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
-            success: function (device) {
-                widget.device = device;
-                me.getApplication().fireEvent('loadDevice', device);
-            }
-        });
-    },
-
     removeSharedCommunicationScheduleConfirmation: function (record2Remove) {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({

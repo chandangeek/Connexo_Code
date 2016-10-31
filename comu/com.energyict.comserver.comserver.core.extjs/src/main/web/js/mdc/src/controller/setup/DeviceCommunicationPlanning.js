@@ -150,6 +150,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
     checkValidSelection: function (communicationSchedules) {
         var me = this;
         me.getUniFormErrorMessage().hide();
+        me.getWarningMessage().setVisible(false);
         if (communicationSchedules.length === 1) {
             return true;
         } else if (communicationSchedules.length === 0) {
@@ -192,5 +193,4 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             return false;
         }
     }
-})
-;
+});
