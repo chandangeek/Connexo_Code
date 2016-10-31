@@ -52,6 +52,9 @@ public interface MeterProtocol extends HasDynamicProperties {
     enum Property {
         ADDRESS("DevideId"),
         PASSWORD("Password"),
+        RETRIES("Retries"),
+        TIMEOUT("Timeout"),
+        SECURITYLEVEL("SecurityLevel"),
         PROFILEINTERVAL("ProfileInterval"),
         SERIALNUMBER("SerialNumber"),
         NODEID("NodeAddress"),
@@ -62,7 +65,7 @@ public interface MeterProtocol extends HasDynamicProperties {
          * This property is used by the getTime() and setTime() method
          * to correct the communication roundtrip.
          */
-        ROUNDTRIPCORR("RoundtripCorrection"),
+        ROUNDTRIPCORRECTION("RoundtripCorrection"),
 
         /**
          * The string used for the correctTime property.
