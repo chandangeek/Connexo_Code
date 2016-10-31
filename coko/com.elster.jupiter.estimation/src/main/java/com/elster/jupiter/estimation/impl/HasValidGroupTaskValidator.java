@@ -19,8 +19,8 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
 
     @Override
     public boolean isValid(EstimationTask estimationTask, ConstraintValidatorContext context) {
-        Optional<EndDeviceGroup> deviceGroup = Optional.ofNullable(estimationTask.getEndDeviceGroup());
-        Optional<UsagePointGroup> usagePointGroup = Optional.ofNullable(estimationTask.getUsagePointGroup());
+        Optional<EndDeviceGroup> deviceGroup = estimationTask.getEndDeviceGroup();
+        Optional<UsagePointGroup> usagePointGroup = estimationTask.getUsagePointGroup();
 
 
         context.disableDefaultConstraintViolation();

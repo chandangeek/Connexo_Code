@@ -109,7 +109,7 @@ public class EstimationTaskExecutorTest {
         myHandler = new MyHandler();
         when(taskLogger.asHandler()).thenReturn(myHandler);
         doReturn(Optional.of(estimationTask)).when(estimationService).findEstimationTask(eq(task));
-        when(estimationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
         when(meteringService.getMeterWithReadingQualitiesQuery(any(Range.class), eq(ReadingQualityType.of(QUALITY_CODE_SYSTEM, QualityCodeIndex.SUSPECT)))).thenReturn(meterWithSuspectsQuery);
         when(endDeviceGroup.toSubQuery(eq("id"))).thenReturn(endDeviceSubQuery);
         when(meterWithSuspectsQuery.select(any(Condition.class))).thenReturn(Arrays.asList(meter1, meter2));

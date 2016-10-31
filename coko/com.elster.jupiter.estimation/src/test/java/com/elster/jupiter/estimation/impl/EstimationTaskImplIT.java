@@ -248,8 +248,8 @@ public class EstimationTaskImplIT {
         assertThat(found).isPresent();
 
         EstimationTask readingTypeDataExportTask = found.get();
-
-        Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().isPresent()).isTrue();
+        Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().get().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         Assertions.assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
@@ -281,7 +281,8 @@ public class EstimationTaskImplIT {
 
         Assertions.assertThat(found.get().getNextExecution()).isEqualTo(instant);
         Assertions.assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
-        Assertions.assertThat(found.get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
+        Assertions.assertThat(found.get().getEndDeviceGroup().isPresent()).isTrue();
+        Assertions.assertThat(found.get().getEndDeviceGroup().get().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         Assertions.assertThat(found.get().getName()).isEqualTo("New name!");
     }
 

@@ -25,9 +25,9 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     QualityCodeSystem getQualityCodeSystem();
 
-    EndDeviceGroup getEndDeviceGroup();
+    Optional<EndDeviceGroup> getEndDeviceGroup();
 
-    UsagePointGroup getUsagePointGroup();
+    Optional<UsagePointGroup> getUsagePointGroup();
 
     Optional<Instant> getLastRun();
 

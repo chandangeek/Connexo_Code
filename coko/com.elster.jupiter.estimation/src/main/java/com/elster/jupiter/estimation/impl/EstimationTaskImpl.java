@@ -91,13 +91,13 @@ final class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
-    public EndDeviceGroup getEndDeviceGroup() {
-        return endDeviceGroup.get();
+    public Optional<EndDeviceGroup> getEndDeviceGroup() {
+        return endDeviceGroup.getOptional();
     }
 
     @Override
-    public UsagePointGroup getUsagePointGroup() {
-        return usagePointGroup.get();
+    public Optional<UsagePointGroup> getUsagePointGroup() {
+        return usagePointGroup.getOptional();
     }
 
     @Override
