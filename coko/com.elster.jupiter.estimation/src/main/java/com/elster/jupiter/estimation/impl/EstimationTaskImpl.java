@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -28,6 +29,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@HasValidGroup
 final class EstimationTaskImpl implements IEstimationTask {
 
     private final IEstimationService estimationService;
@@ -40,6 +42,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private String name;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+    private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
     private Reference<RelativePeriod> period = ValueReference.absent();
     private Instant lastRun;
 
@@ -63,13 +66,14 @@ final class EstimationTaskImpl implements IEstimationTask {
         this.thesaurus = thesaurus;
     }
 
-    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
-        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, scheduleExpression, nextExecution, qualityCodeSystem);
+    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
+        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem);
     }
 
-    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
+    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
         this.name = name;
         this.endDeviceGroup.set(endDeviceGroup);
+        this.usagePointGroup.set(usagePointGroup);
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
         this.qualityCodeSystem = qualityCodeSystem;
@@ -89,6 +93,11 @@ final class EstimationTaskImpl implements IEstimationTask {
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
         return endDeviceGroup.get();
+    }
+
+    @Override
+    public UsagePointGroup getUsagePointGroup() {
+        return usagePointGroup.get();
     }
 
     @Override
@@ -185,6 +194,11 @@ final class EstimationTaskImpl implements IEstimationTask {
     @Override
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup.set(endDeviceGroup);
+    }
+
+    @Override
+    public void setUsagePointGroup(UsagePointGroup usagePointGroup) {
+        this.usagePointGroup.set(usagePointGroup);
     }
 
     @Override
