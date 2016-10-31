@@ -29,6 +29,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>protocol-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>axis</groupId>
