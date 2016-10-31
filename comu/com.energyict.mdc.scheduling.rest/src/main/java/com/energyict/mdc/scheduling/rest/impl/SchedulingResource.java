@@ -276,7 +276,7 @@ public class SchedulingResource {
     private List<ComTask> getAvailableComTasksExcludingAlreadyAssigned(ComSchedule comSchedule) {
         List<ComTask> remainingComTasks = new ArrayList<>();
         Map<Long, ComTask> existingComTasks = IdListBuilder.asIdMap(comSchedule.getComTasks());
-        for (ComTask availableComTask : deviceConfigurationService.findAvailableComTasks(comSchedule)) {
+        for (ComTask availableComTask : taskService.findAllUserComTasks()) {
             if (!existingComTasks.containsKey(availableComTask.getId())) {
                 remainingComTasks.add(availableComTask);
             }
