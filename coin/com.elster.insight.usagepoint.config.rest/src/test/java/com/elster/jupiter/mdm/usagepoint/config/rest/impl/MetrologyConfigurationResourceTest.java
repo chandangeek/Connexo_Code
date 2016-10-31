@@ -95,8 +95,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(ers.getId()).thenReturn(51L);
         metrologyContract = config1.getContracts().stream().findFirst().get();
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-        metrologyContractInfo.addValidationRuleSets(Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
-        metrologyContractInfo.addEstimationRuleSets(Collections.emptyList());
+        metrologyContractInfo.validationRuleSets = Collections.singletonList(new ValidationRuleSetInfo(vrs3));
+        metrologyContractInfo.estimationRuleSets = Collections.emptyList();
         when(vrs3.getId()).thenReturn(2L);
         when(vrs3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion3)).when(vrs3).getRuleSetVersions();
@@ -301,8 +301,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testAddEstimationRuleSetsToMetrologyContract() {
-        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
-        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
+        metrologyContractInfo.validationRuleSets = Collections.emptyList();
+        metrologyContractInfo.estimationRuleSets = Collections.singletonList(new EstimationRuleSetInfo(ers));
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -311,8 +311,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testAddEstimationRuleSetsConcurrencyCheck() {
-        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
-        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
+        metrologyContractInfo.validationRuleSets = Collections.emptyList();
+        metrologyContractInfo.estimationRuleSets = Collections.singletonList(new EstimationRuleSetInfo(ers));
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
@@ -321,8 +321,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testRemoveEstimationRuleSetFromMetrologyContract() {
-        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
-        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
+        metrologyContractInfo.validationRuleSets = Collections.emptyList();
+        metrologyContractInfo.estimationRuleSets = Collections.singletonList(new EstimationRuleSetInfo(ers));
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -331,8 +331,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testRemoveEstimationRuleSetConcurrencyCheck() {
-        metrologyContractInfo.addValidationRuleSets(Collections.emptyList());
-        metrologyContractInfo.addEstimationRuleSets(Collections.singletonList(new EstimationRuleSetInfo(ers)));
+        metrologyContractInfo.validationRuleSets = Collections.emptyList();
+        metrologyContractInfo.estimationRuleSets = Collections.singletonList(new EstimationRuleSetInfo(ers));
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);

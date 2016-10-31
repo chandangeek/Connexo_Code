@@ -96,6 +96,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
         </dependency>
         <dependency>
@@ -148,10 +152,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>estimation</artifactId>
         </dependency>
     </dependencies>
 </project>

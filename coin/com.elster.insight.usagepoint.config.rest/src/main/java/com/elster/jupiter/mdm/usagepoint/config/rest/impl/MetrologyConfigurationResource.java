@@ -221,8 +221,8 @@ public class MetrologyConfigurationResource {
                     .map(EstimationRuleSetInfo::new)
                     .collect(Collectors.toList());
             MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-            metrologyContractInfo.addValidationRuleSets(validationRuleSetInfos);
-            metrologyContractInfo.addEstimationRuleSets(estimationRuleSetInfos);
+            metrologyContractInfo.validationRuleSets = validationRuleSetInfos;
+            metrologyContractInfo.estimationRuleSets = estimationRuleSetInfos;
             metrologyContractInfos.add(metrologyContractInfo);
         }
         return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
@@ -285,8 +285,8 @@ public class MetrologyConfigurationResource {
                 .map(EstimationRuleSetInfo::new)
                 .collect(Collectors.toList());
         MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-        metrologyContractInfo.addValidationRuleSets(linkableValidationRuleSets);
-        metrologyContractInfo.addEstimationRuleSets(linkableEstimationRuleSets);
+        metrologyContractInfo.validationRuleSets = linkableValidationRuleSets;
+        metrologyContractInfo.estimationRuleSets = linkableEstimationRuleSets;
         return metrologyContractInfo;
     }
 
@@ -382,7 +382,7 @@ public class MetrologyConfigurationResource {
                     .map(dataValidationTaskInfoFactory::asMinimalInfo)
                     .collect(Collectors.toList());
             MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-            metrologyContractInfo.addValidationTasks(dataValidationTaskInfos);
+            metrologyContractInfo.validationTasks = dataValidationTaskInfos;
             metrologyContractInfos.add(metrologyContractInfo);
         }
         return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);

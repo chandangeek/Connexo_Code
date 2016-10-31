@@ -30,18 +30,6 @@ public class MetrologyContractInfo {
         this.version = metrologyContract.getVersion();
         this.mandatory = metrologyContract.isMandatory();
     }
-
-    public void addValidationTasks(List<DataValidationTaskMinimalInfo> validationTaskInfos) {
-        this.validationTasks = validationTaskInfos;
-    }
-
-    public void addValidationRuleSets(List<ValidationRuleSetInfo> validationRuleSets) {
-        this.validationRuleSets = validationRuleSets;
-    }
-
-    public void addEstimationRuleSets(List<EstimationRuleSetInfo> estimationRuleSets) {
-        this.estimationRuleSets = estimationRuleSets;
-    }
 }
 
 
