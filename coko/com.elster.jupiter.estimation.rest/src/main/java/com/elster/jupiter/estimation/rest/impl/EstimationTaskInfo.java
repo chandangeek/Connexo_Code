@@ -64,8 +64,8 @@ public class EstimationTaskInfo {
         id = estimationTask.getId();
         name = estimationTask.getName();
         active = estimationTask.isActive();
-        deviceGroup = new MeterGroupInfo(estimationTask.getEndDeviceGroup());
-        usagePointGroup = new IdWithDisplayValueInfo<>(estimationTask.getUsagePointGroup().getId(), estimationTask.getUsagePointGroup().getName());
+        deviceGroup = deviceGroup!=null ? new MeterGroupInfo(estimationTask.getEndDeviceGroup()) : null;
+        usagePointGroup = usagePointGroup!=null ? new IdWithDisplayValueInfo<>(estimationTask.getUsagePointGroup().getId(), estimationTask.getUsagePointGroup().getName()) : null;
         estimationTask.getPeriod().ifPresent(period -> this.period = RelativePeriodInfo.withCategories(period));
 
         Instant nextExecution = estimationTask.getNextExecution();
