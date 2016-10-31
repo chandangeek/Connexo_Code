@@ -16,6 +16,8 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public IssueStatusInfo status;
     public long dueDate;
     public IssueAssigneeInfo assignee;
+    public IssueAssigneeInfo workGroupAssignee;
+    public IssueAssigneeInfo userAssignee;
     public DeviceInfo device;
     public String title;
     public IssueTypeInfo issueType;
@@ -39,6 +41,8 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             this.status = new IssueStatusInfo(issue.getStatus());
             this.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0;
             this.assignee = (issue.getAssignee() != null ? new IssueAssigneeInfo(issue.getAssignee()) : null);
+            this.workGroupAssignee = (issue.getAssignee() != null ? new IssueAssigneeInfo("WORKGROUP", issue.getAssignee()) : null);
+            this.userAssignee = (issue.getAssignee() != null ? new IssueAssigneeInfo("USER", issue.getAssignee()) : null);
             try {
                 this.device = issue.getDevice() != null ? deviceType.getConstructor(EndDevice.class).newInstance(issue.getDevice()) : null;
             } catch (ReflectiveOperationException e) {

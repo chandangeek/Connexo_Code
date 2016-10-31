@@ -8,8 +8,24 @@ public class IssueAssigneeInfo {
     private String name;
 
     public IssueAssigneeInfo(IssueAssignee assignee){
-        this.name = assignee.getUser().getName();
-        this.id = assignee.getUser().getId();
+        if(assignee.getUser() != null) {
+            this.name = assignee.getUser().getName();
+            this.id = assignee.getUser().getId();
+        }
+    }
+
+    public IssueAssigneeInfo(String type, IssueAssignee assignee){
+        if(type.equals("WORKGROUP")){
+            if(assignee.getWorkGroup() != null) {
+                this.name = assignee.getWorkGroup().getName().toLowerCase();
+                this.id = assignee.getWorkGroup().getId();
+            }
+        }else if(type.equals("USER")){
+            if(assignee.getUser() != null) {
+                this.name = assignee.getUser().getName();
+                this.id = assignee.getUser().getId();
+            }
+        }
     }
 
     public IssueAssigneeInfo(String type, Long id, String name) {
