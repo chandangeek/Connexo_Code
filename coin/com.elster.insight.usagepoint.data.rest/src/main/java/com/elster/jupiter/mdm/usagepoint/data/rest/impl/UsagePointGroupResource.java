@@ -26,6 +26,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -54,6 +55,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.stream.Collectors.toList;
 
 @Path("/usagepointgroups")
 public class UsagePointGroupResource {
@@ -62,24 +64,27 @@ public class UsagePointGroupResource {
     private final SearchService searchService;
     private final ExceptionFactory exceptionFactory;
     private final UsagePointGroupInfoFactory usagePointGroupInfoFactory;
+    private final UsagePointInfoFactory usagePointInfoFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
     public UsagePointGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService,
                                    SearchService searchService, ExceptionFactory exceptionFactory,
-                                   UsagePointGroupInfoFactory usagePointGroupInfoFactory, ResourceHelper resourceHelper) {
+                                   UsagePointGroupInfoFactory usagePointGroupInfoFactory,
+                                   UsagePointInfoFactory usagePointInfoFactory, ResourceHelper resourceHelper) {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
         this.searchService = searchService;
         this.exceptionFactory = exceptionFactory;
         this.usagePointGroupInfoFactory = usagePointGroupInfoFactory;
+        this.usagePointInfoFactory = usagePointInfoFactory;
         this.resourceHelper = resourceHelper;
     }
 
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     // not protected by privileges yet because a combo-box containing all the groups needs to be shown
     // when creating an export task
     public PagedInfoList getUsagePointGroups(@QueryParam("type") String typeName, @BeanParam JsonQueryFilter filter,
@@ -130,7 +135,7 @@ public class UsagePointGroupResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
             Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
             Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
@@ -162,6 +167,39 @@ public class UsagePointGroupResource {
         return Response.ok().build();
     }
 
+    @GET
+    @Transactional
+    @Path("/{id}/usagepoints")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
+            Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
+            Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
+    public PagedInfoList getUsagePointsInGroup(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointGroup usagePointGroup = resourceHelper.findUsagePointGroupOrThrowException(id);
+        List<UsagePoint> usagePoints;
+        if (usagePointGroup.isDynamic()) {
+            usagePoints = fetchMembersOfQueryUsagePointGroup((QueryUsagePointGroup) usagePointGroup, queryParameters);
+        } else {
+            usagePoints = fetchMembersOfEnumUsagePointGroup((EnumeratedUsagePointGroup) usagePointGroup, queryParameters);
+        }
+        return PagedInfoList.fromPagedList("usagePoints", usagePointInfoFactory.from(usagePoints), queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/usagepoints/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
+            Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
+            Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
+    public Response getUsagePointsCountInGroup(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        long numberOfSearchResults = resourceHelper.findUsagePointGroupOrThrowException(id)
+                .getMemberCount(Instant.now());
+        return Response.ok().entity(ImmutableMap.of("numberOfSearchResults", numberOfSearchResults)).build();
+    }
+
     private Query<UsagePointGroup> getUsagePointGroupQueryByType(@QueryParam("type") String typeName) {
         if (QueryUsagePointGroup.class.getSimpleName().equalsIgnoreCase(typeName)) {
             return meteringGroupsService.getQueryUsagePointGroupQuery();
@@ -170,7 +208,7 @@ public class UsagePointGroupResource {
         }
     }
 
-    private Condition buildCondition(JsonQueryFilter filter) {
+    private static Condition buildCondition(JsonQueryFilter filter) {
         return filter.hasProperty("name") ?
                 where("name").isEqualTo(filter.getString("name")) :
                 Condition.TRUE;
@@ -252,9 +290,27 @@ public class UsagePointGroupResource {
                 .forEach(usagePoint -> enumeratedUsagePointGroup.add(usagePoint, Range.atLeast(Instant.EPOCH)));
     }
 
-    private <T extends HasId & IdentifiedObject>
+    private static <T extends HasId & IdentifiedObject>
     Collector<EnumeratedGroup.Entry<T>, ?, Map<Long, EnumeratedGroup.Entry<T>>> indexedById() {
         return Collectors.toMap(entry -> entry.getMember().getId(), Function.identity());
     }
 
+    private static List<UsagePoint> fetchMembersOfEnumUsagePointGroup(EnumeratedUsagePointGroup usagePointGroup,
+                                                               JsonQueryParameters queryParameters) {
+        Optional<Integer> start = queryParameters.getStart();
+        Optional<Integer> limit = queryParameters.getLimit();
+        return start.isPresent() && limit.isPresent() ?
+                usagePointGroup.getMembers(Instant.now(), start.get(), limit.get()) :
+                usagePointGroup.getMembers(Instant.now());
+    }
+
+    private List<UsagePoint> fetchMembersOfQueryUsagePointGroup(QueryUsagePointGroup usagePointGroup,
+                                                                JsonQueryParameters queryParameters) {
+        return findUsagePointSearchDomainOrThrowException()
+                .finderFor(usagePointGroup.getSearchablePropertyConditions())
+                .from(queryParameters)
+                .stream()
+                .map(UsagePoint.class::cast)
+                .collect(toList());
+    }
 }
