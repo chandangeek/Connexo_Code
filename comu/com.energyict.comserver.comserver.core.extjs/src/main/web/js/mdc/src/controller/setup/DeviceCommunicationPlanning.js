@@ -31,7 +31,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 click: this.navigateToAddSharedScheduleView
             },
             '#addSharedScheduleButtonForm button[action=cancelAction]': {
-                click: this.navigateBackToSchedulesOverview
+                click: this.navigateToSchedulesOverview
             },
             '#addSharedScheduleButtonForm button[action=addAction]': {
                 click: this.addSharedSchedules
@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         });
     },
 
-    navigateBackToSchedulesOverview: function () {
+    navigateToSchedulesOverview: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
         router.getRoute('devices/device/communicationschedules').forward();
