@@ -168,26 +168,6 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_WEAK_LQI_VALUE, rawValue);
     }
 
-    /**
-     * @param lowLqiValue
-     * @throws IOException
-     */
-    public void writeLowLqiValue(int lowLqiValue) throws IOException {
-        final Unsigned8 value = new Unsigned8(lowLqiValue);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_LOW_LQI_VALUE, rawValue);
-    }
-
-    /**
-     * @param highLqiValue
-     * @throws IOException
-     */
-    public void writeHighLqiValue(int highLqiValue) throws IOException {
-        final Unsigned8 value = new Unsigned8(highLqiValue);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_HIGH_LQI_VALUE, rawValue);
-    }
-
     public void writeSecurityLevel(int securityLevel) throws IOException {
         final Unsigned8 value = new Unsigned8(securityLevel);
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_SECURITY_LEVEL, value.getBEREncodedByteArray());
