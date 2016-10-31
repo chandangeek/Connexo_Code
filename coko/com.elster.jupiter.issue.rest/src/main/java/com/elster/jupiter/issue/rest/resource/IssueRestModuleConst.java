@@ -14,6 +14,7 @@ public class IssueRestModuleConst {
     public static final String STATUS = "status";
     public static final String ISSUE_TYPE = "issueType";
     public static final String ASSIGNEE = "assignee";
+    public static final String WORKGROUP = "workgroup";
     public static final String METER = "meter";
     public static final String DUE_DATE = "dueDate";
     public static final String DEVICE_GROUP = "deviceGroup";

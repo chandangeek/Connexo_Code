@@ -137,22 +137,22 @@ public class IssueResourceHelper {
         if (jsonFilter.hasProperty(IssueRestModuleConst.METER) && meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).isPresent()) {
             filter.addDevice(meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).get());
         }
-        getAssignees(jsonFilter).stream().forEach(as -> {
-            String assigneeType = as.getType();
-            Long assigneeId = as.getId();
-            if (assigneeId != null && assigneeId > 0) {
-                    userService.getUser(assigneeId).ifPresent(filter::addAssignee);
-            } else if (assigneeId != null && assigneeId != 0) {
-                filter.setUnassignedSelected();
-            }
-        });
 
-        jsonFilter.getLongList("workgroup")
+        jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE)
+                .stream().map(id -> userService.getUser(id).orElse(null))
+                .filter(user -> user != null)
+                .forEach(filter::addAssignee);
+
+        if(jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().anyMatch(id -> id == -1L)){
+            filter.setUnassignedSelected();
+        }
+
+        jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP)
                 .stream().map(id -> userService.getWorkGroup(id).orElse(null))
                 .filter(workGroup -> workGroup != null)
                 .forEach(filter::addWorkGroupAssignee);
 
-        if(jsonFilter.getLongList("workgroup").stream().anyMatch(id -> id == -1L)){
+        if(jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id == -1L)){
             filter.setUnassignedWorkGroupSelected();
         }
 

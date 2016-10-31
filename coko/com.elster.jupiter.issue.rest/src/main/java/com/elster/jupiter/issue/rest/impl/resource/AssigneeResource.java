@@ -18,14 +18,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
+import static com.elster.jupiter.issue.rest.TranslationKeys.ISSUE_ASSIGNEE_UNASSIGNED;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
@@ -78,10 +78,9 @@ public class AssigneeResource extends BaseResource {
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
-    public Response getAssignee(@PathParam(ID) long id, @QueryParam(ASSIGNEE_TYPE) String assigneeType){
+    public Response getAssignee(@PathParam(ID) long id){
         IssueAssignee assignee = getIssueService().findIssueAssignee(id, null);
-        //FixMe take care of Unassigned;
-       /* if (!assignee.isPresent()) {
+        if (assignee.getUser() == null) {
             //Takes care of Unassigned issues which would have userId of "-1"
             if (id < 0){
                 String unassignedText = getThesaurus().getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format();
@@ -89,7 +88,7 @@ public class AssigneeResource extends BaseResource {
             }
             //Not unassigned, so this user really doesn't exist
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }*/
+        }
         return entity(new IssueAssigneeInfo(assignee)).build();
     }
 
