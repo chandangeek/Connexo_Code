@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
@@ -18,18 +19,23 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * Copyrights EnergyICT
@@ -60,23 +66,9 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     private Unigas300Profile unigas300Profile = null;
     private int extendedLogging;
 
-    byte[] dataReadout = null;
+    private byte[] dataReadout = null;
 
-    /**
-     * Creates a new instance of Unigas300, empty constructor
-     */
-    public Unigas300() {
-
-    }
-
-    /**
-     * Initializes the protocol, set up connection, profile and registry
-     *
-     * @param inputStream  <br>
-     * @param outputStream <br>
-     * @param timeZone     <br>
-     * @param logger       <br>
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         setTimeZone(timeZone);
         setLogger(logger);
@@ -91,12 +83,7 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
 
     }
 
-    /**
-     * Connect to the meter. Send the wake-up, read the data readout, do the sign on,
-     * validate the serial number and if enabled, show the extended logging.
-     *
-     * @throws IOException
-     */
+    @Override
     public void connect() throws IOException {
         try {
 
@@ -126,11 +113,7 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         getFlagIEC1107Connection().sendOut(wakeUp);
     }
 
-    /**
-     * Disconnect from the device.
-     *
-     * @throws IOException
-     */
+    @Override
     public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
@@ -139,15 +122,7 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         }
     }
 
-    /**
-     * Read the profile data from the given last reading to the given to date
-     *
-     * @param from
-     * @param to
-     * @param includeEvents
-     * @return
-     * @throws IOException
-     */
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
@@ -156,11 +131,7 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         return getUnigas300Profile().getProfileData(fromCalendar, toCalendar, getNumberOfChannels(), 1);
     }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
@@ -168,27 +139,33 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         getUnigas300Registry().setRegister("0.9.2", calendar.getTime());
     }
 
-    /**
-     * Read the clock from the connected device. Use the round trip time to compensate.
-     *
-     * @return
-     * @throws IOException
-     */
+    @Override
     public Date getTime() throws IOException {
         Date date = (Date) getUnigas300Registry().getRegister("TimeDate");
         return new Date(date.getTime() - iRoundtripCorrection);
     }
 
-    /**
-     * validates the properties, and checks if all required parameters are present.
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integral("Timeout", false),
+                UPLPropertySpecFactory.integral("Retries", false),
+                UPLPropertySpecFactory.integral("RoundtripCorrection", false),
+                UPLPropertySpecFactory.integral("SecurityLevel", false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.integral("EchoCancelling", false),
+                UPLPropertySpecFactory.integral("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integral("ProfileInterval", false),
+                UPLPropertySpecFactory.integral("ExtendedLogging", false),
+                UPLPropertySpecFactory.string("Software7E1", false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false));
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            checkMissingProperties(properties);
             strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
@@ -203,36 +180,16 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
             this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
             this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("Unigas300, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, "Unigas300: validation of properties failed before");
         }
-
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public List<String> getOptionalKeys() {
-        return  Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "IEC1107Compatible",
-                    "ExtendedLogging",
-                    "Software7E1");
-    }
-
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    /**
-     * Read the firmware version from the device, or return 'Unknown' if not avaiable.
-     *
-     * @return
-     * @throws IOException
-     */
+    @Override
     public String getFirmwareVersion() throws IOException {
         try {
             return ((String) getUnigas300Registry().getRegister(RegisterMappingFactory.FW_VERSION_D));
@@ -264,17 +221,12 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         return deviceSerialNumber;
     }
 
+    @Override
     public String getSerialNumber() {
         return serialNumber;
     }
 
-    /**
-     * Read a register from the device, by obiscode
-     *
-     * @param obisCode
-     * @return
-     * @throws IOException
-     */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             ObisCodeMapper ocm = new ObisCodeMapper(this);
@@ -287,10 +239,12 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return KAMSTRUP_NR_OF_CHANNELS;
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
@@ -303,26 +257,32 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         return unigas300Profile;
     }
 
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return (iIEC1107Compatible == 1);
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
+    @Override
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
     }
 
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
