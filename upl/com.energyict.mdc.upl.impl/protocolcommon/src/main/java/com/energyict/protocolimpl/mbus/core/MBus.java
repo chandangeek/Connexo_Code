@@ -80,7 +80,7 @@ public abstract class MBus extends AbstractProtocol implements Discover {
         }
     }
 
-    public void doDisConnect() throws IOException {
+    public void doDisconnect() throws IOException {
         try {
             doTheDisConnect();
         }

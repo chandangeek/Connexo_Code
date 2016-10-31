@@ -25,6 +25,10 @@ public final class UPLPropertySpecFactory {
         return new IntegerPropertySpec(name, required, validValues);
     }
 
+    public static PropertySpec bigDecimal(String name, boolean required) {
+        return new BigDecimalPropertySpec(name, required);
+    }
+
     public static PropertySpec string(String name, boolean required) {
         return new StringPropertySpec(name, required);
     }
