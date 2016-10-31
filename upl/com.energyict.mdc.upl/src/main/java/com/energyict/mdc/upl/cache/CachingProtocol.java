@@ -1,8 +1,10 @@
-package com.energyict.mdc.upl;
+package com.energyict.mdc.upl.cache;
 
 import aQute.bnd.annotation.ConsumerType;
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Protocols can optionally implement this interface to maintain
@@ -33,5 +35,25 @@ public interface CachingProtocol {
      * @return the protocol specific cache object
      */
     Serializable getCache();
+
+    /**
+     * Fetch the protocol specific cache object from the database.
+     *
+     * @param deviceId Database ID of the Device
+     * @param connection The sql connection
+     * @return the protocol specific cache object
+     * @throws SQLException Thrown by the jdbc layer
+     */
+    Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException;
+
+    /**
+     * Update the protocol specific cach object information in the database.
+     *
+     * @param deviceId database ID of the device
+     * @param cacheObject the protocol specific cache object
+     * @param connection The sql connection
+     * @throws SQLException Thrown by the jdbc layer
+     */
+    void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException;
 
 }
