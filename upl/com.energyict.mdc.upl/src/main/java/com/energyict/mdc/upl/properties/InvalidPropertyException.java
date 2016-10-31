@@ -19,11 +19,11 @@ public class InvalidPropertyException extends PropertyValidationException {
         return new InvalidPropertyException(cause, String.valueOf(value) + " is not a valid value for property " + propertyName);
     }
 
-    private InvalidPropertyException(String message) {
+    public InvalidPropertyException(String message) {
         super(message);
     }
 
-    private InvalidPropertyException(Exception e, String msg) {
+    public InvalidPropertyException(Exception e, String msg) {
         super(e, msg);
     }
 
