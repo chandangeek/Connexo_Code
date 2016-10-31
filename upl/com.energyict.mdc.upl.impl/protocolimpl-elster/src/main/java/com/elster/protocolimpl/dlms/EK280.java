@@ -1,7 +1,7 @@
 package com.elster.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.types.basic.ObisCode;
@@ -12,8 +12,9 @@ import com.elster.protocolimpl.dlms.registers.DlmsSimpleRegisterDefinition;
 import com.elster.protocolimpl.dlms.registers.HistoricalObisCode;
 import com.elster.protocolimpl.dlms.registers.IReadableRegister;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,9 +26,9 @@ import java.util.Properties;
 @SuppressWarnings({"unused"})
 public class EK280 extends Dlms {
 
-    private static String ARCHIVESTRUCTUREVERSION = "ArchiveStructureVersion";
+    private static final String ARCHIVESTRUCTUREVERSION = "ArchiveStructureVersion";
 
-    protected static String V2ARCHIVESTRUCTURE = "TST=0.0.1.0.0.255" + "," +
+    private static final String V2ARCHIVESTRUCTURE = "TST=0.0.1.0.0.255" + "," +
             "CHN0[C9]=7.0.11.2.0.255" + "," +
             "CHN1[C9]=7.0.13.2.0.255" + "," +
             "CHN2[C9]=7.0.11.0.0.255" + "," +
@@ -40,13 +41,11 @@ public class EK280 extends Dlms {
             "EVT=7.128.96.5.67.255";
 
     // Standard event log 7.0.99.98.0.255
-    protected static String ITALYLOGSTRUCTURE = "TST=0.0.1.0.0.255" + "," +
-            "EVT_DLMS=7.128.96.5.74.255";
+    private static final String ITALYLOGSTRUCTURE = "TST=0.0.1.0.0.255,EVT_DLMS=7.128.96.5.74.255";
 
-    protected static String V2LOGSTRUCTURE = "TST=0.0.1.0.0.255" + "," +
-            "EVT_L2=7.128.96.5.68.255";
+    private static final String V2LOGSTRUCTURE = "TST=0.0.1.0.0.255,EVT_L2=7.128.96.5.68.255";
 
-    protected static IReadableRegister[] italyMappings = {
+    private static final IReadableRegister[] italyMappings = {
             new DlmsSimpleRegisterDefinition("7.0.0.2.1.255", Ek280Defs.SOFTWARE_VERSION),
             new DlmsSimpleRegisterDefinition("7.0.0.2.1.255", Ek280Defs.SOFTWARE_VERSION),
             new DlmsSimpleRegisterDefinition("7.0.0.2.13.255", Ek280Defs.DLMS_DEVICE_SERIAL),
@@ -129,7 +128,7 @@ public class EK280 extends Dlms {
     private static final String LP_MONTH = "7.1.99.99.4.255";
     private static final String MP_MONTH = "7.2.99.99.4.255";
 
-    protected static IReadableRegister[] v2Mappings = {
+    private static final IReadableRegister[] v2Mappings = {
             new DlmsSimpleRegisterDefinition("7.129.96.5.1.255", new ObisCode("7.129.96.5.1.255")),
             new DlmsSimpleRegisterDefinition("0.2.96.12.5.255", new ObisCode("0.2.96.12.5.255")),
             new DlmsSimpleRegisterDefinition("0.3.96.12.5.255", new ObisCode("0.3.96.12.5.255")),
@@ -216,8 +215,7 @@ public class EK280 extends Dlms {
                     MP_MONTH, "7.0.55.0.20.255", 2, OC_TST, 2),
     };
 
-    protected static String archiveStructureVersion = "";
-    protected IReadableRegister[] readableRegisters;
+    private IReadableRegister[] readableRegisters;
 
     public EK280() {
         super();
@@ -239,23 +237,22 @@ public class EK280 extends Dlms {
     }
 
     @Override
-    protected List<String> doGetOptionalKeys() {
-        return Collections.singletonList(EK280.ARCHIVESTRUCTUREVERSION);
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(ARCHIVESTRUCTUREVERSION, false));
+        return propertySpecs;
     }
 
     @Override
-    protected void validateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-        archiveStructureVersion = properties.getProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        String archiveStructureVersion = properties.getProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
         if ("V2".equalsIgnoreCase(archiveStructureVersion)) {
             archiveStructure = V2ARCHIVESTRUCTURE;
-
             ocLogProfile = new ObisCode("7.0.99.98.1.255");
             logStructure = V2LOGSTRUCTURE;
-
             this.readableRegisters = v2Mappings;
         }
-        super.validateProperties(properties);
     }
 
     @Override
@@ -265,4 +262,5 @@ public class EK280 extends Dlms {
         }
         return messageExecutor;
     }
+
 }

@@ -1,8 +1,8 @@
 package com.elster.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.elster.dlms.cosem.applicationlayer.CosemDataAccessException;
 import com.elster.dlms.cosem.classes.common.CosemClassIds;
@@ -35,10 +35,11 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -52,34 +53,34 @@ import java.util.Properties;
 public class A1 extends Dlms {
 
     // property name for scaler
-    private final String PROP_SCALERVALUE = "ScalerValue";
+    private static final String PROP_SCALERVALUE = "ScalerValue";
     //
     private static final String OBISCODE_TST = "0.0.1.0.0.255";
 
-    protected static final ObisCode OBISCODE_60MPROFILE = new ObisCode(7, 0, 99, 99, 2, 255);
+    private static final ObisCode OBISCODE_60MPROFILE = new ObisCode(7, 0, 99, 99, 2, 255);
 
-    protected static String ARCHIVESTRUCTURE_V2 = "TST=" + OBISCODE_TST + "," +
+    private static final String ARCHIVESTRUCTURE_V2 = "TST=" + OBISCODE_TST + "," +
             "CHN0[C9]=7.0.13.83.0.255" + "," +
             "CHN1[C9]=7.0.12.81.0.255" + "," +
             "EVT_DLMS=0.2.96.10.1.255";
 
-    protected static String ARCHIVESTRUCTURE_V3 = "TST=" + OBISCODE_TST + "," +
+    private static final String ARCHIVESTRUCTURE_V3 = "TST=" + OBISCODE_TST + "," +
             "CHN0[C9U:14]=7.0.13.83.0.255" + "," +
             "CHN1[C9U:14]=7.0.12.82.0.255" + "," +
             "EVT_DLMSV3=0.0.96.10.1.255";
 
-    protected static String ARCHIVESTRUCTURE_V4 = "TST=" + OBISCODE_TST + "," +
+    private static final String ARCHIVESTRUCTURE_V4 = "TST=" + OBISCODE_TST + "," +
             "CHN0[C9U:14]=7.0.13.83.0.255" + "," +
             "CHN1[C9U:14]=7.0.12.82.0.255" + "," +
             "EVT_DLMSV4=0.0.96.10.1.255";
 
     // event log 7.0.99.98.1.255
-    protected static final ObisCode LOG_OC = new ObisCode(7, 0, 99, 98, 1, 255);
+    private static final ObisCode LOG_OC = new ObisCode(7, 0, 99, 98, 1, 255);
 
-    protected static final String LOGSTRUCTURE_V2 = "TST=" + OBISCODE_TST + "," +
+    private static final String LOGSTRUCTURE_V2 = "TST=" + OBISCODE_TST + "," +
             "EVT_UMI1=0.0.96.15.7.255";
 
-    protected static final String LOGSTRUCTURE_V3 = "TST=" + OBISCODE_TST + "," +
+    private static final String LOGSTRUCTURE_V3 = "TST=" + OBISCODE_TST + "," +
             "EVT_UNITS1=0.0.96.11.1.255";
 
     /* version as number */
@@ -92,18 +93,12 @@ public class A1 extends Dlms {
 
     public A1() {
         super();
-
         objectPool = new A1ObjectPool();
-
         ocIntervalProfile = OBISCODE_60MPROFILE;
         ocLogProfile = LOG_OC;
     }
 
-    /**
-     * This is the protocol version, automatically updated after every commit by svn
-     *
-     * @return The version
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-01-26 08:00:00 +0100$";
     }
@@ -121,20 +116,17 @@ public class A1 extends Dlms {
     }
 
     @Override
-    @SuppressWarnings({"unchecked"})
-    protected List doGetOptionalKeys() {
-        return Collections.singletonList(PROP_SCALERVALUE);
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(PROP_SCALERVALUE, false));
+        return propertySpecs;
     }
 
     @Override
-    protected void validateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-        super.validateProperties(properties);
-
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         archiveStructure = properties.getProperty(Dlms.ARCHIVESTRUCTURE, "");
-
         logStructure = properties.getProperty(Dlms.LOGSTRUCTURE, "");
-
         String s = properties.getProperty(PROP_SCALERVALUE, "");
         if (!s.isEmpty()) {
             globalScaler = s;
@@ -151,6 +143,7 @@ public class A1 extends Dlms {
         clockObject.setTime(dt);
     }
 
+    @Override
     public SimpleCosemObjectManager getObjectManager() {
         if (objectManager == null) {
             getLogger().info("getObjectManager: creating SimpleCosemObjectManager");
@@ -161,8 +154,7 @@ public class A1 extends Dlms {
     }
 
     @Override
-    public ProfileData getProfileData(boolean includeEvents)
-            throws IOException {
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = Calendar.getInstance(getTimeZone());
         /* maximum readout range for A1 set to 1 month - 7/4/2013 gh */
         calendar.add(Calendar.MONTH, -1);
@@ -171,8 +163,7 @@ public class A1 extends Dlms {
 
 
     @Override
-    protected DlmsProfile getProfileObject()
-            throws IOException {
+    protected DlmsProfile getProfileObject() throws IOException {
         if (intervalProfile == null) {
             getLogger().info("getProfileObject: creating profile object");
             SimpleProfileObject profileObject = (SimpleProfileObject) getObjectManager().getSimpleCosemObject(ocIntervalProfile);
@@ -214,8 +205,8 @@ public class A1 extends Dlms {
         return intervalProfile;
     }
 
-    protected ILogProcessor getLogProfileObject()
-            throws IOException {
+    @Override
+    protected ILogProcessor getLogProfileObject() throws IOException {
         if (logProfile == null) {
 
             SimpleProfileObject profileObject = (SimpleProfileObject) getObjectManager().getSimpleCosemObject(ocLogProfile);
@@ -253,12 +244,11 @@ public class A1 extends Dlms {
         return getSwVersion();
     }
 
-
     /*
      * A1 driver overrides readRegister due to great version dependencies for register reading!
      */
-    public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode)
-            throws IOException {
+    @Override
+    public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         getLogger().info("readRegister: " + obisCode.toString());
         ObisCode oc = new ObisCode(obisCode.toString());
         IReadWriteObject rwo = objectPool.findByCode(getSwVersion(), oc);
@@ -338,8 +328,7 @@ public class A1 extends Dlms {
         return billingProfileReader;
     }
 
-
-    protected int getSwVersion() {
+    private int getSwVersion() {
         if (a1Version >= 0) {
             return a1Version;
         }
@@ -356,4 +345,5 @@ public class A1 extends Dlms {
             return a1Version;
         }
     }
+
 }

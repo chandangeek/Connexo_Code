@@ -65,7 +65,7 @@ public class SecurityData {
                 ((al == 5) && (el == 3))) {
             String msg;
             msg = checkKey(authKey, "authentication key");
-            if (msg.length() != 0) {
+            if (!msg.isEmpty()) {
                 return msg;
             }
             if (el == 1) {
@@ -73,7 +73,7 @@ public class SecurityData {
             }
 
             msg = checkKey(encKey, "encryption key");
-            if (msg.length() != 0) {
+            if (!msg.isEmpty()) {
                 return msg;
             }
             return "";
@@ -83,7 +83,7 @@ public class SecurityData {
 
     public static String checkKey(String keyValue, String keyName) {
 
-        if ((keyValue == null) || (keyValue.length() == 0)) {
+        if ((keyValue == null) || (keyValue.isEmpty())) {
             return keyName + " is null or empty";
         }
 

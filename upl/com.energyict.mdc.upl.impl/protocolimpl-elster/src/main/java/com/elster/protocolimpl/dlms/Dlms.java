@@ -2,7 +2,8 @@ package com.elster.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
@@ -33,7 +34,6 @@ import com.elster.protocolimpl.dlms.registers.DlmsSimpleRegisterDefinition;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MessageEntry;
@@ -50,20 +50,23 @@ import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * ProtocolImplementation for DLMS devices. <br>
@@ -83,19 +86,20 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class Dlms extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol, MessageProtocol, EventProtocol, HasSimpleObjectManager, SerialNumberSupport {
 
-    protected static String CLIENTID = "ClientID";
-    protected static String SERVERADDRESS = "ServerAddress";
-    protected static String DLMSSECURITYLEVEL = "DlmsSecurityLevel";
-    protected static String ENCRYPTIONKEY = "EncryptionKey";
-    protected static String AUTHENTICATIONKEY = "AuthenticationKey";
-    protected static String RETIEVEOFFSET = "RetrieveOffset";
-    protected static String LOGICALDEVICE = "LogicalDevice";
-    protected static String USEMODEE = "UseModeE";
-    protected static String OC_INTERVALPROFILE = "ObisCodeIntervalProfile";
-    protected static String OC_LOGPROFILE = "ObisCodeLogProfile";
-    protected static String ARCHIVESTRUCTURE = "ArchiveStructure";
-    protected static String LOGSTRUCTURE = "LogStructure";
-    protected static String MAXPDUSIZE = "ClientMaxReceivePduSize";
+    private static final String CLIENTID = "ClientID";
+    private static final String SERVERADDRESS = "ServerAddress";
+    private static final String DLMSSECURITYLEVEL = "DlmsSecurityLevel";
+    private static final String ENCRYPTIONKEY = "EncryptionKey";
+    private static final String AUTHENTICATIONKEY = "AuthenticationKey";
+    private static final String RETRIEVEOFFSET = "RetrieveOffset";
+    private static final String LOGICALDEVICE = "LogicalDevice";
+    private static final String USEMODEE = "UseModeE";
+    private static final String OC_INTERVALPROFILE = "ObisCodeIntervalProfile";
+    private static final String OC_LOGPROFILE = "ObisCodeLogProfile";
+    private static final String MAXPDUSIZE = "ClientMaxReceivePduSize";
+
+    protected static final String ARCHIVESTRUCTURE = "ArchiveStructure";
+    protected static final String LOGSTRUCTURE = "LogStructure";
 
     protected static DlmsSimpleRegisterDefinition[] mappings = {};
 
@@ -169,65 +173,99 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     protected ObisCode ocLogProfile = null;
     protected ILogProcessor logProfile = null;
 
-    /**
-     * initialization -> create connection class
-     */
-    public void init(InputStream inputStream, OutputStream outputStream,
-                     TimeZone timezone, Logger logger) throws IOException {
-
+    @Override
+    public void init(
+            InputStream inputStream, OutputStream outputStream,
+            TimeZone timezone, Logger logger) throws IOException {
         connection = new DlmsConnection(inputStream, outputStream);
         this.timeZone = timezone;
         this.logger = logger;
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:57 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public List<String> getRequiredKeys() {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                    Dlms.DLMSSECURITYLEVEL,
-                    Dlms.CLIENTID);
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                new VariableBaseIntegerPropertySpec(CLIENTID, true),
+                new VariableBaseIntegerPropertySpec(SERVERADDRESS, false),
+                new VariableBaseIntegerPropertySpec(LOGICALDEVICE, false),
+                new VariableBaseIntegerPropertySpec(TIMEOUT.getName(), false),
+                new SecurityLevelPropertySpec(DLMSSECURITYLEVEL, true),
+                UPLPropertySpecFactory.string(ENCRYPTIONKEY, false),
+                UPLPropertySpecFactory.string(AUTHENTICATIONKEY, false),
+                new VariableBaseIntegerPropertySpec(USEMODEE, false),
+                new VariableBaseIntegerPropertySpec(RETRIEVEOFFSET, false),
+                UPLPropertySpecFactory.string(ARCHIVESTRUCTURE, false),
+                new ObisCodePropertySpec(LOGSTRUCTURE, false),
+                new ObisCodePropertySpec(OC_INTERVALPROFILE, false),
+                new VariableBaseIntegerPropertySpec(MAXPDUSIZE, false));
     }
 
-    public List<String> getOptionalKeys() {
-        List<String> result = new ArrayList<>();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add(Dlms.SERVERADDRESS);
-        result.add(Dlms.LOGICALDEVICE);
-        result.add(Dlms.AUTHENTICATIONKEY);
-        result.add(Dlms.ENCRYPTIONKEY);
-        result.add(Dlms.RETIEVEOFFSET);
-        result.add(Dlms.USEMODEE);
-        result.add(Dlms.OC_INTERVALPROFILE);
-        result.add(Dlms.OC_LOGPROFILE);
-        result.add(Dlms.ARCHIVESTRUCTURE);
-        result.add(Dlms.LOGSTRUCTURE);
-        result.add(Dlms.MAXPDUSIZE);
-        result.addAll(doGetOptionalKeys());
-        return result;
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        try {
+            strPassword = properties.getProperty(PASSWORD.getName());
+            protocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            serialNumber = properties.getProperty(Property.SERIALNUMBER.getName());
+
+            clientID = getPropertyAsInteger(properties.getProperty(Dlms.CLIENTID));
+            serverAddress = getPropertyAsInteger(properties.getProperty(Dlms.SERVERADDRESS, "5959"));
+            logicalDevice = getPropertyAsInteger(properties.getProperty(Dlms.LOGICALDEVICE, "0"));
+
+            timeout = getPropertyAsInteger(properties.getProperty("Timeout", "-1"));
+
+            String dsl = properties.getProperty(Dlms.DLMSSECURITYLEVEL);
+            securityData = new SecurityData(dsl);
+            securityData.setEncryptionKey(properties.getProperty(Dlms.ENCRYPTIONKEY, ""));
+            securityData.setAuthenticationKey(properties.getProperty(Dlms.AUTHENTICATIONKEY, ""));
+            String msg = securityData.checkSecurityData();
+            if (!msg.isEmpty()) {
+                throw new InvalidPropertyException("Security data: " + msg);
+            }
+
+            useModeE = getPropertyAsInteger(properties.getProperty(Dlms.USEMODEE, "0")) == 1;
+
+            // debugging tools...
+            retrieveOffset = getPropertyAsInteger(properties.getProperty(Dlms.RETRIEVEOFFSET, "0"));
+
+            String archiveStructurePropertyValue = properties.getProperty(Dlms.ARCHIVESTRUCTURE);
+            if ((archiveStructurePropertyValue != null) && (!archiveStructurePropertyValue.isEmpty())) {
+                archiveStructure = archiveStructurePropertyValue;
+            }
+            String logStructurePropertyValue = properties.getProperty(Dlms.LOGSTRUCTURE);
+            if ((logStructurePropertyValue != null) && (!logStructurePropertyValue.isEmpty())) {
+                this.logStructure = logStructurePropertyValue;
+            }
+
+            // check if an obis code for interval profile is defined
+            String ocIntervalProfile = properties.getProperty(Dlms.OC_INTERVALPROFILE, "");
+            if ((ocIntervalProfile != null) && (!ocIntervalProfile.isEmpty())) {
+                this.ocIntervalProfile = new ObisCode(ocIntervalProfile);
+            }
+            String ocLogProfile = properties.getProperty(Dlms.OC_LOGPROFILE, "");
+            if ((ocLogProfile != null) && (!ocLogProfile.isEmpty())) {
+                this.ocLogProfile = new ObisCode(ocLogProfile);
+            }
+
+            if (this.ocIntervalProfile == null) {
+                throw new InvalidPropertyException(" validateProperties, no obis code for interval profile defined");
+            }
+
+            clientMaxReceivePduSize = getPropertyAsInteger(properties.getProperty(Dlms.MAXPDUSIZE, "0"));
+
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
-    /**
-     * enable derived class to add more keys
-     *
-     * @return a list of keys (Strings)
-     */
-    protected List<String> doGetOptionalKeys() {
-        return Collections.emptyList();
-    }
-
-    /**
-     * set the protocol specific properties
-     *
-     * @param properties - properties to use
-     */
-    public void setProperties(Properties properties)
-            throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties);
-    }
-
+    @Override
     public void connect() throws IOException {
 
         connection.connect(serverAddress, logicalDevice, clientID, securityData, useModeE, timeout, clientMaxReceivePduSize);
@@ -246,29 +284,26 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         getLogger().info("-- Type of device: " + meterType.trim());
     }
 
+    @Override
     public void disconnect() throws IOException {
         if (connection != null) {
             connection.disconnect();
         }
     }
 
-    public String getFirmwareVersion() throws IOException
-    {
-        if (firmwareVersion.length() > 0)
-        {
+    @Override
+    public String getFirmwareVersion() throws IOException {
+        if (!firmwareVersion.isEmpty()) {
             return firmwareVersion;
         }
-        try
-        {
+        try {
             CosemApplicationLayer applicationLayer = connection.getApplicationLayer();
             DlmsData softwareVersionData = null;
-            try
-            {
+            try {
                 softwareVersionData =
                         applicationLayer.getAttributeAndCheckResult(new CosemAttributeDescriptor(
                                 CommonDefs.SOFTWARE_VERSION, CosemClassIds.REGISTER, 2));
-                if (ScalerUnit.isScalable(softwareVersionData))
-                {
+                if (ScalerUnit.isScalable(softwareVersionData)) {
                     final DlmsData softwareVersionScalerData =
                             applicationLayer.getAttributeAndCheckResult(new CosemAttributeDescriptor(
                                     CommonDefs.SOFTWARE_VERSION, CosemClassIds.REGISTER, 3));
@@ -276,71 +311,54 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                     firmwareVersion = scalerUnit.scale(softwareVersionData).toPlainString();
                     return firmwareVersion;
                 }
-            }
-            catch (CosemDataAccessException ignore)
-            {
+            } catch (CosemDataAccessException ignore) {
             }
 
-            if (softwareVersionData == null)
-            {
+            if (softwareVersionData == null) {
                 softwareVersionData =
                         applicationLayer.getAttributeAndCheckResult(new CosemAttributeDescriptor(
                                 CommonDefs.SOFTWARE_VERSION, CosemClassIds.DATA, 2));
             }
             firmwareVersion = dataToString(softwareVersionData);
             return firmwareVersion;
-        }
-        catch (CosemAttributeValidators.ValidationExecption ex)
-        {
+        } catch (CosemAttributeValidators.ValidationExecption ex) {
             throw new IOException("Wrong data for scaler unit of the software version: ");
         }
     }
 
-    private String dataToString(final DlmsData data)
-    {
-
-        if (data instanceof DlmsDataOctetString)
-        {
-            final DlmsDataOctetString octetString = (DlmsDataOctetString)data;
+    private String dataToString(final DlmsData data) {
+        if (data instanceof DlmsDataOctetString) {
+            final DlmsDataOctetString octetString = (DlmsDataOctetString) data;
             return new String(octetString.getValue());
-        }
-        else
-        {
+        } else {
             Object value = data.getValue();
-            if (value != null)
-            {
+            if (value != null) {
                 return value.toString();
-            }
-            else
-            {
+            } else {
                 return "?";
             }
         }
     }
 
-    private String adjustSN(String meterSerialNumber)
-    {
-        if ((meterSerialNumber == null) || (meterSerialNumber.length() == 0))
-        {
+    private String adjustSN(String meterSerialNumber) {
+        if ((meterSerialNumber == null) || (meterSerialNumber.isEmpty())) {
             return "";
         }
         meterSerialNumber = meterSerialNumber.trim();
-        if (meterSerialNumber.length() == 8)
-        {
+        if (meterSerialNumber.length() == 8) {
             return meterSerialNumber;
         }
-        if (meterSerialNumber.length() > 8)
-        {
+        if (meterSerialNumber.length() > 8) {
             return meterSerialNumber.substring(meterSerialNumber.length() - 8);
         }
         String result = meterSerialNumber;
-        while (result.length() < 8)
-        {
+        while (result.length() < 8) {
             result = "0" + result;
         }
         return result;
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getProfileObject().getNumberOfChannels();
     }
@@ -349,6 +367,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return connection.getApplicationLayer();
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = Calendar.getInstance(getTimeZone());
         /* maximum readout range set to 2 year - 6/18/2010 gh */
@@ -356,14 +375,13 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents)
-            throws IOException {
+    @Override
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-            throws IOException {
-
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         if (retrieveOffset > 0) {
             from.setTime(to.getTime() - retrieveOffset);
         }
@@ -391,15 +409,14 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return profileData;
     }
 
-    public List<MeterEvent> getMeterEvents(Date from)
-    {
+    @Override
+    public List<MeterEvent> getMeterEvents(Date from) {
         return getMeterEvents(from, new Date());
     }
 
-    public List<MeterEvent> getMeterEvents(Date from, Date to)
-    {
-        try
-        {
+    @Override
+    public List<MeterEvent> getMeterEvents(Date from, Date to) {
+        try {
             return getLogProfileObject().getMeterEvents(from, to);
         } catch (IOException e) {
             getLogger().severe(e.getMessage());
@@ -407,13 +424,12 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         }
     }
 
-    // *******************************************************************************************
-    // * C l a s s i m p l e m e n t a t i o n c o d e
-
+    @Override
     public int getProfileInterval() throws IOException {
         return getProfileObject().getInterval();
     }
 
+    @Override
     public Date getTime() throws IOException {
         Calendar c = Calendar.getInstance(this.getTimeZone());
 
@@ -432,6 +448,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return c.getTime();
     }
 
+    @Override
     public void setTime() throws IOException {
 
         SimpleCosemObjectManager objectManager = getObjectManager();
@@ -440,15 +457,18 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         clockObject.shiftTimeToSystemTime();
     }
 
+    @Override
     public String getRegister(String s) throws IOException {
         return null;
     }
 
+    @Override
     public void setRegister(String arg0, String arg1) throws IOException {
         /* dsfg register instances have no register values ! */
         throw new NoSuchRegisterException("Register setting currently not supported!");
     }
 
+    @Override
     public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         return getRegisterReader().getRegisterValue(obisCode, new Date());
     }
@@ -459,10 +479,8 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
      *
      * @return the used ObisCodeMapper}
      */
-    protected DlmsRegisterReader getRegisterReader()
-    {
-        if (this.ocMapper == null)
-        {
+    protected DlmsRegisterReader getRegisterReader() {
+        if (this.ocMapper == null) {
             this.ocMapper = new DlmsRegisterReader(connection.getApplicationLayer(), this, getRegisterMap(), getObjectManager());
         }
         return this.ocMapper;
@@ -478,100 +496,12 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return new RegisterMap(mappings);
     }
 
+    @Override
     public void initializeDevice() throws IOException {
     }
 
-
+    @Override
     public void release() throws IOException {
-    }
-
-    // *******************************************************************************************/
-
-    /**
-     * Validate certain protocol specific properties
-     *
-     * @param properties - The properties fetched from the Rtu
-     * @throws MissingPropertyException - in case of a missing property
-     * @throws InvalidPropertyException - in case of a invalid value in property
-     */
-    @SuppressWarnings({"unchecked"})
-    protected void validateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-        try {
-            //System.out.println("DLMS driver started with properties:");
-            //Enumeration keys = properties.keys();
-            //while (keys.hasMoreElements()) {
-            //    String key = (String) keys.nextElement();
-            //    String value = (String) properties.get(key);
-            //    System.out.println(key + ": <" + value + ">");
-            //}
-
-            for (String key : (List<String>) getRequiredKeys()) {
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            protocolRetriesProperty = Integer.parseInt(properties.getProperty(
-                    "Retries", "5").trim());
-            //extendedLogging = Integer.parseInt(properties.getProperty(
-            //        "ExtendedLogging", "0").trim());
-
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-
-            clientID = getPropertyAsInteger(properties.getProperty(Dlms.CLIENTID));
-            serverAddress = getPropertyAsInteger(properties.getProperty(Dlms.SERVERADDRESS, "5959"));
-            logicalDevice = getPropertyAsInteger(properties.getProperty(Dlms.LOGICALDEVICE, "0"));
-
-            timeout = getPropertyAsInteger(properties.getProperty("Timeout", "-1"));
-
-            String dsl = properties.getProperty(Dlms.DLMSSECURITYLEVEL);
-            if (!dsl.contains(":")) {
-                throw new InvalidPropertyException("Security data: Invalid data (" + dsl + ")");
-            }
-            securityData = new SecurityData(dsl);
-            securityData.setEncryptionKey(properties.getProperty(Dlms.ENCRYPTIONKEY, ""));
-            securityData.setAuthenticationKey(properties.getProperty(Dlms.AUTHENTICATIONKEY, ""));
-            String msg = securityData.checkSecurityData();
-            if (msg.length() != 0) {
-                throw new InvalidPropertyException("Security data: " + msg);
-            }
-
-            useModeE = getPropertyAsInteger(properties.getProperty(Dlms.USEMODEE, "0")) == 1;
-
-            // debugging tools...
-            retrieveOffset = getPropertyAsInteger(properties.getProperty(Dlms.RETIEVEOFFSET, "0"));
-            doValidateProperties(properties);
-
-            String structure = properties.getProperty(Dlms.ARCHIVESTRUCTURE);
-            if ((structure != null) && (structure.length() > 0)) {
-                archiveStructure = structure;
-            }
-            structure = properties.getProperty(Dlms.LOGSTRUCTURE);
-            if ((structure != null) && (structure.length() > 0)) {
-                logStructure = structure;
-            }
-
-            // check in an obis code for interval profile is defined
-            String ocIntervalProfile = properties.getProperty(Dlms.OC_INTERVALPROFILE, "");
-            if ((ocIntervalProfile != null) && (ocIntervalProfile.length() > 0)) {
-                this.ocIntervalProfile = new ObisCode(ocIntervalProfile);
-            }
-            String ocLogProfile = properties.getProperty(Dlms.OC_LOGPROFILE, "");
-            if ((ocLogProfile != null) && (ocLogProfile.length() > 0)) {
-                this.ocLogProfile = new ObisCode(ocLogProfile);
-            }
-
-            if (this.ocIntervalProfile == null) {
-                throw new InvalidPropertyException(" validateProperties, no obis code for interval profile defined");
-            }
-
-            clientMaxReceivePduSize = getPropertyAsInteger(properties.getProperty(Dlms.MAXPDUSIZE, "0"));
-
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(" validateProperties, NumberFormatException, "
-                    + e.getMessage());
-        }
     }
 
     private int getPropertyAsInteger(String value) {
@@ -611,25 +541,15 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     }
 
     protected ILogProcessor getLogProfileObject()
-            throws IOException
-    {
-        if (logProfile == null)
-        {
+            throws IOException {
+        if (logProfile == null) {
             SimpleProfileObject profileObject = (SimpleProfileObject) getObjectManager().getSimpleCosemObject(ocLogProfile);
             logProfile = ArchiveProcessorFactory.createLogProcessor(meterType, logStructure, profileObject, getTimeZone(), getLogger());
         }
         return logProfile;
     }
 
-    @SuppressWarnings({"unused"})
-    public void doValidateProperties(Properties properties) {
-    }
-
-    // *******************************************************************************************
-    // *
-    // * Interface HasSimpleObjectManager
-    // *
-    // *******************************************************************************************/
+    @Override
     public SimpleCosemObjectManager getObjectManager() {
         if (objectManager == null) {
             objectManager = new SimpleCosemObjectManager(getDlmsConnection().getApplicationLayer(), Ek280Defs.DEFINITIONS);
@@ -637,110 +557,87 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return objectManager;
     }
 
-
-    // *******************************************************************************************
-    // *
-    // * Interface ProtocolLink
-    // *
-    // *******************************************************************************************/
+    @Override
     public byte[] getDataReadout() {
         return null;
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @Override
     public int getNrOfRetries() {
         return protocolRetriesProperty;
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public DlmsConnection getDlmsConnection() {
         return connection;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return false;
     }
 
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
 
-    // *******************************************************************************************
-    // *
-    // * not yet used methods
-    // *
-    // *******************************************************************************************/
-    public Object fetchCache(int arg0) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public Object getCache() {
-        return null;
-    }
-
-    public void updateCache(int arg0, Object arg1) throws SQLException,
-            BusinessException {
-    }
-
-    public void setCache(Object arg0) {
-    }
-
-    // *******************************************************************************************
-    // *
-    // * deprecicated methods
-    // *
-    // *******************************************************************************************/
-    @Deprecated
+    @Override
     public Quantity getMeterReading(int arg0) throws IOException {
         return null;
     }
 
-    @Deprecated
+    @Override
     public Quantity getMeterReading(String arg0) throws IOException {
         return null;
     }
 
-
+    @Override
     public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         return new RegisterInfo("");
     }
 
-    // *******************************************************************************************
-    // *
-    // * "message" methods
-    // *
-    // *******************************************************************************************/
+    @Override
     public void applyMessages(List messageEntries)
-            throws IOException
-    {
+            throws IOException {
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return getMessageExecutor().doMessage(messageEntry);
     }
 
+    @Override
     public List<MessageCategorySpec> getMessageCategories() {
         return getMessageExecutor().getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return new XmlMessageWriter().writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return new XmlMessageWriter().writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return new XmlMessageWriter().writeValue(value);
     }
@@ -752,13 +649,11 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         return messageExecutor;
     }
 
-    public ObjectPool getObjectPool()
-    {
+    public ObjectPool getObjectPool() {
         return null;
     }
 
-    public int getSoftwareVersion()
-    {
+    public int getSoftwareVersion() {
         return 0;
     }
 
@@ -771,4 +666,5 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
             throw ElsterProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
         }
     }
+
 }
