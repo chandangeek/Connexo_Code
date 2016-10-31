@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -37,10 +39,14 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -118,11 +124,6 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         }
     }
 
-    /**
-     * Check the cached objects, update them if necessary (indicated by the iConfig value)
-     *
-     * @throws java.io.IOException when the communication with the meter failed
-     */
     @Override
     protected void checkCacheObjects() throws IOException {
         try {
@@ -139,55 +140,30 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
             }
 
         } catch (IOException e) {
-            IOException exception = new IOException("connect() error, " + e.getMessage());
-            exception.initCause(e);
+            IOException exception = new IOException("connect() error, " + e.getMessage(), e);
             throw exception;
         }
     }
 
-    /**
-     * Override this method when requesting time from the meter is needed.
-     *
-     * @return Date object with the metertime
-     * @throws java.io.IOException thrown when something goes wrong
-     */
     @Override
     public Date getTime() throws IOException {
         Date dateTime = getCosemObjectFactory().getClock().getDateTime();
         return dateTime;
     }
 
-    /**
-     * Override this method when setting the time in the meter is needed
-     *
-     * @throws java.io.IOException thrown when something goes wrong
-     */
     @Override
     public void setTime() throws IOException {
         final Calendar newTimeToSet = Calendar.getInstance(getTimeZone());
         getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
     }
 
-    /**
-     * Override this method to control the protocolversion.
-     *
-     * @return String with protocol version
-     */
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    /**
-     * Override this method when requesting the meter firmware version is needed. This method is informational only.
-     *
-     * @return String with firmware version. This can also contain other important info of the meter.
-     * @throws java.io.IOException thrown when something goes wrong
-     * @throws UnsupportedException
-     *                             Thrown when that method is not supported
-     */
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (firmwareVersion == null) {
             Data data = getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE);
             firmwareVersion = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
@@ -195,43 +171,21 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         return firmwareVersion;
     }
 
-    /**
-     * Check if the {@link java.util.TimeZone} is read from the DLMS device, or if the
-     * {@link java.util.TimeZone} from the {@link com.energyict.protocol.MeterProtocol} should be used.
-     *
-     * @return true is the {@link java.util.TimeZone} is read from the device
-     */
+    @Override
     public boolean isRequestTimeZone() {
         return false;
     }
 
-    /**
-     * Getter for the round trip correction.
-     *
-     * @return the value of the round trip correction
-     */
+    @Override
     public int getRoundTripCorrection() {
         return 0;
     }
 
-    /**
-     * Getter for the type of reference used in the DLMS protocol. This can be
-     * {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE or {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE
-     *
-     * @return {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE for short name or
-     *         {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE for long name
-     */
+    @Override
     public int getReference() {
         return ProtocolLink.LN_REFERENCE;
     }
 
-    /**
-     * Override this method when requesting an obiscode mapped register from the meter.
-     *
-     * @param obisCode obiscode rmapped register to request from the meter
-     * @return RegisterValue object
-     * @throws java.io.IOException thrown when somethiong goes wrong
-     */
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
@@ -292,11 +246,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         }
     }
 
-    /**
-     * Getter for the {@link com.energyict.dlms.cosem.StoredValues} object
-     *
-     * @return the {@link com.energyict.dlms.cosem.StoredValues} object
-     */
+    @Override
     public JanzStoredValues getStoredValues() {
         if (storedValues == null) {
             storedValues = new JanzStoredValues(getCosemObjectFactory(), this);
@@ -304,47 +254,23 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         return storedValues;
     }
 
-    /**
-     * Used by the framework
-     *
-     * @param commChannel communication channel object
-     * @param datareadout enable or disable data readout
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          thrown when a connection exception happens
-     */
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new JanzC280HHUConnection(commChannel, this.timeOut, this.retries, 300, getInfoTypeEchoCancelling());
+                new JanzC280HHUConnection(commChannel, this.timeOut, this.retries, 300, getInfoTypeEchoCancelling());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
         getDLMSConnection().setHHUSignOn(hhuSignOn, HHUSIGNON_METERID);
     }
 
-    /**
-     * Override this method to requesting the load profile integration time
-     *
-     * @return integration time in seconds
-     * @throws UnsupportedException
-     *                             thrown when not supported
-     * @throws java.io.IOException Thrown when something goes wrong
-     */
     @Override
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         Quantity interval = readRegister(ObisCode.fromString("1.0.0.8.4.255")).getQuantity();
 
         return interval.intValue() * 60;   //The profile interval can be 1,2,3,4,5,6,10,12,15,20,30 or 60 minutes.
     }
 
-    /**
-     * Override this method to requesting the nr of load profile channels from the meter. If not overridden, the default implementation uses the ChannelMap object to get the nr of channels. The ChannelMap object is constructed from the ChannelMap custom property containing a comma separated string. The nr of comma separated tokens is the nr of channels.
-     *
-     * @return nr of load profile channels
-     * @throws UnsupportedException
-     *                             thrown when not supported
-     * @throws java.io.IOException thrown when something goes wrong
-     */
     @Override
     public int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
@@ -368,8 +294,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
                     if (!registerValue.getQuantity().getAmount().equals(new BigDecimal(0))) {
                         this.enabledChannelNumbers.add(new Integer(i));
                     }
-                } catch (DataAccessResultException e) {
-                } catch (NoSuchRegisterException e) {
+                } catch (DataAccessResultException | NoSuchRegisterException e) {
                 }
             }
             this.numberOfChannels = this.enabledChannelNumbers.size();
@@ -377,19 +302,8 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         return this.numberOfChannels;
     }
 
-    /**
-     * Override this method to request the load profile from the meter from to.
-     *
-     * @param from          request from
-     * @param to            request to
-     * @param includeEvents eneble or disable requesting of meterevents
-     * @return ProfileData object
-     * @throws java.io.IOException Thrown when something goes wrong
-     * @throws UnsupportedException
-     *                             Thrown when not supported
-     */
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getProfileDataReader().getProfileData(from, to, includeEvents);
     }
 
@@ -418,25 +332,18 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     }
 
     @Override
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
-    }
-
-    @Override
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(DlmsProtocolProperties.ADDRESSING_MODE);
-        result.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        result.add(DlmsProtocolProperties.CONNECTION);
-        result.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
-        result.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
-        result.add(PROPERTY_FORCEDTOREADCACHE);
-
-        result.add(DlmsProtocolProperties.TIMEOUT);
-        result.add(DlmsProtocolProperties.RETRIES);
-        result.add(DlmsProtocolProperties.SECURITY_LEVEL);
-        return result;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.ADDRESSING_MODE, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CONNECTION, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_FORCEDTOREADCACHE, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.TIMEOUT, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.RETRIES, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.SECURITY_LEVEL, false));
+        return propertySpecs;
     }
 
     @Override
@@ -450,44 +357,44 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         }
     }
 
-    /**
-     * Disconnect, stop the association session
-     * Only disconnectMAC is needed - releaseAssociation is not supported by meter & should not be sent.
-     *
-     * @throws java.io.IOException when the communication with the meter failed
-     */
     @Override
     public void disconnect() throws IOException {
         try {
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }
     }
 
-    /**
-     * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.
-     *
-     * @param obisCode obiscode of the register to lookup
-     * @return RegisterInfo object
-     * @throws java.io.IOException thrown when somethiong goes wrong
-     */
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo("Contar Janz C280 register " + obisCode.toString());
     }
 
-    /**
-     * The name under which the file will be save in the OperatingSystem.
-     *
-     * @return the expected fileName of the cacheFile.
-     */
+    @Override
+    public void setCache(Serializable cacheObject) {
+        super.setCache(cacheObject);
+    }
+
+    @Override
+    public Serializable getCache() {
+        return super.getCache();
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        return super.fetchCache(deviceId, connection);
+    }
+
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        super.updateCache(deviceId, cacheObject, connection);
+    }
+
+    @Override
     public String getFileName() {
         final Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_JanzC280.cache";

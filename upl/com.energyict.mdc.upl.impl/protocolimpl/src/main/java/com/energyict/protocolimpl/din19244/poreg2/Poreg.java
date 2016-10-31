@@ -42,7 +42,7 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     private String systemAddress = "00000000";
 
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
     abstract protected PoregMessages getMessageHandler();

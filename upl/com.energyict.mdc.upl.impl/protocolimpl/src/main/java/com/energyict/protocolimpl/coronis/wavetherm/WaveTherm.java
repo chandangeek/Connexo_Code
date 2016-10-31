@@ -83,7 +83,7 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     }
 
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
 

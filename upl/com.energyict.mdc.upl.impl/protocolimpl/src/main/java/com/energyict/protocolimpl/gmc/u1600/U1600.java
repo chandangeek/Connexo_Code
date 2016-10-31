@@ -74,7 +74,7 @@ public class U1600 extends AbstractProtocol {
         u1600Profile = new U1600Profile(this);
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
 

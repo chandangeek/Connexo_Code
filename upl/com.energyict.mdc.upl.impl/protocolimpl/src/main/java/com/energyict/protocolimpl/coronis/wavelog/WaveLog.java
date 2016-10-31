@@ -78,7 +78,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     }
 
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

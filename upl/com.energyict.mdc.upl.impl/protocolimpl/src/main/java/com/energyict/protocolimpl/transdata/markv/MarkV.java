@@ -74,7 +74,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
     }
 
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getCommandFactory().issueLOCommand();
     }
 

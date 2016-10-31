@@ -151,7 +151,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     /* (non-Javadoc)
      * @see com.energyict.protocolimpl.base.AbstractProtocol#doDisConnect()
      */
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         /* do nothing */
     }
 

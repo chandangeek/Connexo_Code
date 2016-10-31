@@ -101,7 +101,7 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         getLogger().info("initiate="+initiate);
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getRemoteProcedureCallFactory().endSession();
     }
 

@@ -2,8 +2,12 @@ package com.energyict.protocolimpl.dlms.edp;
 
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
@@ -30,6 +34,9 @@ import com.energyict.protocolimpl.dlms.edp.registers.EDPStoredValues;
 import com.energyict.protocolimpl.dlms.edp.registers.RegisterReader;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -89,13 +96,13 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     }
 
     @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(Properties properties) throws PropertyValidationException {
         getEdpProperties().addProperties(properties);
+        this.doValidateProperties(properties);
         super.setProperties(properties);
     }
 
-    @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    private void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         clientMacAddress = getEdpProperties().getClientMacAddress();
         serverUpperMacAddress = getEdpProperties().getServerUpperMacAddress();
         serverLowerMacAddress = getEdpProperties().getServerLowerMacAddress();
@@ -105,8 +112,10 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     }
 
     @Override
-    protected List<String> doGetOptionalKeys() {
-        return getEdpProperties().getOptionalKeys();
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.addAll(this.getEdpProperties().getPropertySpecs());
+        return propertySpecs;
     }
 
     public EDPProperties getEdpProperties() {
@@ -116,6 +125,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         return edpProperties;
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         String coreFWVersion = getCosemObjectFactory().getData(CORE_FIRMWARE_VERSION).getValueAttr().getOctetString().stringValue();
         String applicationFWVersion = getCosemObjectFactory().getData(APPLICATION_FIRMWARE_VERSION).getValueAttr().getOctetString().stringValue();
@@ -163,11 +173,11 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         return logbookReader;
     }
 
-    /**
-     * Only disconnectMAC is needed - releaseAssociation is not supported by meter & should not be sent.
-     */
     @Override
     public void disconnect() {
+        /*
+         * Only disconnectMAC is needed - releaseAssociation is not supported by meter & should not be sent.
+         */
         try {
             getDLMSConnection().disconnectMAC();
         } catch (IOException | DLMSConnectionException e) {
@@ -176,6 +186,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         }
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.toString());
     }
@@ -192,30 +203,37 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         return registerReader;
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         //Do nothing
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return MessageResult.createFailed(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return new ArrayList<>();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return "";
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return "";
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return "";
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return false;
     }
@@ -233,6 +251,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         }
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return 0;
     }
@@ -247,10 +266,12 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         return getCosemObjectFactory().getProfileGeneric(PROFILE_OBISCODE).getNumberOfProfileChannels();
     }
 
+    @Override
     public int getReference() {
         return LN_REFERENCE;
     }
 
+    @Override
     public StoredValues getStoredValues() {
         if (storedValues == null) {
             storedValues = new EDPStoredValues(this);
@@ -258,6 +279,27 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         return storedValues;
     }
 
+    @Override
+    public void setCache(Serializable cacheObject) {
+        super.setCache(cacheObject);
+    }
+
+    @Override
+    public Serializable getCache() {
+        return super.getCache();
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        return super.fetchCache(deviceId, connection);
+    }
+
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        super.updateCache(deviceId, cacheObject, connection);
+    }
+
+    @Override
     public String getFileName() {
         final Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_" + this.getClass().getSimpleName() + ".cache";

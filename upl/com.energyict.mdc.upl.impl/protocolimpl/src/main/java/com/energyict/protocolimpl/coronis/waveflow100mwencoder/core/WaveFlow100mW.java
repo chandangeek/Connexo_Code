@@ -171,7 +171,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         doTheDisConnect();
     }
 

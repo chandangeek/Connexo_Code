@@ -101,7 +101,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         doTheConnect();
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         doTheDisConnect();
     }
 

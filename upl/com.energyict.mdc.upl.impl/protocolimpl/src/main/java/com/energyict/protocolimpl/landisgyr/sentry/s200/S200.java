@@ -54,7 +54,7 @@ public class S200 extends AbstractProtocol {
         getCommandFactory().getForceStatusCommand();
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getCommandFactory().hangup();
     }
 

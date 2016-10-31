@@ -141,7 +141,7 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     }
 
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getPSEMServiceFactory().logOff();
     }
 

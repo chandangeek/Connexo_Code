@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCache;
@@ -34,9 +35,14 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.dlms.idis.registers.IDISStoredValues;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -60,7 +66,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     private static final String READCACHE_PROPERTY = "ReadCache";
     private static final String LIMITMAXNROFDAYS_PROPERTY = "LimitMaxNrOfDays";
     private static final String LOAD_PROFILE_OBIS_CODE_PROPERTY = "LoadProfileObisCode";
-    public static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
+    private static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
     private static final String MAX_NR_OF_DAYS_DEFAULT = "0";
     public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
@@ -136,8 +142,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
             } catch (IOException e) {
                 exception = e;
             } catch (DLMSConnectionException e) {
-                exception = new IOException(e.getMessage());
-                exception.initCause(e);
+                exception = new IOException(e.getMessage(), e);
             }
 
             if ((exception.getMessage() != null) && exception.getMessage().toLowerCase().contains(TIMEOUT)) {
@@ -179,18 +184,19 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         if (to == null) {
             to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
             getLogger().info("getProfileData: toDate was 'null'. Changing toDate to: " + to);
         }
         ProfileData profileData = getProfileDataReader().getProfileData(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
-        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0)) {
+        if ((profileData.getIntervalDatas().isEmpty()) && (getLimitMaxNrOfDays() > 0)) {
             profileData = getProfileDataReader().getProfileData(from, to, includeEvents);
         }
         return profileData;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         if (timeZone == null) {
             timeZone = TimeZone.getDefault();
@@ -218,11 +224,35 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     protected boolean validateInvokeId() {
-        return Integer.parseInt(properties.getProperty(this.VALIDATE_INVOKE_ID, this.DEFAULT_VALIDATE_INVOKE_ID)) == 1;
+        return Integer.parseInt(properties.getProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) == 1;
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> myPropertySpecs = new ArrayList<>(super.getPropertySpecs());
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(READCACHE_PROPERTY, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(LIMITMAXNROFDAYS_PROPERTY, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(CALLING_AP_TITLE, false));
+        myPropertySpecs.add(new ObisCodePropertySpec(LOAD_PROFILE_OBIS_CODE_PROPERTY, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        myPropertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CONNECTION, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.ADDRESSING_MODE, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.MAX_REC_PDU_SIZE, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.ISKRA_WRAPPER, false));
+        return myPropertySpecs;
+    }
+
+    @Override
+    protected boolean serialNumberIsRequired() {
+        return true;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         readCache = Integer.parseInt(properties.getProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
         limitMaxNrOfDays = Integer.parseInt(properties.getProperty(LIMITMAXNROFDAYS_PROPERTY, MAX_NR_OF_DAYS_DEFAULT).trim());
         String callingAPTitle = properties.getProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();
@@ -252,62 +282,37 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
-        optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
-        optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
-        optional.add(DlmsProtocolProperties.CONNECTION);
-        optional.add(DlmsProtocolProperties.TIMEOUT);
-        optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
-        optional.add(DlmsProtocolProperties.RETRIES);
-        optional.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
-        optional.add(READCACHE_PROPERTY);
-        optional.add(LOAD_PROFILE_OBIS_CODE_PROPERTY);
-        optional.add(CALLING_AP_TITLE);
-        optional.add(DlmsProtocolProperties.ISKRA_WRAPPER);
-        return optional;
-    }
-
-    @Override
-    public List<String> getRequiredKeys() {
-        List<String> required = new ArrayList<>();
-        required.add(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-        return required;
-    }
-
-    /**
-     * The protocol version
-     */
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         Data data = getCosemObjectFactory().getData(FIRMWARE_VERSION);
         return data.getString();
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return false;
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return 0;
     }
 
     @Override
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode()).getCapturePeriod();
     }
 
+    @Override
     public int getReference() {
         return ProtocolLink.LN_REFERENCE;
     }
 
+    @Override
     public IDISStoredValues getStoredValues() {
         if (storedValues == null) {
             storedValues = new IDISStoredValues(getCosemObjectFactory(), this);
@@ -316,31 +321,37 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode());
         return getProfileDataReader().getChannelInfo(profileGeneric.getCaptureObjects()).size();
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         getMessageHandler().applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return getMessageHandler().queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return getMessageHandler().getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return getMessageHandler().writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return getMessageHandler().writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return getMessageHandler().writeValue(value);
     }
@@ -349,6 +360,27 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         return 0;     //E-meter has no gas slot id
     }
 
+    @Override
+    public void setCache(Serializable cacheObject) {
+        super.setCache(cacheObject);
+    }
+
+    @Override
+    public Serializable getCache() {
+        return super.getCache();
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        return super.fetchCache(deviceId, connection);
+    }
+
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        super.updateCache(deviceId, cacheObject, connection);
+    }
+
+    @Override
     public String getFileName() {
         final Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_IDIS.cache";
@@ -357,4 +389,5 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
     }
+
 }

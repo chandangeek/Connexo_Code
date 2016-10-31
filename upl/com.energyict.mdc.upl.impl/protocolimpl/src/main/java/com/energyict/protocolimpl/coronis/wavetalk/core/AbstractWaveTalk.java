@@ -67,7 +67,7 @@ public abstract class AbstractWaveTalk extends AbstractProtocol implements Proto
 
 
 	@Override
-	protected void doDisConnect() throws IOException {
+	protected void doDisconnect() throws IOException {
 		doTheDisConnect();
 	}
 

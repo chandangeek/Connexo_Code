@@ -157,7 +157,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         }
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         if (isDaisyChain() && getDaisyChain() != 2) {
             getSchlumbergerConnection().sendEnqMultidrop(2);
         } else {

@@ -58,7 +58,7 @@ public class CM32 extends AbstractProtocol {
 		getLogger().info("time in doConnect: " + time);
 	}
 
-	protected void doDisConnect() throws IOException {
+	protected void doDisconnect() throws IOException {
 	}
 
 	protected List<String> doGetOptionalKeys() {

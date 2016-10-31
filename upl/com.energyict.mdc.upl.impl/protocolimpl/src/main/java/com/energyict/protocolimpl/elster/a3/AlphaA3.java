@@ -176,7 +176,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         //getManufacturerProcedureFactory().snapShotData();
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     	if (c1222)
     		getPSEMServiceFactory().terminate();
     	else

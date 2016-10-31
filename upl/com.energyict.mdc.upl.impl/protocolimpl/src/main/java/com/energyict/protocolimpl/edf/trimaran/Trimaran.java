@@ -65,7 +65,7 @@ public class Trimaran extends AbstractProtocol {
     }
 
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getSPDUFactory().logoff();
     }
 

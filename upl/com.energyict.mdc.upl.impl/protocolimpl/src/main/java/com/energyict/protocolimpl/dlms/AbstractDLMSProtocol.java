@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.CipheringType;
@@ -32,20 +34,33 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_RETRIES;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.ISKRA_WRAPPER;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 
 /**
  * Copyrights EnergyICT
@@ -54,33 +69,35 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDLMSProtocol extends AbstractProtocol implements ProtocolLink, HHUEnabler {
 
-    protected static final int CONNECTION_MODE_HDLC = 0;
-    protected static final int CONNECTION_MODE_TCPIP = 1;
-    protected static final int CONNECTION_MODE_COSEM_PDU = 2;
-    protected static final int CONNECTION_MODE_LLC = 3;
-    protected static final int PROPOSED_QOS = -1;
-    protected static final int PROPOSED_DLMS_VERSION = 6;
-    protected static final int MAX_PDU_SIZE = 200;
-    protected static final int DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = 10;
-    protected static final int DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD = 5000;
-    protected static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
-    protected static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
-    protected static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
-    protected static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
-    protected static final String PROPNAME_CIPHERING_TYPE = "CipheringType";
-    protected static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
-    protected static final String PROPNAME_CONNECTION = "Connection";
-    protected static final String PROPNAME_MANUFACTURER = "Manufacturer";
-    protected static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
-    protected static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
-    protected static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
-    protected static final String PROPNAME_RETRIES = "Retries";
-    protected static final String PROPNAME_TIMEOUT = "Timeout";
-    protected static final String PROPNAME_FORCE_DELAY = "ForceDelay";
-    protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
-    protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
+    private static final int CONNECTION_MODE_HDLC = 0;
+    private static final int CONNECTION_MODE_TCPIP = 1;
+    private static final int CONNECTION_MODE_COSEM_PDU = 2;
+    private static final int CONNECTION_MODE_LLC = 3;
+    private static final int PROPOSED_QOS = -1;
+    private static final int PROPOSED_DLMS_VERSION = 6;
+    private static final int MAX_PDU_SIZE = 200;
+    private static final int DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = 10;
+    private static final int DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD = 5000;
+    private static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
+    private static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
+    private static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
+    private static final String PROPNAME_CIPHERING_TYPE = "CipheringType";
+    private static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
+    private static final String PROPNAME_MANUFACTURER = "Manufacturer";
+    private static final String PROPNAME_RETRIES = RETRIES.getName();
+    private static final String PROPNAME_TIMEOUT = TIMEOUT.getName();
+    private static final String PROPNAME_FORCE_DELAY = PROP_FORCED_DELAY;
+    private static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
+    private static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
     private static final String ISKRA_WRAPPER_DEFAULT = "1";
     private static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT = "1";
+
+    protected static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
+    protected static final String PROPNAME_CONNECTION = "Connection";
+    protected static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
+    protected static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    protected static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
     protected ConformanceBlock conformanceBlock;
@@ -128,6 +145,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         connect();
     }
 
+    @Override
     public ApplicationServiceObject getAso() {
         return aso;
     }
@@ -138,24 +156,11 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         disconnect();
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-    }
-
-    @Override
-    protected List<String> doGetOptionalKeys() {
-        return Collections.emptyList();
-    }
-
-    /**
-     * Getter for the time zone
-     *
-     * @return the time zone
-     */
     public TimeZone getTimeZone() {
         if (timeZone == null) {
             timeZone = TimeZone.getDefault();
@@ -164,14 +169,17 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return timeZone;
     }
 
+    @Override
     public DLMSConnection getDLMSConnection() {
         return this.dlmsConnection;
     }
 
+    @Override
     public DLMSMeterConfig getMeterConfig() {
         return this.dlmsMeterConfig;
     }
 
+    @Override
     public Logger getLogger() {
         if (logger == null) {
             logger = Logger.getLogger(getClass().getName());
@@ -179,51 +187,35 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return logger;
     }
 
-    public Object getCache() {
+    protected Serializable getCache() {
         if (dlmsCache == null) {
             dlmsCache = new DLMSCache();
         }
         return dlmsCache;
     }
 
-    public void setCache(Object cacheObject) {
+    protected void setCache(Serializable cacheObject) {
         this.dlmsCache = (DLMSCache) cacheObject;
     }
 
-    @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-
+    protected Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        if (deviceId != 0) {
             /* Use the RTUCache to get the blob from the database */
-            RTUCache rtu = new RTUCache(rtuid);
-            try {
-                return rtu.getCacheObject();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
+            RTUCache rtu = new RTUCache(deviceId);
+            return rtu.getCacheObject(connection);
         }
         return null;
     }
 
-    @Override
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-        if (rtuid != 0) {
+    protected void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        if (deviceId != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
-            RTUCache rtu = new RTUCache(rtuid);
-            rtu.setBlob(cacheObject);
+            RTUCache rtu = new RTUCache(deviceId);
+            rtu.setBlob(cacheObject, connection);
         }
     }
 
-    /**
-     * Starts the protocol, sets up the DLMS connection
-     *
-     * @param inputStream  communication inputstream
-     * @param outputStream communication outputstream
-     * @param timeZone     timezone of the meter
-     * @param logger       framework logger object to be used by the protocol to log info
-     * @throws IOException
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -353,45 +345,54 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
     }
 
-    /**
-     * Sets and validates the properties
-     *
-     * @param properties Used by the framework
-     * @throws InvalidPropertyException
-     * @throws MissingPropertyException
-     */
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        this.properties = properties;
-        validateProperties();
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        Stream<PropertySpec> propertySpecs = super.getPropertySpecs().stream().filter(propertySpec -> !propertySpec.getName().equals(SECURITYLEVEL.getName()));
+        List<PropertySpec> myPropertySpecs = new ArrayList<>();
+        myPropertySpecs.add(UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), true));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CONNECTION, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CLIENT_MAC_ADDRESS, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_ADDRESSING_MODE, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_MANUFACTURER, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_INFORMATION_FIELD_SIZE, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_IIAP_INVOKE_ID, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_IIAP_PRIORITY, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_IIAP_SERVICE_CLASS, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CIPHERING_TYPE, false, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.integer(ISKRA_WRAPPER, false));
+        myPropertySpecs.add(UPLPropertySpecFactory.string(INCREMENT_FRAMECOUNTER_FOR_RETRIES, false));
+        propertySpecs.forEach(myPropertySpecs::add);
+        return myPropertySpecs;
     }
 
-    /**
-     * Validates the properties
-     *
-     * @throws MissingPropertyException when a property is missing
-     * @throws InvalidPropertyException when a property is invalid
-     */
-    protected void validateProperties() throws MissingPropertyException, InvalidPropertyException {
-        for (Object o : getRequiredKeys()) {
-            String key = (String) o;
-            if (this.properties.getProperty(key) == null) {
-                throw new MissingPropertyException(key + " key missing");
-            }
-        }
+    @Override
+    protected String defaultForcedDelayPropertyValue() {
+        return "1";
+    }
 
-        String[] securityLevel = properties.getProperty("SecurityLevel", "0").split(":");
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        this.properties = properties;
+        String securityLevelPropertyValue = properties.getProperty(SECURITYLEVEL.getName(), "0");
+        String[] securityLevel = securityLevelPropertyValue.split(":");
         this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
         if (securityLevel.length == 2) {
             this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
         } else if (securityLevel.length == 1) {
             this.datatransportSecurityLevel = 0;
         } else {
-            throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
+            throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + securityLevelPropertyValue);
         }
 
-        nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-        deviceId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "");
-        serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
+        nodeId = properties.getProperty(NODEID.getName(), "");
+        deviceId = properties.getProperty(ADDRESS.getName(), "");
+        serialNumber = properties.getProperty(SERIALNUMBER.getName(), "");
         connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "1"));
         clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32"));
         serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "1"));
@@ -406,11 +407,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         iiapPriority = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_PRIORITY, "1"));
         iiapServiceClass = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
         cipheringType = Integer.parseInt(properties.getProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
-        //roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
 
-        if (cipheringType != CipheringType.GLOBAL.getType() && cipheringType != CipheringType.DEDICATED.getType()) {
-            throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
-        }
         try {
             this.numberOfClocksetTries = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
         } catch (final NumberFormatException e) {
@@ -424,18 +421,12 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
             this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
         }
-        this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));
-        this.iskraWrapper = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT));
-        this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
-
-        doValidateProperties(properties);
+        this.maxRecPduSize = Integer.parseInt(properties.getProperty(MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));
+        this.iskraWrapper = Integer.parseInt(properties.getProperty(ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT));
+        this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getProperty(INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
     }
 
-    /**
-     * Creates an association session
-     *
-     * @throws IOException when the communication with the meter failed
-     */
+    @Override
     public void connect() throws IOException {
         try {
             if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
@@ -539,11 +530,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
     }
 
-    /**
-     * Disconnect, stop the association session
-     *
-     * @throws IOException when the communication with the meter failed
-     */
+    @Override
     public void disconnect() throws IOException {
         try {
             if ((this.aso != null) && (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED)) {
@@ -557,4 +544,5 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             getLogger().log(Level.FINEST, e.getMessage());
         }
     }
+
 }

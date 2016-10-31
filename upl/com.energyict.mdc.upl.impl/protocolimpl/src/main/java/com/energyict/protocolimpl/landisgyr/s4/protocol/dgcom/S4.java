@@ -75,7 +75,7 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport{
     }
 
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getCommandFactory().logoff();
     }
 

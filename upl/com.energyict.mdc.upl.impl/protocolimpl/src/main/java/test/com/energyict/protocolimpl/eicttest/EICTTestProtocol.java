@@ -221,7 +221,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getLogger().info("call abstract method doDisConnect()");
         getLogger().info("--> here the logoff should be done");
         getLogger().info("--> after that point, we will close the communicationlink with the meter");

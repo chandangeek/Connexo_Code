@@ -12,4 +12,5 @@ public class JanzB280 extends CX20009 {
     public String getProtocolVersion() {
         return "$Date: 2014-02-18 16:12:07 +0100 (di, 18 feb 2014) $";
     }
+
 }

@@ -283,7 +283,7 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
     @Override

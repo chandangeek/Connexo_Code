@@ -10,8 +10,6 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
@@ -30,11 +28,11 @@ public interface C12ProtocolLink {
 
 	TimeZone getTimeZone();
 
-	int getNumberOfChannels() throws UnsupportedException, IOException;
+	int getNumberOfChannels() throws IOException;
 
 	ProtocolChannelMap getProtocolChannelMap();
 
-	int getProfileInterval() throws UnsupportedException, IOException;
+	int getProfileInterval() throws IOException;
 
 	Logger getLogger();
 

@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -27,16 +27,18 @@ import com.energyict.protocolimpl.edmi.mk6.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
 /**
  *
@@ -48,7 +50,7 @@ import java.util.TimeZone;
  * JM|22092009|Added custom property to disable log-off after communication to prevent modem disconnect.
  * @endchanges
  */
-public class MK6 extends AbstractProtocol implements Serializable{
+public class MK6 extends AbstractProtocol implements Serializable {
 
 	/** Generated SerialVersionUID */
 	private static final long serialVersionUID = 4668911907276635756L;
@@ -63,16 +65,14 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	private TimeZone timeZone;
 	private boolean useOldProfileFromDate;
 
-	/** Creates a new instance of MK6 */
-	public MK6() {
-	}
-
+    @Override
 	protected void doConnect() throws IOException {
 		getCommandFactory().enterCommandLineMode();
 		getCommandFactory().logon(getInfoTypeDeviceID(),getInfoTypePassword());
 	}
 
-	protected void doDisConnect() throws IOException {
+    @Override
+	protected void doDisconnect() throws IOException {
 		if (!isLogOffDisabled()) {
 			getCommandFactory().exitCommandLineMode();
 		} else {
@@ -80,55 +80,65 @@ public class MK6 extends AbstractProtocol implements Serializable{
 		}
 	}
 
-	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "1"));
-		setEventLogName(properties.getProperty("EventLogName","Event Log"));
-		setLoadSurveyName(properties.getProperty("LoadSurveyName","Load_Survey"));
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(UPLPropertySpecFactory.string("EventLogName", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("LoadSurveyName", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("StatusFlagChannel", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("DisableLogOff", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("UseOldProfileFromDate", false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+		setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "1"));
+		setEventLogName(properties.getProperty("EventLogName", "Event Log"));
+		setLoadSurveyName(properties.getProperty("LoadSurveyName", "Load_Survey"));
 		setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
-		setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel","0").trim()));
-		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff","0").trim()));
-		setUseOldProfileFromDate(properties.getProperty("UseOldProfileFromDate","0").equalsIgnoreCase("1"));
+		setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel", "0").trim()));
+		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff", "0").trim()));
+		setUseOldProfileFromDate("1".equalsIgnoreCase(properties.getProperty("UseOldProfileFromDate", "0")));
 	}
 
+    @Override
 	public int getProfileInterval() throws IOException {
 		return this.mk6Profile.getProfileInterval();
 	}
 
+    @Override
 	public int getNumberOfChannels() throws IOException {
 		return this.mk6Profile.getNumberOfChannels();
 	}
 
-	protected List doGetOptionalKeys() {
-		List result = new ArrayList();
-		result.add("EventLogName");
-		result.add("LoadSurveyName");
-		result.add("StatusFlagChannel");
-		result.add("DisableLogOff");
-		result.add("UseOldProfileFromDate");
-		return result;
-	}
-
+    @Override
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
 		this.mk6Connection = new MK6Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
 		this.commandFactory = new CommandFactory(this);
 		this.mk6Profile = new MK6Profile(this);
 		return getMk6Connection();
 	}
+
+    @Override
 	public Date getTime() throws IOException {
 		TimeInfo ti = new TimeInfo(this);
 		return ti.getTime();
 	}
 
+    @Override
 	public void setTime() throws IOException {
 		TimeInfo ti = new TimeInfo(this);
 		ti.setTime();
 	}
 
-	/** The protocol verison **/
+    @Override
     public String getProtocolVersion() {
 		return "$Date: 2015-11-26 15:24:26 +0200 (Thu, 26 Nov 2015)$";
 	}
 
+    @Override
 	public String getFirmwareVersion() throws IOException {
 		return "Equipment model id:"+getCommandFactory().getReadCommand(0xF000).getRegister().getString()+"\n"+ // Equipment model id
 		"Software revision:"+getCommandFactory().getReadCommand(0xF003).getRegister().getString()+"\n"+ // software version
@@ -146,31 +156,28 @@ public class MK6 extends AbstractProtocol implements Serializable{
         }
     }
 
+    @Override
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		return this.mk6Profile.getProfileData(from, to, includeEvents);
 	}
 
-
-	/*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-	 *******************************************************************************************/
+    @Override
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		ObisCodeMapper ocm = new ObisCodeMapper(this);
 		return ocm.getRegisterValue(obisCode);
 	}
 
+    @Override
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		return ObisCodeMapper.getRegisterInfo(obisCode);
 	}
 
+    @Override
 	protected String getRegistersInfo(int extendedLogging) throws IOException {
 		return getObicCodeFactory().getRegisterInfoDescription();
 	}
 
-	/**
-	 * Get the timeZone
-	 * @return the TimeZone
-	 */
+    @Override
 	public TimeZone getTimeZone() {
 		if(this.timeZone == null){
 			this.timeZone = ProtocolUtils.getWinterTimeZone(super.getTimeZone());
@@ -247,4 +254,5 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	public void setUseOldProfileFromDate(boolean useOldProfileFromDate) {
 		this.useOldProfileFromDate = useOldProfileFromDate;
 	}
+
 }

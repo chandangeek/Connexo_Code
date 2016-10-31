@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -22,6 +21,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
 /**
  * @author  jme
@@ -59,22 +61,19 @@ import java.util.logging.Logger;
  **/
 public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
-	private static final int DEBUG				= 0;
-	private static final boolean USE_HARD_INFO 	= true;
+	private static final int DEBUG = 0;
+	private static final boolean USE_HARD_INFO = true;
 
-	private MK10Connection mk10Connection		= null;
-	private CommandFactory commandFactory		= null;
-	private ObisCodeFactory obisCodeFactory		= null;
-	MK10Profile mk10Profile						= null;
-	private int loadSurveyNumber				= 0;
-	private boolean pushProtocol				= false;
-	private boolean logOffDisabled				= true;
-    private boolean fullDebugLogging            = false;
+	private MK10Connection mk10Connection = null;
+	private CommandFactory commandFactory = null;
+	private ObisCodeFactory obisCodeFactory = null;
+	MK10Profile mk10Profile = null;
+	private int loadSurveyNumber = 0;
+	private boolean pushProtocol = false;
+	private boolean logOffDisabled = true;
+	private boolean fullDebugLogging = false;
 
-    /** Creates a new instance of MK10 */
-	public MK10() {
-	}
-
+	@Override
 	protected void doConnect() throws IOException {
 		sendDebug("doConnect()");
 		if (!isPushProtocol()) {
@@ -83,7 +82,8 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		getCommandFactory().logon(getInfoTypeDeviceID(),getInfoTypePassword());
 	}
 
-	protected void doDisConnect() throws IOException {
+	@Override
+	protected void doDisconnect() throws IOException {
 		sendDebug("doDisConnect()");
 		if (!isLogOffDisabled()) {
 			getCommandFactory().exitCommandLineMode();
@@ -92,37 +92,45 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		}
 	}
 
-	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		sendDebug("doValidateProperties()");
-		setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),"1"));
-		validateLoadSurveyNumber(properties.getProperty("LoadSurveyNumber"));
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("LoadSurveyNumber", true, 1, 2));
+        propertySpecs.add(UPLPropertySpecFactory.integer("DisableLogOff", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("PushProtocol", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("FullDebug", false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        sendDebug("setProperties()");
+        super.setProperties(properties);
+		setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "1"));
 		setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
-		setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
-		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff","0").trim()));
-        setPushProtocol(properties.getProperty("PushProtocol", "0").trim().equalsIgnoreCase("1"));
-        setFullDebugLogging(properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
+		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff", "0").trim()));
+        setPushProtocol("1".equalsIgnoreCase(properties.getProperty("PushProtocol", "0").trim()));
+        setFullDebugLogging("1".equalsIgnoreCase(properties.getProperty("FullDebug", "0")));
 	}
 
-	public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    protected String defaultForcedDelayPropertyValue() {
+        return "0";
+    }
+
+    @Override
+	public int getProfileInterval() throws IOException {
 		sendDebug("getProfileInterval()");
 		return mk10Profile.getProfileInterval();
 	}
 
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+	public int getNumberOfChannels() throws IOException {
 		sendDebug("getNumberOfChannels()");
 		return mk10Profile.getNumberOfChannels();
 	}
 
-	protected List doGetOptionalKeys() {
-		sendDebug("doGetOptionalKeys()");
-		List result = new ArrayList();
-		result.add("LoadSurveyNumber");
-		result.add("DisableLogOff");
-        result.add("PushProtocol");
-        result.add("FullDebug");
-		return result;
-	}
-
+    @Override
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
 		sendDebug("doInit()");
         InputStream mk10InputStream = isPushProtocol()
@@ -139,24 +147,29 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
 		return getMk10Connection();
 	}
+
+    @Override
 	public Date getTime() throws IOException {
 		sendDebug("getTime()");
 		TimeInfo ti = new TimeInfo(this);
 		return ti.getTime();
 	}
 
+    @Override
 	public void setTime() throws IOException {
 		sendDebug("setTime()");
 		TimeInfo ti = new TimeInfo(this);
 		ti.setTime();
 	}
 
+    @Override
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
 		return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+	public String getFirmwareVersion() throws IOException {
 		sendDebug("getFirmwareVersion()");
 		return "Equipment model id:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_MODEL_ID).getRegister().getString()+"\n"+ // Equipment model id
 		"Software version:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_VERSION).getRegister().getString()+"\n"+ // Software version
@@ -165,6 +178,7 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		"Serial number:"+getSerialNumber(); // serial number
 	}
 
+    @Override
 	public String getSerialNumber()  {
         try {
             return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
@@ -173,25 +187,30 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		sendDebug("getProfileData()");
 		return mk10Profile.getProfileData(from, to, includeEvents);
 	}
 
+    @Override
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		ObisCodeMapper ocm = new ObisCodeMapper(this);
 		return ocm.getRegisterValue(obisCode);
 	}
 
+    @Override
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		return ObisCodeMapper.getRegisterInfo(obisCode);
 	}
 
+    @Override
 	protected String getRegistersInfo(int extendedLogging) throws IOException {
 		sendDebug("getRegistersInfo()");
 		return getObicCodeFactory().getRegisterInfoDescription();
 	}
 
+    @Override
 	public TimeZone getTimeZone() {
 		return ProtocolUtils.getWinterTimeZone(super.getTimeZone());
 	}
@@ -218,15 +237,6 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 	private void setLoadSurveyNumber(int loadSurveyNr) {
 		this.loadSurveyNumber = loadSurveyNr;
 		sendDebug("setLoadSurveyNumber(): " + String.valueOf(this.loadSurveyNumber));
-	}
-
-	private void validateLoadSurveyNumber(String value) throws MissingPropertyException, InvalidPropertyException {
-		if (value == null) {
-			throw new MissingPropertyException("No LoadSurveyNumber property found! Must be 1 or 2 for the EDMI MK10 meter.");
-		}
-		if (!value.trim().equalsIgnoreCase("1") && !value.trim().equalsIgnoreCase("2")) {
-			throw new InvalidPropertyException("Wrong LoadSurveyNumber value: " + value + "! Must be 1 or 2 for the EDMI MK10 meter.");
-		}
 	}
 
 	public void sendDebug(String str){
@@ -273,4 +283,5 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
     public void setFullDebugLogging(boolean fullDebugLogging) {
         this.fullDebugLogging = fullDebugLogging;
     }
+
 }

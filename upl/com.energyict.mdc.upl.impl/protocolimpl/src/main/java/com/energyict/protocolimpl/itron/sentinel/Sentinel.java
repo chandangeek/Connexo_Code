@@ -133,7 +133,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         return c12User;
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getPSEMServiceFactory().logOff();
     }
 

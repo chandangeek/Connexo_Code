@@ -85,7 +85,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
 			getVDEType().setVDEType(VDEType.getVDEMODULABLE());
 		}
     }
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
 
     }
 

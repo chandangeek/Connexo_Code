@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.dlms.edp;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.Properties;
  * Time: 16:11
  * Author: khe
  */
-public class EDPProperties {
+class EDPProperties {
 
     private static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
     private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
@@ -25,7 +28,7 @@ public class EDPProperties {
 
     private final Properties properties;
 
-    public EDPProperties(Properties properties) {
+    EDPProperties(Properties properties) {
         this.properties = properties;
     }
 
@@ -40,18 +43,18 @@ public class EDPProperties {
         return Integer.parseInt(properties.getProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
     }
 
-    protected List<String> getOptionalKeys() {
+    protected List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                    DlmsProtocolProperties.CLIENT_MAC_ADDRESS,
-                    PROPNAME_SERVER_UPPER_MAC_ADDRESS,
-                    PROPNAME_SERVER_LOWER_MAC_ADDRESS,
-                    DlmsProtocolProperties.CONNECTION,
-                    DlmsProtocolProperties.TIMEOUT,
-                    DlmsProtocolProperties.RETRIES,
-                    READCACHE_PROPERTY);
+                UPLPropertySpecFactory.string(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(DlmsProtocolProperties.CONNECTION, false),
+                UPLPropertySpecFactory.string(DlmsProtocolProperties.TIMEOUT, false),
+                UPLPropertySpecFactory.string(DlmsProtocolProperties.RETRIES, false),
+                UPLPropertySpecFactory.string(READCACHE_PROPERTY, false));
     }
 
-    public boolean isFirmwareClient() {
+    boolean isFirmwareClient() {
         String property = properties.getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, DlmsProtocolProperties.DEFAULT_CLIENT_MAC_ADDRESS);
         try {
             return Integer.parseInt(property) == FIRMWARE_CLIENT;
@@ -68,7 +71,7 @@ public class EDPProperties {
         }
     }
 
-    public int getServerUpperMacAddress() {
+    int getServerUpperMacAddress() {
         try {
             return Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1"));
         } catch (NumberFormatException e) {
@@ -76,7 +79,7 @@ public class EDPProperties {
         }
     }
 
-    public int getServerLowerMacAddress() {
+    int getServerLowerMacAddress() {
         try {
             return Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "16"));
         } catch (NumberFormatException e) {

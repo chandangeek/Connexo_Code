@@ -218,7 +218,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
     @Override

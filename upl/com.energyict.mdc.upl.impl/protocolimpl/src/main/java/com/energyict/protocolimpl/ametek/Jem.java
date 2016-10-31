@@ -185,7 +185,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
     }
 
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

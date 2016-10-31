@@ -521,7 +521,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     /* (non-Javadoc)
      * @see com.energyict.protocolimpl.base.AbstractProtocol#doDisConnect()
      */
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         /* do nothing, in a hurry */
     }
 

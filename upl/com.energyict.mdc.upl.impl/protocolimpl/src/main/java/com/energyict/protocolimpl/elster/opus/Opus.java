@@ -294,7 +294,7 @@ public class Opus extends AbstractProtocol{
 	protected void doConnect() throws IOException {
 	}
 
-	protected void doDisConnect() throws IOException {
+	protected void doDisconnect() throws IOException {
 	}
 
 	protected List doGetOptionalKeys() {

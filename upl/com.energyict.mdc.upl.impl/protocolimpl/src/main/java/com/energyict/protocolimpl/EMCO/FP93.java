@@ -75,7 +75,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
      * @throws java.io.IOException thrown when the logoff fails
      */
     @Override
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         // No disconnect needed.
     }
 

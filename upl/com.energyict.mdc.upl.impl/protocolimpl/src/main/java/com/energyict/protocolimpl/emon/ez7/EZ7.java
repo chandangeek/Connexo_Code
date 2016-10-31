@@ -88,7 +88,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
            ez7CommandFactory.getSetKey().logon(getInfoTypePassword());
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0))
            ez7CommandFactory.getSetKey().logoff();
 

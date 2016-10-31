@@ -100,7 +100,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 		this.rs485RtuPlusServer=Integer.parseInt(properties.getProperty("RS485RtuPlusServer","0").trim());
     }
 
-	protected void doDisConnect() throws IOException {
+	protected void doDisconnect() throws IOException {
 		try {
 			getPSEMServiceFactory().logOff();
 		} catch (ResponseIOException e) {

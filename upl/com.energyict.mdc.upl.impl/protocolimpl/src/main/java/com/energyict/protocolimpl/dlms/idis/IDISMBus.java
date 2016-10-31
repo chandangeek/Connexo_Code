@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.UniversalObject;
@@ -85,6 +84,7 @@ public class IDISMBus extends IDIS {
         }
     }
 
+    @Override
     public ObisCode getLoadProfileObisCode() {
         return ProtocolTools.setObisCodeField(OBISCODE_MBUS_LOAD_PROFILE, 1, (byte) getGasSlotId());
     }
@@ -97,16 +97,17 @@ public class IDISMBus extends IDIS {
     }
 
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getMBusProfileDataReader().getProfileData(from, to, includeEvents);
     }
 
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode());
         return getMBusProfileDataReader().getChannelInfo(profileGeneric.getCaptureObjects()).size();
     }
 
+    @Override
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
             messageHandler = new IDISMBusMessageHandler(this);
@@ -155,7 +156,9 @@ public class IDISMBus extends IDIS {
      *
      * @return B-field value
      */
+    @Override
     public int getGasSlotId() {
         return gasMeterSlot;
     }
+
 }

@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms.elgama;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -30,12 +31,12 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -43,6 +44,9 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
 /**
  * Copyrights EnergyICT
@@ -56,8 +60,7 @@ public class G3B extends AbstractDLMSProtocol {
     private static final int MAX_TIME_SHIFT_SECONDS = 59;
     private static final ObisCode OBISCODE_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
-    private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.3.255"
-    );
+    private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.3.255");
     private ProfileGeneric loadProfile;
     private ProfileChannel profileChannel;
 
@@ -75,32 +78,22 @@ public class G3B extends AbstractDLMSProtocol {
         initDLMSConnection(inputStream, outputStream);
     }
 
-    /**
-     * Getter for the type of reference (0 = LN, 1 = SN)
-     *
-     * @return the type of reference
-     */
+    @Override
     public int getReference() {
         return ProtocolLink.SN_REFERENCE;
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return false;
     }
 
-    /**
-     * Requests the meter's monthly billing profile data, stores it into a register in EiServer.
-     */
+    @Override
     public StoredValues getStoredValues() {
         return storedValuesImpl;
     }
 
-    /**
-     * Getter for the profile data interval.
-     *
-     * @return the profile data interval, eg. 900 seconds
-     * @throws IOException when there's a problem communicating with the meter.
-     */
+    @Override
     public final int getProfileInterval() throws IOException {
         if (profileInterval == -1) {
             logger.info("Requesting the profile interval from the meter...");
@@ -117,29 +110,22 @@ public class G3B extends AbstractDLMSProtocol {
         return loadProfile;
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return 0;
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getProfileChannel().getNumberOfChannels();
     }
 
-    /**
-     * Getter for the protocol version
-     *
-     * @return the protocol version (being the date of the latest commit)
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    /**
-     * Requests the meter it's firmware version via DLMS.
-     *
-     * @return the meter it's firmware version
-     * @throws IOException when there's a problem communicating with the meter.
-     */
+    @Override
     public final String getFirmwareVersion() throws IOException {
         if (firmwareVersion == null) {
             Data data = getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE);
@@ -148,41 +134,17 @@ public class G3B extends AbstractDLMSProtocol {
         return firmwareVersion;
     }
 
-    /**
-     * Requests the meter's profile data
-     *
-     * @param includeEvents: enable or disable the reading of meterevents
-     * @return the profile data
-     * @throws IOException when there's a problem communicating with the meter.
-     */
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Date lastReading = new Date(new Date().getTime() - MILLIS_1_DAY);
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
-    /**
-     * Requests the meter's profile data
-     *
-     * @param includeEvents: enable or disable the reading of meterevents
-     * @param lastReading:   the from date to start reading at
-     * @return the profile data
-     * @throws IOException when there's a problem communicating with the meter.
-     */
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
-    /**
-     * Requests the meter's profile data
-     *
-     * @param from:         the from date to start reading at
-     * @param to            request the to date, to stop reading at
-     * @param includeEvents eneble or disable requesting of meterevents
-     * @return the profile data
-     * @throws IOException when there's a problem communicating with the meter.
-     */
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar calFrom = new GregorianCalendar();
@@ -199,13 +161,7 @@ public class G3B extends AbstractDLMSProtocol {
         return profileChannel;
     }
 
-    /**
-     * Set the meter's clock.
-     * Use a time shift when the shift is smaller than +/- 15 minutes
-     * Else, use a write time (= force clock).
-     *
-     * @throws IOException when there's a problem communicating with the meter.
-     */
+    @Override
     public final void setTime() throws IOException {
         logger.info("Setting the time of the remote device, first requesting the device's time.");
         final Clock clock = getCosemObjectFactory().getClock();
@@ -266,61 +222,41 @@ public class G3B extends AbstractDLMSProtocol {
         throw new UnsupportedException();
     }
 
-    /**
-     * Getter for the meter time
-     *
-     * @return the meter time
-     * @throws IOException when there's a problem communicating with the meter.
-     */
+    @Override
     public Date getTime() throws IOException {
         return getCosemObjectFactory().getClock().getDateTime();
     }
 
-    /**
-     * Getter for the list of optional keys
-     *
-     * @return the list of optional keys
-     */
     @Override
-    public List getOptionalKeys() {
-        List<String> optionalKeys = new ArrayList<String>();
-        optionalKeys.add("ForceDelay");
-        optionalKeys.add("TimeOut");
-        optionalKeys.add("Retries");
-        optionalKeys.add("Connection");
-        optionalKeys.add("SecurityLevel");
-        optionalKeys.add("ClientMacAddress");
-        optionalKeys.add("ServerUpperMacAddress");
-        optionalKeys.add("ServerLowerMacAddress");
-        optionalKeys.add("InformationFieldSize");
-        optionalKeys.add("LoadProfileId");
-        optionalKeys.add("AddressingMode");
-        optionalKeys.add("MaxMbusDevices");
-        optionalKeys.add("IIAPInvokeId");
-        optionalKeys.add("IIAPPriority");
-        optionalKeys.add("IIAPServiceClass");
-        optionalKeys.add("Manufacturer");
-        optionalKeys.add("InformationFieldSize");
-        optionalKeys.add("RoundTripCorrection");
-        optionalKeys.add("IpPortNumber");
-        optionalKeys.add("WakeUp");
-        optionalKeys.add("CipheringType");
-        optionalKeys.add(LocalSecurityProvider.DATATRANSPORTKEY);
-        optionalKeys.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optionalKeys.add(LocalSecurityProvider.MASTERKEY);
-        return optionalKeys;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(UPLPropertySpecFactory.string("Connection", false));
+        propertySpecs.add(UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false));
+        propertySpecs.add(UPLPropertySpecFactory.string("ClientMacAddress", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("ServerUpperMacAddress", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("ServerLowerMacAddress", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("InformationFieldSize", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("LoadProfileId", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("AddressingMode", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("MaxMbusDevices", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("IIAPInvokeId", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("IIAPPriority", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("IIAPServiceClass", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("Manufacturer", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("InformationFieldSize", false));
+        propertySpecs.add(UPLPropertySpecFactory.string(ROUNDTRIPCORRECTION.getName(), false));
+        propertySpecs.add(UPLPropertySpecFactory.string("IpPortNumber", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("WakeUp", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("CipheringType", false));
+        propertySpecs.add(UPLPropertySpecFactory.string(LocalSecurityProvider.DATATRANSPORTKEY, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(LocalSecurityProvider.MASTERKEY, false));
+        return propertySpecs;
     }
 
-    /**
-     * Requests the register values from the meter
-     *
-     * @param obisCode obiscode mapped register to request from the meter
-     * @return the register values
-     * @throws IOException when there's a problem communicating with the meter.
-     */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
-
             //Billing profile data, store it in a register
             if (obisCode.getF() != 255) {
                 CosemObject cosemObject = getCosemObjectFactory().getCosemObject(obisCode);
@@ -352,6 +288,7 @@ public class G3B extends AbstractDLMSProtocol {
         }
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new OpticalHHUConnection(commChannel);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
@@ -364,4 +301,5 @@ public class G3B extends AbstractDLMSProtocol {
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
+
 }

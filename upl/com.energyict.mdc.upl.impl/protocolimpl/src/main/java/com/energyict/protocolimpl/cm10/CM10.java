@@ -147,7 +147,7 @@ public class CM10 extends AbstractProtocol {
 		return timeTable;
 	}
 
-	protected void doDisConnect() throws IOException {
+	protected void doDisconnect() throws IOException {
 	}
 
 	protected List<String> doGetOptionalKeys() {

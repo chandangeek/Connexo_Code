@@ -94,7 +94,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
     }
 
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         try {
             if (commChannel==null) {
                  commandFactory.getFunctionWithoutDataCommand().sendBillingReadComplete();

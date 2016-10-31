@@ -102,7 +102,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         // set packetsize so that all Multiple (lenh lenl) packets behave corect (lenh bit 7 last packet)
         getCommandFactory().getFunctionWithDataCommand().PacketSize(4);
     }
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         try {
             if (commChannel==null) {
                  commandFactory.getFunctionWithoutDataCommand().sendBillingReadComplete();

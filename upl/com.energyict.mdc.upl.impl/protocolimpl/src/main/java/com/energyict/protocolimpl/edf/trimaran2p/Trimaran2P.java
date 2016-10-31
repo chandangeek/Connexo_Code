@@ -77,7 +77,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink, Serial
 		getLogger().info(getDLMSPDUFactory().getStatusResponse().toString());
 	}
 
-	protected void doDisConnect() throws IOException {
+	protected void doDisconnect() throws IOException {
 
 	}
 

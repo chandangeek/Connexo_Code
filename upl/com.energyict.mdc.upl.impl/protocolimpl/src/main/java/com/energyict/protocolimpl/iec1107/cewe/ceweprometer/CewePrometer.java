@@ -226,7 +226,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     /* (non-Javadoc)
      * @see com.energyict.protocolimpl.base.AbstractProtocol#doDisConnect()
      */
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         /* when in doubt, do nothing */
     }
 

@@ -135,7 +135,7 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     	}
     }
 
-	protected void doDisConnect() throws IOException {
+	protected void doDisconnect() throws IOException {
 		/*Response response = commandFactory.logoffCommand().invoke();
 		parseStatus(response);*/
 	}

@@ -100,7 +100,7 @@ abstract public class SdcBase extends AbstractProtocol implements SerialNumberSu
 //        getLogger().info(strBuff.toString());
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {

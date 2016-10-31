@@ -129,7 +129,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
         getPSEMServiceFactory().logOn(c12UserId,c12User,getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
         getPSEMServiceFactory().logOff();
     }
 

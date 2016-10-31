@@ -110,7 +110,7 @@ public abstract class EnermetBase extends AbstractProtocol{
         dataReadingCommandFactory = new DataReadingCommandFactory(this);
     }
 
-    protected void doDisConnect() throws IOException {
+    protected void doDisconnect() throws IOException {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
