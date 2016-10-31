@@ -7,11 +7,11 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.DialinScheduleProtocol;
 import com.energyict.protocol.EventMapper;

@@ -143,20 +143,20 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integral("ExtendedLogging", false),
-                UPLPropertySpecFactory.integral("AddressingMode", false),
-                UPLPropertySpecFactory.integral("Connection", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("AddressingMode", false),
+                UPLPropertySpecFactory.integer("Connection", false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integral(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integral("DelayAfterfail", false),
-                UPLPropertySpecFactory.integral("RequestTimeZone", false),
-                UPLPropertySpecFactory.integral("RequestClockObject", false),
-                UPLPropertySpecFactory.integral(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integral(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integral("ClientMacAddress", false),
-                UPLPropertySpecFactory.integral("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integral("ServerLowerMacAddress", false));
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer("DelayAfterfail", false),
+                UPLPropertySpecFactory.integer("RequestTimeZone", false),
+                UPLPropertySpecFactory.integer("RequestClockObject", false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer("ClientMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false));
     }
 
     @Override
@@ -186,7 +186,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 System.out.println();
             }
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, "EK2xx: validation of properties failed before");
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
     }
 

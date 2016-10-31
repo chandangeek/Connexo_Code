@@ -142,7 +142,7 @@ public class NXT4Properties {
         List<com.energyict.mdc.upl.properties.PropertySpec> specs = new ArrayList<>();
         this.getIntegerPropertyNames()
                 .stream()
-                .map(name -> UPLPropertySpecFactory.integral(name, false))
+                .map(name -> UPLPropertySpecFactory.integer(name, false))
                 .forEach(specs::add);
         specs.add(ProtocolChannelMap.propertySpec("ChannelMap", false));
         return specs;

@@ -246,10 +246,10 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
                 UPLPropertySpecFactory.string(PROFILEINTERVAL.getName(), false),
                 new PasswordPropertySpec(PASSWORD.getName(), true, 8),
                 UPLPropertySpecFactory.string(PK_OPUS, false),
-                UPLPropertySpecFactory.integral(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
                 UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.integral(PK_FORCE_DELAY, false),
+                UPLPropertySpecFactory.integer(PK_FORCE_DELAY, false),
                 UPLPropertySpecFactory.string("Software7E1", false));
     }
 

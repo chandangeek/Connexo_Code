@@ -196,19 +196,19 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integral(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integral(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integral(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integral("EchoCancelling", false),
-                UPLPropertySpecFactory.integral("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integral(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integral("ExtendedLogging", false),
-                UPLPropertySpecFactory.integral("ReadCurrentDay", false),
-                UPLPropertySpecFactory.integral("LoadProfileNumber", false, Range.closed(LOADPROFILES_FIRST, LOADPROFILES_LAST)),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("ReadCurrentDay", false),
+                UPLPropertySpecFactory.integer("LoadProfileNumber", false, Range.closed(LOADPROFILES_FIRST, LOADPROFILES_LAST)),
                 UPLPropertySpecFactory.string("Software7E1", false),
-                UPLPropertySpecFactory.integral("DataReadout", false));
+                UPLPropertySpecFactory.integer("DataReadout", false));
     }
 
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {

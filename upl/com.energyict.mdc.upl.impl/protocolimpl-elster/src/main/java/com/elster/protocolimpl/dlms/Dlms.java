@@ -191,7 +191,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
                 new VariableBaseIntegerPropertySpec(CLIENTID, true),
                 new VariableBaseIntegerPropertySpec(SERVERADDRESS, false),

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 
@@ -19,7 +20,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;

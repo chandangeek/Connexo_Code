@@ -150,15 +150,15 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
         return Arrays.asList(
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integral("Timeout", false),
-                UPLPropertySpecFactory.integral("Retries", false),
-                UPLPropertySpecFactory.integral("RoundtripCorrection", false),
-                UPLPropertySpecFactory.integral("SecurityLevel", false),
+                UPLPropertySpecFactory.integer("Timeout", false),
+                UPLPropertySpecFactory.integer("Retries", false),
+                UPLPropertySpecFactory.integer("RoundtripCorrection", false),
+                UPLPropertySpecFactory.integer("SecurityLevel", false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integral("EchoCancelling", false),
-                UPLPropertySpecFactory.integral("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integral("ProfileInterval", false),
-                UPLPropertySpecFactory.integral("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integer("ProfileInterval", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
                 UPLPropertySpecFactory.string("Software7E1", false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false));
     }

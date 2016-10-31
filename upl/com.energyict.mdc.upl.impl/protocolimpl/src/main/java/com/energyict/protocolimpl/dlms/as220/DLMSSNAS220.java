@@ -1,28 +1,15 @@
-/**
- * @version 2.0
- * @author Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Base class that implements the DLMS SN (short name) protocol
- * <BR>
- * <B>@beginchanges</B><BR>
- *      KV 08042003 Initial version.<BR>
- *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
- *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
- *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
- *      KV 30082004 Reengineered to use cosem package
- *@endchanges
- */
-
-
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -50,28 +37,52 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, SerialNumberSupport {
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+
+/**
+ * @version 2.0
+ * @author Koenraad Vanderschaeve
+ * <P>
+ * <B>Description :</B><BR>
+ * Base class that implements the DLMS SN (short name) protocol
+ * <BR>
+ * <B>@beginchanges</B><BR>
+ *      KV 08042003 Initial version.<BR>
+ *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
+ *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
+ *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
+ *      KV 30082004 Reengineered to use cosem package
+ *@endchanges
+ */
+public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, CachingProtocol, SerialNumberSupport {
 
     private static final String PR_OPTICAL_BAUDRATE = "OpticalBaudrate";
     private static final String PR_PROFILE_TYPE = "ProfileType";
@@ -90,9 +101,9 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private static final String PR_CLIENT_MAC_ADDRESS = "ClientMacAddress";
     private static final String PR_SECURITY_LEVEL = "SecurityLevel";
     private static final String PR_REQUEST_TIME_ZONE = "RequestTimeZone";
-    private static final String PR_RETRIES = "Retries";
+    private static final String PR_RETRIES = RETRIES.getName();
     private static final String PR_FORCED_DELAY = "ForcedDelay";
-    private static final String PR_TIMEOUT = "Timeout";
+    private static final String PR_TIMEOUT = TIMEOUT.getName();
     private static final String PR_CIPHERING_TYPE = "CipheringType";
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
     private static final String PR_READ_PLC_LOG = "ReadPlcLog";
@@ -105,6 +116,8 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private static final int CONNECTION_MODE_TCPIP = 1;
     private static final int CONNECTION_MODE_COSEM_PDU = 2;
     private static final int CONNECTION_MODE_LLC = 3;
+    private static final int MAX_ADDRESS_LENGTH = 16;
+
     protected int iInterval = -1;
     private boolean debug = false;
     private DLMSCache dlmsCache = new DLMSCache();
@@ -161,13 +174,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private boolean readPlcLogbook;
 
     /**
-     * Creates a new instance of DLMSSNAS220, empty constructor
-     */
-    public DLMSSNAS220() {
-
-    }
-
-    /**
      * Do some extra connect settings
      *
      * @throws BusinessException if no correct MBus device is found
@@ -186,6 +192,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return "GEC";
     }
 
+    @Override
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
     }
@@ -198,14 +205,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return profileType;
     }
 
-    /**
-     * Initializes the receiver
-     *
-     * @param inputStream  - the inputStream form the dialer
-     * @param outputStream - the outputStream from the dialer
-     * @param tz           - the {@link TimeZone} used
-     * @param log          - the {@link Logger} used
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone tz, Logger log) throws IOException {
         this.timeZone = tz;
         this.logger = log;
@@ -219,7 +219,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
         initDLMSConnection(inputStream, outputStream);
         iInterval = -1;
-
     }
 
     /**
@@ -263,6 +262,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         dlmsConnection = new SecureConnection(aso, connection);
     }
 
+    @Override
     public ApplicationServiceObject getAso() {
         return aso;
     }
@@ -299,9 +299,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void connect() throws IOException {
         try {
             getDLMSConnection().connectMAC();
@@ -316,14 +314,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         }
     }
 
-    /**
-     * @throws IOException
-     */
     @SuppressWarnings("deprecation")
     private void setObjectList() throws IOException {
         meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         if (iInterval == -1) {
             iInterval = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCapturePeriod();
@@ -331,17 +327,16 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return iInterval;
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    /**
-     * @throws IOException
-     */
     private void checkCache() throws IOException {
         try { // conf program change and object list stuff
             int iConf;
@@ -385,11 +380,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         }
     }
 
-    /**
-     * This method initiates the MAC disconnect for the HDLC layer.
-     *
-     * @throws IOException
-     */
+    @Override
     public void disconnect() throws IOException {
         try {
             if (getDLMSConnection() != null) {
@@ -428,13 +419,8 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         }
     }
 
-    /**
-     * Read the serialNumber from the device
-     *
-     * @return the serial number from the device as {@link String}
-     */
+    @Override
     public String getSerialNumber() {
-        RetryHandler rh = new RetryHandler();
         do {
             try {
                 UniversalObject uo = getMeterConfig().getSerialNumberObject();
@@ -447,56 +433,55 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         } while (true);
     }
 
-    /**
-     * this implementation calls <code> validateProperties </code>
-     * and assigns the argument to the properties field
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
-        this.properties = properties;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.integer(PR_EXTENDED_LOGGING, false),
+                UPLPropertySpecFactory.integer(PR_ADDRESSING_MODE, false),
+                UPLPropertySpecFactory.integer(PR_CONNECTION, false),
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(PR_TIMEOUT, false),
+                UPLPropertySpecFactory.integer(PR_FORCED_DELAY, false),
+                UPLPropertySpecFactory.integer(PR_RETRIES, false),
+                UPLPropertySpecFactory.integer(PR_REQUEST_TIME_ZONE, false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer(PR_CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(PR_CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(PR_SRV_UP_MACADDR, false),
+                UPLPropertySpecFactory.integer(PR_SRV_LOW_MACADDR, false),
+                UPLPropertySpecFactory.integer(PR_TRANSP_CONNECT_TIME, false),
+                UPLPropertySpecFactory.integer(PR_TRANSP_BAUDRATE, false),
+                UPLPropertySpecFactory.integer(PR_TRANSP_DATABITS, false),
+                UPLPropertySpecFactory.integer(PR_TRANSP_STOPBITS, false),
+                UPLPropertySpecFactory.integer(PR_TRANSP_PARITY, false),
+                UPLPropertySpecFactory.integer(PR_PROFILE_TYPE, false),
+                UPLPropertySpecFactory.integer(PR_OPTICAL_BAUDRATE, false),
+                UPLPropertySpecFactory.integer(PR_CIPHERING_TYPE, false, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()),
+                UPLPropertySpecFactory.integer(PR_LIMIT_MAX_NR_OF_DAYS, false),
+                UPLPropertySpecFactory.string(PR_READ_PLC_LOG, false));
     }
 
-    /**
-     * <p>validates the properties.</p><p>
-     * The default implementation checks that all required parameters are present.
-     * </p>
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-
-            Iterator<String> iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
+            nodeId = properties.getProperty(Property.NODEID.getName(), "");
+            serialNumber = properties.getProperty(Property.SERIALNUMBER.getName(), "");
             extendedLogging = Integer.parseInt(properties.getProperty(PR_EXTENDED_LOGGING, "0"));
             addressingMode = Integer.parseInt(properties.getProperty(PR_ADDRESSING_MODE, "-1"));
             connectionMode = Integer.parseInt(properties.getProperty(PR_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
 
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            if ((strID != null) && (strID.length() > 16)) {
-                throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            }
+            strID = properties.getProperty(Property.ADDRESS.getName());
 
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "00000000");
+            strPassword = properties.getProperty(Property.PASSWORD.getName(), "00000000");
             iTimeoutProperty = Integer.parseInt(properties.getProperty(PR_TIMEOUT, "10000").trim());
             iForcedDelay = Integer.parseInt(properties.getProperty(PR_FORCED_DELAY, "10").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(PR_RETRIES, "5").trim());
             iRequestTimeZone = Integer.parseInt(properties.getProperty(PR_REQUEST_TIME_ZONE, "0").trim());
-            setRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
+            setRoundtripCorrection(Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim()));
 
             String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityPolicy.SECURITYPOLICY_NONE).split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
@@ -521,80 +506,28 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
             opticalBaudrate = Integer.parseInt(properties.getProperty(PR_OPTICAL_BAUDRATE, "-1"));
 
             this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(CipheringType.DEDICATED.getType())));
-            if (cipheringType != CipheringType.GLOBAL.getType() && cipheringType != CipheringType.DEDICATED.getType()) {
-                throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
-            }
 
             this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
             this.readPlcLogbook = ProtocolTools.getBooleanFromString(properties.getProperty(PR_READ_PLC_LOG, "0"));
-
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
+        this.properties = properties;
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name <br>
-     * @return the register value
-     * @throws IOException <br>
-     */
+    @Override
     public String getRegister(String name) throws IOException {
         throw new UnsupportedException("getRegister(String name) not implemented.");
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name  <br>
-     * @param value <br>
-     * @throws IOException <br>
-     */
+    @Override
     public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
+    @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException();
-    }
-
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    PR_TIMEOUT,
-                    PR_FORCED_DELAY,
-                    PR_RETRIES,
-                    PR_REQUEST_TIME_ZONE,
-                    PR_SECURITY_LEVEL,
-                    PR_CLIENT_MAC_ADDRESS,
-                    PR_SRV_UP_MACADDR,
-                    PR_SRV_LOW_MACADDR,
-                    PR_EXTENDED_LOGGING,
-                    PR_ADDRESSING_MODE,
-                    PR_CONNECTION,
-                    PR_DATA_KEY,
-                    PR_DATA_AUTH_KEY,
-                    PR_TRANSP_CONNECT_TIME,
-                    PR_TRANSP_BAUDRATE,
-                    PR_TRANSP_DATABITS,
-                    PR_TRANSP_STOPBITS,
-                    PR_TRANSP_PARITY,
-                    PR_PROFILE_TYPE,
-                    PR_OPTICAL_BAUDRATE,
-                    PR_CIPHERING_TYPE,
-                    PR_LIMIT_MAX_NR_OF_DAYS,
-                    PR_READ_PLC_LOG);
     }
 
     public int requestConfigurationProgramChanges() throws IOException {
@@ -611,59 +544,67 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return iMeterTimeZoneOffset;
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return (iRequestTimeZone != 0);
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
-    public Object getCache() {
+    public Serializable getCache() {
         return dlmsCache;
     }
 
-    public void setCache(Object cacheObject) {
+    @Override
+    public void setCache(Serializable cacheObject) {
         this.dlmsCache = (DLMSCache) cacheObject;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException {
+        if (deviceId != 0) {
+            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+            RtuDLMS rtu = new RtuDLMS(deviceId);
             try {
-                return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
-            } catch (NotFoundException e) {
+                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
+            } catch (ProtocolCacheFetchException e) {
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if (rtuid != 0) {
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        if (deviceId != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
-                rtuCache.saveObjectList(dc.getObjectList());
-                rtu.setConfProgChange(dc.getConfProgChange());
+                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+                RtuDLMS rtu = new RtuDLMS(deviceId);
+                rtuCache.saveObjectList(dc.getObjectList(), connection);
+                rtu.setConfProgChange(dc.getConfProgChange(), connection);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
+    @Override
     public String getFileName() {
         Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + strID + "_" + strPassword + "_" + serialNumber + "_" + iServerUpperMacAddress + "_DLMSSNAS220.cache";
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new AS220TransparentConnection(commChannel, transparentConnectTime, transparentBaudrate, transparentDatabits, transparentStopbits,
                 transparentParity, authenticationSecurityLevel, strPassword, logger);
@@ -673,18 +614,21 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         getDLMSConnection().setHHUSignOn(hhuSignOn, nodeId);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getDLMSConnection().getHhuSignOn().getDataReadout();
     }
 
+    @Override
     public void release() throws IOException {
-
     }
 
+    @Override
     public DLMSMeterConfig getMeterConfig() {
         return meterConfig;
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
@@ -702,10 +646,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         this.cosemObjectFactory = cof;
     }
 
+    @Override
     public int getReference() {
         return ProtocolLink.SN_REFERENCE;
     }
 
+    @Override
     public StoredValues getStoredValues() {
         return storedValuesImpl;
     }
@@ -736,9 +682,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         this.iRoundtripCorrection = iRoundtripCorrection;
     }
 
-    /**
-     * @return the iRoundtripCorrection
-     */
+    @Override
     public int getRoundTripCorrection() {
         return iRoundtripCorrection;
     }
@@ -769,4 +713,3 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     }
 
 }
-

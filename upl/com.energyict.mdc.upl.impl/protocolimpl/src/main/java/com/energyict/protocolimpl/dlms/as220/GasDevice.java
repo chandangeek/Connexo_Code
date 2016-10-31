@@ -32,10 +32,12 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * Basic implementation of a GasDevice
@@ -61,6 +63,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 		return getgMeter().getNrOfChannels();
 	}
 
+	@Override
     public GMeter getgMeter() {
 		return gMeter;
 	}
@@ -77,9 +80,8 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 	@Override
 	protected void doConnect() throws BusinessException {
 		// search for the channel of the Mbus Device
-		String tempSerial;
 		for(int i = 0; i < MAX_MBUS_CHANNELS; i++){
-			tempSerial = "";
+            String tempSerial = "";
 			try {
 				tempSerial = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(i).getObisCode()).getString();
 				if(tempSerial.equalsIgnoreCase(gmeterSerialnumber)){
@@ -91,42 +93,24 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 			}
 		}
 
-		if(getGasSlotId() == -1){
-			throw new BusinessException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
-		}
-	}
+        if (getGasSlotId() == -1) {
+            throw new BusinessException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
+        }
+    }
 
-    /**
-     * Getter for the SlotId
-     *
-     * @return the slotId
-     */
     public int getGasSlotId(){
     	return gasMeterSlot;
     }
 
-    /**
-     * Setter for the slotId
-     */
     public void setGasSlotId(int slotId){
     	this.gasMeterSlot = slotId;
     }
 
-    /**
-     * Getter for the physical address. Start counting from zero
-     *
-     * @return physical address (normally the slotId minus 1)
-     */
     public int getPhysicalAddress(){
     	return getGasSlotId() - 1;
     }
 
-    /**
-	 * Read the serialNumber from the Gas Device
-	 *
-	 * @return the serial number from the device as {@link String}
-	 * @throws IOException
-	 */
+	@Override
 	public String getSerialNumber() {
         try {
             return getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getPhysicalAddress()).getObisCode()).getString();
@@ -135,10 +119,12 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
         }
     }
 
+	@Override
 	protected byte[] getSystemIdentifier(){
 		return this.emeterSerialnumber.getBytes();
 	}
 
+	@Override
     public int getProfileInterval() throws IOException {
         if (mbusProfileInterval == -1) {
         	mbusProfileInterval = getgMeter().getMbusProfile().getCapturePeriod();
@@ -152,9 +138,9 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 		super.setProperties(properties);
 	}
 
-	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		this.gmeterSerialnumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
-		this.emeterSerialnumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+	private void validateProperties(Properties properties) {
+		this.gmeterSerialnumber = properties.getProperty(SERIALNUMBER.getName(), "");
+		this.emeterSerialnumber = properties.getProperty(NODEID.getName(), "");
 
 	}
 
@@ -189,8 +175,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 			return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
 		} else if(obisCode.equals(ObisCode.fromString("0.0.24.4.129.255"))) {
             ContactorController.ContactorState cs = getgMeter().getGasValveController().getContactorState();
-            RegisterValue registerValue = new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
-            return registerValue;
+            return new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
         }
         else {
 			throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
@@ -226,13 +211,6 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 	 */
 	public ObisCode getCorrectedChannelObisCode(ObisCode oc){
 		return ProtocolTools.setObisCodeField(oc, 1, (byte) getGasSlotId());
-	}
-
-	@Override
-	public List<String> getRequiredKeys() {
-		List<String> requiredKeys = new ArrayList<String>();
-		requiredKeys.addAll(super.getRequiredKeys());
-		return requiredKeys;
 	}
 
 	@Override
@@ -275,4 +253,5 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 		}
 		return this.messaging;
 	}
+
 }

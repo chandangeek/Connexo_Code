@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.upl.cache.CacheMechanism;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
@@ -11,7 +13,6 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;

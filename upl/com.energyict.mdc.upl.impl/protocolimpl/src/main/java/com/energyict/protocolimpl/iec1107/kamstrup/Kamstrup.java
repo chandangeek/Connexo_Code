@@ -187,15 +187,15 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         return Arrays.asList(
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integral(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integral(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integral(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integral("EchoCancelling", false),
-                UPLPropertySpecFactory.integral("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
                 UPLPropertySpecFactory.string(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integral("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
                 UPLPropertySpecFactory.string("Software7E1", false));
     }
 

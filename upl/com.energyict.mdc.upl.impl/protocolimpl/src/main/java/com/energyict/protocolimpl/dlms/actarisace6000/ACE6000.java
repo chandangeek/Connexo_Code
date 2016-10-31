@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.dlms.actarisace6000;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 
@@ -44,7 +45,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;

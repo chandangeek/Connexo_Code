@@ -16,6 +16,7 @@ package com.energyict.protocolimpl.dlms.flex;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -50,7 +51,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
@@ -1013,21 +1013,21 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return Arrays.asList(
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integral(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integral(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integral(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integral("RequestTimeZone", false),
-                UPLPropertySpecFactory.integral(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integral("ClientMacAddress", false),
-                UPLPropertySpecFactory.integral("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integral("ServerLowerMacAddress", false),
-                UPLPropertySpecFactory.integral("FirmwareVersion", false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer("RequestTimeZone", false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer("ClientMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
+                UPLPropertySpecFactory.integer("FirmwareVersion", false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integral("ExtendedLogging", false),
-                UPLPropertySpecFactory.integral("LoadProfileId", false, 1, 2, 97),
-                UPLPropertySpecFactory.integral("AddressingMode", false),
-                UPLPropertySpecFactory.integral("Connection", false));
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("LoadProfileId", false, 1, 2, 97),
+                UPLPropertySpecFactory.integer("AddressingMode", false),
+                UPLPropertySpecFactory.integer("Connection", false));
     }
 
     @Override

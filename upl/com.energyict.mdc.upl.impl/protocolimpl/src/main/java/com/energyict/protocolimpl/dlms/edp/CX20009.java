@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.edp;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 
@@ -12,7 +13,6 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;

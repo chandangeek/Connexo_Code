@@ -13,15 +13,15 @@ import com.google.common.collect.Range;
  */
 public final class UPLPropertySpecFactory {
 
-    public static PropertySpec integral(String name, boolean required) {
+    public static PropertySpec integer(String name, boolean required) {
         return new IntegerPropertySpec(name, required);
     }
 
-    public static PropertySpec integral(String name, boolean required, Range<Integer> validRange) {
+    public static PropertySpec integer(String name, boolean required, Range<Integer> validRange) {
         return new IntegerPropertySpec(name, required, validRange);
     }
 
-    public static PropertySpec integral(String name, boolean required, int... validValues) {
+    public static PropertySpec integer(String name, boolean required, Integer... validValues) {
         return new IntegerPropertySpec(name, required, validValues);
     }
 
