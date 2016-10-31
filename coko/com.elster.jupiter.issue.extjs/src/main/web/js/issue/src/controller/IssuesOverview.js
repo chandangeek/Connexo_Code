@@ -8,6 +8,7 @@ Ext.define('Isu.controller.IssuesOverview', {
     models: [
         'Isu.model.IssuesFilter',
         'Isu.model.IssueAssignee',
+        'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueReason',
         'Isu.model.Device',
         'Uni.component.sort.model.Sort'
@@ -18,6 +19,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.store.IssueActions',
         'Isu.store.IssueStatuses',
         'Isu.store.IssueAssignees',
+        'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.IssueReasons',
         'Isu.store.Devices',
         'Isu.store.IssueGrouping',
@@ -101,6 +103,24 @@ Ext.define('Isu.controller.IssuesOverview', {
                     queryString.groupingType = 'none';
                     queryString.sort = ['dueDate', 'modTime'];
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                }
+            });
+        } else if (queryString.myworkgroupissues) {
+            Ext.Ajax.request({
+                url: '/api/isu/workgroups?myworkgroups=true',
+                method: 'GET',
+                success: function (response) {
+                    var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+                    if (decoded && decoded.workgroups) {
+                        queryString.myworkgroupissues = undefined;
+                        queryString.workgroup = decoded.workgroups.map(function (wg) {
+                            return wg.id;
+                        });
+                        queryString.status = undefined;
+                        queryString.groupingType = 'none';
+                        queryString.sort = ['dueDate', 'modTime'];
+                        window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                    }
                 }
             });
         } else if (!queryString.groupingType) {
