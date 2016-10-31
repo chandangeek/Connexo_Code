@@ -41,7 +41,6 @@ Ext.define('Isu.model.IssueAssignee', {
             root: 'data'
         },
         buildUrl: function(request) {
-            return this.url;
             var idx = request.params.id,
                 params;
 
