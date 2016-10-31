@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -21,6 +22,8 @@ public interface IssueFilter {
 
     void setUnassignedSelected();
 
+    void setUnassignedWorkGroupSelected();
+
     void addDevice(EndDevice device);
 
     void setIssueReason(IssueReason issueReason);
@@ -29,9 +32,15 @@ public interface IssueFilter {
 
     void addAssignee(User assignee);
 
+    void addWorkGroupAssignee(WorkGroup workGroup);
+
     List<User> getAssignees();
 
+    List<WorkGroup> getWorkGroupAssignees();
+
     boolean isUnassignedSelected();
+
+    boolean isUnassignedWorkGroupSelected();
 
     List<EndDevice> getDevices();
 

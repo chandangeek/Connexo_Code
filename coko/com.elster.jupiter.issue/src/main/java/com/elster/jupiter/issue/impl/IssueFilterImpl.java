@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,9 +20,11 @@ public class IssueFilterImpl implements IssueFilter {
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
     private List<User> assignees = new ArrayList<>();
+    private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
     private List<IssueType> issueTypes = new ArrayList<>();
     private boolean unassignedSelected = false;
+    private boolean unassignedWorkGroupSelected = false;
 
     @Override
     public void setIssueId(String issueId) {
@@ -36,6 +39,11 @@ public class IssueFilterImpl implements IssueFilter {
     @Override
     public void setUnassignedSelected() {
         this.unassignedSelected = true;
+    }
+
+    @Override
+    public void setUnassignedWorkGroupSelected() {
+        this.unassignedWorkGroupSelected = true;
     }
 
     @Override
@@ -65,13 +73,28 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
+    public void addWorkGroupAssignee(WorkGroup workGroup) {
+        this.workGroupAssignees.add(workGroup);
+    }
+
+    @Override
     public List<User> getAssignees() {
         return this.assignees;
     }
 
     @Override
+    public List<WorkGroup> getWorkGroupAssignees() {
+        return this.workGroupAssignees;
+    }
+
+    @Override
     public boolean isUnassignedSelected() {
         return unassignedSelected;
+    }
+
+    @Override
+    public boolean isUnassignedWorkGroupSelected() {
+        return unassignedWorkGroupSelected;
     }
 
     @Override

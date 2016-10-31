@@ -601,6 +601,16 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (filter.getAssignees().isEmpty() && filter.isUnassignedSelected()) {
             condition = condition.and(where("user").isNull());
         }
+        //filter by workGroup
+        if (!filter.getWorkGroupAssignees().isEmpty()) {
+            condition = condition.and(where("workGroup").in(filter.getWorkGroupAssignees()));
+            if (filter.isUnassignedWorkGroupSelected()) {
+                condition = condition.or(where("workGroup").isNull());
+            }
+        }
+        if (filter.getWorkGroupAssignees().isEmpty() && filter.isUnassignedWorkGroupSelected()) {
+            condition = condition.and(where("workGroup").isNull());
+        }
         //filter by reason
         if (!filter.getIssueReasons().isEmpty()) {
             condition = condition.and(where("reason").in(filter.getIssueReasons()));
