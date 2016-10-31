@@ -121,4 +121,13 @@ public class ResourceHelper {
     public UsagePointGroup findUsagePointGroupOrThrowException(long id) {
         return meteringGroupsService.findUsagePointGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
+
+    public UsagePointGroup lockUsagePointGroupOrThrowException(UsagePointGroupInfo info) {
+        return meteringGroupsService.findAndLockUsagePointGroupByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> meteringGroupsService.findUsagePointGroup(info.id)
+                                .map(UsagePointGroup::getVersion)
+                                .orElse(null))
+                        .supplier());
+    }
 }

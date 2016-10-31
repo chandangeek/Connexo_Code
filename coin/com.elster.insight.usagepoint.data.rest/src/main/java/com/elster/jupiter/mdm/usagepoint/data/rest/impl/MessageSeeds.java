@@ -35,7 +35,10 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ACTIVE(34, Keys.PROCESS_STATUS_ACTIVE, "Active"),
     PROCESS_STATUS_COMPLETED(35, Keys.PROCESS_STATUS_COMPLETED, "Completed"),
     PROCESS_STATUS_ABORTED(36, Keys.PROCESS_STATUS_ABORDED, "Aborted"),
-    PROCESS_STATUS_SUSPENDED(37, Keys.PROCESS_STATUS_SUSPENDED, "Suspended");
+    PROCESS_STATUS_SUSPENDED(37, Keys.PROCESS_STATUS_SUSPENDED, "Suspended"),
+    USAGE_POINT_SEARCH_DOMAIN_NOT_REGISTERED(38, "UsagePointSearchDomainNotRegistered", "Usage point search domain is not registered"),
+    AT_LEAST_ONE_SEARCH_CRITERION(39, "AtLeastOneCriterion" , "At least one search criterion has to be provided"),
+    SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value");
 
     private final int number;
     private final String key;
