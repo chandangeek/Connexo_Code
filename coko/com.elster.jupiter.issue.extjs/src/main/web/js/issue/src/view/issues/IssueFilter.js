@@ -184,13 +184,15 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         arr.push(record);
                         store.loadData(arr, false);
                         store.lastOptions = {};
-                        store.fireEvent('load', store, arr, true)
+                        store.fireEvent('load', store, arr, true);
+                        combo.value = record;
                     }
                 });
             });
         } else {
             store.model.load(value, {
                 success: function (record) {
+                    combo.value = [record];
                     store.loadData([record], false);
                     store.lastOptions = {};
                     store.fireEvent('load', store, [record], true)

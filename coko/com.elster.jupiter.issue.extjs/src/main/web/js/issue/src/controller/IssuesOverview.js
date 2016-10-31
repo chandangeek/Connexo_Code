@@ -188,9 +188,9 @@ Ext.define('Isu.controller.IssuesOverview', {
         switch (button.filterBy) {
             case 'userAssignee':
                 if (button.filterValue) {
-                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id, button.filterValue.type].join(':'));
+                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id]);
                 } else {
-                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue('-1:UnexistingType');
+                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([-1]);
                 }
                 break;
             case 'device':
