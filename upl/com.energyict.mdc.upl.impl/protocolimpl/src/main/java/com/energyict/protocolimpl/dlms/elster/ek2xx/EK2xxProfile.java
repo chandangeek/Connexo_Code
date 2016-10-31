@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -23,38 +21,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class EK2xxProfile {
+class EK2xxProfile {
 
-	private static final int DEBUG 			= 0;
-	private static final int STATUS_OK		= 0x80000000;
+	private static final int DEBUG = 0;
 
-	private EK2xx ek2xx						= null;
-	private List channelInfos 				= null;
-	private List intervalDatas				= new ArrayList(0);
-	private EK2xxLogbook logbook			= new EK2xxLogbook();
-	private CapturedObjects capturedObjects	= null;
-	private boolean generateEvents			= false;
+	private EK2xx ek2xx = null;
+	private List<ChannelInfo> channelInfos = null;
+	private List<IntervalData> intervalDatas = new ArrayList<>(0);
+	private EK2xxLogbook logbook = new EK2xxLogbook();
+	private CapturedObjects capturedObjects = null;
+	private boolean generateEvents = false;
 
-	/*
-	 * Constructors
-	 */
-
-	public EK2xxProfile(EK2xx ek2xx) {
+	EK2xxProfile(EK2xx ek2xx) {
 		this.channelInfos = null;
 		this.ek2xx = ek2xx;
 	}
 
-	/*
-	 * Private getters, setters and methods
-	 */
-
 	private void initProfile() {
 		this.logbook.clearLogbook();
-		this.intervalDatas = new ArrayList(0);
+		this.intervalDatas = new ArrayList<>(0);
 		this.channelInfos = null;
 	}
 
-	private void generateChannelInfos(DataStructure ds) throws IOException {
+	private void generateChannelInfos() throws IOException {
 		int numberOfChannels = getEk2xx().getNumberOfChannels();
 		for (int channelId=0;channelId<numberOfChannels;channelId++) {
 			Unit unit = getEk2xx().readRegister(getCapturedObjects().getProfileDataChannel(channelId)).getQuantity().getUnit();
@@ -69,7 +58,7 @@ public class EK2xxProfile {
 	private void parseStructure(DataStructure ds) throws IOException {
 		List numbers = new ArrayList(0);
 		if (this.channelInfos == null) {
-			generateChannelInfos(ds);
+			generateChannelInfos();
 		}
 
 		for (int i = 2; i < ds.getNrOfElements(); i++) {
@@ -114,7 +103,7 @@ public class EK2xxProfile {
 
 	private IntervalData findIntervalData(Date timestamp) {
 		for (int i = 0; i < getIntervalDatas().size(); i++) {
-			IntervalData id = (IntervalData) getIntervalDatas().get(i);
+			IntervalData id = getIntervalDatas().get(i);
 			if (id.getEndTime().compareTo(timestamp) == 0) {
 				return id;
 			}
@@ -124,7 +113,7 @@ public class EK2xxProfile {
 
 	private void deleteIntervalData(Date timestamp) {
 		for (int i = 0; i < getIntervalDatas().size(); i++) {
-			IntervalData id = (IntervalData) getIntervalDatas().get(i);
+			IntervalData id = getIntervalDatas().get(i);
 			if (id.getEndTime().compareTo(timestamp) == 0) {
 				getIntervalDatas().remove(i);
 			}
@@ -148,16 +137,10 @@ public class EK2xxProfile {
 		}
 	}
 
-	/*
-	 * Public getters and setters
-	 */
-
-	public CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException {
-
+	public CapturedObjects getCapturedObjects() throws IOException {
 		if (this.capturedObjects == null) {
-			byte[] responseData;
 			int i;
-			DataContainer dataContainer = null;
+			DataContainer dataContainer;
 			try {
 				ProfileGeneric profileGeneric = getEk2xx().getCosemObjectFactory().getProfileGeneric(EK2xxRegisters.PROFILE);
 				getEk2xx().getMeterConfig().setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());
@@ -184,7 +167,7 @@ public class EK2xxProfile {
 
 	}
 
-	public Date getDateFromDataContainer(DataContainer dc) {
+	Date getDateFromDataContainer(DataContainer dc) {
 		Date returnDate = null;
 		DataStructure root = dc.getRoot();
 
@@ -196,38 +179,37 @@ public class EK2xxProfile {
 		return returnDate;
 	}
 
-	public List getChannelInfos() {
+	public List<ChannelInfo> getChannelInfos() {
 		if (this.channelInfos == null) {
-			this.channelInfos = new ArrayList(0);
+			this.channelInfos = new ArrayList<>(0);
 		}
 		return this.channelInfos;
 	}
 
-	public List getIntervalDatas() {
+	public List<IntervalData> getIntervalDatas() {
 		return this.intervalDatas;
 	}
 
-	public List getMeterEvents() {
+	public List<MeterEvent> getMeterEvents() {
 		return checkOnOverlappingEvents(this.logbook.getMeterEvents());
 	}
 
-	public static List checkOnOverlappingEvents(List meterEvents) {
-		Map eventsMap = new HashMap();
+	private static List<MeterEvent> checkOnOverlappingEvents(List<MeterEvent> meterEvents) {
+		Map<Date, MeterEvent> eventsMap = new HashMap<>();
 		int size = meterEvents.size();
 		for (int i = 0; i < size; i++) {
-			MeterEvent event = (MeterEvent) meterEvents.get(i);
+			MeterEvent event = meterEvents.get(i);
 			Date time = event.getTime();
-			MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
+			MeterEvent eventInMap = eventsMap.get(time);
 			while (eventInMap != null) {
 				time.setTime(time.getTime() + 1000); // add one second
-				eventInMap = (MeterEvent) eventsMap.get(time);
+				eventInMap = eventsMap.get(time);
 			}
-			MeterEvent newMeterEvent=
-				new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
+			MeterEvent newMeterEvent = new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
 			eventsMap.put(time, newMeterEvent);
 		}
-		Iterator it = eventsMap.values().iterator();
-		List result = new ArrayList();
+		Iterator<MeterEvent> it = eventsMap.values().iterator();
+		List<MeterEvent> result = new ArrayList<>();
 		while (it.hasNext()) {
 			result.add(it.next());
 		}
@@ -238,7 +220,7 @@ public class EK2xxProfile {
 		this.generateEvents = generateEvents;
 	}
 
-	public void parseDataContainers(List dataContainers) throws IOException {
+	void parseDataContainers(List dataContainers) throws IOException {
 		initProfile();
 		for (int i = 0; i < dataContainers.size(); i++) {
 			parseDataContainer((DataContainer) dataContainers.get(i));

@@ -3,17 +3,15 @@ package com.energyict.protocolimpl.dlms.elster.ek2xx;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -34,6 +32,7 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -42,25 +41,28 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+
 public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, RegisterProtocol, SerialNumberSupport {
+
+    private static final int MAX_ADDRESS_LENGTH = 16;
 
     private static final int DEBUG = 0;
     private static final String DEVICE_ID = "ELS";
@@ -68,26 +70,24 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     protected String strID;
     protected String strPassword;
 
-    protected int iHDLCTimeoutProperty;
+    private int iHDLCTimeoutProperty;
     protected int iProtocolRetriesProperty;
     protected int iDelayAfterFailProperty;
-    protected int iSecurityLevelProperty;
+    private int iSecurityLevelProperty;
     protected int iRequestTimeZone;
     protected int iRoundtripCorrection;
     protected int iClientMacAddress;
     protected int iServerUpperMacAddress;
     protected int iServerLowerMacAddress;
-    protected int iRequestClockObject;
+    private int iRequestClockObject;
     protected String nodeId;
     private String serialNumber;
     private int extendedLogging;
     private int profileInterval = -1;
 
-    //private boolean boolAbort=false;
-
-    DLMSConnection dlmsConnection = null;
-    CosemObjectFactory cosemObjectFactory = null;
-    StoredValuesImpl storedValuesImpl = null;
+    private DLMSConnection dlmsConnection = null;
+    private CosemObjectFactory cosemObjectFactory = null;
+    private StoredValuesImpl storedValuesImpl = null;
 
     // lazy initializing
     private DLMSMeterConfig meterConfig = null;
@@ -99,16 +99,11 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-    //private Properties properties=null;
 
     // filled in when getTime is invoked!
     private int dstFlag; // -1=unknown, 0=not set, 1=set
-    int addressingMode;
-    int connectionMode;
-
-    /*
-      * Constructors
-      */
+    private int addressingMode;
+    private int connectionMode;
 
     public EK2xx() {
         this.meterConfig = DLMSMeterConfig.getInstance(getDeviceID());
@@ -116,10 +111,6 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         this.ek2xxRegisters = new EK2xxRegisters();
         this.ek2xxProfile = new EK2xxProfile(this);
     }
-
-    /*
-      * Private getters, setters and methods
-      */
 
     private String getDeviceID() {
         return DEVICE_ID;
@@ -140,36 +131,41 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 throw new IOException("DLMSSN, requestSAP, Wrong DeviceID!, settings=" + this.strID + ", meter=" + devID);
             }
         }
-    } // public void requestSAP() throws IOException
-
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties);
     }
 
-    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.integral("ExtendedLogging", false),
+                UPLPropertySpecFactory.integral("AddressingMode", false),
+                UPLPropertySpecFactory.integral("Connection", false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integral("Timeout", false),
+                UPLPropertySpecFactory.integral("Retries", false),
+                UPLPropertySpecFactory.integral("DelayAfterfail", false),
+                UPLPropertySpecFactory.integral("RequestTimeZone", false),
+                UPLPropertySpecFactory.integral("RequestClockObject", false),
+                UPLPropertySpecFactory.integral("RoundtripCorrection", false),
+                UPLPropertySpecFactory.integral("SecurityLevel", false),
+                UPLPropertySpecFactory.integral("ClientMacAddress", false),
+                UPLPropertySpecFactory.integral("ServerUpperMacAddress", false),
+                UPLPropertySpecFactory.integral("ServerLowerMacAddress", false));
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            this.strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            // KV 19012004
-            if ((this.strID != null) && (this.strID.length() > 16)) {
-                throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            }
-
-
-            this.nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            this.strID = properties.getProperty(ADDRESS.getName());
+            this.nodeId = properties.getProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
+            this.serialNumber = properties.getProperty(SERIALNUMBER.getName());
             this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            this.strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
-            //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
+            this.strPassword = properties.getProperty(PASSWORD.getName(), "");
             this.iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
             this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             this.iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterfail", "3000").trim());
@@ -180,18 +176,17 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
             this.iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16").trim());
             this.iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
             this.iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
-
             if (DEBUG >= 1) {
                 System.out.println();
                 properties.list(System.out);
                 System.out.println();
             }
-
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("EK2xx, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, "EK2xx: validation of properties failed before");
         }
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         if (this.profileInterval == -1) {
             this.profileInterval = (int) (getCosemObjectFactory().getData(EK2xxRegisters.PROFILE_INTERVAL).getValue() & 0xEFFFFFFF);
@@ -199,13 +194,15 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return this.profileInterval;
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             this.numberOfChannels = getCapturedObjects().getNROfChannels();
         }
         return this.numberOfChannels;
-    } // public int getNumberOfChannels() throws IOException
+    }
 
+    @Override
     public void disconnect() throws IOException {
         try {
             if (getDLMSConnection() != null) {
@@ -221,6 +218,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return null;      //Not used
     }
 
+    @Override
     public void connect() throws IOException {
         try {
             getDLMSConnection().connectMAC();
@@ -238,7 +236,8 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         }
     }
 
-    public String getSerialNumber(){
+    @Override
+    public String getSerialNumber() {
         UniversalObject uo;
         try {
             uo = this.meterConfig.getSerialNumberObject();
@@ -313,11 +312,9 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                             .append("getEntriesInUse = ")
                             .append(profile.getEntriesInUse())
                             .append("\n");
-
                 }
             }
             builder.append("*********************************************************************************\n\n");
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -325,50 +322,42 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return builder.toString();
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
-            } catch (NotFoundException e) {
-                return new DLMSCache(null, -1);
-            }
-        } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
-        }
-    }
-
+    @Override
     public String getFirmwareVersion() throws IOException {
         return getCosemObjectFactory().getData(EK2xxRegisters.SOFTWARE_VERSION).getString();
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException("getMeterReading(int channelId) is not suported!!!");
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException("getMeterReading(String name) is not suported!!!");
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = Calendar.getInstance(getTimeZone());
         calendar.add(Calendar.MONTH, -2);
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar calendar = Calendar.getInstance(getTimeZone());
         return getProfileData(lastReading, calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Date now = new Date();
         if (to.compareTo(now) >= 0) {
             to = now;
         }
 
-        List dataContainers = new ArrayList(0);
+        List<DataContainer> dataContainers = new ArrayList<>();
         ProfileData profileData = new ProfileData();
         DataContainer dc;
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -421,7 +410,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         profileData.getIntervalDatas().addAll(this.ek2xxProfile.getIntervalDatas());
 
         if (includeEvents) {
-            List meterEvents = this.ek2xxProfile.getMeterEvents();
+            List<MeterEvent> meterEvents = this.ek2xxProfile.getMeterEvents();
             profileData.getMeterEvents().addAll(meterEvents);
         }
 
@@ -432,14 +421,17 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return getEk2xxProfile().getCapturedObjects();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock(EK2xxRegisters.CLOCK);
         Date date = clock.getDateTime();
@@ -447,6 +439,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return date;
     }
 
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
 
         this.timeZone = timeZone;
@@ -469,17 +462,21 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
     }
 
+    @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException("initializeDevice() is not suported!!!");
     }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException("setRegister() not suported!");
     }
 
+    @Override
     public void setTime() throws IOException {
         Calendar calendar;
         if (this.iRequestTimeZone != 0) {
@@ -528,17 +525,14 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
         getCosemObjectFactory().getGenericWrite((short) this.meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
 
-    } // private void doSetTime(Calendar calendar)
+    }
 
-
-    /*
-      * Public methods
-      */
-
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.iHDLCTimeoutProperty, this.iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
@@ -547,66 +541,56 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         getDLMSConnection().setHHUSignOn(hhuSignOn, this.nodeId);
     }
 
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "DelayAfterFail",
-                    "RequestTimeZone",
-                    "RequestClockObject",
-                    "SecurityLevel",
-                    "ClientMacAddress",
-                    "ServerUpperMacAddress",
-                    "ServerLowerMacAddress",
-                    "ExtendedLogging",
-                    "AddressingMode",
-                    "EventIdIndex");
-    }
-
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
     public String getPassword() {
         return this.strPassword;
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getDLMSConnection().getHhuSignOn().getDataReadout();
     }
 
+    @Override
     public DLMSConnection getDLMSConnection() {
         return this.dlmsConnection;
     }
 
+    @Override
     public Logger getLogger() {
         return this.logger;
     }
 
+    @Override
     public DLMSMeterConfig getMeterConfig() {
         return this.meterConfig;
     }
 
+    @Override
     public int getReference() {
         return ProtocolLink.SN_REFERENCE;
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return this.iRoundtripCorrection;
     }
 
+    @Override
     public StoredValues getStoredValues() {
         return this.storedValuesImpl;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return this.timeZone;
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return (this.iRequestTimeZone != 0);
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 
         /*
@@ -687,21 +671,11 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         String regType = getEk2xxRegisters().getObjectType(obisCode);
         String regName = getEk2xxRegisters().getObjectName(obisCode);
-        RegisterInfo regInfo = new RegisterInfo(regName + " - Type: " + regType);
-        return regInfo;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-    }
-
-    public Object getCache() {
-        return null;
+        return new RegisterInfo(regName + " - Type: " + regType);
     }
 
 }

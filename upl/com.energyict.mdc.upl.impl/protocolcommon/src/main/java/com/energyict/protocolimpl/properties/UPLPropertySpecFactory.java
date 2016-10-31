@@ -15,6 +15,14 @@ public final class UPLPropertySpecFactory {
         return new IntegerPropertySpec(name, required);
     }
 
+    public static PropertySpec string(String name, boolean required) {
+        return new StringPropertySpec(name, required);
+    }
+
+    public static PropertySpec string(String name, boolean required, int maxLength) {
+        return new StringPropertySpec(name, required, maxLength);
+    }
+
     // Hide utility class constructor
     private UPLPropertySpecFactory() {}
 

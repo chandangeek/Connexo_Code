@@ -1,57 +1,39 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
+import com.energyict.protocol.MeterEvent;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.energyict.protocol.MeterEvent;
+class EK2xxLogbook {
 
-public class EK2xxLogbook {
+    private List<MeterEvent> meterEvents = new ArrayList<>(0);
 
-	private List meterEvents 		= new ArrayList(0);
+    private String getEventDescription(int protocolCode) {
+        return EK2xxEvents.getEventDescription(protocolCode);
+    }
 
-	/*
-	 * Constructors
-	 */
+    public void addMeterEvent(MeterEvent meterEvent) {
+        this.meterEvents.add(meterEvent);
+    }
 
-	public EK2xxLogbook() {}
+    public void addMeterEvent(Date eventTime, int eiCode, int protocolCode, String message) {
+        MeterEvent meterEvent = new MeterEvent(eventTime, eiCode, protocolCode, message);
+        addMeterEvent(meterEvent);
+    }
 
-	/*
-	 * Private getters, setters and methods
-	 */
+    public void addMeterEvent(Date eventTime, int eiCode, int protocolCode) {
+        MeterEvent meterEvent = new MeterEvent(eventTime, eiCode, protocolCode, getEventDescription(protocolCode));
+        addMeterEvent(meterEvent);
+    }
 
-	private String getEventDescription(int protocolCode) {
-		return EK2xxEvents.getEventDescription(protocolCode);
-	}
+    void clearLogbook() {
+        this.meterEvents.clear();
+    }
 
-	/*
-	 * Public methods
-	 */
-
-	public void addMeterEvent(MeterEvent meterEvent) {
-		this.meterEvents.add(meterEvent);
-	}
-
-	public void addMeterEvent(Date eventTime, int eiCode, int protocolCode, String message) {
-		MeterEvent meterEvent = new MeterEvent(eventTime, eiCode, protocolCode, message);
-		addMeterEvent(meterEvent);
-	}
-
-	public void addMeterEvent(Date eventTime, int eiCode, int protocolCode) {
-		MeterEvent meterEvent = new MeterEvent(eventTime, eiCode, protocolCode, getEventDescription(protocolCode));
-		addMeterEvent(meterEvent);
-	}
-
-	public void clearLogbook() {
-		this.meterEvents.clear();
-	}
-
-	/*
-	 * Public getters and setters
-	 */
-
-	public List getMeterEvents() {
-		return this.meterEvents;
-	}
+    public List<MeterEvent> getMeterEvents() {
+        return this.meterEvents;
+    }
 
 }
