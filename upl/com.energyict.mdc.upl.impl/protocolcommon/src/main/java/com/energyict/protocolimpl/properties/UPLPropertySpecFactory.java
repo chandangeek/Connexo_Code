@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.google.common.collect.Range;
+
 /**
  * Provides factory services for {@link com.energyict.mdc.upl.properties.PropertySpec}s
  * as defined by the universal protocol layer.
@@ -13,6 +15,10 @@ public final class UPLPropertySpecFactory {
 
     public static PropertySpec integral(String name, boolean required) {
         return new IntegerPropertySpec(name, required);
+    }
+
+    public static PropertySpec integral(String name, boolean required, Range<Integer> validRange) {
+        return new IntegerPropertySpec(name, required, validRange);
     }
 
     public static PropertySpec string(String name, boolean required) {

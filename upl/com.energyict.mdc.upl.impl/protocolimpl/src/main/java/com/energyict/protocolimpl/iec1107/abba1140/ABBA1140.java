@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.abba1140;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -42,6 +43,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +51,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,6 +60,13 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * ABBA1140.java
@@ -99,7 +107,6 @@ import java.util.logging.Logger;
  * </PRE>
  *
  * @author fbo
- * @endchanges
  */
 public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
@@ -176,11 +183,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
      */
     private boolean sendBreakBeforeDisconnect;
 
-    /* ________ Impelement interface MeterProtocol ___________ */
     private boolean useSelectiveAccessByFromAndToDate = true;
-
-    public ABBA1140() {
-    }
 
     /**
      * Returns the serial number
@@ -196,35 +199,45 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         }
     }
 
-    /* (non-Javadoc)
-          * @see com.energyict.protocol.MeterProtocol#setProperties(java.util.Properties)
-          */
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integral(PK_TIMEOUT, false),
+                UPLPropertySpecFactory.integral(PK_RETRIES, false),
+                UPLPropertySpecFactory.integral(ROUNDTRIPCORR.getName(), false),
+                UPLPropertySpecFactory.integral(CORRECTTIME.getName(), false),
+                UPLPropertySpecFactory.integral(PK_EXTENDED_LOGGING, false),
+                UPLPropertySpecFactory.integral(PK_DELAY_BEFORE_CONNECT, false),
+                UPLPropertySpecFactory.integral(PK_SECURITY_LEVEL, false),
+                UPLPropertySpecFactory.integral(PK_ECHO_CANCELING, false),
+                UPLPropertySpecFactory.integral(PK_IEC1107_COMPATIBLE, false),
+                UPLPropertySpecFactory.string("Software7E1", false),
+                UPLPropertySpecFactory.string("DisableLogOffCommand", false),
+                UPLPropertySpecFactory.string("ExtendedProfileStatus", false),
+                UPLPropertySpecFactory.string("UseSelectiveAccessByFromAndToDate", false));
+    }
+
+    @Override
     public void setProperties(Properties p) throws MissingPropertyException, InvalidPropertyException {
         try {
-
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (p.getProperty(key) == null) {
-                    String msg = key + " key missing";
-                    throw new MissingPropertyException(msg);
-                }
+            if (p.getProperty(ADDRESS.getName()) != null) {
+                pAddress = p.getProperty(ADDRESS.getName());
             }
 
-            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
-                pAddress = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            if (p.getProperty(NODEID.getName()) != null) {
+                pNodeId = p.getProperty(NODEID.getName());
             }
 
-            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
-                pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
+            if (p.getProperty(SERIALNUMBER.getName()) != null) {
+                pSerialNumber = p.getProperty(SERIALNUMBER.getName());
             }
 
-            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            }
-
-            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
-                pPassword = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+            if (p.getProperty(PASSWORD.getName()) != null) {
+                pPassword = p.getProperty(PASSWORD.getName());
             }
 
             if (p.getProperty(PK_TIMEOUT) != null) {
@@ -235,12 +248,12 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
             }
 
-            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORR.getName()) != null) {
-                pRoundTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORR.getName()));
+            if (p.getProperty(ROUNDTRIPCORR.getName()) != null) {
+                pRoundTripCorrection = Integer.parseInt(p.getProperty(ROUNDTRIPCORR.getName()));
             }
 
-            if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
+            if (p.getProperty(CORRECTTIME.getName()) != null) {
+                pCorrectTime = Integer.parseInt(p.getProperty(CORRECTTIME.getName()));
             }
 
             if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -253,13 +266,11 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
             pSecurityLevel = Integer.parseInt(p.getProperty(PK_SECURITY_LEVEL, "2").trim());
             if (pSecurityLevel != 0) {
-                if ("".equals(pPassword)) {
-                    String msg = "Password field is empty! correct first!";
-                    throw new InvalidPropertyException(msg);
+                if (pPassword == null || pPassword.isEmpty()) {
+                    throw InvalidPropertyException.forNameAndValue(PASSWORD.getName(), null);
                 }
                 if (pPassword.length() != 8) {
-                    String msg = "Password must have a length of 8 characters!, correct first!";
-                    throw new InvalidPropertyException(msg);
+                    throw new InvalidPropertyException("Password must have a length of 8 characters!, correct first!");
                 }
             }
 
@@ -281,7 +292,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
             this.useSelectiveAccessByFromAndToDate = "1".equals(p.getProperty("UseSelectiveAccessByFromAndToDate", "1"));
 
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("ABBA1140, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, "ABBA1140: validation of properties failed before");
         }
 
     }
@@ -290,29 +301,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return useSelectiveAccessByFromAndToDate;
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "IEC1107Compatible",
-                    "ExtendedLogging",
-                    "Software7E1",
-                    "DelayBeforeConnect",
-                    "DisableLogOffCommand",
-                    "ExtendedProfileStatus",
-                    "UseSelectiveAccessByFromAndToDate");
-    }
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol
-      * #init(java.io.InputStream, java.io.OutputStream, java.util.TimeZone, java.util.logging.Logger)
-      */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -345,9 +334,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         }
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#connect()
-      */
+    @Override
     public void connect() throws IOException {
         connect(0);
     }
@@ -387,9 +374,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return this.rFactory;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#disconnect()
-      */
+    @Override
     public void disconnect() throws NestedIOException {
         try {
             if (this.sendBreakBeforeDisconnect) {
@@ -406,49 +391,37 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         }
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()
-      */
+    @Override
     public int getNumberOfChannels() throws IOException {
         ABBA1140Register r = getRegisterFactory().getLoadProfileConfiguration();
 		LoadProfileConfigRegister lpcr = (LoadProfileConfigRegister) getRegisterFactory().getRegister(r);
         return lpcr.getNumberRegisters();
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
-      */
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
 		return getProfile().getProfileData(includeEvents);
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
-      */
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents)
             throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
 		return getProfile().getProfileData(lastReading, calendar.getTime(), includeEvents);
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
-      */
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
             throws IOException {
         return getProfile().getProfileData(from, to, includeEvents);
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getTime()
-      */
+    @Override
     public Date getTime() throws IOException {
 		return (Date) getRegisterFactory().getRegister("TimeDate");
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#setTime()
-      */
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, pRoundTripCorrection);
@@ -456,16 +429,12 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 		getRegisterFactory().setRegister("TimeDate", calendar.getTime());
     }
 
-    /**
-     * The protocol version
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-05-18 13:34:03 +0200 (Wed, 18 May 2016)$";
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
-      */
+    @Override
     public String getFirmwareVersion() throws IOException {
         String str = "";
         try {
@@ -487,92 +456,61 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
 
-    /* ________ Impelement interface ProtocolLink ___________ */
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
-      */
+    @Override
     public void setRegister(String name, String value) throws IOException {
         getRegisterFactory().setRegister(name, value);
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#release()
-      */
+    @Override
     public void release() throws IOException {
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getProfileInterval()
-      */
+    @Override
     public int getProfileInterval() throws IOException {
         return ((Integer) getRegisterFactory().getRegister("IntegrationPeriod")).intValue();
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getFlagIEC1107Connection()
-      */
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagConnection;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getLogger()
-      */
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getPassword()
-      */
+    @Override
     public String getPassword() {
         return pPassword;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getTimeZone()
-      */
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNrOfRetries()
-      */
+    @Override
     public int getNrOfRetries() {
         return pRetries;
     }
 
-    /* ________ Impelement interface HHUEnabler ___________ */
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#isIEC1107Compatible()
-      */
+    @Override
     public boolean isIEC1107Compatible() {
         return pIEC1107Compatible == 1;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#isRequestHeader()
-      */
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel)
-      */
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
-
-    /* ________ Impelement interface SerialNumber ___________ */
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel, boolean)
-      */
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
                 new IEC1107HHUConnection(commChannel, pTimeout, pRetries, 300, pEchoCancelling);
@@ -582,19 +520,12 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
-    /* ________ Impelement interface MeterProtocol ___________ */
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.HHUEnabler#getHHUDataReadout()
-      */
+    @Override
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.SerialNumber#
-      * getSerialNumber(com.energyict.protocol.meteridentification.DiscoverInfo)
-      */
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         String nodeId = discoverInfo.getNodeId();
@@ -612,25 +543,17 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return serialNumber;
     }
 
-    /* ________ Impelement interface MeterExceptionInfo ___________ */
-
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
-      */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getRegisterFactory().readRegister(obisCode);
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
-      */
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterExceptionInfo#getExceptionInfo(java.lang.String)
-      */
+    @Override
     public String getExceptionInfo(String id) {
         String exceptionInfo = exceptionInfoMap.get(id);
         if (exceptionInfo != null) {
@@ -644,89 +567,40 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return meterType;
     }
 
-    /* ________ Not supported methods ___________ */
-
-    /* method not supported
-      * @see com.energyict.protocol.MeterProtocol#getMeterReading(java.lang.String)
-      */
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
-        String msg = "method getMeterReading( String name ) is not supported.";
-        throw new UnsupportedException(msg);
+        throw new UnsupportedException("method getMeterReading( String name ) is not supported.");
     }
 
-    /* method not supported
-      * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
-      */
+    @Override
     public Quantity getMeterReading(int channelID) throws IOException {
-        String msg = "method getMeterReading( int channelID ) is not supported.";
-        throw new UnsupportedException(msg);
+        throw new UnsupportedException("method getMeterReading( int channelID ) is not supported.");
     }
 
-    /* method not supported
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
-      */
+    @Override
     public byte[] getDataReadout() {
         return null;
     }
 
-    /* method not supported
-      * @see com.energyict.protocol.MeterProtocol#getCache()
-      */
-    public Object getCache() {
-        return null;
-    }
-
-    /* method not supported
-      * @see com.energyict.protocol.MeterProtocol#setCache(java.lang.Object)
-      */
-    public void setCache(Object cacheObject) {
-    }
-
-    /* method not supported
-      * @see com.energyict.protocol.MeterProtocol#fetchCache(int)
-      */
-    public Object fetchCache(int rtuid)
-            throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    /* method not supported
-      * @see com.energyict.protocol.MeterProtocol#updateCache(int, java.lang.Object)
-      */
-    public void updateCache(int rtuid, Object cacheObject)
-            throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-    }
-
-    /* method not supported
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getChannelMap()
-      */
+    @Override
     public ChannelMap getChannelMap() {
         return null;
     }
 
-    /* method not supported
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getProtocolChannelMap()
-      */
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         return null;
     }
 
-    /* method not supported
-      * @see com.energyict.protocol.MeterProtocol#initializeDevice()
-      */
+    @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
-      */
+    @Override
     public String getRegister(String name) throws IOException {
         throw new UnsupportedException("getRegister() is not supported");
     }
-
-
-    /* ________ Get Register Info, extended logging ___________ */
 
     private void getRegistersInfo() {
 
@@ -961,6 +835,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     }
 
+    @Override
     public List getMessageCategories() {
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
@@ -979,18 +854,21 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return msgSpec;
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
 
+    @Override
     public String writeValue(MessageValue msgValue) {
         return msgValue.getValue();
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
-
     }
 
+    @Override
     public String writeTag(MessageTag msgTag) {
         StringBuilder builder = new StringBuilder();
 
@@ -1031,8 +909,8 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return builder.toString();
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-
         if (messageEntry.getContent().contains("<" + BILLINGRESET)) {
             try {
                 logger.info("************************* BILLING RESET *************************");

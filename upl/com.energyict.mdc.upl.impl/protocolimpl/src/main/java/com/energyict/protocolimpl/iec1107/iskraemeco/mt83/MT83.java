@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -37,19 +37,24 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83RegisterConfig;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83Registry;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.collect.Range;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * @author jme
@@ -87,37 +92,34 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     private TimeZone timeZone;
     private static Logger logger;
 
-    int readCurrentDay;
-    int loadProfileNumber;
+    private int readCurrentDay;
+    private int loadProfileNumber;
 
-    FlagIEC1107Connection flagIEC1107Connection = null;
-    MT83Registry mt83Registry = null;
-    MT83Profile mt83Profile = null;
-    MT83RegisterConfig mt83RegisterConfig = new MT83RegisterConfig(); // we should use an infotype property to determine the registerset
-    MT83MeterMessages meterMessages = new MT83MeterMessages(this);
+    private FlagIEC1107Connection flagIEC1107Connection = null;
+    private MT83Registry mt83Registry = null;
+    private MT83Profile mt83Profile = null;
+    private MT83RegisterConfig mt83RegisterConfig = new MT83RegisterConfig(); // we should use an infotype property to determine the registerset
+    private MT83MeterMessages meterMessages = new MT83MeterMessages(this);
 
-    byte[] dataReadout = null;
+    private byte[] dataReadout = null;
     private boolean software7E1;
     private int dataReadoutRequest;
 
-    /**
-     * Creates a new instance of MT83, empty constructor
-     */
-    public MT83() {
-    } // public MT83()
-
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCalendar(timeZone);
         fromCalendar.add(Calendar.YEAR, -10);
         return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(lastReading);
         return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(from);
@@ -125,7 +127,6 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         toCalendar.setTime(to);
         return doGetProfileData(fromCalendar, toCalendar, includeEvents);
     }
-
 
     private ProfileData doGetProfileData(Calendar fromCalendar, Calendar toCalendar, boolean includeEvents) throws IOException {
         ProfileData mt83profile = getMT83Profile().getProfileData(fromCalendar,
@@ -146,26 +147,25 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 //        false, isReadCurrentDay());
 //    }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getMT83Registry().setRegister(MT83Registry.TIME_AND_DATE_READWRITE, date);
-    } // public void setTime() throws IOException
+    }
 
+    @Override
     public Date getTime() throws IOException {
         Date date = (Date) getMT83Registry().getRegister(MT83Registry.TIME_AND_DATE_READONLY);
         sendDebug("getTime() result: METER: " + date.toString() + " METER-ROUNDTRIP: " + new Date(date.getTime() - iRoundtripCorrection).toString(), DEBUG);
@@ -176,8 +176,6 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return -1;
     }
 
-    /************************************** MeterProtocol implementation ***************************************/
-
     @Override
     public String getSerialNumber() {
         try {
@@ -187,36 +185,29 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         }
     }
 
-    /**
-     * this implementation calls <code> validateProperties </code>
-     * and assigns the argument to the properties field
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.integral("Timeout", false),
+                UPLPropertySpecFactory.integral("Retries", false),
+                UPLPropertySpecFactory.integral("RoundtripCorrection", false),
+                UPLPropertySpecFactory.integral("SecurityLevel", false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.integral("EchoCancelling", false),
+                UPLPropertySpecFactory.integral("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integral("ProfileInterval", false),
+                UPLPropertySpecFactory.integral("ExtendedLogging", false),
+                UPLPropertySpecFactory.integral("ReadCurrentDay", false),
+                UPLPropertySpecFactory.integral("LoadProfileNumber", false, Range.closed(LOADPROFILES_FIRST, LOADPROFILES_LAST)),
+                UPLPropertySpecFactory.string("Software7E1", false),
+                UPLPropertySpecFactory.integral("DataReadout", false));
     }
 
-    /**
-     * <p>validates the properties.</p><p>
-     * The default implementation checks that all required parameters are present.
-     * </p>
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
             strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
             serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
@@ -228,88 +219,39 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
             iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "900").trim());
-//            channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1.5:2.5:5.5:6.5:7.5:8.5").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay", "0").trim());
             loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1").trim());
             this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
-            if ((loadProfileNumber < LOADPROFILES_FIRST) || (loadProfileNumber > LOADPROFILES_LAST)) {
-                String exceptionmessage = "";
-                exceptionmessage += "LoadProfileNumber cannot be " + loadProfileNumber + "! ";
-                exceptionmessage += "LoadProfileNumber can be " + LOADPROFILES_FIRST + " to " + LOADPROFILES_LAST + " ";
-                exceptionmessage += "for the MT83x protocol.";
-                throw new InvalidPropertyException(exceptionmessage);
-            }
             this.dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
-
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("Iskra MT83, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, "Iskra MT83: validation of properties failed before");
         }
-
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name <br>
-     * @return the register value
-     * @throws IOException             <br>
-     * @throws UnsupportedException    <br>
-     * @throws NoSuchRegisterException <br>
-     */
+    @Override
     public String getRegister(String name) throws IOException {
         sendDebug("getRegister(): name = " + name, DEBUG);
         return ProtocolUtils.obj2String(getMT83Registry().getRegister(name));
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name  <br>
-     * @param value <br>
-     * @throws IOException             <br>
-     * @throws NoSuchRegisterException <br>
-     * @throws UnsupportedException    <br>
-     */
+    @Override
     public void setRegister(String name, String value) throws IOException {
         sendDebug("setRegister(): name = " + name + " value = " + value, DEBUG);
         getMT83Registry().setRegister(name, value);
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
+    @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "IEC1107Compatible",
-                    "ExtendedLogging",
-                    "ReadCurrentDay",
-                    "LoadProfileNumber",
-                    "Software7E1",
-                    "DataReadout");
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         try {
             String fwversion = "";
@@ -321,16 +263,9 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         } catch (IOException e) {
             throw new IOException("MT83, getFirmwareVersion, " + e.getMessage());
         }
-    } // public String getFirmwareVersion()
+    }
 
-    /**
-     * initializes the receiver
-     *
-     * @param inputStream  <br>
-     * @param outputStream <br>
-     * @param timeZone     <br>
-     * @param logger       <br>
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
         MT83.logger = logger;
@@ -344,6 +279,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         }
     }
 
+    @Override
     public void connect() throws IOException {
         try {
             if (getFlagIEC1107Connection().getHhuSignOn() == null) {
@@ -369,6 +305,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return mt83RegisterConfig.getRegisterInfo();
     }
 
+    @Override
     public void disconnect() throws NestedIOException {
         try {
             flagIEC1107Connection.disconnectMAC();
@@ -377,12 +314,12 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
-
         return getProtocolChannelMap().getNrOfProtocolChannels();
-        //return channelMap.getNrOfChannels();
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         Object obj = getMT83Registry().getRegister(MT83Registry.PROFILE_INTERVAL);
         if (obj == null) {
@@ -400,42 +337,32 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return mt83Profile;
     }
 
-
-    // Implementation of interface ProtocolLink
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return (iIEC1107Compatible == 1);
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-    }
-
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         if (channelMap == null) {
             try {
@@ -451,10 +378,12 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return channelMap;
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, true);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
                 new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, iEchoCancelling);
@@ -464,6 +393,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         setDataReadout(getFlagIEC1107Connection().getHhuSignOn().getDataReadout());
         return getDataReadout();
@@ -473,9 +403,9 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         this.dataReadout = dataReadout;
     }
 
+    @Override
     public void release() throws IOException {
     }
-
 
     public String getExceptionInfo(String id) {
         String exceptionInfo = (String) MT83CodeMapper.exceptionInfoMap.get(id);
@@ -487,19 +417,17 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return exceptionInfo;
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
-    /**
-     * ****************************************************************************************
-     * R e g i s t e r P r o t o c o l  i n t e r f a c e
-     * *****************************************************************************************
-     */
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(this.mt83RegisterConfig.getRegisterDescription(obisCode));
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         RegisterValue regvalue;
         sendDebug("readRegister() obiscode = " + obisCode.toString(), DEBUG);
@@ -515,10 +443,12 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return regvalue;
     }
 
+    @Override
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
     }
 
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
@@ -527,15 +457,16 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return readCurrentDay == 1;
     }
 
+    @Override
     public ChannelMap getChannelMap() {
         return null;
     }
 
     public static void sendDebug(String message, int debuglvl) {
-        message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
+        String actualMessage = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
         if ((debuglvl > 0) && (DEBUG > 0) && (logger != null)) {
-            System.out.println(message);
-            logger.info(message);
+            System.out.println(actualMessage);
+            logger.info(actualMessage);
         }
     }
 
@@ -550,6 +481,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      *
      * @throws java.io.IOException
      */
+    @Override
     public void resetDemand() throws IOException {
         mt83Registry.setRegister(MT83Registry.BILLING_RESET_COMMAND, "");
     }
@@ -563,6 +495,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
      * @throws java.io.IOException if a logical error occurs
      */
+    @Override
     public void applyMessages(final List messageEntries) throws IOException {
         this.meterMessages.applyMessages(messageEntries);
     }
@@ -574,22 +507,27 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      * @return a state of the message which was just sent
      * @throws java.io.IOException if a logical error occurs
      */
+    @Override
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
         return this.meterMessages.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return this.meterMessages.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(final Message msg) {
         return this.meterMessages.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(final MessageTag tag) {
         return this.meterMessages.writeTag(tag);
     }
 
+    @Override
     public String writeValue(final MessageValue value) {
         return this.meterMessages.writeValue(value);
     }
@@ -597,4 +535,5 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     public boolean isDataReadout() {
         return (this.dataReadoutRequest == 1);
     }
+
 }
