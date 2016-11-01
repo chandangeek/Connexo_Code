@@ -157,10 +157,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.licenseService = licenseService;
     }
 
-    @Override
     /**
-     * for search only - so only populate fields that will be used/shown (see {@link #modelStructure()} !!!
+     * for search only - so only populate fields that will be used/shown (see {@link #modelStructure()}) !!!
      */
+    @Override
     public UsagePointSearchInfo from(UsagePoint usagePoint) {
         UsagePointSearchInfo info = new UsagePointSearchInfo();
         info.id = usagePoint.getId();
@@ -169,8 +169,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
         info.displayConnectionState = usagePoint.getConnectionStateDisplayName();
-        info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
-        info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
+        info.location = usagePoint.getLocation().map(Location::toString).orElse(
+                usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null));
         return info;
     }
 
