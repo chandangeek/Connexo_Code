@@ -166,6 +166,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     previewConnectionMethod: function () {
         var selectedConnectionMethods = this.getConnectionmethodsgrid().getSelectionModel().getSelection(),
+            me = this,
             timeUnitsStore = me.getStore('TimeUnits');
 
         if (selectedConnectionMethods.length == 1) {
@@ -291,7 +292,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showScheduleField: function (combobox, objList) {
         this.getScheduleField().clear();
-        console.log(this);
         if(this.outboundVisible){
             if (objList[0].get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
                 this.getScheduleFieldContainer().setVisible(true);
