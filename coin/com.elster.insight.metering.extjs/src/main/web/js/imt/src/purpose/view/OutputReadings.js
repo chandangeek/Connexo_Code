@@ -10,7 +10,11 @@ Ext.define('Imt.purpose.view.OutputReadings', {
         'Imt.purpose.view.NoReadingsFoundPanel',
         'Imt.purpose.view.RegisterDataGrid'
     ],
-    dataStore: null,
+    store: null,
+    mixins: {
+        bindable: 'Ext.util.Bindable',
+        graphWithGrid: 'Uni.util.GraphWithGrid'
+    },
 
     initComponent: function () {
         var me = this,
@@ -43,7 +47,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             {
                 xtype: 'uni-grid-filterpaneltop',
                 itemId: 'output-readings-topfilter',
-                store: me.dataStore,
+                store: me.store,
                 hasDefaultFilters: true,
                 filters: [
                     Ext.apply({
@@ -66,14 +70,23 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         xtype: 'readings-graph',
                         router: me.router,
                         output: me.output,
-                        interval: me.interval
+                        interval: me.interval,
+                        listeners: {
+                            barselect: Ext.bind(me.onBarSelect, me, me, true)
+                        }
                     },
                     {
                         xtype: 'preview-container',
+                        itemId: 'output-readings-preview-container',
                         grid: {
                             xtype: 'readings-list',
                             output: me.output,
-                            router: me.router
+                            router: me.router,
+                            listeners: {
+                                itemclick: function (grid, record) {
+                                    me.down('#output-readings-preview-container').fireEvent('rowselect', record);
+                                }
+                            }
                         },
                         emptyComponent: emptyComponent,
                         previewComponent: {
@@ -82,6 +95,9 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                             output: me.output,
                             router: me.router,
                             hidden: true
+                        },
+                        listeners: {
+                            rowselect: Ext.bind(me.onRowSelect, me, me, true)
                         }
                     }
                 );
