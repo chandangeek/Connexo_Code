@@ -6,32 +6,49 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.GroupBuilder;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -47,21 +64,28 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
 
     @Mock
     private EndDeviceGroup endDeviceGroup;
+    @Mock
+    private Finder<Device> finder;
+    @Mock
+    private Query<EndDeviceGroup> endDeviceGroupQuery;
+    @Mock
+    private GroupBuilder.QueryGroupBuilder<EndDevice, QueryEndDeviceGroup> builder;
+
+    @Override
+    protected void setupTranslations() {
+        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
+    }
 
     @Test
     public void testGetQueryEndDeviceGroup() throws Exception {
-        Query<EndDeviceGroup> queryEndDeviceGroupQuery = mock(Query.class);
-        when(meteringGroupService.getQueryEndDeviceGroupQuery()).thenReturn(queryEndDeviceGroupQuery);
-        Query<EndDeviceGroup> endDeviceGroupQuery = mock(Query.class);
-        when(meteringGroupService.getEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
-        EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
+        when(meteringGroupService.getQueryEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
+        EndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn(13L);
         when(endDeviceGroup.getName()).thenReturn("South region");
         when(endDeviceGroup.getMRID()).thenReturn("LAPOPKLQKS");
-        when(endDeviceGroup.isDynamic()).thenReturn(false);
-        List<EndDeviceGroup> endDeviceGroups = Arrays.asList(endDeviceGroup);
-        when(queryEndDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
-        when(endDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(Collections.emptyList());
+        when(endDeviceGroup.isDynamic()).thenReturn(true);
+        List<EndDeviceGroup> endDeviceGroups = Collections.singletonList(endDeviceGroup);
+        when(endDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
 
         String response = target("/devicegroups").queryParam("type", "QueryEndDeviceGroup").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
@@ -69,20 +93,28 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         assertThat(jsonModel.<String>get("$.devicegroups[0].name")).isEqualTo("South region");
         assertThat(jsonModel.<String>get("$.devicegroups[0].mRID")).isEqualTo("LAPOPKLQKS");
         assertThat(jsonModel.<Integer>get("$.devicegroups[0].id")).isEqualTo(13);
+        assertThat(jsonModel.<Boolean>get("$.devicegroups[0].dynamic")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.devicegroups[0].filter")).isEqualTo("[]");
     }
 
     @Test
     public void testGetEndDeviceGroupQueryWithFilter() throws Exception {
-        Query<EndDeviceGroup> groupQuery = mock(Query.class);
-        when(meteringGroupService.getEndDeviceGroupQuery()).thenReturn(groupQuery);
+        when(meteringGroupService.getEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
         EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn(13L);
         when(endDeviceGroup.getName()).thenReturn("South region");
-        List<EndDeviceGroup> endDeviceGroups = Arrays.asList(endDeviceGroup);
-        when(groupQuery.select(any(), eq(1), eq(11), any())).thenReturn(endDeviceGroups);
+        List<EndDeviceGroup> endDeviceGroups = Collections.singletonList(endDeviceGroup);
+        when(endDeviceGroupQuery.select(any(), eq(1), eq(11), any())).thenReturn(endDeviceGroups);
 
         String response = target("/devicegroups").queryParam("filter", ExtjsFilter.filter("name", "South region"))
                 .queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+
+        ArgumentCaptor<Condition> captor = ArgumentCaptor.forClass(Condition.class);
+        verify(endDeviceGroupQuery).select(captor.capture(), eq(1), eq(11), any());
+        Condition actual = captor.getValue();
+        assertThat(actual).isInstanceOf(Comparison.class);
+        assertThat(actual.toString()).isEqualTo(where("name").isEqualTo("South region").toString());
+        assertThat(((Comparison)actual).getValues()).containsExactly("South+region");
 
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
@@ -91,7 +123,6 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
 
     @Test
     public void testGetEndDeviceGroup() throws Exception {
-        Query<EndDeviceGroup> endDeviceGroupQuery = mock(Query.class);
         when(meteringGroupService.getEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
         EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn(13L);
@@ -99,12 +130,102 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(endDeviceGroup.getMRID()).thenReturn("ABC");
         when(endDeviceGroup.getType()).thenReturn("EndDeviceGroup");
         when(endDeviceGroup.isDynamic()).thenReturn(false);
-        List<EndDeviceGroup> endDeviceGroups = Arrays.asList(endDeviceGroup);
+        List<EndDeviceGroup> endDeviceGroups = Collections.singletonList(endDeviceGroup);
         when(endDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
 
         String response = target("/devicegroups").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.devicegroups[0].id")).isEqualTo(13);
+        assertThat(jsonModel.<String>get("$.devicegroups[0].name")).isEqualTo("south region");
+        assertThat(jsonModel.<String>get("$.devicegroups[0].mRID")).isEqualTo("ABC");
+        assertThat(jsonModel.<Boolean>get("$.devicegroups[0].dynamic")).isEqualTo(false);
+        assertThat(jsonModel.<Integer>get("$.devicegroups[0].version")).isEqualTo(0);
+    }
+
+    @Test
+    public void testCreateQueryEndDeviceGroupWithoutSearchDomain() throws IOException {
+        when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.empty());
+        DeviceGroupInfo info = new DeviceGroupInfo();
+        info.name = "NewQueryGroup";
+        info.dynamic = true;
+        info.filter = "[]";
+
+        Response response = target("/devicegroups").request().post(Entity.json(info));
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Device search domain is not registered");
+    }
+
+    @Test
+    public void testCreateQueryEndDeviceGroupWithoutFilters() throws IOException {
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchDomain.getId()).thenReturn(Device.class.getName());
+        when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(searchDomain));
+        DeviceGroupInfo info = new DeviceGroupInfo();
+        info.name = "NewQueryGroup";
+        info.dynamic = true;
+        info.filter = "[]";
+
+        Response response = target("/devicegroups").request().post(Entity.json(info));
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("At least one search criterion has to be provided");
+    }
+
+    @Test
+    public void testCreateQueryEndDeviceGroup() throws IOException {
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchDomain.getId()).thenReturn(Device.class.getName());
+        when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(searchDomain));
+        SearchableProperty nameSearchableProperty = mock(SearchableProperty.class);
+        when(nameSearchableProperty.getName()).thenReturn("name");
+        when(searchDomain.getPropertiesValues(any())).thenAnswer(invocationOnMock -> Collections.singletonList(
+                ((Function<SearchableProperty, SearchablePropertyValue>)invocationOnMock.getArguments()[0])
+                        .apply(nameSearchableProperty)));
+
+        QueryEndDeviceGroup group = mock(QueryEndDeviceGroup.class);
+        when(group.getId()).thenReturn(133L);
+        when(builder.setAliasName(anyString())).thenReturn(builder);
+        when(builder.setName(anyString())).thenReturn(builder);
+        when(builder.setMRID(anyString())).thenReturn(builder);
+        when(builder.setDescription(anyString())).thenReturn(builder);
+        when(builder.setLabel(anyString())).thenReturn(builder);
+        when(builder.setQueryProviderName(anyString())).thenReturn(builder);
+        when(builder.setSearchDomain(any(SearchDomain.class))).thenReturn(builder);
+        when(builder.setType(anyString())).thenReturn(builder);
+        when(builder.create()).thenReturn(group);
+        doReturn(builder).when(meteringGroupService).createQueryEndDeviceGroup(anyVararg());
+
+        DeviceGroupInfo info = new DeviceGroupInfo();
+        info.name = "NewQueryGroup";
+        info.dynamic = true;
+        info.filter = JsonModel.model(ImmutableList.of(ImmutableMap.of(
+                "property", "name",
+                "value", ImmutableList.of(
+                        ImmutableMap.of(
+                                "operator", "==",
+                                "criteria", "*"
+                        )
+                )))).toJson();
+
+        String response = target("/devicegroups").request().post(Entity.json(info), String.class);
+
+        ArgumentCaptor<SearchablePropertyValue> captor = ArgumentCaptor.forClass(SearchablePropertyValue.class);
+        verify(meteringGroupService).createQueryEndDeviceGroup(captor.capture());
+        SearchablePropertyValue searchablePropertyValue = captor.getValue();
+        assertThat(searchablePropertyValue.getProperty()).isEqualTo(nameSearchableProperty);
+        assertThat(searchablePropertyValue.getValueBean().propertyName).isEqualTo("name");
+        assertThat(searchablePropertyValue.getValueBean().operator).isEqualTo(SearchablePropertyOperator.EQUAL);
+        assertThat(searchablePropertyValue.getValueBean().values).containsExactly("*");
+        verify(builder).setName(info.name);
+        verify(builder).setMRID("MDC:" + info.name);
+        verify(builder).setSearchDomain(searchDomain);
+        verify(builder).setQueryProviderName(anyString());
+        verify(builder).setLabel("MDC");
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(133);
     }
 
     @Test
@@ -157,8 +278,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
         EndDevice endDevice = mock(EndDevice.class);
         when(endDevice.getAmrId()).thenReturn("1");
-        when(endDeviceGroup.getMembers(Matchers.any(Instant.class))).thenReturn(Arrays.asList(endDevice));
-        Finder<Device> finder = mock(Finder.class);
+        when(endDeviceGroup.getMembers(Matchers.any(Instant.class))).thenReturn(Collections.singletonList(endDevice));
         when(deviceService.findAllDevices(Matchers.any())).thenReturn(finder);
         when(finder.sorted("mRID", true)).thenReturn(finder);
         List<Device> devices = Arrays.asList(
@@ -185,7 +305,6 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(queryEndDeviceGroup.isDynamic()).thenReturn(true);
         SearchDomain searchDomain = mock(SearchDomain.class);
         when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(searchDomain));
-        Finder<Device> finder = mock(Finder.class);
         doReturn(finder).when(searchDomain).finderFor(Matchers.any());
 
         List<Device> devices = Arrays.asList(
@@ -219,5 +338,4 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(config.getName()).thenReturn(deviceConfig);
         return device;
     }
-
 }
