@@ -40,7 +40,7 @@ public class MdmAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Insight", "DMA"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
+        upgradeService.register(InstallIdentifier.identifier("Insight","DMA"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
     }
 
     static class Installer implements FullInstaller {
@@ -113,7 +113,10 @@ public class MdmAppInstaller {
                     com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
 
                     //Relative periods
-                    com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD
+                    com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
+
+                    //Import services
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
             };
         }
     }

@@ -55,7 +55,10 @@ class MdmAppPrivileges {
 
                 //Validation configuration on metrology configuration
                 com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION,
-                com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION
+                com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION,
+
+                //Import services
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
         );
     }
 }
