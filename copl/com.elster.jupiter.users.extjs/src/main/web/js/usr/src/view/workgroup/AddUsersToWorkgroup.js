@@ -20,7 +20,7 @@ Ext.define('Usr.view.workgroup.AddUsersToWorkgroup', {
                     xtype: 'selection-grid',
                     itemId: 'grd-user-selection',
                     width: '100%',
-                    maxHeight: 300,
+                    maxHeight: 395,
                     columns: [
                         {
                             header: Uni.I18n.translate('workgroups.addUsers.userName', 'USR', 'User name'),
@@ -78,6 +78,16 @@ Ext.define('Usr.view.workgroup.AddUsersToWorkgroup', {
 
     onAddButtonClick: function () {
         var me = this;
-        me.fireEvent('selecteditemsadd', me.down('#grd-user-selection').getSelectionModel().getSelection());
+        me.fireEvent('selecteditemsadd', me.down('#grd-user-selection')
+            .getSelectionModel()
+            .getSelection()
+            .sort(function compare(a, b) {
+                    if (a.get('name') < b.get('name'))
+                        return -1;
+                    if (a.get('name') > b.get('name'))
+                        return 1;
+                    return 0;
+                }
+            ));
     }
 });

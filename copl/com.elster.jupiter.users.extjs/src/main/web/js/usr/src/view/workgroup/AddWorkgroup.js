@@ -46,6 +46,7 @@ Ext.define('Usr.view.workgroup.AddWorkgroup', {
                         name: 'name',
                         itemId: 'txt-name',
                         required: true,
+                        maxLength: 80,
                         allowBlank: false,
                         fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
                         listeners: {
@@ -59,6 +60,7 @@ Ext.define('Usr.view.workgroup.AddWorkgroup', {
                     {
                         xtype: 'textfield',
                         name: 'description',
+                        maxLength: 80,
                         itemId: 'txt-description',
                         fieldLabel: Uni.I18n.translate('workgroups.description', 'USR', 'Description')
                     },
@@ -107,8 +109,10 @@ Ext.define('Usr.view.workgroup.AddWorkgroup', {
                                         }
                                     }
                                 ],
-                                height: 220,
-                                width: 520
+                                maxHeight: 292,
+                                width: 335,
+                                autoHeight: true
+
                             },
                             {
                                 xtype: 'button',
