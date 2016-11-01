@@ -98,11 +98,14 @@ public class IssueResourceHelper {
 
     public IssueActionResult performIssueAction(Issue issue, PerformActionRequest request) {
         IssueActionType action = issueActionService.findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<PropertySpec> propertySpecs = action.createIssueAction().get().getPropertySpecs();
         Map<String, Object> properties = new HashMap<>();
-        for (PropertySpec propertySpec : action.createIssueAction().get().getPropertySpecs()) {
-            Object value = propertyValueInfoService.findPropertyValue(propertySpec, request.properties);
-            if (value != null) {
-                properties.put(propertySpec.getName(), value);
+        if(propertySpecs!=null && !propertySpecs.isEmpty()){
+            for (PropertySpec propertySpec : propertySpecs) {
+                Object value = propertyValueInfoService.findPropertyValue(propertySpec, request.properties);
+                if (value != null) {
+                    properties.put(propertySpec.getName(), value);
+                }
             }
         }
         return issueActionService.executeAction(action, issue, properties);
