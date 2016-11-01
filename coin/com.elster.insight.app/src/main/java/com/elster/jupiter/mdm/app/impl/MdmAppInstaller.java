@@ -112,7 +112,7 @@ public class MdmAppInstaller {
                     com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
 
                     //Import services
-                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
                     //Usage point groups
                     com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL
