@@ -27,15 +27,18 @@ import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.Never;
 
@@ -90,7 +93,11 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
+    private UsagePointGroup usagePointGroup;
+    @Mock
     private RelativePeriod exportPeriod;
+    @Mock
+    private RelativePeriod updatePeriod, updateWindow;
     @Mock
     private DataExportStrategy strategy;
     @Mock
@@ -102,14 +109,15 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
     private DataExportTaskBuilder builder;
 
-
     @Before
     public void setUpMocks() {
         builder = FakeBuilder.initBuilderStub(exportTask,
                 DataExportTaskBuilder.class,
                 DataExportTaskBuilder.PropertyBuilder.class,
                 DataExportTaskBuilder.CustomSelectorBuilder.class,
-                DataExportTaskBuilder.EventSelectorBuilder.class
+                DataExportTaskBuilder.EventSelectorBuilder.class,
+                DataExportTaskBuilder.MeterReadingSelectorBuilder.class,
+                DataExportTaskBuilder.UsagePointReadingSelectorBuilder.class
         );
         when(transactionService.execute(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         when(dataExportService.findExportTasks()).thenReturn(exportTaskFinder);
@@ -123,6 +131,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(strategy.getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
         when(exportTask.getNextExecution()).thenReturn(NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
+        when(meteringGroupsService.findUsagePointGroup(5)).thenReturn(Optional.of(usagePointGroup));
         when(exportTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(dataExportService.newBuilder()).thenReturn(builder);
         when(exportTask.getOccurrencesFinder()).thenReturn(dataExportOccurrenceFinder);
@@ -211,6 +220,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
+        info.dataSelector.selectorType = SelectorType.DEFAULT_READINGS;
         info.dataSelector.name = "Device readings data selector";
         DestinationInfo fileDestinationInfo = new DestinationInfo();
         fileDestinationInfo.type = DestinationType.FILE;
@@ -260,6 +270,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         ArgumentCaptor<String> applicationNameCaptor = ArgumentCaptor.forClass(String.class);
         verify(builder).setApplication(applicationNameCaptor.capture());
         assertThat(applicationNameCaptor.getValue()).isEqualTo("MultiSense");
+
+        verify(builder).selectingMeterReadings();
 
         verify(exportTask).addFileDestination("", "file", "txt");
         verify(exportTask).addEmailDestination("user1@elster.com;user2@elster.com", "daily report", "attachment", "csv");
@@ -467,6 +479,142 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.dataSources[0].connectionState")).isEqualTo("Connected");
         assertThat(jsonModel.<String>get("$.dataSources[0].readingType.mRID")).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         assertThat(jsonModel.<Number>get("$.dataSources[0].occurrenceId")).isEqualTo(13);
+    }
+
+    @Test
+    public void testCreateTaskWithStandardMeterReadingsSelector() {
+        long exportPeriodId = 13L, updatePeriodId = 14L, updateWindowId = 15L;
+        when(timeService.findRelativePeriod(exportPeriodId)).thenReturn(Optional.of(exportPeriod));
+        when(timeService.findRelativePeriod(updatePeriodId)).thenReturn(Optional.of(updatePeriod));
+        when(timeService.findRelativePeriod(updateWindowId)).thenReturn(Optional.of(updateWindow));
+
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.name = "newName";
+        // data selector
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.selectorType = SelectorType.DEFAULT_READINGS;
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.deviceGroup = new IdWithNameInfo();
+        info.standardDataSelector.deviceGroup.id = 5;
+        info.standardDataSelector.exportComplete = true;
+        info.standardDataSelector.exportContinuousData = true;
+        info.standardDataSelector.exportUpdate = true;
+        info.standardDataSelector.exportAdjacentData = true;
+        info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
+        info.standardDataSelector.exportPeriod.id = exportPeriodId;
+        info.standardDataSelector.updateWindow = new RelativePeriodInfo();
+        info.standardDataSelector.updateWindow.id = updateWindowId;
+        info.standardDataSelector.updatePeriod = new RelativePeriodInfo();
+        info.standardDataSelector.updatePeriod.id = updatePeriodId;
+        info.standardDataSelector.validatedDataOption = ValidatedDataOption.EXCLUDE_INTERVAL;
+        // data processor
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        // destination
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
+
+        // Business method
+        Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+
+        verify(builder).selectingMeterReadings();
+        DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = (DataExportTaskBuilder.MeterReadingSelectorBuilder) this.builder;
+        verify(selectorBuilder).fromExportPeriod(exportPeriod);
+        verify(selectorBuilder).fromUpdatePeriod(updatePeriod);
+        verify(selectorBuilder).withUpdateWindow(updateWindow);
+        verify(selectorBuilder).withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+        verify(selectorBuilder).fromEndDeviceGroup(endDeviceGroup);
+        verify(selectorBuilder).continuousData(true);
+        verify(selectorBuilder).exportComplete(true);
+        verify(selectorBuilder).exportUpdate(true);
+    }
+
+    @Test
+    public void testCreateTaskWithStandardUsagePointReadingsSelector() {
+        long exportPeriodId = 13L;
+        when(timeService.findRelativePeriod(exportPeriodId)).thenReturn(Optional.of(exportPeriod));
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.name = "newName";
+        // data selector
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.selectorType = SelectorType.DEFAULT_USAGE_POINT_READINGS;
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.usagePointGroup = new IdWithNameInfo();
+        info.standardDataSelector.usagePointGroup.id = 5;
+        info.standardDataSelector.exportComplete = true;
+        info.standardDataSelector.exportContinuousData = true;
+        info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
+        info.standardDataSelector.exportPeriod.id = exportPeriodId;
+        info.standardDataSelector.validatedDataOption = ValidatedDataOption.EXCLUDE_INTERVAL;
+        // data processor
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        // destination
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
+
+        // Business method
+        Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+
+        verify(builder).selectingUsagePointReadings();
+        DataExportTaskBuilder.UsagePointReadingSelectorBuilder selectorBuilder = (DataExportTaskBuilder.UsagePointReadingSelectorBuilder) this.builder;
+        verify(selectorBuilder).fromExportPeriod(exportPeriod);
+        verify(selectorBuilder).withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+        verify(selectorBuilder).fromUsagePointGroup(usagePointGroup);
+        verify(selectorBuilder).continuousData(true);
+        verify(selectorBuilder).exportComplete(true);
+    }
+
+    @Test
+    public void testCreateTaskWithStandardEventSelector() {
+        long exportPeriodId = 13L;
+        when(timeService.findRelativePeriod(exportPeriodId)).thenReturn(Optional.of(exportPeriod));
+
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.name = "newName";
+        // data selector
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.selectorType = SelectorType.DEFAULT_EVENTS;
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.deviceGroup = new IdWithNameInfo();
+        info.standardDataSelector.deviceGroup.id = 5;
+        info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
+        info.standardDataSelector.exportPeriod.id = exportPeriodId;
+        // data processor
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        // destination
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
+
+        // Business method
+        Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+
+        verify(builder).selectingEventTypes();
+        DataExportTaskBuilder.EventSelectorBuilder selectorBuilder = (DataExportTaskBuilder.EventSelectorBuilder) this.builder;
+        verify(selectorBuilder).fromExportPeriod(exportPeriod);
+        verify(selectorBuilder).fromEndDeviceGroup(endDeviceGroup);
     }
 
     private ReadingTypeDataExportItem mockExportItem(DataExportOccurrence dataExportOccurrence, IdentifiedObject domainObject, Instant lastRun) {
