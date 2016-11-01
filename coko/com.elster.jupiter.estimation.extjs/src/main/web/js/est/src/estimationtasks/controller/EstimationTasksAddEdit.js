@@ -5,6 +5,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
     stores: [
         'Est.estimationtasks.store.DeviceGroups',
+        'Est.estimationtasks.store.UsagePointGroups',
         'Est.estimationtasks.store.DaysWeeksMonths'
     ],
 
@@ -15,7 +16,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     refs: [
         {ref: 'addEditEstimationtaskPage', selector: 'estimationtasks-addedit'},
         {ref: 'addEditEstimationtaskForm', selector: '#add-edit-estimationtask-form'},
-        {ref: 'deviceGroupCombo', selector: '#device-group-id'},
+        {ref: 'deviceGroupCombo', selector: '#device-group-combo'},
         {ref: 'estimationPeriodCombo', selector: '#estimationPeriod-id'},
         {ref: 'noDeviceGroupBlock', selector: '#no-device'},
         {ref: 'recurrenceTypeCombo', selector: '#recurrence-type'}
@@ -57,7 +58,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     },
 
     createEstimationTask: function (button) {
-        var me = this, newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues(),
+        var me = this,
+            appName = Uni.util.Application.getAppName(),
+            newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues(),
             previousPath = me.getController('Uni.controller.history.EventBus').getPreviousPath();
 
         me.getAddEditEstimationtaskForm().down('#form-errors').hide();
@@ -68,13 +71,25 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             newEstimationTask.beginEdit();
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
-            newEstimationTask.set('application', Uni.util.Application.getAppName());
+            newEstimationTask.set('application', appName);
             newEstimationTask.set('active', true);
             newEstimationTask.set('lastEstimationOccurrence', null);
-            newEstimationTask.set('deviceGroup', {
-                id: newEstimationTaskDto.deviceGroupId,
-                name: me.getAddEditEstimationtaskForm().down('#device-group-id').getRawValue()
-            });
+            switch(appName){
+                case 'MultiSense':{
+                    newEstimationTask.set('deviceGroup', {
+                        id: me.getAddEditEstimationtaskForm().down('#device-group-combo').getValue(),
+                        name: me.getAddEditEstimationtaskForm().down('#device-group-combo').getRawValue()
+                    });
+                } break;
+                case 'MdmApp':{
+                    newEstimationTask.set('usagePointGroup', {
+                        id: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getValue(),
+                        displayValue: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getRawValue()
+                    });
+                } break;
+            }
+
+
 
             if (newEstimationTaskDto.recurrence) {
                 var startOnDate = moment(newEstimationTaskDto.startOn).valueOf(),
@@ -245,13 +260,15 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             success: function (record) {
                 var schedule = record.get('schedule'),
                     deviceGroup = record.get('deviceGroup'),
-                    period = record.get('period');
+                    usagePointGroup = record.get('usagePointGroup'),
+                    period = record.get('period'),
+                    groupId = deviceGroup ? deviceGroup.id : usagePointGroup ? usagePointGroup.id : null;
                 me.taskModel = record;
                 taskForm.loadRecord(record);
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'EST', "Edit '{0}'",[record.get('name')]));
                 dataSourcesContainer.loadGroupStore(function(){
-                    dataSourcesContainer.setComboValue(deviceGroup.id);
+                    dataSourcesContainer.setComboValue(groupId);
                     me.getEstimationPeriodCombo().store.load(function () {
                         if (period && (period.id !== 0)) {
                             widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});

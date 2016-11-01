@@ -47,15 +47,15 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                     {
                         xtype: 'combobox',
                         itemId: 'usagePoint-group-id',
-                        name: 'usagePointGroupId',
+                        name: 'usagePointGroup',
                         width: 235,
-                        store: 'Est.estimationtasks.store.DeviceGroups',
+                        store: 'Est.estimationtasks.store.UsagePointGroups',
                         editable: false,
                         disabled: false,
                         emptyText: Uni.I18n.translate('estimationtasks.addEstimationTask.usagePointGroupPrompt', 'EST', 'Select a usage point group...'),
                         allowBlank: false,
                         queryMode: 'local',
-                        displayField: 'name',
+                        displayField: 'displayValue',
                         valueField: 'id'
                     },
                     {
@@ -89,6 +89,13 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
     setComboValue: function(value){
         var me = this;
         me.down('combobox').setValue(me.down('combobox').store.getById(value));
+    },
+    getValue: function(){
+
+    },
+
+    getGroupValue: function(){
+
     }
 });
 
