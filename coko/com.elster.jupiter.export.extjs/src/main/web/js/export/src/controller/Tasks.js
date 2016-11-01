@@ -289,6 +289,7 @@ Ext.define('Dxp.controller.Tasks', {
                     propertyForm = detailsForm.down('#task-properties-preview'),
                     selectorPropertyForm = detailsForm.down('#data-selector-properties-preview'),
                     deviceGroup = detailsForm.down('#data-selector-deviceGroup-preview'),
+                    usagePointGroup = detailsForm.down('#data-selector-usage-point-group-preview'),
                     exportPeriod = detailsForm.down('#data-selector-exportPeriod-preview'),
                     readingTypes = detailsForm.down('#data-selector-readingTypes-preview'),
                     eventTypes = detailsForm.down('#data-selector-eventTypes-preview'),
@@ -344,6 +345,19 @@ Ext.define('Dxp.controller.Tasks', {
                             } else {
                                 updatedValuesData.setVisible(true);
                             }
+                            break;
+                        case 'DEFAULT_USAGE_POINT_READINGS':
+                            selectorPropertyForm.setVisible(false);
+                            deviceGroup.setVisible(false);
+                            usagePointGroup.setVisible(true);
+                            exportPeriod.setVisible(true);
+                            readingTypes.setVisible(true);
+                            eventTypes.setVisible(false);
+                            dataValidation.setVisible(true);
+                            missingData.setVisible(true);
+                            updatedData.setVisible(false);
+                            updatedValuesData.setVisible(false);
+                            continuousDataPreview.setVisible(true);
                             break;
                         case 'DEFAULT_EVENTS':
                             selectorPropertyForm.setVisible(false);

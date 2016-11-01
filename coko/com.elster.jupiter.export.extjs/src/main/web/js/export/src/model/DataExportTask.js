@@ -41,6 +41,17 @@ Ext.define('Dxp.model.DataExportTask', {
             }
         },
         {
+            name: 'usagePointGroup',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector) && (data.standardDataSelector.usagePointGroup)) {
+                    return data.standardDataSelector.usagePointGroup.name;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
             name: 'exportPeriod',
             persist: false,
             mapping: function (data) {

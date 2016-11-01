@@ -114,6 +114,17 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         }
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.usagePointGroup', 'DES', 'Usage point group'),
+                        name: 'usagePointGroup',
+                        hidden: true,
+                        itemId: 'data-selector-usage-point-group-preview',
+                        renderer: function (value) {
+                            if (value) {
+                                return Ext.String.htmlEncode(value);
+                            }
+                        }
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
                         name: 'readingTypes',
                         hidden: true,
