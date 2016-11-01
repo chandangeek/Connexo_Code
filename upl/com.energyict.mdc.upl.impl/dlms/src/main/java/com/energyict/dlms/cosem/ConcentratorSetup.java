@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.attributes.ConcentratorSetupAttributes;
 import com.energyict.dlms.cosem.methods.ConcentratorSetupMethods;
 
 /**
@@ -66,4 +68,8 @@ public final class ConcentratorSetup extends AbstractCosemObject {
 		
 		this.methodInvoke(ConcentratorSetupMethods.TRIGGER_PRELIMINARY_PROTOCOL, argument);
 	}
+
+    public void setDeviceLogLevel(final TypeEnum level) throws IOException {
+        write(ConcentratorSetupAttributes.PROTOCOL_LOG_LEVEL, level.getBEREncodedByteArray());
+    }
 }

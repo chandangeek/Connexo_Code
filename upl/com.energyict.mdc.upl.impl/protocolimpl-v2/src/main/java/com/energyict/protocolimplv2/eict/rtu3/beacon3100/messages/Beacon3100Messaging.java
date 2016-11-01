@@ -165,6 +165,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetDeviceName);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL);
         SUPPORTED_MESSAGES.add(DeviceActionMessage.RebootApplication);
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ActivateFirewall);
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.DeactivateFirewall);
@@ -511,6 +512,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         setNTPAddress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SyncNTPServer)) {
                         syncNTPServer(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL)) {
+                        setDeviceLogLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                         changeDlmAuthLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1)) {
@@ -1778,6 +1781,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         int auth = AuthenticationMechanism.fromAuthName(authName);
         getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
     }
+
+    private void setDeviceLogLevel(OfflineDeviceMessage pendingMessage) throws IOException {
+        String logLevel = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceLogLevel).getDeviceMessageAttributeValue();
+        int level = ConfigurationChangeDeviceMessage.DeviceLogLevel.valueOf(logLevel).getId();
+        getCosemObjectFactory().getConcentratorSetup().setDeviceLogLevel(new TypeEnum(level));
+    }
+
 
     /**
      * Performs a reset on a {@link ProfileGeneric}.
