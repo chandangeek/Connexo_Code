@@ -17,7 +17,7 @@ public class IssueAssigneeInfo {
     public IssueAssigneeInfo(String type, IssueAssignee assignee){
         if(type.equals("WORKGROUP")){
             if(assignee.getWorkGroup() != null) {
-                this.name = assignee.getWorkGroup().getName().toLowerCase();
+                this.name = assignee.getWorkGroup().getName();
                 this.id = assignee.getWorkGroup().getId();
             }
         }else if(type.equals("USER")){
