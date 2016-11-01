@@ -224,10 +224,6 @@ public class UsagePointGroupResource {
 
     private QueryUsagePointGroup createQueryUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo) {
         SearchDomain usagePointSearchDomain = findUsagePointSearchDomainOrThrowException();
-        JsonQueryFilter searchFilter = new JsonQueryFilter(usagePointGroupInfo.filter);
-        if (!searchFilter.hasFilters()) {
-            throw exceptionFactory.newException(MessageSeeds.AT_LEAST_ONE_SEARCH_CRITERION);
-        }
         return meteringGroupsService.createQueryUsagePointGroup(buildSearchablePropertyConditions(usagePointGroupInfo))
                 .setName(usagePointGroupInfo.name)
                 .setSearchDomain(usagePointSearchDomain)

@@ -10,24 +10,33 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
+import com.elster.jupiter.metering.groups.GroupBuilder;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.mockito.Answers;
@@ -38,6 +47,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -54,6 +65,8 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
     private Finder<UsagePoint> finder;
     @Mock
     private Query<UsagePointGroup> usagePointGroupQuery;
+    @Mock
+    private GroupBuilder.QueryGroupBuilder<UsagePoint, QueryUsagePointGroup> builder;
 
     @Test
     public void testGetQueryUsagePointGroup() throws Exception {
@@ -117,6 +130,91 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(jsonModel.<String>get("$.mRID")).isEqualTo("ABC");
         assertThat(jsonModel.<Boolean>get("$.dynamic")).isEqualTo(false);
         assertThat(jsonModel.<Integer>get("$.version")).isEqualTo(3);
+    }
+
+    @Test
+    public void testCreateQueryUsagePointGroupWithoutSearchDomain() throws IOException {
+        when(searchService.findDomain(UsagePoint.class.getName())).thenReturn(Optional.empty());
+        UsagePointGroupInfo info = new UsagePointGroupInfo();
+        info.name = "NewQueryGroup";
+        info.dynamic = true;
+        info.filter = "[]";
+
+        Response response = target("/usagepointgroups").request().post(Entity.json(info));
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Usage point search domain is not registered");
+    }
+
+    @Test
+    public void testCreateQueryUsagePointGroupWithoutFilters() throws IOException {
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchDomain.getId()).thenReturn(UsagePoint.class.getName());
+        when(searchService.findDomain(UsagePoint.class.getName())).thenReturn(Optional.of(searchDomain));
+        UsagePointGroupInfo info = new UsagePointGroupInfo();
+        info.name = "NewQueryGroup";
+        info.dynamic = true;
+        info.filter = "[]";
+
+        Response response = target("/usagepointgroups").request().post(Entity.json(info));
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("At least one search criterion has to be provided");
+    }
+
+    @Test
+    public void testCreateQueryUsagePointGroup() throws IOException {
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchDomain.getId()).thenReturn(UsagePoint.class.getName());
+        when(searchService.findDomain(UsagePoint.class.getName())).thenReturn(Optional.of(searchDomain));
+        SearchableProperty nameSearchableProperty = mock(SearchableProperty.class);
+        when(nameSearchableProperty.getName()).thenReturn("name");
+        when(searchDomain.getPropertiesValues(any())).thenAnswer(invocationOnMock -> Collections.singletonList(
+                ((Function<SearchableProperty, SearchablePropertyValue>)invocationOnMock.getArguments()[0])
+                        .apply(nameSearchableProperty)));
+
+        QueryUsagePointGroup group = mock(QueryUsagePointGroup.class);
+        when(group.getId()).thenReturn(133L);
+        when(builder.setAliasName(anyString())).thenReturn(builder);
+        when(builder.setName(anyString())).thenReturn(builder);
+        when(builder.setMRID(anyString())).thenReturn(builder);
+        when(builder.setDescription(anyString())).thenReturn(builder);
+        when(builder.setLabel(anyString())).thenReturn(builder);
+        when(builder.setQueryProviderName(anyString())).thenReturn(builder);
+        when(builder.setSearchDomain(any(SearchDomain.class))).thenReturn(builder);
+        when(builder.setType(anyString())).thenReturn(builder);
+        when(builder.create()).thenReturn(group);
+        doReturn(builder).when(meteringGroupsService).createQueryUsagePointGroup(anyVararg());
+
+        UsagePointGroupInfo info = new UsagePointGroupInfo();
+        info.name = "NewQueryGroup";
+        info.dynamic = true;
+        info.filter = JsonModel.model(ImmutableList.of(ImmutableMap.of(
+                "property", "name",
+                "value", ImmutableList.of(
+                        ImmutableMap.of(
+                                "operator", "==",
+                                "criteria", "*"
+                        )
+                )))).toJson();
+
+        String response = target("/usagepointgroups").request().post(Entity.json(info), String.class);
+
+        ArgumentCaptor<SearchablePropertyValue> captor = ArgumentCaptor.forClass(SearchablePropertyValue.class);
+        verify(meteringGroupsService).createQueryUsagePointGroup(captor.capture());
+        SearchablePropertyValue searchablePropertyValue = captor.getValue();
+        assertThat(searchablePropertyValue.getProperty()).isEqualTo(nameSearchableProperty);
+        assertThat(searchablePropertyValue.getValueBean().propertyName).isEqualTo("name");
+        assertThat(searchablePropertyValue.getValueBean().operator).isEqualTo(SearchablePropertyOperator.EQUAL);
+        assertThat(searchablePropertyValue.getValueBean().values).containsExactly("*");
+        verify(builder).setName(info.name);
+        verify(builder).setMRID("MDM:" + info.name);
+        verify(builder).setSearchDomain(searchDomain);
+        verify(builder).setQueryProviderName(anyString());
+        verify(builder).setLabel("MDM");
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(133);
     }
 
     @Test
