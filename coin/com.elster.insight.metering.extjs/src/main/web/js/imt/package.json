@@ -13,6 +13,7 @@
         "com.elster.jupiter.config.extjs",
         "com.elster.jupiter.bpm.extjs",
         "com.energyict.mdc.bpm.extjs",
-        "com.elster.jupiter.servicecall.extjs"
+        "com.elster.jupiter.servicecall.extjs",
+        "com.elster.jupiter.estimation.extjs"
     ]
 }
