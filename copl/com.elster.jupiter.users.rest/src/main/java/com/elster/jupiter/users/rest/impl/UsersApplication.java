@@ -35,15 +35,16 @@ public class UsersApplication extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(GroupResource.class,
-                               UserDirectoryResource.class,
-                               UserResource.class,
-                               PrivilegeResource.class,
-                               DomainResource.class,
-                               ResourceResource.class,
-                               CurrentUserResource.class,
-                               UsersFieldResource.class,
-                               FindGroupResource.class,
-                               FindUserResource.class);
+                UserDirectoryResource.class,
+                UserResource.class,
+                PrivilegeResource.class,
+                DomainResource.class,
+                ResourceResource.class,
+                CurrentUserResource.class,
+                UsersFieldResource.class,
+                FindGroupResource.class,
+                FindUserResource.class,
+                WorkGroupResource.class);
     }
     
     @Reference
