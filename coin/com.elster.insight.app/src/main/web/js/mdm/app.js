@@ -31,6 +31,10 @@ Ext.onReady(function () {
             path: '../../apps/dbp/src'
         },
         {
+            name: 'Fim',
+            path: '../../apps/fim/src'
+        },
+        {
             name: 'Yfn',
             path: '../../apps/yfn/src'
         }

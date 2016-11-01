@@ -11,6 +11,7 @@ Ext.define('MdmApp.Application', {
         'Imt.privileges.MetrologyConfig',
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
+        'Fim.privileges.DataImport',
         'Imt.privileges.UsagePointGroup',
         'Yfn.privileges.Yellowfin'
     ],

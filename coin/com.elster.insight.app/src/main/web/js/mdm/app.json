@@ -10,6 +10,7 @@
         "com.elster.jupiter.mdm.metering.extjs",
         "com.elster.jupiter.bpm.extjs",
         "com.energyict.mdc.bpm.extjs",
+        "com.elster.jupiter.fileimport.extjs",
         "com.elster.jupiter.yellowfin.extjs"
     ],
 
