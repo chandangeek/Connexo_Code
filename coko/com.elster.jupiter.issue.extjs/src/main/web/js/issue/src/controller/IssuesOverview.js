@@ -113,6 +113,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                     var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                     if (decoded && decoded.workgroups) {
                         queryString.myworkgroupissues = undefined;
+                        queryString.userAssignee = [-1];
                         queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
                             return wg.id;
                         });
