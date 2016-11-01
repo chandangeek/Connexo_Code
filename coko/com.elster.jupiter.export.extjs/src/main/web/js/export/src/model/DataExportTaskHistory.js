@@ -74,7 +74,17 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 }
             }
         },
-
+        {
+            name: 'usagePointGroup',
+            persist: false,
+            mapping: function (data) {
+                if (data.task.standardDataSelector) {
+                    return data.task.standardDataSelector.usagePointGroup.name;
+                } else {
+                    return '-';
+                }
+            }
+        },
         {
             name: 'name',
             persist:false,
