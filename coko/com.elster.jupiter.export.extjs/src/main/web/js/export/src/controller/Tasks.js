@@ -2026,7 +2026,6 @@ Ext.define('Dxp.controller.Tasks', {
                     readingTypesStore.each(function (record) {
                         arrReadingTypes.push(record.getData().readingType);
                     });
-                    //var timeFrameValue = form.down('#export-updated').getValue().updatedDataAndOrAdjacentData;
 
                     record.set('standardDataSelector', {
                         usagePointGroup: {
@@ -2044,11 +2043,6 @@ Ext.define('Dxp.controller.Tasks', {
                             id: form.down('#update-window').getValue(),
                             name: form.down('#update-window').getRawValue()
                         },
-                        //exportAdjacentData: timeFrameValue,
-                        //updateWindow: timeFrameValue ? {
-                        //    id: form.down('#timeFrame').getValue(),
-                        //    name: form.down('#timeFrame').getRawValue()
-                        //} : {},
                         exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
                         readingTypes: arrReadingTypes
                     });
