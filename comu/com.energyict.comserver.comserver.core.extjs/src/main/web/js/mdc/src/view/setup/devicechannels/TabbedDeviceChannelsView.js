@@ -12,7 +12,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
 
     mixins: {
-        bindable: 'Ext.util.Bindable'
+        bindable: 'Ext.util.Bindable',
+        graphWithGrid: 'Uni.util.GraphWithGrid'
     },
 
     prevNextstore: null,
@@ -88,7 +89,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 xtype: 'deviceLoadProfileChannelGraphView',
                                 mentionDataLoggerSlave: me.mentionDataLoggerSlave,
                                 listeners: {
-                                    barselect: Ext.bind(me.onBarSelect, me)
+                                    barselect: Ext.bind(me.onBarSelect, me, me, true)
                                 }
                             },
                             {
@@ -97,7 +98,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 router: me.router,
                                 mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
                                 listeners: {
-                                    rowselect: Ext.bind(me.onRowSelect, me)
+                                    rowselect: Ext.bind(me.onRowSelect, me, me, true)
                                 }
                             }
                         ]
@@ -167,134 +168,16 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     },
 
     onLoad: function () {
-        this.showGraphView();
+        var data;
+        if (this.store.getTotalCount() > 0) {
+            data = this.formatData();
+        }
+        this.showGraphView(this, data);
         this.setLoading(false);
     },
 
     onBeforeDestroy: function () {
         this.bindStore('ext-empty-store');
-    },
-
-    onBarSelect: function (point) {
-        var me = this,
-            tableView = me.down('deviceLoadProfileChannelTableView'),
-            grid = tableView.down('grid'),
-            index = grid.getStore().findExact('interval_end', new Date(point.intervalEnd)),
-            viewEl = grid.getView().getEl(),
-            currentScrollTop = viewEl.getScroll().top,
-            viewHeight = viewEl.getHeight(),
-            rowOffsetTop = index * 29,
-            newScrollTop;
-
-        if (index > -1) {
-            if (!(rowOffsetTop > currentScrollTop && rowOffsetTop < currentScrollTop + viewHeight)) {
-                newScrollTop = rowOffsetTop - viewHeight / 2;
-                if (newScrollTop > 0) {
-                    grid.getView().getEl().setScrollTop(newScrollTop);
-                } else {
-                    grid.getView().getEl().setScrollTop(0);
-                }
-            }
-
-            tableView.suspendEvent('rowselect');
-            grid.getSelectionModel().select(index);
-            tableView.resumeEvent('rowselect');
-        }
-    },
-
-    onRowSelect: function (record) {
-        var me = this,
-            index = me.down('deviceLoadProfileChannelTableView grid').getStore().indexOf(record),
-            graphView = me.down('deviceLoadProfileChannelGraphView'),
-            selectPoint = function () {
-                var data = graphView.chart.series[0].data,
-                    intervalEnd = record.get('interval_end').getTime(),
-                    xAxis = graphView.chart.xAxis[0],
-                    currentExtremes = xAxis.getExtremes(),
-                    range = currentExtremes.max - currentExtremes.min;
-
-                if (intervalEnd + range / 2 > currentExtremes.dataMax) {
-                    xAxis.setExtremes(currentExtremes.dataMax - range, currentExtremes.dataMax);
-                } else if (intervalEnd - range / 2 < currentExtremes.dataMin) {
-                    xAxis.setExtremes(currentExtremes.dataMin, currentExtremes.dataMin + range);
-                } else if (!(intervalEnd > currentExtremes.min && intervalEnd < currentExtremes.max)) {
-                    xAxis.setExtremes(intervalEnd - range / 2, intervalEnd + range / 2);
-                }
-                graphView.suspendEvent('barselect');
-                data[data.length - index - 1].select(true, false);
-                graphView.resumeEvent('barselect');
-            };
-
-        if (index > -1) {
-            if (graphView.chart) {
-                selectPoint();
-            } else if (graphView.rendered) {
-                me.on('graphrendered', selectPoint, me, {singelton: true});
-            }
-        }
-    },
-
-    showGraphView: function () {
-        var me = this,
-            dataStore = me.store,
-            channelRecord = me.channel,
-            container = me.down('deviceLoadProfileChannelGraphView'),
-            zoomLevelsStore = Ext.getStore('Uni.store.DataIntervalAndZoomLevels'),
-            calculatedReadingType = channelRecord.get('calculatedReadingType'),
-            channelName = calculatedReadingType && calculatedReadingType.fullAliasName ? calculatedReadingType.fullAliasName : '',
-            unitOfMeasure = channelRecord.get('readingType').unit,
-            seriesObject = {
-                marker: {
-                    enabled: false
-                },
-                name: channelName
-            },
-            yAxis = {
-                opposite: false,
-                gridLineDashStyle: 'Dot',
-                showEmpty: false,
-                title: {
-                    rotation: 270,
-                    text: unitOfMeasure
-                }
-            },
-            series = [],
-            intervalRecord,
-            zoomLevels,
-            intervalLengthInMs;
-
-        seriesObject['data'] = [];
-
-        intervalRecord = zoomLevelsStore.getIntervalRecord(channelRecord.get('interval'));
-        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
-        zoomLevels = intervalRecord.get('zoomLevels');
-
-        switch (channelRecord.get('flowUnit')) {
-            case 'flow':
-                seriesObject['type'] = 'line';
-                seriesObject['step'] = false;
-                break;
-            case 'volume':
-                seriesObject['type'] = 'column';
-                seriesObject['step'] = true;
-                break;
-        }
-
-        Ext.suspendLayouts();
-        if (dataStore.getTotalCount() > 0) {
-            var data = me.formatData();
-            seriesObject['data'] = data.data;
-            seriesObject['turboThreshold'] = Number.MAX_VALUE;
-
-            series.push(seriesObject);
-            container.down('#graphContainer').show();
-            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels, data.missedValues);
-        } else {
-            container.down('#graphContainer').hide();
-        }
-        me.updateLayout();
-        me.fireEvent('graphrendered');
-        Ext.resumeLayouts(true);
     },
 
     formatData: function () {

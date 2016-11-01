@@ -24,8 +24,8 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
             xtype: 'deviceLoadProfileChannelDataGrid',
             channelRecord: this.channel,
             router: me.router,
-            listeners: {
-                select: function (grid, record) {
+            listeners: {                
+                itemclick: function (dataView, record) {
                     me.fireEvent('rowselect', record);
                 }
             }
