@@ -24,6 +24,7 @@ Ext.define('Dxp.controller.Tasks', {
 
     stores: [
         'Dxp.store.DeviceGroups',
+        'Dxp.store.UsagePointGroups',
         'Dxp.store.DaysWeeksMonths',
         'Dxp.store.ExportPeriods',
         'Dxp.store.FileFormatters',
@@ -41,6 +42,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.AdaptedReadingsForBulk',
         'Dxp.store.UnitsOfMeasure',
         'Dxp.store.TimeOfUse',
+        'Dxp.store.MetrologyConfigurations',
+        'Dxp.store.MetrologyPurposes',
         'Dxp.store.Intervals',
         'Dxp.store.Clipboard',
         'Dxp.store.DataSelectors',
@@ -738,6 +741,7 @@ Ext.define('Dxp.controller.Tasks', {
             view = Ext.create('Dxp.view.tasks.Add'),
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
+            usagePointGroupCombo = view.down('#usage-point-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
@@ -775,8 +779,20 @@ Ext.define('Dxp.controller.Tasks', {
         deviceGroupCombo.store.load(function () {
             if (this.getCount() === 0) {
                 deviceGroupCombo.allowBlank = true;
+                Ext.suspendLayouts();
                 deviceGroupCombo.hide();
                 view.down('#no-device').show();
+                Ext.resumeLayouts(true);
+            }
+        });
+
+        usagePointGroupCombo.store.load(function () {
+            if (this.getCount() === 0) {
+                usagePointGroupCombo.allowBlank = true;
+                Ext.suspendLayouts();
+                usagePointGroupCombo.hide();
+                view.down('#no-usage-point').show();
+                Ext.resumeLayouts(true);
             }
         });
 
@@ -785,6 +801,8 @@ Ext.define('Dxp.controller.Tasks', {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name', 'months'));
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
+            } else if (this.getCount() === 1) {
+                dataSelectorCombo.setValue(this.getAt(0).get('name'));
             }
         });
         me.recurrenceEnableDisable();
@@ -817,6 +835,7 @@ Ext.define('Dxp.controller.Tasks', {
             taskForm = view.down('#add-data-export-task-form'),
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
+            usagePointGroupCombo = view.down('#usage-point-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
 
             dataSelectorCombo = view.down('#data-selector-combo'),
@@ -867,7 +886,9 @@ Ext.define('Dxp.controller.Tasks', {
             callback: function () {
                 taskModel.load(taskId, {
                     success: function (record) {
-                        var destinations = record.get('destinations');
+                        var destinations = record.get('destinations'),
+                            taskReadingTypes,
+                            readingTypesGrid;
                         Ext.suspendLayouts();
                         if (record.destinationsStore.count() > 0) {
                             emptyDestinationsLabel.hide();
@@ -896,8 +917,8 @@ Ext.define('Dxp.controller.Tasks', {
 
                             switch (record.getDataSelector().get('selectorType')) {
                                 case 'DEFAULT_READINGS':
-                                    var taskReadingTypes = record.getStandardDataSelector().get('readingTypes'),
-                                        readingTypesGrid = view.down('#readingTypesGridPanel');
+                                    taskReadingTypes = record.getStandardDataSelector().get('readingTypes');
+                                    readingTypesGrid = view.down('#readingTypesGridPanel');
 
                                     readingTypesGrid.getStore().removeAll();
                                     Ext.each(taskReadingTypes, function (readingType) {
@@ -951,6 +972,69 @@ Ext.define('Dxp.controller.Tasks', {
                                                 view.down('#no-device').show();
                                             }
                                             deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
+                                            Ext.resumeLayouts(true);
+                                        }
+                                    });
+                                    missingData.setValue({exportComplete: record.getStandardDataSelector().get('exportComplete')});
+
+                                    continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
+                                    break;
+                                case 'DEFAULT_USAGE_POINT_READINGS':
+                                    taskReadingTypes = record.getStandardDataSelector().get('readingTypes');
+                                    readingTypesGrid = view.down('#readingTypesGridPanel');
+
+                                    readingTypesGrid.getStore().removeAll();
+                                    Ext.each(taskReadingTypes, function (readingType) {
+                                        readingTypesGrid.getStore().add({readingType: readingType})
+                                    });
+                                    view.updateReadingTypesGrid();
+
+                                    exportPeriodCombo.store.load({
+                                        params: {
+                                            category: 'relativeperiod.category.dataExport'
+                                        },
+                                        callback: function () {
+                                            exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
+                                        }
+                                    });
+                                    updateWindowCombo.store.load({
+                                        params: {
+                                            category: 'relativeperiod.category.updateWindow'
+                                        },
+                                        callback: function () {
+                                            if (record.getStandardDataSelector().data.updatePeriod && record.getStandardDataSelector().data.updatePeriod.id !== 0) {
+                                                Ext.suspendLayouts();
+                                                updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
+                                                updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
+                                                Ext.resumeLayouts(true);
+                                            }
+                                        }
+                                    });
+                                    timeframeCombo.store.load({
+                                        params: {
+                                            category: 'relativeperiod.category.updateTimeframe'
+                                        },
+                                        callback: function () {
+                                            if (record.getStandardDataSelector().data.updateWindow) {
+                                                Ext.suspendLayouts();
+                                                timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updateWindow.id));
+                                                timeFrameRadioGroup.setValue({updatedDataAndOrAdjacentData: true});
+                                                Ext.resumeLayouts(true);
+                                            }
+
+
+                                        }
+                                    });
+
+                                    usagePointGroupCombo.store.load({
+                                        callback: function () {
+                                            Ext.suspendLayouts();
+                                            if (this.getCount() === 0) {
+                                                usagePointGroupCombo.allowBlank = true;
+                                                usagePointGroupCombo.hide();
+                                                view.down('#no-usage-point').show();
+                                            }
+                                            usagePointGroupCombo.setValue(usagePointGroupCombo.store.getById(record.getStandardDataSelector().data.usagePointGroup.id));
                                             Ext.resumeLayouts(true);
                                         }
                                     });
@@ -1369,10 +1453,13 @@ Ext.define('Dxp.controller.Tasks', {
         formatterCombo.show();
         switch (record.get('selectorType')) {
             case 'DEFAULT_READINGS':
-                me.showReadingTypeDataSelectorProperties();
+                me.showDeviceReadingsDataSelectorProperties();
                 break;
             case 'DEFAULT_EVENTS':
                 me.showEventTypeDataSelectorProperties();
+                break;
+            case 'DEFAULT_USAGE_POINT_READINGS':
+                me.showUsagePointReadingsDataSelectorProperties();
                 break;
             default:
                 me.hideDefaultDataSelectorProperties(true);
@@ -1440,11 +1527,12 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.resumeLayouts(true);
     },
 
-    showReadingTypeDataSelectorProperties: function () {
+    showDeviceReadingsDataSelectorProperties: function () {
         var me = this;
         var page = me.getAddPage();
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
+        page.down('#usage-point-group-container').setVisible(false);
         page.down('#readingTypesFieldContainer').setVisible(true);
         page.down('#eventTypesFieldContainer').setVisible(false);
         page.down('#export-periods-container').setVisible(true);
@@ -1459,11 +1547,32 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.resumeLayouts(true);
     },
 
+    showUsagePointReadingsDataSelectorProperties: function () {
+        var me = this;
+        var page = me.getAddPage();
+        Ext.suspendLayouts();
+        page.down('#device-group-container').setVisible(false);
+        page.down('#usage-point-group-container').setVisible(true);
+        page.down('#readingTypesFieldContainer').setVisible(true);
+        page.down('#eventTypesFieldContainer').setVisible(false);
+        page.down('#export-periods-container').setVisible(true);
+        page.down('#data-selector-properties').setVisible(false);
+        page.down('#data-selector-validated-data').setVisible(true);
+        page.down('#data-selector-export-complete').setVisible(true);
+        page.down('#updated-data-container').setVisible(false);
+        page.down('#continuous-data-container').setVisible(true);
+
+        me.updatedDataEnableDisable();
+        me.exportUpdatedEnableDisabled();
+        Ext.resumeLayouts(true);
+    },
+
     showEventTypeDataSelectorProperties: function (hidden) {
         var me = this;
         var page = me.getAddPage();
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
+        page.down('#usage-point-group-container').setVisible(false);
         page.down('#readingTypesFieldContainer').setVisible(false);
         page.down('#eventTypesFieldContainer').setVisible(true);
         page.down('#export-periods-container').setVisible(true);
@@ -1716,14 +1825,25 @@ Ext.define('Dxp.controller.Tasks', {
             }
             form.down('#formatter-container').doComponentLayout();
 
-            var deviceGroupCombo = page.down('#device-group-combo'),
-                noDeviceGroupChosen = !deviceGroupCombo.getValue() || deviceGroupCombo.getValue().length === 0;
-            if (noDeviceGroupChosen) {
-                form.down('#device-group-container').setActiveError(me.requiredFieldText);
+            if (selectedDataSelector.get('selectorType') !== 'DEFAULT_USAGE_POINT_READINGS') {
+                var deviceGroupCombo = page.down('#device-group-combo'),
+                    noDeviceGroupChosen = !deviceGroupCombo.getValue() || deviceGroupCombo.getValue().length === 0;
+                if (noDeviceGroupChosen) {
+                    form.down('#device-group-container').setActiveError(me.requiredFieldText);
+                } else {
+                    form.down('#device-group-container').unsetActiveError();
+                }
+                form.down('#device-group-container').doComponentLayout();
             } else {
-                form.down('#device-group-container').unsetActiveError();
+                var usagePointGroupCombo = form.down('#usage-point-group-combo'),
+                    noUsagePointGroupChosen = !usagePointGroupCombo.getValue() || usagePointGroupCombo.getValue().length === 0;
+                if (noUsagePointGroupChosen) {
+                    form.down('#usage-point-group-container').setActiveError(me.requiredFieldText);
+                } else {
+                    form.down('#usage-point-group-container').unsetActiveError();
+                }
+                form.down('#device-group-container').doComponentLayout();
             }
-            form.down('#device-group-container').doComponentLayout();
 
             var selectedExportWindow = !exportWindowCombo.getValue() || exportWindowCombo.getValue().length === 0;
             if (selectedExportWindow) {
@@ -1897,6 +2017,38 @@ Ext.define('Dxp.controller.Tasks', {
                             id: form.down('#timeFrame').getValue(),
                             name: form.down('#timeFrame').getRawValue()
                         } : {},
+                        exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
+                        readingTypes: arrReadingTypes
+                    });
+                    break;
+                case 'DEFAULT_USAGE_POINT_READINGS':
+                    record.setStandardDataSelector(null);
+                    readingTypesStore.each(function (record) {
+                        arrReadingTypes.push(record.getData().readingType);
+                    });
+                    //var timeFrameValue = form.down('#export-updated').getValue().updatedDataAndOrAdjacentData;
+
+                    record.set('standardDataSelector', {
+                        usagePointGroup: {
+                            id: form.down('#usage-point-group-combo').getValue(),
+                            name: form.down('#usage-point-group-combo').getRawValue()
+                        },
+                        exportPeriod: {
+                            id: form.down('#export-period-combo').getValue(),
+                            name: form.down('#export-period-combo').getRawValue()
+                        },
+                        exportComplete: form.down('#data-selector-export-complete').getValue().exportComplete,
+                        validatedDataOption: form.down('#data-selector-validated-data').getValue().validatedDataOption,
+                        exportUpdate: form.down('#updated-data-trigger').getValue().exportUpdate,
+                        updatePeriod: {
+                            id: form.down('#update-window').getValue(),
+                            name: form.down('#update-window').getRawValue()
+                        },
+                        //exportAdjacentData: timeFrameValue,
+                        //updateWindow: timeFrameValue ? {
+                        //    id: form.down('#timeFrame').getValue(),
+                        //    name: form.down('#timeFrame').getRawValue()
+                        //} : {},
                         exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
                         readingTypes: arrReadingTypes
                     });
@@ -2146,6 +2298,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         view.down('#data-selector-combo').setValue(formModel.get('readingTypeDataSelector.value.dataSelector'));
         view.down('#device-group-combo').setValue(formModel.get('readingTypeDataSelector.value.endDeviceGroup'));
+        view.down('#usage-point-group-combo').setValue(formModel.get('readingTypeDataSelector.value.usagePointGroup'));
         view.down('#export-period-combo').setValue(formModel.get('readingTypeDataSelector.value.exportPeriod'));
 
 

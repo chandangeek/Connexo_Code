@@ -1,19 +1,16 @@
-Ext.define('Dxp.store.DeviceGroups', {
+Ext.define('Dxp.store.UsagePointGroups', {
     extend: 'Ext.data.Store',
-    requires: [
-        'Dxp.model.DeviceGroup'
-    ],
-    model: 'Dxp.model.DeviceGroup',
+    model: 'Dxp.model.UsagePointGroup',
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/export/fields/metergroups',
+        url: '/api/export/fields/usagepointgroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'metergroups'
+            root: 'usagePointGroups'
         }
     }
 });

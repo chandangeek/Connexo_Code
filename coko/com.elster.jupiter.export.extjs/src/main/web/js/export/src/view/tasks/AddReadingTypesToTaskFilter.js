@@ -59,6 +59,26 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
             }
         },
         {
+            type: 'combobox',
+            dataIndex: 'metrologyConfiguration',
+            emptyText: Uni.I18n.translate('dataExportTasks.metrologyConfiguration', 'DES', 'Metrology configuration'),
+            displayField: 'name',
+            itemId: 'cbo-metrology-configuration',
+            valueField: 'id',
+            store: 'Dxp.store.MetrologyConfigurations',
+            privileges: Uni.util.Application.getAppName() === 'MdmApp'
+        },
+        {
+            type: 'combobox',
+            dataIndex: 'metrologyPurpose',
+            emptyText: Uni.I18n.translate('dataExportTasks.purpose', 'DES', 'Purpose'),
+            displayField: 'name',
+            itemId: 'cbo-purpose',
+            valueField: 'id',
+            store: 'Dxp.store.MetrologyPurposes',
+            privileges: Uni.util.Application.getAppName() === 'MdmApp'
+        },
+        {
             type: 'noui',
             dataIndex: 'selectedreadingtypes',
             itemId: 'selectedReadingsFilterComponent'
