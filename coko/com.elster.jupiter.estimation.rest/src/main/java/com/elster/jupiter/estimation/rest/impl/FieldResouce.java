@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 
 import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -22,6 +23,7 @@ public class FieldResouce {
 
     private final MeteringGroupsService meteringGroupsService;
 
+    @Inject
     public FieldResouce(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
