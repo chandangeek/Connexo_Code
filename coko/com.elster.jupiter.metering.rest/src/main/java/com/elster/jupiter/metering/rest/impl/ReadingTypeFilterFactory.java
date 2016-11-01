@@ -52,8 +52,8 @@ public class ReadingTypeFilterFactory {
             filter.addMRIDsCondition(readingTypes);
         });
 
-        if (jsonQueryFilter.hasProperty("metrologypurpose")) {
-            Long metrologyPurposeId = jsonQueryFilter.getLong("metrologypurpose");
+        if (jsonQueryFilter.hasProperty("metrologyPurpose")) {
+            Long metrologyPurposeId = jsonQueryFilter.getLong("metrologyPurpose");
             metrologyConfigurationService.findMetrologyPurpose(metrologyPurposeId).ifPresent(metrologyPurpose -> {
                 List<String> readingTypes = getReadingTypesOfMetrologyPurpose(metrologyPurpose, jsonQueryFilter);
                 filter.addMRIDsCondition(readingTypes);
@@ -92,8 +92,8 @@ public class ReadingTypeFilterFactory {
     }
 
     private Optional<MetrologyConfiguration> getMetrologyConfigurationFromFilter(JsonQueryFilter jsonQueryFilter) {
-        if (jsonQueryFilter.hasProperty("metrologyconfiguration")) {
-            Long metrologyConfigurationId = jsonQueryFilter.getLong("metrologyconfiguration");
+        if (jsonQueryFilter.hasProperty("metrologyConfiguration")) {
+            Long metrologyConfigurationId = jsonQueryFilter.getLong("metrologyConfiguration");
             return metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigurationId);
         }
         return Optional.empty();

@@ -159,7 +159,7 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         when(finder.from(any())).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.empty());
 
-        String filter = ExtjsFilter.filter().property("metrologyconfiguration", 13L).create();
+        String filter = ExtjsFilter.filter().property("metrologyConfiguration", 13L).create();
 
         // Business method
         Response response = target("/readingtypes").queryParam("filter", filter).request().get();
@@ -200,7 +200,7 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         when(finder.from(any())).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.empty());
 
-        String filter = ExtjsFilter.filter().property("metrologypurpose", 12L).create();
+        String filter = ExtjsFilter.filter().property("metrologyPurpose", 12L).create();
 
         // Business method
         Response response = target("/readingtypes").queryParam("filter", filter).request().get();
@@ -243,8 +243,8 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         when(finder.stream()).thenReturn(Stream.empty());
 
         String filter = ExtjsFilter.filter()
-                .property("metrologyconfiguration", 13L)
-                .property("metrologypurpose", 12L)
+                .property("metrologyConfiguration", 13L)
+                .property("metrologyPurpose", 12L)
                 .create();
 
         // Business method
