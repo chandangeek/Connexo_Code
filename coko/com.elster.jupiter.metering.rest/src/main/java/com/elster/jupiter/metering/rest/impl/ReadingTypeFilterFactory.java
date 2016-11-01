@@ -1,17 +1,30 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Where;
 
+import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ReadingTypeFilterFactory {
 
-    public static ReadingTypeFilter from(JsonQueryFilter jsonQueryFilter) {
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
+    @Inject
+    public ReadingTypeFilterFactory(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    public ReadingTypeFilter from(JsonQueryFilter jsonQueryFilter) {
         ReadingTypeFilter filter = new ReadingTypeFilter();
 
         if (jsonQueryFilter.hasProperty("mRID")) {
@@ -34,6 +47,19 @@ public class ReadingTypeFilterFactory {
             filter.addActiveCondition(jsonQueryFilter.getBoolean("active"));
         }
 
+        getMetrologyConfigurationFromFilter(jsonQueryFilter).ifPresent(metrologyConfiguration -> {
+            List<String> readingTypes = getReadingTypesOfMetrologyConfiguration(metrologyConfiguration);
+            filter.addMRIDsCondition(readingTypes);
+        });
+
+        if (jsonQueryFilter.hasProperty("metrologypurpose")) {
+            Long metrologyPurposeId = jsonQueryFilter.getLong("metrologypurpose");
+            metrologyConfigurationService.findMetrologyPurpose(metrologyPurposeId).ifPresent(metrologyPurpose -> {
+                List<String> readingTypes = getReadingTypesOfMetrologyPurpose(metrologyPurpose, jsonQueryFilter);
+                filter.addMRIDsCondition(readingTypes);
+            });
+        }
+
         Arrays.stream(ReadingTypeFilter.ReadingTypeFields.values())
                 .filter(e -> jsonQueryFilter.hasProperty(e.getName()) && !jsonQueryFilter.getPropertyList(e.getName()).isEmpty())
                 .forEach(e -> filter.addCodedValueCondition(e.getName(), jsonQueryFilter.getPropertyList(e.getName())));
@@ -45,4 +71,31 @@ public class ReadingTypeFilterFactory {
         return filter;
     }
 
+    private List<String> getReadingTypesOfMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
+        return metrologyConfiguration.getDeliverables().stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .map(ReadingType::getMRID)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> getReadingTypesOfMetrologyPurpose(MetrologyPurpose metrologyPurpose, JsonQueryFilter jsonQueryFilter) {
+        return getMetrologyConfigurationFromFilter(jsonQueryFilter)
+                .map(Stream::of)
+                .orElseGet(() -> metrologyConfigurationService.findAllMetrologyConfigurations().stream())
+                .flatMap(mc -> mc.getContracts().stream())
+                .filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(metrologyPurpose))
+                .flatMap(metrologyContract -> metrologyContract.getDeliverables().stream())
+                .map(ReadingTypeDeliverable::getReadingType)
+                .distinct()
+                .map(ReadingType::getMRID)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<MetrologyConfiguration> getMetrologyConfigurationFromFilter(JsonQueryFilter jsonQueryFilter) {
+        if (jsonQueryFilter.hasProperty("metrologyconfiguration")) {
+            Long metrologyConfigurationId = jsonQueryFilter.getLong("metrologyconfiguration");
+            return metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigurationId);
+        }
+        return Optional.empty();
+    }
 }
