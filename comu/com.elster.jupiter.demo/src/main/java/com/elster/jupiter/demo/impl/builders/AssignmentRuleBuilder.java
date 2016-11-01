@@ -19,6 +19,7 @@ public class AssignmentRuleBuilder extends NamedBuilder<AssignmentRule, Assignme
     private String description;
     private String ruleData;
     private Long userId;
+    private Long workgroupId;
     private String reasonKey;
 
     @Inject
@@ -48,6 +49,11 @@ public class AssignmentRuleBuilder extends NamedBuilder<AssignmentRule, Assignme
         return this;
     }
 
+    public AssignmentRuleBuilder withWorkgroupId(Long workgroupId) {
+        this.workgroupId = workgroupId;
+        return this;
+    }
+
     @Override
     public Optional<AssignmentRule> find() {
         return issueAssignmentService.getAssignmentRuleQuery().select(where("title").isEqualTo(getName())).stream().findFirst();
@@ -61,6 +67,9 @@ public class AssignmentRuleBuilder extends NamedBuilder<AssignmentRule, Assignme
         }
         if (this.userId != null){
             this.ruleData = this.ruleData.replace("@USERID", Long.toString(this.userId));
+        }
+        if(this.workgroupId != null){
+            this.ruleData = this.ruleData.replace("@WORKGROUPID", Long.toString(this.workgroupId));
         }
         if (this.reasonKey != null){
             Optional<IssueReason> reasonRef = issueService.findReason(this.reasonKey);
