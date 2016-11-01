@@ -463,6 +463,7 @@ Ext.define('Dxp.controller.Tasks', {
                     case 'DEFAULT_READINGS':
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').show();
+                        previewForm.down('#data-selector-usage-point-group-preview').hide();
                         previewForm.down('#data-selector-readingTypes-preview').show();
                         previewForm.down('#data-selector-eventTypes-preview').hide();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
@@ -480,9 +481,23 @@ Ext.define('Dxp.controller.Tasks', {
                         //updatedData.show();
                         //updatedValuesData.show();
                         break;
+                    case 'DEFAULT_USAGE_POINT_READINGS':
+                        previewForm.down('#data-selector-properties-preview').hide();
+                        previewForm.down('#data-selector-deviceGroup-preview').hide();
+                        previewForm.down('#data-selector-usage-point-group-preview').show();
+                        previewForm.down('#data-selector-readingTypes-preview').show();
+                        previewForm.down('#data-selector-eventTypes-preview').hide();
+                        previewForm.down('#data-selector-exportPeriod-preview').show();
+                        previewForm.down('#continuousData-preview').show();
+                        previewForm.down('#updated-data').hide();
+                        previewForm.down('#updated-values').hide();
+                        previewForm.down('#data-selector-export-complete').show();
+                        previewForm.down('#data-selector-validated-data').show();
+                        break;
                     case 'DEFAULT_EVENTS':
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').show();
+                        previewForm.down('#data-selector-usage-point-group-preview').hide();
                         previewForm.down('#data-selector-readingTypes-preview').hide();
                         previewForm.down('#data-selector-eventTypes-preview').show();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
