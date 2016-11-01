@@ -39,7 +39,7 @@ Ext.define('Isu.view.issues.Grid', {
                 header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                 dataIndex: 'dueDate',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateShort(value) : '';
+                    return value ? Uni.DateTime.formatDateShort(value) : '-';
                 },
                 width: 140
             },
@@ -48,7 +48,7 @@ Ext.define('Isu.view.issues.Grid', {
                 header: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
                 dataIndex: 'modTime',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateShort(value) : '';
+                    return value ? Uni.DateTime.formatDateShort(value) : '-';
                 },
                 width: 140
             },
@@ -63,6 +63,9 @@ Ext.define('Isu.view.issues.Grid', {
                 header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
                 xtype: 'isu-workgroup-column',
                 dataIndex: 'workGroupAssignee',
+                renderer: function (value) {
+                    return (value && value.name) ? value.name : '-';
+                },
                 flex: 1
             },
             {
@@ -70,6 +73,9 @@ Ext.define('Isu.view.issues.Grid', {
                 header: Uni.I18n.translate('general.user', 'ISU', 'User'),
                 xtype: 'isu-assignee-column',
                 dataIndex: 'userAssignee',
+                renderer: function (value) {
+                    return (value && value.name) ? value.name : '-';
+                },
                 flex: 1
             },
             {

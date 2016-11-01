@@ -52,7 +52,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 itemId: 'issue-assignee-filter',
                 dataIndex: 'userAssignee',
                 multiSelect: true,
-                emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
+                emptyText: Uni.I18n.translate('general.user', 'ISU', 'User'),
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
                 valueField: 'id',

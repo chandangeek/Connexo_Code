@@ -59,6 +59,7 @@ Ext.define('Isu.view.issues.Preview', {
                                 me.down('#issue-preview-reason').setVisible(me.getRecord().get('issueType').uid != 'datavalidation');
                                 return Ext.String.htmlEncode(value.name);
                             }
+                            return '-';
                         }
                     },
                     {
@@ -67,7 +68,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.type', 'ISU', 'Type'),
                         name: 'issueType',
                         renderer: function (value) {
-                            return value ? value.name : '';
+                            return value ? value.name : '-';
                         }
                     },
                     {
@@ -82,7 +83,7 @@ Ext.define('Isu.view.issues.Preview', {
                         name: 'device',
                         renderer: function (value) {
                             var url = '',
-                                result = '';
+                                result = '-';
 
                             if (value) {
                                 if (value.serialNumber && Isu.privileges.Device.canViewDeviceCommunication()) {
@@ -105,7 +106,7 @@ Ext.define('Isu.view.issues.Preview', {
                             if (value && me.getRecord()) {
                                 me.down('#issue-preview-device').setVisible(me.getRecord().get('reason').id != 'reason.unknown.inbound.device');
                                 field.setVisible(me.getRecord().get('reason').id == 'reason.unknown.inbound.device');
-                                return value ? Ext.String.htmlEncode(value) : '';
+                                return value ? Ext.String.htmlEncode(value) : '-';
                             }
                         }
                     }
@@ -123,7 +124,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
                         name: 'status',
                         renderer: function (value) {
-                            return value.name ? value.name : '';
+                            return value.name ? value.name : '-';
                         }
                     },
                     {
@@ -131,7 +132,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateShort(value) : '';
+                            return value ? Uni.DateTime.formatDateShort(value) : '-';
                         }
                     },
                     {
@@ -153,7 +154,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'ISU', 'None');
+                            return value.name ? Ext.String.htmlEncode(value.name) : '-';
                         }
                     },
                     {
@@ -162,16 +163,15 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.USER', 'ISU', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'ISU', 'None');
+                            return value.name ? Ext.String.htmlEncode(value.name) : '-';
                         }
                     },
-
                     {
                         itemId: 'issue-preview-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                         }
                     }
                 ]

@@ -18,7 +18,7 @@ Ext.define('Isu.view.component.WorkgroupColumn', {
                 result += Ext.String.htmlEncode(value.name);
             }
         } else {
-            result = ' '
+            result = '-'
         }
 
         return result || this.columns[colIndex].emptyText;
