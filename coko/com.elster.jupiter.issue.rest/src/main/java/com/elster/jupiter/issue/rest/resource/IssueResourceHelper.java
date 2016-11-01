@@ -153,13 +153,19 @@ public class IssueResourceHelper {
             }
         }
 
-        jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP)
-                .stream().map(id -> userService.getWorkGroup(id).orElse(null))
-                .filter(workGroup -> workGroup != null)
-                .forEach(filter::addWorkGroupAssignee);
 
-        if(jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id == -1L)){
-            filter.setUnassignedWorkGroupSelected();
+        if(jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().allMatch(s-> s == null)){
+            jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(id -> userService.getWorkGroup(Long.valueOf(id)).orElse(null))
+                    .filter(workGroup -> workGroup != null)
+                    .forEach(filter::addWorkGroupAssignee);
+        }else{
+            jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP)
+                    .stream().map(id -> userService.getWorkGroup(id).orElse(null))
+                    .filter(workGroup -> workGroup != null)
+                    .forEach(filter::addWorkGroupAssignee);
+            if(jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id == -1L)){
+                filter.setUnassignedWorkGroupSelected();
+            }
         }
 
         jsonFilter.getStringList(IssueRestModuleConst.ISSUE_TYPE).stream()
