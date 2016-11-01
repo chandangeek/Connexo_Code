@@ -33,7 +33,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'deviceGroup',
             persist: false,
             mapping: function (data) {
-                if ((data.standardDataSelector) && (data.standardDataSelector.deviceGroup)) {
+                if (data.standardDataSelector && data.standardDataSelector.deviceGroup) {
                     return data.standardDataSelector.deviceGroup.name;
                 } else {
                     return null;
@@ -44,7 +44,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'usagePointGroup',
             persist: false,
             mapping: function (data) {
-                if ((data.standardDataSelector) && (data.standardDataSelector.usagePointGroup)) {
+                if (data.standardDataSelector && data.standardDataSelector.usagePointGroup) {
                     return data.standardDataSelector.usagePointGroup.name;
                 } else {
                     return null;
