@@ -118,6 +118,56 @@ Ext.define('Usr.controller.history.UserManagement', {
                         }
 
                     }
+                },
+                workgroups: {
+                    title: Uni.I18n.translate('general.workgroups', 'USR', 'Workgroups'),
+                    route: 'workgroups',
+                    controller: 'Usr.controller.Workgroups',
+                    action: 'showWorkgroups',
+                    privileges: Usr.privileges.Users.view,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addWorkgroup', 'USR', 'Add workgroup'),
+                            route: 'add',
+                            controller: 'Usr.controller.Workgroups',
+                            privileges: Usr.privileges.Users.admin,
+                            action: 'showAddWorkgroup',
+                            items: {
+                                users: {
+                                    title: Uni.I18n.translate('general.selectUsers', 'USR', 'Select users'),
+                                    route: 'users',
+                                    controller: 'Usr.controller.Workgroups',
+                                    privileges: Usr.privileges.Users.admin,
+                                    action: 'addUsers'
+                                }
+                            }
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
+                            route: '{workgroupId}/edit',
+                            controller: 'Usr.controller.Workgroups',
+                            privileges: Usr.privileges.Users.admin,
+                            action: 'showEditWorkgroup',
+                            callback: function (route) {
+                                this.getApplication().on('editWorkgroup', function (record) {
+                                    route.setTitle(Ext.String.format(Uni.I18n.translate('workgroups.edit', 'USR', 'Edit \'{0}\''), record.get('name')));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            },
+                            items: {
+                                users: {
+                                    title: Uni.I18n.translate('general.selectUsers', 'USR', 'Select users'),
+                                    route: 'users',
+                                    controller: 'Usr.controller.Workgroups',
+                                    privileges: Usr.privileges.Users.admin,
+                                    action: 'addUsers'
+                                }
+                            }
+                        },
+
+                    }
                 }
             }
         }
