@@ -1,6 +1,8 @@
 package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction;
+import com.elster.jupiter.issue.impl.actions.UnassignIssueAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
@@ -128,6 +130,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private void createActionTypes() {
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignToMeIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, UnassignIssueAction.class.getName(), type);
     }
 
 }
