@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -116,6 +117,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
     private RelativePeriod lastYear;
     private RelativePeriod oneYearBeforeLastYear;
     private EndDeviceGroup endDeviceGroup;
+    private UsagePointGroup usagePointGroup;
 
     private DataExportServiceImpl dataExportService;
 
@@ -134,6 +136,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         lastYear = getTimeService().createRelativePeriod("last year", startOfLastYear, startOfThisYear, getTimeService().getRelativePeriodCategories());
         oneYearBeforeLastYear = getTimeService().createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, getTimeService().getRelativePeriodCategories());
         endDeviceGroup = getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("none").create();
+        usagePointGroup = getMeteringGroupsService().createEnumeratedUsagePointGroup().setName("up-group").create();
         anotherEndDeviceGroup = getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("also none").create();
     }
 
@@ -292,7 +295,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testCreation() {
+    public void testCreateExportTaskWithMeterReadingSelector() {
         // Business method
         ExportTask exportTask = createAndSaveTask();
 
@@ -325,7 +328,55 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testCreationForEvents() {
+    public void testCreateExportTaskWithUsagePointReadingSelector() {
+        // Business method
+        ExportTask exportTask = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName(NAME)
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .selectingUsagePointReadings()
+                .fromUsagePointGroup(usagePointGroup)
+                .fromExportPeriod(lastYear)
+                .continuousData(true)
+                .exportComplete(true)
+                .withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL)
+                .fromReadingType(readingType)
+                .endSelection()
+                .create();
+
+        // Asserts
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTaskImpl task = (ExportTaskImpl) found.get();
+
+        assertThat(task.getLastRun()).isEmpty();
+        assertThat(task.getNextExecution()).isEqualTo(ExportInMemoryBootstrapModule.NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
+        assertThat(task.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
+        assertThat(task.getApplication()).isEqualTo(APPLICATION);
+        assertThat(task.getOccurrences()).isEmpty();
+        assertThat(task.getStandardDataSelectorConfig()).isPresent();
+
+        UsagePointReadingSelectorConfig selectorConfig = task.getStandardDataSelectorConfig().map(UsagePointReadingSelectorConfig.class::cast).get();
+
+        assertThat(selectorConfig.getUsagePointGroup().getId()).isEqualTo(usagePointGroup.getId());
+        assertThat(selectorConfig.getExportPeriod().getId()).isEqualTo(lastYear.getId());
+        assertThat(selectorConfig.getStrategy().getUpdatePeriod()).isEmpty();
+        assertThat(selectorConfig.getStrategy()).isNotNull();
+        assertThat(selectorConfig.getStrategy().getValidatedDataOption()).isEqualTo(ValidatedDataOption.EXCLUDE_INTERVAL);
+        assertThat(selectorConfig.getStrategy().isExportContinuousData()).isTrue();
+        assertThat(selectorConfig.getStrategy().isExportUpdate()).isFalse();
+        assertThat(selectorConfig.getStrategy().isExportCompleteData()).isTrue();
+        assertThat(selectorConfig.getReadingTypes()).containsExactly(readingType);
+    }
+
+    @Test
+    @Transactional
+    public void testCreateExportTaskWithEventSelector() {
         ExportTask exportTask = dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(NAME)

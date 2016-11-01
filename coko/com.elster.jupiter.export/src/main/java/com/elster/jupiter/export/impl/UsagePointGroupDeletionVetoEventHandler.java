@@ -8,9 +8,8 @@ import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
 import com.elster.jupiter.metering.groups.EventType;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,23 +22,18 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
-
-/**
- * Copyrights EnergyICT
- * Date: 27/03/2014
- * Time: 10:37
- */
-@Component(name = "com.elster.jupiter.export.enddevicegroup.deletionEventHandler", service = TopicHandler.class, immediate = true)
-public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
+@Component(name = "com.elster.jupiter.export.usagepointgroup.deletionEventHandler", service = TopicHandler.class, immediate = true)
+public class UsagePointGroupDeletionVetoEventHandler implements TopicHandler {
 
     private volatile DataExportService dataExportService;
     private volatile Thesaurus thesaurus;
 
-    public EndDeviceGroupDeletionVetoEventHandler() {
+    @SuppressWarnings("unused") // for OSGI
+    public UsagePointGroupDeletionVetoEventHandler() {
     }
 
     @Inject
-    public EndDeviceGroupDeletionVetoEventHandler(DataExportService dataExportService, Thesaurus thesaurus) {
+    public UsagePointGroupDeletionVetoEventHandler(DataExportService dataExportService, Thesaurus thesaurus) {
         setDataExportService(dataExportService);
         this.thesaurus = thesaurus;
     }
@@ -56,19 +50,22 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
-        EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
-        List<? extends ExportTask> tasks = dataExportService.findReadingTypeDataExportTasks();
+        // TODO: complete when usage point deletion event is available
+//        EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
+//        UsagePointGroup usagePointGroup = eventSource.getUsagePointGroup();
+        UsagePointGroup usagePointGroup = null;
+        List<? extends ExportTask> tasks = dataExportService.findExportTasks().find();
 
         tasks.stream()
                 .map(ExportTask::getStandardDataSelectorConfig)
                 .flatMap(Functions.asStream())
-                .map(EndDeviceGroupGetter::getEndDeviceGroup)
+                .map(UsagePointGroupGetter::getUsagePointGroup)
                 .flatMap(Functions.asStream())
-                .filter(endDeviceGroup::equals)
-                .findAny().ifPresent(readingTypeDataSelector -> {
-            throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
-        });
+                .filter(usagePointGroup::equals)
+                .findAny()
+                .ifPresent(selector -> {
+                    throw new VetoDeleteUsagePointGroupException(thesaurus, usagePointGroup);
+                });
     }
 
     @Override
@@ -76,29 +73,29 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
         return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
     }
 
-    private static class EndDeviceGroupGetter implements DataSelectorConfig.DataSelectorConfigVisitor {
+    private static class UsagePointGroupGetter implements DataSelectorConfig.DataSelectorConfigVisitor {
 
-        private EndDeviceGroup endDeviceGroup;
+        private UsagePointGroup usagePointGroup;
 
-        private static Optional<EndDeviceGroup> getEndDeviceGroup(DataSelectorConfig selectorConfig) {
-            EndDeviceGroupGetter visitor = new EndDeviceGroupGetter();
+        private static Optional<UsagePointGroup> getUsagePointGroup(DataSelectorConfig selectorConfig) {
+            UsagePointGroupGetter visitor = new UsagePointGroupGetter();
             selectorConfig.apply(visitor);
-            return Optional.ofNullable(visitor.endDeviceGroup);
+            return Optional.ofNullable(visitor.usagePointGroup);
         }
 
         @Override
         public void visit(MeterReadingSelectorConfig config) {
-            endDeviceGroup = config.getEndDeviceGroup();
+            // no usage point groups used
         }
 
         @Override
         public void visit(UsagePointReadingSelectorConfig config) {
-            // no device groups used
+            usagePointGroup = config.getUsagePointGroup();
         }
 
         @Override
         public void visit(EventSelectorConfig config) {
-            endDeviceGroup = config.getEndDeviceGroup();
+            // no usage point group used
         }
     }
 }
