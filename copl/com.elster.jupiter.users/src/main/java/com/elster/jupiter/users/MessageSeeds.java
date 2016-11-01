@@ -26,8 +26,8 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_SIZE_BETWEEN_1_AND_10(1016, Keys.FIELD_SIZE_BETWEEN_1_AND_10, "Field text length should be between 1 and 10 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_64(1017, Keys.FIELD_SIZE_BETWEEN_1_AND_64, "Field text length should be between 1 and 64 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_65(1018, Keys.FIELD_SIZE_BETWEEN_1_AND_65, "Field text length should be between 1 and 65 symbols"),
-    FIELD_SIZE_BETWEEN_1_AND_256(1019, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field text length should be between 1 and 256 symbols");
-    ;
+    FIELD_SIZE_BETWEEN_1_AND_256(1019, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field text length should be between 1 and 256 symbols"),
+    DUPLICATE_WORKGROUP_NAME(1020, Keys.DUPLICATE_WORKGROUP_NAME, "Duplicate name");
 
     private final int number;
     private final String key;
@@ -95,6 +95,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
         public static final String ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED = "OnlyOneDefaultKeyPerLocaleAllowed";
         public static final String DUPLICATE_GROUP_NAME = "DuplicateGroupName";
+        public static final String DUPLICATE_WORKGROUP_NAME = "DuplicateWorkGroupName";
         public static final String DUPLICATE_USER_DIRECTORY = "Duplicate name";
         public static final String UNDERLYING_IO_EXCEPTION = "UnderlyingIO";
     }

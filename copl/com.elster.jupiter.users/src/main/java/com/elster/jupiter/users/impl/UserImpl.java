@@ -238,6 +238,9 @@ public final class UserImpl implements User {
         getMemberships()
                 .stream()
                 .forEach(UserInGroup::delete);
+        dataModel.mapper(UsersInWorkGroup.class).find("userId", this.getId())
+                .stream()
+                .forEach(UsersInWorkGroup::delete);
     }
 
     @Override

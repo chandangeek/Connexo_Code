@@ -10,6 +10,7 @@ import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.WorkGroup;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -66,6 +67,19 @@ public enum TableSpecs {
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_GROUP").on(idColumn).add();
             table.unique("IDS_U_GROUP").on(nameColumn).add();
+        }
+    },
+    USR_WORKGROUP {
+        void addTo(DataModel dataModel) {
+            Table<WorkGroup> table = dataModel.addTable(name(), WorkGroup.class);
+            table.map(WorkGroupImpl.class);
+            table.since(version(10, 3));
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
+            table.addAuditColumns();
+            table.primaryKey("USR_PK_WORKGROUP").on(idColumn).add();
+            table.unique("IDS_U_WORKGROUP").on(nameColumn).add();
         }
     },
     USR_USERDIRECTORY {
@@ -150,6 +164,30 @@ public enum TableSpecs {
                 .map("privilege")
                 .on(privilegeIdColumn)
                 .add();
+        }
+    },
+    USR_USERINWORKGROUP {
+        void addTo(DataModel dataModel) {
+            Table<UsersInWorkGroup> table = dataModel.addTable(name(), UsersInWorkGroup.class);
+            table.map(UsersInWorkGroup.class);
+            table.since(version(10,3));
+            Column workGroupIdColumn = table.column("WORKGROUPID").number().notNull().conversion(NUMBER2LONG).map("workGroupId").add();
+            Column userIdColumn = table.column("USERID").number().notNull().conversion(NUMBER2LONG).map("userId").add();
+            table.addAuditColumns();
+            table.primaryKey("USR_PK_USERINWORKGROUP")
+                    .on(workGroupIdColumn, userIdColumn)
+                    .add();
+            table.foreignKey("FK_USER2WORKGROUP")
+                    .references(USR_WORKGROUP.name())
+                    .map("workGroup")
+                    .reverseMap("usersInWorkGroups")
+                    .on(workGroupIdColumn)
+                    .add();
+            table.foreignKey("FK_USERINGROUP2WORKGROUP")
+                    .references(USR_USER.name())
+                    .map("user")
+                    .on(userIdColumn)
+                    .add();
         }
     },
     USR_USERINGROUP {
