@@ -1834,9 +1834,9 @@ Ext.define('Dxp.controller.Tasks', {
         propertyForm.updateRecord();
 
         var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
-        var emptyReadingTypes = (selectedDataSelector)
-            && (selectedDataSelector.get('selectorType') === 'DEFAULT_READINGS')
-            && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
+        var emptyReadingTypes = selectedDataSelector
+            && (selectedDataSelector.get('selectorType') === 'DEFAULT_READINGS' || selectedDataSelector.get('selectorType') === 'DEFAULT_USAGE_POINT_READINGS')
+            && page.down('#readingTypesGridPanel').getStore().data.items.length == 0;
 
         Ext.suspendLayouts();
         if (emptyReadingTypes) {
