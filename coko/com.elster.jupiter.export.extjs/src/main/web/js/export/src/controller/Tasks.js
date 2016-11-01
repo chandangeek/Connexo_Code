@@ -2046,6 +2046,10 @@ Ext.define('Dxp.controller.Tasks', {
         formValues.readingTypes = arrReadingTypes;
         formValues.destinations = storeDestinations;
         formValues.eventTypes = eventTypes;
+        page.down('#data-selector-properties').updateRecord();
+        formValues.dataSelectorProperties = page.down('#data-selector-properties').getRecord();
+        page.down('grouped-property-form').updateRecord();
+        formValues.groupedProperty = page.down('grouped-property-form').getRecord();
         formValues.dataProcessor = page.down('#file-formatter-combo').getValue();
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
     },
@@ -2152,16 +2156,12 @@ Ext.define('Dxp.controller.Tasks', {
         }
         view.down('#continuous-data-radiogroup').setValue({exportContinuousData: formModel.get('exportContinuousData')});
 
-        Ext.Array.each(view.down('#data-selector-properties').query('[isFormField=true]'), function (formItem) {
-            if (formItem.name in obj) {
-                formItem.setValue(obj[formItem.name]);
-            }
-        });
-        Ext.Array.each(view.down('grouped-property-form').query('[isFormField=true]'), function (formItem) {
-            if (formItem.name in obj) {
-                formItem.setValue(obj[formItem.name]);
-            }
-        });
+        if (obj.dataSelectorProperties) {
+            page.down('#data-selector-properties').loadRecord(obj.dataSelectorProperties);
+        }
+        if (obj.groupedProperty) {
+            page.down('grouped-property-form').loadRecord(obj.groupedProperty);
+        }
         Ext.resumeLayouts(true);
     },
 
