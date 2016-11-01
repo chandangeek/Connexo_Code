@@ -158,7 +158,7 @@ public class QueryUsagePointGroupImplIT {
                     .setMRID("MDM:mine")
                     .setName("mine")
                     .setSearchDomain(searchDomain)
-                    .setQueryProviderName("com.elster.jupiter.metering.groups.impl.SimpleUsagePointQueryProvider")
+                    .setQueryProviderName(SimpleUsagePointQueryProvider.SIMPLE_USAGE_POINT_QUERY_PROVIDER)
                     .create();
             ctx.commit();
         }
