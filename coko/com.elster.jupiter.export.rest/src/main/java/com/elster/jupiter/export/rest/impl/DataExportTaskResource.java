@@ -169,46 +169,62 @@ public class DataExportTaskResource {
         if (info.standardDataSelector == null) {
             builder.selectingCustom(info.dataSelector.name).endSelection();
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
-
-            propertiesSpecsForDataSelector
-                    .forEach(spec -> {
-                        Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
-                        builder.addProperty(spec.getName()).withValue(value);
-                    });
+            propertiesSpecsForDataSelector.forEach(spec -> {
+                Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
+                builder.addProperty(spec.getName()).withValue(value);
+            });
         } else {
-            if (info.dataSelector.selectorType == SelectorType.DEFAULT_READINGS) {
-                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
+            switch (info.dataSelector.selectorType) {
+                case DEFAULT_READINGS: {
+                    if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
+                    }
+                    if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+                    }
+                    if (info.destinations.isEmpty()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
+                    }
+                    DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
+                            .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                            .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
+                            .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
+                            .withValidatedDataOption(info.standardDataSelector.validatedDataOption)
+                            .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
+                            .continuousData(info.standardDataSelector.exportContinuousData)
+                            .exportComplete(info.standardDataSelector.exportComplete)
+                            .exportUpdate(info.standardDataSelector.exportUpdate);
+                    info.standardDataSelector.readingTypes.stream()
+                            .map(r -> meteringService.getReadingType(r.mRID))
+                            .flatMap(Functions.asStream())
+                            .forEach(selectorBuilder::fromReadingType);
+                    selectorBuilder.endSelection();
+                    break;
                 }
-                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+                case DEFAULT_USAGE_POINT_READINGS: {
+                    DataExportTaskBuilder.UsagePointReadingSelectorBuilder selectorBuilder = builder.selectingUsagePointReadings()
+                            .fromUsagePointGroup(usagePointGroup(info.standardDataSelector.usagePointGroup.id))
+                            .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                            .continuousData(info.standardDataSelector.exportContinuousData)
+                            .exportComplete(info.standardDataSelector.exportComplete)
+                            .withValidatedDataOption(info.standardDataSelector.validatedDataOption);
+                    info.standardDataSelector.readingTypes.stream()
+                            .map(r -> meteringService.getReadingType(r.mRID))
+                            .flatMap(Functions.asStream())
+                            .forEach(selectorBuilder::fromReadingType);
+                    selectorBuilder.endSelection();
+                    break;
                 }
-                if (info.destinations.isEmpty()) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
+                case DEFAULT_EVENTS: {
+                    DataExportTaskBuilder.EventSelectorBuilder selectorBuilder = builder.selectingEventTypes()
+                            .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                            .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
+                    info.standardDataSelector.eventTypeCodes.stream()
+                            .map(r -> r.eventFilterCode)
+                            .forEach(selectorBuilder::fromEventType);
+                    selectorBuilder.endSelection();
+                    break;
                 }
-
-                DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
-                        .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
-                        .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
-                        .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
-                        .withValidatedDataOption(info.standardDataSelector.validatedDataOption)
-                        .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
-                        .continuousData(info.standardDataSelector.exportContinuousData)
-                        .exportComplete(info.standardDataSelector.exportComplete)
-                        .exportUpdate(info.standardDataSelector.exportUpdate);
-                info.standardDataSelector.readingTypes.stream()
-                        .map(r -> meteringService.getReadingType(r.mRID))
-                        .flatMap(Functions.asStream())
-                        .forEach(selectorBuilder::fromReadingType);
-                selectorBuilder.endSelection();
-            } else if (info.dataSelector.selectorType == SelectorType.DEFAULT_EVENTS) {
-                DataExportTaskBuilder.EventSelectorBuilder selectorBuilder = builder.selectingEventTypes()
-                        .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
-                        .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
-                info.standardDataSelector.eventTypeCodes.stream()
-                        .map(r -> r.eventFilterCode)
-                        .forEach(selectorBuilder::fromEventType);
-                selectorBuilder.endSelection();
             }
         }
 
