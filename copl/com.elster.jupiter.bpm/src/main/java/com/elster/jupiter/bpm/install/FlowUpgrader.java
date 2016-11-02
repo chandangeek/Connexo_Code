@@ -68,7 +68,7 @@ public class FlowUpgrader {
                         statement.execute("create table CONNEXO_VERSION (version VARCHAR2(16))");
                         statement.execute("insert into CONNEXO_VERSION values ('10.1') ");
                     } catch (SQLException exCreate) {
-                        throw new RuntimeException("Exception creating version table: " + exCreate.getMessage());
+                        throw new RuntimeException("Exception creating version table: " + exCreate.getMessage(), exCreate);
                     }
                 }
 
@@ -100,23 +100,23 @@ public class FlowUpgrader {
                         }
                     }
                 } catch (SQLException exRollback) {
-                    throw new RuntimeException("Exception at rollback line " + rollbackMarker + ":" + exRollback.getMessage());
+                    throw new RuntimeException("Exception at rollback line " + rollbackMarker + ":" + exRollback.getMessage(), exRollback);
                 }
 
-                throw new RuntimeException("Exception at statement line " + marker + ":" + exCommit.getMessage());
+                throw new RuntimeException("Exception at statement line " + marker + ":" + exCommit.getMessage(), exCommit);
             } finally {
                 if (statement != null) {
                     try {
                         statement.close();
                     } catch (SQLException e) {
-                        throw new RuntimeException("Exception closing statement: " + e.getMessage());
+                        throw new RuntimeException("Exception closing statement: " + e.getMessage(), e);
                     }
                 }
                 if (connection != null) {
                     try {
                         connection.close();
                     } catch (SQLException e) {
-                        throw new RuntimeException("Exception closing connection: " + e.getMessage());
+                        throw new RuntimeException("Exception closing connection: " + e.getMessage(), e);
                     }
                 }
             }
@@ -146,7 +146,7 @@ public class FlowUpgrader {
 
             return sqlCommands;
         } catch (Exception e) {
-            throw new RuntimeException("Exception reading SQL XML file: " + e.getMessage());
+            throw new RuntimeException("Exception reading SQL XML file: " + e.getMessage(), e);
         }
     }
 
@@ -159,7 +159,7 @@ public class FlowUpgrader {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Oracle database driver not found!");
+            throw new RuntimeException("Oracle database driver not found!", e);
         }
         return DriverManager.getConnection(jdbc, connectionProps);
     }
