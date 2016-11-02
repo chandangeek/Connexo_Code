@@ -36,7 +36,6 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Reference<IssueStatus> status = ValueReference.absent();
 
     private boolean overdue;
-    private IssueAssigneeImpl assignee;
 
     //work around
     private Reference<User> user = ValueReference.absent();
@@ -141,10 +140,7 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     @Override
     public IssueAssigneeImpl getAssignee() {
-        if(assignee == null){
-            assignee = new IssueAssigneeImpl(getUser(), getWorkGroup());
-        }
-        return assignee;
+        return new IssueAssigneeImpl(getUser(), getWorkGroup());
     }
 
     public User getUser() {
