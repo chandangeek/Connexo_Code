@@ -104,7 +104,7 @@ public class DataValidationTaskResource {
         if (info.deviceGroup != null) {
             builder = builder.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
         }
-        if (info.metrologyContract != null) {
+        if (info.usagePointGroup != null) {
             builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
         }
         DataValidationTask dataValidationTask = builder.create();
