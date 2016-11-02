@@ -75,7 +75,6 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         assertThat(jsonModel.<Boolean>get("$.status.allowForClosing")).isEqualTo(false);
         assertThat(jsonModel.<Number>get("$.assignee.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.assignee.name")).isEqualTo("Admin");
-        assertThat(jsonModel.<String>get("$.assignee.type")).isEqualTo("USER");
         assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.device.serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
         assertThat(jsonModel.<String>get("$.device.name")).isNull();
