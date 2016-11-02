@@ -1,21 +1,5 @@
 package com.elster.jupiter.issue.rest;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
@@ -24,7 +8,23 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.conditions.Condition;
+
 import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RuleResourceTest extends IssueRestApplicationJerseyTest {
 
@@ -62,7 +62,6 @@ public class RuleResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(json.<List<Number>> get("$.data[*].id")).containsExactly(1, 2);
         assertThat(json.<List<String>> get("$.data[*].name")).containsExactly("title 1", "title 2");
         assertThat(json.<List<String>> get("$.data[*].description")).containsExactly("description 1", "description 2");
-        assertThat(json.<List<String>> get("$.data[*].assignee.type")).containsExactly("USER", "USER");
         assertThat(json.<List<Number>> get("$.data[*].assignee.id")).containsExactly(1, 1);
         assertThat(json.<List<String>> get("$.data[*].assignee.name")).containsExactly("Admin", "Admin");
     }

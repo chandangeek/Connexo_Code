@@ -37,6 +37,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -169,10 +170,16 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return meter;
     }
 
-    protected IssueAssignee mockAssignee(long id, String name, String type){
+    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName){
         IssueAssignee assignee = mock(IssueAssignee.class);
-        when(assignee.getUser().getId()).thenReturn(id);
-        when(assignee.getUser().getName()).thenReturn(name);
+        User user = mock(User.class);
+        WorkGroup workGroup = mock(WorkGroup.class);
+        when(workGroup.getId()).thenReturn(workGroupId);
+        when(workGroup.getName()).thenReturn(workGroupName);
+        when(user.getId()).thenReturn(userId);
+        when(user.getName()).thenReturn(userName);
+        when(assignee.getUser()).thenReturn(user);
+        when(assignee.getWorkGroup()).thenReturn(workGroup);
         return assignee;
     }
 
@@ -226,7 +233,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     }
 
     protected IssueAssignee getDefaultAssignee(){
-        return mockAssignee(1, "Admin", "USER");
+        return mockAssignee(1L, "Admin", 1L, "WorkGroup");
     }
 
     protected AssignmentRule mockAssignmentRule(long id, String title, String description, long version, IssueAssignee assignee){
