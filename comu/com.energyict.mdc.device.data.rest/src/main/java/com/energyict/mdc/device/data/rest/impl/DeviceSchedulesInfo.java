@@ -54,14 +54,18 @@ public class DeviceSchedulesInfo {
         List<DeviceSchedulesInfo> deviceSchedulesInfos = new ArrayList<>();
         for(ComTaskEnablement comTaskEnablement : comTaskEnablements){
             if(!usedComtasks.contains(comTaskEnablement.getComTask().getId())){
-                DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
-                deviceSchedulesInfo.id = comTaskEnablement.getComTask().getId();
-                deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
-                deviceSchedulesInfo.type = ScheduleType.ONREQUEST;
-                deviceSchedulesInfos.add(deviceSchedulesInfo);
+                deviceSchedulesInfos.add(fromEnablement(comTaskEnablement));
             }
         }
         return deviceSchedulesInfos;
+    }
+
+    public static DeviceSchedulesInfo fromEnablement(ComTaskEnablement comTaskEnablement) {
+        DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
+        deviceSchedulesInfo.id = comTaskEnablement.getComTask().getId();
+        deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
+        deviceSchedulesInfo.type = ScheduleType.ONREQUEST;
+        return deviceSchedulesInfo;
     }
 
     public static DeviceSchedulesInfo fromScheduled(ComTaskExecution comTaskExecution) {

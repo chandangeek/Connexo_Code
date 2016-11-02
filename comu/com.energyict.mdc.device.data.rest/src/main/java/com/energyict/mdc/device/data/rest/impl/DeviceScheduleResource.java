@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -28,6 +29,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -47,8 +49,9 @@ public class DeviceScheduleResource {
         this.taskService = taskService;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -57,6 +60,45 @@ public class DeviceScheduleResource {
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
         List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements);
         return Response.ok(PagedInfoList.fromPagedList("schedules", deviceSchedulesInfos, queryParameters)).build();
+    }
+
+
+    @GET
+    @Path("/{comTaskId}")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response getComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
+
+        Optional<ComTaskExecution> cte = comTaskExecutions.stream()
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
+                .findFirst();
+        DeviceSchedulesInfo info = null;
+        if (cte.isPresent()) {
+            ComTaskExecution comTaskExecution = cte.get();
+            if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
+                info = DeviceSchedulesInfo.fromManual(comTaskExecution);
+            }  else if(comTaskExecution.usesSharedSchedule()){
+                info = DeviceSchedulesInfo.fromScheduled(comTaskExecution);
+            } else if(comTaskExecution.isAdHoc()){
+                info = DeviceSchedulesInfo.fromAdHoc(comTaskExecution);
+            }
+        }
+        Optional<ComTaskEnablement> cteb = comTaskEnablements.stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTaskId)
+                .findFirst();
+        if(cteb.isPresent()) {
+            info = DeviceSchedulesInfo.fromEnablement(cteb.get());
+        }
+        if(info != null) {
+            return Response.ok(info).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
 
     private void checkForNoActionsAllowedOnSystemComTaskExecutions(long comTaskExecId) {
@@ -73,8 +115,9 @@ public class DeviceScheduleResource {
         }
     }
 
-    @POST @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response createComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo schedulingInfo) {
@@ -96,9 +139,9 @@ public class DeviceScheduleResource {
                         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
                         if (comTaskEnablement.hasPartialConnectionTask()) {
                             device.getConnectionTasks()
-                                  .stream()
-                                  .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                                  .forEach(builder::connectionTask);
+                                    .stream()
+                                    .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                                    .forEach(builder::connectionTask);
                         }
                         builder.add();
                     }
@@ -119,8 +162,9 @@ public class DeviceScheduleResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
-    @PUT @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo info) {
@@ -144,8 +188,9 @@ public class DeviceScheduleResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @DELETE @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @DELETE
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Path("/{comTaskExecutionId}")
