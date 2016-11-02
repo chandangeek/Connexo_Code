@@ -56,7 +56,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View');
 
-        if (!tab) {
+        if (tab != 'rules') { //only 'rules' tab is available
             router.getRoute('administration/metrologyconfiguration/view/estimation').forward({tab: 'rules'});
         } else {
             pageMainContent.setLoading();
