@@ -114,6 +114,9 @@ public class MdmAppInstaller {
                     //Import services
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
+                    //Usage point groups
+                    com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
+                    
                     //estimation
                     com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
                     com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,

@@ -116,6 +116,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.data</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.metering.extjs</artifactId>
         </dependency>
         <dependency>
