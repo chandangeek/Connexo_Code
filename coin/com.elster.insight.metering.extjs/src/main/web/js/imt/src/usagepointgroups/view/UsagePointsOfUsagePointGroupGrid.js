@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointsOfUsagePointGroupGrid', {
                 items: [
                     {
                         text: Uni.I18n.translate('general.count', 'IMT', 'Count'),
-                        // privileges: Imt.privileges.UsagePointGroup.administrate,
+                        privileges: Imt.privileges.UsagePointGroup.administrate,
                         itemId: 'usagepoints-count-btn',
                         xtype: 'button',
                         action: 'countUsagePointsOfGroup'

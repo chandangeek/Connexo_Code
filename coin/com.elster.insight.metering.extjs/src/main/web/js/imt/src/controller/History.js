@@ -11,24 +11,24 @@ Ext.define('Imt.controller.History', {
                     title: Uni.I18n.translate('general.usagePointGroups', 'IMT', 'Usage point groups'),
                     route: 'usagepointgroups',
                     controller: 'Imt.usagepointgroups.controller.UsagePointGroups',
-                    // privileges: Imt.privileges.UsagePointGroup.view,
+                    privileges: Imt.privileges.UsagePointGroup.view,
                     action: 'showUsagePointGroups',
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addUsagePointGroup', 'IMT', 'Add usage point group'),
                             route: 'add',
                             controller: 'Imt.usagepointgroups.controller.AddUsagePointGroupAction',
-                            // privileges: Imt.privileges.UsagePointGroup.view,
+                            privileges: Imt.privileges.UsagePointGroup.view,
                             action: 'showWizard'
                         },
                         view: {
                             title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
                             route: '{usagePointGroupId}',
                             controller: 'Imt.usagepointgroups.controller.UsagePointGroups',
-                            // privileges: Imt.privileges.UsagePointGroup.view,
+                            privileges: Imt.privileges.UsagePointGroup.view,
                             action: 'showUsagePointGroupDetailsView',
                             callback: function (route) {
-                                this.getApplication().on('usagePointGroup', function (record) {
+                                this.getApplication().on('loadUsagePointGroup', function (record) {
                                     route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
@@ -40,7 +40,7 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                                     route: 'edit',
                                     controller: 'Imt.usagepointgroups.controller.AddUsagePointGroupAction',
-                                    // privileges: Imt.privileges.UsagePointGroup.view,
+                                    privileges: Imt.privileges.UsagePointGroup.view,
                                     action: 'showWizard'
                                 }
                             }

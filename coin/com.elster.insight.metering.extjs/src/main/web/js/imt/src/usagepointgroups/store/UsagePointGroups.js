@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointgroups.store.UsagePointGroups', {
         url: '/api/udr/usagepointgroups',
         reader: {
             type: 'json',
-            root: 'usagepointgroups'
+            root: 'usagePointGroups'
         }
     }
 });

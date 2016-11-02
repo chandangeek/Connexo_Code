@@ -5,6 +5,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupActionMenu', {
     plain: true,
     border: false,    
     shadow: false,
+    record: null,
     items: [
         {
             text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),            
@@ -12,7 +13,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupActionMenu', {
             action: 'editUsagePointGroup'
         },
         {
-            text: Uni.I18n.translate('general.remove', 'IMT', 'Remove'),
+            text: Uni.I18n.translate('general.usagePointGroup.remove', 'IMT', 'Remove'),
             itemId: 'remove-usagepointgroup',
             action: 'removeUsagePointGroup'
         }

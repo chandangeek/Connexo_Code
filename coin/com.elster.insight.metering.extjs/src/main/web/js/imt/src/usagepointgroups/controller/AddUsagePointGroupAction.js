@@ -181,7 +181,7 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
                 Ext.suspendLayouts();
                 me.prepareNextStep(nextStep);
                 wizardLayout.setActiveItem(nextStep - 1);
-                this.getNavigationMenu().moveToStep(nextStep);
+                me.getNavigationMenu().moveToStep(nextStep);
                 Ext.resumeLayouts(true);
             };
 
@@ -234,34 +234,39 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
             group = wizard.getRecord(),
             step1ErrorMsg = this.getStep1FormErrorMessage(),
             nameField = this.getNameTextField(),
-            name = nameField.getValue();
+            name;
 
-        if (!nameField.validate()) {
-            step1ErrorMsg.show();
-        } else if (name !== group.get('name')) {
-            wizard.setLoading();
-            me.getStore('Imt.usagepointgroups.store.UsagePointGroups').load({
-                params: {
-                    filter: Ext.encode([{
-                        property: 'name',
-                        value: name
-                    }])
-                },
-                callback: function (records) {
-                    wizard.setLoading(false);
-                    if (!records.length) {
-                        step1ErrorMsg.hide();
-                        callback();
-                    } else {
-                        Ext.suspendLayouts();
-                        step1ErrorMsg.show();
-                        nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'IMT', 'Name should be unique'));
-                        Ext.resumeLayouts(true);
+        if (nameField) {
+            name = nameField.getValue();
+            if (!nameField.validate()) {
+                step1ErrorMsg.show();
+            } else if (name !== group.get('name')) {
+                wizard.setLoading();
+                me.getStore('Imt.usagepointgroups.store.UsagePointGroups').load({
+                    params: {
+                        filter: Ext.encode([{
+                            property: 'name',
+                            value: name
+                        }])
+                    },
+                    callback: function (records) {
+                        wizard.setLoading(false);
+                        if (!records.length) {
+                            step1ErrorMsg.hide();
+                            callback();
+                        } else {
+                            Ext.suspendLayouts();
+                            step1ErrorMsg.show();
+                            nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'IMT', 'Name should be unique'));
+                            Ext.resumeLayouts(true);
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                step1ErrorMsg.hide();
+                callback();
+            }
         } else {
-            step1ErrorMsg.hide();
             callback();
         }
     },
@@ -568,6 +573,7 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
             dynamicGrid.down('pagingtoolbarbottom').resetPaging();
         } else {
             staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
+            staticGrid.setLoading();
         }
         me.service.applyFilters.apply(me.service, arguments);
     },
