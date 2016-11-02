@@ -496,8 +496,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         switch (operation) {
             case 'assign':
                 requestData.assignee = {
-                    id: bulkStoreRecord.get('assignee').id,
-                    type: bulkStoreRecord.get('assignee').type
+                    userId: bulkStoreRecord.get('assignee').userId,
+                    workGroupId: bulkStoreRecord.get('assignee').workGroupId
                 };
                 break;
             case 'close':
@@ -627,8 +627,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             case 'assign':
                 var activeCombo = formPanel.down('combo[name=assigneeCombo]');
                 record.set('assignee', {
-                    id: activeCombo.getValue(),
-                    type: "User",
+                    userId: activeCombo.getValue(),
+                    workGroupId: "0",//activeCombo.getValue(),
                     title: activeCombo.rawValue
                 });
                 if (!record.get('allIssues')) {
