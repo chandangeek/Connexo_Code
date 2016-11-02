@@ -271,6 +271,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
         when(validationTask.getQualityCodeSystem()).thenReturn(qualityCodeSystem);
         when(validationTask.getMetrologyContract()).thenReturn(Optional.empty());
+        when(validationTask.getUsagePointGroup()).thenReturn(Optional.empty());
         DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);
         when(finder.setLimit(anyInt())).thenReturn(finder);
         when(finder.setStart(anyInt())).thenReturn(finder);

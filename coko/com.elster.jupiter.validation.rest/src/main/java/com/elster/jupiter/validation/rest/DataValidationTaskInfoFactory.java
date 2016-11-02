@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
@@ -67,10 +68,9 @@ public class DataValidationTaskInfoFactory {
         if (dataValidationTask.getEndDeviceGroup().isPresent()) {
             info.deviceGroup = new IdWithDisplayValueInfo<>(dataValidationTask.getEndDeviceGroup().get().getId(), dataValidationTask.getEndDeviceGroup().get().getName());
         }
-        if (dataValidationTask.getMetrologyContract().isPresent()) {
-            MetrologyContract contract = dataValidationTask.getMetrologyContract().get();
-            info.metrologyContract = new IdWithDisplayValueInfo<>(contract.getId(), contract.getMetrologyPurpose().getName());
-            info.metrologyConfiguration = new IdWithDisplayValueInfo<>(contract.getMetrologyConfiguration().getId(), contract.getMetrologyConfiguration().getName());
+        if (dataValidationTask.getUsagePointGroup().isPresent()) {
+            UsagePointGroup usagePointGroup = dataValidationTask.getUsagePointGroup().get();
+            info.usagePointGroup = new IdWithDisplayValueInfo<>(usagePointGroup.getId(), usagePointGroup.getName());
         }
         ScheduleExpression scheduleExpression = dataValidationTask.getScheduleExpression();
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {

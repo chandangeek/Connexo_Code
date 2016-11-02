@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -104,7 +105,7 @@ public class DataValidationTaskResource {
             builder = builder.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
         }
         if (info.metrologyContract != null) {
-            builder = builder.setMetrologyContract(metrologyContract(info.metrologyContract.id));
+            builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
         }
         DataValidationTask dataValidationTask = builder.create();
 
@@ -164,14 +165,14 @@ public class DataValidationTaskResource {
         task.setScheduleExpression(getScheduleExpression(info));
         if (info.deviceGroup != null) {
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
-            task.setMetrologyContract(null);
+            task.setUsagePointGroup(null);
         }
-        if (info.metrologyContract != null) {
-            task.setMetrologyContract(metrologyContract(info.metrologyContract.id));
+        if (info.usagePointGroup != null) {
+            task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
             task.setEndDeviceGroup(null);
         }
-        if (info.deviceGroup == null && info.metrologyContract == null) {
-            task.setMetrologyContract(null);
+        if (info.deviceGroup == null && info.usagePointGroup == null) {
+            task.setUsagePointGroup(null);
             task.setEndDeviceGroup(null);
         }
         task.setNextExecution(info.nextRun);
@@ -273,6 +274,10 @@ public class DataValidationTaskResource {
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
+    }
+
+    private UsagePointGroup usagePointGroup(long usagePointGroupId) {
+        return meteringGroupsService.findUsagePointGroup(usagePointGroupId).orElse(null);
     }
 
     private MetrologyContract metrologyContract(long metrologyContractId) {

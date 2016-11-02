@@ -78,4 +78,18 @@ public class DeviceGroupAndMetrologyContractResource {
 
         return PagedInfoList.fromCompleteList("devicegroups", infos, queryParameters);
     }
+
+    @GET
+    @Path("/usagepointgroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION})
+    public PagedInfoList getUsagePointGroups(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo> infos = meteringGroupsService.findUsagePointGroups()
+                .stream()
+                .map(upg -> new IdWithDisplayValueInfo<>(upg.getId(), upg.getName()))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("usagePointGroups", infos, queryParameters);
+    }
 }
