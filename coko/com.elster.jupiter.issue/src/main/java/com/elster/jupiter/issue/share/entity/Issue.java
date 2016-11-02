@@ -13,7 +13,9 @@ import java.util.Optional;
 public interface Issue extends Entity {
 
     String getIssueId();
+
     String getTitle();
+
     IssueReason getReason();
 
     void setReason(IssueReason reason);
@@ -43,7 +45,10 @@ public interface Issue extends Entity {
     void setRule(CreationRule rule);
 
     Optional<IssueComment> addComment(String body, User author);
+
     void assignTo(Long userId, Long workGroupId);
+
     void assignTo(IssueAssignee assignee);
+
     void autoAssign();
 }
