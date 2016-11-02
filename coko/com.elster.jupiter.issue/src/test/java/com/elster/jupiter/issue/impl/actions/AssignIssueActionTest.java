@@ -51,8 +51,9 @@ public class AssignIssueActionTest extends BaseTest {
         properties.put(AssignIssueAction.COMMENT, "Comment");
         Issue issue = createIssueMinInfo();
         
-        assertThat(issue.getAssignee()).isNull();
-        
+        assertThat(issue.getAssignee().getUser()).isNull();
+        assertThat(issue.getAssignee().getWorkGroup()).isNull();
+
         IssueActionResult actionResult = action.initAndValidate(properties).execute(issue);
         
         assertThat(actionResult.isSuccess()).isTrue();
