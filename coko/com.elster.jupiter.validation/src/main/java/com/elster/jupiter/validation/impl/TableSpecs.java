@@ -216,10 +216,11 @@ public enum TableSpecs {
                     .map("metrologyContract")
                     .upTo(version(10,3))
                     .add();
-            table.foreignKey("EST_FK_ETSK_USAGEPOUNTGROUP")
+            table.foreignKey("VAL_FK_USAGEPOUNTGROUP")
                     .on(usagePointGroupId)
                     .references(UsagePointGroup.class)
                     .map("usagePointGroup")
+                    .since(version(10, 3))
                     .add();
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK")
                     .on(idColumn)
