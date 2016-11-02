@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -36,7 +37,12 @@ public class UsagePointFinder implements Finder<UsagePoint> {
         this.meteringService = meteringService;
         this.finder = DefaultFinder
                 .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
-                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class, UsagePointConnectionState.class)
+                        EffectiveMetrologyConfigurationOnUsagePoint.class,
+                        MetrologyConfiguration.class,
+                        UsagePointDetail.class,
+                        ServiceCategory.class,
+                        UsagePointConnectionState.class,
+                        MetrologyContract.class)
                 .defaultSortColumn("name");
     }
 
