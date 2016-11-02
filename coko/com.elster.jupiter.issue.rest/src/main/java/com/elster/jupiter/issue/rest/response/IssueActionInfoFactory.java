@@ -22,7 +22,7 @@ public class IssueActionInfoFactory {
         IssueAction action = actionType.createIssueAction().get();
         info.name = action.getDisplayName();
         info.issueType = new IssueTypeInfo(actionType.getIssueType());
-        info.properties = propertyValueInfoService.getPropertyInfos(action.getPropertySpecs());
+        info.properties = action.getPropertySpecs()!=null && !action.getPropertySpecs().isEmpty() ? propertyValueInfoService.getPropertyInfos(action.getPropertySpecs()) : null;
         return info;
     }
 }
