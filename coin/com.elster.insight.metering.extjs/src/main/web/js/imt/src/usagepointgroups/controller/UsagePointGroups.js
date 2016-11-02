@@ -25,8 +25,7 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
         {ref: 'usagePointGroupPreviewForm', selector: 'usagepointgroup-preview-form'},
         {ref: 'usagePointGroupPreview', selector: 'usagepointgroup-preview'},        
         {ref: 'createUsagePointGroupButton', selector: '#add-usage-point-group-btn'},
-        {ref: 'usagePointsOfUsagePointGroupGrid', selector: 'usagepoints-of-usagepointgroup-grid'},
-        {ref: 'usagePointGroupDetailsActionMenu', selector: '#usagepointgroup-details-action-menu'},
+        {ref: 'usagePointsOfUsagePointGroupGrid', selector: 'usagepoints-of-usagepointgroup-grid'},        
         {ref: 'removeUsagePointGroupMenuItem', selector: '#remove-usagepointgroup'},
         {ref: 'editUsagePointGroupMenuItem', selector: '#edit-usagepointgroup'},
         {ref: 'countButton', selector: 'usagepointgroup-details button[action=countUsagePointsOfGroup]'}
@@ -63,17 +62,19 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
     },
 
     showUsagePointGroups: function () {
-        var widget = Ext.widget('usagepointgroup-setup'),
-            addUsagePointGroupController = this.getApplication().getController('Imt.usagepointgroups.controller.AddUsagePointGroupAction');
+        var me = this,
+            widget = Ext.widget('usagepointgroup-setup', {router: me.getController('Uni.controller.history.Router')}),
+            addUsagePointGroupController = me.getApplication().getController('Imt.usagepointgroups.controller.AddUsagePointGroupAction');
 
         if (addUsagePointGroupController.router) {
             addUsagePointGroupController.router = null;
         }
-        this.getApplication().fireEvent('changecontentevent', widget);
+        me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     previewUsagePointGroup: function () {
         var usagePointGroups = this.getUsagePointGroupsGrid().getSelectionModel().getSelection(),
+            actionMenu = this.getUsagePointGroupPreview().down('usagepointgroup-action-menu'),
             usagePointGroup;
 
         if (usagePointGroups.length == 1) {
@@ -81,26 +82,14 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
             Ext.suspendLayouts();
             this.getUsagePointGroupPreviewForm().loadRecord(usagePointGroup);
             this.getUsagePointGroupPreview().setTitle(Ext.String.htmlEncode(usagePointGroup.get('name')));
-            this.getUsagePointGroupPreview().down('usagepointgroup-action-menu').record = usagePointGroup;
+            if (actionMenu) {
+                this.getUsagePointGroupPreview().down('usagepointgroup-action-menu').record = usagePointGroup;
+            }
             this.updateCriteria(usagePointGroup);
+            this.updateActionMenuVisibility(usagePointGroup);
             Ext.resumeLayouts(true);
         }
-    },
-
-    translateCriteriaName: function (criteriaName) {
-        switch (criteriaName) {
-            case 'mRID':
-                criteriaName = Uni.I18n.translate('general.mrid', 'IMT', 'MRID');
-                break;
-            case 'serviceCategory':
-                criteriaName = Uni.I18n.translate('general.serviceCategory', 'IMT', 'Service category');
-                break;
-            case 'metrologyConfiguration.name':
-                criteriaName = Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration');
-                break;
-        }
-        return criteriaName;
-    },
+    },    
 
     updateCriteria: function (record) {
         var func = function (menuItem) {
@@ -133,12 +122,13 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
             addUsagePointGroupController = me.getApplication().getController('Imt.usagepointgroups.controller.AddUsagePointGroupAction'),
             widget,
             service,
+            usagePointsOfGroupStore = me.getStore('Imt.usagepointgroups.store.UsagePointsOfUsagePointGroup'),
             domainsStore;
 
         if (addUsagePointGroupController.router) {
             addUsagePointGroupController.router = null;
         }
-        this.getUsagePointsOfUsagePointGroupStore().getProxy().setExtraParam('id', currentUsagePointGroupId);
+        usagePointsOfGroupStore.getProxy().setExtraParam('id', currentUsagePointGroupId);
         service = Ext.create('Imt.service.Search', {
             router: router
         });
@@ -178,7 +168,7 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
     getUsagePointCount: function () {
         var me = this,
             countBtn = this.getCountButton(),
-            usagePointsOfGroupStore = this.getUsagePointsOfUsagePointGroupStore();
+            usagePointsOfGroupStore = me.getStore('Imt.usagepointgroups.store.UsagePointsOfUsagePointGroup');
 
         me.fireEvent('loadingcount');
         Ext.Ajax.suspendEvent('requestexception');
@@ -227,35 +217,20 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
     },
 
     updateActionMenuVisibility: function (record) {
-        var actionMenu = this.getUsagePointGroupDetailsActionMenu(),
-            removeItem = this.getRemoveUsagePointGroupMenuItem(),
-            editItem = this.getEditUsagePointGroupMenuItem();
-
-        Ext.suspendLayouts();
-        if (Imt.privileges.UsagePointGroup.canAdministrate()) {
-            actionMenu.setVisible(true);
-            removeItem.setVisible(true);
-            editItem.setVisible(true);
-        } else if (Imt.privileges.UsagePointGroup.canViewGroupDetails()) {
-            actionMenu.setVisible(false);
-            removeItem.setVisible(false);
-            editItem.setVisible(false);
-        } else if (Imt.privileges.UsagePointGroup.canAdministrateUsagePointOfEnumeratedGroup()) {
-            if (record.get('dynamic')) {
-                actionMenu.setVisible(false);
-                removeItem.setVisible(false);
-                editItem.setVisible(false);
-            } else {
-                actionMenu.setVisible(true);
-                removeItem.setVisible(false);
-                editItem.setVisible(true);
+        Ext.Array.each(Ext.ComponentQuery.query('usagepointgroup-action-menu'), function (menu) {
+            Ext.suspendLayouts();
+            if (Imt.privileges.UsagePointGroup.canAdministrate()) {
+                menu.down('#remove-usagepointgroup').setVisible(true);
+                menu.down('#edit-usagepointgroup').setVisible(true);
+            } else if (Imt.privileges.UsagePointGroup.canAdministrateUsagePointOfEnumeratedGroup()) {
+                if (menu.itemId != 'usagepointgroup-actioncolumn') {
+                    Ext.ComponentQuery.query('uni-button-action')[0].setVisible(!record.get('dynamic'));
+                }
+                menu.down('#remove-usagepointgroup').setVisible(false);
+                menu.down('#edit-usagepointgroup').setVisible(!record.get('dynamic'));
             }
-        } else {
-            actionMenu.setVisible(false);
-            removeItem.setVisible(false);
-            editItem.setVisible(false);
-        }
-        Ext.resumeLayouts(true);
+            Ext.resumeLayouts(true);
+        });
     },
 
     chooseAction: function (menu, item) {

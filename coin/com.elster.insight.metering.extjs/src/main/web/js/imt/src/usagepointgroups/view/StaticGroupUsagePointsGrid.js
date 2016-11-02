@@ -76,6 +76,7 @@ Ext.define('Imt.usagepointgroups.view.StaticGroupUsagePointsGrid', {
         me.on('select', me.onSelect, me);
         me.on('beforedeselect', me.onBeforeDeselect, me);
         me.getStore().on('prefetch', me.onPrefetch, me);
+        me.getStore().on('load', function () {me.setLoading(false);}, me);
         me.on('destroy', function () {
             me.un('select', me.onSelect, me);
             me.un('beforedeselect', me.onBeforeDeselect, me);

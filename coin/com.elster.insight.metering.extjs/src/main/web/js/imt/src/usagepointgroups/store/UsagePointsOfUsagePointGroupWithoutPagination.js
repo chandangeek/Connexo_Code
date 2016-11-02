@@ -6,10 +6,10 @@ Ext.define('Imt.usagepointgroups.store.UsagePointsOfUsagePointGroupWithoutPagina
     model: 'Imt.usagepointmanagement.model.UsagePoint',
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/usagepointgroups/{usagePointGroupId}/usagepoints',
+        urlTpl: '/api/udr/usagepointgroups/{usagePointGroupId}/usagepoints',
         reader: {
             type: 'json',
-            root: 'usagepoints'
+            root: 'usagePoints'
         },
         pageParam: false,
         startParam: false,

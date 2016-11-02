@@ -98,7 +98,7 @@ Ext.define('Imt.controller.Main', {
 	            portalItem1
 	        );
 
-            // if (Imt.privileges.UsagePointGroup.canView()) {
+            if (Imt.privileges.UsagePointGroup.canView()) {
                 Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.usagePointGroup', 'IMT', 'Usage point group'),
                     portal: 'usagepoints',
@@ -110,7 +110,7 @@ Ext.define('Imt.controller.Main', {
                         }
                     ]
                 }));
-            // }
+            }
     	}
 
         if (Imt.privileges.MetrologyConfig.canView()) {

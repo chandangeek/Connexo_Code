@@ -13,8 +13,18 @@ Ext.define('Imt.usagepointgroups.view.Step1', {
                 itemId: 'step1-add-usagepointgroup-errors',
                 xtype: 'uni-form-error-message',
                 hidden: true
-            },
-            {
+            }
+        ];
+
+        if (me.isEdit && !Imt.privileges.UsagePointGroup.canAdministrate() && Imt.privileges.UsagePointGroup.canAdministrateUsagePointOfEnumeratedGroup()) {
+            me.items.push({
+                itemId: 'usagepoint-group-name-display-field',
+                xtype: 'displayfield',
+                name: 'name',
+                fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name')
+            });
+        } else {
+            me.items.push({            
                 xtype: 'textfield',
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name'),
@@ -29,8 +39,8 @@ Ext.define('Imt.usagepointgroups.view.Step1', {
                         field.focus(false, 200);
                     }
                 }
-            }
-        ];
+            });
+        }
 
         if (me.isEdit) {
             me.items.push({

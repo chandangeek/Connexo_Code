@@ -66,6 +66,7 @@ Ext.define('Imt.usagepointgroups.view.Details', {
                             xtype: 'uni-button-action',
                             itemId: 'usagepointgroup-details-actions-button',
                             margin: '20 0 0 0',
+                            privileges: Imt.privileges.UsagePointGroup.administrateAnyOrStaticGroup,
                             menu: {
                                 xtype: 'usagepointgroup-action-menu',
                                 itemId: 'usagepointgroup-details-action-menu'
