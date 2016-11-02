@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -96,6 +97,11 @@ public class ConsoleUser implements User {
 
     @Override
     public List<Group> getGroups() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<WorkGroup> getWorkGroups() {
         return Collections.emptyList();
     }
 
