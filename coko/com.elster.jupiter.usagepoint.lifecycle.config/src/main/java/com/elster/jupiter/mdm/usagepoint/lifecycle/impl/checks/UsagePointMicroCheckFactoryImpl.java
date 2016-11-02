@@ -17,10 +17,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.mdm.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl",
+@Component(name = "UsagePointMicroCheckFactoryImpl",
         service = {UsagePointMicroCheckFactory.class},
         immediate = true)
 public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFactory {
@@ -28,7 +29,7 @@ public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFact
     private DataModel dataModel;
     private Thesaurus thesaurus;
 
-    private final Map<MicroCheck.Key, Class<? extends MicroCheck>> microCheckMapping = new EnumMap<>(MicroCheck.Key.class);
+    private final Map<String, Class<? extends MicroCheck>> microCheckMapping = new HashMap<>();
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointMicroCheckFactoryImpl() {
@@ -69,15 +70,16 @@ public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFact
     }
 
     private void addMicroCheckMappings() {
-        this.microCheckMapping.put(MicroCheck.Key.ALL_DATA_VALID, AllDataValidCheck.class);
+        addMicroCheckMapping(AllDataValidCheck.class);
+    }
+
+    private void addMicroCheckMapping(Class<? extends ServerMicroCheck> clazz) {
+        this.microCheckMapping.put(clazz.getSimpleName(), clazz);
     }
 
     @Override
-    public MicroCheck from(MicroCheck.Key key) {
-        Class<? extends MicroCheck> implClass = this.microCheckMapping.get(key);
-        if (implClass == null) {
-            throw new IllegalArgumentException("Unknown micro check key");
-        }
-        return this.dataModel.getInstance(implClass);
+    public Optional<MicroCheck> from(String microCheckKey) {
+        return Optional.ofNullable(this.microCheckMapping.get(microCheckKey))
+                .map(this.dataModel::getInstance);
     }
 }

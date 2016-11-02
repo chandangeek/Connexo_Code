@@ -9,6 +9,7 @@ import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,8 +96,8 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
 
         UsagePointTransition transition = lifeCycle.newTransition("tr1", from, to)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.ONE, UsagePointTransition.Level.TWO))
-                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .complete();
 
         transition = service.findUsagePointTransition(transition.getId()).get();
@@ -107,10 +108,10 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         assertThat(transition.getLevels()).containsExactly(UsagePointTransition.Level.ONE, UsagePointTransition.Level.TWO);
         Set<MicroCheck> microChecks = transition.getChecks();
         assertThat(microChecks).hasSize(1);
-        assertThat(microChecks.iterator().next().getKey()).isEqualTo(MicroCheck.Key.ALL_DATA_VALID);
+        assertThat(microChecks.iterator().next().getKey()).isEqualTo(TestMicroCheck.class.getSimpleName());
         Set<MicroAction> microActions = transition.getActions();
         assertThat(microActions).hasSize(1);
-        assertThat(microActions.iterator().next().getKey()).isEqualTo(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS);
+        assertThat(microActions.iterator().next().getKey()).isEqualTo(TestMicroAction.class.getSimpleName());
     }
 
     @Test

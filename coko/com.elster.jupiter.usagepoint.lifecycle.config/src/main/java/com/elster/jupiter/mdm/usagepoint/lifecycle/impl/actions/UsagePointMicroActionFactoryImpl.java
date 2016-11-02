@@ -17,10 +17,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.mdm.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl",
+@Component(name = "UsagePointMicroActionFactoryImpl",
         service = {UsagePointMicroActionFactory.class},
         immediate = true)
 public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFactory {
@@ -28,7 +29,7 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     private DataModel dataModel;
     private Thesaurus thesaurus;
 
-    private final Map<MicroAction.Key, Class<? extends MicroAction>> microActionMapping = new EnumMap<>(MicroAction.Key.class);
+    private final Map<String, Class<? extends MicroAction>> microActionMapping = new HashMap<>();
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointMicroActionFactoryImpl() {
@@ -69,15 +70,16 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     }
 
     private void addMicroActionMappings() {
-        this.microActionMapping.put(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS, CancelAllServiceCallsAction.class);
+        addMicroActionMapping(CancelAllServiceCallsAction.class);
+    }
+
+    private void addMicroActionMapping(Class<? extends ServerMicroAction> clazz) {
+        this.microActionMapping.put(clazz.getSimpleName(), clazz);
     }
 
     @Override
-    public MicroAction from(MicroAction.Key key) {
-        Class<? extends MicroAction> implClass = this.microActionMapping.get(key);
-        if (implClass == null) {
-            throw new IllegalArgumentException("Unknown micro action key");
-        }
-        return this.dataModel.getInstance(implClass);
+    public Optional<MicroAction> from(String microActionKey) {
+        return Optional.ofNullable(this.microActionMapping.get(microActionKey))
+                .map(this.dataModel::getInstance);
     }
 }

@@ -66,9 +66,9 @@ public interface UsagePointTransition extends HasId, HasName {
 
         T triggeredBy(StandardStateTransitionEventType eventType);
 
-        T withActions(Set<MicroAction.Key> microActionKeys);
+        T withActions(Set<String> microActionKeys);
 
-        T withChecks(Set<MicroCheck.Key> microCheckKeys);
+        T withChecks(Set<String> microCheckKeys);
 
         T withLevels(Set<Level> levels);
 

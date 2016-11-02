@@ -42,8 +42,8 @@ public enum TableSpecs {
             Column lifeCycle = table.column("LIFE_CYCLE").number().notNull().add();
             table.column("NAME").varChar().map(UsagePointTransitionImpl.Fields.NAME.fieldName()).add();
             table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.LEVELS.fieldName()).add();
-            table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.CHECKS.fieldName()).add();
-            table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.ACTIONS.fieldName()).add();
+//            table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.CHECKS.fieldName()).add();
+//            table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.ACTIONS.fieldName()).add();
             Column fsmTransition = table.column("FSM_TRANSITION").number().add();
 
             table.primaryKey("PK_UPL_TRANSITION").on(id).add();
@@ -58,6 +58,46 @@ public enum TableSpecs {
                     .on(fsmTransition)
                     .references(StateTransition.class)
                     .map(UsagePointTransitionImpl.Fields.FSM_TRANSITION.fieldName())
+                    .add();
+        }
+    },
+
+    UPL_TRANSITION_CHECKS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointTransitionMicroCheckUsageImpl> table = dataModel.addTable(this.name(), UsagePointTransitionMicroCheckUsageImpl.class);
+            table.map(UsagePointTransitionMicroCheckUsageImpl.class);
+            table.setJournalTableName(name() + "JRNL");
+            Column transition = table.column("TRANSITION").number().notNull().add();
+            Column check = table.column("MICRO_CHECK").varChar().map(UsagePointTransitionMicroCheckUsageImpl.Fields.MICRO_CHECK.fieldName()).notNull().add();
+
+            table.primaryKey("PK_UPL_TRANSITION_CHECKS").on(transition, check).add();
+            table.foreignKey("FK_UPL_CHECK_2_TRANS")
+                    .on(transition)
+                    .references(UsagePointTransition.class)
+                    .map(UsagePointTransitionMicroCheckUsageImpl.Fields.TRANSITION.fieldName())
+                    .reverseMap(UsagePointTransitionImpl.Fields.CHECKS.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+
+    UPL_TRANSITION_ACTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointTransitionMicroActionUsageImpl> table = dataModel.addTable(this.name(), UsagePointTransitionMicroActionUsageImpl.class);
+            table.map(UsagePointTransitionMicroActionUsageImpl.class);
+            table.setJournalTableName(name() + "JRNL");
+            Column transition = table.column("TRANSITION").number().notNull().add();
+            Column action = table.column("MICRO_ACTION").varChar().map(UsagePointTransitionMicroActionUsageImpl.Fields.MICRO_ACTION.fieldName()).notNull().add();
+
+            table.primaryKey("PK_UPL_TRANSITION_ACTIONS").on(transition, action).add();
+            table.foreignKey("FK_UPL_ACTION_2_TRANS")
+                    .on(transition)
+                    .references(UsagePointTransition.class)
+                    .map(UsagePointTransitionMicroActionUsageImpl.Fields.TRANSITION.fieldName())
+                    .reverseMap(UsagePointTransitionImpl.Fields.ACTIONS.fieldName())
+                    .composition()
                     .add();
         }
     };

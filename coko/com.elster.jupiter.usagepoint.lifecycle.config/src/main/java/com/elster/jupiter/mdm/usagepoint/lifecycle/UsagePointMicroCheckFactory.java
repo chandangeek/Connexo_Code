@@ -2,8 +2,10 @@ package com.elster.jupiter.mdm.usagepoint.lifecycle;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.util.Optional;
+
 @ConsumerType
 public interface UsagePointMicroCheckFactory {
 
-    MicroCheck from(MicroCheck.Key key);
+    Optional<MicroCheck> from(String microActionKey);
 }

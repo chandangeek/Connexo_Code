@@ -1,8 +1,15 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl.checks;
 
+import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCategory;
+
 public class AllDataValidCheck extends TranslatableCheck {
     @Override
-    public Key getKey() {
-        return Key.ALL_DATA_VALID;
+    public String getKey() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public String getCategory() {
+        return MicroCategory.VALIDATION.name();
     }
 }

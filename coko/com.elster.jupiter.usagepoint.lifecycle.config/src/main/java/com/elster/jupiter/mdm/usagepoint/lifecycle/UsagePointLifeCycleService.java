@@ -26,7 +26,15 @@ public interface UsagePointLifeCycleService {
 
     Optional<UsagePointTransition> findAndLockUsagePointTransitionByIdAndVersion(long id, long version);
 
-    MicroAction getMicroActionByKey(MicroAction.Key key);
+    Optional<MicroAction> getMicroActionByKey(String microActionKey);
 
-    MicroCheck getMicroCheckByKey(MicroCheck.Key key);
+    Optional<MicroCheck> getMicroCheckByKey(String microCheckKey);
+
+    void addMicroActionFactory(UsagePointMicroActionFactory microActionFactory);
+
+    void removeMicroActionFactory(UsagePointMicroActionFactory microActionFactory);
+
+    void addMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory);
+
+    void removeMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory);
 }

@@ -34,6 +34,8 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -42,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,8 +60,8 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     private UserService userService;
     private FiniteStateMachineService stateMachineService;
     private EventService eventService;
-    private UsagePointMicroActionFactory microActionFactory;
-    private UsagePointMicroCheckFactory microCheckFactory;
+    private List<UsagePointMicroActionFactory> microActionFactories = new CopyOnWriteArrayList<>();
+    private List<UsagePointMicroCheckFactory> microCheckFactories = new CopyOnWriteArrayList<>();
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -70,17 +73,13 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                                           UpgradeService upgradeService,
                                           UserService userService,
                                           FiniteStateMachineService stateMachineService,
-                                          EventService eventService,
-                                          UsagePointMicroActionFactory microActionFactory,
-                                          UsagePointMicroCheckFactory microCheckFactory) {
+                                          EventService eventService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         setUserService(userService);
         setStateMachineService(stateMachineService);
         setEventService(eventService);
-        setMicroActionFactory(microActionFactory);
-        setMicroCheckFactory(microCheckFactory);
         activate();
     }
 
@@ -117,14 +116,26 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         this.eventService = eventService;
     }
 
-    @Reference
-    public void setMicroActionFactory(UsagePointMicroActionFactory microActionFactory) {
-        this.microActionFactory = microActionFactory;
+    @Override
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMicroActionFactory(UsagePointMicroActionFactory microActionFactory) {
+        this.microActionFactories.add(microActionFactory);
     }
 
-    @Reference
-    public void setMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory) {
-        this.microCheckFactory = microCheckFactory;
+    @Override
+    public void removeMicroActionFactory(UsagePointMicroActionFactory microActionFactory) {
+        this.microActionFactories.remove(microActionFactory);
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory) {
+        this.microCheckFactories.add(microCheckFactory);
+    }
+
+    @Override
+    public void removeMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory) {
+        this.microCheckFactories.add(microCheckFactory);
     }
 
     @Activate
@@ -239,12 +250,20 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     }
 
     @Override
-    public MicroAction getMicroActionByKey(MicroAction.Key key) {
-        return this.microActionFactory.from(key);
+    public Optional<MicroAction> getMicroActionByKey(String key) {
+        return this.microActionFactories.stream()
+                .map(factory -> factory.from(key))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     @Override
-    public MicroCheck getMicroCheckByKey(MicroCheck.Key key) {
-        return this.microCheckFactory.from(key);
+    public Optional<MicroCheck> getMicroCheckByKey(String key) {
+        return this.microCheckFactories.stream()
+                .map(factory -> factory.from(key))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 }

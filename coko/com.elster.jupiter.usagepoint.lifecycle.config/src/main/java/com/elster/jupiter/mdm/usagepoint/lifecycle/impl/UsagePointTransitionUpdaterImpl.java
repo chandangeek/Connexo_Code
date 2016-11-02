@@ -7,8 +7,6 @@ import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
@@ -31,8 +29,8 @@ public class UsagePointTransitionUpdaterImpl implements UsagePointTransition.Usa
     private UsagePointState toState;
     private StandardStateTransitionEventType eventType;
     private Set<UsagePointTransition.Level> levels;
-    private Set<MicroCheck.Key> microCheckKeys;
-    private Set<MicroAction.Key> microActionKeys;
+    private Set<String> microCheckKeys;
+    private Set<String> microActionKeys;
 
     @Inject
     public UsagePointTransitionUpdaterImpl(DataModel dataModel, FiniteStateMachineService stateMachineService) {
@@ -56,13 +54,13 @@ public class UsagePointTransitionUpdaterImpl implements UsagePointTransition.Usa
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionUpdater withActions(Set<MicroAction.Key> microActionKeys) {
+    public UsagePointTransition.UsagePointTransitionUpdater withActions(Set<String> microActionKeys) {
         this.microActionKeys = microActionKeys != null ? Collections.unmodifiableSet(microActionKeys) : Collections.emptySet();
         return this;
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionUpdater withChecks(Set<MicroCheck.Key> microCheckKeys) {
+    public UsagePointTransition.UsagePointTransitionUpdater withChecks(Set<String> microCheckKeys) {
         this.microCheckKeys = microCheckKeys != null ? Collections.unmodifiableSet(microCheckKeys) : Collections.emptySet();
         return this;
     }
@@ -136,7 +134,7 @@ public class UsagePointTransitionUpdaterImpl implements UsagePointTransition.Usa
 
     private boolean triggerByWasChanged(StateTransitionEventType eventType) {
         return this.eventType != null && eventType == null
-                || this.eventType == null && eventType != null
+                || this.eventType == null && eventType != null && eventType instanceof StandardStateTransitionEventType
                 || this.eventType != null && !this.eventType.equals(eventType);
     }
 

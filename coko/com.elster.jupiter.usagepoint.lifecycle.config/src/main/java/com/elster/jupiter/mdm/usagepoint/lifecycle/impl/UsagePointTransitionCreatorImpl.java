@@ -4,8 +4,6 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
@@ -25,8 +23,8 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
     private UsagePointState toState;
     private StandardStateTransitionEventType eventType;
     private Set<UsagePointTransition.Level> levels;
-    private Set<MicroCheck.Key> microCheckKeys;
-    private Set<MicroAction.Key> microActionKeys;
+    private Set<String> microCheckKeys;
+    private Set<String> microActionKeys;
 
     @Inject
     public UsagePointTransitionCreatorImpl(DataModel dataModel, FiniteStateMachineService stateMachineService) {
@@ -49,13 +47,13 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
     }
 
     @Override
-    public UsagePointTransitionCreatorImpl withActions(Set<MicroAction.Key> microActionKeys) {
+    public UsagePointTransitionCreatorImpl withActions(Set<String> microActionKeys) {
         this.microActionKeys = microActionKeys != null ? Collections.unmodifiableSet(microActionKeys) : Collections.emptySet();
         return this;
     }
 
     @Override
-    public UsagePointTransitionCreatorImpl withChecks(Set<MicroCheck.Key> microCheckKeys) {
+    public UsagePointTransitionCreatorImpl withChecks(Set<String> microCheckKeys) {
         this.microCheckKeys = microCheckKeys != null ? Collections.unmodifiableSet(microCheckKeys) : Collections.emptySet();
         return this;
     }

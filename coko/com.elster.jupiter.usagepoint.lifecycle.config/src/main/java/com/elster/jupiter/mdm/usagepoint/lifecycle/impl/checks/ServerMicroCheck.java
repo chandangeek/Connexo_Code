@@ -8,5 +8,6 @@ import java.util.Map;
 
 public interface ServerMicroCheck extends MicroCheck {
 
-    void execute(UsagePoint usagePoint, Map<String, Object> properties, Instant transitionTime);
+    default void execute(UsagePoint usagePoint, Map<String, Object> properties, Instant transitionTime) {
+    }
 }

@@ -1,32 +1,20 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models pre-transition checks for {@link UsagePointTransition}.
  */
-@ProviderType
+@ConsumerType
 public interface MicroCheck {
 
-    Key getKey();
+    String getKey();
 
     String getName();
 
     String getDescription();
 
+    String getCategory();
+
     String getCategoryName();
-
-    enum Key {
-        ALL_DATA_VALID(MicroCategory.VALIDATION),;
-
-        private MicroCategory category;
-
-        Key(MicroCategory category) {
-            this.category = category;
-        }
-
-        public MicroCategory getCategory() {
-            return this.category;
-        }
-    }
 }

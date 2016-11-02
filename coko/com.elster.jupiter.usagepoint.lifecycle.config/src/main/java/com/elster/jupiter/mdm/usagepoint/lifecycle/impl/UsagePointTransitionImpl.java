@@ -20,17 +20,19 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Unique(message = "{" + MessageSeeds.Keys.TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE + "}")
 @HasDifferentStates(message = "{" + MessageSeeds.Keys.TRANSITION_FROM_AND_TO_ARE_THE_SAME + "}")
@@ -42,8 +44,8 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         LIFE_CYCLE("lifeCycle"),
         FSM_TRANSITION("fsmTransition"),
         LEVELS("levelBits"),
-        CHECKS("checkBits"),
-        ACTIONS("actionBits"),;
+        CHECKS("microCheckUsages"),
+        ACTIONS("microActionUsages"),;
 
         private final String javaFieldName;
 
@@ -67,9 +69,9 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @SuppressWarnings("unused")
     private long levelBits;
     @SuppressWarnings("unused")
-    private long checkBits;
+    private List<UsagePointTransitionMicroCheckUsageImpl> microCheckUsages = new ArrayList<>();
     @SuppressWarnings("unused")
-    private long actionBits;
+    private List<UsagePointTransitionMicroActionUsageImpl> microActionUsages = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private String userName;
@@ -83,8 +85,6 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private UsagePointState fromState;
     private UsagePointState toState;
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
-    private Set<MicroAction> microActions;
-    private Set<MicroCheck> microChecks;
 
     private final DataModel dataModel;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
@@ -106,8 +106,6 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @Override
     public void postLoad() {
         postLoadLevel();
-        postLoadChecks();
-        postLoadActions();
         postLoadStates();
     }
 
@@ -117,28 +115,6 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
             if ((this.levelBits & mask) != 0) {
                 // The bit corresponding to the current level is set so add it to the set.
                 this.levels.add(level);
-            }
-            mask = mask << 1;
-        }
-    }
-
-    private void postLoadChecks() {
-        this.microChecks = new HashSet<>();
-        int mask = 1;
-        for (MicroCheck.Key key : MicroCheck.Key.values()) {
-            if ((this.checkBits & mask) != 0) {
-                this.microChecks.add(this.usagePointLifeCycleService.getMicroCheckByKey(key));
-            }
-            mask = mask << 1;
-        }
-    }
-
-    private void postLoadActions() {
-        this.microActions = new HashSet<>();
-        int mask = 1;
-        for (MicroAction.Key key : MicroAction.Key.values()) {
-            if ((this.actionBits & mask) != 0) {
-                this.microActions.add(this.usagePointLifeCycleService.getMicroActionByKey(key));
             }
             mask = mask << 1;
         }
@@ -198,12 +174,18 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     @Override
     public Set<MicroAction> getActions() {
-        return Collections.unmodifiableSet(this.microActions);
+        return DecoratedStream.decorate(this.microActionUsages.stream())
+                .distinct(UsagePointTransitionMicroActionUsageImpl::getKey)
+                .map(UsagePointTransitionMicroActionUsageImpl::getAction)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<MicroCheck> getChecks() {
-        return Collections.unmodifiableSet(this.microChecks);
+        return DecoratedStream.decorate(this.microCheckUsages.stream())
+                .distinct(UsagePointTransitionMicroCheckUsageImpl::getKey)
+                .map(UsagePointTransitionMicroCheckUsageImpl::getCheck)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -213,6 +195,8 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     @Override
     public void remove() {
+        this.microCheckUsages.clear();
+        this.microActionUsages.clear();
         this.lifeCycle.get().removeTransition(this);
         StateTransition stateTransition = this.fsmTransition.get();
         State fsmFromState = stateTransition.getFrom();
@@ -245,6 +229,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
 
     void setLevels(Set<UsagePointTransition.Level> transitionLevels) {
         this.levelBits = 0L;
+        this.levels.clear();
         if (transitionLevels != null) {
             for (UsagePointTransition.Level level : transitionLevels) {
                 this.levelBits |= (1L << level.ordinal());
@@ -253,24 +238,28 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         postLoadLevel();
     }
 
-    void setMicroChecks(Set<MicroCheck.Key> microCheckKeys) {
-        this.checkBits = 0L;
+    void setMicroChecks(Set<String> microCheckKeys) {
+        this.microCheckUsages.clear();
         if (microCheckKeys != null) {
-            for (MicroCheck.Key key : microCheckKeys) {
-                this.checkBits |= (1L << key.ordinal());
-            }
+            microCheckKeys.stream()
+                    .map(this.usagePointLifeCycleService::getMicroCheckByKey)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(check -> this.dataModel.getInstance(UsagePointTransitionMicroCheckUsageImpl.class).init(this, check))
+                    .forEach(this.microCheckUsages::add);
         }
-        postLoadChecks();
     }
 
-    void setMicroActions(Set<MicroAction.Key> microActionKeys) {
-        this.actionBits = 0L;
+    void setMicroActions(Set<String> microActionKeys) {
+        this.microActionUsages.clear();
         if (microActionKeys != null) {
-            for (MicroAction.Key key : microActionKeys) {
-                this.actionBits |= (1L << key.ordinal());
-            }
+            microActionKeys.stream()
+                    .map(this.usagePointLifeCycleService::getMicroActionByKey)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(action -> this.dataModel.getInstance(UsagePointTransitionMicroActionUsageImpl.class).init(this, action))
+                    .forEach(this.microActionUsages::add);
         }
-        postLoadActions();
     }
 
     StateTransition getFsmTransition() {

@@ -19,17 +19,17 @@ public abstract class TranslatableAction implements ServerMicroAction {
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(MicroActionTranslationKeys.Keys.NAME_PREFIX + getKey().name(), getKey().name());
+        return this.thesaurus.getString(MicroActionTranslationKeys.Keys.NAME_PREFIX + getKey(), getKey());
     }
 
     @Override
     public String getDescription() {
-        return this.thesaurus.getString(MicroActionTranslationKeys.Keys.DESCRIPTION_PREFIX + getKey().name(), getKey().name());
+        return this.thesaurus.getString(MicroActionTranslationKeys.Keys.DESCRIPTION_PREFIX + getKey(), getKey());
     }
 
     @Override
     public String getCategoryName() {
-        return this.thesaurus.getString(MicroCategoryTranslationKeys.Keys.NAME_PREFIX + getKey().getCategory().name(), getKey().getCategory().name());
+        return this.thesaurus.getString(MicroCategoryTranslationKeys.Keys.NAME_PREFIX + getCategory(), getCategory());
     }
 
     @Override

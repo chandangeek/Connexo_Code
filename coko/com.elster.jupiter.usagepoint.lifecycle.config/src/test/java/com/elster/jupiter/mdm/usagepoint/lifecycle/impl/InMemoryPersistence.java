@@ -54,7 +54,8 @@ public class InMemoryPersistence {
                 new UsagePointLifeCycleModule());
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            injector.getInstance(UsagePointLifeCycleService.class);
+            injector.getInstance(UsagePointLifeCycleService.class).addMicroActionFactory(new TestMicroAction.Factory());
+            injector.getInstance(UsagePointLifeCycleService.class).addMicroCheckFactory(new TestMicroCheck.Factory());
             ctx.commit();
         }
     }

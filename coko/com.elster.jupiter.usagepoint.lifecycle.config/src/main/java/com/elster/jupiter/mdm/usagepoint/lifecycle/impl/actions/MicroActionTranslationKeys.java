@@ -1,11 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle.impl.actions;
 
-import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum MicroActionTranslationKeys implements TranslationKey {
-    CANCEL_ALL_SERVICE_CALLS_NAME(Keys.NAME_PREFIX + MicroAction.Key.CANCEL_ALL_SERVICE_CALLS.name(), "Cancel all service calls"),
-    CANCEL_ALL_SERVICE_CALLS_DESCRIPTION(Keys.DESCRIPTION_PREFIX + MicroAction.Key.CANCEL_ALL_SERVICE_CALLS.name(), "Cancel all service calls on a usage point that can be canceled"),;
+    CANCEL_ALL_SERVICE_CALLS_NAME(Keys.NAME_PREFIX + CancelAllServiceCallsAction.class.getSimpleName(), "Cancel all service calls"),
+    CANCEL_ALL_SERVICE_CALLS_DESCRIPTION(Keys.DESCRIPTION_PREFIX + CancelAllServiceCallsAction.class.getSimpleName(), "Cancel all service calls on a usage point that can be canceled"),;
 
     private final String key;
     private final String defaultFormat;

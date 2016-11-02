@@ -7,13 +7,13 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroAction;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.MicroCheck;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
@@ -104,12 +104,12 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         UsagePointTransition transition = this.lifeCycle.newTransition("tr1", this.state1, this.state2)
                 .withActions(null)
                 .withLevels(null)
-                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .complete();
 
         assertThat(transition.getId()).isGreaterThan(0L);
         assertThat(transition.getActions().isEmpty()).isTrue();
-        assertThat(transition.getChecks().iterator().next().getKey()).isEqualTo(MicroCheck.Key.ALL_DATA_VALID);
+        assertThat(transition.getChecks().iterator().next().getKey()).isEqualTo(TestMicroCheck.class.getSimpleName());
         assertThat(transition.getLevels().isEmpty()).isTrue();
     }
 
@@ -117,14 +117,14 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Transactional
     public void testCanCreateJustWithActions() {
         UsagePointTransition transition = this.lifeCycle.newTransition("tr1", this.state1, this.state2)
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .withLevels(null)
                 .withChecks(null)
                 .complete();
 
         assertThat(transition.getId()).isGreaterThan(0L);
         assertThat(transition.getChecks().isEmpty()).isTrue();
-        assertThat(transition.getActions().iterator().next().getKey()).isEqualTo(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS);
+        assertThat(transition.getActions().iterator().next().getKey()).isEqualTo(TestMicroAction.class.getSimpleName());
         assertThat(transition.getLevels().isEmpty()).isTrue();
     }
 
@@ -149,8 +149,8 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
         UsagePointTransition transition = this.lifeCycle.newTransition("tr1", this.state1, this.state2)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.TWO, UsagePointTransition.Level.FOUR))
-                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .triggeredBy(triggeredBy)
                 .complete();
 
@@ -170,8 +170,8 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     public void testCanCloneCustomTransition() {
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.TWO, UsagePointTransition.Level.FOUR))
-                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .complete();
 
         UsagePointLifeCycle clonedLifeCycle = get(UsagePointLifeCycleService.class).cloneUsagePointLifeCycle("Cloned", this.lifeCycle);
@@ -192,8 +192,8 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Transactional
     public void testCanRemoveTransition() {
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
-                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .withLevels(EnumSet.of(UsagePointTransition.Level.FOUR))
                 .complete();
         FiniteStateMachine stateMachine = ((UsagePointLifeCycleImpl) this.lifeCycle).getStateMachine();
@@ -234,7 +234,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
         StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .triggeredBy(triggeredBy)
                 .complete();
 
@@ -247,7 +247,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Transactional
     public void testCanSwitchFromCustomEventToStandard() {
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .complete();
         String symbol = transition.getFsmTransition().getEventType().getSymbol();
 
@@ -265,7 +265,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         com.elster.jupiter.events.EventType eventType = createSystemEventType("TEST");
         StandardStateTransitionEventType triggeredBy = get(FiniteStateMachineService.class).newStandardStateTransitionEventType(eventType);
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .triggeredBy(triggeredBy)
                 .complete();
 
@@ -282,7 +282,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     public void testCanChangeTransitionAndPreserveEventType() {
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.THREE))
-                .withActions(EnumSet.of(MicroAction.Key.CANCEL_ALL_SERVICE_CALLS))
+                .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .complete();
         StateTransitionEventType eventType = transition.getFsmTransition().getEventType();
 
@@ -291,7 +291,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
                 .to(this.state3)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.FOUR))
                 .withActions(null)
-                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .complete();
 
         assertThat(transition.getName()).isEqualTo("tr2");
@@ -299,7 +299,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         assertThat(transition.getTo()).isEqualTo(this.state3);
         assertThat(transition.getLevels()).containsExactly(UsagePointTransition.Level.FOUR);
         assertThat(transition.getActions()).isEmpty();
-        assertThat(transition.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toList())).containsExactly(MicroCheck.Key.ALL_DATA_VALID);
+        assertThat(transition.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toList())).containsExactly(TestMicroCheck.class.getSimpleName());
         assertThat(transition.getFsmTransition().getEventType()).isEqualTo(eventType);
     }
 
@@ -307,7 +307,7 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Transactional
     public void testCanChangeTransitionFromState() {
         UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
-                .withChecks(EnumSet.of(MicroCheck.Key.ALL_DATA_VALID))
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .complete();
         StateTransitionEventType eventType = transition.getFsmTransition().getEventType();
 
