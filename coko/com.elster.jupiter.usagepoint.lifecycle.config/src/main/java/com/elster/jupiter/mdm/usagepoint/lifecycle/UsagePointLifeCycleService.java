@@ -18,11 +18,10 @@ public interface UsagePointLifeCycleService {
 
     UsagePointLifeCycle cloneUsagePointLifeCycle(String name, UsagePointLifeCycle source);
 
-    /*
-        Optional<UsagePointState> findUsagePointState(long id);
+    Optional<UsagePointState> findUsagePointState(long id);
 
-        Optional<UsagePointState> findAndLockUsagePointStateByIdAndVersion(long id, long version);
-    */
+    Optional<UsagePointState> findAndLockUsagePointStateByIdAndVersion(long id, long version);
+
     Optional<UsagePointTransition> findUsagePointTransition(long id);
 
     Optional<UsagePointTransition> findAndLockUsagePointTransitionByIdAndVersion(long id, long version);

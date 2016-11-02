@@ -79,7 +79,7 @@ public class UsagePointStateImpl implements UsagePointState {
         if (state == null || this.fsmState.isCustom()) {
             return false;
         }
-        return this.fsmState.getName().equals(state.getKey());
+        return state.getKey().equals(this.fsmState.getName());
     }
 
     @Override

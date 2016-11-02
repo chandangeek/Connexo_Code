@@ -1,11 +1,14 @@
 package com.elster.jupiter.mdm.usagepoint.lifecycle;
 
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,6 +57,8 @@ public interface UsagePointTransition extends HasId, HasName {
     void remove();
 
     UsagePointTransitionUpdater startUpdate();
+
+    void performTransition(UsagePoint usagePoint, Map<String, Object> properties, Instant transitionTime);
 
     long getVersion();
 

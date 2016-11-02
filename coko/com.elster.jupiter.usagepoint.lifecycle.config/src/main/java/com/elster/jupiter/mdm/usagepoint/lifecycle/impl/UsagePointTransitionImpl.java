@@ -13,6 +13,7 @@ import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycle;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointState;
 import com.elster.jupiter.mdm.usagepoint.lifecycle.UsagePointTransition;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -226,6 +228,19 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @Override
     public UsagePointTransitionUpdater startUpdate() {
         return this.dataModel.getInstance(UsagePointTransitionUpdaterImpl.class).init(this.lifeCycle.get(), this);
+    }
+
+    @Override
+    public void performTransition(UsagePoint usagePoint, Map<String, Object> properties, Instant transitionTime) {
+        Optional<CustomStateTransitionEventType> eventType = this.fsmTransition.getOptional()
+                .map(StateTransition::getEventType)
+                .filter(et -> et instanceof CustomStateTransitionEventType)
+                .map(CustomStateTransitionEventType.class::cast);
+        if (eventType.isPresent()) {
+            eventType.get().newInstance(this.lifeCycle.get().getStateMachine(), usagePoint.getMRID(), UsagePoint.class.getName(),
+                    this.fsmTransition.get().getFrom().getName(), transitionTime, properties).publish();
+        }
+        // TODO throw ex?
     }
 
     void setLevels(Set<UsagePointTransition.Level> transitionLevels) {
