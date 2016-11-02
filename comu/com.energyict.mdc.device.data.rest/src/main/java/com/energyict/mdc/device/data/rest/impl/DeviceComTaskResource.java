@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -34,6 +35,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -80,6 +82,16 @@ public class DeviceComTaskResource {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<DeviceComTaskInfo> deviceSchedulesInfos = deviceComTaskInfoFactory.from(device.getComTaskExecutions(), deviceConfiguration.getComTaskEnablements(), device);
         return Response.ok(PagedInfoList.fromPagedList("comTasks", deviceSchedulesInfos, queryParameters)).build();
+    }
+
+    @GET
+    @Path("/{comTaskId}")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response getComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
+        ComTask comTask = taskService.findComTask(comTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        return Response.status(Response.Status.OK).entity(new IdWithNameInfo(comTask.getId(), comTask.getName())).build();
     }
 
     @PUT @Transactional
