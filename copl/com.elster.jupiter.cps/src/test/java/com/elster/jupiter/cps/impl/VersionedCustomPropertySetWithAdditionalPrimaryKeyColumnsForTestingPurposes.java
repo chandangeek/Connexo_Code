@@ -31,7 +31,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-12 (14:28)
  */
-public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes implements CustomPropertySet<TestDomain, VersionedDomainExtensionForTestingPurposes> {
+public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes implements CustomPropertySet<TestDomain, VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> {
 
     private static final String TABLE_NAME = "T05_CUSTOM_BILLING";
     private static final String FK_CUST_BILLING_DOMAIN = "FK_05CUST_BILLING_DOMAIN";
@@ -64,7 +64,7 @@ public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTesting
     }
 
     @Override
-    public PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> getPersistenceSupport() {
+    public PersistenceSupport<TestDomain, VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }
 
@@ -90,12 +90,6 @@ public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTesting
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec serviceCategoryPropertySpec = this.propertySpecService
-                .specForValuesOf(new ServiceCategoryValueFactory())
-                .named(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName())
-                .describedAs("Description")
-                .markRequired()
-                .finish();
         PropertySpec billingCyclePropertySpec = this.propertySpecService
                 .bigDecimalSpec()
                 .named(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName())
@@ -108,10 +102,10 @@ public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTesting
                 .named(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())
                 .describedAs("Description for DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName()")
                 .finish();
-        return Arrays.asList(serviceCategoryPropertySpec, billingCyclePropertySpec, contractNumberPropertySpec);
+        return Arrays.asList(billingCyclePropertySpec, contractNumberPropertySpec);
     }
 
-    private static class MyPersistenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> {
+    private static class MyPersistenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> {
         @Override
         public String application() {
             return "Example";
@@ -138,8 +132,8 @@ public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTesting
         }
 
         @Override
-        public Class<VersionedDomainExtensionForTestingPurposes> persistenceClass() {
-            return VersionedDomainExtensionForTestingPurposes.class;
+        public Class<VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> persistenceClass() {
+            return VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes.class;
         }
 
         @Override

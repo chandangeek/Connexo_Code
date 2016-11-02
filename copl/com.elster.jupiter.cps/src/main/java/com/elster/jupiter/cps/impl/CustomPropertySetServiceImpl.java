@@ -613,7 +613,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return this.getAllVersionedValuesEntitiesFor(customPropertySet, businesObject, additionalPrimaryKeyValues)
                 .stream()
                 .map(Optional::of)
-                .map(e -> this.toCustomPropertySetValues(customPropertySet, e))
+                .map(e -> this.toCustomPropertySetValues(customPropertySet, e, additionalPrimaryKeyValues))
                 .collect(Collectors.toList());
     }
 
