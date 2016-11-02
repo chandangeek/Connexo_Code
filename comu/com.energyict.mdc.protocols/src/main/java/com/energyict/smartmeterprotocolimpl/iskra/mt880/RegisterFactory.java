@@ -1,5 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -15,14 +24,6 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.common.DLMSStoredValues;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedData;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
@@ -144,7 +145,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
 
     /**
      * Construct a ComposedCosemObject from a list of <CODE>Registers</CODE>.
-     * If the {@link com.energyict.protocol.Register} is a DLMS {@link com.energyict.dlms.cosem.Register} or {@link com.energyict.dlms.cosem.ExtendedRegister},
+     * If the {@link Register} is a DLMS {@link com.energyict.dlms.cosem.Register} or {@link com.energyict.dlms.cosem.ExtendedRegister},
      * and the ObisCode is listed in the ObjectList(see {@link com.energyict.dlms.DLMSMeterConfig#getInstance(String)}, then we define a ComposedRegister and add
      * it to the {@link #composedRegisterMap}. Otherwise if it is not a DLMS <CODE>Register</CODE> or <CODE>ExtendedRegister</CODE>, but a DLMS <CODE>DATA</CODE> object,
      * then we add it to the {@link #composedDataMap}.
@@ -226,7 +227,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
 
     private DLMSStoredValues getStoredValues() throws IOException {
         if (storedValues == null) {
-            storedValues = new DLMSStoredValues(protocol.getDlmsSession(), BILLING_PROFILE_OBIS);
+            storedValues = new DLMSStoredValues(protocol.getDlmsSession().getCosemObjectFactory(), BILLING_PROFILE_OBIS);
         }
         return storedValues;
     }

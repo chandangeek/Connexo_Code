@@ -2,10 +2,6 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.issues.Issue;
@@ -13,7 +9,11 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
@@ -21,16 +21,39 @@ import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessage
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -576,12 +599,12 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser1Password(newPassword);
+//        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser1Password(newPassword);
     }
 
     private void changePasswordUser2(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser2Password(newPassword);
+//        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser2Password(newPassword);
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -642,7 +665,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 try {
                     session.getLogger().info("Executing path request to meter " + macAddress);
                     session.getDLMSConnection().setTimeout(fullRoundTripTimeout);
-                    collectedTopology = this.deviceProtocol.getG3Topology().doPathRequestFor(macAddress);
+                    //TODO fixme
+//                    collectedTopology = this.deviceProtocol.getG3Topology().doPathRequestFor(macAddress);
                     session.getLogger().info("Path request for meter " + macAddress + " was successful.");
                 } finally {
                     session.getDLMSConnection().setTimeout(normalTimeout);

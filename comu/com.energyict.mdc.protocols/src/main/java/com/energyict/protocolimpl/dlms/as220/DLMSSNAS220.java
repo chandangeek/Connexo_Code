@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
@@ -32,6 +33,7 @@ import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.ActivityCalendar;
@@ -522,12 +524,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
             iRequestTimeZone = Integer.parseInt(properties.getProperty(PR_REQUEST_TIME_ZONE, "0").trim());
             setRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
 
-            String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityContext.SECURITYPOLICY_NONE).split(":");
+            String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityPolicy.SECURITYPOLICY_NONE).split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
             if (securityLevel.length == 2) {
                 this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
             } else if (securityLevel.length == 1) {
-                this.datatransportSecurityLevel = SecurityContext.SECURITYPOLICY_NONE;
+                this.datatransportSecurityLevel = SecurityPolicy.SECURITYPOLICY_NONE;
             } else {
                 throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty(PR_SECURITY_LEVEL, "0"));
             }
@@ -544,8 +546,8 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
             opticalBaudrate = Integer.parseInt(properties.getProperty(PR_OPTICAL_BAUDRATE, "-1"));
 
-            this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(SecurityContext.CIPHERING_TYPE_DEDICATED)));
-            if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
+            this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(CipheringType.DEDICATED.getType())));
+            if (cipheringType != CipheringType.GLOBAL.getType() && cipheringType != CipheringType.DEDICATED.getType()) {
                 throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
             }
 

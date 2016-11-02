@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
@@ -11,15 +12,15 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.util.ProtocolUtils;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.EventsLog;
@@ -57,7 +58,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
             supportedLogBooks.add(getMeterConfig().getPowerFailureLogObject().getObisCode());
             supportedLogBooks.add(getMeterConfig().getFraudDetectionLogObject().getObisCode());
             supportedLogBooks.add(getMeterConfig().getMbusEventLogObject().getObisCode());
-            for (DeviceMapping mbusMeter : protocol.getMeterTopology().getMbusMeterMap()) {
+            for (DeviceMapping mbusMeter : ((MeterTopology) protocol.getMeterTopology()).getMbusMeterMap()) {
                 supportedLogBooks.add(getMeterConfig().getMbusControlLog(mbusMeter.getPhysicalAddress() - 1).getObisCode());
             }
         } catch (ProtocolException e) {   //Object not found in IOL, should never happen

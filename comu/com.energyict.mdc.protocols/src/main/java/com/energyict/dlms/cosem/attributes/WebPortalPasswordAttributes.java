@@ -1,8 +1,9 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
 
 /**
@@ -34,7 +35,7 @@ public enum WebPortalPasswordAttributes implements DLMSClassAttributes {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.WEB_PORTAL_PASSWORDS;
+        return DLMSClassId.WEB_PORTAL_CONFIGURATION;
     }
 
     /**

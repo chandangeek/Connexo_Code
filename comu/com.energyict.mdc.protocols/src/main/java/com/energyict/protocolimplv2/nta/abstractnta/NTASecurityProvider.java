@@ -12,7 +12,7 @@ import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 
 import java.io.IOException;
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Default implementation of the V2 SecurityProvider.
@@ -27,13 +27,14 @@ import java.util.Random;
  */
 public class NTASecurityProvider implements SecurityProvider {
 
-    protected int authenticationLevel;
+    protected final int authenticationLevel;
     protected byte[] cTOs;
+    protected byte[] dedicatedKey;
+    protected TypedProperties properties;
+    protected byte[] masterKey;
+    protected byte[] hlsSecret;
     private byte[] authenticationKey;
     private byte[] encryptionKey;
-    protected byte[] dedicatedKey;
-    private byte[] hlsSecret;
-    protected TypedProperties properties;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
     private Long initialFrameCounter;
@@ -57,6 +58,10 @@ public class NTASecurityProvider implements SecurityProvider {
             this.authenticationKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.authenticationKey;
+    }
+
+    protected void setAuthenticationKey(byte[] authenticationKey) {
+        this.authenticationKey = authenticationKey;
     }
 
     /**
@@ -87,6 +92,23 @@ public class NTASecurityProvider implements SecurityProvider {
         return this.hlsSecret;
     }
 
+    @Override
+    public byte[] getMasterKey() {
+        if (this.masterKey == null) {
+            String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.MASTER_KEY.getKey()).getContent();
+            this.masterKey = DLMSUtils.hexStringToByteArray(hex);
+        }
+        return this.masterKey;
+    }
+
+    protected void setEncryptionKey(byte[] encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
+    protected void setHlsSecret(byte[] hlsSecret) {
+        this.hlsSecret = hlsSecret;
+    }
+
     public byte[] getCallingAuthenticationValue() throws UnsupportedException {
         switch (this.authenticationLevel) {
             case 0:
@@ -108,18 +130,30 @@ public class NTASecurityProvider implements SecurityProvider {
                 generateClientToServerChallenge();
                 return this.cTOs;
             }
+            case 6: {    // this is a ClientToServer challenge for SHA-256
+                generateClientToServerChallenge();
+                return this.cTOs;
+            }
+            case 7: {    // this is a ClientToServer challenge for ECDSA, it requires a challenge length between 32 and 64 bytes
+                generateClientToServerChallenge(32);
+                return this.cTOs;
+            }
             default:
                 return new byte[0];
         }
     }
 
     /**
-     * Generate a random challenge of 8 bytes long
+     * Generate a random challenge of 16 bytes long
      */
     protected void generateClientToServerChallenge() {
+        this.generateClientToServerChallenge(16);
+    }
+
+    protected void generateClientToServerChallenge(int length) {
         if (this.cTOs == null) {
-            Random generator = new Random();
-            this.cTOs = new byte[16];
+            SecureRandom generator = new SecureRandom();
+            this.cTOs = new byte[length];
             generator.nextBytes(this.cTOs);
         }
     }
@@ -141,9 +175,13 @@ public class NTASecurityProvider implements SecurityProvider {
         if (initialFrameCounter != null) {
             return initialFrameCounter;
         } else {
-            Random generator = new Random();
+            SecureRandom generator = new SecureRandom();
             return generator.nextLong();
         }
+    }
+
+    public void setInitialFrameCounter(long frameCounter) {
+        this.initialFrameCounter = frameCounter;
     }
 
     /**
@@ -170,14 +208,10 @@ public class NTASecurityProvider implements SecurityProvider {
         this.authenticationKey = newAuthenticationKey;
     }
 
-    public void setInitialFrameCounter(long frameCounter) {
-        this.initialFrameCounter = frameCounter;
-    }
-
     public byte[] getDedicatedKey() {
         if (dedicatedKey == null) {
             dedicatedKey = new byte[16];
-            Random rnd = new Random();
+            SecureRandom rnd = new SecureRandom();
             rnd.nextBytes(dedicatedKey);
         }
         return dedicatedKey;
