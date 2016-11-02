@@ -232,7 +232,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     if (me.mode == 'edit') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.saved', 'MDC', 'Shared communication schedule saved'));
                     } else if (me.mode === 'clone') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.saved', 'MDC', 'Shared communication schedule cloned'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.cloned', 'MDC', 'Shared communication schedule cloned'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.added', 'MDC', 'Shared communication schedule added'));
                     }
