@@ -73,9 +73,9 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     public void logOnAllLoggerHandlers(String info, Level level) {
 
         //TODO see if you can fix this. We keep getting the set on a 'completed' comSession
-//        attachAllExtraHandlersToLogger();
-//        logger.log(level, info);
-//        detachAllExtraHandlersToLogger();
+        attachAllExtraHandlersToLogger();
+        logger.log(level, info);
+        detachAllExtraHandlersToLogger();
     }
 
     @Override
