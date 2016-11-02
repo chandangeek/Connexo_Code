@@ -88,7 +88,7 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException("POST call to Connexo REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
@@ -122,7 +122,7 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException("GET deployment call to Connexo REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
@@ -151,7 +151,7 @@ public class ProcessDeployer {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    throw new RuntimeException(e.getStackTrace().toString());
+                    throw new RuntimeException("Failed reading response from Connexo REST API.", e);
                 }
             }
         }
@@ -175,7 +175,7 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException("GET call to Connexo REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
