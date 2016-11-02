@@ -24,6 +24,7 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
+import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationOccurrenceLogInfos;
 import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfo;
@@ -135,7 +136,10 @@ public class DataValidationTaskResource {
                                              @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                              DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
-        findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete();
+        DataValidationTask task = findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName));
+        if(task.getLastOccurrence().filter(to -> to.getStatus().equals(DataValidationTaskStatus.BUSY)).isPresent()){
+            throw new WebApplicationException(thesaurus.getFormat(MessageSeeds.VALIDATION_TASK_IN_USE).format(), Response.Status.BAD_REQUEST);
+        }
         return Response.ok().build();
     }
 
