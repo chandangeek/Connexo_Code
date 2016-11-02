@@ -445,6 +445,8 @@ public abstract class JobExecution implements ScheduledJob {
         return new ComCommandServiceProvider();
     }
 
+    public abstract void appendStatisticalInformationToComSession();
+
     protected enum BasicCheckTasks implements Comparator<ProtocolTask> {
         FIRST;
 

@@ -13,18 +13,24 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.LastSeenDateInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.TopologyTask;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,13 +52,22 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
     @Mock
     private OfflineDevice offlineDevice;
 
+
+    private Map<DeviceIdentifier, LastSeenDateInfo> createSlaveIdentifiers(DeviceIdentifier... identifier) {
+        LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo("LastSeenDate", Instant.now());
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = new HashMap<>();
+        Stream.of(identifier).forEach(deviceIdentifier1 -> slaveDeviceIdentifiers.put(deviceIdentifier1, lastSeenDateInfo));
+        return slaveDeviceIdentifiers;
+    }
+
     @Test
     public void doExecuteTest() {
         DeviceIdentifierById masterDevice = new DeviceIdentifierById(1L, mock(DeviceService.class));
         DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L, mock(DeviceService.class));
         DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L, mock(DeviceService.class));
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slaveDevice1, slaveDevice2);
 
-        CollectedTopology collectedTopology = new DeviceTopology(masterDevice, Arrays.asList(slaveDevice1, slaveDevice2));
+        CollectedTopology collectedTopology = new DeviceTopology(masterDevice, slaveDeviceIdentifiers);
         CollectedDeviceInfo additionalDeviceInfoOfMaster = getAdditionalDeviceInfoOfMaster(masterDevice);
         collectedTopology.addAdditionalCollectedDeviceInfo(additionalDeviceInfoOfMaster);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
