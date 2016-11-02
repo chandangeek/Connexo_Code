@@ -157,7 +157,7 @@ Ext.define('Uni.service.Search', {
 
         //domains.load(function())
         if (Ext.isString(domain)) {
-            domain = domains.findRecord('id', domain, 0, true, true);
+            domain = domains.getById(domain);
         }
 
         if (domain !== null
