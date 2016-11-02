@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -15,6 +16,7 @@ import java.time.Instant;
 /**
  * Provides an implementation for the {@link MetrologyContractEstimationRuleSetUsage} interface.
  */
+@UniqueRuleSetUsage(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.mdm.usagepoint.config.impl.MessageSeeds.Keys.DUPLICATE_VALIDATION_RULE_USAGE + "}")
 class MetrologyContractEstimationRuleSetUsageImpl implements MetrologyContractEstimationRuleSetUsage {
 
     enum Fields {

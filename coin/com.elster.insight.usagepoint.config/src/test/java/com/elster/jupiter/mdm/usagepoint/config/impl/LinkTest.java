@@ -60,7 +60,6 @@ public class LinkTest {
             assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(2);
             usagePointConfigurationService.removeValidationRuleSet(contractBilling, vrs1);
             assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(1);
-            context.commit();
         }
     }
 
@@ -86,7 +85,6 @@ public class LinkTest {
             assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(2);
             usagePointConfigurationService.removeEstimationRuleSet(contractBilling, ers1);
             assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(1);
-            context.commit();
         }
     }
 

@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -30,6 +31,8 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
@@ -47,7 +50,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,7 +63,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {UsagePointConfigurationService.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, TranslationKeyProvider {
+public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -297,16 +300,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public void removeEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
-        this.dataModel
-                .mapper(MetrologyContractEstimationRuleSetUsage.class)
-                .getUnique(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName(), metrologyContract,
-                        MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName(), estimationRuleSet)
-                .ifPresent(metrologyContractEstimationRuleSetUsage -> dataModel.remove(metrologyContractEstimationRuleSetUsage));
-        metrologyContract.update();
-    }
-
-    @Override
     public List<EstimationRuleSet> getEstimationRuleSets(MetrologyContract metrologyContract) {
         return this.dataModel
                 .query(MetrologyContractEstimationRuleSetUsage.class)
@@ -314,8 +307,20 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                         .isEqualTo(metrologyContract))
                 .stream()
                 .map(MetrologyContractEstimationRuleSetUsage::getEstimationRuleSet)
-                .sorted((ruleSet1, ruleSet2) -> ruleSet1.getName().compareToIgnoreCase(ruleSet2.getName()))
+                .sorted(Comparator.comparing(rs -> rs.getName().toLowerCase()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void removeEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+        this.dataModel
+                .mapper(MetrologyContractEstimationRuleSetUsage.class)
+                .getUnique(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName(), metrologyContract,
+                        MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName(), estimationRuleSet)
+                .ifPresent(metrologyContractEstimationRuleSetUsage -> {
+                    dataModel.remove(metrologyContractEstimationRuleSetUsage);
+                    metrologyContract.update();
+                });
     }
 
     @Override
@@ -324,41 +329,43 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
             return false;
         }
 
-            if (!estimationRuleSet.getRules().isEmpty()) {
-                List<ReadingType> ruleSetReadingTypes = estimationRuleSet
-                        .getRules()
+        if (!estimationRuleSet.getRules().isEmpty()) {
+            List<ReadingType> ruleSetReadingTypes = estimationRuleSet
+                    .getRules()
+                    .stream()
+                    .flatMap(rule -> rule.getReadingTypes().stream())
+                    .collect(Collectors.toList());
+            List<String> ruleSetReadingTypeMRIDs = ruleSetReadingTypes
+                    .stream()
+                    .map(ReadingType::getMRID)
+                    .collect(Collectors.toList());
+            if (!metrologyContract.getDeliverables().isEmpty()) {
+                List<String> deliverableReadingTypeMRIDs = metrologyContract.getDeliverables()
                         .stream()
-                        .flatMap(rule -> rule.getReadingTypes().stream())
+                        .map(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().getMRID())
                         .collect(Collectors.toList());
-                List<String> ruleSetReadingTypeMRIDs = ruleSetReadingTypes
-                        .stream()
-                        .map(ReadingType::getMRID)
-                        .collect(Collectors.toList());
-                if (!metrologyContract.getDeliverables().isEmpty()) {
-                    List<String> deliverableReadingTypeMRIDs = metrologyContract.getDeliverables()
+                if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
+                    return true;
+                } else {
+                    ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+                    metrologyContract.getDeliverables()
                             .stream()
-                            .map(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().getMRID())
-                            .collect(Collectors.toList());
-                    if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
-                        return true;
-                    } else {
-                        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
-                        metrologyContract.getDeliverables()
-                                .stream()
-                                .map(ReadingTypeDeliverable::getFormula)
-                                .map(Formula::getExpressionNode)
-                                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
-                        for (ReadingTypeRequirement readingTypeRequirement : requirementsCollector.getReadingTypeRequirements()) {
-                            if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes.contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
-                                return true;
-                            } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
-                                ReadingTypeTemplate readingTypeTemplate = ((PartiallySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingTypeTemplate();
-                                return ruleSetReadingTypes.stream().anyMatch(readingTypeTemplate::matches);
-                            }
+                            .map(ReadingTypeDeliverable::getFormula)
+                            .map(Formula::getExpressionNode)
+                            .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+                    for (ReadingTypeRequirement readingTypeRequirement : requirementsCollector.getReadingTypeRequirements()) {
+                        if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes
+                                .contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
+                            return true;
+                        } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
+                            ReadingTypeTemplate readingTypeTemplate = ((PartiallySpecifiedReadingTypeRequirement) readingTypeRequirement)
+                                    .getReadingTypeTemplate();
+                            return ruleSetReadingTypes.stream().anyMatch(readingTypeTemplate::matches);
                         }
                     }
                 }
             }
+        }
 
         return false;
     }
@@ -368,7 +375,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         return !this.dataModel
                 .query(MetrologyContractEstimationRuleSetUsage.class)
                 .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName())
-                        .isEqualTo(ruleset))
+                        .isEqualTo(ruleset), new Order[0], false, new String[0], 1, 1)
                 .isEmpty();
     }
 
@@ -381,6 +388,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
