@@ -1,10 +1,36 @@
 package com.elster.jupiter.issue.rest;
 
-@SuppressWarnings("unchecked")
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.request.RequestHelper;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+
+
 public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
 
-    //FixMe take care of this unit tests;
-    /*@Test
+    @Mock
+    IssueAssignee issueAssignee;
+
+    @Test
     public void testGetAllAssigneesWithoutLike() {
         this.mockTranslation(TranslationKeys.ISSUE_ASSIGNEE_UNASSIGNED);
 
@@ -38,7 +64,6 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
         Map<?,?> me = (Map<?, ?>) assigneesList.get(0);
 
         assertThat(me.get("id")).isEqualTo(13);
-        assertThat(me.get("type")).isEqualTo(IssueAssignee.Types.USER);
         assertThat(me.get("name")).isEqualTo("user");
     }
 
@@ -59,26 +84,24 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
 
         assertThat(assignee.get("id")).isEqualTo(3);
         assertThat(assignee.get("name")).isEqualTo("dream user");
-        assertThat(assignee.get("type")).isEqualTo(IssueAssignee.Types.USER);
     }
 
     @Test
     public void testGetAssignee() {
         IssueAssignee issueAssignee = getDefaultAssignee();
-        when(issueService.findIssueAssignee(1L, null)).thenReturn(Optional.of(issueAssignee));
+        when(issueService.findIssueAssignee(1L, null)).thenReturn(issueAssignee);
 
-        Map<String, Object> map = target("/assignees/1").queryParam(ASSIGNEE_TYPE, IssueAssignee.Types.USER).request().get(Map.class);
+        Map<String, Object> map = target("/assignees/1").request().get(Map.class);
 
         Map<?,?> assigneeMap = (Map<?,?>) map.get("data");
-        assertThat(assigneeMap).hasSize(3);
+        assertThat(assigneeMap).hasSize(2);
         assertThat(assigneeMap.get("id")).isEqualTo(1);
         assertThat(assigneeMap.get("name")).isEqualTo("Admin");
-        assertThat(assigneeMap.get("type")).isEqualTo(IssueAssignee.Types.USER);
     }
 
     @Test
     public void testGetAssigneeWithoutType() {
-        when(issueService.findIssueAssignee(1L, null)).thenReturn(Optional.empty());
+        when(issueService.findIssueAssignee(1L, null)).thenReturn(issueAssignee);
 
         Response response = target("/assignees/1").request().get();
 
@@ -88,17 +111,17 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetAssigneeWithIncorrectType() {
-        when(issueService.findIssueAssignee(1L, null)).thenReturn(Optional.empty());
+        when(issueService.findIssueAssignee(1L, null)).thenReturn(issueAssignee);
 
-        Response response = target("/assignees/1").queryParam(ASSIGNEE_TYPE, "some").request().get();
+        Response response = target("/assignees/1").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void testGetUnexistingAssignee() {
-        when(issueService.findIssueAssignee(1L, null)).thenReturn(Optional.empty());
-        Response response = target("/assignees/1").queryParam(ASSIGNEE_TYPE, IssueAssignee.Types.USER).request().get();
+        when(issueService.findIssueAssignee(1L, null)).thenReturn(issueAssignee);
+        Response response = target("/assignees/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
@@ -118,7 +141,6 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
         List<?> data = (List<?>) map.get("data");
         assertThat(data).hasSize(2);
         assertThat(((Map<?, ?>) data.get(0)).get("id")).isEqualTo(1);
-        assertThat(((Map<?, ?>) data.get(0)).get("type")).isEqualTo(IssueAssignee.Types.USER);
     }
 
     @Test
@@ -137,7 +159,6 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
         List<?> data = (List<?>) map.get("data");
         assertThat(data).hasSize(2);
         assertThat(((Map<?, ?>) data.get(0)).get("id")).isEqualTo(1);
-        assertThat(((Map<?, ?>) data.get(0)).get("type")).isEqualTo(IssueAssignee.Types.USER);
     }
-    */
+
 }
