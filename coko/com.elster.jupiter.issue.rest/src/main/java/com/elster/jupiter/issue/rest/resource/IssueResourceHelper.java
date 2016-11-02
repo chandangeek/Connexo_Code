@@ -143,6 +143,9 @@ public class IssueResourceHelper {
             jsonFilter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(id -> userService.getUser(Long.valueOf(id)).orElse(null))
                     .filter(user -> user != null)
                     .forEach(filter::addAssignee);
+            if(jsonFilter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().anyMatch(id -> id.equals("-1"))){
+                filter.setUnassignedSelected();
+            }
         }else {
             jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE)
                     .stream().map(id -> userService.getUser(id).orElse(null))
@@ -158,6 +161,9 @@ public class IssueResourceHelper {
             jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(id -> userService.getWorkGroup(Long.valueOf(id)).orElse(null))
                     .filter(workGroup -> workGroup != null)
                     .forEach(filter::addWorkGroupAssignee);
+            if(jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id.equals("-1"))){
+                filter.setUnassignedWorkGroupSelected();
+            }
         }else{
             jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP)
                     .stream().map(id -> userService.getWorkGroup(id).orElse(null))
