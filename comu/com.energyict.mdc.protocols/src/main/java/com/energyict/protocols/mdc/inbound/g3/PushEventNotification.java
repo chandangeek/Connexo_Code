@@ -97,7 +97,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             try {
                 doProvide(pskProvider, joiningMacAddress);
             } catch (CommunicationException e) {
-                pskProvider.provideError(e.getMessage());
+                pskProvider.provideError(e.getMessage(), context);
             }
         }
         return DiscoverResultType.DATA;
@@ -109,7 +109,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 //        if (onHold) {
 //            pskProvider.provideError(getErrorMessage());
 //        } else {
-        pskProvider.providePSK(joiningMacAddress, securityPropertySet);
+        pskProvider.providePSK(joiningMacAddress, securityPropertySet, getContext());
 //        }
     }
 

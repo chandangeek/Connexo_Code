@@ -46,7 +46,7 @@ public class G3GatewayPSKProviderFactory {
      */
     public synchronized G3GatewayPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, Provider<DsmrSecuritySupport> securityProvider, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         if (!providers.containsKey(deviceIdentifier.getIdentifier())) {
-            providers.put(deviceIdentifier.getIdentifier(), new G3GatewayPSKProvider(deviceIdentifier, context, securityProvider, thesaurus, propertySpecService, socketService, issueService, identificationService, collectedDataFactory, meteringService));
+            providers.put(deviceIdentifier.getIdentifier(), new G3GatewayPSKProvider(deviceIdentifier, securityProvider, thesaurus, propertySpecService, socketService, issueService, identificationService, collectedDataFactory, meteringService));
         }
         return providers.get(deviceIdentifier.getIdentifier());
     }

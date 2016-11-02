@@ -55,7 +55,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
 
     @Inject
     public BeaconPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, boolean provideProtocolJavaClasName, Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
-        super(deviceIdentifier, context, dsmrSecuritySupportProvider, thesaurus, propertySpecService, socketService, issueService, identificationService, collectedDataFactory, meteringService);
+        super(deviceIdentifier, dsmrSecuritySupportProvider, thesaurus, propertySpecService, socketService, issueService, identificationService, collectedDataFactory, meteringService);
         this.provideProtocolJavaClasName = provideProtocolJavaClasName;
         this.clock = clock;
         this.thesaurus = thesaurus;

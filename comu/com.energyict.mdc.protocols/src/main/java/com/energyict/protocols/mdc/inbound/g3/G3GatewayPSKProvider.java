@@ -63,7 +63,6 @@ import java.util.logging.Level;
 public class G3GatewayPSKProvider {
 
     private final DeviceIdentifier deviceIdentifier;
-    protected InboundDiscoveryContext context;
     protected ComChannel tcpComChannel;
 
     private Set<String> joiningMacAddresses = Collections.synchronizedSet(new HashSet<String>());
@@ -77,9 +76,8 @@ public class G3GatewayPSKProvider {
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
 
-    public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, Provider<DsmrSecuritySupport> securityProvider, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier, Provider<DsmrSecuritySupport> securityProvider, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         this.deviceIdentifier = deviceIdentifier;
-        this.context = context;
         this.securityProvider = securityProvider;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -106,7 +104,7 @@ public class G3GatewayPSKProvider {
      * This method is synchronized, so that only 1 thread at a time can call it.
      * The other threads that want to call this method (on the same instance of this class) will automatically wait.
      */
-    public synchronized void providePSK(String macAddress, DeviceProtocolSecurityPropertySet securityPropertySet) {
+    public synchronized void providePSK(String macAddress, DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
 
         if (!joiningMacAddresses.contains(macAddress)) {
             //Another thread already provided the PSK for this MAC address, cool! Let's move on.
@@ -114,11 +112,11 @@ public class G3GatewayPSKProvider {
         }
 
         try {
-            DeviceProtocol gatewayProtocol = getGatewayProtocol(securityPropertySet);
-            providePSK(gatewayProtocol);
+            DeviceProtocol gatewayProtocol = getGatewayProtocol(securityPropertySet, context);
+            providePSK(gatewayProtocol, context);
             joiningMacAddresses.remove(macAddress);
         } catch (CommunicationException e) {
-            communicationError("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.");
+            communicationError("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", context);
             throw e;
         }
 
@@ -150,9 +148,10 @@ public class G3GatewayPSKProvider {
      * The next inbound frame will set it up again.
      *
      * @param errorMessage
+     * @param context
      */
-    public synchronized void provideError(String errorMessage) {
-        communicationError(errorMessage);
+    public synchronized void provideError(String errorMessage, InboundDiscoveryContext context) {
+        communicationError(errorMessage, context);
     }
 
     /**
@@ -160,8 +159,9 @@ public class G3GatewayPSKProvider {
      * The next inbound frame will set it up again.
      *
      * @param errorMessage
+     * @param context
      */
-    private void communicationError(String errorMessage) {
+    private void communicationError(String errorMessage, InboundDiscoveryContext context) {
         try {
             context.logOnAllLoggerHandlers(errorMessage, Level.WARNING);
             if (tcpComChannel != null) {
@@ -181,9 +181,9 @@ public class G3GatewayPSKProvider {
      * Lazy initialization.
      * No need to associate again to the Beacon if the protocol instance already exists.
      */
-    private DeviceProtocol getGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
+    private DeviceProtocol getGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
         if (gatewayProtocol == null) {
-            gatewayProtocol = initializeGatewayProtocol(securityPropertySet);
+            gatewayProtocol = initializeGatewayProtocol(securityPropertySet, context);
         }
         return gatewayProtocol;
     }
@@ -192,7 +192,7 @@ public class G3GatewayPSKProvider {
      * Create a protocol instance that will setup a DLMS session to the RTU+Server
      * JUnit test overrides this
      */
-    protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
+    protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
         DeviceProtocol gatewayProtocol = newGatewayProtocol();
         final TypedProperties deviceProtocolProperties = context.getDeviceProtocolProperties(getDeviceIdentifier());
         TypedProperties protocolProperties = deviceProtocolProperties == null ? TypedProperties.empty() : deviceProtocolProperties;
@@ -202,9 +202,9 @@ public class G3GatewayPSKProvider {
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         Optional<OfflineDevice> offlineDevice = context.getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
-        if(offlineDevice.isPresent()){
+        if (offlineDevice.isPresent()) {
 
-            createTcpComChannel();
+            createTcpComChannel(context);
             context.logOnAllLoggerHandlers("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
             gatewayProtocol.setDeviceCache(dummyCache);
             gatewayProtocol.copyProperties(protocolProperties);
@@ -233,7 +233,7 @@ public class G3GatewayPSKProvider {
                 });
     }
 
-    private void createTcpComChannel() {
+    private void createTcpComChannel(InboundDiscoveryContext context) {
         boolean tlsConnection = false;
         TypedProperties connectionProperties = context.getOutboundConnectionTypeProperties(getDeviceIdentifier());
 //        if(connectionProperties.getProperty(TLSConnectionType.TLS_VERSION_PROPERTY_NAME) != null){
@@ -254,7 +254,7 @@ public class G3GatewayPSKProvider {
      * Read out attribute 'joining_slaves' of object G3NetworkManagement. It is the list of slaves that are joining and need a PSK.
      * Find their PSK properties in EIServer and provide them to the Rtu+Server.
      */
-    protected void providePSK(DeviceProtocol gatewayProtocol) {
+    protected void providePSK(DeviceProtocol gatewayProtocol, InboundDiscoveryContext context) {
         DlmsSession dlmsSession = getDlmsSession(gatewayProtocol);
         G3NetworkManagement g3NetworkManagement;
         try {
