@@ -1,12 +1,15 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.impl.records.IssueImpl;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.request.SingleIssueRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
@@ -17,6 +20,7 @@ import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
+import com.elster.jupiter.issue.rest.transactions.AssignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -30,6 +34,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -68,18 +73,21 @@ public class IssueResource extends BaseResource {
     private final IssueInfoFactory issueInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final IssueInfoFactoryService issueInfoFactoryService;
+    private final TransactionService transactionService;
 
     @Inject
-    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService) {
+    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService, TransactionService transactionService) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
         this.issueInfoFactoryService = issueInfoFactoryService;
+        this.transactionService = transactionService;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, START, LIMIT);
         Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
@@ -89,10 +97,10 @@ public class IssueResource extends BaseResource {
         }
         List<? extends Issue> issues = finder.find();
         List<IssueInfo> issueInfos = new ArrayList<>();
-        for(Issue baseIssue : issues) {
+        for (Issue baseIssue : issues) {
             for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
-               if (issueRef.isPresent()) {
+                if (issueRef.isPresent()) {
                     issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issueRef.get()).from(issueRef.get())));
                 }
             }
@@ -100,7 +108,8 @@ public class IssueResource extends BaseResource {
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/comments")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
@@ -120,7 +129,8 @@ public class IssueResource extends BaseResource {
         return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{" + ID + "}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -129,8 +139,8 @@ public class IssueResource extends BaseResource {
         Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<IssueActionTypeInfo> issueActions = new ArrayList<>();
         for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
-            Optional<? extends Issue> issueRef =  issue.getStatus().isHistorical() ?
-                    issueProvider.getHistoricalIssue((HistoricalIssue)issue) : issueProvider.getOpenIssue((OpenIssue)issue);
+            Optional<? extends Issue> issueRef = issue.getStatus().isHistorical() ?
+                    issueProvider.getHistoricalIssue((HistoricalIssue) issue) : issueProvider.getOpenIssue((OpenIssue) issue);
             if (issueRef.isPresent()) {
                 issueActions = issueResourceHelper.getListOfAvailableIssueActions(issueRef.get());
             }
@@ -138,19 +148,21 @@ public class IssueResource extends BaseResource {
         return PagedInfoList.fromCompleteList("issueActions", issueActions, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
-    public Response getActionTypeById(@PathParam(ID) long id, @PathParam(KEY) long actionId){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
+    public Response getActionTypeById(@PathParam(ID) long id, @PathParam(KEY) long actionId) {
         getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return Response.ok(issueResourceHelper.getIssueActionById(actionId)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, @PathParam(KEY) long actionId, PerformActionRequest request) {
         Issue baseIssue = getIssueService().findAndLockIssueByIdAndVersion(id, request.issue.version)
@@ -162,13 +174,28 @@ public class IssueResource extends BaseResource {
         request.id = actionId;
 
         for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
-            Optional<? extends Issue> issueRef =  baseIssue.getStatus().isHistorical() ?
-                    issueProvider.getHistoricalIssue((HistoricalIssue)baseIssue) : issueProvider.getOpenIssue((OpenIssue)baseIssue);
+            Optional<? extends Issue> issueRef = baseIssue.getStatus().isHistorical() ?
+                    issueProvider.getHistoricalIssue((HistoricalIssue) baseIssue) : issueProvider.getOpenIssue((OpenIssue) baseIssue);
             if (issueRef.isPresent()) {
                 return Response.ok(issueResourceHelper.performIssueAction(issueRef.get(), request)).build();
             }
         }
         return Response.ok(issueResourceHelper.performIssueAction(baseIssue, request)).build();
+    }
+
+
+    @PUT
+    @Path("/assignissue")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response performAssignTo(@Context SecurityContext securityContext, AssignSingleIssueRequest request) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, Issue> issueProvider;
+        issueProvider = result -> getIssue(request, result);
+        ActionInfo info = getTransactionService().execute(new AssignSingleIssueTransaction(request, performer, issueProvider));
+        return entity(info).build();
+
     }
 
 
@@ -179,13 +206,13 @@ public class IssueResource extends BaseResource {
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
         groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
-              .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
-              .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
-              .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
-              .withMeterMrid(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
-              .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
-              .setAscOrder(false) // Sorting (descending direction)
-              .from(params.getFrom()).to(params.getTo()); // Pagination
+                .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
+                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
+                .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
+                .withMeterMrid(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
+                .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
+                .setAscOrder(false) // Sorting (descending direction)
+                .from(params.getFrom()).to(params.getTo()); // Pagination
         issueResourceHelper.getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
@@ -238,6 +265,14 @@ public class IssueResource extends BaseResource {
         return issuesForBulk;
     }
 
+    private Issue getIssue(SingleIssueRequest request, ActionInfo result) {
+        Issue issue = getIssueService().findIssue(request.issue.getId()).orElse(null);
+        if (issue == null) {
+            result.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), request.issue.getId(), "Issue (id = " + request.issue.getId() + ")");
+        }
+        return issue;
+    }
+
     private Class<? extends Issue> getQueryApiClass(JsonQueryFilter filter) {
         List<IssueStatus> statuses = filter.hasProperty(IssueRestModuleConst.STATUS)
                 ? filter.getStringList(IssueRestModuleConst.STATUS).stream().map(s -> getIssueService().findStatus(s).get()).collect(Collectors.toList())
@@ -256,7 +291,7 @@ public class IssueResource extends BaseResource {
 
     private Finder<? extends Issue> addSorting(Finder<? extends Issue> finder, StandardParametersBean parameters) {
         Order[] orders = parameters.getOrder("");
-        for(Order order : orders) {
+        for (Order order : orders) {
             finder.sorted(order.getName(), order.ascending());
         }
         return finder;

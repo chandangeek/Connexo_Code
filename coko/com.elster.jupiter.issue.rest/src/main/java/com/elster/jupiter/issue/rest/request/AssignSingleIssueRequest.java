@@ -1,10 +1,9 @@
 package com.elster.jupiter.issue.rest.request;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AssignIssueRequest extends BulkIssueRequest {
+public class AssignSingleIssueRequest extends SingleIssueRequest {
     public AssigneeReference assignee;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
