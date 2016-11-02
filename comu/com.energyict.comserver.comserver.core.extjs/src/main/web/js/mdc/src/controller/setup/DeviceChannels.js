@@ -158,8 +158,10 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
 
         customAttributesStore.getProxy().setParams(me.deviceId, record.get('id'));
         customAttributesStore.load(function() {
-            preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
-            preview.setLoading(false);
+            if (preview.rendered) {
+                preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                preview.setLoading(false);
+            }
         });
         routeParams.channelId = record.getId();
     },

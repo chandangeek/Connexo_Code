@@ -158,9 +158,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             deviceId = params['deviceId'],
             channelId = params['channelId'],
             issueId = params['issueId'],
-            device = me.getModel('Mdc.model.Device'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            channel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
+            channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             prevNextstore = contentName === 'block' ? 'Mdc.store.ValidationBlocks' : 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
             prevNextListLink = contentName === 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
@@ -170,57 +169,74 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             activeTab = contentName === 'spec' ? 0 : 1,
             timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
             slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveChannelHistory'),
-            loadDevice = function() {
-                device.load(deviceId, {
-                    scope: me,
-                    success: onDeviceLoad
-                });
-            },
-            onDeviceLoad = function(device) {
-                me.getApplication().fireEvent('loadDevice', device);
-                channel.getProxy().setExtraParam('deviceId', deviceId);
-                channel.load(channelId, {
-                    success: function (channel) {
-                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
-                        var widget = Ext.widget('tabbedDeviceChannelsView', {
-                            title: channel.get('readingType').fullAliasName,
-                            router: router,
-                            channel: channel,
-                            device: device,
-                            contentName: contentName,
-                            indexLocation: indexLocation,
-                            prevNextListLink: prevNextListLink,
-                            activeTab: activeTab,
-                            prevNextstore: prevNextstore,
-                            routerIdArgument: routerIdArgument,
-                            isFullTotalCount: isFullTotalCount,
-                            filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {},
-                            mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                            dataLoggerSlaveHistoryStore: slaveHistoryStore
-                        });
-
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        viewport.setLoading(false);
-                        if (activeTab == 1) {
-                            me.setupReadingsTab(device, channel, widget);
-                        } else if (activeTab == 0) {
-                            me.setupSpecificationsTab(device, channel, widget);
-                        }
+            dependencyCounter = 3,
+            onDependenciesLoad = function () {
+                dependencyCounter--;
+                if (!dependencyCounter) {
+                    var widget = Ext.widget('tabbedDeviceChannelsView', {
+                        title: channel.get('readingType').fullAliasName,
+                        router: router,
+                        channel: channel,
+                        device: device,
+                        contentName: contentName,
+                        indexLocation: indexLocation,
+                        prevNextListLink: prevNextListLink,
+                        activeTab: activeTab,
+                        prevNextstore: prevNextstore,
+                        routerIdArgument: routerIdArgument,
+                        isFullTotalCount: isFullTotalCount,
+                        filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {},
+                        mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                        dataLoggerSlaveHistoryStore: slaveHistoryStore
+                    });
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    viewport.setLoading(false);
+                    if (activeTab == 1) {
+                        me.setupReadingsTab(device, channel, widget);
+                    } else if (activeTab == 0) {
+                        me.setupSpecificationsTab(device, channel, widget);
                     }
-                });
-            };
+                }
+            },
+            device,
+            channel;
 
         viewport.setLoading(true);
-        if (contentName === 'spec') {
-            slaveHistoryStore.getProxy().setParams(deviceId, channelId);
-            slaveHistoryStore.load(function() {
-                timeUnitsStore.load(function() {
-                    loadDevice();
-                });
-            });
-        } else {
-            loadDevice();
+
+        switch (prevNextstore) {
+            case 'Mdc.store.ValidationBlocks':
+                me.getStore(prevNextstore).getProxy().setParams(deviceId, channelId, issueId);
+                break;
+            case 'Mdc.store.ChannelsOfLoadProfilesOfDevice':
+                me.getStore(prevNextstore).getProxy().setExtraParam('deviceId', deviceId);
+                break;
         }
+
+        me.getStore(prevNextstore).load(onDependenciesLoad);
+
+        if (contentName === 'spec') {
+            dependencyCounter = dependencyCounter + 2;
+            slaveHistoryStore.getProxy().setParams(deviceId, channelId);
+            slaveHistoryStore.load(onDependenciesLoad);
+            timeUnitsStore.load(onDependenciesLoad);
+        }
+
+        me.getModel('Mdc.model.Device').load(deviceId, {
+            success: function (record) {
+                me.getApplication().fireEvent('loadDevice', record);
+                device = record;
+                onDependenciesLoad();
+            }
+        });
+
+        channelModel.getProxy().setExtraParam('deviceId', deviceId);
+        channelModel.load(channelId, {
+            success: function (record) {
+                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                channel = record;
+                onDependenciesLoad();
+            }
+        });
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
@@ -231,6 +247,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             menu = widget.down('#deviceLoadProfileChannelsActionMenu');
 
         customAttributesStore.getProxy().setParams(device.get('name'), channel.get('id'));
+        Ext.suspendLayouts();
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
         if (channel.get('calculatedReadingType')) {
             calculatedReadingTypeField.show();
@@ -244,7 +261,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         customAttributesStore.load(function () {
-            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+            if (widget.rendered) {
+                widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+            }
         });
         me.fromSpecification = true;
         me.getController('Mdc.controller.setup.DeviceChannels').fromSpecification = true;
@@ -255,6 +274,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 validateNowChannel.setVisible(channel.get('validationInfo').validationActive);
             }
         }
+        Ext.resumeLayouts(true);
     },
 
     setupReadingsTab: function (device, channel) {
@@ -268,8 +288,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     makeLinkToChannels: function (router) {
         var link = '<a href="{0}">' + Uni.I18n.translate('general.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
-            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter')
-        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl()+ '?'+ filter);
+            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter');
+
+        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl() + (filter ? '?' + filter : ''));
     },
 
     makeLinkToIssue: function (router, issueId) {

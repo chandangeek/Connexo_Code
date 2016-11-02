@@ -29,11 +29,11 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                     layout: 'column',
                     defaults: {
                         xtype: 'form',
-                        columnWidth: 0.5,
-                        minWidth: 450
+                        columnWidth: 0.5
                     },
                     items: [
                         {
+                            padding: '0 5 0 0',
                             items: [
                                 {
                                     xtype: 'fieldcontainer',
@@ -41,7 +41,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     layout: 'vbox',
                                     defaults: {
                                         xtype: 'displayfield',
-                                        labelWidth: 200
+                                        labelWidth: 200,
+                                        width: '100%'
                                     },
                                     items: [
                                         {
@@ -123,7 +124,9 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                                     loadProfile.getProxy().setExtraParam('deviceId', me.device.get('name'));
                                                     loadProfile.load(value, {
                                                         success: function (record) {
-                                                            me.down('[name=loadProfileId]').setValue(record)
+                                                            if (me.rendered) {
+                                                                me.down('[name=loadProfileId]').setValue(record)
+                                                            }
                                                         }
                                                     });
                                                 }
@@ -143,7 +146,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                             itemId: 'custom-attribute-sets-placeholder-form-id',
                             actionMenuXtype: 'deviceLoadProfileChannelsActionMenu',
                             attributeSetType: 'channel',
-                            router: me.router
+                            router: me.router,
+                            padding: '0 0 0 5'
                         }
                     ]
                 }
