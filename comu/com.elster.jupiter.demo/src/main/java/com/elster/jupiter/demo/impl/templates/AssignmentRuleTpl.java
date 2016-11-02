@@ -38,7 +38,6 @@ public enum  AssignmentRuleTpl implements Template<AssignmentRule, AssignmentRul
     }
 
     private static class AssignmentRule {
-        //FixMe add support to add work group
         public static final String ASSIGNMENTRULE_TO_MONICA =
                 "import com.elster.jupiter.issue.share.entity.IssueForAssign;\n" +
                         "rule \"Assign to @USERID (default)\"\n" +
