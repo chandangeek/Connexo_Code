@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -62,6 +63,8 @@ final class DataValidationTaskImpl implements DataValidationTask {
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
+
+    private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
@@ -203,13 +206,18 @@ final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
+    public Optional<UsagePointGroup> getUsagePointGroup(){
+        return usagePointGroup.getOptional();
+    }
+
+    @Override
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup.set(endDeviceGroup);
     }
 
     @Override
-    public void setMetrologyContract(MetrologyContract metrologyContract) {
-        this.metrologyContract.set(metrologyContract);
+    public void setUsagePointGroup(UsagePointGroup usagePointGroup){
+        this.usagePointGroup.set(usagePointGroup);
     }
 
     @Override
