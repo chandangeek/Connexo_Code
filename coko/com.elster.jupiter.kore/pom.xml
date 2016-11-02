@@ -230,7 +230,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>validation</artifactId>
-                <version>4.1.0${revision}</version>
+                <version>5.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
