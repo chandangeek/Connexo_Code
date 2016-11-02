@@ -18,6 +18,7 @@ Ext.define('Cfg.controller.Tasks', {
 
     stores: [
         'Cfg.store.DeviceGroups',
+        'Cfg.store.UsagePointGroups',
         'Cfg.store.DaysWeeksMonths',
         'Cfg.store.ValidationTasks',
         'Cfg.store.ValidationTasksHistory',
@@ -209,7 +210,7 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getStore('Cfg.store.DeviceGroups').load(onGroupsLoad);
                 break;
             case me.INSIGHT_KEY:
-                me.getStore('Cfg.store.MetrologyConfigurations').load(onGroupsLoad);
+                me.getStore('Cfg.store.UsagePointGroups').load(onGroupsLoad);
                 break;
         }
     },
@@ -285,10 +286,7 @@ Ext.define('Cfg.controller.Tasks', {
                         }
                             break;
                         case me.INSIGHT_KEY:{
-                            me.getStore('Cfg.store.MetrologyContracts').getProxy().setUrl(record.get('metrologyConfiguration').id);
-                            me.getStore('Cfg.store.MetrologyContracts').load({
-                                callback: callback
-                            });
+                            callback();
                         }
                             break;
                     }
