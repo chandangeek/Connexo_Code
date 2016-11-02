@@ -9,14 +9,14 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 
 public class CreateDeviceCommand {
-    private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.DEFAULT;
+    private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.PROSUMERS;
     private DeviceTypeTpl deviceType = DeviceTypeTpl.Elster_AS1440;
     private String serialNumber;
     private String deviceNamePrefix;
 
     public void run() {
         DeviceType deviceType = Builders.from(this.deviceType).find()
-                .orElseThrow(() -> new UnableToCreate("Unable to find the " + this.deviceType.getLongName() + " device type"));
+                .orElseThrow(() -> new UnableToCreate("Unable to find the " + this.deviceType.getName() + " device type"));
         DeviceConfiguration configuration = Builders.from(configurationTpl).withDeviceType(deviceType).find()
                 .orElseThrow(() -> new UnableToCreate("Unable to find the device configuration '" + configurationTpl.getName() + "'"));
         Builders.from(DeviceBuilder.class)

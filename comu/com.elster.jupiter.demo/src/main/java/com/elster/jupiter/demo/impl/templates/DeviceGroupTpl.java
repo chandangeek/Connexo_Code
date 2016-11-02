@@ -46,7 +46,7 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
 
     @Override
     public DeviceGroupBuilder get(DeviceGroupBuilder builder) {
-        return builder.withName(this.name).withNamePrefix(namePrefix).withDeviceTypes(Arrays.stream(this.deviceTypes).map(DeviceTypeTpl::getLongName).collect(Collectors.toList()));
+        return builder.withName(this.name).withNamePrefix(namePrefix).withDeviceTypes(Arrays.stream(this.deviceTypes).map(DeviceTypeTpl::getName).collect(Collectors.toList()));
     }
 
     public String getName() {

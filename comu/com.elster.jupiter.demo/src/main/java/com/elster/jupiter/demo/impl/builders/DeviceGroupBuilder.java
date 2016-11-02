@@ -75,7 +75,6 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
                 .setMRID("MDC:" + getName())
                 .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
                 .create();
-        System.out.println("applying postbuilders on endDeviceGroup :" + endDeviceGroup.getName());
         applyPostBuilders(endDeviceGroup);
         return endDeviceGroup;
     }
