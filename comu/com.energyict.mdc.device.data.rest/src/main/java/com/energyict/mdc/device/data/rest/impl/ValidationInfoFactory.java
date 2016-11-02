@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
@@ -124,7 +125,7 @@ public class ValidationInfoFactory {
 
     MonitorValidationInfo createMonitorValidationInfoForLoadProfileAndRegister(Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus, Map<NumericalRegister, List<DataValidationStatus>> registerStatus, ValidationStatusInfo validationStatus) {
         MonitorValidationInfo monitorValidationInfo = new MonitorValidationInfo();
-        monitorValidationInfo.total = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting()) +
+        monitorValidationInfo.total = loadProfileStatus.entrySet().stream().mapToLong(lp -> countSuspects(lp.getValue())).sum() +
                 registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting());
 
         List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream()
@@ -138,12 +139,18 @@ public class ValidationInfoFactory {
         loadProfileStatus.entrySet().stream()
                 .sorted(Comparator.comparing(lps -> lps.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
                 .forEach(lp -> monitorValidationInfo.detailedValidationLoadProfile
-                        .add(new DetailedValidationLoadProfileInfo(lp.getKey(), (long) lp.getValue().size())));
+                        .add(new DetailedValidationLoadProfileInfo(lp.getKey(), countSuspects(lp.getValue()))));
         registerStatus.entrySet().stream()
                 .sorted(Comparator.comparing(rs -> rs.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
                 .forEach(reg -> monitorValidationInfo.detailedValidationRegister
                         .add(new DetailedValidationRegisterInfo(reg.getKey(), (long) reg.getValue().size())));
         return monitorValidationInfo;
+    }
+
+    private long countSuspects(List<DataValidationStatus> validationStatusList){
+        return validationStatusList.stream()
+                .mapToLong(st -> Stream.concat(st.getBulkReadingQualities().stream(), st.getReadingQualities().stream()).filter(rq -> rq.getType().isSuspect()).count())
+                .sum();
     }
 
     MonitorValidationInfo createMonitorValidationInfoForValidationStatues(List<DataValidationStatus> dataValidationStatuses, ValidationStatusInfo validationStatus) {
@@ -250,7 +257,6 @@ public class ValidationInfoFactory {
                 .map(resourceHelper::getApplicationInfo)
                 .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
     }
-
 
     /**
      * Returns the CIM code and the full translation of all distinct reading qualities on the given interval reading
