@@ -169,7 +169,6 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Map<?, ?> assigneeMap = (Map<?, ?>) issueMap.get("assignee");
         assertThat(assigneeMap.get("id")).isEqualTo(1);
         assertThat(assigneeMap.get("name")).isEqualTo("Admin");
-        assertThat(assigneeMap.get("type")).isEqualTo("USER");
 
         Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
         assertThat(deviceMap.get("id")).isEqualTo(1);
