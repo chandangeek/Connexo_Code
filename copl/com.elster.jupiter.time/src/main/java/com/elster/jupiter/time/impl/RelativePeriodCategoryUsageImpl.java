@@ -52,5 +52,4 @@ class RelativePeriodCategoryUsageImpl implements RelativePeriodCategoryUsage {
     public boolean sameRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory) {
         return this.getRelativePeriodCategory().getId() == relativePeriodCategory.getId();
     }
-
 }
