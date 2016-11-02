@@ -29,7 +29,7 @@ public class MetrologyContractEstimationRuleSetResolver implements EstimationRes
 
     @Override
     public boolean isEstimationActive(Meter meter) {
-        return false;
+        return true;
     }
 
     @Override
