@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     ],
     router: null,
     isEdit: function () {
-        return this.mode = 'edit';
+        return this.mode === 'edit';
     },
     mode: null,
     initComponent: function () {

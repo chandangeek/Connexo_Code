@@ -367,16 +367,18 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             me.record.comTaskUsages().add(record.copy());
             me.alreadyAddedComTasks.push(record);
         });
-        me.cloneRecord = null;
         widget.down('#card').getLayout().setActiveItem(0);
+        me.record.set('name', null);
+        me.record.set('mRID', null)
         me.mode = 'clone';
-        me.getApplication().fireEvent('loadCommunicationSchedule', me.record);
-        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", me.record.get('name')));
+        me.getApplication().fireEvent('loadCommunicationSchedule', me.cloneRecord);
+        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
         widget.down('#communicationScheduleEditForm').loadRecord(me.record);
         widget.down('#noComTasksSelectedMsg').hide();
         widget.down('#comTasksOnForm').show();
         widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(me.record.comTaskUsages());
         me.initComTaskStore(widget);
+        me.cloneRecord = null;
         me.record.set('id', null);
 
         me.getApplication().fireEvent('changecontentevent', widget);
