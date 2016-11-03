@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUpObject;
 import com.energyict.protocol.MessageProtocol;
@@ -36,6 +34,7 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
         waveFlowMessages = new WaveFlowV2Messages(this);
     }
 
+    @Override
     public WaveFlowMessageParser getWaveFlowMessages() {
         if (waveFlowMessages == null) {
             waveFlowMessages = new WaveFlowV2Messages(this);
@@ -43,19 +42,22 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
         return waveFlowMessages;
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override
-    protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
+    protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws IOException {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);
     }
 
+    @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         return BubbleUpFrameParser.parse(data, this);
     }
@@ -64,4 +66,5 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
+
 }

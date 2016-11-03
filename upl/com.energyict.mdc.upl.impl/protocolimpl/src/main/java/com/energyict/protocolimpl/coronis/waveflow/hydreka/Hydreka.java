@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUpObject;
 import com.energyict.protocol.MessageProtocol;
@@ -42,6 +40,7 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
         return statusAndEvents;
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapperHydreka.getRegisterInfo(obisCode);
     }
@@ -74,7 +73,7 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     }
 
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 0;       //Fixed
     }
 
@@ -83,19 +82,13 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
         return "$Date: 2013-01-11 11:48:08 +0100 (vr, 11 jan 2013) $";
     }
 
-    /**
-     * The Hydreka module doesn't support load profiles, so just return the interval that is configured in EiServer
-     */
-    public int getProfileInterval() throws UnsupportedException, IOException {
-        return super.getProfileInterval();
-    }
-
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapperHydreka.getRegisterValue(obisCode);
     }
 
     @Override
-    protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
+    protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws IOException {
         return profileDataReader.readProfileData(lastReading, toDate, includeEvents);
     }
 
@@ -115,7 +108,9 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
         return parameterFactory;
     }
 
+    @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         return BubbleUpFrameParser.parseFrame(data, this);
     }
+
 }

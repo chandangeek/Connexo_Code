@@ -36,6 +36,7 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
         waveFlowMessages = new WaveFlowV210Messages(this);
     }
 
+    @Override
     public WaveFlowMessageParser getWaveFlowMessages() {
         if (waveFlowMessages == null) {
             waveFlowMessages = new WaveFlowV210Messages(this);
@@ -43,6 +44,7 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
         return waveFlowMessages;
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
@@ -52,23 +54,19 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
         return "$Date: 2013-03-21 10:44:10 +0100 (do, 21 mrt 2013) $";
     }
 
-    /**
-     * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.
-     *
-     * @param obisCode obiscode of the register to lookup
-     * @return RegisterInfo object
-     * @throws java.io.IOException thrown when somethiong goes wrong
-     */
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override
-    protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
+    protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws IOException {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);
     }
 
+    @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         throw new UnsupportedException("Waveflow V210 doesn't support the bubble up mechanism");
     }
+
 }
