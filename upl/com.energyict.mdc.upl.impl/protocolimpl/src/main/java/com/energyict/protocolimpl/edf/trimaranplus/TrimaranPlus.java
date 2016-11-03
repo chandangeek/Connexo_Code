@@ -12,7 +12,8 @@ package com.energyict.protocolimpl.edf.trimaranplus;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -32,6 +33,7 @@ import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
 import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  *@beginchanges
@@ -52,7 +56,6 @@ import java.util.Properties;
 
 public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, SerialNumberSupport {
 
-
     private int t1Timeout;
     private int safetyTimeout;
     private Connection62056 connection62056;
@@ -62,15 +65,12 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
     private int destinationTransportAddress;
     private int delayAfterConnect;
     private APSEParameters aPSEParameters;
-    private VDEType vDEType = new VDEType(); // default set as
+    private VDEType vDEType = new VDEType();
     private TrimaranObjectFactory trimaranObjectFactory;
     TrimaranPlusProfile trimaranPlusProfile=null;
     private RegisterFactory registerFactory=null;
 
-    /** Creates a new instance of TrimaranPlus */
-    public TrimaranPlus() {
-    }
-
+    @Override
     protected void doConnect() throws IOException {
         getAPSEFactory().getAuthenticationReqAPSE();
         getDLMSPDUFactory().getInitiateRequest();
@@ -85,30 +85,46 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
 			getVDEType().setVDEType(VDEType.getVDEMODULABLE());
 		}
     }
-    protected void doDisconnect() throws IOException {
 
+    @Override
+    protected void doDisconnect() throws IOException {
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return trimaranPlusProfile.getProfileData(lastReading);
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout","5000").trim())); // T1 (datalink layer)
-        setSourceTransportAddress(Integer.parseInt(properties.getProperty("STSAP","0").trim()));
-        setDestinationTransportAddress(Integer.parseInt(properties.getProperty("DTSAP","2").trim()));
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("T1Timeout", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("SafetyTimeOut", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("STSAP", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("DTSAP", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("ClientType", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("CallingPhysicalAddress", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("ProposedAppCtxName", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("DelayAfterConnect", false));
+        return propertySpecs;
+    }
 
-        //setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty("HalfDuplex","50").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout", "5000").trim())); // T1 (datalink layer)
+        setSourceTransportAddress(Integer.parseInt(properties.getProperty("STSAP", "0").trim()));
+        setDestinationTransportAddress(Integer.parseInt(properties.getProperty("DTSAP", "2").trim()));
 
         setAPSEParameters(new APSEParameters());
-        getAPSEParameters().setClientType(Integer.parseInt(properties.getProperty("ClientType","40967").trim())); // 0xA007
-        getAPSEParameters().setCallingPhysicalAddress(properties.getProperty("CallingPhysicalAddress","30")); // APSE calling physical address, enter as string of even length, containing HEX karakters, default 0x30
-        getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getProperty("ProposedAppCtxName","0").trim())); // APSE proposed App context name, default 0
-        setInfoTypePassword(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "0000000000000000"));
+        getAPSEParameters().setClientType(Integer.parseInt(properties.getProperty("ClientType", "40967").trim())); // 0xA007
+        getAPSEParameters().setCallingPhysicalAddress(properties.getProperty("CallingPhysicalAddress", "30")); // APSE calling physical address, enter as string of even length, containing HEX karakters, default 0x30
+        getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getProperty("ProposedAppCtxName", "0").trim())); // APSE proposed App context name, default 0
+        setInfoTypePassword(properties.getProperty(PASSWORD.getName(), "0000000000000000"));
 
         this.safetyTimeout = Integer.parseInt(properties.getProperty("SafetyTimeOut", "300000")); // Safety timeout in the transport layer
 
-        if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1) {
+        if (Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1) {
 			delayAfterConnect = 6000;
 		} else {
 			delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
@@ -120,37 +136,20 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
         catch(IOException e) {
             throw new InvalidPropertyException(e.toString());
         }
-
-        //setVDEType(new VDEType(Integer.parseInt(properties.getProperty("VDEType","0").trim())));
-
-    }
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList(7);
-        list.add("T1Timeout");
-        list.add("STSAP");
-        list.add("DTSAP");
-        list.add("ClientType");
-        list.add("CallingPhysicalAddress");
-        list.add("ProposedAppCtxName");
-        list.add("DelayAfterConnect");
-        list.add("SafetyTimeOut");
-        //list.add("VDEType");
-        return list;
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-
         setAPSEFactory(new APSEPDUFactory(this,getAPSEParameters()));
         setDLMSPDUFactory(new DLMSPDUFactory(this));
         setTrimaranObjectFactory(new TrimaranObjectFactory(this));
-//        setConnection62056(new Connection62056(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getT1Timeout(), getSourceTransportAddress(), getDestinationTransportAddress(), getDelayAfterConnect()));
         setConnection62056(new Connection62056(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getT1Timeout(), getSourceTransportAddress(), getDestinationTransportAddress(), getDelayAfterConnect(), this.safetyTimeout));
         getConnection62056().initProtocolLayers();
         trimaranPlusProfile = new TrimaranPlusProfile(this);
-
         return getTrimaranPlusConnection();
     }
 
+    @Override
     public Date getTime() throws IOException {
         // KV_TO_DO datecourante
         return new Date();
@@ -165,14 +164,18 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:26 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public void setTime() throws IOException {
         throw new UnsupportedException();
     }
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].toString();
     }
 
@@ -192,7 +195,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
         this.setConnection62056(connection62056);
     }
 
-
+    @Override
     public APSEPDUFactory getAPSEFactory() {
         return aPSEFactory;
     }
@@ -201,6 +204,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
         this.aPSEFactory = aPSEFactory;
     }
 
+    @Override
     public Connection62056 getConnection62056() {
         return connection62056;
     }
@@ -233,6 +237,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
         this.aPSEParameters = aPSEParameters;
     }
 
+    @Override
     public DLMSPDUFactory getDLMSPDUFactory() {
         return dLMSPDUFactory;
     }
@@ -241,42 +246,39 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
         this.dLMSPDUFactory = dLMSPDUFactory;
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-
-        strBuff.append(getTrimaranObjectFactory().readParametresPplus1());
-        strBuff.append(getTrimaranObjectFactory().readParametresP());
-        strBuff.append(getTrimaranObjectFactory().readParametresPmoins1());
-        strBuff.append(getTrimaranObjectFactory().readParametresPmoins2());
-        strBuff.append(getTrimaranObjectFactory().readAccessPartiel());
-        strBuff.append(getTrimaranObjectFactory().readAsservissementClient());
-        strBuff.append(getTrimaranObjectFactory().readEnergieIndex());
-        strBuff.append(getTrimaranObjectFactory().readPmaxValues());
-        strBuff.append(getTrimaranObjectFactory().readDureeDepassementValues());
-        strBuff.append(getTrimaranObjectFactory().readDepassementQuadratiqueValues());
-        strBuff.append(getTrimaranObjectFactory().readTempsFonctionnementValues());
-
-        strBuff.append(getRegisterFactory().getRegisterInfo());
-
-        return strBuff.toString();
+        return String.valueOf(getTrimaranObjectFactory().readParametresPplus1()) +
+                getTrimaranObjectFactory().readParametresP() +
+                getTrimaranObjectFactory().readParametresPmoins1() +
+                getTrimaranObjectFactory().readParametresPmoins2() +
+                getTrimaranObjectFactory().readAccessPartiel() +
+                getTrimaranObjectFactory().readAsservissementClient() +
+                getTrimaranObjectFactory().readEnergieIndex() +
+                getTrimaranObjectFactory().readPmaxValues() +
+                getTrimaranObjectFactory().readDureeDepassementValues() +
+                getTrimaranObjectFactory().readDepassementQuadratiqueValues() +
+                getTrimaranObjectFactory().readTempsFonctionnementValues() +
+                getRegisterFactory().getRegisterInfo();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return 1;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return 5*60*getTrimaranObjectFactory().readParametresP().getTCourbeCharge();
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
@@ -311,4 +313,5 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
 	protected int getDelayAfterConnect() {
 		return delayAfterConnect;
 	}
+
 }
