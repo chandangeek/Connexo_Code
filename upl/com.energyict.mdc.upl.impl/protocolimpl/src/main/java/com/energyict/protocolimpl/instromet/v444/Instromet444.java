@@ -1,9 +1,6 @@
 package com.energyict.protocolimpl.instromet.v444;
 
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -29,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 /**
@@ -49,9 +45,10 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 	private CommandFactory commandFactory=null;
 	private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
 	private RegisterFactory registerFactory;
-	private List wrapValues = new ArrayList();
+	private List<BigDecimal> wrapValues = new ArrayList<>();
 	private int iRoundtripCorrection;
 
+	@Override
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return getInstromet444Profile().getProfileData(lastReading,includeEvents);
 	}
@@ -68,11 +65,11 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 		return tableFactory;
 	}
 
-	public int getRoundtripCorrection() {
+	int getRoundtripCorrection() {
 		return this.iRoundtripCorrection;
 	}
 
-	protected void setWrapValues() throws IOException {
+	private void setWrapValues() throws IOException {
 		String channelMapValue = null;
 		try {
 			channelMapValue = getInfoTypeChannelMap();
@@ -91,11 +88,11 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 		}
 	}
 
-	public Instromet444Profile getInstromet444Profile() {
+	private Instromet444Profile getInstromet444Profile() {
 		return instromet444Profile;
 	}
 
-	public void setInstromet444Profile(Instromet444Profile instromet444Profile) {
+	private void setInstromet444Profile(Instromet444Profile instromet444Profile) {
 		this.instromet444Profile = instromet444Profile;
 	}
 
@@ -117,11 +114,11 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 
 	}
 
-	public List getWrapValues() {
+	public List<BigDecimal> getWrapValues() {
 		return wrapValues;
 	}
 
-	public int getCommId() throws IOException {
+	private int getCommId() throws IOException {
 		String nodeAddress = getInfoTypeNodeAddress();
 		if ((nodeAddress == null) || ("".equals(nodeAddress))) {
 			return 0;
@@ -135,7 +132,7 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 		}
 	}
 
-
+	@Override
 	protected void doConnect() throws IOException {
 		getInstrometConnection().wakeUp();
 	}
@@ -154,20 +151,12 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 		}
 	}
 
+	@Override
 	protected void doDisconnect() throws IOException {
-		/*Response response = commandFactory.logoffCommand().invoke();
-		parseStatus(response);*/
 	}
 
-	protected List doGetOptionalKeys() {
-		return null;
-	}
-
-	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-
-	}
-
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	@Override
+	public String getFirmwareVersion() throws IOException {
 		return getTableFactory().getCorrectorInformationTable().getFirwareVersion();
 	}
 
@@ -180,13 +169,12 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
         }
     }
 
-	/**
-	 * The protocol version date
-     */
+	@Override
     public String getProtocolVersion() {
 		return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
 	}
 
+	@Override
 	public Date getTime() throws IOException {
 		Calendar cal = Calendar.getInstance(getTimeZone());
 		cal.setTime(getTableFactory().getCorrectorInformationTable().getTime());
@@ -194,6 +182,7 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 		return cal.getTime();
 	}
 
+	@Override
 	public void setTime() throws IOException {
 		CommandFactory cfactory = getCommandFactory();
 		Response response = cfactory.switchToCorrectorInformation().invoke();
@@ -202,18 +191,22 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 		parseStatus(response);
 	}
 
+	@Override
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		return ObisCodeMapper.getRegisterInfo(obisCode);
 	}
 
+	@Override
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		return obisCodeMapper.getRegisterValue(obisCode);
 	}
 
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+	@Override
+	public int getNumberOfChannels() throws IOException {
 		return this.tableFactory.getLoggingConfigurationTable().getChannelInfos().size();
 	}
 
+	@Override
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
 		setInstrometConnection(
 				new Instromet444Connection(
