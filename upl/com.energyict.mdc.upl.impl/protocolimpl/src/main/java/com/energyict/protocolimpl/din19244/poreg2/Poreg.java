@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -17,6 +17,7 @@ import com.energyict.protocolimpl.din19244.poreg2.core.PoregMessages;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RegisterFactory;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RequestFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.Properties;
  * Date: 11-mei-2011
  * Time: 11:59:59
  */
-public abstract class Poreg extends AbstractProtocol implements MessageProtocol,SerialNumberSupport {
+public abstract class Poreg extends AbstractProtocol implements MessageProtocol, SerialNumberSupport {
 
     protected PoregConnection connection;
     protected RegisterFactory registerFactory;
@@ -37,7 +38,7 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     protected ObisCodeMapper obisCodeMapper;
     protected PoregMessages messageHandler;
     protected MeterType meterType;
-    protected boolean isPoreg2;
+    boolean isPoreg2;
     private int apparentEnergyResultLevel;
     private String systemAddress = "00000000";
 
@@ -45,7 +46,7 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     protected void doDisconnect() throws IOException {
     }
 
-    abstract protected PoregMessages getMessageHandler();
+    protected abstract PoregMessages getMessageHandler();
 
     public PoregConnection getConnection() {
         return connection;
@@ -107,39 +108,46 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("ApparentEnergyResultLevel", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("SystemAddress", false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         apparentEnergyResultLevel = Integer.parseInt(properties.getProperty("ApparentEnergyResultLevel", "0").trim());
         systemAddress = properties.getProperty("SystemAddress", "00000000").trim();
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        ArrayList arrayList = new ArrayList();
-        arrayList.add("ApparentEnergyResultLevel");
-        arrayList.add("SystemAddress");
-        return arrayList;
-    }
-
     public void applyMessages(List messageEntries) throws IOException {
         getMessageHandler().applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return getMessageHandler().queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return getMessageHandler().getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return getMessageHandler().writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return getMessageHandler().writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return getMessageHandler().writeValue(value);
     }
@@ -152,4 +160,5 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
     }
+
 }

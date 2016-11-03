@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -27,7 +25,7 @@ import java.util.Date;
 public class Poreg2 extends Poreg {
 
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         if (to == null) {
             to = new Date();
         }
@@ -46,6 +44,7 @@ public class Poreg2 extends Poreg {
         return connection;
     }
 
+    @Override
     protected PoregMessages getMessageHandler() {
         if (messageHandler == null) {
             messageHandler = new PoregMessages(this);
@@ -63,20 +62,19 @@ public class Poreg2 extends Poreg {
         return getRegisterFactory().readTime();
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getRegisterFactory().getNumberOfChannels();
     }
 
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return getObisCodeMapper().getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    /**
-     * The protocol verion
-     */
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
+
 }
