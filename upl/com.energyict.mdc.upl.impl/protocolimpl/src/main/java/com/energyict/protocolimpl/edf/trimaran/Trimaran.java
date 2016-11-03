@@ -10,10 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimaran;
 
-
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -28,15 +27,17 @@ import com.energyict.protocolimpl.edf.trimaran.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimaran.core.SPDUFactory;
 import com.energyict.protocolimpl.edf.trimaran.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimaran.registermapping.RegisterFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  *@beginchanges
@@ -55,50 +56,50 @@ public class Trimaran extends AbstractProtocol {
     private int commandTimeout;
     private int flushTimeout;
 
-    /** Creates a new instance of Trimeran */
-    public Trimaran() {
-    }
-
-
+    @Override
     protected void doConnect() throws IOException {
         getSPDUFactory().logon();
     }
 
-
+    @Override
     protected void doDisconnect() throws IOException {
         getSPDUFactory().logoff();
     }
 
-
-    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-//    SerialCommunicationChannel commChannel;
-//    public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
-//        this.commChannel=commChannel;
-//    }
-
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getTrimeranProfile().getProfileData();
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return 600;
     }
 
+    @Override
     protected void validateDeviceId() throws IOException {
-//        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) return;
-//        String devId = getCommandFactory().getDeviceIDExtendedCommand().getDeviceID();
-//        if (devId.compareTo(getInfoTypeDeviceID()) == 0) return;
-//        throw new IOException("Device ID mismatch! meter devId="+devId+", configured devId="+getInfoTypeDeviceID());
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("ForcedDelay", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("HalfDuplex", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("ACKTimeoutTL", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("InterCharTimeout", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("CommandTimeout", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("FlushTimeout", false));
+        return propertySpecs;
+    }
 
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","300").trim())); // TE
         setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty("HalfDuplex","50").trim())); // TC
-        //setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","6000").trim())); // TL
 
         // KV_DEBUG
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","22000").trim())); // TSE (session layer)
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT.getName(),"22000").trim())); // TSE (session layer)
         setAckTimeout(Integer.parseInt(properties.getProperty("ACKTimeoutTL","5000").trim())); // TL (datalink layer)
         setInterKarTimeout(Integer.parseInt(properties.getProperty("InterCharTimeout","400").trim())); //
 
@@ -106,20 +107,12 @@ public class Trimaran extends AbstractProtocol {
         setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout","500").trim())); // Timeout to wait befor sending a new command for receiving duplicate frames send by meter
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("InterCharTimeout");
-        result.add("ACKTimeoutTL");
-        result.add("CommandTimeout");
-        result.add("FlushTimeout");
-
-        return result;
-    }
-
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return 1;
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setSPDUFactory(new SPDUFactory(this));
         setDataFactory(new DataFactory(this));
@@ -129,20 +122,23 @@ public class Trimaran extends AbstractProtocol {
         return getTrimeranConnection();
     }
 
+    @Override
     public Date getTime() throws IOException {
-        Date date = getDataFactory().getMeterStatusTable().getTimestamp();
-        return date;
+        return getDataFactory().getMeterStatusTable().getTimestamp();
     }
 
+    @Override
     public void setTime() throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return "TARIF="+getDataFactory().getMeterStatusTable().getTarif()+
                ", MODETA="+getDataFactory().getMeterStatusTable().getModeta()+
                ", SOMMOD="+getDataFactory().getMeterStatusTable().getSommod()+
@@ -150,12 +146,7 @@ public class Trimaran extends AbstractProtocol {
                ", ERRSES="+getDataFactory().getMeterStatusTable().getErrSes();
     }
 
-
-
-
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
@@ -166,16 +157,13 @@ public class Trimaran extends AbstractProtocol {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-
+        StringBuilder builder = new StringBuilder();
         List registers = getRegisterFactory().getRegisters();
-        Iterator it = registers.iterator();
-        while(it.hasNext()) {
-            Register r = (Register)it.next();
-            strBuff.append(r+"\n");
+        for (Object register : registers) {
+            Register r = (Register) register;
+            builder.append(r).append("\n");
         }
-
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public TrimeranConnection getTrimeranConnection() {
