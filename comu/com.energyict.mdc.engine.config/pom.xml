@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdc.engine.config</artifactId>
-    <version>3.0.1${revision}</version>
+    <version>3.1.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.engine.config [init MDC]</name>
     <description>contains the configuration aspects of the components that implement the engine of data collection</description>
