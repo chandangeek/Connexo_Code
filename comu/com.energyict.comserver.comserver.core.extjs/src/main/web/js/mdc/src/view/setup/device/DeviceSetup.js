@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceSetup',
     device: null,
+    deviceLabelsStore: null,
     itemId: 'deviceSetup',
 
     requires: [
@@ -17,6 +18,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.widget.WhatsGoingOn',
+        'Uni.view.button.MarkedButton',
         'Mdc.view.setup.device.DataLoggerSlavesPanel'
         //'Mdc.view.setup.device.DeviceHealthCheckPanel'
     ],
@@ -32,140 +34,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             }
         }
     ],
-
-    renderFlag: function(labelsStore) {
-        var me = this,
-            toolbar = me.down('#deviceSetupFlags'),
-            flag = null;
-
-        if (!me.rendered) return;
-
-        if (labelsStore.count) {
-            flag = labelsStore.getById('mdc.label.category.favorites');
-        }
-
-        toolbar.removeAll();
-        toolbar.add({
-            xtype: 'button',
-            iconCls: !!flag ? 'icon-star-full' : 'icon-star-empty',
-            ui: 'plain',
-            style: 'font-size: 20px',
-            flag: flag,
-            pressed: !!flag,
-            privileges: Mdc.privileges.Device.flagDevice,
-            enableToggle: true,
-            toggleHandler: function(button, state) {
-                button.setIconCls(state ? 'icon-star-full' : 'icon-star-empty');
-                button.setTooltip(state
-                    ? Uni.I18n.translate('device.flag.tooltip.unflag', 'MDC', 'Click to remove from the list of flagged devices')
-                    : Uni.I18n.translate('device.flag.tooltip.flag', 'MDC', 'Click to flag the device')
-                );
-            },
-            handler: function(button) {
-                if (!button.flag) {
-                    button.window && button.window.isVisible()
-                        ? button.window.close()
-                        : me.openFlagWindow(button, new labelsStore.model());
-                } else {
-                    me.removeFlag(button);
-                }
-            }
-        });
-
-        var button = toolbar.down('button');
-        button.toggleHandler(button, button.pressed);
-    },
-
-    removeFlag: function (button) {
-        button.flag.destroy({
-            isNotEdit: true,
-            callback: function () {
-                button.flag = null;
-                button.toggle(false, false);
-            }
-        });
-    },
-
-    openFlagWindow: function(button, flag) {
-        var me = this;
-        button.window = Ext.create('Ext.window.Window', {
-            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}',[me.device.get('mRID')], false),
-            closable: false,
-            height: 200,
-            alignTarget: button,
-            defaultAlign: 'tl-br',
-            width: 400,
-            layout: 'fit',
-            items: [ // Let's put an empty grid in just to illustrate fit layout
-                {
-                    xtype: 'form',
-                    border: false,
-                    items: [
-                        {
-                            xtype: 'textareafield',
-                            name: 'comment',
-                            fieldLabel: Uni.I18n.translate('device.flag.label.comment', 'MDC', 'Comment'),
-                            anchor: '100%',
-                            height: 100
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: '&nbsp',
-                            layout: {
-                                type: 'hbox'
-                            },
-                            items: [
-                                {
-                                    xtype: 'button',
-                                    text: Uni.I18n.translate('device.flag.button.flag', 'MDC', 'Flag device'),
-                                    ui: 'action',
-                                    name: 'flag',
-                                    handler: function () {
-                                        var form = button.window.down('form');
-                                        var flag = form.getRecord();
-                                        form.updateRecord();
-                                        flag.set('parent', {
-                                            id: me.device.get('id'),
-                                            version: me.device.get('version')
-                                        });
-                                        flag.set('category', {
-                                            id: 'mdc.label.category.favorites',
-                                            name: 'Favorites'
-                                        });
-                                        flag.save({
-                                            isNotEdit: true,
-                                            callback: function (rec, operation) {
-                                                var json = Ext.decode(operation.response.responseText);
-                                                flag.setId(flag.get('category').id);
-                                                flag.set('creationDate', json.creationDate);
-                                                flag.set('parent', json.parent);
-                                                button.flag = flag;
-                                                button.toggle(true, false);
-                                            }
-                                        });
-                                        button.window.close();
-                                    }
-                                },
-                                {
-                                    xtype: 'button',
-                                    ui: 'link',
-                                    text: Uni.I18n.translate('device.flag.button.cancel', 'MDC', 'Cancel'),
-                                    name: 'cancel',
-                                    handler: function () {
-                                        button.toggle(false, false);
-                                        button.window.close();
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        });
-
-        button.window.show();
-        button.window.down('form').loadRecord(flag);
-    },
 
     initComponent: function () {
         var me = this,
@@ -188,11 +56,20 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         style: 'margin-right: 10px'
                     },
                     {
-                        xtype: 'container',
-                        itemId: 'deviceSetupFlags',
-                        layout: 'fit',
+                        xtype: 'marked-button',
+                        itemId: 'device-favorite-flag',
+                        store: me.deviceLabelsStore,
+                        labelId: 'mdc.label.category.favorites',
+                        markedTooltip: Uni.I18n.translate('device.flag.tooltip.unflag', 'MDC', 'Click to remove from the list of flagged devices'),
+                        unmarkedTooltip: Uni.I18n.translate('device.flag.tooltip.flag', 'MDC', 'Click to flag the device'),
                         width: 20,
-                        height: 20
+                        height: 20,
+                        getParent: function () {
+                            return {
+                                id: me.device.get('id'),
+                                version: me.device.get('version')
+                            };
+                        }
                     },
                     {
                         xtype: 'tbfill'

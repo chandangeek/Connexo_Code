@@ -248,13 +248,11 @@ Ext.define('Mdc.controller.setup.Devices', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
 
-                var widget = Ext.widget('deviceSetup', {router: router, device: device});
                 var deviceLabelsStore = device.labels();
                 deviceLabelsStore.getProxy().setUrl(mRID);
-                deviceLabelsStore.load(function () {
-                    widget.renderFlag(deviceLabelsStore);
-                });
+                deviceLabelsStore.load();
 
+                var widget = Ext.widget('deviceSetup', {router: router, device: device, deviceLabelsStore: deviceLabelsStore});
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 me.doRefresh();
