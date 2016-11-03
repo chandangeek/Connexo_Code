@@ -7,9 +7,8 @@
 package com.energyict.protocolimpl.emon.ez7;
 
 
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -32,9 +31,7 @@ import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -43,18 +40,10 @@ import java.util.Properties;
  */
 public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
 
-    // properties
-    //int halfDuplex;
-    //HalfDuplexController halfDuplexController=null;
-
     // core objects
-    EZ7Connection ez7Connection=null;
-    EZ7Profile ez7Profile=null;
-    EZ7CommandFactory ez7CommandFactory=null;
-
-    /** Creates a new instance of EZ7 */
-    public EZ7() {
-    }
+    private EZ7Connection ez7Connection = null;
+    private EZ7Profile ez7Profile = null;
+    private EZ7CommandFactory ez7CommandFactory = null;
 
     @Override
     public String getSerialNumber() {
@@ -65,32 +54,35 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    /**
-     * The protocol version
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:46 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return ez7CommandFactory.getVersion().getCompleteVersionString();
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return ez7Profile.getProfileData(from,to,includeEvents);
     }
 
-
-    protected void doConnect() throws java.io.IOException {
+    @Override
+    protected void doConnect() throws IOException {
         ez7Profile = new EZ7Profile(this);
         ez7CommandFactory = new EZ7CommandFactory(this);
-        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0))
-           ez7CommandFactory.getSetKey().logon(getInfoTypePassword());
+        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0)) {
+            ez7CommandFactory.getSetKey().logon(getInfoTypePassword());
+        }
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
-        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0))
-           ez7CommandFactory.getSetKey().logoff();
+        if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0)) {
+            ez7CommandFactory.getSetKey().logoff();
+        }
 
         // This command must be initiated when the meter sets up the connection to indicate a successfull read!
         // See page 1-32 of the protocoldescription...
@@ -98,88 +90,85 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         getEz7Connection().sendCommand("SRD","0",false);
     }
 
+    @Override
     protected void validateDeviceId() throws IOException {
         boolean check = true;
-        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) return;
+        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) {
+            return;
+        }
         String deviceId = getEz7CommandFactory().getRGLInfo().getDeviceId();
-        if (deviceId.compareTo(getInfoTypeDeviceID()) == 0) return;
+        if (deviceId.compareTo(getInfoTypeDeviceID()) == 0) {
+            return;
+        }
         throw new IOException("DeviceId mismatch! meter DeviceId="+deviceId+", configured deviceId="+getInfoTypeDeviceID());
     }
 
-
-    protected List<String> doGetOptionalKeys() {
-        return Collections.emptyList();
-    }
-
+    @Override
     protected ProtocolConnection doInit(java.io.InputStream inputStream, java.io.OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws java.io.IOException {
         ez7Connection = new EZ7Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,halfDuplexController);
         return ez7Connection;
     }
 
-    protected void doValidateProperties(java.util.Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        //halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","20").trim());
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0) && (getInfoTypePassword().length() != 16)) {
             throw new InvalidPropertyException("EZ7, doValidateProperties, password length error! Password must have a length of 16 characters!");
         }
         setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "1A"));
     }
 
-
-
-    public java.util.Date getTime() throws java.io.IOException {
-
+    @Override
+    public Date getTime() throws IOException {
         // to verify device timezone against meter timezone...
         ez7CommandFactory.getImonInformation().getTimeZone();
-
-
         return ez7CommandFactory.getRTC().getDate();
     }
 
-    /*
-     * Override this method if the subclass wants to set the device time
-     */
+    @Override
     public void setTime() throws IOException {
         int accessLevel = getEz7CommandFactory().getSetKey().getAccessLevel();
-        if (accessLevel < 2)
-            throw new SecurityLevelException("EZ7, setTime(), accesslevel is "+SetKey.ACCESSLEVELS[accessLevel]);
+        if (accessLevel < 2) {
+            throw new SecurityLevelException("EZ7, setTime(), accesslevel is " + SetKey.ACCESSLEVELS[accessLevel]);
+        }
         ez7CommandFactory.setRTC();
     }
 
-
     public int getProtocolChannelValue(int channel) {
-        if (getProtocolChannelMap()==null)
+        if (getProtocolChannelMap()==null) {
             return -1;
-        else {
+        } else {
             ProtocolChannel pc = ez7CommandFactory.getEz7().getProtocolChannelMap().getProtocolChannel(channel);
-            if (pc==null)
+            if (pc == null) {
                 return -1;
-            else {
+            } else {
                 return pc.getValue();
             }
         }
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return ez7CommandFactory.getProfileStatus().getProfileInterval();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return ez7CommandFactory.getHookUp().getNrOfChannels();
     }
 
-
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(getEz7CommandFactory());
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
         StringBuilder builder = new StringBuilder();
         builder.append("******************************************************************\n");
@@ -240,30 +229,19 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         return builder.toString();
     }
 
-    /**
-     * Getter for property ez7Connection.
-     * @return Value of property ez7Connection.
-     */
     public com.energyict.protocolimpl.emon.ez7.core.EZ7Connection getEz7Connection() {
         return ez7Connection;
     }
 
-    /**
-     * Getter for property ez7Profile.
-     * @return Value of property ez7Profile.
-     */
     public com.energyict.protocolimpl.emon.ez7.core.EZ7Profile getEz7Profile() {
         return ez7Profile;
     }
 
-    /**
-     * Getter for property ez7CommandFactory.
-     * @return Value of property ez7CommandFactory.
-     */
     public com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory getEz7CommandFactory() {
         return ez7CommandFactory;
     }
 
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         Properties properties = new Properties();
