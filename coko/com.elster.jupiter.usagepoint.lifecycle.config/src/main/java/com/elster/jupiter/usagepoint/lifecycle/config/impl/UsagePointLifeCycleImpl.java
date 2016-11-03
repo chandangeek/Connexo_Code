@@ -112,7 +112,8 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         return this.id;
     }
 
-    void setName(String name) {
+    @Override
+    public void setName(String name) {
         this.name = name;
         if (!Checks.is(this.name).emptyOrOnlyWhiteSpace()) {
             this.name = this.name.trim();
@@ -132,7 +133,8 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         this.stateMachine.set(stateMachine);
     }
 
-    void save() {
+    @Override
+    public void save() {
         if (getId() > 0) {
             Save.UPDATE.save(this.dataModel, this);
             this.eventService.postEvent(EventType.LIFE_CYCLE_UPDATED.topic(), this);

@@ -18,6 +18,10 @@ public interface UsagePointLifeCycle extends HasId, HasName {
         return getObsoleteTime().isPresent();
     }
 
+    void setName(String name);
+
+    void save();
+
     void remove();
 
     List<UsagePointTransition> getTransitions();
