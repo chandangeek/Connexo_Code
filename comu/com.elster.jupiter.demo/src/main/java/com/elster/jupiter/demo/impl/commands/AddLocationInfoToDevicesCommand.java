@@ -69,7 +69,7 @@ public class AddLocationInfoToDevicesCommand {
     }
 
     private List<Device> getDeviceList() {
-        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
     }
 
     private SpatialCoordinates createSpatialCoordinates() {
@@ -85,7 +85,7 @@ public class AddLocationInfoToDevicesCommand {
     }
 
     private Location createLocation() {
-        LocationBuilder builder = this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get().newMeter(String.valueOf(KnownAmrSystem.MDC.getId())).newLocationBuilder();
+        LocationBuilder builder = this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get().newMeter(String.valueOf(KnownAmrSystem.MDC.getId()), "Fake").newLocationBuilder();
         setLocationAttributes(builder.member()).add();
         return builder.create();
     }

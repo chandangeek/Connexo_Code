@@ -80,7 +80,7 @@ public class ActivateDevicesCommand {
     }
 
     private List<Device> getDeviceList() {
-        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
     }
 
     private void accept(Device device) {

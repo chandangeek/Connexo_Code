@@ -56,13 +56,13 @@ public class CreateUsagePointsForDevicesCommand {
     }
 
     private List<Device> getDeviceList() {
-        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+        return this.devices != null ? this.devices : this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
     }
 
     private void accept(Device device) {
         UsagePoint usagePoint = device.getUsagePoint().isPresent() ? device.getUsagePoint().get() :
                 Builders.from(UsagePointBuilder.class)
-                        .withMRID(newMRID(device.getSerialNumber())).withName(device.getName())
+                        .withName(newName(device.getSerialNumber()))
                         .withInstallationTime(clock.instant())
                         .withLocation(device.getLocation().orElse(null))
                         .withGeoCoordinates(device.getSpatialCoordinates().orElse(null)).get();
@@ -94,7 +94,7 @@ public class CreateUsagePointsForDevicesCommand {
         return values;
     }
 
-    private String newMRID(String serialNumber) {
+    private String newName(String serialNumber) {
         return "UP_" + serialNumber;
     }
 

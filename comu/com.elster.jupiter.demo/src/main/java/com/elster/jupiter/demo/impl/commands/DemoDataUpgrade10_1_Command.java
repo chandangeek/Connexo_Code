@@ -129,7 +129,7 @@ public class DemoDataUpgrade10_1_Command {
     private void setDeviceCpsValuesAndUsagePointLocation() {
         SetCustomAttributeValuesToDevicePostBuilder customAttributeValuesToDevicePostBuilder = this.setCustomAttributeValuesToDevicePostBuilderProvider.get();
         AddLocationInfoToDevicesCommand addLocationInfoToDevicesCommand = this.addLocationInfoToDevicesCommandProvider.get();
-        this.deviceService.deviceQuery().select(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"))
+        this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"))
                 .forEach(device -> {
                     customAttributeValuesToDevicePostBuilder.accept(device);
                     addLocationInfoToDevicesCommand.setDevices(Collections.singletonList(device)).run();

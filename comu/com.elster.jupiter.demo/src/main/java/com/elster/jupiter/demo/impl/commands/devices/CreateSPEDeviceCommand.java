@@ -129,9 +129,9 @@ public class CreateSPEDeviceCommand {
             }
             this.deviceConfiguration = configurations.get(new Random().nextInt(configurations.size()));
         }
-        String mrid = Constants.Device.STANDARD_PREFIX + this.serialNumber;
+        String name = Constants.Device.STANDARD_PREFIX + this.serialNumber;
         Device device = Builders.from(DeviceBuilder.class)
-                .withMrid(mrid)
+                .withName(name)
                 .withSerialNumber(this.serialNumber)
                 .withDeviceConfiguration(this.deviceConfiguration)
                 .withComSchedules(Collections.singletonList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
@@ -143,7 +143,7 @@ public class CreateSPEDeviceCommand {
                 .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get())
                 .get();
         if (this.withLocation || this.withUsagePoint || this.shouldBeActive) {
-            device = deviceService.findByUniqueMrid(mrid).get();
+            device = deviceService.findDeviceByName(name).get();
         }
         if (this.withLocation) {
             AddLocationInfoToDevicesCommand addLocationInfoToDevicesCommand = this.addLocationInfoToDevicesCommandProvider.get();
