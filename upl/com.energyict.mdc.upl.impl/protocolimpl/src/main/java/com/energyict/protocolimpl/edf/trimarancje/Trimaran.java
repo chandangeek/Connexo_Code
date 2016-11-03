@@ -12,8 +12,8 @@ package com.energyict.protocolimpl.edf.trimarancje;
 
 
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -28,13 +28,13 @@ import com.energyict.protocolimpl.edf.trimarancje.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimarancje.core.SPDUFactory;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -58,34 +58,22 @@ public class Trimaran extends AbstractProtocol {
     private int flushTimeout;
     private String meterVersion;
 
-    /** Creates a new instance of Trimaran */
-    public Trimaran() {
-    }
-
-
+    @Override
     protected void doConnect() throws IOException {
         getSPDUFactory().logon();
     }
 
-
+    @Override
     protected void doDisconnect() throws IOException {
         getSPDUFactory().logoff();
     }
-
-
-    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-//    SerialCommunicationChannel commChannel;
-//    public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
-//        this.commChannel=commChannel;
-//    }
-
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getTrimaranProfile().getProfileData();
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
-//        return 600;
-//    	return 300;
+    @Override
+    public int getProfileInterval() throws IOException {
     	getTrimaranProfile().getProfileData();
     	return getTrimaranProfile().getProfileInterval();
     }
@@ -96,6 +84,7 @@ public class Trimaran extends AbstractProtocol {
     	return Integer.parseInt(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName());
     }
 
+    @Override
     protected void validateDeviceId() throws IOException {
 //        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) return;
 //        String devId = getCommandFactory().getDeviceIDExtendedCommand().getDeviceID();
@@ -103,37 +92,40 @@ public class Trimaran extends AbstractProtocol {
 //        throw new IOException("Device ID mismatch! meter devId="+devId+", configured devId="+getInfoTypeDeviceID());
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("ACKTimeoutTL", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("InterCharTimeout", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("CommandTimeout", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("FlushTimeout", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("MeterVersion", false));
+        return propertySpecs;
+    }
 
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","300").trim())); // TE
-        setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty("HalfDuplex","50").trim())); // TC
-        //setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","6000").trim())); // TL
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "300").trim())); // TE
+        setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty(PROP_HALF_DUPLEX, "50").trim())); // TC
 
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","22000").trim())); // TSE (session layer)
-        setAckTimeout(Integer.parseInt(properties.getProperty("ACKTimeoutTL","5000").trim())); // TL (datalink layer)
-        setInterKarTimeout(Integer.parseInt(properties.getProperty("InterCharTimeout","400").trim())); //
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "22000").trim())); // TSE (session layer)
+        setAckTimeout(Integer.parseInt(properties.getProperty("ACKTimeoutTL", "5000").trim())); // TL (datalink layer)
+        setInterKarTimeout(Integer.parseInt(properties.getProperty("InterCharTimeout", "400").trim())); //
 
-        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","3000").trim())); // Command retry timeout
-        setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout","500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
+        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout", "3000").trim())); // Command retry timeout
+        setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout", "500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
 
         setMeterVersion(properties.getProperty("MeterVersion", "V1")); // Select the meterVersion, V2 is NOT TESTED YET!
 
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("InterCharTimeout");
-        result.add("ACKTimeoutTL");
-        result.add("CommandTimeout");
-        result.add("FlushTimeout");
-        result.add("MeterVersion");
-        return result;
-    }
-
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return 1;
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setSPDUFactory(new SPDUFactory(this));
         setDataFactory(new DataFactory(this));
@@ -143,57 +135,45 @@ public class Trimaran extends AbstractProtocol {
         return getTrimaranConnection();
     }
 
-    public Date getTime() throws IOException {
-//        Date date = getDataFactory().getMeterStatusTable().getTimestamp();
-//        return date;
+    @Override
+    public Date getTime() {
     	return new Date(System.currentTimeMillis());
     }
 
-    public void setTime() throws IOException {
+    @Override
+    public void setTime() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
+    @Override
     public String getProtocolVersion() {
-//        return "$Revision$" ;
         return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
-//    	getDataFactory().getPreviousPeriodTable();
-//    	getDataFactory().getCurrentPeriodTable();
-//        return "TARIF="+getDataFactory().getMeterStatusTable().getTarif()+
-//               ", MODETA="+getDataFactory().getMeterStatusTable().getModeta()+
-//               ", SOMMOD="+getDataFactory().getMeterStatusTable().getSommod()+
-//               ", ERRFAT="+getDataFactory().getMeterStatusTable().getErrFat()+
-//               ", ERRSES="+getDataFactory().getMeterStatusTable().getErrSes();
-
+    @Override
+    public String getFirmwareVersion() {
     	return "UNSUPPORTED";
     }
 
-
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-
-        List registers = getRegisterFactory().getRegisters();
-        Iterator it = registers.iterator();
-        while(it.hasNext()) {
-            Register r = (Register)it.next();
-            strBuff.append(r+"\n");
+        StringBuilder builder = new StringBuilder();
+        List<Register> registers = getRegisterFactory().getRegisters();
+        for (Register r : registers) {
+            builder.append(r).append("\n");
         }
-
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public TrimeranConnection getTrimaranConnection() {
@@ -277,4 +257,5 @@ public class Trimaran extends AbstractProtocol {
 	protected void setMeterVersion(String meterVersion) {
 		this.meterVersion = meterVersion;
 	}
+
 }
