@@ -9,7 +9,9 @@ package com.energyict.protocolimpl.pact.pripact;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -30,20 +32,28 @@ import com.energyict.protocolimpl.pact.core.common.PasswordValidator;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 import com.energyict.protocolimpl.pact.core.instant.InstantaneousFactory;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingIdentifier;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author Koen
@@ -97,14 +107,8 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     private PACTToolkit pactToolkit = null;
     private InstantaneousFactory instantaneousFactory = null;
 
-    /**
-     * Creates a new instance of PRIPremier
-     */
-    public PRIPact() {
-    }
-
+    @Override
     public void connect() throws IOException {
-
         getPactConnection().connect();
 
         // do pactlan stuff here
@@ -134,22 +138,14 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         validateMeterIdentification();
     }
 
+    @Override
     public void disconnect() throws IOException {
-
         // do pactlan stuff here
         if (getPACTMode().isPACTLAN()) {
             getPactConnection().globalEnableMeter();
         }
 
         getPactRegisterFactory().getFileTransfer().deleteFile();
-    }
-
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    public Object getCache() {
-        return null;
     }
 
     public String getFirmwareVersion() throws IOException {
@@ -160,6 +156,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         // ", TariffName="++getPactRegisterFactory().getMeterReadingsInterpreter().getCurrentTariffName()
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
@@ -182,7 +179,8 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         }
     }
 
-    public com.energyict.cbo.Quantity getMeterReading(String name) throws IOException {
+    @Override
+    public Quantity getMeterReading(String name) throws IOException {
         if (name.indexOf("_") == 0) {
             return getInstantaneousFactory().getRegisterValue(name.substring(1));
         } else {
@@ -190,12 +188,14 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         }
     }
 
-    public com.energyict.cbo.Quantity getMeterReading(int channelId) throws IOException {
+    @Override
+    public Quantity getMeterReading(int channelId) throws IOException {
         getPactProfile().initChannelInfo();
         return getPactRegisterFactory().getMeterReadingsInterpreter().getValueEType(
                 getPactProfile().getLoadSurveyInterpreter().getEnergyTypeCode(channelId));
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (getChannelMap().getChannelFunctions() == null) {
             if (!isStatusFlagChannel()) {
@@ -209,84 +209,97 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "EchoCancelling",
-                    "ChannelMap",
-                    "HighKey",
-                    "HighKeyRef",
-                    "LowKey",
-                    "SecurityLevel",
-                    "PAKNET",
-                    "PACTLAN",
-                    "ExtendedLogging",
-                    "RegisterTimeZone",
-                    "StatusFlagChannel",
-                    "KeyInfoRequired",
-                    "ForcedRequestExtraDays",
-                    "Modulo",
-                    "MeterType");
-    }
-
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         return getPactProfile().getProfileData(includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         return getPactProfile().getProfileData(lastReading, calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         return getPactRegisterFactory().getMeterReadingsInterpreter().getSurveyInfo().getProfileInterval();
     }
 
+    @Override
     public String getRegister(String name) throws IOException {
         // return getPactRegisterFactory().getMeterReadingsInterpreter().getValue(new
         // MeterReadingIdentifier(name)).toString();
         return getInstantaneousFactory().getRegisterValue(name).toString();
     }
 
+    @Override
     public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                "KeyInfoRequired",
+                "ForcedRequestExtraDays");
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string("EchoCancelling", false),
+                UPLPropertySpecFactory.string("ChannelMap", false),
+                UPLPropertySpecFactory.string("HighKey", false),
+                UPLPropertySpecFactory.string("HighKeyRef", false),
+                UPLPropertySpecFactory.string("LowKey", false),
+                UPLPropertySpecFactory.integer("PAKNET", false),
+                UPLPropertySpecFactory.integer("PACTLAN", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.string("RegisterTimeZone", false),
+                UPLPropertySpecFactory.integer("StatusFlagChannel", false),
+                UPLPropertySpecFactory.integer("Modulo", false),
+                UPLPropertySpecFactory.integer("MeterType", false),
+                UPLPropertySpecFactory.integer("KeyInfoRequired", false),
+                UPLPropertySpecFactory.integer("ForcedRequestExtraDays", false));
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            protocolTimeout = Integer.parseInt(properties.getProperty("Timeout", "30000").trim());
-            maxRetries = Integer.parseInt(properties.getProperty("Retries", "10").trim());
-            roundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "2").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "001");
+            strID = properties.getProperty(ADDRESS.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            serialNumber = properties.getProperty(SERIALNUMBER.getName());
+            protocolTimeout = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "30000").trim());
+            maxRetries = Integer.parseInt(properties.getProperty(RETRIES.getName(), "10").trim());
+            roundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "2").trim());
+            nodeId = properties.getProperty(NODEID.getName(), "001");
             echoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             try {
                 channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
             } catch (IOException e) {
-                throw new InvalidPropertyException("PRIPremier, validateProperties, IOException, " + e.toString());
+                throw new InvalidPropertyException(e, "PRIPremier, setProperties");
             }
 
             highKey = properties.getProperty("HighKey");
             highKeyRef = properties.getProperty("HighKeyRef");
             lowKey = properties.getProperty("LowKey");
 
-            pactMode = new PACTMode(Integer.parseInt(properties.getProperty("PAKNET", "0")), Integer
-                    .parseInt(properties.getProperty("PACTLAN", "0")));
+            pactMode = new PACTMode(
+                    Integer.parseInt(properties.getProperty("PAKNET", "0")),
+                    Integer.parseInt(properties.getProperty("PACTLAN", "0")));
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             if (properties.getProperty("RegisterTimeZone") == null) {
                 registerTimeZone = null;
@@ -305,16 +318,11 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
             }
 
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("PRIPremier, validateProperties, NumberFormatException, "
-                    + e.getMessage());
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
     public Date getTime() throws IOException {
         long roundTripTime = System.currentTimeMillis();
         DateTime currentTime;
@@ -347,6 +355,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         return new Date(returnDate.getTime() - roundTripTime);
     }
 
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         int delay = (5 - (calendar.get(Calendar.SECOND) % 5)) * 1000;
@@ -384,6 +393,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         }
     }
 
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, java.util.TimeZone timeZone,
                      java.util.logging.Logger logger) throws IOException {
         this.timeZone = timeZone;
@@ -418,42 +428,31 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         }
     }
 
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    public void release() throws IOException {
+    @Override
+    public void release() {
     }
 
-    public void setCache(Object cacheObject) {
-    }
-
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException,
-            com.energyict.cbo.BusinessException {
-    }
-
-    // implementation of ProtocolLink
-    public java.util.TimeZone getTimeZone() {
+    @Override
+    public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @Override
     public boolean isExtendedLogging() {
         return (extendedLogging == 1);
     }
 
-    /**
-     * Getter for property pactConnection.
-     *
-     * @return Value of property pactConnection.
-     */
+    @Override
     public PACTConnection getPactConnection() {
         return pactConnection;
     }
@@ -476,19 +475,17 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         return pactProfile;
     }
 
+    @Override
     public ChannelMap getChannelMap() {
         return channelMap;
     }
 
+    @Override
     public PACTToolkit getPACTToolkit() {
         return pactToolkit;
     }
 
-    /**
-     * Getter for property pactMode.
-     *
-     * @return Value of property pactMode.
-     */
+    @Override
     public PACTMode getPACTMode() {
         return pactMode;
     }
@@ -511,29 +508,23 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         this.instantaneousFactory = instantaneousFactory;
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return (getPactRegisterFactory().getMeterReadingsInterpreter().getValue(obisCode));
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         MeterReadingIdentifier mrid = new MeterReadingIdentifier(obisCode);
         return new RegisterInfo(mrid.getObisRegisterMappingDescription());
     }
 
-    /**
-     * Getter for property registerTimeZone.
-     *
-     * @return Value of property registerTimeZone.
-     */
-    public java.util.TimeZone getRegisterTimeZone() {
+    @Override
+    public TimeZone getRegisterTimeZone() {
         return registerTimeZone;
     }
 
-    /**
-     * Getter for property statusFlagChannel.
-     *
-     * @return Value of property statusFlagChannel.
-     */
+    @Override
     public boolean isStatusFlagChannel() {
         return statusFlagChannel != 0;
     }
@@ -547,15 +538,12 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         return keyInfoRequired != 0;
     }
 
-    /**
-     * Getter for property forcedRequestExtraDays.
-     *
-     * @return Value of property forcedRequestExtraDays.
-     */
+    @Override
     public int getForcedRequestExtraDays() {
         return forcedRequestExtraDays;
     }
 
+    @Override
     public int getModulo() {
         return modulo;
     }
@@ -579,10 +567,12 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     private static final int ICM200 = 1;
     private static final int CSP = 2; // Calmu, Sprint, Premier
 
+    @Override
     public boolean isMeterTypeICM200() {
         return getMeterType() == ICM200;
     }
 
+    @Override
     public boolean isMeterTypeCSP() {
         return getMeterType() == CSP;
     }
