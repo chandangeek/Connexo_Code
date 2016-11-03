@@ -11,8 +11,8 @@
 package com.energyict.protocolimpl.transdata.markv;
 
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -28,6 +28,7 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.transdata.markv.core.MarkVProfile;
 import com.energyict.protocolimpl.transdata.markv.core.commands.CommandFactory;
 import com.energyict.protocolimpl.transdata.markv.core.commands.ObisCodeMapper;
@@ -42,7 +43,6 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -54,74 +54,73 @@ import java.util.TimeZone;
  */
 public class MarkV extends AbstractProtocol implements SerialNumberSupport {
 
-    MarkVConnection markVConnection=null;
-    MarkVProfile markVProfile=null;
-    CommandFactory commandFactory=null;
-    int verifyTimeDelay;
-
-    /** Creates a new instance of MarkV */
-    public MarkV() {
-    }
+    private MarkVConnection markVConnection = null;
+    private MarkVProfile markVProfile = null;
+    private CommandFactory commandFactory = null;
+    private SerialCommunicationChannel commChannel;
+    private int verifyTimeDelay;
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-    SerialCommunicationChannel commChannel;
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         this.commChannel=commChannel;
         markVConnection.setSerialCommunicationChannel(commChannel);
     }
 
+    @Override
     protected void doConnect() throws IOException {
     }
 
-
+    @Override
     protected void doDisconnect() throws IOException {
         getCommandFactory().issueLOCommand();
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
-        strBuff.append(getCommandFactory().getISCommand()+"\n");
-        strBuff.append(getCommandFactory().getMICommand()+"\n");
+        builder.append(getCommandFactory().getISCommand()).append("\n");
+        builder.append(getCommandFactory().getMICommand()).append("\n");
 
-        Iterator it = RegisterIdentification.getRegisterDataIds().iterator();
-        while(it.hasNext()) {
-            RegisterDataId rdi = (RegisterDataId)it.next();
-            strBuff.append(rdi+"\n");
+        for (Object o : RegisterIdentification.getRegisterDataIds()) {
+            RegisterDataId rdi = (RegisterDataId) o;
+            builder.append(rdi).append("\n");
         }
-        return strBuff.toString();
-
+        return builder.toString();
     }
 
-
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return markVProfile.getProfileData(lastReading,includeEvents);
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        verifyTimeDelay=Integer.parseInt(properties.getProperty("VerifyTimeDelay","2000").trim());
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("VerifyTimeDelay", false));
+        return propertySpecs;
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("VerifyTimeDelay");
-        return result;
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        verifyTimeDelay=Integer.parseInt(properties.getProperty("VerifyTimeDelay", "2000").trim());
     }
 
     @Override
@@ -133,18 +132,22 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:47 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return getCommandFactory().getISCommand().getProfileInterval();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return getCommandFactory().getDCCommand().getProtocolChannelMap().getNrOfProtocolChannels();
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeout,int maxRetries,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         markVConnection = new MarkVConnection(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController);
         markVConnection.setDtrBehaviour(getDtrBehaviour());
@@ -155,38 +158,36 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         return markVConnection;
     }
 
-
+    @Override
     public Date getTime() throws IOException {
         return getCommandFactory().getGTCommand().getDate();
     }
 
+    @Override
     public void setTime() throws IOException {
         getCommandFactory().issueTICommand();
         if (!verifySetTime(new Date(),getTime())) {
             getCommandFactory().issueTICommand();
-            if (!verifySetTime(new Date(),getTime()))
-                throw new IOException("MarkV, setTime(), after 2 tries, the meter time still differs more then "+verifyTimeDelay+" ms (metertime="+getTime()+", systemtime="+new Date()+")");
+            if (!verifySetTime(new Date(),getTime())) {
+                throw new IOException("MarkV, setTime(), after 2 tries, the meter time still differs more then " + verifyTimeDelay + " ms (metertime=" + getTime() + ", systemtime=" + new Date() + ")");
+            }
         }
-
-
     }
 
-
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         Properties properties = new Properties();
         properties.setProperty("SecurityLevel", "0");
-        if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0))
-            properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),discoverInfo.getNodeId());
+        if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0)) {
+            properties.setProperty(Property.NODEID.getName(), discoverInfo.getNodeId());
+        }
         setProperties(properties);
         init(discoverInfo.getCommChannel().getInputStream(),discoverInfo.getCommChannel().getOutputStream(),null,null);
         connect();
         BufferedReader br = new BufferedReader(new StringReader(new String(markVConnection.receiveWithTimeout("ID"))));
         br.readLine(); // skip ID code 1
         br.readLine(); // skip ID code 2
-        String serialNumber = br.readLine().trim();
-        //String serialNumber =  getCommandFactory().getIDCommand().getSerialNr();
-        //disconnect(); // KV 13102005 LO command does not react here...
-        return serialNumber;
+        return br.readLine().trim();
     }
 
     public MarkVConnection getMarkVConnection() {
@@ -197,16 +198,14 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         return commandFactory;
     }
 
-    /*
-     * Getter for the configured device TimeZone.
-     * @return Value of the device TimeZone.
-     */
+    @Override
     public TimeZone getTimeZone() {
         try {
-            if (getCommandFactory().getISCommand().isDstEnabled())
+            if (getCommandFactory().getISCommand().isDstEnabled()) {
                 return super.getTimeZone();
-            else
+            } else {
                 return ProtocolUtils.getWinterTimeZone(super.getTimeZone());
+            }
         }
         catch (IOException e) {
             getLogger().severe("getTimeZone(), Error requesting IS command!, use configured timezone, "+e.toString());
@@ -214,27 +213,27 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
+    @Override
     public void setDialinScheduleTime(Date nextDialin) throws IOException {
         Date nd = new Date(nextDialin.getTime() - nextDialin.getTime()%60000);
         getCommandFactory().issueTCCommand(nd);
         if (!verifySetTime(nd,getCommandFactory().getGCCommand().getDate())) {
             getCommandFactory().issueTCCommand(nd);
-            if (!verifySetTime(nd,getCommandFactory().getGCCommand().getDate()))
-                throw new IOException("MarkV, setDialinScheduleTime(), after 2 tries, the meter time still differs more then "+verifyTimeDelay+" ms (meter nextDialin="+getCommandFactory().getGCCommand().getDate()+", system nextDialin="+nd+")");
+            if (!verifySetTime(nd,getCommandFactory().getGCCommand().getDate())) {
+                throw new IOException("MarkV, setDialinScheduleTime(), after 2 tries, the meter time still differs more then " + verifyTimeDelay + " ms (meter nextDialin=" + getCommandFactory().getGCCommand()
+                        .getDate() + ", system nextDialin=" + nd + ")");
+            }
         }
     }
-
 
     /*
      * Because we are working in a terminal mode, we need to verify the time. verifyTimeDelay is a custom property
      * we need to check the returned time against...
      */
-    private boolean verifySetTime(Date src, Date dst) throws IOException {
+    private boolean verifySetTime(Date src, Date dst) {
         //Date system = new Date();
         //Date meter = getTime();
-        if (Math.abs(src.getTime() - dst.getTime()) > verifyTimeDelay)
-           return false;
-        else
-           return true;
+        return Math.abs(src.getTime() - dst.getTime()) <= verifyTimeDelay;
     }
+
 }
