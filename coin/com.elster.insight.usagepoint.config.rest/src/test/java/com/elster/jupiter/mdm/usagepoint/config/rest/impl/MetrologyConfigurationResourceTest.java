@@ -629,23 +629,4 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         Response response = target("metrologyconfigurations/13/deprecate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
-
-    @Test
-    public void testValidationSchedule() {
-        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(15L, "Residential", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
-        DataValidationTask validationTask = mock(DataValidationTask.class);
-        when(validationTask.getId()).thenReturn(1L);
-        when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
-        when(validationTask.getMetrologyContract()).thenReturn(Optional.of(metrologyContract));
-        when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
-        when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
-        when(validationTask.getLastRun()).thenReturn(Optional.empty());
-        when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
-        when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
-        when(metrologyConfigurationService.findMetrologyConfiguration(15)).thenReturn(Optional.of(metrologyConfiguration));
-        String json = target("metrologyconfigurations/15/schedule").request().get(String.class);
-        JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.contracts[0].validationTasks[0].id")).isEqualTo(1);
-    }
 }

@@ -52,6 +52,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -365,26 +366,5 @@ public class MetrologyConfigurationResource {
             metrologyConfiguration.removeCustomPropertySet(customPropertySet);
         }
         return metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
-    }
-
-    @GET
-    @Path("/{id}/schedule")
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getValidationScheduleOnMetrologyConfiguration(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        List<MetrologyContractInfo> metrologyContractInfos = new ArrayList<>();
-        for (MetrologyContract metrologyContract : resourceHelper.getMetrologyConfigOrThrowException(id).getContracts()) {
-            List<DataValidationTaskMinimalInfo> dataValidationTaskInfos = validationService.findValidationTasks()
-                    .stream()
-                    .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                    .filter(task -> task.getMetrologyContract().isPresent())
-                    .filter(task -> task.getMetrologyContract().get().getId() == metrologyContract.getId())
-                    .map(dataValidationTaskInfoFactory::asMinimalInfo)
-                    .collect(Collectors.toList());
-            MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-            metrologyContractInfo.validationTasks = dataValidationTaskInfos;
-            metrologyContractInfos.add(metrologyContractInfo);
-        }
-        return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
     }
 }
