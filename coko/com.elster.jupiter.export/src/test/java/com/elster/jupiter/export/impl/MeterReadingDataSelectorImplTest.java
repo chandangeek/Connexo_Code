@@ -208,19 +208,19 @@ public class MeterReadingDataSelectorImplTest {
 
         assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
-        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
 
         assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
-        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
 
         assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
-        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
 
         assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
-        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
     }
 
     @Test
@@ -249,20 +249,20 @@ public class MeterReadingDataSelectorImplTest {
 
         assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
-        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
 
         assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
-        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
 
         assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
-        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
 
         assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
-        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
 
@@ -317,16 +317,16 @@ public class MeterReadingDataSelectorImplTest {
 
         assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
-        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
 
         assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
-        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
 
         assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
-        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
     }
 
     @Test
@@ -368,22 +368,22 @@ public class MeterReadingDataSelectorImplTest {
 
         assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
-        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
         assertThat(meterReadingData1.getMeterReading().getReadings()).hasSize(1);
 
         assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
-        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
 
         assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
-        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
         assertThat(meterReadingData3.getMeterReading().getReadings()).hasSize(1);
 
         assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
-        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
 
@@ -427,22 +427,22 @@ public class MeterReadingDataSelectorImplTest {
 
         assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData1 = (MeterReadingData) collect.get(0);
-        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData1.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
         assertThat(meterReadingData1.getMeterReading().getReadings()).hasSize(1);
 
         assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(1);
-        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
 
         assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
-        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
         assertThat(meterReadingData3.getMeterReading().getReadings()).hasSize(1);
 
         assertThat(collect.get(3)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(3);
-        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
 
@@ -485,16 +485,16 @@ public class MeterReadingDataSelectorImplTest {
 
         assertThat(collect.get(0)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData2 = (MeterReadingData) collect.get(0);
-        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter1", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData2.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData2.getMeterReading().getReadings()).hasSize(2);
 
         assertThat(collect.get(1)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(1);
-        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
+        assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("export"));
 
         assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData4 = (MeterReadingData) collect.get(2);
-        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
+        assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Collections.singletonList("update"));
         assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
 

@@ -10,8 +10,6 @@ import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
@@ -83,7 +81,7 @@ class MeterReadingItemDataSelector extends AbstractItemDataSelector {
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate(item, readings.get(0).getTimeStamp())));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
         }
         return Optional.empty();
     }
@@ -109,12 +107,8 @@ class MeterReadingItemDataSelector extends AbstractItemDataSelector {
                 .orElse(null);
     }
 
-    private StructureMarker structureMarkerForUpdate(IReadingTypeDataExportItem item, Instant instant) {
-        return DefaultStructureMarker.createRoot(getClock(), item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
-                .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
-                .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
-                // all the MRIDs above are not used anywhere
-                .child("update");
+    private StructureMarker structureMarkerForUpdate() {
+        return DefaultStructureMarker.createRoot(getClock(), "update");
     }
 
     private Optional<DataExportStrategy> getExportStrategy(DataExportOccurrence dataExportOccurrence) {

@@ -12,11 +12,9 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -118,7 +116,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, exportInterval);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarker(item, readings.get(0).getTimeStamp(), exportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarker(exportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -295,13 +293,8 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         }
     }
 
-    private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant, Range<Instant> exportInterval) {
-        return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
-                .withPeriod(exportInterval)
-                .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
-                .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
-                // all the MRIDs above are not used anywhere
-                .child("export");
+    private StructureMarker structureMarker(Range<Instant> exportInterval) {
+        return DefaultStructureMarker.createRoot(clock, "export").withPeriod(exportInterval);
     }
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
