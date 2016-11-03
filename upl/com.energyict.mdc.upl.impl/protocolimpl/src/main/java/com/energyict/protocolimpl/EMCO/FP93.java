@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.EMCO;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -20,7 +20,9 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.collect.Range;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,13 +33,15 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+
 /**
  * Copyrights EnergyICT
  * User: sva
  * Date: 17/01/12
  * Time: 15:22
  */
-public class FP93 extends AbstractProtocol implements MessageProtocol{
+public class FP93 extends AbstractProtocol implements MessageProtocol {
 
     private FP93Connection connection;
     private ObisCodeMapper obisCodeMapper;
@@ -51,11 +55,6 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
         this.messageProtocol = new FP93Messages(this);
     }
 
-    /**
-     * Abstract method to implement the logon and authentication.
-     *
-     * @throws java.io.IOException Exception thrown when the logon fails.
-     */
     @Override
     protected void doConnect() throws IOException {
         // No logon or authentication needed.
@@ -69,84 +68,43 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
         }
     }
 
-    /**
-     * Abstract method to implement the logoff
-     *
-     * @throws java.io.IOException thrown when the logoff fails
-     */
     @Override
     protected void doDisconnect() throws IOException {
         // No disconnect needed.
     }
 
-    /**
-     * Abstract method to add custom properties
-     *
-     * @param properties The properties map to get properties from.
-     * @throws MissingPropertyException
-     *          Thrown when a particular proiperty is mandatory.
-     * @throws InvalidPropertyException
-     *          Thrown when a particular property has an invalid value.
-     */
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        super.getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> !propertySpec.getName().equals(ADDRESS.getName()))
+                .forEach(propertySpecs::add);
+        propertySpecs.add(UPLPropertySpecFactory.integer(ADDRESS.getName(), false, Range.closed(1, 99999)));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         try {
             this.deviceID = Integer.parseInt(getInfoTypeDeviceID());
-            if (deviceID> 99999) {
-                throw new NumberFormatException();
-            }
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("Invalid Device ID. The Device ID should be a 1 to 5 digit number.");
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before, the Device ID should be a 1 to 5 digit number.");
         }
     }
 
-    /**
-     * Abstract method to add the optional custom properties to as string.
-     *
-     * @return List the optional custom properties list of Strings
-     */
-    @Override
-    protected List doGetOptionalKeys() {
-        return new ArrayList();
-    }
-
-    /**
-     * Abstract method that implements the construction of all objects needed during the meter protocol session. Last construction is a ProtocolConnection.
-     *
-     * @param inputStream             Communication inputstream
-     * @param outputStream            Communication outputstream
-     * @param timeoutProperty         Protocol timeout property. Used to control the interframe timeout. Value of the custom property "Timeout"
-     * @param protocolRetriesProperty Used to control the nr of retries whan a CRC, timeout, .. or other error happens during communication. Value of the custom property "Retries"
-     * @param forcedDelay             A delay parameter that can be used in the communication classes for example to add delays between communication frames. Value of the custom property "ForcedDelay"
-     * @param echoCancelling          Enable or disable echo cancelling. Value of the custom property "EchoCancelling"
-     * @param protocolCompatible      Used to control protocol compatibility when the protocol is a member of a group protocols. Value of the custom property "ProtocolCompatible"
-     * @param encryptor               Interface to control encryption
-     * @param halfDuplexController    Interface to control the HalfDuplex behaviour
-     * @return ProtocolConnection interface. Most of the time a connection class is build that implements the ProtocolConnection interface. Thet connection class contains the datalink and phy communication routiones.
-     * @throws java.io.IOException Thrown when something goes wrong
-     */
     @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         connection = new FP93Connection(this, inputStream, outputStream, timeoutProperty, protocolRetriesProperty);
         return connection;
     }
 
-    /**
-     * Override this method when requesting time from the meter is needed.
-     *
-     * @return Date object with the metertime
-     * @throws java.io.IOException thrown when something goes wrong
-     */
     @Override
     public Date getTime() throws IOException {
         return getEventLog().getTimeFromTimeStampRegister(70);
     }
 
-    /**
-     * Override this method when setting the time in the meter is needed
-     *
-     * @throws java.io.IOException thrown when something goes wrong
-     */
     @Override
     public void setTime() throws IOException {
         //ToDo - replace if device supports clock synchronisation
@@ -159,26 +117,13 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
         return deviceID;
     }
 
-    /**
-     * Override this method to control the protocolversion This method is informational only.
-     *
-     * @return String with protocol version
-     */
     @Override
     public String getProtocolVersion() {
          return "$Date: 2012-03-09 09:42:11 +0100 (vr, 09 mrt 2012) $";
     }
 
-    /**
-     * Override this method when requesting the meter firmware version is needed. This method is informational only.
-     *
-     * @return String with firmware version. This can also contain other important info of the meter.
-     * @throws java.io.IOException thrown when something goes wrong
-     * @throws UnsupportedException
-     *                             Thrown when that method is not supported
-     */
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return unitInformationBlock.substring(0, unitInformationBlock.lastIndexOf("-"));
     }
 
@@ -186,17 +131,10 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
         return connection;
     }
 
-    /*
-     * @As the FP93 doesn't support load profiles, this method will return 0.
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             thrown when not supported
-     * @throws java.io.IOException thrown when something goes wrong
-     */
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return 0;
     }
-
 
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -204,13 +142,6 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
         return new RegisterInfo("[" + registerMapping.getObjectId() + "] " + registerMapping.getDescription());
     }
 
-    /**
-     * Override this method when requesting an obiscode mapped register from the meter.
-     *
-     * @param obisCode obiscode rmapped register to request from the meter
-     * @return RegisterValue object
-     * @throws java.io.IOException thrown when somethiong goes wrong
-     */
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
@@ -239,45 +170,39 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
         return eventLog;
     }
 
-    /**
-     * Override this method to request the load profile from the meter from to.
-     *
-     * @param from          request from
-     * @param to            request to
-     * @param includeEvents eneble or disable requesting of meterevents
-     * @return ProfileData object
-     * @throws java.io.IOException Thrown when something goes wrong
-     * @throws UnsupportedException
-     *                             Thrown when not supported
-     */
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-        ProfileData profileData = getEventLog().readEvents();
-        return profileData;
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        return getEventLog().readEvents();
     }
 
-    //-------------------------------- MESSAGING --------------------------------//
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         this.messageProtocol.applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return this.messageProtocol.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return this.messageProtocol.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return this.messageProtocol.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return this.messageProtocol.writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return this.messageProtocol.writeValue(value);
     }
+
 }
