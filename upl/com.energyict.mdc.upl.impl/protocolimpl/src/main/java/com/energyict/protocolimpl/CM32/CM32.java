@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.CM32;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -15,10 +12,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 
 public class CM32 extends AbstractProtocol {
 
@@ -28,41 +22,39 @@ public class CM32 extends AbstractProtocol {
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
     private RegisterFactory registerFactory;
 
-
+	@Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getCM32Profile().getProfileData(lastReading,includeEvents);
     }
 
+	@Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+	@Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
+	@Override
     public int getNumberOfChannels() throws IOException {
         return 16;
     }
 
-
+	@Override
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
-
 		CommandFactory commandFactory = getCommandFactory();
-		Response response =
-			commandFactory.getReadTimeCommand().invoke();
+		Response response = commandFactory.getReadTimeCommand().invoke();
 		TimeTable timeTable = new TimeTable(this);
 		timeTable.parse(response.getData());
 		Date time = timeTable.getTime();
 		getLogger().info("time in doConnect: " + time);
 	}
 
+	@Override
 	protected void doDisconnect() throws IOException {
-	}
-
-	protected List<String> doGetOptionalKeys() {
-		return Collections.emptyList();
 	}
 
 	public RegisterFactory getRegisterFactory() throws IOException {
@@ -73,6 +65,7 @@ public class CM32 extends AbstractProtocol {
         return registerFactory;
     }
 
+	@Override
 	protected ProtocolConnection doInit(InputStream inputStream,
 			OutputStream outputStream, int timeoutProperty,
 			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
@@ -93,11 +86,11 @@ public class CM32 extends AbstractProtocol {
     	return this.getCM32Connection();
 	}
 
-	public CM32Profile getCM32Profile() {
+	private CM32Profile getCM32Profile() {
         return cm32Profile;
     }
 
-    public void setCM32Profile(CM32Profile cm32Profile) {
+    private void setCM32Profile(CM32Profile cm32Profile) {
         this.cm32Profile = cm32Profile;
     }
 
@@ -109,26 +102,22 @@ public class CM32 extends AbstractProtocol {
         this.commandFactory = commandFactory;
     }
 
-	protected void doValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-		// TODO Auto-generated method stub
-
-	}
-
+	@Override
 	public String getFirmwareVersion() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
     public String getProtocolVersion() {
 		return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
 	}
 
+	@Override
 	public Date getTime() throws IOException {
 		getLogger().info("getTime");
 		CommandFactory commandFactory = getCommandFactory();
-		Response response =
-			commandFactory.getReadTimeCommand().invoke();
+		Response response = commandFactory.getReadTimeCommand().invoke();
 		TimeTable timeTable = new TimeTable(this);
 		timeTable.parse(response.getData());
 		Date time = timeTable.getTime();
@@ -136,15 +125,15 @@ public class CM32 extends AbstractProtocol {
 		return time;
 	}
 
+	@Override
 	public void setTime() throws IOException {
-		// TODO Auto-generated method stub
 	}
 
-	public CM32Connection getCM32Connection() {
+	CM32Connection getCM32Connection() {
         return cm32Connection;
     }
 
-    protected void setCM32Connection(CM32Connection cm32Connection) {
+    private void setCM32Connection(CM32Connection cm32Connection) {
         this.cm32Connection = cm32Connection;
     }
 

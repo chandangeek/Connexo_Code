@@ -69,12 +69,12 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     protected static final String PROP_RETRIES = RETRIES.getName();
     protected static final String PROP_ECHO_CANCELING = "EchoCancelling";
     protected static final String PROP_FORCED_DELAY = "ForcedDelay";
+    protected static final String PROP_HALF_DUPLEX = "HalfDuplex";
 
     private static final String PROP_SECURITY_LEVEL = SECURITYLEVEL.getName();
     private static final String PROP_PROTOCOL_COMPATIBLE = "ProtocolCompatible";
     public static final String PROP_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PROP_CHANNEL_MAP = "ChannelMap";
-    private static final String PROP_HALF_DUPLEX = "HalfDuplex";
     private static final String PROP_DTR_BEHAVIOUR = "DTRBehaviour";
     private static final String PROP_ADJUST_CHANNEL_MULTIPLIER = "AdjustChannelMultiplier";
     private static final String PROP_ADJUST_REGISTER_MULTIPLIER = "AdjustRegisterMultiplier";

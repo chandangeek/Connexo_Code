@@ -22,7 +22,6 @@ import com.energyict.protocolimpl.edf.trimarancje.core.PreviousPeriodTable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,21 +30,18 @@ import java.util.List;
  */
 public class RegisterFactory {
 
-    Trimaran trimaran;
-    List registers=null;
-    int[] activeEnergyMatrix={6, 1, 4, 5, 11, 12}; //these form the same ObisCodes as for the CVE and ICE meter
+    private Trimaran trimaran;
+    private List<Register> registers = null;
+    private int[] activeEnergyMatrix = {6, 1, 4, 5, 11, 12}; //these form the same ObisCodes as for the CVE and ICE meter
 
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Trimaran trimaran) {
         this.trimaran=trimaran;
-
     }
 
     public Register findRegister(ObisCode obc) throws IOException {
         ObisCode obisCode = new ObisCode(obc.getA(),obc.getB(),obc.getC(),obc.getD(),obc.getE(),Math.abs(obc.getF()));
-        Iterator it = getRegisters().iterator();
-        while(it.hasNext()) {
-            Register register = (Register)it.next();
+        for (Register register : getRegisters()) {
             if (register.getRegisterValue().getObisCode().equals(obisCode)) {
                 return register;
             }
@@ -53,17 +49,18 @@ public class RegisterFactory {
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
 
-    public List getRegisters() throws IOException {
+    public List<Register> getRegisters() throws IOException {
         if (registers == null) {
             buidRegisterList();
         }
         return registers;
     }
 
-    public void buidRegisterList() throws IOException {
-        registers = new ArrayList();
+    private void buidRegisterList() throws IOException {
+        registers = new ArrayList<>();
 
-        buildIndexes(trimaran.getDataFactory().getCurrentPeriodTable(),
+        buildIndexes(
+        		trimaran.getDataFactory().getCurrentPeriodTable(),
         		trimaran.getDataFactory().getPreviousPeriodTable());
 
 //        buildIndexes(255,trimaran.getDataFactory().getCurrentMonthInfoTable());
@@ -162,7 +159,6 @@ public class RegisterFactory {
         			null, previousPeriodTable.getTimeStamp());
         	registers.add(new Register(registerValue));
         }
-
 	}
 
 }
