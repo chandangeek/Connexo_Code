@@ -1,7 +1,6 @@
 Ext.define('Imt.usagepointmanagement.model.Purpose', {
     extend: 'Uni.model.Version',
-    fields: [       
-        'dataValidationTasks',
+    fields: [
         {name: 'id', type: 'int'},
         {name: 'name', type: 'string'},
         {name: 'required', type: 'boolean', useNull: true},
