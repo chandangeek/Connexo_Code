@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -38,12 +38,12 @@ import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterF
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -69,24 +69,23 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
 
     // lazy initializing
     private BillingDataRegisterFactoryImpl billingDataRegisterFactory=null;
-    long whoAreYouTimeout;
+    private long whoAreYouTimeout;
+    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
+    private SerialCommunicationChannel commChannel;
     private int totalRegisterRate;
 
-    /** Creates a new instance of AlphaPlus */
-    public AlphaPlus() {
-    }
-
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getAlphaPlusProfile().getProfileData(lastReading,includeEvents);
     }
 
-    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-    SerialCommunicationChannel commChannel;
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         this.commChannel=commChannel;
         getAlphaConnection().setOptical(commChannel!=null);
     }
 
+    @Override
     protected void doConnect() throws IOException {
         // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
         if (commChannel!=null) {
@@ -102,6 +101,8 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         // set packetsize so that all Multiple (lenh lenl) packets behave corect (lenh bit 7 last packet)
         getCommandFactory().getFunctionWithDataCommand().PacketSize(4);
     }
+
+    @Override
     protected void doDisconnect() throws IOException {
         try {
             if (commChannel==null) {
@@ -113,28 +114,41 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
            commandFactory.getShortFormatCommand().terminateSession();
         }
     }
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
-        whoAreYouTimeout = Integer.parseInt(properties.getProperty("WhoAreYouTimeout","300").trim());
-        totalRegisterRate = Integer.parseInt(properties.getProperty("TotalRegisterRate","1").trim());
-        opticalHandshakeOverModemport =  Integer.parseInt(properties.getProperty("OpticalHandshakeOverModemport","0").trim());
-    }
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                    "WhoAreYouTimeout",
-                    "TotalRegisterRate",
-                    "OpticalHandshakeOverModemport");
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("WhoAreYouTimeout", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("TotalRegisterRate", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("OpticalHandshakeOverModemport", false));
+        return propertySpecs;
     }
 
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
+        whoAreYouTimeout = Integer.parseInt(properties.getProperty("WhoAreYouTimeout", "300").trim());
+        totalRegisterRate = Integer.parseInt(properties.getProperty("TotalRegisterRate", "1").trim());
+        opticalHandshakeOverModemport =  Integer.parseInt(properties.getProperty("OpticalHandshakeOverModemport", "0").trim());
+    }
+
+    @Override
     public int getProfileInterval() throws IOException {
         int pi = getClassFactory().getClass14LoadProfileConfiguration().getLoadProfileInterval();
-        return pi==0?getInfoTypeProfileInterval():pi;
+        if (pi == 0) {
+            return getInfoTypeProfileInterval();
+        } else {
+            return pi;
+        }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getClassFactory().getClass14LoadProfileConfiguration().getNrOfChannels();
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeout,int maxRetries,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         alphaConnection = new AlphaConnection(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController, whoAreYouTimeout);
         commandFactory = new CommandFactory(alphaConnection);
@@ -142,18 +156,23 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         alphaPlusProfile = new AlphaPlusProfile(this);
         return alphaConnection;
     }
+
+    @Override
     public Date getTime() throws IOException {
         return getClassFactory().getClass9Status1().getTD();
     }
 
+    @Override
     public void setTime() throws IOException {
         getCommandFactory().getFunctionWithDataCommand().syncTime(getInfoTypeRoundtripCorrection(), getTimeZone());
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         try {
            return getClassFactory().getClass8FirmwareConfiguration().getFirmwareVersion();
@@ -163,6 +182,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         }
     }
 
+    @Override
     public String getSerialNumber() {
         try {
             return Long.toString(getClassFactory().getClass7MeteringFunctionBlock().getXMTRSN());
@@ -171,6 +191,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         }
     }
 
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         List<String> passwords = discoverInfo.getPasswords();
@@ -224,18 +245,18 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         throw new IOException("AlphaPlus, getSerialNumber(), Error discovering serialnumber!");
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         getBillingDataRegisterFactory().buildAll();
         StringBuilder builder = new StringBuilder();
@@ -277,6 +298,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         return builder.toString();
     }
 
+    @Override
     public CommandFactory getCommandFactory() {
         return commandFactory;
     }
@@ -285,6 +307,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         return classFactory;
     }
 
+    @Override
     public BillingDataRegisterFactory getBillingDataRegisterFactory() throws IOException {
         if (billingDataRegisterFactory==null) {
            billingDataRegisterFactory = new BillingDataRegisterFactoryImpl(getClassFactory());
@@ -297,12 +320,13 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         return alphaPlusProfile;
     }
 
+    @Override
     public AlphaConnection getAlphaConnection() {
         return alphaConnection;
     }
 
+    @Override
     public void setDialinScheduleTime(Date date) throws IOException {
-
         // Programm class31
         Calendar cal = ProtocolUtils.getCleanCalendar(getTimeZone());
         cal.setTime(date);
@@ -316,6 +340,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         getCommandFactory().getFunctionWithDataCommand().billingReadDialin(date,getTimeZone());
     }
 
+    @Override
     public void setPhoneNr(String phoneNr) throws IOException {
 
         Class31ModemBillingCallConfiguration o = getClassFactory().getClass31ModemBillingCallConfiguration();
@@ -339,6 +364,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     }
 
 
+    @Override
     public int getTotalRegisterRate() {
         return totalRegisterRate;
     }
