@@ -551,11 +551,11 @@ public class DataExportTaskResource {
     }
 
     private EndDeviceGroup endDeviceGroup(Object endDeviceGroupId) {
-        return meteringGroupsService.findEndDeviceGroup((int) endDeviceGroupId).orElse(null);
+        return meteringGroupsService.findEndDeviceGroup(((Number) endDeviceGroupId).longValue()).orElse(null);
     }
 
     private UsagePointGroup usagePointGroup(Object usagePointGroupId) {
-        return meteringGroupsService.findUsagePointGroup((int) usagePointGroupId).orElse(null);
+        return meteringGroupsService.findUsagePointGroup(((Number) usagePointGroupId).longValue()).orElse(null);
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
