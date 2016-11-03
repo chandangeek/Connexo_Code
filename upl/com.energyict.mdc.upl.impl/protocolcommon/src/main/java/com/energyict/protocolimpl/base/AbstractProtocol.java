@@ -72,7 +72,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     private static final String PROP_SECURITY_LEVEL = SECURITYLEVEL.getName();
     private static final String PROP_PROTOCOL_COMPATIBLE = "ProtocolCompatible";
-    private static final String PROP_EXTENDED_LOGGING = "ExtendedLogging";
+    public static final String PROP_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PROP_CHANNEL_MAP = "ChannelMap";
     private static final String PROP_HALF_DUPLEX = "HalfDuplex";
     private static final String PROP_DTR_BEHAVIOUR = "DTRBehaviour";

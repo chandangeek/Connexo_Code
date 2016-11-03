@@ -2,9 +2,8 @@ package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -26,6 +25,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,11 +83,11 @@ import java.util.logging.Level;
 public class Prometer extends AbstractProtocol implements SerialNumberSupport {
 
     /** Property keys specific for CewePrometer protocol. */
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_LOGGER = "Logger";
+    private static final String PK_EXTENDED_LOGGING = AbstractProtocol.PROP_EXTENDED_LOGGING;
+    private static final String PK_LOGGER = "Logger";
 
     /** By default the load profile of logger 1 is fetched */
-    final static int PD_LOGGER = 0;
+    private static final int PD_LOGGER = 0;
 
     /** property for logger that must be fetched (1 or 2) */
     private int pLogger = PD_LOGGER;
@@ -113,23 +113,22 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
 
     private IEC1107Connection connection = null;
     private ObisCodeMapper obisCodeMapper = null;
-    /** event parser (for event log register)  */
 
     /** TOU-select for every TOU register */
     int[] touMap = null;
     /** channelInfo registers retrieved from  */
-    private List channelInfo = null;
+    private List<ChannelInfo> channelInfo = null;
     /** timeDiff: time difference (millis) between system and meter */
     private long timeDiff[] = null;
 
     /** Meter serial number: 1 char + 6 figures */
-    ProRegister rSerial = new ProRegister(this, "0001");
+    private ProRegister rSerial = new ProRegister(this, "0001");
 
     /** Meter firmware version */
-    ProRegister rSoftwareVersion = new ProRegister(this, "0006");
+    private ProRegister rSoftwareVersion = new ProRegister(this, "0006");
 
-    ProRegister rDate = new ProRegister(this, "0021", false);
-    ProRegister rTime = new ProRegister(this, "0022", false);
+    private ProRegister rDate = new ProRegister(this, "0021", false);
+    private ProRegister rTime = new ProRegister(this, "0022", false);
 
     /** Energy registers */
     ProRegister rEenergy [] = {
@@ -175,7 +174,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    private String mdDate [] [] =
+    private static final String mdDate [] [] =
     {   /*  MD 0,   MD 1,   MD 2 */
         { "0185", "0205", "0225" }, /* date 0 */
         { "0186", "0206", "0226" }, /* date 1 */
@@ -203,7 +202,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    private String tou [][] = {
+    private static final String tou [][] = {
         /*phen.1, phen.2, phen.3, phen.4, phen.5 */
         { "0121", "0131", "0141", "0151", "0161" }, /* rate 1 */
         { "0122", "0132", "0142", "0152", "0162" }, /* rate 2 */
@@ -217,7 +216,6 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
 
     /** Tou registers*/
     ProRegister rTou [][];
-
     /* init tou */
     {
         rTou = new ProRegister[tou.length][];
@@ -234,19 +232,19 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
      * "Load profile" related registers
      */
 
-    ProRegister rProfileIntervalLength = new ProRegister(this, "0170");
+    private ProRegister rProfileIntervalLength = new ProRegister(this, "0170");
 
     /** Log Read offset: before fetching the load profile set start date */
-    ProRegister rLogOffset = new ProRegister(this, "1039");
+    private ProRegister rLogOffset = new ProRegister(this, "1039");
 
     /** Read next Log record */
-    ProRegister rLogNextRecord = new ProRegister(this, "1040", false, 15);
+    private ProRegister rLogNextRecord = new ProRegister(this, "1040", false, 15);
 
     /** Register containing the configuration of the
      *  - Profile channels
      *  - Maximum demand registers
      */
-    ProRegister rDemandRegister [] =
+    private ProRegister rDemandRegister [] =
     {
         new ProRegister(this, "1001"),
         new ProRegister(this, "1002"),
@@ -256,7 +254,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     };
 
     /** every alarm has it's own register address */
-    ProRegister rAlarm [] = {
+    private ProRegister rAlarm [] = {
         new ProRegister(this, "0040"),
         new ProRegister(this, "0041"),
         new ProRegister(this, "0042"),
@@ -289,7 +287,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         new ProRegister(this, "1200")
     };
 
-    private String billingTotal [][] = {
+    private static final String billingTotal [][] = {
         /*  bp 1,  bp 2*/
         { "1101", "1201" },
         { "1102", "1202" },
@@ -312,7 +310,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    private String billingRegister [][] = {
+    private static final String billingRegister [][] = {
         /*  bp 1,  bp 2*/
         { "1110", "1210" },
         { "1111", "1211" },
@@ -367,7 +365,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    private String billingMD [][] = {
+    private static final String billingMD [][] = {
         { "1150", "1250" },
         { "1151", "1251" },
         { "1152", "1252" },
@@ -401,27 +399,27 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     /* Constants for interpreting the demandRegister configuration. */
 
     /** Reg no. Active import */
-    final static int ACTIVE_IMPORT    = 1021;
+    static final int ACTIVE_IMPORT    = 1021;
     /** Reg no. Active export */
-    final static int ACTIVE_EXPORT    = 1022;
+    static final int ACTIVE_EXPORT    = 1022;
     /** Reg no. Reactive import */
-    final static int REACTIVE_IMPORT  = 1023;
+    static final int REACTIVE_IMPORT  = 1023;
     /** Reg no. Reactive export */
-    final static int REACTIVE_EXPORT  = 1024;
+    static final int REACTIVE_EXPORT  = 1024;
     /** Reg no. Apparent import */
-    final static int APPARENT_IMPORT  = 1025;
+    static final int APPARENT_IMPORT  = 1025;
     /** Reg no. Apparent export */
-    final static int APPARENT_EXPORT  = 1026;
+    static final int APPARENT_EXPORT  = 1026;
     /** Reg no. External input 1 */
-    final static int EXTERNAL_INPUT_1 = 1027;
+    static final int EXTERNAL_INPUT_1 = 1027;
     /** Reg no. External input 2 */
-    final static int EXTERNAL_INPUT_2 = 1028;
+    static final int EXTERNAL_INPUT_2 = 1028;
     /** Reg no. External input 3 */
-    final static int EXTERNAL_INPUT_3 = 1029;
+    static final int EXTERNAL_INPUT_3 = 1029;
     /** Reg no. Summation 1 */
-    final static int SUMMATION_1      = 1030;
+    static final int SUMMATION_1      = 1030;
     /** Reg no. Summation 2 */
-    final static int SUMMATION_2      = 1031;
+    static final int SUMMATION_2      = 1031;
 
 
     /* Billing registers contain a String defining the stored phenomenon.
@@ -433,43 +431,39 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
      */
 
     /** Billing register reg type: Active import */
-    final static String REG_TYPE_ACTIVE_IMPORT = "PI";
+    static final String REG_TYPE_ACTIVE_IMPORT = "PI";
 
     /** Billing register reg type: Active export */
-    final static String REG_TYPE_ACTIVE_EXPORT = "PE";
+    static final String REG_TYPE_ACTIVE_EXPORT = "PE";
 
     /** Billing register reg type: Rective import */
-    final static String REG_TYPE_REACTIVE_IMPORT = "QI";
+    static final String REG_TYPE_REACTIVE_IMPORT = "QI";
 
     /** Billing register reg type: Rective export */
-    final static String REG_TYPE_REACTIVE_EXPORT = "QE";
+    static final String REG_TYPE_REACTIVE_EXPORT = "QE";
 
     /** Billing register reg type: Apparent import */
-    final static String REG_TYPE_APPARENT_IMPORT = "SI";
+    static final String REG_TYPE_APPARENT_IMPORT = "SI";
 
     /** Billing register reg type: Apparent export */
-    final static String REG_TYPE_APPARENT_EXPORT = "SE";
+    static final String REG_TYPE_APPARENT_EXPORT = "SE";
 
     /** Billing register reg type: Input 1 */
-    final static String REG_TYPE_INPUT_1 = "I1";
+    static final String REG_TYPE_INPUT_1 = "I1";
 
     /** Billing register reg type: Input 2 */
-    final static String REG_TYPE_INPUT_2 = "I2";
+    static final String REG_TYPE_INPUT_2 = "I2";
 
     /** Billing register reg type: Input 3 */
-    final static String REG_TYPE_INPUT_3 = "I3";
+    static final String REG_TYPE_INPUT_3 = "I3";
 
     /** Billing register reg type: Sum 1 */
-    final static String REG_TYPE_SUM_1 = "S1";
+    static final String REG_TYPE_SUM_1 = "S1";
 
     /** Billing register reg type: Sum 2 */
-    final static String REG_TYPE_SUM_2 = "S2";
+    static final String REG_TYPE_SUM_2 = "S2";
 
-
-
-    /* (non-Javadoc)
-    * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
-    */
+    @Override
     protected ProtocolConnection doInit(
             InputStream iStream, OutputStream oStream,
             int pTimeout, int pRetries, int pForcedDelay,
@@ -483,20 +477,16 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
                 + " Logger " + pLogger );
 
         try {
-
             connection=
                 new IEC1107Connection( iStream,oStream,pTimeout,pRetries,
                         pForcedDelay,pEchoCancelling,pCompatible,"[", software7E1);
-
             obisCodeMapper = new ObisCodeMapper(this);
-
         } catch(ConnectionException e) {
             getLogger().log(Level.SEVERE, "init failed", e);
             throw new NestedIOException(e);
         }
 
         return connection;
-
     }
 
     /** during connect:
@@ -508,19 +498,17 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
      *
      * @see com.energyict.protocolimpl.base.AbstractProtocol#doConnect()
      */
+    @Override
     protected void doConnect() throws IOException {
-
-        if(pExtendedLogging==1)
-            getLogger().info(obisCodeMapper.toString() );
-
-        if(pExtendedLogging==2)
+        if (pExtendedLogging==1) {
+            getLogger().info(obisCodeMapper.toString());
+        }
+        if (pExtendedLogging==2) {
             getLogger().info(obisCodeMapper.getExtendedLogging());
-
+        }
     }
 
-    /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#doDisConnect()
-     */
+    @Override
     protected void doDisconnect() throws IOException {
         /* do nothing, in a hurry */
     }
@@ -529,59 +517,51 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         return connection;
     }
 
-    /** @see AbstractProtocol#getRequiredKeys() */
-    public List getRequiredKeys() {
-        ArrayList result = new ArrayList( );
-        result.add(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-        return result;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_LOGGER, false));
+        return propertySpecs;
     }
 
-    /** @see AbstractProtocol#doGetOptionalKeys() */
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Software7E1");
-        return result;
+    @Override
+    protected boolean passwordIsRequired() {
+        return true;
     }
 
-    /** @see AbstractProtocol#doValidateProperties(java.util.Properties) */
-    protected void doValidateProperties(Properties p)
-        throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        String extendedLogging = properties.getProperty(PK_EXTENDED_LOGGING);
+        pExtendedLogging = (extendedLogging == null) ? 0 : Integer.parseInt(extendedLogging);
 
-        String v = p.getProperty(PK_EXTENDED_LOGGING);
-        pExtendedLogging = (v == null) ? 0 : Integer.parseInt(v);
-
-        v = p.getProperty(PK_LOGGER);
-        pLogger = (v == null) ? PD_LOGGER : Integer.parseInt(v);
-        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
-
+        String logger = properties.getProperty(PK_LOGGER);
+        pLogger = (logger == null) ? PD_LOGGER : Integer.parseInt(logger);
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
     }
 
-    /** @see AbstractProtocol#getTime() */
+    @Override
     public Date getTime() throws IOException {
-
         try {
-
             ProRegister dr = rDate.readAndFreeze();
             ProRegister tr = rTime.readAndFreeze();
             Date d = getEventDateFormat().parse(dr.asString(0) + tr.asString());
-
             timeDiff = new long[] { System.currentTimeMillis() - d.getTime() };
-
             return d;
-
         } catch(ParseException pex){
             throw new NestedIOException(pex);
         }
-
     }
 
     public Date calculateMeterTime( ) throws IOException{
-        if( timeDiff == null ) return getTime();
+        if( timeDiff == null ) {
+            return getTime();
+        }
         return new Date(System.currentTimeMillis() + timeDiff[0]);
     }
 
-    /* timeDiff is written to SlideTime register
-     *  @see AbstractProtocol#setTime() */
+    @Override
     public void setTime() throws IOException {
 
         Calendar cMeter = Calendar.getInstance(getTimeZone());
@@ -606,8 +586,8 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
 
     }
 
-    /* @see AbstractProtocol#getNumberOfChannels() */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return getChannelInfo().size();
     }
 
@@ -616,36 +596,28 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
      * Check the length of the first field.  If lenght == 0, the channel is
      * not used.
      * */
-    List getChannelInfo( ) throws IOException {
-        if( channelInfo == null ){
-
-            channelInfo = new ArrayList();
-
-            ProRegister dr = null;
-            Unit unit = null;
-
-            for(int i = 0; i < rDemandRegister.length; i ++ ) {
+    List<ChannelInfo> getChannelInfo( ) throws IOException {
+        if (channelInfo == null) {
+            channelInfo = new ArrayList<>();
+            ProRegister dr;
+            Unit unit;
+            for (int i = 0; i < rDemandRegister.length; i ++ ) {
                 dr = rDemandRegister[i];
-                if( ( dr.asString().length() > 0 ) && (dr.asInt() != 0) ) {
+                if ((!dr.asString().isEmpty()) && (dr.asInt() != 0)) {
                     unit = dr.asUnit(3);
                     channelInfo.add(new ChannelInfo(i, "chn " + i, unit, 0, i, getMultiplier(dr)));
                 }
             }
         }
-
         return channelInfo;
-
     }
 
     /* multiplier is inverse of divisor: 1/divisor  */
-    BigDecimal getMultiplier(ProRegister r) throws IOException {
-
+    private BigDecimal getMultiplier(ProRegister r) throws IOException {
         BigDecimal bd = new BigDecimal( r.asInt(2) );
         int nrDigits = 6;
         int round = BigDecimal.ROUND_HALF_UP;
-
         return new BigDecimal( 1 ).divide(bd, nrDigits, round);
-
     }
 
     @Override
@@ -657,31 +629,29 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    /* (non-Javadoc)
-         * @see AbstractProtocol#getProtocolVersion()
-         */
+    @Override
     public String getProtocolVersion() {
     	return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    /** Fetch firware version.
-     * @see AbstractProtocol#getFirmwareVersion()
-     */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return rSoftwareVersion.asString();
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         Quantity q = rProfileIntervalLength.asQuantity();
         return q.getAmount().intValue() * 60;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getProfileData(from, true);
     }
 
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException, UnsupportedException {
-
+    @Override
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfo());
         Date lastInterval = new Date(lastReading.getTime() - (getProfileInterval() * 1000));
@@ -721,18 +691,13 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
      * series of intervals.
      */
     private Date toProfileData(ProfileData profileData, String buffer) throws IOException {
-
-        Date last = null;
-
-        ArrayList list = splitIntervals(buffer);
-        Iterator i = list.iterator();
+        Date last;
+        List<ProRegister> list = splitIntervals(buffer);
+        Iterator<ProRegister> i = list.iterator();
         do {
-            last = add(profileData, (ProRegister)i.next());
-//        } while(last!=null && i.hasNext());
-        } while(i.hasNext());
-
+            last = add(profileData, i.next());
+        } while (i.hasNext());
         return last;
-
     }
 
     /**
@@ -740,47 +705,53 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
      * individual/separate records, and objectify them into a list of
      * ProRegisters.  ProRegisters, because they are easily parseable.
      * */
-    private ArrayList splitIntervals(String buffer) {
-        ArrayList list = new ArrayList();
-
+    private List<ProRegister> splitIntervals(String buffer) {
+        List<ProRegister> list = new ArrayList<>();
         boolean eof = false;
         int openIdx = buffer.indexOf( '(', 0 );
         int closeIdx = buffer.indexOf( ')', 0 );
-
-        while(!eof && (openIdx!=-1) && (closeIdx!=-1)){
-
+        while (!eof && (openIdx!=-1) && (closeIdx!=-1)){
             String interval = buffer.substring(openIdx, closeIdx+1);
-            eof = interval.indexOf("(EOF)") != -1;
+            eof = interval.contains("(EOF)");
             if( !eof ) {
                 ProRegister pr = new ProRegister(interval);
                 pr.setCeweProMeter(this); /* hmmm .... */
                 list.add(pr);
             }
-
             openIdx = buffer.indexOf( '(', closeIdx );
             closeIdx = buffer.indexOf( ')', openIdx );
-
         }
         return list;
     }
 
     /** add a single ProRegister (=interval) to the ProfileData object */
     private Date add(ProfileData profileData, ProRegister register) throws IOException {
-
         try {
 
-            if( register.size() <= 2 ) return null;
+            if (register.size() <= 2) {
+                return null;
+            }
 
             String ds = register.asString(0) + "," + register.asString(1);
             Date date = getQueryDateFormat().parse(ds);
 
             IntervalData id = new IntervalData(date);
 
-            if( !register.isEmpty(2) ) id.addValue( register.asBigDecimal(2) );
-            if( !register.isEmpty(3) ) id.addValue( register.asBigDecimal(3) );
-            if( !register.isEmpty(4) ) id.addValue( register.asBigDecimal(4) );
-            if( !register.isEmpty(5) ) id.addValue( register.asBigDecimal(5) );
-            if( !register.isEmpty(6) ) id.addValue( register.asBigDecimal(6) );
+            if (!register.isEmpty(2) ) {
+                id.addValue(register.asBigDecimal(2));
+            }
+            if (!register.isEmpty(3) ) {
+                id.addValue(register.asBigDecimal(3));
+            }
+            if (!register.isEmpty(4) ) {
+                id.addValue(register.asBigDecimal(4));
+            }
+            if (!register.isEmpty(5) ) {
+                id.addValue(register.asBigDecimal(5));
+            }
+            if (!register.isEmpty(6) ) {
+                id.addValue(register.asBigDecimal(6));
+            }
 
             int pStatus = register.asInt(7);
 
@@ -800,14 +771,20 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     /**
      * Convert the meter status code into an eiStatus.
      */
-    private int toIntervalStateBitToEIStatus(int tag){
+    private int toIntervalStateBitToEIStatus(int tag) {
         int ei = 0;
-
-        if( (tag & 0x01) > 0 ) ei |= IntervalStateBits.OTHER;
-        if( (tag & 0x02) > 0 ) ei |= IntervalStateBits.OTHER;
-        if( (tag & 0x04) > 0 ) ei |= IntervalStateBits.SHORTLONG;
-        if( (tag & 0x08) > 0 ) ei |= IntervalStateBits.CORRUPTED;
-
+        if ((tag & 0x01) > 0) {
+            ei |= IntervalStateBits.OTHER;
+        }
+        if ((tag & 0x02) > 0) {
+            ei |= IntervalStateBits.OTHER;
+        }
+        if ((tag & 0x04) > 0) {
+            ei |= IntervalStateBits.SHORTLONG;
+        }
+        if ((tag & 0x08) > 0) {
+            ei |= IntervalStateBits.CORRUPTED;
+        }
         return ei;
     }
 
@@ -838,16 +815,12 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    /** (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#translateRegister(com.energyict.obis.ObisCode)
-     */
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new ObisCodeMapper().getRegisterInfo(obisCode);
     }
 
-    /** (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#readRegister(com.energyict.obis.ObisCode)
-     */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
@@ -861,11 +834,6 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     }
 
     /** send read command */
-    String read(String cmd) throws IOException {
-        return read(cmd, true);
-    }
-
-    /** send read command */
     String read(String cmd, boolean retry) throws ProtocolException, ConnectionException, NestedIOException {
         connection.sendRawCommandFrame(IEC1107Connection.READ1, cmd.getBytes());
         byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
@@ -873,12 +841,12 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     }
 
     /** send write command */
-    void write(String cmd) throws IOException {
+    private void write(String cmd) throws IOException {
         connection.sendRawCommandFrame(IEC1107Connection.WRITE1, cmd.getBytes());
     }
 
     /** Date format: yyyyMMdd,HHmmss */
-    SimpleDateFormat getQueryDateFormat( ){
+    private SimpleDateFormat getQueryDateFormat(){
         if(queryDateFormat==null) {
             queryDateFormat = new SimpleDateFormat("yyMMdd,HHmm");
             queryDateFormat.setTimeZone(getTimeZone());
@@ -896,7 +864,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     }
 
     /** Date format: yyMMddHHmmss */
-    SimpleDateFormat getEventDateFormat(){
+    private SimpleDateFormat getEventDateFormat(){
         if(eventDateFormat== null) {
             eventDateFormat = new SimpleDateFormat( "yyMMddHHmmss" );
             eventDateFormat.setTimeZone(getTimeZone());
@@ -904,17 +872,8 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         return eventDateFormat;
     }
 
-    /** Date format: yyyyMMddHHmmss */
-    SimpleDateFormat getLongDateFormat(){
-        if(longDateFormat== null) {
-            longDateFormat = new SimpleDateFormat( "yyyyMMddHHmmss" );
-            longDateFormat.setTimeZone(getTimeZone());
-        }
-        return longDateFormat;
-    }
-
     /** yyMMdd */
-    public SimpleDateFormat getDateRegisterFormat() {
+    private SimpleDateFormat getDateRegisterFormat() {
         if(dateRegisterFormat==null){
             dateRegisterFormat = new SimpleDateFormat( "yyMMdd" );
             dateRegisterFormat.setTimeZone(getTimeZone());
@@ -923,7 +882,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     }
 
     /** HHmmss */
-    public SimpleDateFormat getTimeRegisterFormat() {
+    private SimpleDateFormat getTimeRegisterFormat() {
         if(timeRegisterFormat==null){
             timeRegisterFormat = new SimpleDateFormat( "HHmmss" );
             timeRegisterFormat.setTimeZone(getTimeZone());
@@ -940,9 +899,11 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
      * @throws IOException
      */
     int findMDRegister(int regNo) throws IOException {
-        for( int i = 0; i < rDemandRegister.length; i++)
-            if( rDemandRegister[i].asInt() == regNo )
+        for( int i = 0; i < rDemandRegister.length; i++) {
+            if (rDemandRegister[i].asInt() == regNo) {
                 return i;
+            }
+        }
 
         throw new NoSuchRegisterException();
     }
