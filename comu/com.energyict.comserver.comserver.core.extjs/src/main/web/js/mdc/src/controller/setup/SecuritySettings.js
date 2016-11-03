@@ -38,7 +38,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     secId: -1,
 
     init: function () {
-        me = this;
         this.control({
             'securitySettingSetup securitySettingGrid': {
                 select: this.loadGridItemDetail

@@ -394,7 +394,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             reportFilter['DEVICECONFIG'] = searchItems.down('#configuration').getRawValue();
         }
         reportFilter['GROUPNAME'] = "__##SEARCH_RESULTS##__";
-        router.getRoute('generatereport').forward(null, {
+        router.getRoute('workspace/generatereport').forward(null, {
             category:'MDC',
             filter : reportFilter,
             params: searchCriteria,

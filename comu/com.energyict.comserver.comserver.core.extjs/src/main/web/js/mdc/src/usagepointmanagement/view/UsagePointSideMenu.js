@@ -13,7 +13,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
                     {
                         text: me.mRID,
                         itemId: 'usage-point-overview-link',
-                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: me.mRID})
+                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: encodeURIComponent(me.mRID)})
                     },
                     {
                         text: Uni.I18n.translate('general.history', 'MDC', 'History'),

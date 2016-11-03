@@ -78,8 +78,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             slavesStore = me.getStore('Mdc.store.DataLoggerSlaves'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             widget;
 
+        mainView.setLoading();
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.wizardInformation = {};
@@ -88,6 +90,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 slavesStore.getProxy().setUrl(device.get('mRID'));
                 widget = Ext.widget('dataLoggerSlavesSetup', { device: device, router: router, store:slavesStore });
                 me.getApplication().fireEvent('changecontentevent', widget);
+                mainView.setLoading(false);
                 slavesStore.load();
             }
         });
@@ -824,6 +827,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
     onUnlinkDataLoggerSlave: function(unlinkButton) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             unlinkWindow = me.getUnlinkWindow(),
             unlinkDate = unlinkWindow.down('#mdc-dataloggerslave-unlink-window-date-picker').getValue(),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
@@ -839,16 +843,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         me.wizardInformation.dataLogger.save({
             success: function (record) {
-                // Update grid:
-                me.getSlavesGrid().getStore().removeAt(
-                    me.getSlavesGrid().getStore().findBy(function(record) {
-                        return record.get('mRID') === mRIDOfSlaveToUnlink;
-                    })
-                );
-                mainView.setLoading(false);
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('general.deviceUnlinked', 'MDC', 'Device unlinked'));
+                router.getRoute().forward();
             },
-            failure: function (record, operation) {
-                // According to the specs this can't occur
+            callback: function () {
                 mainView.setLoading(false);
             }
         });

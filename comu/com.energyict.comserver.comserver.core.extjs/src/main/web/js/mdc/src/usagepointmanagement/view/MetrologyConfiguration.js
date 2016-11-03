@@ -28,7 +28,10 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 startTime,
                                 endTime,
                                 versionsLink = '<a href="'
-                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID'), tab: 'metrologyconfigurationversion'})
+                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({
+                                        usagePointId: encodeURIComponent(record.get('mRID')),
+                                        tab: 'metrologyconfigurationversion'
+                                    })
                                     + '">Versions</a>';
 
                             if (value) {
@@ -63,7 +66,8 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 startTime,
                                 endTime,
                                 versionsLink = '<a href="'
-                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID')},{historyTab: 'meterActivation'})
+                                    + me.router.getRoute('usagepoints/usagepoint/history')
+                                        .buildUrl({usagePointId: encodeURIComponent(record.get('mRID'))},{historyTab: 'meterActivation'})
                                     + '">Versions</a>';
 
                             if (value) {
