@@ -11,8 +11,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
     ],
 
     mixins: {
-        bindable: 'Ext.util.Bindable',
-        graphWithGrid: 'Uni.util.GraphWithGrid'
+        bindable: 'Ext.util.Bindable'        
     },
 
     router: null,
@@ -25,103 +24,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
                 width: '100%'
             }
         }
-    ],
-
-    initComponent: function () {
-        var me = this;
-
-        me.callParent(arguments);
-        me.bindStore(me.store || 'ext-empty-store', true);
-        me.on('beforedestroy', me.onBeforeDestroy, me);
-    },
-
-    getStoreListeners: function () {
-        return {
-            beforeload: this.onBeforeLoad,
-            load: this.onLoad
-        };
-    },
-
-    onBeforeLoad: function () {
-        this.setLoading(true);
-    },
-
-    onLoad: function () {
-        var data;           
-
-        if (this.store.getTotalCount() > 0) {
-            data = this.formatData();
-        }
-
-        this.showGraphView(this.up('output-readings'), data);        
-        this.setLoading(false);        
-    },
-
-    onBeforeDestroy: function () {
-        this.bindStore('ext-empty-store');
-    },
-
-    formatData: function () {
-        var me = this,
-            data = [],
-            missedValues = [],
-            output = me.output,
-            unitOfMeasure = output.get('readingType').names.unitOfMeasure,
-            okColor = "#70BB51",
-            suspectColor = 'rgba(235, 86, 66, 1)',
-            informativeColor = "#dedc49",
-            notValidatedColor = "#71adc7",
-            tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
-            tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
-            tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
-            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
-
-        me.store.each(function (record) {
-            var point = {},
-                interval = record.get('interval'),
-                properties = record.get('readingProperties');
-
-            point.x = interval.start;
-            point.id = point.x;
-            point.y = parseFloat(record.get('value')) || null;
-            point.intervalEnd = interval.end;
-            point.value = record.get('value');
-            point.unitOfMeasure = unitOfMeasure;
-            point.color = okColor;
-            point.tooltipColor = tooltipOkColor;
-
-            point.validationRules = record.get('validationRules');
-
-            if (properties.notValidated) {
-                point.color = notValidatedColor;
-                point.tooltipColor = tooltipNotValidatedColor
-            } else if (properties.suspect) {
-                point.color = suspectColor;
-                point.tooltipColor = tooltipSuspectColor
-            } else if (properties.informative) {
-                point.color = informativeColor;
-                point.tooltipColor = tooltipInformativeColor;
-            }
-
-            Ext.merge(point, properties);
-            data.unshift(point);
-
-            !point.y && (point.y = null);
-            if (!point.y) {
-                if (properties.suspect) {
-                    missedValues.push({
-                        id: record.get('interval').start,
-                        from: record.get('interval').start,
-                        to: record.get('interval').end,
-                        color: 'rgba(235, 86, 66, 0.3)'
-                    });
-                    record.set('plotBand', true);
-                }
-            }
-        });
-
-        return {data: data, missedValues: missedValues};
-    },
+    ],      
 
     createTooltip: function (tooltip) {
         var me = this,
