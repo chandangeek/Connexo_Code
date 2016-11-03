@@ -4,6 +4,8 @@ Ext.define('Bpm.view.task.bulk.Navigation', {
     width: 200,
     jumpForward: false,
     jumpBack: true,
+    title: Uni.I18n.translate('bpm.task.bulkActions', 'BPM', 'Bulk action'),
+    ui: 'medium',
     items: [
         {
             itemId: 'cmbn-select-tasks',
