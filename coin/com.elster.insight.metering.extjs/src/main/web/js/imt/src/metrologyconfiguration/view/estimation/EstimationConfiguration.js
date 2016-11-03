@@ -41,16 +41,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationConfiguration',
                         activate: me.controller.showEstRulesTab,
                         scope: me.controller
                     }
-                },
-                // {
-                //     title: Uni.I18n.translate('general.schedule', 'IMT', 'Schedule'),
-                //     itemId: 'metrology-configuration-schedule',
-                //     metrologyConfig: me.metrologyConfig,
-                //     listeners: {
-                //         activate: me.controller.showScheduleTab,
-                //         scope: me.controller
-                //     }
-                // }
+                }
             ]
         };
 
