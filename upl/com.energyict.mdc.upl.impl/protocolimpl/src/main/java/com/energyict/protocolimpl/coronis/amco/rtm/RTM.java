@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -30,6 +29,7 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +41,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
 public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, BubbleUp {
 
@@ -82,7 +84,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return parameterFactory;
     }
 
-    final public RadioCommandFactory getRadioCommandFactory() {
+    public final RadioCommandFactory getRadioCommandFactory() {
         if (radioCommandFactory == null) {
             radioCommandFactory = new RadioCommandFactory(this);
         }
@@ -110,6 +112,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (numberOfChannels <= 0) {
             numberOfChannels = getParameterFactory().readOperatingMode().readNumberOfPorts();
@@ -125,6 +128,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     protected void doDisconnect() throws IOException {
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(lastReading, new Date(), includeEvents);
@@ -134,7 +138,8 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         }
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(from, to, includeEvents);
         } catch (WaveFlowException e) {
@@ -147,7 +152,8 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return verifyProfileInterval;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         if (isVerifyProfileInterval()) {
             return getParameterFactory().getProfileIntervalInSeconds();
         } else {
@@ -171,17 +177,31 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("verifyProfileInterval", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("EnableMultiFrameMode", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("WavenisBubbleUpInfo", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("InitialRFCommand", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("RoundDownToNearestInterval", false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
-        correctTime = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0"));
+        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
         verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
         multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
-        bubbleUpStartMoment = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",")[2]);
+        String[] wavenisBubbleUpInfo = properties.getProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",");
+        bubbleUpStartMoment = Integer.parseInt(wavenisBubbleUpInfo[2]);
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
-        bubbleUpEndHour = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",")[3]);
+        bubbleUpEndHour = Integer.parseInt(wavenisBubbleUpInfo[3]);
         initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
         roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
     }
@@ -231,8 +251,9 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         getParameterFactory().writeTimeDateRTC(cal.getTime());
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override
@@ -240,48 +261,47 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         waveLogMessages.applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return waveLogMessages.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return waveLogMessages.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return waveLogMessages.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return waveLogMessages.writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return waveLogMessages.writeValue(value);
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("EnableMultiFrameMode");
-        result.add("verifyProfileInterval");
-        result.add("InitialRFCommand");
-        result.add("RoundDownToNearestInterval");
-        return result;
-    }
-
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         // absorb
     }
 
+    @Override
     public WaveFlowConnect getWaveFlowConnect() {
         return rtmConnect;
     }
 
+    @Override
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
@@ -291,7 +311,9 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         return statusAndEvents;
     }
 
+    @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         return BubbleUpFrameParser.parse(data, this);
     }
+
 }
