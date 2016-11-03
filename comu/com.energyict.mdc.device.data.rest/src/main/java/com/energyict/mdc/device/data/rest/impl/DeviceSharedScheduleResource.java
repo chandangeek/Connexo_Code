@@ -55,10 +55,7 @@ public class DeviceSharedScheduleResource {
         checkValidity(comSchedules, device);
         comSchedules.forEach( comSchedule -> {
                         try {
-                            device.getDeviceConfiguration().getComTaskEnablements()
-                                    .stream()
-                                    .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
-                                    .forEach(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule).add());
+                            device.newScheduledComTaskExecution(comSchedule).add();
                         } catch (ConstraintViolationException cve) {
                             throw new AlreadyLocalizedException(cve.getConstraintViolations().iterator().next().getMessage());
                         }

@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.ItemizeComScheduleQueueMessage;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.scheduling.ScheduleAction;
+import com.energyict.mdc.scheduling.ScheduleAddStrategy;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.annotation.security.RolesAllowed;
@@ -58,6 +59,9 @@ public class BulkScheduleResource {
         message.action = request.action.equalsIgnoreCase("add") ? ScheduleAction.Add : ScheduleAction.Remove;
         message.deviceMRIDs = request.deviceMRIDs;
         message.scheduleIds = request.scheduleIds;
+        if(message.action.equals(ScheduleAction.Add)) {
+            message.strategy = request.strategy.equalsIgnoreCase("keep") ? ScheduleAddStrategy.KEEP_EXISTING : ScheduleAddStrategy.REMOVE_EXISTING;
+        }
         if (request.filter != null) {
             JsonQueryFilter filter = new JsonQueryFilter(request.filter);
             Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());

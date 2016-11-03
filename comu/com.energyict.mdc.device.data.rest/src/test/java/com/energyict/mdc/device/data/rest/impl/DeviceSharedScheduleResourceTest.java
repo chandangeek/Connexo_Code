@@ -54,8 +54,8 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement, comTaskEnablement2));
 
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
-        when(device.newScheduledComTaskExecution(comTaskEnablement, schedule33)).thenReturn(builder);
-        when(device.newScheduledComTaskExecution(any(ComTaskEnablement.class), eq(schedule44))).thenReturn(builder);
+        when(device.newScheduledComTaskExecution(schedule33)).thenReturn(builder);
+        when(device.newScheduledComTaskExecution(schedule44)).thenReturn(builder);
         Response response = target("/devices/XAF/sharedschedules").request().put(Entity.json(scheduleIdsInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
