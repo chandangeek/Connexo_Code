@@ -1,8 +1,12 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -18,6 +22,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
@@ -39,10 +44,13 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +60,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {UsagePointLifeCycleConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true)
 public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLifeCycleConfigurationService, MessageSeedProvider, TranslationKeyProvider {
+    private static final String FSM_NAME_PREFIX = UsagePointLifeCycleConfigurationService.COMPONENT_NAME + "_";
+
     private DataModel dataModel;
     private Thesaurus thesaurus;
     private UpgradeService upgradeService;
@@ -60,6 +70,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     private EventService eventService;
     private List<UsagePointMicroActionFactory> microActionFactories = new CopyOnWriteArrayList<>();
     private List<UsagePointMicroCheckFactory> microCheckFactories = new CopyOnWriteArrayList<>();
+    private List<UsagePointLifeCycleBuilder> builders = new CopyOnWriteArrayList<>();
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleConfigurationServiceImpl() {
@@ -83,7 +94,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, "UsagePoint lifecycle");
+        this.dataModel = ormService.newDataModel(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, "UsagePoint lifecycle configuration");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
@@ -136,10 +147,21 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         this.microCheckFactories.add(microCheckFactory);
     }
 
+    @Override
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUsagePointLifeCycleBuilder(UsagePointLifeCycleBuilder builder) {
+        this.builders.add(builder);
+    }
+
+    @Override
+    public void removeUsagePointLifeCycleBuilder(UsagePointLifeCycleBuilder builder) {
+        this.builders.remove(builder);
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        this.upgradeService.register(InstallIdentifier.identifier("Insight", UsagePointLifeCycleConfigurationService.COMPONENT_NAME), this.dataModel, Installer.class, Collections.emptyMap());
+        this.upgradeService.register(InstallIdentifier.identifier("Pulse", UsagePointLifeCycleConfigurationService.COMPONENT_NAME), this.dataModel, Installer.class, Collections.emptyMap());
 
     }
 
@@ -182,6 +204,12 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
+    public Finder<UsagePointLifeCycle> getUsagePointLifeCycles() {
+        return DefaultFinder.of(UsagePointLifeCycle.class, where(UsagePointLifeCycleImpl.Fields.OBSOLETE_TIME.fieldName()).isNull(), this.dataModel)
+                .defaultSortColumn(UsagePointLifeCycleImpl.Fields.NAME.fieldName());
+    }
+
+    @Override
     public Optional<UsagePointLifeCycle> findUsagePointLifeCycle(long id) {
         return this.dataModel.mapper(UsagePointLifeCycle.class).getOptional(id);
     }
@@ -200,12 +228,47 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Override
     public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
-        return this.dataModel.getInstance(UsagePointLifeCycleBuilderImpl.class).getDefaultLifeCycleWithName(name);
+        FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
+        FiniteStateMachine stateMachine = stateMachineBuilder.complete(stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete());
+        UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
+        lifeCycle.setName(name);
+        lifeCycle.setStateMachine(stateMachine);
+        lifeCycle.save();
+        this.builders.forEach(builder -> builder.accept(lifeCycle));
+        return lifeCycle;
     }
 
     @Override
     public UsagePointLifeCycle cloneUsagePointLifeCycle(String name, UsagePointLifeCycle source) {
-        return this.dataModel.getInstance(UsagePointLifeCycleBuilderImpl.class).cloneUsagePointLifeCycle(name, source);
+        UsagePointLifeCycleImpl sourceImpl = (UsagePointLifeCycleImpl) source;
+        UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
+        lifeCycle.setName(name);
+        lifeCycle.setStateMachine(this.stateMachineService.cloneFiniteStateMachine(sourceImpl.getStateMachine(), name));
+        lifeCycle.save();
+        cloneTransitions(sourceImpl, lifeCycle);
+        return lifeCycle;
+    }
+
+    private void cloneTransitions(UsagePointLifeCycleImpl source, UsagePointLifeCycleImpl target) {
+        // clean-up cloned fsm transitions
+        FiniteStateMachineUpdater stateMachineUpdater = target.getStateMachine().startUpdate();
+        target.getStateMachine().getStates().stream()
+                .map(State::getOutgoingStateTransitions)
+                .flatMap(Collection::stream)
+                .forEach(transition -> stateMachineUpdater.state(transition.getFrom().getId()).prohibit(transition.getEventType()).complete());
+        stateMachineUpdater.complete();
+
+        // create new
+        Map<String, UsagePointState> statesMap = target.getStates().stream()
+                .collect(Collectors.toMap(state -> ((UsagePointStateImpl) state).getState().getName(), Function.identity()));
+        source.getTransitions().forEach(sourceTransition -> target.newTransition(sourceTransition.getName(),
+                statesMap.get(((UsagePointStateImpl) sourceTransition.getFrom()).getState().getName()),
+                statesMap.get(((UsagePointStateImpl) sourceTransition.getTo()).getState().getName()))
+                .withLevels(sourceTransition.getLevels())
+                .withChecks(sourceTransition.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toSet()))
+                .withActions(sourceTransition.getActions().stream().map(MicroAction::getKey).collect(Collectors.toSet()))
+                .triggeredBy(sourceTransition.getTriggeredBy().orElse(null))
+                .complete());
     }
 
     @Override

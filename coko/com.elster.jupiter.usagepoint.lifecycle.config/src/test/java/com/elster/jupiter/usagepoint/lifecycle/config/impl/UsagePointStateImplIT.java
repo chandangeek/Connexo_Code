@@ -39,12 +39,12 @@ public class UsagePointStateImplIT extends BaseTestIT {
     @Transactional
     public void testCanChangeDefaultStateName() {
         String stateName = "New state name";
-        UsagePointState state = getTestLifeCycle().getStates().stream().filter(candidate -> candidate.isDefault(DefaultState.CONNECTED)).findFirst().get();
+        UsagePointState state = getTestLifeCycle().getStates().stream().filter(candidate -> candidate.isDefault(DefaultState.UNDER_CONSTRUCTION)).findFirst().get();
         state.startUpdate().setName(stateName).setInitial().complete();
 
         assertThat(state.getName()).isEqualTo(stateName);
         assertThat(state.isInitial()).isTrue();
-        assertThat(state.isDefault(DefaultState.CONNECTED)).isFalse();
+        assertThat(state.isDefault(DefaultState.UNDER_CONSTRUCTION)).isFalse();
     }
 
     @Test

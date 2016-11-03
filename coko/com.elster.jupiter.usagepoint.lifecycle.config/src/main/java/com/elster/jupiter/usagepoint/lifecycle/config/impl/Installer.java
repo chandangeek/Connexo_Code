@@ -47,15 +47,13 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public List<ResourceDefinition> getModuleResources() {
         return Arrays.asList(
-                this.userService.createModuleResourceWithPrivileges(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_USAGE_POINT_LIFECYCLE.getKey(), Privileges.RESOURCE_USAGE_POINT_LIFECYCLE_DESCRIPTION
-                                .getKey(),
+                this.userService.createModuleResourceWithPrivileges(UsagePointLifeCycleConfigurationService.COMPONENT_NAME,
+                        Privileges.RESOURCE_USAGE_POINT_LIFECYCLE.getKey(), Privileges.RESOURCE_USAGE_POINT_LIFECYCLE_DESCRIPTION.getKey(),
                         Arrays.asList(Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER)),
-                this.userService.createModuleResourceWithPrivileges(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS.getKey(), Privileges.RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS_DESCRIPTION
-                                .getKey(),
-                        Arrays.asList(Privileges.Constants.EXECUTE_TRANSITION_1,
-                                Privileges.Constants.EXECUTE_TRANSITION_2,
-                                Privileges.Constants.EXECUTE_TRANSITION_3,
-                                Privileges.Constants.EXECUTE_TRANSITION_4)));
+                this.userService.createModuleResourceWithPrivileges(UsagePointLifeCycleConfigurationService.COMPONENT_NAME,
+                        Privileges.RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS.getKey(), Privileges.RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS_DESCRIPTION.getKey(),
+                        Arrays.asList(Privileges.Constants.EXECUTE_TRANSITION_1, Privileges.Constants.EXECUTE_TRANSITION_2,
+                                Privileges.Constants.EXECUTE_TRANSITION_3, Privileges.Constants.EXECUTE_TRANSITION_4)));
     }
 
     private void createEventTypes() {

@@ -1,5 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
+import com.elster.jupiter.domain.util.Finder;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
@@ -7,6 +9,8 @@ import java.util.Optional;
 @ProviderType
 public interface UsagePointLifeCycleConfigurationService {
     String COMPONENT_NAME = "UPL";
+
+    Finder<UsagePointLifeCycle> getUsagePointLifeCycles();
 
     Optional<UsagePointLifeCycle> findUsagePointLifeCycle(long id);
 
@@ -37,4 +41,8 @@ public interface UsagePointLifeCycleConfigurationService {
     void addMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory);
 
     void removeMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory);
+
+    void addUsagePointLifeCycleBuilder(UsagePointLifeCycleBuilder builder);
+
+    void removeUsagePointLifeCycleBuilder(UsagePointLifeCycleBuilder builder);
 }
