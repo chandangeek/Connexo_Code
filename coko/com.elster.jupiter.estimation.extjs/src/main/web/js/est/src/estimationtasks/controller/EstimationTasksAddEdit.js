@@ -43,6 +43,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                 appName: Uni.util.Application.getAppName()
             }),
             dataSourcesContainer = widget.down('est-data-sources-container');
+        Ext.suspendLayouts();
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getEstimationPeriodCombo().store.load({
             params: {
@@ -55,6 +56,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
         me.getRecurrenceTypeCombo().setValue(me.getRecurrenceTypeCombo().store.getAt(2));
         me.recurrenceEnableDisable();
+        Ext.resumeLayouts(true);
     },
 
     createEstimationTask: function (button) {
@@ -256,6 +258,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             dataSourcesContainer = widget.down('est-data-sources-container'),
             recurrenceTypeCombo = widget.down('#recurrence-type');
 
+        Ext.suspendLayouts();
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var schedule = record.get('schedule'),
@@ -295,6 +298,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         me.recurrenceEnableDisable();
+        Ext.resumeLayouts(true);
     },
 
     recurrenceChange: function(field, newValue, oldValue) {
