@@ -37,8 +37,6 @@ public interface DataValidationTask extends HasAuditInfo {
 
     Optional<EndDeviceGroup> getEndDeviceGroup();
 
-    Optional<MetrologyContract> getMetrologyContract();
-
     Optional<UsagePointGroup> getUsagePointGroup();
 
     void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
