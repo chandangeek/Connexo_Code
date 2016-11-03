@@ -15,7 +15,7 @@ public class MissingPropertyException extends PropertyValidationException {
         return new MissingPropertyException("Property " + propertyName + " is required");
     }
 
-    private MissingPropertyException(String message) {
+    public MissingPropertyException(String message) {
         super(message);
     }
 
