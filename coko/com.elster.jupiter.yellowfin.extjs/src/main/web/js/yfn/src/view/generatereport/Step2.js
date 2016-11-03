@@ -13,7 +13,7 @@ Ext.define('Yfn.view.generatereport.Step2', {
     ],
 
 
-    title: Uni.I18n.translate('generatereport.wizard.step2itle', 'YFN', 'Step 2 of 3: Select report filter'),
+    title: Uni.I18n.translate('generatereport.wizard.step2.title', 'YFN', 'Step 2: Select report filter'),
 
     items: [
         {
