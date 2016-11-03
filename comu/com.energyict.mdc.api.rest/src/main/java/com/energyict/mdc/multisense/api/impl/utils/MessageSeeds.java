@@ -67,8 +67,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METROLOGY_CONFIGURATION(58, "NoSuchMetrologyConfig", "No such metrology configuration"),
     NO_SUCH_METER_ACTIVATION(59, "NoSuchMeterActivation", "No such meter activation on the usage point"),
     EMPTY_REQUEST(60, "NoData", "No data found in your request"),
-    NO_SUCH_METER(61, "NoSuchMeter", "No such meter"),
-    COMTASK_NOT_IN_SCHEDULE(62, "ComTaskNotInSchedule", "The comtask is not part of the shared communication schedule");
+    NO_SUCH_METER(61, "NoSuchMeter", "No such meter");
 
     private final int number;
     private final String key;

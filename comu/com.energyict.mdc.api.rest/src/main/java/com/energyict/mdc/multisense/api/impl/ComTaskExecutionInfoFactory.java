@@ -34,8 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -192,8 +190,8 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
 
 
     public ScheduledComTaskExecution createSharedScheduledComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, Device device) {
-        if (comTaskExecutionInfo.comTask==null || comTaskExecutionInfo.comTask.id==null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.COM_TASK_EXPECTED);
+        if (comTaskExecutionInfo.comTask!=null && comTaskExecutionInfo.comTask.id!=null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TYPE_DOES_NOT_SUPPORT_COM_TASK);
         }
         if (comTaskExecutionInfo.schedulingSpec!=null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TYPE_DOES_NOT_SUPPORT_SCHEDULE_SPEC);
@@ -211,20 +209,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
         }
 
-        ComTask comTask = taskService.findComTask(comTaskExecutionInfo.comTask.id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_TASK));
-
-        Optional<ComTaskExecutionBuilder<ScheduledComTaskExecution>> optionalBuilder = device.getDeviceConfiguration().getComTaskEnablements()
-                .stream()
-                .filter(comTaskEnablement -> comTask.equals(comTaskEnablement.getComTask()))
-                .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
-                .map(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule))
-                .findFirst();
-
-        if(!optionalBuilder.isPresent()) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.COMTASK_NOT_IN_SCHEDULE);
-        }
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = optionalBuilder.get();
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = device.newScheduledComTaskExecution(comSchedule);
 
         if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
             builder.useDefaultConnectionTask(true);

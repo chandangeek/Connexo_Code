@@ -289,8 +289,6 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         info.schedule = new LinkInfo();
         info.schedule.id = scheduleId;
         info.device = new LinkInfo();
-        info.comTask = new LinkInfo();
-        info.comTask.id = comTaskId;
         info.device.version = 3334L;
         info.useDefaultConnectionTask = true;
         info.type = ComTaskExecutionType.SharedSchedule;
@@ -307,7 +305,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(comSchedule.getComTasks()).thenReturn(Collections.singletonList(comTask));
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
-        when(device.newScheduledComTaskExecution(comTaskEnablement, comSchedule)).thenReturn(builder);
+        when(device.newScheduledComTaskExecution(comSchedule)).thenReturn(builder);
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getId()).thenReturn(999L);
@@ -316,7 +314,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Response response = target("/devices/SPE001/comtaskexecutions").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(response.getHeaderString("location")).isEqualTo("http://localhost:9998/devices/SPE001/comtaskexecutions/999");
-        verify(device).newScheduledComTaskExecution(comTaskEnablement, comSchedule);
+        verify(device).newScheduledComTaskExecution(comSchedule);
         verify(builder).add();
     }
 
