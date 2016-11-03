@@ -1,4 +1,5 @@
 .classpath
+<<<<<<< 8e926a0844e930893a4620d46261d539c6e56577
 .project
 .settings/
 .idea/
@@ -11,3 +12,9 @@ log/
 .gradle/
 bin/
 generated/
+=======
+.miredot-offline.json
+.project
+.settings/
+target/
+>>>>>>> CXO-3311 Split bundles
