@@ -376,7 +376,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
                     DeviceIdentifier slaveDeviceIdentifier = getIdentificationService().createDeviceIdentifierByProperty(DlmsProperties.CALL_HOME_ID_PROPERTY_NAME, macAddress);
                     LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
-                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
 
                     if (persistedGatewayLogicalDeviceId == null || !gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
