@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -13,21 +13,21 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  * A 100 Mile high overview of the E120 protocol:
@@ -71,17 +71,12 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     static final MessageFormat ERROR_1 = new MessageFormat(
             "Found different nr of entries in: \n {0} \n {1} ");
 
-    /** Property Default values */
-    static final int PD_RETRIES = 5;
-    /** Property default for the channel configuration */
-    static final String PD_CHANNEL_MAP = "1.29+10:0:0:0";
-
     /** Property keys specific for E120 protocol. */
-    private static final String PK_TIMEOUT = "Timeout";
-    private static final String PK_RETRIES = "Retries";
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    private static final String PK_TIMEOUT = PROP_TIMEOUT;
+    private static final String PK_RETRIES = PROP_RETRIES;
+    private static final String PK_EXTENDED_LOGGING = PROP_EXTENDED_LOGGING;
     private static final String PK_USER_ID = "userId";
-    private static final String PK_PASSWORD = "password";
+    private static final String PK_PASSWORD = PASSWORD.getName();
     private static final String PK_CHANNEL_MAP = "ChannelMap";
 
     private String pUserId;
@@ -95,6 +90,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     private int pRetries;
 
+    @Override
     protected ProtocolConnection doInit(
             InputStream inputStream, OutputStream outputStream,
             int timeoutProperty, int retries, int forcedDelay,
@@ -129,9 +125,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         this.dataType = new DataType(timeZone);
     }
 
-    /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#doConnect()
-     */
+    @Override
     protected void doConnect() throws IOException {
 
         if( !connection.connect(pUserId, pPassword).isOk() ) {
@@ -148,69 +142,50 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     }
 
-    /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#doDisConnect()
-     */
+    @Override
     protected void doDisconnect() throws IOException {
         /* do nothing */
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.singletonList(PK_USER_ID);
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(PK_USER_ID, true));
+        propertySpecs.add(ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, true));
+        return propertySpecs;
     }
 
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                    com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(),
-                    PK_TIMEOUT,
-                    PK_RETRIES,
-                    PK_EXTENDED_LOGGING,
-                    PK_CHANNEL_MAP);
-    }
-
-    protected void doValidateProperties(Properties p)
-        throws MissingPropertyException, InvalidPropertyException {
-
-        if(p.getProperty(PK_USER_ID)==null) {
-            String msg = PK_USER_ID + " is required. ";
-            throw new MissingPropertyException(msg);
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        pUserId = properties.getProperty(PK_USER_ID);
+        pPassword = properties.getProperty(PK_PASSWORD);
+        pChannelMap = new ProtocolChannelMap( properties.getProperty(PK_CHANNEL_MAP) );
+        if (propertyExists(properties, PK_RETRIES)) {
+            pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
         }
-        pUserId = p.getProperty(PK_USER_ID);
-
-        pPassword = p.getProperty(PK_PASSWORD);
-
-        if( !propertyExists(p, PK_CHANNEL_MAP) ){
-            String msg = PK_CHANNEL_MAP + " is required. ";
-            throw new MissingPropertyException(msg);
+        if (propertyExists(properties, PK_EXTENDED_LOGGING)) {
+            pExtendedLogging = Integer.parseInt(properties.getProperty(PK_EXTENDED_LOGGING));
         }
-        pChannelMap = new ProtocolChannelMap( p.getProperty(PK_CHANNEL_MAP) );
-
-        if (propertyExists(p, PK_RETRIES)) {
-            pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
-        }
-
-        if (propertyExists(p, PK_EXTENDED_LOGGING)) {
-            pExtendedLogging = Integer.parseInt(p.getProperty(PK_EXTENDED_LOGGING));
-        }
-
     }
 
     private boolean propertyExists(Properties p, String key){
         String aProperty = p.getProperty(key);
-        return (  aProperty != null ) && !"".equals(aProperty);
+        return (aProperty != null) && !"".equals(aProperty);
     }
 
     int getRetries( ){
         return pRetries;
     }
 
+    @Override
     public Date getTime() throws IOException {
         Message mr = connection.send(MessageType.GET_TIME);
         return (Date)((DefaultResponse)mr.getBody()).getValue();
     }
 
+    @Override
     public void setTime() throws IOException {
-
         Calendar c = Calendar.getInstance(getTimeZone());
         c.add(Calendar.MILLISECOND, getInfoTypeRoundtripCorrection());
         ByteArray value = dataType.getTime().construct(c.getTime());
@@ -221,9 +196,9 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
             String msg = "Set time failed: " + response.getNackCode();
             getLogger().severe(msg);
         }
-
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         if (obisCodeMapper==null) {
             obisCodeMapper = new ObisCodeMapper(this);
@@ -231,35 +206,34 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         return obisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return "<unknown>";
     }
 
-    /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#getProfileData(boolean)
-     */
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar c = Calendar.getInstance(getTimeZone());
         c.add(Calendar.YEAR, -1);
-
         return getProfileData(c.getTime(),includeEvents);
     }
 
-    /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#getProfileData(java.util.Date, boolean)
-     */
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
         throws IOException {
 
@@ -294,25 +268,24 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     }
 
     private void fetch(List fetchList, ProfileMerge profile, int address) throws IOException {
-        Iterator i = fetchList.iterator();
-        while (i.hasNext()) {
-            ProfileQueryArguments pi = (ProfileQueryArguments)i.next();
+        for (Object aFetchList : fetchList) {
+            ProfileQueryArguments pi = (ProfileQueryArguments) aFetchList;
             Date f = pi.from;
             int nr = pi.nrIntervals;
 
             Message msg = connection.seriesOnCount(address, f, nr);
-            SeriesResponse rsp = (SeriesResponse)msg.getBody();
+            SeriesResponse rsp = (SeriesResponse) msg.getBody();
 
             if (!rsp.getNackCode().isOk()) {
                 throw new IOException("get profiledata " + rsp.getNackCode());
             }
-            profile.merge( rsp );
+            profile.merge(rsp);
         }
     }
 
     /** ProfileQueryArguments contains the arguments for 1 SeriesOnCount
      * request. */
-    class ProfileQueryArguments {
+    private class ProfileQueryArguments {
 
         Date from;
         int nrIntervals;
@@ -329,26 +302,19 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     }
 
     /** Build a List containing all the QueryArguments. */
-    private List getProfileQueryArguments(Date from, Date to) throws IOException{
-
-        List result = new ArrayList();
-
+    private List<ProfileQueryArguments> getProfileQueryArguments(Date from, Date to) throws IOException {
+        List<ProfileQueryArguments> result = new ArrayList<>();
         Calendar fromC = Calendar.getInstance(getTimeZone());
         fromC.setTime(from);
-
         int intervalMilli = getProfileInterval() * 1000;
-
         int nrIntvls = nrIntervalsBetween(from, to);
-
-        while(nrIntvls>0){
+        while (nrIntvls > 0) {
             nrIntvls = Math.min(nrIntvls, FETCH_LIMIT);
             result.add( new ProfileQueryArguments(fromC.getTime(), nrIntvls) );
             fromC.add(Calendar.MILLISECOND, nrIntvls*intervalMilli);
             nrIntvls = nrIntervalsBetween(fromC.getTime(), to);
         }
-
         return result;
-
     }
 
     /** Calculate the nr of intervals between from and to date.
@@ -363,18 +329,13 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
      * @throws IOException in case of communication problems
      */
     private int nrIntervalsBetween(Date from, Date to) throws IOException {
-
         long msProfileInterval = getProfileInterval() * 1000;
-
         long msFrom = from.getTime() - (from.getTime()%msProfileInterval);
         long msTo   = to.getTime();
-
         long result;
         result = ( msTo - msFrom ) / msProfileInterval;
         result += ((( msTo - msFrom ) % msProfileInterval ) > 0 ) ? 1 : 0;
-
         return (int)result;
-
     }
 
     Connection getConnection( ){
