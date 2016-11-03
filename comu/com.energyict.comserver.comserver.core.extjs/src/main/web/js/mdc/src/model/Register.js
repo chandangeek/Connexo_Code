@@ -17,6 +17,10 @@ Ext.define('Mdc.model.Register', {
                     else if (record.get('type') === 'numerical') {
                         value = record.get('lastReading').value;
                         unit = record.get('readingType').names.unitOfMeasure;
+                        if (Ext.isEmpty(value)) {
+                            value = record.get('lastReading').calculatedValue;
+                            unit = record.get('lastReading').calculatedUnit;
+                        }
                         return Ext.isEmpty(value) ? '-' : Uni.Number.formatNumber(value, -1) + ' ' + (unit ? unit : '');
                     }
                     else if (record.data.type === 'text') {

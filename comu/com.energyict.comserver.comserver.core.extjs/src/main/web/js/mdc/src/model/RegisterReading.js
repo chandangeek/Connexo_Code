@@ -8,6 +8,8 @@ Ext.define('Mdc.model.RegisterReading', {
         {name: 'type', type:'string'},
         {name: 'value', type:'string'},
         {name: 'unit', type:'string'},
+        {name: 'calculatedValue', type:'string'},
+        {name: 'calculatedUnit', type:'string'},
         {name: 'dataValidated', type:'auto', persist: false},
         {name: 'suspectReason', type:'auto', persist: false},
         {name: 'validationResult', type:'auto', persist: false},
@@ -21,13 +23,17 @@ Ext.define('Mdc.model.RegisterReading', {
             name: 'valueAndUnit',
             useNull: true,
             convert: function (v, record) {
-                if (Ext.isEmpty(record.get('value'))) {
+                if ( Ext.isEmpty(record.get('value')) && Ext.isEmpty(record.get('calculatedValue')) ) {
                     return '-';
                 }
                 if (record.get('type') === 'billing') {
-                    return record.get('value') + ' ' + record.get('unit');
+                    return Ext.isEmpty(record.get('value'))
+                        ? record.get('calcualtedValue') + ' ' + record.get('calculatedUnit')
+                        : record.get('value') + ' ' + record.get('unit');
                 } else if (record.get('type') === 'numerical') {
-                    return Uni.Number.formatNumber(record.get('value'), -1) + ' ' + record.get('unit');
+                    return Ext.isEmpty(record.get('value'))
+                        ? Uni.Number.formatNumber(record.get('calculatedValue'), -1) + ' ' + record.get('calculatedUnit')
+                        : Uni.Number.formatNumber(record.get('value'), -1) + ' ' + record.get('unit');
                 } else if (record.data.type === 'text' || record.data.type === 'flags') {
                     return record.get('value');
                 }
