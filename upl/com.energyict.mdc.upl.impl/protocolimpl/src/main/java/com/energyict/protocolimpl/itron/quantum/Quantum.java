@@ -10,13 +10,9 @@
 
 package com.energyict.protocolimpl.itron.quantum;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -24,14 +20,13 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 import com.energyict.protocolimpl.itron.quantum.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.quantum.basepages.RegisterFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -39,69 +34,74 @@ import java.util.logging.Logger;
  */
 public class Quantum extends SchlumbergerProtocol {
 
-    private BasePagesFactory basePagesFactory=null;
-    RegisterFactory registerFactory=null;
-    private QuantumProfile quantumProfile=null;
-    boolean allowClockSet;
+    private BasePagesFactory basePagesFactory = null;
+    private RegisterFactory registerFactory = null;
+    private QuantumProfile quantumProfile = null;
+    private boolean allowClockSet;
     private int loadProfileUnitScale;
 
-    public Quantum() {
-    }
-
-
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getFulcrumProfile().getProfileData(lastReading,includeEvents);
     }
 
+    @Override
     protected void hangup() throws IOException {
-        //getBasePagesFactory().writeBasePage(0x2111, new byte[]{(byte)0xFF});
     }
 
+    @Override
     protected void offLine() throws IOException {
         getBasePagesFactory().downloadOfflineFlag();
-//        getBasePagesFactory().getVoltageAndCurrentBasePage(). writeBasePage(0x2112, new byte[]{(byte)0xFF});
     }
 
+    @Override
     protected void doTheDisConnect() throws IOException {
-
     }
 
     // The Quantuum meter uses only offset addresses in its protocoldoc. S, we need to set the base memory start address...
+    @Override
     protected void doTheConnect() throws IOException {
         getBasePagesFactory().setMemStartAddress(getCommandFactory().getIdentifyCommand().getMemStart());
     }
 
+    @Override
     protected void doTheInit() {
         // specific initialization for the protocol
         setBasePagesFactory(new BasePagesFactory(this));
         setFulcrumProfile(new QuantumProfile(this));
     }
 
-    protected void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        allowClockSet = Integer.parseInt(properties.getProperty("AllowClockSet","0").trim()) == 1;
-        setDelayAfterConnect(Integer.parseInt(properties.getProperty("DelayAfterConnect","2000").trim()));
-        setLoadProfileUnitScale(Integer.parseInt(properties.getProperty("LoadProfileUnitScale","3").trim()));
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("LoadProfileUnitScale", false));
+        return propertySpecs;
     }
 
-    protected List doTheDoGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add("AllowClockSet");
-        list.add("LoadProfileUnitScale");
-        return list;
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        allowClockSet = Integer.parseInt(properties.getProperty(ALLOW_CLOCK_SET, "0").trim()) == 1;
+        setDelayAfterConnect(Integer.parseInt(properties.getProperty(DELAY_AFTER_CONNECT, "2000").trim()));
+        setLoadProfileUnitScale(Integer.parseInt(properties.getProperty("LoadProfileUnitScale", "3").trim()));
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return getBasePagesFactory().getMassMemoryBasePages().getRecordingIntervalLength()*60;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return getBasePagesFactory().getMassMemoryBasePages().getNumberOfChannels();
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getBasePagesFactory().getRealTimeBasePage().getCalendar().getTime();
     }
 
+    @Override
     public void setTime() throws IOException {
 //        if (allowClockSet) {
 //            getBasePagesFactory().writeBasePage(0x2113, new byte[]{(byte)0xFF});
@@ -113,105 +113,14 @@ public class Quantum extends SchlumbergerProtocol {
 //        else throw new UnsupportedException("setTime() is not supported on the Fulcrum meter because is clears all the memory. However, when 'AllowClockSet' property is set to 1, a setTime() can be forced but all memory will be cleared!");
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return "revision nr "+getBasePagesFactory().getFirmwareRevisionBasePage().getFirmwareRevision();
-    }
-
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        Quantum quantum = new Quantum();
-        Dialer dialer=null;
-        try {
-
-            String[] phones = new String[]{"00017857383234","00018705345024","00016206352164"};
-            int phoneId=1;
-
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            dialer =DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");
-
-
-            dialer.getSerialCommunicationChannel().setBaudrate(1200);
-
-            dialer.connect(phones[phoneId],60000);
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-
-            //properties.setProperty(MeterProtocol.PASSWORD,"IBEW814");
-            //properties.setProperty("UnitType","QTM");
-            //properties.setProperty(MeterProtocol.NODEID,"T412    ");
-
-// transfer the properties to the protocol
-            quantum.setProperties(properties);
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            quantum.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("CST"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-
-            System.out.println("*********************** connect() ***********************");
-
-// connect to the meter
-            quantum.connect();
-
-
-            //System.out.println(quantum.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
-//            System.out.println(quantum.getSerialNumber());
-            System.out.println(quantum.getFirmwareVersion());
-            System.out.println(quantum.getCommandFactory().getIdentifyCommand());
-            System.out.println(quantum.getTime());
-
-
-            System.out.println(quantum.getBasePagesFactory().getMassMemoryBasePages());
-//            System.out.println(quantum.getBasePagesFactory().getProgramTableBasePage(false));
-//            System.out.println(quantum.getBasePagesFactory().getProgramTableBasePage(true));
-            System.out.println(quantum.getBasePagesFactory().getMultipliersBasePage());
-//            System.out.println(quantum.getBasePagesFactory().getInstantaneousRegMultipliers());
-//            System.out.println(quantum.getBasePagesFactory().getPointerTimeDateRegisterReadingBasePage());
-//            System.out.println(quantum.getBasePagesFactory().getRegisterDataBasePage());
-//            System.out.println(quantum.getBasePagesFactory().getRegisterDataLastSeasonBasePage());
-//            System.out.println(quantum.getBasePagesFactory().getRegisterDataSelfReadBasePage());
-            System.out.println(quantum.getBasePagesFactory().getVoltageAndCurrentBasePage());
-
-//            System.out.println("Meter:  "+quantum.getTime());
-//            System.out.println("System: "+new Date());
-//            quantum.setTime();
-
-
-
-
-
-//            Calendar from = ProtocolUtils.getCalendar(quantum.getTimeZone());
-//            from.add(Calendar.DAY_OF_MONTH,-4);
-//            System.out.println(quantum.getProfileData(from.getTime(),true));
-
-
-//System.out.println(quantum.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-
-            quantum.disconnect();
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     public BasePagesFactory getBasePagesFactory() {
@@ -230,54 +139,46 @@ public class Quantum extends SchlumbergerProtocol {
         return registerFactory;
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
         ObisCodeMapper ocm = new ObisCodeMapper(this);
-
-        // registers
-        strBuff.append(ocm.getRegisterInfo());
-
-        // tables
-        strBuff.append(getBasePagesFactory().getMassMemoryBasePages());
-        strBuff.append(getBasePagesFactory().getProgramTableBasePage(false));
-        strBuff.append(getBasePagesFactory().getProgramTableBasePage(true));
-        strBuff.append(getBasePagesFactory().getInstantaneousRegMultipliers());
-
-        strBuff.append(getBasePagesFactory().getMultipliersBasePage());
-
-        strBuff.append(getBasePagesFactory().getPointerTimeDateRegisterReadingBasePage());
-        strBuff.append(getBasePagesFactory().getVoltageAndCurrentBasePage());
-
-        strBuff.append(getBasePagesFactory().getGeneralSetUpBasePage());
-        strBuff.append(getBasePagesFactory().getMassMemoryBasePages());
-
-        return strBuff.toString();
+        return ocm.getRegisterInfo() +
+                getBasePagesFactory().getMassMemoryBasePages() +
+                getBasePagesFactory().getProgramTableBasePage(false) +
+                getBasePagesFactory().getProgramTableBasePage(true) +
+                getBasePagesFactory().getInstantaneousRegMultipliers() +
+                getBasePagesFactory().getMultipliersBasePage() +
+                getBasePagesFactory().getPointerTimeDateRegisterReadingBasePage() +
+                getBasePagesFactory().getVoltageAndCurrentBasePage() +
+                getBasePagesFactory().getGeneralSetUpBasePage() +
+                getBasePagesFactory().getMassMemoryBasePages();
     }
 
-    // RegisterProtocol Interface implementation
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
-    public QuantumProfile getFulcrumProfile() {
+    private QuantumProfile getFulcrumProfile() {
         return quantumProfile;
     }
 
-    public void setFulcrumProfile(QuantumProfile quantumProfile) {
+    private void setFulcrumProfile(QuantumProfile quantumProfile) {
         this.quantumProfile = quantumProfile;
     }
 
-    public int getLoadProfileUnitScale() {
+    int getLoadProfileUnitScale() {
         return loadProfileUnitScale;
     }
 
-    public void setLoadProfileUnitScale(int loadProfileUnitScale) {
+    private void setLoadProfileUnitScale(int loadProfileUnitScale) {
         this.loadProfileUnitScale = loadProfileUnitScale;
     }
 
-} // public class Fulcrum extends SchlumbergerProtocol
+}

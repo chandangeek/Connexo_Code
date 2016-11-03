@@ -15,12 +15,8 @@
 package com.energyict.protocolimpl.itron.fulcrum;
 
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -30,12 +26,8 @@ import com.energyict.protocolimpl.itron.fulcrum.basepages.RegisterFactory;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -43,74 +35,64 @@ import java.util.logging.Logger;
  */
 public class Fulcrum extends SchlumbergerProtocol {
 
-    private BasePagesFactory basePagesFactory=null;
-    RegisterFactory registerFactory=null;
-    private FulcrumProfile fulcrumProfile=null;
+    private BasePagesFactory basePagesFactory = null;
+    private RegisterFactory registerFactory = null;
+    private FulcrumProfile fulcrumProfile = null;
 
-    public Fulcrum() {
-    }
-
-
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getFulcrumProfile().getProfileData(lastReading,includeEvents);
     }
 
-
-
+    @Override
     protected void doTheConnect() throws IOException {
         // absorb, addresses in the protocoldoc are absolute addresses...
-
-
-
-
     }
 
+    @Override
     protected void doTheDisConnect() throws IOException {
         // absorb, addresses in the protocoldoc are absolute addresses...
-
-
-
-
     }
 
+    @Override
     protected void doTheInit() {
         // specific initialization for the protocol
         setBasePagesFactory(new BasePagesFactory(this));
         setFulcrumProfile(new FulcrumProfile(this));
     }
 
-    protected void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","5000").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000").trim()));
     }
 
-    protected List doTheDoGetOptionalKeys() {
-        List list = new ArrayList();
-
-
-        return list;
-    }
-
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return getBasePagesFactory().getMassMemoryBasePages().getRecordingIntervalLength()*60;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return getBasePagesFactory().getMassMemoryBasePages().getNumberOfChannels();
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getBasePagesFactory().getRealTimeBasePage().getCalendar().getTime();
     }
 
+    @Override
     protected void hangup() throws IOException {
         getBasePagesFactory().writeBasePage(0x2111, new byte[]{(byte)0xFF});
     }
 
+    @Override
     protected void offLine() throws IOException {
         getBasePagesFactory().writeBasePage(0x2112, new byte[]{(byte)0xFF});
     }
 
+    @Override
     public void setTime() throws IOException {
         if (isAllowClockSet()) {
             getBasePagesFactory().writeBasePage(0x2113, new byte[]{(byte)0xFF}); // STOP METERING FLAG
@@ -119,100 +101,19 @@ public class Fulcrum extends SchlumbergerProtocol {
             getBasePagesFactory().writeBasePage(0x2116, new byte[]{(byte)0xFF}); // CLOCK OPTION RECONFIGURE FLAG
             getBasePagesFactory().writeBasePage(0x2113, new byte[]{0}); // STOP METERING FLAG
         }
-        else throw new UnsupportedException("setTime() is not supported on the Fulcrum meter because is clears all the memory. However, when 'AllowClockSet' property is set to 1, a setTime() can be forced but all memory will be cleared!");
+        else {
+            throw new UnsupportedException("setTime() is not supported on the Fulcrum meter because is clears all the memory. However, when 'AllowClockSet' property is set to 1, a setTime() can be forced but all memory will be cleared!");
+        }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:46 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return getBasePagesFactory().getMeterIdentificationBasePages().toString2();
-    }
-
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        Fulcrum fulcrum = new Fulcrum();
-        Dialer dialer=null;
-        try {
-
-            String[] phones = new String[]{"9,17346753630,,,,,,02","9,15867783390","00016604293360","00018168809574"};
-            int phoneId=1;
-
-            dialer =DialerFactory.getDefault().newDialer();
-            //dialer =DialerFactory.getDirectDialer().newDialer();
-            //dialer = DialerFactory.get("EMDIALDIALER").newDialer();
-            dialer.init("COM1");
-
-
-            dialer.getSerialCommunicationChannel().setBaudrate(9600);
-
-            dialer.connect(phones[phoneId],60000);
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            //properties.setProperty(MeterProtocol.PASSWORD,"gudma44");
-            //properties.setProperty(MeterProtocol.ADDRESS,"RETAILR");
-//            properties.setProperty("Retries", "20");
-//            properties.setProperty("Timeout", "1000");
-            properties.setProperty("DaisyChain", "1");
-            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty("UnitType","X20");
-            //properties.setProperty(MeterProtocol.NODEID,"8986785");
-
-//            properties.setProperty("AllowClockSet","1");
-
-// transfer the properties to the protocol
-            fulcrum.setProperties(properties);
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            fulcrum.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-
-            System.out.println("*********************** connect() 1 ***********************");
-            fulcrum.connect();
-            System.out.println(fulcrum.getTime());
-
-            // changing to the next slave
-            fulcrum.disconnect();
-
-            System.out.println("*********************** connect() 2 ***********************");
-            fulcrum.connect();
-            System.out.println(fulcrum.getTime());
-
-            // changing to the next slave
-            fulcrum.disconnect();
-
-            System.out.println("*********************** connect() 3 ***********************");
-            fulcrum.connect();
-            System.out.println(fulcrum.getTime());
-
-            // changing to the next slave
-            fulcrum.disconnect();
-
-            System.out.println("*********************** connect() 4 ***********************");
-            fulcrum.connect();
-            System.out.println(fulcrum.getTime());
-
-            fulcrum.disconnect();
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     public BasePagesFactory getBasePagesFactory() {
@@ -231,36 +132,35 @@ public class Fulcrum extends SchlumbergerProtocol {
         return registerFactory;
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append(getBasePagesFactory().getMeterIdentificationBasePages());
         ObisCodeMapper ocm = new ObisCodeMapper(this);
-        strBuff.append(ocm.getRegisterInfo());
-        return strBuff.toString();
+        return String.valueOf(getBasePagesFactory().getMeterIdentificationBasePages()) + ocm.getRegisterInfo();
     }
 
-    // RegisterProtocol Interface implementation
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
-    public FulcrumProfile getFulcrumProfile() {
+    private FulcrumProfile getFulcrumProfile() {
         return fulcrumProfile;
     }
 
-    public void setFulcrumProfile(FulcrumProfile fulcrumProfile) {
+    private void setFulcrumProfile(FulcrumProfile fulcrumProfile) {
         this.fulcrumProfile = fulcrumProfile;
     }
 
-
     protected void validateDeviceId() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID().trim())==0)) return;
+        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID().trim())==0)) {
+            return;
+        }
         if (getBasePagesFactory().getMeterIdentificationBasePages().getUnitId().trim().compareTo(getInfoTypeDeviceID().trim()) != 0) {
             String msg =
                     "DeviceId mismatch! meter DeviceId=" + getBasePagesFactory().getMeterIdentificationBasePages().getUnitId().trim() +
@@ -270,5 +170,4 @@ public class Fulcrum extends SchlumbergerProtocol {
 
     }
 
-
-} // public class Fulcrum extends SchlumbergerProtocol
+}

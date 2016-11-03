@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocolimpl.base.AbstractProtocol;
@@ -20,6 +20,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.CommandFactory;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.IdentifyCommand;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.SchlumbergerConnection;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,33 +30,33 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+
 /**
  *
  * @author Koen
  */
-abstract public class SchlumbergerProtocol extends AbstractProtocol implements ProtocolLink {
+public abstract class SchlumbergerProtocol extends AbstractProtocol implements ProtocolLink {
 
     private static final String UNIT_ID = "UnitId";
     private static final String UNIT_TYPE = "UnitType";
-    private static final String DELAY_AFTER_CONNECT = "DelayAfterConnect";
+    protected static final String DELAY_AFTER_CONNECT = "DelayAfterConnect";
     private static final String BLOCK_SIZE = "BlockSize";
     private static final String DAISY_CHAIN = "DaisyChain";
-    private static final String ALLOW_CLOCK_SET = "AllowClockSet";
-    private static final String FORCED_DELAY = "ForcedDelay";
-    private static final String SECURITY_LEVEL = "SecurityLevel";
+    protected static final String ALLOW_CLOCK_SET = "AllowClockSet";
+    private static final String FORCED_DELAY = PROP_FORCED_DELAY;
+    private static final String SECURITY_LEVEL = SECURITYLEVEL.getName();
     private static final String NODE_ADDRESS = "NodeAddress";
-    private static final String TIMEOUT = "Timeout";
     private static final String UNIT_ID_MASTER = "UnitIdMaster";
     private static final String SECURITY_LEVEL_MASTER = "SecurityLevelMaster";
     private static final String PASSWORD_MASTER = "PasswordMaster";
 
-    abstract protected void doTheInit();
-    abstract protected void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    abstract protected List doTheDoGetOptionalKeys();
-    abstract protected void doTheConnect() throws IOException;
-    abstract protected void doTheDisConnect() throws IOException;
-    abstract protected void hangup() throws IOException;
-    abstract protected void offLine() throws IOException;
+    protected abstract void doTheInit();
+    protected abstract void doTheConnect() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
+    protected abstract void hangup() throws IOException;
+    protected abstract void offLine() throws IOException;
 
     private SchlumbergerConnection schlumbergerConnection=null;
     private CommandFactory commandFactory=null;
@@ -69,19 +70,12 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
     private int securityLevelMaster;
     private String passwordMaster;
 
-    /** Creates a new instance of SchlumbergerProtocol */
-    public SchlumbergerProtocol() {
-
-    }
-
+    @Override
     protected void doConnect() throws IOException {
-
         getSchlumbergerConnection().delayAndFlush(getDelayAfterConnect());
-
         if (getDaisyChain() == 2) {
             doDaisyChainConnect();
         } else {
-
             // is it allowed to send an extra I and S? why shouldn't it?
             //if ((!isDaisyChain()) || (isDaisyChain() && ((getInfoTypeNodeAddress()==null) || (getInfoTypeNodeAddress().compareTo("")==0)))) {
             getCommandFactory().enqCommand();
@@ -157,6 +151,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         }
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
         if (isDaisyChain() && getDaisyChain() != 2) {
             getSchlumbergerConnection().sendEnqMultidrop(2);
@@ -165,13 +160,31 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         }
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(UNIT_TYPE, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(UNIT_ID, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(NODE_ADDRESS, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(DELAY_AFTER_CONNECT, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(BLOCK_SIZE, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(DAISY_CHAIN, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(ALLOW_CLOCK_SET, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(UNIT_ID_MASTER, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(SECURITY_LEVEL_MASTER, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PASSWORD_MASTER, false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getProperty(FORCED_DELAY,"0").trim()));
         setInfoTypeSecurityLevel(Integer.parseInt(properties.getProperty(SECURITY_LEVEL, "1").trim()));
         setUnitType(properties.getProperty(UNIT_TYPE));
         setUnitId(properties.getProperty(UNIT_ID));
         setInfoTypeNodeAddress(properties.getProperty(NODE_ADDRESS));
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT, "7000").trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "7000").trim()));
         setDelayAfterConnect(Integer.parseInt(properties.getProperty(DELAY_AFTER_CONNECT, "0").trim()));
         setBlockSize(Integer.parseInt(properties.getProperty(BLOCK_SIZE, "128").trim()));
         setDaisyChain(Integer.parseInt(properties.getProperty(DAISY_CHAIN, "0").trim()));
@@ -180,24 +193,9 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         setUnitIdMaster(properties.getProperty(UNIT_ID_MASTER));
         setSecurityLevelMaster(Integer.parseInt(properties.getProperty(SECURITY_LEVEL_MASTER, "1")));
         setPasswordMaster(properties.getProperty(PASSWORD_MASTER, ""));
-        doTheDoValidateProperties(properties);
     }
 
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add(UNIT_TYPE);
-        list.add(UNIT_ID);
-        list.add(DELAY_AFTER_CONNECT);
-        list.add(BLOCK_SIZE);
-        list.add(DAISY_CHAIN);
-        list.add(ALLOW_CLOCK_SET);
-        list.add(UNIT_ID_MASTER);
-        list.add(SECURITY_LEVEL_MASTER);
-        list.add(PASSWORD_MASTER);
-        list.addAll(doTheDoGetOptionalKeys());
-        return list;
-    }
-
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setSchlumbergerConnection(new SchlumbergerConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, 0));
         setCommandFactory(new CommandFactory(this));
@@ -213,6 +211,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         this.schlumbergerConnection = schlumbergerConnection;
     }
 
+    @Override
     public CommandFactory getCommandFactory() {
         return commandFactory;
     }

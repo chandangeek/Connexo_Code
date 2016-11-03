@@ -28,13 +28,10 @@ KV|01092005|Add manufacturer specific code
  * @endchanges
  */
 public class Sdc extends SdcBase implements SerialNumberSupport{
-    
-    RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
-    
-    /** Creates a new instance of Sdc */
-    public Sdc() {
-    }
-    
+
+    private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
+
+    @Override
     protected RegisterConfig getRegs() {
         return regs;
     }
@@ -49,9 +46,9 @@ public class Sdc extends SdcBase implements SerialNumberSupport{
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    
-} // class Sdc
+}
