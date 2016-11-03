@@ -10,9 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.generic;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -35,42 +33,30 @@ import java.util.logging.Logger;
  */
 public class Generic extends MBus {
 
-
     final int DEBUG=0;
-
-    RegisterFactory registerFactory=null;
 
     // temporary
     // KV_TO_DO The Discover interface in core code does not return a list of secondary addresses. therefor
     // we cache this in the Generic protocol instantiation. and return the elements until iteration is complete...
-    List<DiscoverResult> discoverResults=null;
-    int discoverResultIndex=0;
+    private List<DiscoverResult> discoverResults = null;
+    private int discoverResultIndex = 0;
 
-    /**
-     * Creates a new instance of Generic
-     */
-    public Generic() {
-    }
-
-
-//    public Date getTime() throws IOException {
-//        return getRegisterFactory().getTime();
-//    }
-
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
-        if (DEBUG>=1) System.out.println("Generic, discover("+discoverTools+")");
+        if (DEBUG>=1) {
+            System.out.println("Generic, discover(" + discoverTools + ")");
+        }
 
-        if (Integer.parseInt(discoverTools.getProperties().getProperty("SecondaryAddressing","0")) == 1)
-        	return discoverSecondaryAddresses(discoverTools);
-        else
-        	return discoverPrimaryAddresses(discoverTools);
+        if (Integer.parseInt(discoverTools.getProperties().getProperty("SecondaryAddressing","0")) == 1) {
+            return discoverSecondaryAddresses(discoverTools);
+        } else {
+            return discoverPrimaryAddresses(discoverTools);
+        }
     }
 
-
-    public DiscoverResult discoverSecondaryAddresses(DiscoverTools discoverTools) {
-
+    private DiscoverResult discoverSecondaryAddresses(DiscoverTools discoverTools) {
     	if (discoverResults==null) {
-    		discoverResults = new ArrayList();
+    		discoverResults = new ArrayList<>();
 	        try {
 	            setProperties(discoverTools.getProperties());
 	            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
@@ -110,68 +96,66 @@ public class Generic extends MBus {
 
 		        getMBusConnection().flushInputStream();
 
-	            Iterator<CIField72h> it = discoverDeviceSerialNumbers().iterator();
-	            while(it.hasNext()) {
-	            	CIField72h cIField72h = it.next();
-
-	    	        DiscoverResult discoverResult = new DiscoverResult();
-	    	        discoverResult.setProtocolMBUS();
-	                discoverResult.setDiscovered(true);
-	                discoverResult.setAddress(discoverTools.getAddress());
-	                discoverResult.setResult(cIField72h.getMeter3LetterId()+", "+cIField72h.getVersion());
-	                discoverResult.setProtocolName(DiscoverProtocolInfo.getUnknown().getProtocolName());
-	                discoverResult.setDeviceTypeName(DiscoverProtocolInfo.getUnknown().getDeviceType());
-	                discoverResult.setShortDeviceTypeName(DiscoverProtocolInfo.getUnknown().getShortDeviceType());
-	                String str = cIField72h.getMeter3LetterId()+" V"+cIField72h.getVersion()+" "+cIField72h.getDeviceType().getShortDescription();
-	                discoverResult.setDeviceName(str.replace('.','-').replace('/',' ')); // '.' and '/' are not allowed in EIServer as character in a device name!
+                for (CIField72h cIField72h : discoverDeviceSerialNumbers()) {
+                    DiscoverResult discoverResult = new DiscoverResult();
+                    discoverResult.setProtocolMBUS();
+                    discoverResult.setDiscovered(true);
+                    discoverResult.setAddress(discoverTools.getAddress());
+                    discoverResult.setResult(cIField72h.getMeter3LetterId() + ", " + cIField72h.getVersion());
+                    discoverResult.setProtocolName(DiscoverProtocolInfo.getUnknown().getProtocolName());
+                    discoverResult.setDeviceTypeName(DiscoverProtocolInfo.getUnknown().getDeviceType());
+                    discoverResult.setShortDeviceTypeName(DiscoverProtocolInfo.getUnknown().getShortDeviceType());
+                    String str = cIField72h.getMeter3LetterId() + " V" + cIField72h.getVersion() + " " + cIField72h.getDeviceType().getShortDescription();
+                    discoverResult.setDeviceName(str.replace('.', '-').replace('/', ' ')); // '.' and '/' are not allowed in EIServer as character in a device name!
 
 
-	                Iterator it2 = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
-	                while(it2.hasNext()) {
-	                    DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it2.next();
-	                    if ((dpi.getVersion() == cIField72h.getVersion()) &&
-	                        (dpi.getManufacturer().compareTo(cIField72h.getMeter3LetterId())==0) &&
-	                        (dpi.getMedium() == cIField72h.getDeviceType().getId())) {
-	                        discoverResult.setProtocolName(dpi.getProtocolName());
-	                        discoverResult.setDeviceTypeName(dpi.getDeviceType());
+                    Iterator it2 = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
+                    while (it2.hasNext()) {
+                        DiscoverProtocolInfo dpi = (DiscoverProtocolInfo) it2.next();
+                        if ((dpi.getVersion() == cIField72h.getVersion()) &&
+                                (dpi.getManufacturer().compareTo(cIField72h.getMeter3LetterId()) == 0) &&
+                                (dpi.getMedium() == cIField72h.getDeviceType().getId())) {
+                            discoverResult.setProtocolName(dpi.getProtocolName());
+                            discoverResult.setDeviceTypeName(dpi.getDeviceType());
 
-	                        break;
-	                    }
-	                }
+                            break;
+                        }
+                    }
 
                     // temporary
                     // KV_TO_DO this is a tricky way to exposure all fields of the mbus header in case of secondary addressing.
                     // We do this to not to change the core code DiscoverResult. Better should be to add a Properties object into
                     // DiscoverResult for all specific properties. Also the fact serialnumber has 4 '_' separated fields means we
                     // did a secondary address discover...
-                    discoverResult.setSerialNumber(""+cIField72h.getIdentificationNumber()+
-                    		                       "_"+CIField72h.getManufacturer3Letter(cIField72h.getManufacturerIdentification())+
-                    		                 	   "_"+Integer.toHexString(cIField72h.getVersion())+
-                    		                 	   "_"+Integer.toHexString(cIField72h.getDeviceType().getId()));
+                    discoverResult.setSerialNumber("" + cIField72h.getIdentificationNumber() +
+                            "_" + CIField72h.getManufacturer3Letter(cIField72h.getManufacturerIdentification()) +
+                            "_" + Integer.toHexString(cIField72h.getVersion()) +
+                            "_" + Integer.toHexString(cIField72h.getDeviceType().getId()));
 
-	                discoverResults.add(discoverResult);
+                    discoverResults.add(discoverResult);
 
-	            } // while(it.hasNext()) {
+                } // while(it.hasNext()) {
 	        }
-	        catch(Exception e) {
+	        catch (Exception e) {
 	            return null;
-	        }
-	        finally {
-	        	if (discoverResults.size() > discoverResultIndex)
-	        		return discoverResults.get(discoverResultIndex++);
-	        	else
-	        		return null;
+	        } finally {
+	        	if (discoverResults.size() > discoverResultIndex) {
+                    return discoverResults.get(discoverResultIndex++);
+                } else {
+                    return null;
+                }
 	        }
         }
         else {
-        	if (discoverResults.size() > discoverResultIndex)
-        		return discoverResults.get(discoverResultIndex++);
-        	else
-        		return null;
+        	if (discoverResults.size() > discoverResultIndex) {
+                return discoverResults.get(discoverResultIndex++);
+            } else {
+                return null;
+            }
         }
-    } // public DiscoverResult discoverSecondaryAddresses(DiscoverTools discoverTools)
+    }
 
-    public DiscoverResult discoverPrimaryAddresses(DiscoverTools discoverTools) {
+    private DiscoverResult discoverPrimaryAddresses(DiscoverTools discoverTools) {
 
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMBUS();
@@ -207,12 +191,9 @@ public class Generic extends MBus {
                     break;
                 }
             }
-
-            //System.out.println(cIField72h.header());
-
             return discoverResult;
         }
-        catch(Exception e) {
+        catch (Exception e) {
             discoverResult.setDiscovered(false);
             discoverResult.setResult(e.toString());
             return discoverResult;
@@ -227,6 +208,7 @@ public class Generic extends MBus {
         }
     }
 
+    @Override
     protected void doTheConnect() throws IOException {
     	if (getInfoTypeSecondaryAddressing() == 0) {
              getMBusConnection().sendSND_NKE();
@@ -242,6 +224,8 @@ public class Generic extends MBus {
     		}
     	}
     }
+
+    @Override
     protected void doTheDisConnect() throws IOException {
     	if (getInfoTypeSecondaryAddressing() == 1) {
     		try {
@@ -256,40 +240,29 @@ public class Generic extends MBus {
                 throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
     	}
-
     }
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
     	if (getInfoTypeSecondaryAddressing() == 1) {
     		setInfoTypeDeviceID("253");
     	}
     }
-    protected List doTheGetOptionalKeys() {
-        List list = new ArrayList();
-        return list;
-    }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() {
         return "NOT YET IMPLEMENTED";
     }
 
-    /**
-     * The protocol version date
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
-    }
-
-    private Properties getProperties(int address, int secondaryAddressing) {
-        Properties properties = new Properties();
-        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "" + address);
-        properties.setProperty("Retries", "1");
-        properties.setProperty("Timeout", "250");
-        properties.setProperty("SecondaryAddressing", ""+secondaryAddressing);
-        return properties;
     }
 
 }

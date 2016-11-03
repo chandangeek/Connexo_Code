@@ -27,9 +27,9 @@ import java.util.List;
  *
  * @author kvds
  */
-abstract public class AbstractRegisterFactory {
+public abstract class AbstractRegisterFactory {
 
-    abstract protected int getTimeIndex();
+    protected abstract int getTimeIndex();
 
     private MBus mBus;
     private List registerValues;
@@ -38,7 +38,6 @@ abstract public class AbstractRegisterFactory {
     /** Creates a new instance of AbstractRegisterFactory */
     public AbstractRegisterFactory(MBus mBus) {
         this.setMBus(mBus);
-
     }
 
     public RegisterValue findRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {

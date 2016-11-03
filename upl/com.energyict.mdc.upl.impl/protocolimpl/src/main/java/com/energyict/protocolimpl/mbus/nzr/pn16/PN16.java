@@ -10,18 +10,11 @@
 
 package com.energyict.protocolimpl.mbus.nzr.pn16;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.mbus.core.MBus;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -29,44 +22,32 @@ import java.util.Properties;
  */
 public class PN16 extends MBus {
 
-
-    RegisterFactory registerFactory=null;
-
-    /** Creates a new instance of PN16 */
-    public PN16() {
-    }
-
-
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         // discovery is implemented in the GenericModbusDiscover protocol
         return null;
     }
 
+    @Override
     protected void doTheConnect() throws IOException {
         getMBusConnection().sendSND_NKE();
     }
+
+    @Override
     protected void doTheDisConnect() throws IOException {
 
     }
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-
-    }
-    protected List doTheGetOptionalKeys() {
-        List list = new ArrayList();
-        return list;
-    }
-
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() {
         return "NOT YET IMPLEMENTED";
     }
 
-    /**
-     * The protocol version date
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-06-26 10:11:31 +0200 (Fri, 26 Jun 2015) $";
     }
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }

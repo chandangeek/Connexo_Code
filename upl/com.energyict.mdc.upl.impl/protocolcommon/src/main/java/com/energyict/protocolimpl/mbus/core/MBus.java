@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -25,11 +25,11 @@ import com.energyict.protocolimpl.mbus.core.connection.MBusConnection;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -45,34 +45,27 @@ public abstract class MBus extends AbstractProtocol implements Discover {
 
     protected abstract void doTheConnect() throws IOException;
     protected abstract void doTheDisConnect() throws IOException;
-    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    protected abstract List doTheGetOptionalKeys();
     protected abstract void initRegisterFactory();
 
     private MBusConnection mBusConnection=null;
     private AbstractRegisterFactory registerFactory=null;
     private CIField72h cIField72h=null;
 
-    int secondaryAddressing;
-    boolean useZeroBased;
+    private int secondaryAddressing;
+    private boolean useZeroBased;
 
-    int headerManufacturerCode;
-    int headerVersion;
-    int headerMedium;
+    private int headerManufacturerCode;
+    private int headerVersion;
+    private int headerMedium;
 
-    /** Creates a new instance of MBus */
-    public MBus() {
-    }
-
-
-
+    @Override
     public void doConnect() throws IOException {
         try {
-
-            if ((getInfoTypeDeviceID()==null) || (getInfoTypeDeviceID().compareTo("")==0))
+            if ((getInfoTypeDeviceID()==null) || (getInfoTypeDeviceID().compareTo("")==0)) {
                 getMBusConnection().setRTUAddress(253);
-            else
+            } else {
                 getMBusConnection().setRTUAddress(Integer.parseInt(getInfoTypeDeviceID()));
+            }
             doTheConnect();
         }
         catch(IEC870ConnectionException e) {
@@ -80,6 +73,7 @@ public abstract class MBus extends AbstractProtocol implements Discover {
         }
     }
 
+    @Override
     public void doDisconnect() throws IOException {
         try {
             doTheDisConnect();
@@ -89,18 +83,31 @@ public abstract class MBus extends AbstractProtocol implements Discover {
         }
     }
 
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(UPLPropertySpecFactory.integer("SecondaryAddressing", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("VirtualLoadProfile", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("DataQuantitiesAreZeroBased", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("HeaderManufacturerCode", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("HeaderMedium", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("HeaderVersion", false));
+        return propertySpecs;
+    }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","3000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","2").trim()));
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "3000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
+        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
         setSecondaryAddressing(Integer.parseInt(properties.getProperty("SecondaryAddressing","0")));
         setUseZeroBased(Integer.parseInt(properties.getProperty("DataQuantitiesAreZeroBased", "0")) == 1);
 
         String manufCode = properties.getProperty("HeaderManufacturerCode");
-        if (manufCode == null)
-        	setHeaderManufacturerCode(0xFFFF);
-        else {
+        if (manufCode == null) {
+            setHeaderManufacturerCode(0xFFFF);
+        } else {
         	try {
         		setHeaderManufacturerCode(Integer.parseInt(manufCode,16));
         	}
@@ -111,50 +118,46 @@ public abstract class MBus extends AbstractProtocol implements Discover {
         }
         setHeaderMedium(Integer.parseInt(properties.getProperty("HeaderMedium","FF"),16));
         setHeaderVersion(Integer.parseInt(properties.getProperty("HeaderVersion","FF"),16));
-
-        doTheValidateProperties(properties);
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return 0; // KV_TO_DO
     }
 
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add("SecondaryAddressing");
-        list.add("VirtualLoadProfile");
-        list.add("DataQuantitiesAreZeroBased");
-        return list;
-    }
-
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setMBusConnection(new MBusConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, getTimeZone(), halfDuplexController));
         return getMBusConnection();
     }
+
+    @Override
     public Date getTime() throws IOException {
         return new Date();
     }
-    public void setTime() throws IOException {
 
+    @Override
+    public void setTime() {
     }
 
-    public String getFirmwareVersion() throws IOException {
+    @Override
+    public String getFirmwareVersion() {
         return "YET UNKNOWN";
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         obisCode=new ObisCode(0,0,96,99,obisCode.getE(),obisCode.getF());
         return getRegisterFactory().findRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         obisCode=new ObisCode(0,0,96,99,obisCode.getE(),obisCode.getF());
         return new RegisterInfo(obisCode.toString());
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         StringBuilder builder = new StringBuilder();
         //getRegisterFactory()
@@ -168,8 +171,6 @@ public abstract class MBus extends AbstractProtocol implements Discover {
         }
         return builder.toString();
     }
-
-
 
     public MBusConnection getMBusConnection() {
         return mBusConnection;
