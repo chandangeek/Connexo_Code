@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.coronis.wavelog;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -28,6 +27,7 @@ import com.energyict.protocolimpl.coronis.wavelog.core.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.wavelog.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavelog.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavelog.core.radiocommand.RadioCommandFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +38,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
 public class WaveLog extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper {
 
@@ -59,7 +61,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
         return parameterFactory;
     }
 
-    final public RadioCommandFactory getRadioCommandFactory() {
+    public final RadioCommandFactory getRadioCommandFactory() {
         return radioCommandFactory;
     }
 
@@ -70,6 +72,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (numberOfChannels <= 0) {
             numberOfChannels = CHANNELS;
@@ -81,6 +84,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     protected void doDisconnect() throws IOException {
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(lastReading, new Date(), includeEvents);
@@ -91,7 +95,8 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
         }
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(from, to, includeEvents);
         }
@@ -100,8 +105,6 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
             return null;
         }
     }
-
-
 
     @Override
     protected ProtocolConnection doInit(InputStream inputStream,
@@ -119,9 +122,17 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
-        correctTime = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0"));
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "40000").trim()));
+        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
     }
 
     @Override
@@ -161,8 +172,9 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
         getRadioCommandFactory().writeTimeDateRTC(cal.getTime());
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override
@@ -170,43 +182,47 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         waveLogMessages.applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return waveLogMessages.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return waveLogMessages.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return waveLogMessages.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return waveLogMessages.writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return waveLogMessages.writeValue(value);
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        return new ArrayList();            //No extra properties
-    }
-
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         // absorb
     }
 
+    @Override
     public WaveFlowConnect getWaveFlowConnect() {
         return waveLogConnect;
     }
 
+    @Override
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
