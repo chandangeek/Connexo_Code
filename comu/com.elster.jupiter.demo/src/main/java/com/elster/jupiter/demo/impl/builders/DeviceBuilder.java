@@ -85,9 +85,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {
             for (ComSchedule comSchedule : comSchedules) {
-                device.getDeviceConfiguration().getComTaskEnablements()
-                        .stream()
-                        .forEach(comTaskEnablement -> device.newScheduledComTaskExecution(comTaskEnablement, comSchedule).add());
+                device.newScheduledComTaskExecution(comSchedule).add();
             }
         }
         device.setLocation(location);
