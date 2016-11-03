@@ -3,9 +3,10 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     alias: 'widget.tabbedDeviceChannelsView',
     itemId: 'tabbedDeviceChannelsView',
     requires: [
-        'Uni.view.toolbar.PreviousNextNavigation',
-        'Mdc.view.setup.devicechannels.TableView',
+        'Uni.view.toolbar.PreviousNextNavigation',        
         'Mdc.view.setup.devicechannels.GraphView',
+        'Mdc.view.setup.devicechannels.DataPreview',
+        'Mdc.view.setup.devicechannels.DataGrid',
         'Uni.grid.FilterPanelTop'
     ],
 
@@ -13,7 +14,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
 
     mixins: {
         bindable: 'Ext.util.Bindable',
-        graphWithGrid: 'Uni.util.GraphWithGrid'
+        graphWithGrid: 'Uni.util.GraphWithGrid',
+        readingsGraph: 'Uni.util.ReadingsGraph'
     },
 
     prevNextstore: null,
@@ -30,6 +32,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     filterDefault: {},
     mentionDataLoggerSlave: false,
     dataLoggerSlaveHistoryStore: null,
+    idProperty: 'interval_end',
 
     initComponent: function () {
         var me = this;
@@ -89,16 +92,41 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 xtype: 'deviceLoadProfileChannelGraphView',
                                 mentionDataLoggerSlave: me.mentionDataLoggerSlave,
                                 listeners: {
-                                    barselect: Ext.bind(me.onBarSelect, me, me, true)
+                                    barselect: Ext.bind(me.onBarSelect, me)
                                 }
                             },
                             {
-                                xtype: 'deviceLoadProfileChannelTableView',
-                                channel: me.channel,
-                                router: me.router,
-                                mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
+                                xtype: 'preview-container',
+                                itemId: 'channel-data-preview-container',
+                                grid: {
+                                    xtype: 'deviceLoadProfileChannelDataGrid',
+                                    channelRecord: me.channel,
+                                    router: me.router,
+                                    listeners: {
+                                        select: function (grid, record) {
+                                            me.down('#channel-data-preview-container').fireEvent('rowselect', record);
+                                        },
+                                        itemclick: function (dataView, record) {
+                                            if (me.down('deviceLoadProfileChannelDataGrid').getSelectionModel().isSelected(record)) {
+                                                me.down('#channel-data-preview-container').fireEvent('rowselect', record);
+                                            }
+                                        }
+                                    }
+                                },
+                                previewComponent: {
+                                    xtype: 'deviceLoadProfileChannelDataPreview',
+                                    channelRecord: me.channel,
+                                    router: me.router,
+                                    mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
+                                    hidden: true
+                                },
+                                emptyComponent: {
+                                    xtype: 'uni-form-empty-message',
+                                    itemId: 'ctr-table-no-data',
+                                    text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
+                                },
                                 listeners: {
-                                    rowselect: Ext.bind(me.onRowSelect, me, me, true)
+                                    rowselect: Ext.bind(me.onRowSelect, me)
                                 }
                             }
                         ]
@@ -167,12 +195,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         this.setLoading(true);
     },
 
-    onLoad: function () {
-        var data;
-        if (this.store.getTotalCount() > 0) {
-            data = this.formatData();
-        }
-        this.showGraphView(this, data);
+    onLoad: function () {        
+        this.showGraphView();
         this.setLoading(false);
     },
 
@@ -271,5 +295,9 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             }
         }, me);
         return {data: data, missedValues: missedValues};
+    },
+
+    getValueFromPoint: function (point) {
+        return new Date(point.intervalEnd);
     }
 });

@@ -12,7 +12,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
     ],
     mixins: {
         bindable: 'Ext.util.Bindable',
-        graphWithGrid: 'Uni.util.GraphWithGrid'
+        graphWithGrid: 'Uni.util.GraphWithGrid',
+        readingsGraph: 'Uni.util.ReadingsGraph'
     },
     store: 'Mdc.usagepointmanagement.store.ChannelData',
 
@@ -20,6 +21,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
     channel: null,
     mRID: null,
     filter: null,
+    idProperty: 'interval_end',
 
     initComponent: function () {
         var me = this;
@@ -69,7 +71,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                         channel: me.channel,
                         zoomLevels: me.filter.interval.get('zoomLevels'),
                         listeners: {
-                            barselect: Ext.bind(me.onBarSelect, me, me, true)
+                            barselect: Ext.bind(me.onBarSelect, me)
                         }
                     },
                     {
@@ -87,7 +89,12 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                             listeners: {
                                 select: function (grid, record) {
                                     me.down('#readings-preview-container').fireEvent('rowselect', record);
-                                }
+                                },
+                                itemclick: function (dataView, record) {
+                                    if (me.down('channel-data-grid').getSelectionModel().isSelected(record)) {
+                                        me.down('#readings-preview-container').fireEvent('rowselect', record);
+                                    }
+                                }                                
                             }
                         },
                         emptyComponent: {
@@ -105,7 +112,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                             channel: me.channel
                         },
                         listeners: {
-                            rowselect: Ext.bind(me.onRowSelect, me, me, true)
+                            rowselect: Ext.bind(me.onRowSelect, me)
                         }
                     }
                 ]
@@ -143,12 +150,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
         this.setLoading(true);
     },
 
-    onLoad: function () {
-        var data;
-        if (this.store.getTotalCount() > 0) {
-            data = this.formatData();
-        }
-        this.showGraphView(this, data);
+    onLoad: function () {        
+        this.showGraphView();
         this.setLoading(false);
     },
 
@@ -220,5 +223,9 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
         });
 
         return {data: data, missedValues: missedValues};
+    },
+    
+    getValueFromPoint: function (point) {
+        return new Date(point.intervalEnd);
     }
 });

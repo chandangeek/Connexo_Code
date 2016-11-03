@@ -24,8 +24,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             mainValidationInfo,
             bulkValidationInfo,
             dataQualities,
-            dataQualitiesForChannels = false,
-            grid = Ext.ComponentQuery.query('deviceLoadProfileChannelDataGrid')[0],
+            dataQualitiesForChannels = false,            
             router = me.router;
 
         me.setLoading();
@@ -99,9 +98,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             detailRecord.set('collectedValue', record.get('collectedValue'));
             detailRecord.set('multiplier', record.get('multiplier'));
             me.down('#values-panel').loadRecord(detailRecord);
-            if (grid && grid.getStore().indexOf(record) == 0) {
-                grid.getView().getEl().setScrollTop(0);
-            }
             me.setLoading(false);
         });
     },
