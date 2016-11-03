@@ -106,6 +106,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
@@ -115,6 +117,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
@@ -504,6 +507,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testComSchedulesBulkAddOnDevice() {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
+        request.strategy = "keep";
         request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
@@ -515,6 +519,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
         mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
 
         Response response = target("/devices/schedules").request().put(json);
 
@@ -526,9 +532,43 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
+    public void testComSchedulesBulkAddOnDeviceOverlappingTasks() throws Exception {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "add";
+        request.strategy = "keep";
+        request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
+        request.scheduleIds = Arrays.asList(1L, 2L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        ComSchedule comSchedule2 = mock(ComSchedule.class);
+        ComTask comTask = mock(ComTask.class);
+        when(comSchedule.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comSchedule2.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
+        when(schedulingService.findSchedule(2L)).thenReturn(Optional.of(comSchedule2));
+
+        Response response = target("/devices/schedules").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("There are overlapping communication tasks in the schedules");
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo("OverlappingComTasks");
+    }
+
+    @Test
     public void testComSchedulesBulkAddOnDeviceWithFilter() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
+        request.strategy = "keep";
         request.filter = "[{'property':'mRID','value':[{'operator':'==','criteria':'DAO*'}]},{'property':'deviceType','value':[{'operator':'==','criteria':['1','2','3']}]}]".replace('\'', '"');
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
@@ -561,7 +601,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
         mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
-
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
         Response response = target("/devices/schedules").request().put(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -598,6 +639,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
         mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
 
         Response response = target("/devices/schedules").request().put(json);
 
