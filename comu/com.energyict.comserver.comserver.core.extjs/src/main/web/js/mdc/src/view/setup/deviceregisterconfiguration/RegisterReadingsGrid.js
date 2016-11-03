@@ -30,9 +30,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
                 flex: 10,
                 dataIndex: 'timeStamp',
-                renderer: function (value) {
-                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
-                }
+                renderer: me.renderMeasurementTime
             },
             {
                 header: Uni.I18n.translate('general.from', 'MDC', 'From'),
@@ -57,7 +55,21 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
             {
                 header: Uni.I18n.translate('general.value', 'MDC', 'Value'),
                 flex: 10,
-                dataIndex: 'valueAndUnit'
+                dataIndex: 'valueAndUnit',
+                renderer: function (data, metaData, record) {
+                    if (!Ext.isEmpty(data)) {
+                        var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
+                            icon = '';
+                        if (record.get('isConfirmed')) {
+                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>'
+                        } else if (status === 'suspect') {
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                        } else if (status === 'notValidated') {
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                        }
+                        return data + icon;
+                    }
+                }
             }
         ];
 
@@ -97,6 +109,35 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
         ];
 
         me.callParent(arguments);
+    },
+
+    renderMeasurementTime: function (value, metaData, record) {
+        if (Ext.isEmpty(value)) {
+            return '-';
+        }
+        debugger;
+        var date = new Date(value),
+            showDeviceQualityIcon = false,
+            tooltipContent = '',
+            icon = '';
+
+        if (!Ext.isEmpty(record.get('readingQualities'))) {
+            Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
+                if (readingQualityObject.cimCode.startsWith('1.')) {
+                    showDeviceQualityIcon |= true;
+                    tooltipContent += readingQualityObject.indexName + '<br>';
+                }
+            });
+            if (tooltipContent.length > 0) {
+                tooltipContent += '<br>';
+                tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
+
+                icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                    + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
+                    + tooltipContent + '"></span>';
+            }
+        }
+        return Uni.DateTime.formatDateTimeShort(date) + icon;
     },
 
     showOrHideBillingColumns: function(showThem) {
