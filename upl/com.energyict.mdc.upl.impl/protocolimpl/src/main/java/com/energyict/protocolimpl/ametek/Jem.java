@@ -1,8 +1,6 @@
 package com.energyict.protocolimpl.ametek;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -38,12 +36,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public abstract class Jem extends AbstractProtocol implements MessageProtocol {
 
-    protected final static int REGULAR = 0;
-    protected final static int ALTERNATE = 1;
+    static final int REGULAR = 0;
+    static final int ALTERNATE = 1;
 
     protected JemProtocolConnection connection;
     protected InputStream inputStream;
@@ -55,28 +52,21 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
     protected ProfileData pd;
     protected Map registerValues = null;
 
-    public Jem() {
-    }
-
-    /**
-     * ****************************************************************************************
-     * M e s s a g e P r o t o c o l  i n t e r f a c e
-     * *****************************************************************************************
-     */
-    // message protocol
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
-        Iterator it = messageEntries.iterator();
-        while (it.hasNext()) {
-            MessageEntry messageEntry = (MessageEntry) it.next();
+        for (Object messageEntry1 : messageEntries) {
+            MessageEntry messageEntry = (MessageEntry) messageEntry1;
             System.out.println(messageEntry);
         }
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         System.out.println(messageEntry);
         return MessageResult.createSuccess(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         List theCategories = new ArrayList();
         // General Parameters
@@ -95,56 +85,58 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
         return msgSpec;
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
 
-
+    @Override
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return value.getValue();
     }
 
-
+    @Override
     protected void doConnect() throws IOException {
         if (getInfoTypeNodeAddress() == null || getInfoTypeNodeAddressNumber() < 1) {
             throw new IOException("Invalid Node Address");
@@ -184,23 +176,21 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
         }
     }
 
-
+    @Override
     protected void doDisconnect() throws IOException {
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, null, includeEvents);
     }
 
-    /**
-     * ****************************************************************************************
-     * R e g i s t e r P r o t o c o l  i n t e r f a c e
-     * *****************************************************************************************
-     */
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (obisCode.getA() != 1) {
             throw new NoSuchRegisterException("Register " + obisCode + " not supported!");
@@ -209,9 +199,6 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
         if (registerValues == null) {
             retrieveRegisters();
         }
-
-//		if(obisCode.getB()<1 || obisCode.getB()>channelCount)
-//		throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
 
         RegisterValue rv = (RegisterValue) registerValues.get(obisCode.toString());
 
@@ -224,13 +211,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
 
     protected abstract void retrieveRegisters() throws IOException;
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-    }
-
-    protected List doGetOptionalKeys() {
-        return new ArrayList();
-    }
-
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         connection = new JemProtocolConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, protocolCompatible, encryptor, getLogger());
         this.inputStream = inputStream;
@@ -238,11 +219,11 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
         return connection;
     }
 
-    protected long convertHexToLong(InputStream byteStream, int length) throws IOException {
+    long convertHexToLong(InputStream byteStream, int length) throws IOException {
         return ProtocolUtils.getLong((ByteArrayInputStream) byteStream, length);
     }
 
-    protected long convertHexToLongLE(InputStream byteStream, int length) throws IOException {
+    long convertHexToLongLE(InputStream byteStream, int length) throws IOException {
         return ProtocolUtils.getLongLE((ByteArrayInputStream) byteStream, length);
     }
 
@@ -252,25 +233,25 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
         return format;
     }
 
-    protected SimpleDateFormat getShortDateFormatter() {
+    SimpleDateFormat getShortDateFormatter() {
         SimpleDateFormat format = new SimpleDateFormat("MMddyyhhmm");
         format.setTimeZone(getTimeZone());
         return format;
     }
 
-    protected void processList(ArrayList dataList, Calendar c, Date startDate, Date now) {
+    void processList(List dataList, Calendar c, Date startDate, Date now) {
         for (int i = dataList.size() - 1; i >= 0; i--) {
             c.add(Calendar.SECOND, (getProfileInterval() * -1));
-            ArrayList vals = (ArrayList) dataList.get(i);
+            List vals = (ArrayList) dataList.get(i);
             if (c.getTime().getTime() >= startDate.getTime() && c.getTime().before(now)) {
                 IntervalData id = new IntervalData(c.getTime());
                 id.addValues(vals);
                 pd.addInterval(id);
             }
         }
-
     }
 
+    @Override
     public int getProfileInterval() {
         return profileInterval;
     }
@@ -278,4 +259,5 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
     public JemProtocolConnection getConnection() {
         return connection;
     }
+
 }

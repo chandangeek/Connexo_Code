@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.ametek;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -30,15 +28,8 @@ import java.util.List;
 @Deprecated     //Protocol was never released, only kept as a technical class
 public abstract class Jem10 extends Jem implements MessageProtocol {
 
-    final private static long TIMEOUT = 5000;
-
-    /**
-     * Creates a new instance of SDKSampleProtocol
-     */
-    public Jem10() {
-    }
-
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         pd = new ProfileData();
 
         Calendar calFrom = Calendar.getInstance(getTimeZone());
@@ -64,11 +55,12 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         return pd;
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return "1.register number.0.0.0.255 Misc";
     }
 
-    protected void processInterval(InputStream byteStream, Calendar cal, Calendar calTo) throws IOException {
+    private void processInterval(InputStream byteStream, Calendar cal, Calendar calTo) throws IOException {
         int eventVal = 0;
         int len = 2;
         int eventIndicator = 0x8000;
@@ -80,16 +72,15 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         cal.setTimeInMillis(0);
         boolean noDate = true;
         Date startTime = cal.getTime();
-        ArrayList dataList = new ArrayList();
-        Date lastDate = null;
-        List partialVals = new ArrayList();
+        List dataList = new ArrayList();
+        List<BigDecimal> partialVals = new ArrayList<>();
 
         ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
 
         long val = convertHexToLong(byteStream, len);
 
         while (byteStream.available() > 0) {
-            List values = new ArrayList();
+            List<BigDecimal> values = new ArrayList<>();
 
             boolean readMore = false;
             if ((val & eventIndicator) == eventIndicator) {
@@ -107,7 +98,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
                     val = val ^ intervalIndicator;
                 }
                 BigDecimal bd;
-                if (partialVals.size() > 0) {
+                if (!partialVals.isEmpty()) {
                     bd = (BigDecimal) partialVals.remove(0);
                 } else {
                     bd = new BigDecimal(0);
@@ -116,7 +107,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
             }
 
             if (eventVal > 0) {
-                partialVals = new ArrayList(values);
+                partialVals = new ArrayList<>(values);
                 try {
                     startTime = getShortDateFormatter().parse(convertHexToString(byteStream, 5, true));
 
@@ -178,7 +169,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
                 partialVals = new ArrayList();
             } else {
                 partialVals = new ArrayList();
-                if (dataList.size() > 0) {
+                if (!dataList.isEmpty()) {
                     Calendar c = (Calendar) cal.clone();
                     c.setTime(startTime);
                     processList(dataList, c, startDate, now);
@@ -189,7 +180,6 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
                     id.addValues(values);
                     pd.addInterval(id);
                 }
-                lastDate = cal.getTime();
                 cal.add(Calendar.SECOND, getProfileInterval());
                 eiStatus = 0;
             }
@@ -215,7 +205,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         }
     }
 
-    protected void processRegisters(InputStream byteStream, int obisCValue) throws IOException {
+    private void processRegisters(InputStream byteStream, int obisCValue) throws IOException {
         int startOffset = 0;
         int len = 2;
         int pos = startOffset;
@@ -286,17 +276,11 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         return instr;
     }
 
-    /**
-     * ****************************************************************************************
-     * R e g i s t e r P r o t o c o l  i n t e r f a c e
-     * *****************************************************************************************
-     */
+    @Override
     protected void retrieveRegisters() throws IOException {
         registerValues = new HashMap();
 
         int dateRangeCmd = 0xff;
-//		if(to!=null)
-//		dateRangeCmd = 0xff;
 
         //FREEZE REGISTERS BEFORE READ
         byte[] send = new byte[]{(byte) getInfoTypeNodeAddressNumber(), 0x4C, 0x01, 0x10, 0x02, 0x10, 0x03};
@@ -317,7 +301,8 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
 
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         if (this.channelCount == 0) {
             byte[] send = new byte[]{(byte) getInfoTypeNodeAddressNumber(), 0x56, 0x08, 0x10, 0x02, 0x10, 0x03};
             ByteArrayInputStream bais = new ByteArrayInputStream(getConnection().sendRequestAndReceiveResponse(send));
@@ -327,6 +312,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         return this.channelCount;
     }
 
+    @Override
     public Date getTime() throws IOException {
         String instr = "";
         byte[] send = new byte[]{(byte) getInfoTypeNodeAddressNumber(), 0x54, 0x02, 0x10, 0x02, 0x10, 0x03};
@@ -344,6 +330,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
     }
 
 
+    @Override
     public void setTime() throws IOException {
         Calendar cal = Calendar.getInstance(getTimeZone());
         int yy = cal.get(Calendar.YEAR) % 100;
@@ -376,11 +363,13 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         getLogger().info("Set time successful");
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-01-15 16:39:12 +0100 (wo, 15 jan 2014) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         String instr = "";
         byte[] send = new byte[]{(byte) getInfoTypeNodeAddressNumber(), 0x06, 0x01, 0x10, 0x02, 0x10, 0x03};
         ByteArrayInputStream bais = new ByteArrayInputStream(getConnection().sendRequestAndReceiveResponse(send));
@@ -390,4 +379,5 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         }
         return instr;
     }
+
 }

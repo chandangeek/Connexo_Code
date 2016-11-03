@@ -27,29 +27,16 @@ import java.util.Map;
 /**
  *
  * @author cju
- * 
+ *
  */
 public class JemStar extends Jem implements MessageProtocol  {
-
-
-	/** Creates a new instance of JemStar */
-	public JemStar() {
-	}
-
-    @Override
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(PROP_TIMEOUT);
-        result.add(PROP_ECHO_CANCELING);
-        result.add(PROP_FORCED_DELAY);
-        return result;
-    }
 
     @Override
     public int getProfileInterval() {
         return getInfoTypeProfileInterval(); // this is dependent on device config and therefore not fixed - as we cannot read it out from the device we use value from custom property "ProfileInterval"
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		pd = new ProfileData();
 
@@ -59,10 +46,12 @@ public class JemStar extends Jem implements MessageProtocol  {
 
 		int dateRangeCmd = 0xff;
 		int dateRng = Calendar.getInstance(getTimeZone()).get(Calendar.DAY_OF_YEAR)-calFrom.get(Calendar.DAY_OF_YEAR);
-		if(dateRng<45)
-			dateRangeCmd = dateRng;
-		if(to==null)
-			to = new Date();
+		if (dateRng<45) {
+            dateRangeCmd = dateRng;
+        }
+		if (to==null) {
+            to = new Date();
+        }
 
 		calTo.setTime(to);
 
@@ -75,7 +64,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		return pd;
 	}
 
-    protected void processInterval(InputStream byteStream, Calendar cal, Calendar calTo) throws IOException {
+    private void processInterval(InputStream byteStream, Calendar cal, Calendar calTo) throws IOException {
         boolean isEvent = false;
         int eiStatus = 0;
         byteStream.skip(99);
@@ -89,13 +78,12 @@ public class JemStar extends Jem implements MessageProtocol  {
         cal.setTimeInMillis(0);
         boolean noDate = true;
         long startTime = cal.getTimeInMillis();
-        ArrayList dataList = new ArrayList();
-        Date lastDate = null;
-        List partialVals = new ArrayList();
+        List dataList = new ArrayList();
+        List<BigDecimal> partialVals = new ArrayList<>();
 
         ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
         while (byteStream.available() > 0) {
-            List values = new ArrayList();
+            List<BigDecimal> values = new ArrayList<>();
 
             for (int i = 0; i < channelCount; i++) {
                 long val = convertHexToLongLE(byteStream, len);
@@ -104,16 +92,16 @@ public class JemStar extends Jem implements MessageProtocol  {
                     val = val ^ eventIndicator;
                 }
                 BigDecimal bd;
-                if (partialVals.size() > 0)
-                    bd = (BigDecimal) partialVals.remove(0);
-                else
+                if (!partialVals.isEmpty()) {
+                    bd = partialVals.remove(0);
+                } else {
                     bd = new BigDecimal(0);
+                }
                 values.add(bd.add(new BigDecimal(val)));
-
             }
 
             if (isEvent) {
-                partialVals = new ArrayList(values);
+                partialVals = new ArrayList<>(values);
                 isEvent = false;
                 long eventCode = convertHexToLongLE(byteStream, len);
                 startTime = convertHexToLongLE(byteStream, 4);
@@ -143,7 +131,7 @@ public class JemStar extends Jem implements MessageProtocol  {
                         IntervalData id = new IntervalData(cal.getTime(), eiStatus);
                         id.addValues(values);
                         addInterval(cal, id, startDate, now);
-                        partialVals = new ArrayList();
+                        partialVals = new ArrayList<>();
                         cal.setTimeInMillis(endTime);
                         ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
                         eiStatus = IntervalStateBits.POWERUP;
@@ -151,7 +139,7 @@ public class JemStar extends Jem implements MessageProtocol  {
                     }
                 } else if ((eventCode & eventIndicator) == eventIndicator) //midnight
                 {
-                    partialVals = new ArrayList();
+                    partialVals = new ArrayList<>();
                 } else {
                     continue;
                 }
@@ -160,7 +148,7 @@ public class JemStar extends Jem implements MessageProtocol  {
             if (noDate) {
                 dataList.add(values);
             } else {
-                if (dataList.size() > 0) {
+                if (!dataList.isEmpty()) {
                     Calendar c = (Calendar) cal.clone();
                     c.setTimeInMillis(startTime);
                     processList(dataList, c, startDate, now);
@@ -171,7 +159,6 @@ public class JemStar extends Jem implements MessageProtocol  {
                     id.addValues(values);
                     addInterval(cal, id, startDate, now);
                 }
-                lastDate = cal.getTime();
                 cal.add(Calendar.SECOND, getProfileInterval());
                 eiStatus = 0;
             }
@@ -198,10 +185,7 @@ public class JemStar extends Jem implements MessageProtocol  {
         }
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e 
-	 *******************************************************************************************/
-
+    @Override
     protected void retrieveRegisters() throws IOException {
         registerValues = new HashMap();
 
@@ -229,7 +213,7 @@ public class JemStar extends Jem implements MessageProtocol  {
         processAlternateRegisters(dataInStream, ALTERNATE);
     }
 
-    protected void processRegisters(InputStream byteStream, int obisCValue) throws IOException {
+    private void processRegisters(InputStream byteStream, int obisCValue) throws IOException {
         int startOffset = 0;
         int len = 2;
         int pos = startOffset;
@@ -300,7 +284,7 @@ public class JemStar extends Jem implements MessageProtocol  {
         }
     }
 
-    protected void processAlternateRegisters(InputStream byteStream, int obisCValue) throws IOException {
+    private void processAlternateRegisters(InputStream byteStream, int obisCValue) throws IOException {
         int startOffset = 0;
         int len = 2;
         int pos = startOffset;
@@ -401,6 +385,7 @@ public class JemStar extends Jem implements MessageProtocol  {
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (this.channelCount == 0) {
             int inval = 0;
@@ -419,6 +404,7 @@ public class JemStar extends Jem implements MessageProtocol  {
         return this.channelCount;
     }
 
+    @Override
     public Date getTime() throws IOException {
         String instr = "";
         byte[] send = new byte[]{(byte) getInfoTypeNodeAddressNumber(), 0x54, 0x02, 0x10, 0x02, 0x10, 0x03};
@@ -435,6 +421,7 @@ public class JemStar extends Jem implements MessageProtocol  {
         }
     }
 
+    @Override
     public void setTime() throws IOException {
         Calendar cal = Calendar.getInstance(getTimeZone());
         int yy = cal.get(Calendar.YEAR) % 100;
@@ -465,10 +452,12 @@ public class JemStar extends Jem implements MessageProtocol  {
         getLogger().info("Set time successful");
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-02-16 14:24:57 +0100 (Mon, 16 Feb 2015) $";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         String instr = "";
         byte[] send = new byte[]{(byte) getInfoTypeNodeAddressNumber(), 0x06, 0x01, 0x10, 0x02, 0x10, 0x03};
@@ -480,4 +469,5 @@ public class JemStar extends Jem implements MessageProtocol  {
 
         return instr;
     }
+
 }
