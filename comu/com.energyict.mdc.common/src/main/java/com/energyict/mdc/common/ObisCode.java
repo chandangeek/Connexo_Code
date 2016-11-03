@@ -118,7 +118,7 @@ public class ObisCode implements Serializable {
     }
 
     @XmlAttribute
-    public boolean isRelativeBillingPeriod() {
+    public boolean hasRelativeBillingPeriod() {
         return relativeBillingPeriod;
     }
 
