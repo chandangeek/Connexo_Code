@@ -7,7 +7,7 @@ import aQute.bnd.annotation.ProviderType;
  * This ComTaskExecution can only serve the 'Firmware Management' ComTask.
  */
 @ProviderType
-public interface FirmwareComTaskExecution extends ComTaskExecution {
+public interface FirmwareComTaskExecution extends SingleComTaskComTaskExecution {
 
     @Override
     FirmwareComTaskExecutionUpdater getUpdater();

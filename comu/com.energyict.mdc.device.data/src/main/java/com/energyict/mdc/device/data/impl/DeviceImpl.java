@@ -415,7 +415,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return deviceConfigurationService;
     }
 
-    LockService getLockService(){
+    LockService getLockService() {
         return lockService;
     }
 
@@ -916,7 +916,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
 
             Optional<? extends MeterActivation> meterActivationAt = this.meter.get().getMeterActivation(startDateMultiplier.get());
-            if(!meterActivationAt.isPresent()){
+            if (!meterActivationAt.isPresent()) {
                 throw MultiplierConfigurationException.multiplierMustHaveMeterActivation(thesaurus);
             }
         }
@@ -1333,9 +1333,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
         Instant maximumPastEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp();
         Instant maximumFutureEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp();
-        if(koreHelper.getInitialMeterActivationStartDate().get().isBefore(maximumPastEffectiveTimestamp) ||
-           koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)){
-            throw new NoLifeCycleActiveAt(thesaurus, MessageSeeds.INVALID_SHIPMENT_DATE, koreHelper.getInitialMeterActivationStartDate().get(), maximumPastEffectiveTimestamp,  maximumFutureEffectiveTimestamp);
+        if (koreHelper.getInitialMeterActivationStartDate().get().isBefore(maximumPastEffectiveTimestamp) ||
+                koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)) {
+            throw new NoLifeCycleActiveAt(thesaurus, MessageSeeds.INVALID_SHIPMENT_DATE, koreHelper.getInitialMeterActivationStartDate()
+                    .get(), maximumPastEffectiveTimestamp, maximumFutureEffectiveTimestamp);
         }
         Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
@@ -2043,8 +2044,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ComSchedule comSchedule) {
-        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, comTaskEnablement, comSchedule);
+    public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule) {
+        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, comSchedule);
     }
 
     @Override
@@ -2082,11 +2083,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule))
-                .findFirst()
-                .
-                        orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
-        removeComTaskExecution(toRemove);
+        List<ComTaskExecutionImpl> toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule))
+                .collect(Collectors.toList());
+        if (toRemove.size() == 0) {
+            throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
+        } else {
+            toRemove.stream()
+                    .forEach(this::removeComTaskExecution);
+        }
     }
 
     @Override
@@ -2677,12 +2681,89 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
 
         private Set<ComTaskExecution> executionsToDelete;
+        private List<ComTaskExecutionImpl.SingleScheduledComTaskExecutionBuilder> comTaskExecutionsBuilders = new ArrayList<>();
 
-        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement, ComSchedule comSchedule) {
+
+        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
             this.initExecutionsToDelete(comSchedule);
-            this.getComTaskExecution().initialize(DeviceImpl.this, comTaskEnablement, comSchedule);
+            DeviceImpl.this.getDeviceConfiguration()
+                    .getComTaskEnablements()
+                    .stream()
+                    .filter(comTaskEnablement -> comSchedule.getComTasks().contains(comTaskEnablement.getComTask()))
+                    .forEach(comTaskEnablement -> {
+                        ScheduledComTaskExecutionImpl scheduledComTaskExecution = comTaskExecutionProvider.get();
+                        scheduledComTaskExecution.initialize(DeviceImpl.this, comTaskEnablement, comSchedule);
+                        comTaskExecutionsBuilders.add(new ComTaskExecutionImpl.SingleScheduledComTaskExecutionBuilder(scheduledComTaskExecution));
+                    });
         }
+
+        @Override
+        protected ScheduledComTaskExecutionImpl getComTaskExecution() {
+            return this.comTaskExecutionsBuilders.get(0).getComTaskExecution();
+        }
+
+        @Override
+        public ScheduledComTaskExecutionBuilderForDevice useDefaultConnectionTask(boolean useDefaultConnectionTask) {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(builder -> builder.useDefaultConnectionTask(useDefaultConnectionTask));
+            return this;
+        }
+
+        @Override
+        public ScheduledComTaskExecutionBuilderForDevice connectionTask(ConnectionTask<?, ?> connectionTask) {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(builder -> builder.connectionTask(connectionTask));
+            return this;
+        }
+
+        @Override
+        public ScheduledComTaskExecutionBuilderForDevice priority(int priority) {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(builder -> builder.priority(priority));
+            return this;
+        }
+
+        @Override
+        public ScheduledComTaskExecutionBuilderForDevice ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(builder -> builder.ignoreNextExecutionSpecForInbound(ignoreNextExecutionSpecsForInbound));
+            return this;
+        }
+
+        @Override
+        public ScheduledComTaskExecutionBuilderForDevice scheduleNow() {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::scheduleNow);
+            return this;
+        }
+
+        @Override
+        public ScheduledComTaskExecutionBuilderForDevice runNow() {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::runNow);
+            return this;
+        }
+
+        @Override
+        public ScheduledComTaskExecutionBuilderForDevice schedule(Instant instant) {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(builder -> builder.schedule(instant));
+            return this;
+        }
+
+        @Override
+        public void putOnHold() {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::putOnHold);
+        }
+
+        @Override
+        public void resume() {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::resume);
+        }
+
 
         private void initExecutionsToDelete(ComSchedule comSchedule) {
             Set<Long> comScheduleComTasks = comSchedule.getComTasks().stream().map(ComTask::getId).collect(Collectors.toSet());
@@ -2695,8 +2776,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         @Override
         public ScheduledComTaskExecution add() {
             executionsToDelete.forEach(DeviceImpl.this::removeComTaskExecution);
-            ScheduledComTaskExecution comTaskExecution = super.add();
-            return (ScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
+            List<ScheduledComTaskExecution> executions = comTaskExecutionsBuilders.stream()
+                    .map(builder -> {
+                        ScheduledComTaskExecution execution = (ScheduledComTaskExecution) builder.add();
+                        DeviceImpl.this.add((ComTaskExecutionImpl) execution);
+                        return execution;
+                    })
+                    .collect(Collectors.toList());
+            return executions.get(0);
         }
     }
 

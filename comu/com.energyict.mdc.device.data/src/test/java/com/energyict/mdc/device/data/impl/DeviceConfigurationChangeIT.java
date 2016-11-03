@@ -1134,7 +1134,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
             device.save();
-            final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(comTaskEnablement1, comSchedule).add();
+            final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(comSchedule).add();
             device.save();
             context.commit();
         }

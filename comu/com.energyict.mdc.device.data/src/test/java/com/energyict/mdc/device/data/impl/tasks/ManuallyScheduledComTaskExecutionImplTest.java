@@ -570,7 +570,7 @@ Irrelevant as delete is not supported any more
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "Duplicate", "Duplicate", Instant.now());
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> scheduledComTaskExecutionBuilder = device.newScheduledComTaskExecution(comTaskEnablement, comSchedule);
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> scheduledComTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         scheduledComTaskExecutionBuilder.add();
         device.save();
 

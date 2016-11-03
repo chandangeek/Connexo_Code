@@ -52,6 +52,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -853,6 +854,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
+    public List<ComTask> getComTasks() {
+        return Collections.singletonList(getComTask());
+    }
+
+    @Override
     public ComTask getComTask() {
         return this.comTask.get();
     }
@@ -864,6 +870,17 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
         return protocolDialectConfigurationProperties.orNull();
+    }
+
+    public static class SingleScheduledComTaskExecutionBuilder extends AbstractComTaskExecutionBuilder {
+
+        public SingleScheduledComTaskExecutionBuilder(ComTaskExecutionImpl instance) {
+            super(instance);
+        }
+
+        public ScheduledComTaskExecutionImpl getComTaskExecution() {
+            return (ScheduledComTaskExecutionImpl) super.getComTaskExecution();
+        }
     }
 
     public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {

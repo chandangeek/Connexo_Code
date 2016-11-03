@@ -64,7 +64,7 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
                     deviceStream = queueMessage.deviceMRIDs.stream().map(deviceService::findByUniqueMrid).filter(Optional::isPresent).map(Optional::get);
                 }
                 deviceStream.forEach(
-                        device -> processMessagePost(new ComScheduleOnDeviceQueueMessage(scheduleId, device.getmRID(), queueMessage.action), destinationSpec.get()));
+                        device -> processMessagePost(new ComScheduleOnDeviceQueueMessage(scheduleId, device.getmRID(), queueMessage.action, queueMessage.strategy), destinationSpec.get()));
             }
         } else {
             // LOG failure

@@ -16,6 +16,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -381,6 +382,17 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     void addNewComTaskExecutionTrigger(Instant triggerTimeStamp);
 
     long getConnectionTaskId(); // for performance reasons, approved by program architect
+
+    /**
+     * Returns a list with one element with the {@link ComTask} that specifies
+     * the details of this ComTaskExecution.
+     *
+     * The getComTask method should be used
+     *
+     * @return Singleton list of the ComTask
+     */
+    @Deprecated
+    List<ComTask> getComTasks();
 
     /**
      * Gets the {@link ComTask} that specifies

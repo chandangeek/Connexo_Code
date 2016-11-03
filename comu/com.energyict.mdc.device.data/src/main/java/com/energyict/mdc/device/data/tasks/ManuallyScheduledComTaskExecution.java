@@ -11,7 +11,7 @@ import aQute.bnd.annotation.ProviderType;
  * @since 2014-06-30 (10:59)
  */
 @ProviderType
-public interface ManuallyScheduledComTaskExecution extends ComTaskExecution {
+public interface ManuallyScheduledComTaskExecution extends SingleComTaskComTaskExecution {
 
     @Override
     ManuallyScheduledComTaskExecutionUpdater getUpdater();
