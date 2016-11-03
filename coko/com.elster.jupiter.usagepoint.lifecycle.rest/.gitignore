@@ -1,4 +1,5 @@
 .classpath
+<<<<<<< 7efb853e35f01c6fae4174da9debc78383b72eaa
 <<<<<<< 8e926a0844e930893a4620d46261d539c6e56577
 .project
 .settings/
@@ -18,3 +19,17 @@ generated/
 .settings/
 target/
 >>>>>>> CXO-3311 Split bundles
+=======
+.project
+.settings/
+.idea/
+*.iml
+*.iws
+.DS_Store
+log/
+/target/
+/build/
+.gradle/
+bin/
+generated/
+>>>>>>> CXO-3311 REST CRUD for life cycle

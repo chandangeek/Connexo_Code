@@ -5,7 +5,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-
+    NO_SUCH_LIFE_CYCLE(1, "no.such.life.cycle", "No life cycle with id {0}"),
     ;
 
     private final int number;

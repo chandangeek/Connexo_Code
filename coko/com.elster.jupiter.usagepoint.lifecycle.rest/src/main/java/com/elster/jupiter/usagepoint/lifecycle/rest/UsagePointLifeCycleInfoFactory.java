@@ -11,4 +11,9 @@ public class UsagePointLifeCycleInfoFactory {
         info.version = lifeCycle.getVersion();
         return info;
     }
+
+    public UsagePointLifeCycleInfo fullInfo(UsagePointLifeCycle lifeCycle) {
+        UsagePointLifeCycleInfo info = from(lifeCycle);
+        return info;
+    }
 }
