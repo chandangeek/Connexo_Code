@@ -1,41 +1,40 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.a1800.ProfileDataReader;
+import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public class A1800 extends AbstractDLMS {
-
-
     /**
      * Predefined obiscodes for the A1800 meter
      */
-    public static final ObisCode LOAD_PROFILE_PULSES = ObisCode.fromString("1.0.99.1.0.255");
-    public static final ObisCode LOAD_PROFILE_ENG_CUMM = ObisCode.fromString("1.0.99.1.1.255");
-    public static final ObisCode LOAD_PROFILE_ENG_ADV = ObisCode.fromString("1.0.99.1.2.255");
+    private static final ObisCode LOAD_PROFILE_PULSES = ObisCode.fromString("1.0.99.1.0.255");
+    private static final ObisCode LOAD_PROFILE_ENG_CUMM = ObisCode.fromString("1.0.99.1.1.255");
+    private static final ObisCode LOAD_PROFILE_ENG_ADV = ObisCode.fromString("1.0.99.1.2.255");
+    private static final ObisCode METER_SERIAL_NUMBER = ObisCode.fromString("1.0.96.1.0.255");
+
     public static final ObisCode LOG_PROFILE = ObisCode.fromString("1.1.99.98.0.255");
     public static final ObisCode OBJECT_LIST = ObisCode.fromString("0.0.40.0.0.255");
-    public static final ObisCode METER_SERIAL_NUMBER = ObisCode.fromString("1.0.96.1.0.255");
     public static final String SCALE_FACTOR = "Scale factor";
     public static final String MULTIPLIER = "Multiplier";
 
     private Map<ObisCode, ObjectEntry> objectEntries = null;
     private boolean applyMultiplier = false;
 
-    /**
-     * Override this method to request the load profile from the meter starting at lastreading until now.
-     *
-     * @param lastReading   request from
-     * @param includeEvents enable or disable tht reading of meterevents
-     * @return All load profile data in the meter from lastReading
-     * @throws java.io.IOException When something goes wrong
-     */
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         ProfileDataReader profileDataReader = new ProfileDataReader(this);
         return profileDataReader.getProfileData(lastReading, includeEvents);
@@ -46,21 +45,28 @@ public class A1800 extends AbstractDLMS {
     }
 
     @Override
-    protected void doTheValidateProperties(Properties properties) {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_LP_MULTIPLIER, false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSES.toString())));
-        applyMultiplier = !properties.getProperty(PROPERTY_LP_MULTIPLIER, "0").equals("0");
+        applyMultiplier = !"0".equals(properties.getProperty(PROPERTY_LP_MULTIPLIER, "0"));
 
         String password = getInfoTypePassword();
         if (password != null) {
             StringBuilder strbuild = new StringBuilder();
-            // extend with zeros...
-
+            // pad with zeros...
             for (int i = 0; i < password.length(); i++) {
-                strbuild.append("0" + password.substring(i, i + 1));
+                strbuild.append("0").append(password.substring(i, i + 1));
             }
             setInfoTypePassword(strbuild.toString());
         }
-
     }
 
     @Override
@@ -68,6 +74,7 @@ public class A1800 extends AbstractDLMS {
         return METER_SERIAL_NUMBER;
     }
 
+    @Override
     protected ObisCode getUtilityIdObiscode() {
         return METER_SERIAL_NUMBER;
     }
@@ -77,16 +84,13 @@ public class A1800 extends AbstractDLMS {
         return PairingMeterId.A1800;
     }
 
-
     @Override
     protected Map<ObisCode, ObjectEntry> getObjectEntries() {
-
-        /**
+        /*
          * Lazy initialize the map with objectEntries
          */
         if (objectEntries == null) {
-
-            objectEntries = new HashMap();
+            objectEntries = new HashMap<>();
 
             objectEntries.put(METER_SERIAL_NUMBER, new ObjectEntry("Meter serial number", 1));
 
@@ -163,9 +167,9 @@ public class A1800 extends AbstractDLMS {
         return objectEntries;
     }
 
-
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
+
 }

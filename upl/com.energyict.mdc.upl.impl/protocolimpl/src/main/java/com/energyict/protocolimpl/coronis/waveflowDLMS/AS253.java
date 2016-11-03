@@ -1,12 +1,19 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.as253.ProfileDataReader;
+import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,29 +22,32 @@ public class AS253 extends AbstractDLMS {
     /**
      * Predefiened obis codes for the AS253 meter
      */
-    public static final ObisCode LOAD_PROFILE_PULSE_VALUES = ObisCode.fromString("1.1.99.1.0.255");
-    public static final ObisCode LOG_PROFILE = ObisCode.fromString("1.1.99.98.0.255");
+    private static final ObisCode LOAD_PROFILE_PULSE_VALUES = ObisCode.fromString("1.1.99.1.0.255");
+    private static final ObisCode LOG_PROFILE = ObisCode.fromString("1.1.99.98.0.255");
+    private static final ObisCode METER_SERIAL_NUMBER = ObisCode.fromString("1.1.96.1.0.255");
+    private static final ObisCode UTILITY_ID = ObisCode.fromString("1.1.0.0.0.255");
+    private static final ObisCode AM700_FW_VERSION = ObisCode.fromString("1.1.155.0.0.255");
     public static final ObisCode OBJECT_LIST = ObisCode.fromString("0.0.40.0.0.255");
-    public static final ObisCode METER_SERIAL_NUMBER = ObisCode.fromString("1.1.96.1.0.255");
-    public static final ObisCode UTILITY_ID = ObisCode.fromString("1.1.0.0.0.255");
-    public static final ObisCode AM700_FW_VERSION = ObisCode.fromString("1.1.155.0.0.255");
 
     private Map<ObisCode,ObjectEntry> objectEntries = null;
 
-    /**
-     * Override this method to request the load profile from the meter starting at lastreading until now.
-     * @param lastReading request from
-     * @param includeEvents enable or disable tht reading of meterevents
-     * @throws java.io.IOException When something goes wrong
-     * @return All load profile data in the meter from lastReading
-     */
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         ProfileDataReader profileDataReader = new ProfileDataReader(this);
         return profileDataReader.getProfileData(lastReading, includeEvents);
     }
 
     @Override
-    protected void doTheValidateProperties(Properties properties) {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_LP_MULTIPLIER, false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSE_VALUES.toString())));
     }
 
@@ -46,6 +56,7 @@ public class AS253 extends AbstractDLMS {
         return METER_SERIAL_NUMBER;
     }
 
+    @Override
     protected ObisCode getUtilityIdObiscode() {
         return UTILITY_ID;
     }
@@ -57,15 +68,11 @@ public class AS253 extends AbstractDLMS {
 
     @Override
     protected Map<ObisCode, ObjectEntry> getObjectEntries() {
-
-        /**
+        /*
          * Lazy initialize the map with objectEntries
          */
         if (objectEntries == null) {
-
-            objectEntries = new HashMap();
-
-
+            objectEntries = new HashMap<>();
             objectEntries.put(METER_SERIAL_NUMBER,new ObjectEntry("Meter serial number",1));
             objectEntries.put(AM700_FW_VERSION,new ObjectEntry("AM700 firmware version",1));
             objectEntries.put(ObisCode.fromString("1.1.1.8.0.255"),new ObjectEntry("Import active energy tarif 0",3));
@@ -115,4 +122,5 @@ public class AS253 extends AbstractDLMS {
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
+
 }
