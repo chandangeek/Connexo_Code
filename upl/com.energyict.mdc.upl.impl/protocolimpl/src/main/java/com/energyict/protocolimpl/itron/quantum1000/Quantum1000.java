@@ -10,9 +10,8 @@
 
 package com.energyict.protocolimpl.itron.quantum1000;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -31,6 +30,7 @@ import com.energyict.protocolimpl.itron.quantum1000.minidlms.ProtocolLink;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.RegisterMapFactory;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.ReplyException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,16 +40,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+
 /**
  *
  * @author Koen
  */
 public class Quantum1000 extends AbstractProtocol implements ProtocolLink, SerialNumberSupport {
 
-    public final static String PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER = "ApplyDemandRegisterMultiplier";
-    public final static String PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER = "ApplyEnergyRegisterMultiplier";
-    public final static String PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER = "ApplySelfReadRegisterMultiplier";
-    public final static String PROPERTY_SUPPORTS_IDENTIFY_COMMAND = "SupportsIdentifyCommand";
+    public static final String PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER = "ApplyDemandRegisterMultiplier";
+    public static final String PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER = "ApplyEnergyRegisterMultiplier";
+    public static final String PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER = "ApplySelfReadRegisterMultiplier";
+    public static final String PROPERTY_SUPPORTS_IDENTIFY_COMMAND = "SupportsIdentifyCommand";
 
     private MiniDLMSConnection miniDLMSConnection=null;
     private ApplicationStateMachine applicationStateMachine=null;
@@ -68,15 +70,12 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     private boolean applySelfReadRegisterMultiplier = true;
     private boolean supportsIdentifyCommand = true;
 
-    /** Creates a new instance of Quantum1000 */
-    public Quantum1000() {
-
-    }
-
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getQuantum1000Profile().getProfileData(lastReading,includeEvents);
     }
 
+    @Override
     protected void doConnect() throws IOException {
         String identify = getApplicationStateMachine().identify();
         getLogger().info("identify="+identify.trim());
@@ -101,25 +100,34 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         getLogger().info("initiate="+initiate);
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
         getRemoteProcedureCallFactory().endSession();
     }
 
-    public List<String> getOptionalKeys() {
-        List<String> retVal = super.getOptionalKeys();
-        retVal.add(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER);
-        retVal.add(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER);
-        retVal.add(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER);
-        retVal.add(PROPERTY_SUPPORTS_IDENTIFY_COMMAND);
-        return retVal;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_SUPPORTS_IDENTIFY_COMMAND, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_SUPPORTS_IDENTIFY_COMMAND, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("ClientAddress", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("MassMemoryId", false));
+        return propertySpecs;
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         clientAddress = Integer.parseInt(properties.getProperty("ClientAddress", "254"));
-        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "01"));
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
-        setMassMemoryId(Integer.parseInt(properties.getProperty("MassMemoryId","0").trim()));
-        if (getMassMemoryId()>1) setMassMemoryId(1);
+        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "01"));
+        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
+        setMassMemoryId(Integer.parseInt(properties.getProperty("MassMemoryId", "0").trim()));
+        if (getMassMemoryId()>1) {
+            setMassMemoryId(1);
+        }
         setApplyDemandRegisterMultiplier(Boolean.parseBoolean(properties.getProperty(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER, "true")));
         setApplyEnergyRegisterMultiplier(Boolean.parseBoolean(properties.getProperty(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER, "true")));
         setApplySelfReadRegisterMultiplier(Boolean.parseBoolean(properties.getProperty(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER, "true")));
@@ -158,22 +166,17 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         this.supportsIdentifyCommand = supportsIdentifyCommand;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return getDataDefinitionFactory().getMassMemoryConfiguration(getMassMemoryId()).getMassMemoryConfigType().getIntervalLength();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return getDataDefinitionFactory().getMassMemoryConfiguration(getMassMemoryId()).getMassMemoryConfigType().getNumberOfChannels();
-
     }
 
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add("MassMemoryId");
-        return list;
-    }
-
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setMiniDLMSConnection(new MiniDLMSConnection(inputStream, outputStream, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, timeoutProperty, getInfoTypeSecurityLevel(), clientAddress));
         setApplicationStateMachine(new ApplicationStateMachine(this, isSupportsIdentifyCommand()));
@@ -183,8 +186,8 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         return getMiniDLMSConnection();
     }
 
+    @Override
     public Date getTime() throws IOException {
-
         return getDataDefinitionFactory().getRealTime().getCurrentDateTime();
     }
 
@@ -197,18 +200,21 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-07-11 09:48:56 +0300 (Mon, 11 Jul 2016)$";
     }
 
+    @Override
     public void setTime() throws IOException {
-
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return "Firmware revision: "+getDataDefinitionFactory().getGeneralDiagnosticInfo().getFirmwareRevision();
     }
 
+    @Override
     public AbstractProtocol getProtocol() {
         return this;
     }
@@ -221,8 +227,7 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         this.clientAddress = clientAddress;
     }
 
-
-
+    @Override
     public MiniDLMSConnection getMiniDLMSConnection() {
         return miniDLMSConnection;
     }
@@ -231,6 +236,7 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         this.miniDLMSConnection = miniDLMSConnection;
     }
 
+    @Override
     public ApplicationStateMachine getApplicationStateMachine() {
         return applicationStateMachine;
     }
@@ -239,6 +245,7 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         this.applicationStateMachine = applicationStateMachine;
     }
 
+    @Override
     public DataDefinitionFactory getDataDefinitionFactory() {
         return dataDefinitionFactory;
     }
@@ -247,80 +254,87 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         this.dataDefinitionFactory = dataDefinitionFactory;
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("************* G E N E R A L  D I A G N O S T I C S  I N F O *************\n");
-        strBuff.append(getDataDefinitionFactory().getGeneralDiagnosticInfo());
-        strBuff.append("************* G E N E R A L  S E T U P *************\n");
-        strBuff.append(getDataDefinitionFactory().getMeterSetup());
-        strBuff.append(getDataDefinitionFactory().getMeterIDS());
-        strBuff.append("************* V I E W *************\n");
-        strBuff.append(getDataDefinitionFactory().getDefaultViewIdConfiguration());
-        strBuff.append("************* D E M A N D *************\n");
-        strBuff.append(getDataDefinitionFactory().getGeneralDemandConfiguration());
-        strBuff.append(getDataDefinitionFactory().getDemandRegisterConfiguration());
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(0,0));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(0,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(1,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(1,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(2,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(2,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(3,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(4,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(5,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(6,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(7,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(8,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(9,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getDemandRegisterReadings(0,1));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getDemandRegisterReadings(0,1) unavailable\n"); else throw e;}
-        strBuff.append("************* E N E R G Y *************\n");
-        strBuff.append(getDataDefinitionFactory().getGeneralEnergyConfiguration());
-        strBuff.append(getDataDefinitionFactory().getEnergyRegisterConfiguration());
-        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(0));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(0) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(1));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(1) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(2));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(2) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(3));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(3) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(4));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(4) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(5));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(5) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(6));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(6) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(7));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(7) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(8));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(8) unavailable\n"); else throw e;}
-//        try {strBuff.append(getDataDefinitionFactory().getEnergyRegistersReading(9));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEnergyRegistersReading(9) unavailable\n"); else throw e;}
-        strBuff.append("************* S E L F  R E A D *************\n");
-        strBuff.append(getDataDefinitionFactory().getSelfReadGeneralConfiguration());
-        strBuff.append(getDataDefinitionFactory().getSelfReadRegisterConfiguration());
-        strBuff.append(getDataDefinitionFactory().getSelfReadGeneralInformation());
+        StringBuilder builder = new StringBuilder();
+        builder.append("************* G E N E R A L  D I A G N O S T I C S  I N F O *************\n");
+        builder.append(getDataDefinitionFactory().getGeneralDiagnosticInfo());
+        builder.append("************* G E N E R A L  S E T U P *************\n");
+        builder.append(getDataDefinitionFactory().getMeterSetup());
+        builder.append(getDataDefinitionFactory().getMeterIDS());
+        builder.append("************* V I E W *************\n");
+        builder.append(getDataDefinitionFactory().getDefaultViewIdConfiguration());
+        builder.append("************* D E M A N D *************\n");
+        builder.append(getDataDefinitionFactory().getGeneralDemandConfiguration());
+        builder.append(getDataDefinitionFactory().getDemandRegisterConfiguration());
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(0,0));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(0,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(1,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(1,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(2,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(2,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(3,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(4,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(5,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(6,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(7,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(8,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(9,0));} catch(ReplyException e) { if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(3,0) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getDemandRegisterReadings(0,1));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getDemandRegisterReadings(0,1) unavailable\n"); else throw e;}
+        builder.append("************* E N E R G Y *************\n");
+        builder.append(getDataDefinitionFactory().getGeneralEnergyConfiguration());
+        builder.append(getDataDefinitionFactory().getEnergyRegisterConfiguration());
+        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(0));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(0) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(1));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(1) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(2));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(2) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(3));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(3) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(4));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(4) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(5));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(5) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(6));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(6) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(7));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(7) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(8));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(8) unavailable\n"); else throw e;}
+//        try {builder.append(getDataDefinitionFactory().getEnergyRegistersReading(9));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEnergyRegistersReading(9) unavailable\n"); else throw e;}
+        builder.append("************* S E L F  R E A D *************\n");
+        builder.append(getDataDefinitionFactory().getSelfReadGeneralConfiguration());
+        builder.append(getDataDefinitionFactory().getSelfReadRegisterConfiguration());
+        builder.append(getDataDefinitionFactory().getSelfReadGeneralInformation());
 
         try {
-            strBuff.append(getDataDefinitionFactory().getSelfReadDataUpload());
+            builder.append(getDataDefinitionFactory().getSelfReadDataUpload());
         } catch (ReplyException e) {
-            if (e.getAbstractReplyDataError().isInvalidObject())
-                strBuff.append("getSelfReadDataUpload() unavailable\n");
-            else throw e;
+            if (e.getAbstractReplyDataError().isInvalidObject()) {
+                builder.append("getSelfReadDataUpload() unavailable\n");
+            } else {
+                throw e;
+            }
         }
 
-        strBuff.append("************* M U L T I  T A R I F F *************\n");
+        builder.append("************* M U L T I  T A R I F F *************\n");
         if (getDataDefinitionFactory().isTOUMeter()) {
-            strBuff.append(getDataDefinitionFactory().getMultiTariffScheduleGeneralParameters());
-            strBuff.append(getDataDefinitionFactory().getMultiTariffRateScheduleGeneralParameters());
+            builder.append(getDataDefinitionFactory().getMultiTariffScheduleGeneralParameters());
+            builder.append(getDataDefinitionFactory().getMultiTariffRateScheduleGeneralParameters());
         }
-        else strBuff.append("No MULTI TARIFF Meter!\n");
-        strBuff.append("************* M A S S  M E M O R Y *************\n");
-        try {strBuff.append(getDataDefinitionFactory().getMassMemoryConfiguration(getMassMemoryId()));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getMassMemoryConfiguration("+getMassMemoryId()+") unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getMassMemoryInformation(getMassMemoryId()));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getMassMemoryInformation("+getMassMemoryId()+") unavailable\n"); else throw e;}
-        strBuff.append("************* E V E N T  L O G *************\n");
-        try {strBuff.append(getDataDefinitionFactory().getEventLogSummary());} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEventLogSummary() unavailable\n"); else throw e;}
-        try {strBuff.append(getDataDefinitionFactory().getEventLogUpload());} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) strBuff.append("getEventLogSummary() unavailable\n"); else throw e;}
-        strBuff.append("************* R E G I S T E R S  M A P P I N G *************\n");
-        strBuff.append(getRegisterMapFactory().getRegisterInfo());
+        else {
+            builder.append("No MULTI TARIFF Meter!\n");
+        }
+        builder.append("************* M A S S  M E M O R Y *************\n");
+        try {builder.append(getDataDefinitionFactory().getMassMemoryConfiguration(getMassMemoryId()));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getMassMemoryConfiguration("+getMassMemoryId()+") unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getMassMemoryInformation(getMassMemoryId()));} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getMassMemoryInformation("+getMassMemoryId()+") unavailable\n"); else throw e;}
+        builder.append("************* E V E N T  L O G *************\n");
+        try {builder.append(getDataDefinitionFactory().getEventLogSummary());} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEventLogSummary() unavailable\n"); else throw e;}
+        try {builder.append(getDataDefinitionFactory().getEventLogUpload());} catch(ReplyException e) {if (e.getAbstractReplyDataError().isInvalidObject()) builder.append("getEventLogSummary() unavailable\n"); else throw e;}
+        builder.append("************* R E G I S T E R S  M A P P I N G *************\n");
+        builder.append(getRegisterMapFactory().getRegisterInfo());
 
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public RemoteProcedureCallFactory getRemoteProcedureCallFactory() {
@@ -354,6 +368,5 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
         }
         return registerMapFactory;
     }
-
 
 }
