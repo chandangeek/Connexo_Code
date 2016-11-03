@@ -27,12 +27,9 @@ KV|01092005|Add manufacturer specific code
  */
 public class EnermetE60X extends EnermetBase implements SerialNumberSupport {
 
-    RegisterConfig regs = new UcontoRegisterConfig();
-    
-    /** Creates a new instance of EnermetE70X */
-    public EnermetE60X() {
-    }
-    
+    private RegisterConfig regs = new UcontoRegisterConfig();
+
+    @Override
     protected RegisterConfig getRegs() {
         return regs;
     }
@@ -46,8 +43,9 @@ public class EnermetE60X extends EnermetBase implements SerialNumberSupport {
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }
-    
-} // class EnermetE60X
+
+}

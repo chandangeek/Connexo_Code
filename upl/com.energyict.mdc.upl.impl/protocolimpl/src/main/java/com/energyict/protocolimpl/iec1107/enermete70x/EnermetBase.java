@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -21,18 +21,19 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-// com.energyict.protocolimpl.iec1107.enermete70x.EnermetE70X
+
 /**
  *
  * @author  Koen
@@ -43,22 +44,24 @@ import java.util.Properties;
 public abstract class EnermetBase extends AbstractProtocol{
 
     IEC1107Connection iec1107Connection=null;
-    DataReadingCommandFactory dataReadingCommandFactory=null;
+    private DataReadingCommandFactory dataReadingCommandFactory=null;
     EnermetLoadProfile enermetLoadProfile=null;
     protected boolean software7E1;
-    protected boolean testE70xConnection = false;
+    private boolean testE70xConnection = false;
 
     protected abstract RegisterConfig getRegs();
 
     /** Creates a new instance of EnermetE70X */
-    public EnermetBase() {
+    protected EnermetBase() {
         super(false); // true for datareadout;
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getEnermetLoadProfile().getProfileData(lastReading, includeEvents);
     }
 
+    @Override
     public void connect() throws IOException {
         if (isTestE70xConnection()) {
             int logonRetries = getInfoTypeRetries();
@@ -106,13 +109,16 @@ public abstract class EnermetBase extends AbstractProtocol{
 		}
 	}
 
+    @Override
 	protected void doConnect() throws IOException {
         dataReadingCommandFactory = new DataReadingCommandFactory(this);
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return getRegs().getRegisterInfoForId()+
             "1.1.0.4.4.255 = Overal transformer ratio (text\n" +
@@ -120,14 +126,12 @@ public abstract class EnermetBase extends AbstractProtocol{
     }
 
 
+    @Override
     public int getNumberOfChannels() throws IOException {
        return getEnermetLoadProfile().getNrOfChannels();
     }
 
-    protected List<String> doGetOptionalKeys() {
-        return Collections.singletonList("Software7E1");
-    }
-
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         iec1107Connection=new IEC1107Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,ERROR_SIGNATURE, software7E1);
         iec1107Connection.setNoBreakRetry(isTestE70xConnection());
@@ -135,14 +139,25 @@ public abstract class EnermetBase extends AbstractProtocol{
         return iec1107Connection;
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return getDataReadingCommandFactory().getFirmwareVersion();
     }
 
+    @Override
     public Date getTime() throws IOException {
         // KV_DEBUG
 //        TimeZone tz = getDataReadingCommandFactory().getTimeZoneRead();
@@ -152,8 +167,8 @@ public abstract class EnermetBase extends AbstractProtocol{
         return getDataReadingCommandFactory().getDateTimeGmt();
     }
 
+    @Override
     public void setTime() throws IOException {
-        //Calendar calendar = ProtocolUtils.getCalendar(TimeZoneManager.getTimeZone("GMT"));
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         calendar.add(Calendar.MILLISECOND,getInfoTypeRoundtripCorrection());
         getDataReadingCommandFactory().setDateTimeGmt(calendar.getTime());
@@ -168,23 +183,8 @@ public abstract class EnermetBase extends AbstractProtocol{
         return iec1107Connection;
     }
 
-
-    //    public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
-    //        enableHHUSignOn(commChannel,true);
-    //    }
-
-    /*******************************************************************************************
-     * M e t e r E x c e p t i o n I n f o  i n t e r f a c e
-     *******************************************************************************************/
-    /*
-     *  This method must be overridden by the subclass to implement meter specific error
-     *  messages. Us sample code of a static map with error codes below as a sample and
-     *  use code in method as a sample of how to retrieve the error code.
-     *  This code has been taken from a real protocol implementation.
-     */
-
-    public static final String COMMAND_CANNOT_BE_EXECUTED="([4])";
-    public static final String ERROR_SIGNATURE="([";
+    static final String COMMAND_CANNOT_BE_EXECUTED="([4])";
+    static final String ERROR_SIGNATURE="([";
 
     private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
     static {
@@ -196,6 +196,7 @@ public abstract class EnermetBase extends AbstractProtocol{
         EXCEPTION_INFO_MAP.put("([7])","Core communication error");
     }
 
+    @Override
     public String getExceptionInfo(String id) {
         String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
         if (exceptionInfo != null) {
@@ -213,13 +214,12 @@ public abstract class EnermetBase extends AbstractProtocol{
         return dataReadingCommandFactory;
     }
 
-    /*******************************************************************************************
-     * R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(getDataReadingCommandFactory(),getTimeZone(),getRegs());
         return ocm.getRegisterValue(obisCode);

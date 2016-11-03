@@ -30,27 +30,30 @@ KV|01092005|Add manufacturer specific code
  * @endchanges
  */
 public class EnermetE70X extends EnermetBase {
-    
-    RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
-    
+
+    private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
+
     /** Creates a new instance of EnermetE70X */
     public EnermetE70X() {
     	setTestE70xConnection(true);
     }
-    
+
+    @Override
     protected RegisterConfig getRegs() {
         return regs;
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-05-13 16:50:47 +0200 (Wed, 13 May 2015) $";
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         iec1107Connection=new EnermetE70XIEC1107Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,ERROR_SIGNATURE, software7E1);
         iec1107Connection.setNoBreakRetry(isTestE70xConnection());
         enermetLoadProfile = new EnermetLoadProfile(this);
         return iec1107Connection;
     }
-    
-} // class EnermetE70X
+
+}
