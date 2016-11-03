@@ -115,7 +115,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
         if (Ext.isEmpty(value)) {
             return '-';
         }
-        debugger;
         var date = new Date(value),
             showDeviceQualityIcon = false,
             tooltipContent = '',
