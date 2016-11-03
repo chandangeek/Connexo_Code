@@ -88,18 +88,13 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     }
 
     @Override
-    public Map<DeviceIdentifier, LastSeenDateInfo> getSlaveDeviceIdentifiers() {
-        return slaveDeviceIdentifiers;
+    public List<DeviceIdentifier> getSlaveDeviceIdentifiers() {
+        return new ArrayList<>(slaveDeviceIdentifiers.keySet());
     }
 
     @Override
     public void addSlaveDevice(DeviceIdentifier slaveIdentifier) {
         slaveDeviceIdentifiers.put(slaveIdentifier, null);
-    }
-
-    @Override
-    public void addSlaveDevice(DeviceIdentifier slaveIdentifier, LastSeenDateInfo lastSeenDateInfo) {
-        slaveDeviceIdentifiers.put(slaveIdentifier, lastSeenDateInfo);
     }
 
     @Override

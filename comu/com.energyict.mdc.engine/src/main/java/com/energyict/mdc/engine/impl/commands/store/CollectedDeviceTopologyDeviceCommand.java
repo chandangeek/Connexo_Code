@@ -229,7 +229,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
 
     private Map<String, DeviceIdentifier> mapActualSlavedToDeviceIdAndHandleUnknownDevices (ComServerDAO comServerDAO) {
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = new HashMap<>();
-        Set<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers().keySet();
+        List<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers();
         for (DeviceIdentifier slaveId : actualSlaveDevices) {
             Optional<OfflineDevice> slave = Optional.empty();
             try {

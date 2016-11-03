@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.TopologyTask;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -107,7 +108,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         PropertyDescriptionBuilder originalSlavesBuilder = builder.addListProperty("originalSlaves");
         appendSlaves(originalSlavesBuilder, getSlaveIdentifiersFromOfflineDevices());
         PropertyDescriptionBuilder receivedSlavesBuilder = builder.addListProperty("receivedSlaves");
-        appendSlaves(receivedSlavesBuilder, this.deviceTopology.getSlaveDeviceIdentifiers().keySet());
+        appendSlaves(receivedSlavesBuilder, new HashSet<>(this.deviceTopology.getSlaveDeviceIdentifiers()));
         appendCollectedDeviceInfo(builder, this.deviceTopology.getAdditionalCollectedDeviceInfo());
     }
 

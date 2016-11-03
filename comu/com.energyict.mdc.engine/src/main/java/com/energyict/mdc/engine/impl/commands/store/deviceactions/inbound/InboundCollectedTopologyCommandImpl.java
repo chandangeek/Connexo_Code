@@ -73,7 +73,7 @@ public class InboundCollectedTopologyCommandImpl extends TopologyCommandImpl {
         PropertyDescriptionBuilder originalSlavesBuilder = builder.addListProperty("originalSlaves");
         appendSlaves(originalSlavesBuilder, getSlaveIdentifiersFromOfflineDevices());
         PropertyDescriptionBuilder receivedSlavesBuilder = builder.addListProperty("receivedSlaves");
-        appendSlaves(receivedSlavesBuilder, deviceTopology.getSlaveDeviceIdentifiers().keySet());
+        appendSlaves(receivedSlavesBuilder, deviceTopology.getSlaveDeviceIdentifiers());
         appendCollectedDeviceInfo(builder, deviceTopology.getAdditionalCollectedDeviceInfo());
     }
 

@@ -30,7 +30,7 @@ public class CollectedDeviceTopologyEvent extends AbstractCollectedDataProcessin
         writer.key("deviceIdentifier").value(topology.getDeviceIdentifier().toString());
         writer.key("slaveDeviceIdentifiers");
         writer.array();
-        for (DeviceIdentifier each : topology.getSlaveDeviceIdentifiers().keySet()) {
+        for (DeviceIdentifier each : topology.getSlaveDeviceIdentifiers()) {
             writer.object();
             writer.key("deviceIdentifier").value(each.toString());
             writer.endObject();

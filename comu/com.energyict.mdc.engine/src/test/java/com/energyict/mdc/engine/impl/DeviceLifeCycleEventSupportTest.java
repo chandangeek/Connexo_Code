@@ -293,7 +293,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(eventType.getTopic()).thenReturn(EventType.DEVICE_TOPOLOGY_CHANGED.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
         when(localEvent.getType()).thenReturn(eventType);
-        DeviceTopologyChangedEvent topologyChangedEvent = new DeviceTopologyChangedEvent(this.deviceIdentifier, Collections.emptyMap());
+        DeviceTopologyChangedEvent topologyChangedEvent = new DeviceTopologyChangedEvent(this.deviceIdentifier, Collections.emptyList());
         when(localEvent.getSource()).thenReturn(topologyChangedEvent);
 
         // Business method
@@ -314,7 +314,7 @@ public class DeviceLifeCycleEventSupportTest {
         LocalEvent localEvent = mock(LocalEvent.class);
         when(localEvent.getType()).thenReturn(eventType);
         when(this.deviceIdentifier.findDevice()).thenReturn(null);
-        DeviceTopologyChangedEvent topologyChangedEvent = new DeviceTopologyChangedEvent(this.deviceIdentifier, Collections.emptyMap());
+        DeviceTopologyChangedEvent topologyChangedEvent = new DeviceTopologyChangedEvent(this.deviceIdentifier, Collections.emptyList());
         when(localEvent.getSource()).thenReturn(topologyChangedEvent);
 
         // Business method
@@ -330,7 +330,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(eventType.getTopic()).thenReturn(EventType.DEVICE_TOPOLOGY_CHANGED.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
         when(localEvent.getType()).thenReturn(eventType);
-        DeviceTopologyChangedEvent topologyChangedEvent = new DeviceTopologyChangedEvent(this.deviceIdentifier, Collections.emptyMap());
+        DeviceTopologyChangedEvent topologyChangedEvent = new DeviceTopologyChangedEvent(this.deviceIdentifier, Collections.emptyList());
         when(localEvent.getSource()).thenReturn(topologyChangedEvent);
 
         // Business method
