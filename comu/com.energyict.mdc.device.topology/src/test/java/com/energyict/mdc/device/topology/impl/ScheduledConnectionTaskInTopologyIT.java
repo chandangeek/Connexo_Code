@@ -564,7 +564,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
-        return device.newScheduledComTaskExecution(comTaskEnablement, comSchedule).add();
+        return device.newScheduledComTaskExecution(comSchedule).add();
     }
 
     protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Instant nextExecutionTimeStamp) {
