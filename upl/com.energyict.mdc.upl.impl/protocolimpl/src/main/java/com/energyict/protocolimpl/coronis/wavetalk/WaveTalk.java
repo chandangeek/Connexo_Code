@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -13,17 +10,14 @@ import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactoryImpl;
 
 import java.io.IOException;
-import java.util.Properties;
 
 
 public class WaveTalk extends AbstractWaveTalk {
-
 
 	/**
 	 * specific obis code mapper
 	 */
 	private ObisCodeMapper obisCodeMapper;
-
 
 	/**
 	 * the common ohis code mapper for the WaveTalk
@@ -35,11 +29,8 @@ public class WaveTalk extends AbstractWaveTalk {
 	 */
 	private ParameterFactory parameterFactory=null;
 
-
 	@Override
 	protected void doTheConnect() throws IOException {
-
-
 	}
 
 	@Override
@@ -51,30 +42,19 @@ public class WaveTalk extends AbstractWaveTalk {
 
 	@Override
 	protected void doTheDisConnect() throws IOException {
-
 	}
 
 	@Override
-	protected void doTheValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-		// TODO Auto-generated method stub
-
-	}
-
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	return obisCodeMapper.getRegisterValue(obisCode);
     }
 
-    /**
-     * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.
-     * @param obisCode obiscode of the register to lookup
-     * @throws java.io.IOException thrown when somethiong goes wrong
-     * @return RegisterInfo object
-     */
+	@Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterInfo(obisCode);
     }
 
+	@Override
     public int getNumberOfChannels() {
         return 0;   //The repeater has no channels
     }
@@ -93,4 +73,5 @@ public class WaveTalk extends AbstractWaveTalk {
    	public String getProtocolVersion() {
            return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
    	}
+
 }
