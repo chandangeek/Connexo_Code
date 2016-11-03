@@ -59,6 +59,10 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.down('#displayTitle').setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
     },
 
+    isRemove: function() {
+        this.down('#strategyform').hide();
+    },
+
 
     showChangeDeviceConfigConfirmation: function (title, text, solveLink, additionalText, type) {
         var bodyText, widget,

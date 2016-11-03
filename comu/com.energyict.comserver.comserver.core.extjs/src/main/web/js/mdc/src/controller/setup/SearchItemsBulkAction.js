@@ -32,10 +32,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             selector: '#searchitems-bulk-step1 devices-selection-grid'
         },
         {
-            ref: 'stepSelectionError',
-            selector: '#stepSelectionError'
-        },
-        {
             ref: 'schedulesGrid',
             selector: '#schedulesgrid'
         },
@@ -82,6 +78,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'devicesErrorsPanel',
             selector: 'searchitems-bulk-step1 uni-form-error-message'
+        },
+        {
+            ref: 'step3',
+            selector: 'searchitems-bulk-step3'
+        },
+        {
+            ref: 'warningMessage',
+            selector: 'searchitems-bulk-step3 #stepSelectionError'
         }
     ],
 
@@ -195,7 +199,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     previewCommunicationSchedule: function (grid, record) {
-        var preview = this.getCommunicationSchedulePreview();
+        var me = this,
+            preview = this.getCommunicationSchedulePreview(),
+            communicationSchedules = grid.getSelectionModel().getSelection();
 
         if (!this.shedulesUnchecked) {
             preview.down('form').loadRecord(record);
@@ -203,6 +209,51 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             preview.show();
         } else {
             this.shedulesUnchecked = false;
+        }
+
+        if(me.operation === 'add') {
+            me.getStep3().down('#step3-errors').setVisible(false);
+            me.getWarningMessage().hide();
+            if (communicationSchedules.length > 1) {
+                me.checkOverlap(communicationSchedules);
+            }
+        }
+    },
+
+    //checkValidSelection: function (communicationSchedules) {
+    //    var me = this;
+    //    me.getUniFormErrorMessage().hide();
+    //    me.getWarningMessage().setVisible(false);
+    //    if (communicationSchedules.length === 1) {
+    //        return true;
+    //    } else if (communicationSchedules.length === 0) {
+    //        me.getUniFormErrorMessage().show();
+    //        me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one shared communication schedule') + '</span>');
+    //        me.getWarningMessage().setVisible(true);
+    //        return false;
+    //    } else if (communicationSchedules.length > 1) {
+    //        return me.checkOverlap(communicationSchedules);
+    //
+    //    }
+    //},
+
+    checkOverlap: function(communicationSchedules) {
+        var me = this;
+        var valuesToCheck = [];
+        Ext.each(communicationSchedules, function (item) {
+            valuesToCheck.push.apply(valuesToCheck, item.get('comTaskUsages'));
+        });
+        if (_.uniq(valuesToCheck,function (item) {
+                return item.id;
+            }).length === valuesToCheck.length) {
+            me.getWarningMessage().hide();
+            me.getStep3().down('#step3-errors').setVisible(false);
+            return true;
+        } else {
+            me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') + '</span>');
+            me.getWarningMessage().show();
+            me.getStep3().down('#step3-errors').setVisible(true);
+            return false;
         }
     },
 
@@ -474,7 +525,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             search = me.getController('Mdc.controller.Search'),
             wizard = me.getSearchItemsWizard(),
             layout = wizard.getLayout(),
-            errorContainer = currentCmp.down('#stepSelectionError');
+            errorContainer = currentCmp.down('#stepSelectionError'),
+            errorIsAlreadyShown = false;
 
         switch (currentCmp.name) {
             case 'selectDevices':
@@ -565,12 +617,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         (currentCmp.navigationIndex > nextCmp.navigationIndex) && (me.validation = true);
 
-        if (me.validation) {
+        errorIsAlreadyShown = errorPanel !== null && errorPanel.isVisible();
+        if (me.validation && !errorIsAlreadyShown) {
             switch (nextCmp.name) {
                 case 'confirmPage':
                     if (me.operation != 'changeconfig') {
                         nextCmp.showMessage(me.buildConfirmMessage());
-                        wizard.down('#confirmButton').setDisabled(wizard.down('#strategyRadioGroup').getChecked().length === 0);
+                        wizard.down('#confirmButton').setDisabled(me.operation === 'add' && wizard.down('#strategyRadioGroup').getChecked().length === 0);
+                        if(me.operation === 'remove') {
+                            nextCmp.isRemove();
+                        }
                     } else {
                         wizard.setLoading(true);
                         nextCmp.removeAll();
@@ -634,7 +690,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             return true;
         } else {
             errorPanel && errorPanel.show();
-            errorContainer && errorContainer.show();
+            if(errorContainer && !errorContainer.isVisible()) {
+                errorContainer.show();
+                errorContainer.update('<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 shared communication schedule') + '</span>')
+            }
             me.getStatusPage().setLoading(false);
             return false;
         }
