@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -45,21 +45,18 @@ import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.meteridentification.A3;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-/**
- *
- * @author koen
- */
-
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
 /**
  * @version  2.0
@@ -79,9 +76,9 @@ import java.util.TimeZone;
 // changed
 public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
-    public static String SECURITY_MODE = "SecurityMode";
-	public static String CALLED_AP_TITLE = "CalledAPTitle";
-    public static String SECURITY_KEY = "SecurityKey";
+    private static String SECURITY_MODE = "SecurityMode";
+	private static String CALLED_AP_TITLE = "CalledAPTitle";
+    private static String SECURITY_KEY = "SecurityKey";
 
 	protected C12Layer2 c12Layer2;
     protected PSEMServiceFactory psemServiceFactory;
@@ -89,58 +86,47 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     protected ManufacturerTableFactory manufacturerTableFactory;
     protected StandardProcedureFactory standardProcedureFactory;
     protected ManufacturerProcedureFactory manufacturerProcedureFactory;
-    A3 a3=new A3();
-    AlphaA3LoadProfile alphaA3LoadProfile;
+    private A3 a3=new A3();
+    private AlphaA3LoadProfile alphaA3LoadProfile;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
     protected int passwordBinary;
     private int retrieveExtraIntervals;
 
     protected String c12User;
     protected int c12UserId;
-    protected boolean c1222 = false;
-    protected String securityMode;
-    protected String calledAPTitle;
-    protected String securityKey;
+    private boolean c1222 = false;
+    private String securityMode;
+    private String calledAPTitle;
+    private String securityKey;
+    private SerialCommunicationChannel commChannel;
 
-    /** Creates a new instance of AlphaA3 */
-    public AlphaA3() {
-    }
-
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading,new Date(),includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return alphaA3LoadProfile.getProfileData(from,to,includeEvents);
     }
 
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
-/*
-        Properties properties = new Properties();
-        properties.setProperty("SecurityLevel","0");
-        properties.setProperty(MeterProtocol.NODEID,nodeId);
-        properties.setProperty("IEC1107Compatible","1");
-        setProperties(properties);
-        init(discoverInfo.getCommChannel().getInputStream(),discoverInfo.getCommChannel().getOutputStream(),null,null);
-        enableHHUSignOn(commChannel);
-        connect();
-        String serialNumber =  getRegister("SerialNumber");
-        disconnect();
-        return serialNumber;
-*/
         throw new IOException("Not implemented!");
     }
 
+    @Override
     public AbstractManufacturer getManufacturer() {
         return a3;
     }
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-    SerialCommunicationChannel commChannel;
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         this.commChannel=commChannel;
     }
 
+    @Override
     protected void doConnect() throws IOException {
         // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
         if (commChannel!=null) {
@@ -149,47 +135,66 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
                                   SerialCommunicationChannel.DATABITS_8,
                                   SerialCommunicationChannel.PARITY_NONE,
                                   SerialCommunicationChannel.STOPBITS_1);
-            if (getDtrBehaviour() == 0)
+            if (getDtrBehaviour() == 0) {
                 commChannel.setDTR(false);
-            else if (getDtrBehaviour() == 1)
+            } else if (getDtrBehaviour() == 1) {
                 commChannel.setDTR(true);
+            }
         }
 
-
         if (passwordBinary==0) {
-            if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
+            if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0))) {
                 setInfoTypePassword(new String(new byte[]{0}));
+            }
             String pw=null;
-            if (getInfoTypePassword()!=null)
-               pw = new String(ParseUtils.extendWithChar0(getInfoTypePassword().getBytes(), 20));
+            if (getInfoTypePassword()!=null) {
+                pw = new String(ParseUtils.extendWithChar0(getInfoTypePassword().getBytes(), 20));
+            }
             getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII);
         }
         else {
-            if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
-                setInfoTypePassword(new String(new byte[]{0,0}));
+            if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0))) {
+                setInfoTypePassword(new String(new byte[]{0, 0}));
+            }
             String pw=null;
-            if (getInfoTypePassword()!=null)
-               pw = new String(ParseUtils.extendWithBinary0(getInfoTypePassword().getBytes(), 20));
+            if (getInfoTypePassword()!=null) {
+                pw = new String(ParseUtils.extendWithBinary0(getInfoTypePassword().getBytes(), 20));
+            }
             getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
         }
-
-        //getManufacturerProcedureFactory().snapShotData();
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
-    	if (c1222)
-    		getPSEMServiceFactory().terminate();
-    	else
-    		getPSEMServiceFactory().logOff();
+    	if (c1222) {
+            getPSEMServiceFactory().terminate();
+        } else {
+            getPSEMServiceFactory().logOff();
+        }
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string("C12User", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("C12UserId", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("PasswordBinary", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("RetrieveExtraIntervals", false));
+        propertySpecs.add(UPLPropertySpecFactory.string(CALLED_AP_TITLE, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(SECURITY_KEY, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(SECURITY_MODE, false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "0"));
+        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0"));
         c12User = properties.getProperty("C12User", "");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId", "0").trim());
-        passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary","0").trim());
-        setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals","0").trim()));
+        passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary", "0").trim());
+        setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals", "0").trim()));
         calledAPTitle = properties.getProperty(CALLED_AP_TITLE, "");
     	securityKey = properties.getProperty(SECURITY_KEY, "");
     	securityMode = properties.getProperty(SECURITY_MODE, "");
@@ -203,46 +208,34 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         }
     }
 
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                    "C12User",
-                    "C12UserId",
-                    "PasswordBinary",
-                    "RetrieveExtraIntervals",
-                    CALLED_AP_TITLE,
-                    SECURITY_KEY,
-                    SECURITY_MODE);
-    }
+    private C1222Buffer checkForC1222() throws IOException {
+        C1222Buffer result = null;
 
-    protected C1222Buffer checkForC1222() throws IOException {
-    	C1222Buffer result = null;
+        if (securityMode != null) {
+            // C1222Authenticate
+            if (securityMode.compareToIgnoreCase("1") == 0) {
+                result = new C1222Buffer();
+                result.setSecurityMode(SecurityModeEnum.SecurityClearTextWithAuthentication);
+            // C1222Encrypt
+            } else if (securityMode.compareToIgnoreCase("2") == 0) {
+                result = new C1222Buffer();
+                result.setSecurityMode(SecurityModeEnum.SecurityCipherTextWithAuthentication);
+            }
+        }
 
-    	if (securityMode != null)
-    	{
-	    	if (securityMode.compareToIgnoreCase("1") == 0)         // C1222Authenticate
-	    	{
-	    		result = new C1222Buffer();
-	    		result.setSecurityMode(SecurityModeEnum.SecurityClearTextWithAuthentication);
-	    	}
-	    	else if (securityMode.compareToIgnoreCase("2") == 0)    // C1222Encrypt
-	    	{
-	    		result = new C1222Buffer();
-	    		result.setSecurityMode(SecurityModeEnum.SecurityCipherTextWithAuthentication);
-	    	}
-			}
-
-    	if (result != null)
-    	{
-    		c1222 = true;
-    		result.setCalledApTitle(calledAPTitle);
-    		result.setSecurityKey(securityKey);
+        if (result != null) {
+            c1222 = true;
+            result.setCalledApTitle(calledAPTitle);
+            result.setSecurityKey(securityKey);
             byte[] passwordBytes = passwordBinary == 0 ? getInfoTypePassword().getBytes() : ProtocolUtils.convert2ascii(getInfoTypePassword().getBytes());
             String password = new String(ParseUtils.extendWithWhiteSpace(passwordBytes, 20));
             result.setPassword(password);
-    	}
+        }
 
-    	return result;
+        return result;
     }
+
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         psemServiceFactory = new PSEMServiceFactory(this);
 
@@ -265,37 +258,42 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         return c12Layer2;
     }
 
+    @Override
     public void setTime() throws IOException {
         getStandardProcedureFactory().setDateTime();
     }
 
+    @Override
     public Date getTime() throws IOException {
         try {
             return getStandardTableFactory().getTime();
         }
         catch(ResponseIOException e) {
-            if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-               getLogger().warning("No clock table available. Probably a demand only meter!");
-            else
-               throw e;
+            if (e.getReason()==AbstractResponse.IAR) {
+                getLogger().warning("No clock table available. Probably a demand only meter!");
+            } else {
+                throw e;
+            }
         }
         return new Date();
 
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
-            if (lps!=null)
+            if (lps!=null) {
                 return lps.getNrOfChannelsSet()[0];
-            else
+            } else {
                 return 0;
+            }
         }
         catch(ResponseIOException e) {
-            if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-               getLogger().warning("No profile channels available. Probably a demand only meter!");
-            else
-               throw e;
+            if (e.getReason()==AbstractResponse.IAR) {
+                getLogger().warning("No profile channels available. Probably a demand only meter!");
+            } else {
+                throw e;
+            }
         }
         return 0;
     }
@@ -309,140 +307,129 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         }
     }
 
-    /* The protocol version */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
                "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
     }
 
-    /*
-     * Override this method if the subclass wants to set a specific register
-     */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-
+    @Override
+    public void setRegister(String name, String value) throws IOException {
     }
 
-    /*
-     * Override this method if the subclass wants to get a specific register
-     */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    @Override
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-
-
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("----------------------------------------------STANDARD TABLES--------------------------------------------------\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("----------------------------------------------STANDARD TABLES--------------------------------------------------\n");
         while(true) {
             try {
-                if (skip<=0) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getManufacturerIdentificationTable());}
-                if (skip<=1) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConfigurationTable());}
-                if (skip<=2) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEndDeviceModeAndStatusTable());}
-                if (skip<=3) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDeviceIdentificationTable());}
-                if (skip<=4) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualSourcesLimitingTable());}
-                if (skip<=5) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getUnitOfMeasureEntryTable());}
+                if (skip<=0) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getManufacturerIdentificationTable());}
+                if (skip<=1) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConfigurationTable());}
+                if (skip<=2) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEndDeviceModeAndStatusTable());}
+                if (skip<=3) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDeviceIdentificationTable());}
+                if (skip<=4) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualSourcesLimitingTable());}
+                if (skip<=5) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getUnitOfMeasureEntryTable());}
 
-                if (skip<=6) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDemandControlTable());}
-                if (skip<=7) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataControlTable());}
-                if (skip<=8) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConstantsTable());}
-                if (skip<=9) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSourceDefinitionTable());}
-                if (skip<=10) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualRegisterTable());}
-                if (skip<=11) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataSelectionTable());}
-                if (skip<=12) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCurrentRegisterDataTable());}
-                if (skip<=13) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousSeasonDataTable());}
-                if (skip<=14) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousDemandResetDataTable());}
-                if (skip<=15) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSelfReadDataTable());}
-                if (skip<=16) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPresentRegisterDataTable());}
-                if (skip<=17) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualTimeAndTOUTable());}
-                if (skip<=18) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getTimeOffsetTable());}
-                if (skip<=19) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCalendarTable());}
-                if (skip<=20) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getClockTable());}
-                if (skip<=21) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLoadProfileTable());}
-                if (skip<=22) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileControlTable());}
-                if (skip<=23) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileStatusTable());}
-                if (skip<=24) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLogTable());}
-                if (skip<=25) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventsIdentificationTable());}
-                if (skip<=26) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogControlTable());}
-if (skip<=27) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogDataTable());}
-                if (skip<=28) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogControlTable());}
-if (skip<=29) { skip+=2;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableHeader());}
-//if (skip<=30) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableEventEntries(145, 10));}
-                if (skip<=31) { skip++;strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n"+getManufacturerTableFactory().getElectricitySpecificProductSpec());}
-                if (skip<=32) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getFactoryDefaultMeteringInformation());}
-                if (skip<=33) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getPrimaryMeteringInformation());}
-                if (skip<=34) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getSourceDefinitionTable());}
-                if (skip<=35) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getStatusTable());}
-                if (skip<=36) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getSummationSnapshotTable());}
-                if (skip<=37) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getPreviousIntervalDemand());}
-                if (skip<=38) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getAnswerParametersTableForRemotePorts());}
-                if (skip<=39) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getCallPurposeTableForRemotePorts());}
-                if (skip<=40) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getCallStatusTableForRemotePorts());}
-                if (skip<=41) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getGlobalParametersTablesForRemotePorts());}
-                if (skip<=42) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOptionBoardScratchPad());}
-                if (skip<=43) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOriginateParametersTableForRemotePorts());}
-                if (skip<=44) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOriginateSchedulingTablesforRemotePorts());}
-                if (skip<=45) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOutageModemConfiguration());}
-                if (skip<=46) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOutageModemStatus());}
-                if (skip<=47) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getRemoteCommunicationStatus());}
-                if (skip<=48) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getRemoteConfigurationConfiguration());}
+                if (skip<=6) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDemandControlTable());}
+                if (skip<=7) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataControlTable());}
+                if (skip<=8) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConstantsTable());}
+                if (skip<=9) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSourceDefinitionTable());}
+                if (skip<=10) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualRegisterTable());}
+                if (skip<=11) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataSelectionTable());}
+                if (skip<=12) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCurrentRegisterDataTable());}
+                if (skip<=13) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousSeasonDataTable());}
+                if (skip<=14) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousDemandResetDataTable());}
+                if (skip<=15) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSelfReadDataTable());}
+                if (skip<=16) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPresentRegisterDataTable());}
+                if (skip<=17) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualTimeAndTOUTable());}
+                if (skip<=18) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getTimeOffsetTable());}
+                if (skip<=19) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCalendarTable());}
+                if (skip<=20) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getClockTable());}
+                if (skip<=21) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLoadProfileTable());}
+                if (skip<=22) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileControlTable());}
+                if (skip<=23) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileStatusTable());}
+                if (skip<=24) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLogTable());}
+                if (skip<=25) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventsIdentificationTable());}
+                if (skip<=26) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogControlTable());}
+if (skip<=27) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogDataTable());}
+                if (skip<=28) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogControlTable());}
+if (skip<=29) { skip+=2;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableHeader());}
+//if (skip<=30) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableEventEntries(145, 10));}
+                if (skip<=31) { skip++;builder.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n"+getManufacturerTableFactory().getElectricitySpecificProductSpec());}
+                if (skip<=32) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getFactoryDefaultMeteringInformation());}
+                if (skip<=33) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getPrimaryMeteringInformation());}
+                if (skip<=34) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getSourceDefinitionTable());}
+                if (skip<=35) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getStatusTable());}
+                if (skip<=36) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getSummationSnapshotTable());}
+                if (skip<=37) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getPreviousIntervalDemand());}
+                if (skip<=38) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getAnswerParametersTableForRemotePorts());}
+                if (skip<=39) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getCallPurposeTableForRemotePorts());}
+                if (skip<=40) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getCallStatusTableForRemotePorts());}
+                if (skip<=41) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getGlobalParametersTablesForRemotePorts());}
+                if (skip<=42) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOptionBoardScratchPad());}
+                if (skip<=43) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOriginateParametersTableForRemotePorts());}
+                if (skip<=44) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOriginateSchedulingTablesforRemotePorts());}
+                if (skip<=45) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOutageModemConfiguration());}
+                if (skip<=46) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getOutageModemStatus());}
+                if (skip<=47) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getRemoteCommunicationStatus());}
+                if (skip<=48) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getRemoteConfigurationConfiguration());}
 
-                if (skip<=49) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getObisCodeInfoFactory().toString());}
+                if (skip<=49) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getObisCodeInfoFactory().toString());}
                 break;
             }
             catch(IOException e) {
 //e.printStackTrace();       // KV_DEBUG
-                strBuff.append("Table not supported! "+e.toString()+"\n");
+                builder.append("Table not supported! "+e.toString()+"\n");
             }
         }
-
-
-
-        return strBuff.toString();
+        return builder.toString();
     }
 
-
-    /****************************************************************************************************************
-     * Implementing C12ProtocolLink interface
-     ****************************************************************************************************************/
-
+    @Override
     public C12Layer2 getC12Layer2() {
         return c12Layer2;
     }
 
-
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
-            if (lps!=null)
-                return lps.getProfileIntervalSet()[0]*60;
-            else
+            if (lps!=null) {
+                return lps.getProfileIntervalSet()[0] * 60;
+            } else {
                 return 0;
+            }
         }
         catch(ResponseIOException e) {
-            if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-               getLogger().warning("No profileinterval available. Probably a demand only meter!");
-            else
-               throw e;
+            if (e.getReason()==AbstractResponse.IAR) {
+                getLogger().warning("No profileinterval available. Probably a demand only meter!");
+            } else {
+                throw e;
+            }
         }
         return 0;
     }
@@ -451,6 +438,7 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
         return super.getTimeZone();
     }
 
+    @Override
     public PSEMServiceFactory getPSEMServiceFactory() {
         return psemServiceFactory;
     }
@@ -459,6 +447,7 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
         return manufacturerTableFactory;
     }
 
+    @Override
     public StandardTableFactory getStandardTableFactory() {
         return standardTableFactory;
     }
@@ -471,13 +460,15 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
         return manufacturerProcedureFactory;
     }
 
+    @Override
     public int getMeterConfig() throws IOException {
         return 0; //getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
-        if (obisCodeInfoFactory == null)
-            obisCodeInfoFactory=new ObisCodeInfoFactory(this);
+        if (obisCodeInfoFactory == null) {
+            obisCodeInfoFactory = new ObisCodeInfoFactory(this);
+        }
         return obisCodeInfoFactory;
     }
 

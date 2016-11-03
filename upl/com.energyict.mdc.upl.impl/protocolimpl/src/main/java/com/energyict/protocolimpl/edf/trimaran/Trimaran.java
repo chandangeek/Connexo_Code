@@ -83,7 +83,6 @@ public class Trimaran extends AbstractProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("ForcedDelay", false));
         propertySpecs.add(UPLPropertySpecFactory.integer("HalfDuplex", false));
         propertySpecs.add(UPLPropertySpecFactory.integer("ACKTimeoutTL", false));
         propertySpecs.add(UPLPropertySpecFactory.integer("InterCharTimeout", false));
