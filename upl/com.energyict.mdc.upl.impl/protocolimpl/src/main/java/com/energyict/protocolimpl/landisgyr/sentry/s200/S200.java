@@ -10,9 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -23,14 +22,17 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.CommandFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  *
@@ -46,49 +48,55 @@ public class S200 extends AbstractProtocol {
     private int crnInitialValue;
     private int modeOfOperation;
 
-    /** Creates a new instance of S200 */
-    public S200() {
-    }
-
+    @Override
     protected void doConnect() throws IOException {
         getCommandFactory().getForceStatusCommand();
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
         getCommandFactory().hangup();
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getS200Profile().getProfileData(lastReading,includeEvents);
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "0000000"));
-        setInfoTypePassword(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "0000"));
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "0")));
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(UPLPropertySpecFactory.integer("CRNInitialValue", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("ModeOfOperation", false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0000000"));
+        setInfoTypePassword(properties.getProperty(PASSWORD.getName(), "0000"));
+        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0")));
         setCrnInitialValue(Integer.parseInt(properties.getProperty("CRNInitialValue", "-1")));
         setModeOfOperation(Integer.parseInt(properties.getProperty("ModeOfOperation", "0"), 16));
     }
 
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        list.add("CRNInitialValue");
-        list.add("ModeOfOperation");
-        return list;
-    }
-
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return getCommandFactory().getLookAtCommand().getNrOfInputs();
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         return getCommandFactory().getBeginRecordTimeCommand().getProfileInterval()*60;
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return "Version="+getCommandFactory().getVerifyCommand().getSoftwareVersion()+", Revision="+getCommandFactory().getRevisionLevelCommand().getRev();
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
 
         s200Connection = new S200Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getCrnInitialValue());
@@ -99,38 +107,36 @@ public class S200 extends AbstractProtocol {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-
+        StringBuilder builder = new StringBuilder();
         for (int channelNr=0;channelNr<getNumberOfChannels();channelNr++) {
             ObisCode obisCode = ObisCode.fromString("1."+channelNr+".82.8.0.255");
-            strBuff.append(obisCode+", "+ObisCodeMapper.getRegisterInfo(obisCode)+"\n");
+            builder.append(obisCode).append(", ").append(ObisCodeMapper.getRegisterInfo(obisCode)).append("\n");
         }
-
-        return strBuff.toString();
+        return builder.toString();
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-
-
+    @Override
     public Date getTime() throws IOException {
         return getCommandFactory().getQueryTimeCommand().getTime();
     }
 
+    @Override
     public void setTime() throws IOException {
         getCommandFactory().getEnterTimeCommand();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
@@ -175,4 +181,4 @@ public class S200 extends AbstractProtocol {
         this.modeOfOperation = modeOfOperation;
     }
 
-} // S200
+}
