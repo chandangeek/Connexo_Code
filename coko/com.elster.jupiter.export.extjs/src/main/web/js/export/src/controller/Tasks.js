@@ -1910,7 +1910,7 @@ Ext.define('Dxp.controller.Tasks', {
         if (form.isValid() && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) &&
             (!noFormatterChosen) && (!noDataSelectorChosen) &&
             (!selectedExportWindow || selectedDataSelector.get('selectorType') === 'CUSTOM') &&
-            (!noDeviceGroupChosen || selectedDataSelector.get('selectorType') === 'CUSTOM')
+            (!noDeviceGroupChosen || selectedDataSelector.get('selectorType') === 'CUSTOM') && !noUsagePointGroupChosen || selectedDataSelector.get('selectorType') === 'CUSTOM'
         ) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
