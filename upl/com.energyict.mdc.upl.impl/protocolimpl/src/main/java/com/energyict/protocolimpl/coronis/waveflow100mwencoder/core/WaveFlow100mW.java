@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -23,6 +22,7 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.RegisterCache;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +32,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
-abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RegisterCache {
+public abstract class WaveFlow100mW extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RegisterCache {
 
     private static final int WAVEFLOW_NR_OF_CHANNELS = 2;
     private static final String READ_LOAD_PROFILE_PROPERTY = "ReadLoadProfile";
@@ -42,19 +43,17 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     private static final String SERIAL_NUMBER_A = "SerialNumberA";
     private static final String SERIAL_NUMBER_B = "SerialNumberB";
 
-    abstract protected void doTheConnect() throws IOException;
+    protected abstract void doTheConnect() throws IOException;
 
-    abstract protected void doTheInit() throws IOException;
+    protected abstract void doTheInit() throws IOException;
 
-    abstract protected void doTheDisConnect() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
 
-    abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+    protected abstract ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws IOException;
 
-    abstract protected ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException;
+    protected abstract MeterProtocolType getMeterProtocolType();
 
-    abstract protected MeterProtocolType getMeterProtocolType();
-
-    public enum MeterProtocolType {
+    protected enum MeterProtocolType {
         SM150E(0),
         ECHODIS(1);
 
@@ -95,11 +94,11 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     private String serialNumberA = null;
     private String serialNumberB = null;
 
-    final boolean isVerifyProfileInterval() {
+    private boolean isVerifyProfileInterval() {
         return verifyProfileInterval;
     }
 
-    final public CommonObisCodeMapper getCommonObisCodeMapper() {
+    public final CommonObisCodeMapper getCommonObisCodeMapper() {
         return commonObisCodeMapper;
     }
 
@@ -118,7 +117,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
      */
     private GenericHeader cachedGenericHeader = null;
 
-    final public GenericHeader getCachedGenericHeader() throws IOException {
+    public final GenericHeader getCachedGenericHeader() throws IOException {
         if (cachedGenericHeader == null) {
             radioCommandFactory.readInternalData();
         }
@@ -134,11 +133,11 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
      */
     ObisCode loadProfileObisCode;
 
-    final public ParameterFactory getParameterFactory() {
+    public final ParameterFactory getParameterFactory() {
         return parameterFactory;
     }
 
-    final public RadioCommandFactory getRadioCommandFactory() {
+    public final RadioCommandFactory getRadioCommandFactory() {
         return radioCommandFactory;
     }
 
@@ -194,25 +193,32 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
-        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
-        readLoadProfile = "1".equals(properties.getProperty(READ_LOAD_PROFILE_PROPERTY, "1"));
-        correctTime = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName(), "0"));
-        verifyProfileInterval = Boolean.parseBoolean(properties.getProperty(VERIFY_PROFILE_INTERVAL_PROPERTY, "false"));
-        serialNumberA = properties.getProperty(SERIAL_NUMBER_A);
-        serialNumberB = properties.getProperty(SERIAL_NUMBER_B);
-        doTheValidateProperties(properties);
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(LOAD_PROFILE_OBIS_CODE_PROPERTY, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(READ_LOAD_PROFILE_PROPERTY, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
+        propertySpecs.add(UPLPropertySpecFactory.string(VERIFY_PROFILE_INTERVAL_PROPERTY, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(SERIAL_NUMBER_A, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(SERIAL_NUMBER_B, false));
+        return propertySpecs;
     }
 
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "40000").trim()));
+        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
+        readLoadProfile = "1".equals(properties.getProperty(READ_LOAD_PROFILE_PROPERTY, "1"));
+        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
+        verifyProfileInterval = Boolean.parseBoolean(properties.getProperty(VERIFY_PROFILE_INTERVAL_PROPERTY, "false"));
+        serialNumberA = properties.getProperty(SERIAL_NUMBER_A);
+        serialNumberB = properties.getProperty(SERIAL_NUMBER_B);
+    }
+
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return "N/A";
-//		try {
-//			return "V"+WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion())+", Mode of transmission "+getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission();
-//		} catch (IOException e) {
-//			return "Error requesting firmware version";
-//		}
     }
 
     @Override
@@ -237,7 +243,6 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         parameterFactory.writeTimeDateRTC(new Date());
     }
 
-
     final void setWaveFlowTime() throws IOException {
         parameterFactory.writeTimeDateRTC(new Date());
     }
@@ -251,7 +256,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         }
     }
 
-    final public void restartDataLogging() throws IOException {
+    public final void restartDataLogging() throws IOException {
         int om = parameterFactory.readOperatingMode(); // read current operating mode
         parameterFactory.writeOperatingMode(om & 0xFFF3, 0x000C); // disable logging
         parameterFactory.writeSamplingActivationNextHour();
@@ -264,19 +269,8 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         //parameterFactory.writeOperatingMode(0x0004,0x000C);
     }
 
-    final public void writeSamplingRate() throws IOException {
-        parameterFactory.writeSamplingPeriod(getProfileInterval());
-    }
-
-    /**
-     * Override this method to requesting the load profile integration time
-     *
-     * @return integration time in seconds
-     * @throws UnsupportedException
-     *                             thrown when not supported
-     * @throws java.io.IOException Thrown when something goes wrong
-     */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         if (isVerifyProfileInterval()) {
             return getParameterFactory().getProfileIntervalInSeconds();
         } else {
@@ -284,16 +278,8 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         }
     }
 
-    /**
-     * Override this method to request the load profile from the meter starting at lastreading until now.
-     *
-     * @param lastReading   request from
-     * @param includeEvents enable or disable tht reading of meterevents
-     * @return All load profile data in the meter from lastReading
-     * @throws java.io.IOException When something goes wrong
-     */
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-
         int portId;
         if (getLoadProfileObisCode().getD() == 1) {
             portId = 0; // port A
@@ -310,26 +296,32 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         }
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         waveFlow100mWMessages.applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return waveFlow100mWMessages.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return waveFlow100mWMessages.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return waveFlow100mWMessages.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return waveFlow100mWMessages.writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return waveFlow100mWMessages.writeValue(value);
     }
@@ -343,16 +335,6 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(VERIFY_PROFILE_INTERVAL_PROPERTY);
-        result.add(LOAD_PROFILE_OBIS_CODE_PROPERTY);
-        result.add(READ_LOAD_PROFILE_PROPERTY);
-        result.add(SERIAL_NUMBER_A);
-        result.add(SERIAL_NUMBER_B);
-        return result;
-    }
-
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         // absorb
     }
@@ -362,14 +344,17 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return WAVEFLOW_NR_OF_CHANNELS;
     }
 
+    @Override
     public WaveFlowConnect getWaveFlowConnect() {
         return waveFlowConnect;
     }
 
+    @Override
     public List map2MeterEvent(String event) throws IOException {
         AlarmFrameParser alarmFrame = new AlarmFrameParser(ProtocolUtils.convert2ascii(event.getBytes()), this);
         List statusAndEvents = new ArrayList();
@@ -378,8 +363,10 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
         return statusAndEvents;
     }
 
+    @Override
     public void cacheRegisters(List<ObisCode> obisCodes) throws IOException {
         getLogger().info("Cache internal data reading (0x0B command) if not already done");
         readInternalDatas();
     }
+
 }

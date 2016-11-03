@@ -1,9 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
@@ -21,7 +18,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Date;
-import java.util.Properties;
 
 public class Echodis extends WaveFlow100mW {
 
@@ -44,11 +40,8 @@ public class Echodis extends WaveFlow100mW {
 	protected void doTheConnect() throws IOException {
 	}
 
-
 	@Override
 	protected void doTheDisConnect() throws IOException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -58,30 +51,18 @@ public class Echodis extends WaveFlow100mW {
 	}
 
 	@Override
-	protected void doTheValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-
-	}
-
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	return obisCodeMapper.getRegisterValue(obisCode);
     }
 
-    /**
-     * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.
-     * @param obisCode obiscode of the register to lookup
-     * @throws java.io.IOException thrown when somethiong goes wrong
-     * @return RegisterInfo object
-     */
+	@Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    public RegisterValue getMbusRegisterValue(ObisCode o) throws IOException {
-
+    RegisterValue getMbusRegisterValue(ObisCode o) throws IOException {
     	int portId = o.getB()==0?0:1;
     	ObisCode obisCode = new ObisCode(o.getA(), 0, o.getC(), o.getD(), o.getE(), o.getF());
-
     	if (registerFactories[portId] == null) {
     		ActarisMBusInternalData internalData = (ActarisMBusInternalData)readInternalDatas()[portId];
     		if (internalData != null) {
@@ -115,7 +96,7 @@ public class Echodis extends WaveFlow100mW {
     }
 
 	@Override
-	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws UnsupportedException, IOException {
+	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws IOException {
 		return profileDataReader.getProfileData(lastReading, portId, includeEvents);
 	}
 
@@ -124,23 +105,14 @@ public class Echodis extends WaveFlow100mW {
 		return MeterProtocolType.ECHODIS;
 	}
 
-	public void startMeterDetection() throws IOException {
-		getRadioCommandFactory().startMeterDetection();
-	}
-
-    /**
-     * Override if you want to provide info of the meter setup and registers when the "ExtendedLogging" custom property > 0
-     * @param extendedLogging int
-     * @throws java.io.IOException thrown when something goes wrong
-     * @return String with info
-     */
+	@Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
 		return obisCodeMapper.getRegisterExtendedLogging();
     }
-
 
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
+
 }
