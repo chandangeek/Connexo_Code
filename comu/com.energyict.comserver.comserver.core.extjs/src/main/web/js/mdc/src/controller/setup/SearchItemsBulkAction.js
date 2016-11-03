@@ -122,6 +122,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             },
             'searchitems-bulk-step2 #searchitemsactionselect': {
                 change: this.enableNextButton
+            },
+            'searchitems-bulk-step4 #strategyRadioGroup': {
+                change: this.enableConfirmButton
             }
         });
     },
@@ -174,6 +177,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         var me = this;
 
         me.getNextButton().enable();
+    },
+
+    enableConfirmButton: function(group) {
+        var me = this,
+            wizard = me.getSearchItemsWizard();
+        me.strategy = group.getChecked()[0].inputValue;
+        wizard.down('#confirmButton').enable()
     },
 
     updateScheduleSelection: function (selModel, selected) {
@@ -236,6 +246,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             });
             request.action = me.operation;
             request.scheduleIds = scheduleIds;
+            request.strategy = me.strategy;
             if (me.allDevices) {
                 var store = me.getDevicesGrid().getStore();
                 request.filter = store.getProxy().encodeFilters(store.filters.getRange());
@@ -559,7 +570,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 case 'confirmPage':
                     if (me.operation != 'changeconfig') {
                         nextCmp.showMessage(me.buildConfirmMessage());
-                        wizard.down('#confirmButton').enable()
+                        wizard.down('#confirmButton').setDisabled(wizard.down('#strategyRadioGroup').getChecked().length === 0);
                     } else {
                         wizard.setLoading(true);
                         nextCmp.removeAll();
@@ -670,10 +681,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             "Add shared communication schedule '{0}' to all devices?", [me.schedules[0].get('name')]);
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         titleText = Uni.I18n.translate('searchItems.bulk.addComSchedulesToAllDevices.confirmMsg', 'MDC',
-                            "Add shared communication schedules {0} to all devices?", [scheduleList]);
+                            "Add shared communication schedules {0} to all devices?", [scheduleList], false);
                     }
                     break;
                 case 'remove':
@@ -682,10 +693,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             "Remove shared communication schedule '{0}' from all devices?", [me.schedules[0].get('name')]);
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         titleText = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromAllDevices.confirmMsg', 'MDC',
-                            "Remove shared communication schedules {0} from all devices?", [scheduleList]);
+                            "Remove shared communication schedules {0} from all devices?", [scheduleList], false);
                     }
                     break;
                 case 'changeconfig':
@@ -705,14 +716,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.schedules[0].get('name')));
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsg0', 'MDC', "Add shared communication schedules '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsgn', 'MDC', "Add shared communication schedules '{1}' to {0} devices?")
                         }
-                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(scheduleList));
+                        titleText = Ext.String.format(pattern, me.devices.length, scheduleList);
                     }
                     break;
                 case 'remove':
@@ -725,14 +736,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.schedules[0].get('name')));
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg0', 'MDC', "Remove shared communication schedules '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsgn', 'MDC', "Remove shared communication schedules '{1}' to {0} devices?")
                         }
-                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(scheduleList));
+                        titleText = Ext.String.format(pattern, me.devices.length, scheduleList);
                     }
                     break;
                 case 'changeconfig':
