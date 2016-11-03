@@ -17,6 +17,6 @@ Ext.define('Uni.grid.column.search.DeviceType', {
 
         metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
 
-        return result;
+        return result || '-';
     }
 });

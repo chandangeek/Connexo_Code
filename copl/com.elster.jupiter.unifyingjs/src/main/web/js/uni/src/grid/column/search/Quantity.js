@@ -7,7 +7,7 @@ Ext.define('Uni.grid.column.search.Quantity', {
 
 
     renderer: function (value, metaData, record) {
-        var result = ' ';
+        var result = '-';
 
         if (value) {
             if (value.multiplier == 0)
@@ -19,6 +19,6 @@ Ext.define('Uni.grid.column.search.Quantity', {
 
         metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(result)) + '"';
 
-        return result
+        return result;
     }
 });
