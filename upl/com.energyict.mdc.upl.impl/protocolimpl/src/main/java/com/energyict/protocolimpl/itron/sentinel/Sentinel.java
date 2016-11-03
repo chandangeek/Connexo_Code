@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.itron.sentinel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -37,15 +38,18 @@ import com.energyict.protocolimpl.itron.sentinel.procedures.ManufacturerProcedur
 import com.energyict.protocolimpl.itron.sentinel.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.SentinelItron;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
 /**
  *
@@ -54,17 +58,17 @@ import java.util.TimeZone;
  */
 public class Sentinel extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
-    SentinelItron sentinelItron = new SentinelItron();
-    SentinelLoadProfile sentinelLoadProfile;
-    String c12User;
-    int c12UserId;
-    int maxNrPackets;
-    boolean readLoadProfilesChunked = false;
-    boolean convertRegisterReadsToKiloUnits = false;
-    int chunkSize;
+    private SentinelItron sentinelItron = new SentinelItron();
+    private SentinelLoadProfile sentinelLoadProfile;
+    private String c12User;
+    private int c12UserId;
+    private int maxNrPackets;
+    private boolean readLoadProfilesChunked = false;
+    private boolean convertRegisterReadsToKiloUnits = false;
+    private int chunkSize;
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
-    SerialCommunicationChannel commChannel;
+    private SerialCommunicationChannel commChannel;
     private C12Layer2 c12Layer2;
     private PSEMServiceFactory psemServiceFactory;
     private StandardTableFactory standardTableFactory;
@@ -74,49 +78,49 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     private DataReadFactory dataReadFactory=null;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
 
-    /**
-     * Creates a new instance of Sentinel
-     */
-    public Sentinel() {
-    }
-
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return sentinelLoadProfile.getProfileData(from, to, includeEvents);
     }
 
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         return getDataReadFactory().getConstantsDataRead().getCustomerSerialNumber();
-
     }
 
+    @Override
     public AbstractManufacturer getManufacturer() {
         return sentinelItron;
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         this.commChannel=commChannel;
     }
 
+    @Override
     protected void doConnect() throws IOException {
         // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
         if (commChannel!=null) {
-
             commChannel.setParams(9600,
                     SerialCommunicationChannel.DATABITS_8,
                     SerialCommunicationChannel.PARITY_NONE,
                     SerialCommunicationChannel.STOPBITS_1);
-            if (getDtrBehaviour() == 0)
+            if (getDtrBehaviour() == 0) {
                 commChannel.setDTR(false);
-            else if (getDtrBehaviour() == 1)
+            } else if (getDtrBehaviour() == 1) {
                 commChannel.setDTR(true);
+            }
         }
 
-        if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
+        if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0))) {
             setInfoTypePassword(new String(new byte[]{0}));
+        }
 
         //identify with node 1 before you can address other nodes
         if (c12Layer2.getIdentity()!=1) {
@@ -133,13 +137,27 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         return c12User;
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
         getPSEMServiceFactory().logOff();
     }
 
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string("C12User", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("C12UserId", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("MaxNrPackets", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("ReadLoadProfilesChunked", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("ChunkSize", false));
+        propertySpecs.add(UPLPropertySpecFactory.string("ConvertRegisterReadsToKiloUnits", false));
+        return propertySpecs;
+    }
+
+    @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),"0"));
+        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
+        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         maxNrPackets = Integer.parseInt(properties.getProperty("MaxNrPackets", "1"), 16);
@@ -148,16 +166,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getProperty("ConvertRegisterReadsToKiloUnits", "false"));
     }
 
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                "C12User",
-                "C12UserId",
-                "MaxNrPackets",
-                "ReadLoadProfilesChunked",
-                "ChunkSize",
-                "ConvertRegisterReadsToKiloUnits");
-    }
-
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
         c12Layer2.initStates();
@@ -171,16 +180,17 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         return c12Layer2;
     }
 
+    @Override
     public void setTime() throws IOException {
         getStandardProcedureFactory().setDateTime();
-//        throw new UnsupportedException("NOT IMPLEMENTED YET!");
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getStandardTableFactory().getTime();
-        //return getDataReadFactory().getCurrentStateDataRead().getCurrentTimeDate();
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels();
     }
@@ -194,10 +204,12 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-09-08 09:36:35 +0300 (Thu, 08 Sep 2016)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
                 getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
@@ -205,46 +217,30 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
                 "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
     }
 
-    /*
-     * Override this method if the subclass wants to set a specific register
-     */
+    @Override
     public void setRegister(String name, String value) throws IOException {
-
     }
 
-    /*
-     * Override this method if the subclass wants to get a specific register
-     */
+    @Override
     public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
         StringBuilder strBuff = new StringBuilder();
-
-/*
-        strBuff.append(getStandardTableFactory().getConfigurationTable());
-        strBuff.append(getStandardTableFactory().getActualLoadProfileTable());
-        strBuff.append(getStandardTableFactory().getLoadProfileControlTable());
-        strBuff.append(getStandardTableFactory().getLoadProfileStatusTable());
-//        strBuff.append(getStandardTableFactory().getLoadProfileDataSetTable(0,0));
-    	boolean skipIt=true;
-    	if (skipIt) return strBuff.toString();
-*/
-
 
         strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n");
 
@@ -300,8 +296,6 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
             strBuff.append(getDataReadFactory().getLoadProfilePreliminaryDataRead()).append("\n");
 
         }
-
-        //strBuff.append(getDataReadFactory().getMeterMultiplierDataRead()+"\n");
 
         strBuff.append("----------------------------------------------STANDARD TABLES--------------------------------------------------\n");
 
@@ -379,36 +373,23 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
                     strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getEventLogControlTable());}
                 if (skip<=29) { skip++;
                     strBuff.append("------------------------------------------------------------------------------------------------\n").append(getStandardTableFactory().getEventLogDataTableHeader());}
-//                if (skip<=31) { skip++;strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n"+getManufacturerTableFactory().getFeatureParameters());}
-//                if (skip<=32) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getServiceTypeTable());}
-//                if (skip<=33) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterFactors());}
-//                if (skip<=34) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterStatus());}
-//                if (skip<=35) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getS4Configuration());}
                 if (skip<=36) { skip++;
                     strBuff.append("------------------------------------------------------------------------------------------------\n").append(getObisCodeInfoFactory().toString());}
                 break;
             }
             catch(IOException e) {
-//e.printStackTrace();       // KV_DEBUG
                 strBuff.append("Table not supported! ").append(e.toString()).append("\n");
             }
         }
-
-
-
-
-        //System.out.println(strBuff.toString());
         return strBuff.toString();
     }
 
-    /****************************************************************************************************************
-     * Implementing C12ProtocolLink interface
-     ****************************************************************************************************************/
-
+    @Override
     public C12Layer2 getC12Layer2() {
         return c12Layer2;
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         if (getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels()>0) {
             return getDataReadFactory().getLoadProfilePreliminaryDataRead().getLoadProfileIntervalLength() * 60;
@@ -421,6 +402,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         return super.getTimeZone();
     }
 
+    @Override
     public PSEMServiceFactory getPSEMServiceFactory() {
         return psemServiceFactory;
     }
@@ -429,6 +411,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         return manufacturerTableFactory;
     }
 
+    @Override
     public StandardTableFactory getStandardTableFactory() {
         return standardTableFactory;
     }
@@ -441,6 +424,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         return manufacturerProcedureFactory;
     }
 
+    @Override
     public int getMeterConfig() throws IOException {
         return -1; //getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
     }
@@ -459,4 +443,5 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     public void setDataReadFactory(DataReadFactory dataReadFactory) {
         this.dataReadFactory = dataReadFactory;
     }
+
 }
