@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
@@ -25,12 +25,12 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.EventParser;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.CeweRegisters;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -137,7 +137,7 @@ import java.util.logging.Level;
 public class CewePrometer extends AbstractProtocol implements SerialNumberSupport {
 
     /** Property keys specific for CewePrometer protocol. */
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    private static final String PK_EXTENDED_LOGGING = AbstractProtocol.PROP_EXTENDED_LOGGING;
     private static final String PK_LOGGER = "Logger";
 
     /** By default the load profile of logger 1 is fetched */
@@ -176,9 +176,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     private CeweDateFormats dateFormats = null;
     private CeweRegisters registers = null;
 
-    /* (non-Javadoc)
-    * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
-    */
+    @Override
     protected ProtocolConnection doInit(InputStream in, OutputStream out, int pTimeout, int pRetries, int pForcedDelay, int pEchoCancelling, int pCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         try {
             connection = new IEC1107Connection(in, out, pTimeout, pRetries, pForcedDelay, pEchoCancelling, pCompatible, "ER:", software7E1);
@@ -191,17 +189,14 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         return connection;
     }
 
-    /** during connect:
-     * 1) check firmware version
-     * 2) trigger extended logging
-     *
-     * The minimum firmware version is 1.2.0.  It is (probably) not difficult
-     * to support older meter versions.  But just in case throw an exception.
-     *
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#doConnect()
-     */
+    @Override
     protected void doConnect() throws IOException {
-
+        /* during connect:
+         * 1) check firmware version
+         * 2) trigger extended logging
+         *
+         * The minimum firmware version is 1.2.0.  It is (probably) not difficult
+         * to support older meter versions.  But just in case throw an exception. */
         getFirmwareVersionObject().before(MINIMUM_FW_VERSION);
 
         int v1 = getRegisters().getrFirmwareVersionOld().asInt(0);
@@ -223,26 +218,13 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
 
     }
 
-    /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#doDisConnect()
-     */
+    @Override
     protected void doDisconnect() throws IOException {
         /* when in doubt, do nothing */
     }
 
     IEC1107Connection getConnection( ){
         return connection;
-    }
-
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                PK_LOGGER,
-                com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(),
-                "Software7E1");
     }
 
     public ObisCodeMapper getObisCodeMapper() throws IOException {
@@ -252,26 +234,33 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         return obisCodeMapper;
     }
 
-    /** @see AbstractProtocol#doValidateProperties(java.util.Properties) */
-    protected void doValidateProperties(Properties p) throws MissingPropertyException, InvalidPropertyException {
-        String v = p.getProperty(PK_EXTENDED_LOGGING);
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        String v = properties.getProperty(PK_EXTENDED_LOGGING);
         pExtendedLogging = (v == null) ? 0 : Integer.parseInt(v);
 
-        v = p.getProperty(PK_LOGGER);
+        v = properties.getProperty(PK_LOGGER);
         pLogger = (v == null) ? PD_LOGGER : Integer.parseInt(v);
-        this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
 
     }
 
-    /** @see AbstractProtocol#getTime() */
+    @Override
     public Date getTime() throws IOException {
         Date d = getRegisters().getrReadDate().readAndFreeze().asDate(getDateFormats().getLongDateFormat());
         timeDiff = System.currentTimeMillis() - d.getTime();
         return d;
     }
 
-    /* timeDiff is written to SlideTime register
-     *  @see AbstractProtocol#setTime() */
+    @Override
     public void setTime() throws IOException {
 
         int deltaSeconds = (int) (timeDiff / 1000) + ((timeDiff % 1000) > 500 ? 1 : 0);
@@ -290,7 +279,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
 
     }
 
-    /* @see AbstractProtocol#getNumberOfChannels() */
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (channelCount == null) {
             channelCount = getRegisters().getrLogChannelCount()[pLogger].asInteger();
@@ -307,9 +296,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         }
     }
 
-    /* (non-Javadoc)
-         * @see AbstractProtocol#getProtocolVersion()
-         */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
     }
@@ -338,27 +325,18 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         return getFirmwareVersionObject().getVersionString();
     }
 
-    /**
-     * Read the profile interval from the device
-     *
-     * @return
-     * @throws IOException
-     */
+    @Override
     public int getProfileInterval() throws IOException {
         return getRegisters().getrLogChannelInterval()[pLogger].asInt();
     }
 
-    /** Read profile data in 2 (easy) steps:
-     *
-     * 1) read the profiledata
-     * 2) if needed read event log book
-     *
-     * @param from
-     * @param includeEvents enable or disable tht reading of meterevents
-     * @return the profile data object
-     * @throws IOException
-     */
+    @Override
     public ProfileData getProfileData(Date from, boolean includeEvents) throws IOException {
+        /* Read profile data in 2 (easy) steps:
+         *
+         * 1) read the profiledata
+         * 2) if needed read event log book
+         */
 
         /* step 1: fetch and parse profile data */
         CeweProfile profile = new CeweProfile(this);
@@ -370,7 +348,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
             write(toCmd(getRegisters().getrEventLogReadOffset(), getDateFormats().getQueryDateFormat().format(from)));
             do {
                 String result = getRegisters().getrEventLogNextEvent().getRawData();
-                eof = result.indexOf("(EOF)") != -1;
+                eof = result.contains("(EOF)");
                 if( !eof ) {
                     pd.addEvent(eventParser.parse(result));
                 }
@@ -381,16 +359,12 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         return pd;
     }
 
-    /** (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#translateRegister(com.energyict.obis.ObisCode)
-     */
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new ObisCodeMapper(this).getRegisterInfo(obisCode);
     }
 
-    /** (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#readRegister(com.energyict.obis.ObisCode)
-     */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
@@ -404,17 +378,12 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     }
 
     /** send read command */
-    String read(String cmd) throws IOException {
-        return read(cmd, true);
-    }
-
-    /** send read command */
     public String read(String cmd, boolean retry) throws ConnectionException, NestedIOException, WriteException, ProtocolException {
         connection.sendRawCommandFrame(IEC1107Connection.READ1, cmd.getBytes());
         byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
         String response = new String(rawData);
 
-        if( ( null!=response ) && ( response.indexOf( "ER" ) != -1 ) ) {
+        if ((null!=response) && (response.contains("ER"))) {
             String id = response.substring(4,7);
             throw new WriteException( getExceptionInfo(id) );
         }
@@ -444,7 +413,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         byte [] b = cmd.getBytes();
         String r = connection.sendRawCommandFrameAndReturn(iecCmd, b);
 
-        if( ( null!=r ) && ( r.indexOf( "ER" ) != -1 ) ) {
+        if( ( null!=r ) && (r.contains("ER")) ) {
             String id = r.substring(4,7);
             throw new WriteException( getExceptionInfo(id) );
         }
@@ -479,6 +448,8 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
             this.index = index;
             this.date = register.asDate(getDateFormats().getLongDateFormat());
         }
+
+        @Override
         public int compareTo(Object o) {
             BillingPointIndex bpi = (BillingPointIndex)o;
             return date.compareTo(bpi.date);
@@ -530,7 +501,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     public int getRow(int billingPoint) throws IOException {
 
         /* no need to fetch any historical registers, just return 0 */
-        if(billingPoint==255) {
+        if (billingPoint == 255) {
             return 0;
         }
 
@@ -581,6 +552,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         return -1;  // not found
     }
 
+    @Override
     public String getExceptionInfo(String id) {
         return CeweExceptionInfo.getExceptionInfo(id);
     }
