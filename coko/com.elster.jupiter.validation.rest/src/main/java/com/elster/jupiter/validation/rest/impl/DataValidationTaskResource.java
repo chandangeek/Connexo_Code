@@ -140,6 +140,7 @@ public class DataValidationTaskResource {
         if(task.getLastOccurrence().filter(to -> to.getStatus().equals(DataValidationTaskStatus.BUSY)).isPresent()){
             throw new WebApplicationException(thesaurus.getFormat(MessageSeeds.VALIDATION_TASK_IN_USE).format(), Response.Status.BAD_REQUEST);
         }
+        task.delete();
         return Response.ok().build();
     }
 
