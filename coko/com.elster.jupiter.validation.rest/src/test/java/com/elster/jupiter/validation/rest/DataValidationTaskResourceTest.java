@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.time.TemporalExpression;
@@ -51,6 +52,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Mock
     EndDeviceGroup endDeviceGroup;
+    @Mock
+    UsagePointGroup usagePointGroup;
     @Mock
     DataValidationTask dataValidationTask;
 
@@ -120,7 +123,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     }
 
     @Test
-    public void updateTaskForMetrologyContract() {
+    public void updateTaskForUsagePointGroup() {
         mockDataValidationTask(TASK_ID, QualityCodeSystem.MDM);
         DataValidationTaskInfo info = new DataValidationTaskInfo();
         info.id = TASK_ID;
@@ -268,10 +271,15 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
-        when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
+        if(qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
+            when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
+            when(validationTask.getUsagePointGroup()).thenReturn(Optional.empty());
+        } else {
+            when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
+            when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        }
         when(validationTask.getQualityCodeSystem()).thenReturn(qualityCodeSystem);
-        when(validationTask.getMetrologyContract()).thenReturn(Optional.empty());
-        when(validationTask.getUsagePointGroup()).thenReturn(Optional.empty());
+
         DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);
         when(finder.setLimit(anyInt())).thenReturn(finder);
         when(finder.setStart(anyInt())).thenReturn(finder);
