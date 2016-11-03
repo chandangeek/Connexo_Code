@@ -218,13 +218,13 @@ public class RegisterResource {
                 .collect(Collectors.toList());
 
         Instant measurementTimeStart = jsonQueryFilter.getInstant("measurementTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("measurementTimeStart");
-        Instant measurementTimeEnd = jsonQueryFilter.getInstant("measurementTimeEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("measurementTimeEnd");
+        Instant measurementTimeEnd = jsonQueryFilter.getInstant("measurementTimeEnd") == null ? null : jsonQueryFilter.getInstant("measurementTimeEnd");
         boolean toTimeFilterAvailable = jsonQueryFilter.getInstant("toTimeStart") != null || jsonQueryFilter.getInstant("toTimeEnd") != null;
         Instant toTimeStart = jsonQueryFilter.getInstant("toTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("toTimeStart");
-        Instant toTimeEnd = jsonQueryFilter.getInstant("toTimeEnd") == null ? Instant.now(clock) : jsonQueryFilter.getInstant("toTimeEnd");
+        Instant toTimeEnd = jsonQueryFilter.getInstant("toTimeEnd") == null ? null : jsonQueryFilter.getInstant("toTimeEnd");
 
-        Range<Instant> intervalReg = Range.openClosed(measurementTimeStart, measurementTimeEnd);
-        Range<Instant> toTimeRange = Range.openClosed(toTimeStart, toTimeEnd);
+        Range<Instant> intervalReg = measurementTimeEnd==null ? Range.atLeast(measurementTimeStart) : Range.openClosed(measurementTimeStart, measurementTimeEnd);
+        Range<Instant> toTimeRange = toTimeEnd==null ? Range.atLeast(toTimeStart) : Range.openClosed(toTimeStart, toTimeEnd);
 
         List<ReadingInfo> readingInfos = registers.stream()
                 .map(register -> topologyService.getDataLoggerRegisterTimeLine(register, intervalReg))
