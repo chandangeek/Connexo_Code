@@ -229,6 +229,24 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>usagepoint.lifecycle</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>usagepoint.lifecycle.config</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>usagepoint.lifecycle.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>validation</artifactId>
                 <version>4.0.0${revision}</version>
                 <scope>provided</scope>
@@ -311,6 +329,9 @@
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
                 <module>../com.elster.jupiter.systemadmin.rest</module>
+                <module>../com.elster.jupiter.usagepoint.lifecycle</module>
+                <module>../com.elster.jupiter.usagepoint.lifecycle.config</module>
+                <module>../com.elster.jupiter.usagepoint.lifecycle.rest</module>
                 <module>../com.elster.jupiter.validation</module>
                 <module>../com.elster.jupiter.validators</module>
                 <module>../com.elster.jupiter.validation.rest</module>
