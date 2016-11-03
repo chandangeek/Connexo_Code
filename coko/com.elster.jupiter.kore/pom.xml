@@ -92,7 +92,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -122,7 +122,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>issue</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -152,7 +152,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering</artifactId>
-                <version>4.0.0</version>
+                <version>5.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
