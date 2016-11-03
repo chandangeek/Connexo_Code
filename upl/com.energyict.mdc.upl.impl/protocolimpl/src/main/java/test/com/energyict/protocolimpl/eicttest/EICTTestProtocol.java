@@ -11,8 +11,11 @@
 package test.com.energyict.protocolimpl.eicttest;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -42,13 +45,17 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
+import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -60,30 +67,25 @@ import java.util.Properties;
  * @author fde
  * test.com.energyict.protocolimpl.eicttest.EICTTestProtocol
  */
-public class EICTTestProtocol extends AbstractProtocol implements MessageProtocol  {
+public class EICTTestProtocol extends AbstractProtocol implements MessageProtocol, CachingProtocol {
 
-	private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
+    private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
 	private static final String FIRMWAREPROGRAM_DISPLAY_1 = "Upgrade Meter Firmware 1";
 	private static final String FIRMWAREPROGRAM_DISPLAY_2 = "Upgrade Meter Firmware 2";
 	private static final String FIRMWAREPROGRAM_DISPLAY_3 = "Upgrade Meter Firmware 3";
 	private static final String INCLUDE_FILE_TAG = "FirmwareFileID";
+    private static final String PK_TEST_PROPERTY = "EICTTestProperty";
+    private static final String PK_LOAD_PROFILE_OBIS_CODE = "LoadProfileObisCode";
 
-	private CacheObject cache;
+    private CacheObject cache;
 
-	EICTTestProtocolConnection connection;
+	private EICTTestProtocolConnection connection;
 	private int eICTTestProperty;
-	ObisCode loadProfileObisCode;
+	private ObisCode loadProfileObisCode;
 
 	private long steps;
 
-    /** Creates a new instance of EICTTestProtocol */
-    public EICTTestProtocol() {
-    }
-
-    /*******************************************************************************************
-     M e s s a g e P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
-    // message protocol
+	@Override
     public void applyMessages(List messageEntries) throws IOException {
         Iterator it = messageEntries.iterator();
         while (it.hasNext()) {
@@ -92,6 +94,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         }
     }
 
+	@Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
     	getLogger().info("MessageEntry: "+messageEntry.getContent());
@@ -103,6 +106,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         //return MessageResult.createUnknown(messageEntry);
     }
 
+	@Override
     public List getMessageCategories() {
         List theCategories = new ArrayList();
         // General Parameters
@@ -159,10 +163,12 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return msgSpec;
     }
 
+	@Override
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
 
+	@Override
     public String writeTag(MessageTag msgTag) {
         StringBuilder builder = new StringBuilder();
 
@@ -203,10 +209,12 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return builder.toString();
     }
 
+	@Override
     public String writeValue(MessageValue value) {
         return value.getValue();
     }
 
+	@Override
     protected void doConnect() throws IOException {
         getLogger().info("call abstract method doConnect()");
         getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");
@@ -221,6 +229,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
     }
 
+	@Override
     protected void doDisconnect() throws IOException {
         getLogger().info("call abstract method doDisConnect()");
         getLogger().info("--> here the logoff should be done");
@@ -228,6 +237,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         this.cache.setText("Hi I'm cached data -> " + Long.toString(Calendar.getInstance().getTimeInMillis()));
     }
 
+	@Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 
         getLogger().info("call overrided method getProfileData("+lastReading+","+includeEvents+")");
@@ -373,8 +383,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     }
 
 	private BigDecimal calculateValue(Calendar cal, long base, long amplitude) {
-		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
-				.get(Calendar.DST_OFFSET));
+		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET));
 		long localTime = cal.getTime().getTime() + utcOffset;
 		long offset = localTime % 86400000;
 		if (offset <= 21600000) {
@@ -395,10 +404,8 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 		}
 	}
 
-	private BigDecimal calculateValueCumulative(Calendar cal, long amplitude)
-			throws IOException {
-		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
-				.get(Calendar.DST_OFFSET));
+	private BigDecimal calculateValueCumulative(Calendar cal, long amplitude) throws IOException {
+		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET));
 		long localTime = (cal.getTime().getTime() + utcOffset) / 1000; // seconds
 		long value = localTime % 1000000; // overflow is 1000000
 		long step = (localTime % 86400) / getProfileInterval();
@@ -445,19 +452,19 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 		return result;
 	}
 
+	@Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         getLogger().info("call overrided method getRegistersInfo("+extendedLogging+")");
         getLogger().info("--> You can provide info about meter register configuration here. If the ExtendedLogging property is set, that info will be logged.");
         return "1.1.1.8.1.255 Active Import energy";
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+	@Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.toString());
     }
 
+	@Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	getLogger().info("call overrided method readRegister("+obisCode+")");
         getLogger().info("--> request the register from the meter here");
@@ -535,18 +542,22 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        // Override or add new properties here e.g. below
-        setEICTTestProperty(Integer.parseInt(properties.getProperty("EICTTestProperty", "123")));
-       	setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_TEST_PROPERTY, false));
+        propertySpecs.add(new ObisCodePropertySpec(PK_TEST_PROPERTY, false));
+        return propertySpecs;
     }
 
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                "EICTTestProperty",
-                "LoadProfileObisCode");
+    @Override
+	public void setProperties(Properties properties) throws PropertyValidationException {
+		super.setProperties(properties);
+        setEICTTestProperty(Integer.parseInt(properties.getProperty(PK_TEST_PROPERTY, "123")));
+       	setLoadProfileObisCode(ObisCode.fromString(properties.getProperty(PK_LOAD_PROFILE_OBIS_CODE, "0.0.99.1.0.255")));
     }
 
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         getLogger().info("call doInit(...)");
         getLogger().info("--> construct the ProtocolConnection and all other object here");
@@ -555,12 +566,14 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return connection;
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
         getLogger().info("--> report the nr of load profile channels in the meter here");
         return 2;
     }
 
+    @Override
     public Date getTime() throws IOException {
         getLogger().info("call getTime() (if time is different from system time taken into account the properties, setTime will be called) ");
         getLogger().info("--> request the metertime here");
@@ -568,17 +581,20 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return new Date(currenttime-(1000*30));
     }
 
+    @Override
     public void setTime() throws IOException {
         getLogger().info("call setTime() (this method is called automatically when needed)");
         getLogger().info("--> sync the metertime with the systemtime here");
     }
 
+    @Override
     public String getProtocolVersion() {
         //getLogger().info("call getProtocolVersion()");
         return "$Date: 2015-11-26 15:25:15 +0200 (Thu, 26 Nov 2015)$";
         //return "EICT Test protocol version";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
@@ -589,7 +605,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return eICTTestProperty;
     }
 
-    public void setEICTTestProperty(int eICTTestProperty) {
+    private void setEICTTestProperty(int eICTTestProperty) {
         this.eICTTestProperty = eICTTestProperty;
     }
 
@@ -601,35 +617,32 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 		this.loadProfileObisCode = loadProfileObisCode;
 	}
 
-    /* Implementation of the Cache interface */
-    /**
-     * {@inheritDoc}
-     */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if(rtuid != 0){
-            /* Use the RTUCache to set the blob (cache) to the database */
-            RTUCache rtu = new RTUCache(rtuid);
-            rtu.setBlob(cacheObject);
-        }
+    @Override
+    public Serializable getCache() {
+        return this.cache;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setCache(Object cacheObject) {
+    @Override
+    public void setCache(Serializable cacheObject) {
         this.cache = (CacheObject)cacheObject;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if(rtuid != 0){
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        if (deviceId != 0) {
+            /* Use the RTUCache to set the blob (cache) to the database */
+            RTUCache rtu = new RTUCache(deviceId);
+            rtu.setBlob(cacheObject, connection);
+        }
+    }
 
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        if (deviceId != 0) {
             /* Use the RTUCache to get the blob from the database */
-            RTUCache rtu = new RTUCache(rtuid);
+            RTUCache rtu = new RTUCache(deviceId);
             try {
-                return rtu.getCacheObject();
+                return rtu.getCacheObject(connection);
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
@@ -638,10 +651,4 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Object getCache() {
-        return this.cache;
-    }
 }
