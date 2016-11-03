@@ -18,41 +18,39 @@ import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  *
  * @author Koen
  */
-abstract public class AbstractRegisterFactory {
+public abstract class AbstractRegisterFactory {
 
-    abstract protected void init();
-
-    List registers = new ArrayList();
+    private List<AbstractRegister> registers = new ArrayList<>();
 
     private Modbus modBus;
+
     private FunctionCodeFactory functionCodeFactory;
     private boolean zeroBased;
+    private ParserFactory parserFactory=null;
 
-    ParserFactory parserFactory=null;
+    protected abstract void init();
 
     protected void initParsers() {
         // default parsers
-        getParserFactory().addBigDecimalParser(new Parser() {
-            public Object val(int[] values, AbstractRegister register) {
-                long val=0;
-                for (int i=0;i<values.length;i++) {
-                    val |= values[i]<<(i*16);
-                }
-                return BigDecimal.valueOf(val);
+        getParserFactory().addBigDecimalParser((values, register) -> {
+            long val=0;
+            for (int i=0;i<values.length;i++) {
+                val |= values[i]<<(i*16);
             }
+            return BigDecimal.valueOf(val);
         });
-    } //private void initParsers()
+    }
 
-    protected List getRegisters() {
+    protected List<AbstractRegister> getRegisters() {
         return registers;
     }
+
     /**
      * Creates a new instance of AbstractRegisterFactory
      */
@@ -64,10 +62,8 @@ abstract public class AbstractRegisterFactory {
     }
 
     public AbstractRegister findRegister(String name) throws NoSuchRegisterException {
-        Iterator it = registers.iterator();
-        while(it.hasNext()) {
-            AbstractRegister register = (AbstractRegister)it.next();
-            if (register.getName().compareTo(name)==0) {
+        for (AbstractRegister register : registers) {
+            if (register.getName().compareTo(name) == 0) {
                 register.setRegisterFactory(this);
                 return register;
             }
@@ -76,10 +72,8 @@ abstract public class AbstractRegisterFactory {
     }
 
     public AbstractRegister findRegister(int reg) throws IOException {
-        Iterator it = registers.iterator();
-        while(it.hasNext()) {
-            AbstractRegister register = (AbstractRegister)it.next();
-            if (register.getReg()==reg) {
+        for (AbstractRegister register : registers) {
+            if (register.getReg() == reg) {
                 register.setRegisterFactory(this);
                 return register;
             }
@@ -89,18 +83,15 @@ abstract public class AbstractRegisterFactory {
 
     public AbstractRegister findRegister(ObisCode obc) throws IOException {
         ObisCode obisCode = new ObisCode(obc.getA(),obc.getB(),obc.getC(),obc.getD(),obc.getE(),Math.abs(obc.getF()));
-        Iterator it = registers.iterator();
-        while(it.hasNext()) {
-            AbstractRegister register = (AbstractRegister)it.next();
-
-            if ((register.getObisCode()!=null) && (register.getObisCode().equals(obisCode))) {
+        for (AbstractRegister register : registers) {
+            if ((register.getObisCode() != null) && (register.getObisCode().equals(obisCode))) {
                 register.setRegisterFactory(this);
                 return register;
             }
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 
-    } // public HoldingRegister findRegister(ObisCode obc) throws IOException
+    }
 
     public Modbus getModBus() {
         return modBus;
@@ -118,7 +109,7 @@ abstract public class AbstractRegisterFactory {
         this.functionCodeFactory = functionCodeFactory;
     }
 
-    public boolean isZeroBased() {
+    boolean isZeroBased() {
         return zeroBased;
     }
 
@@ -127,8 +118,10 @@ abstract public class AbstractRegisterFactory {
     }
 
     public ParserFactory getParserFactory() {
-        if (parserFactory == null)
+        if (parserFactory == null) {
             parserFactory = new ParserFactory();
+        }
         return parserFactory;
     }
+
 }

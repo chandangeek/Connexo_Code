@@ -9,9 +9,9 @@ package com.energyict.protocolimpl.iec1107;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+
 /**
  *
  * @author  Koen
@@ -21,35 +21,36 @@ import java.util.StringTokenizer;
  */
 public class ChannelMap {
 
-    List channels = null;
+    private List<Channel> channels = null;
 
-    /** Creates a new instance of ChannelMap */
     public ChannelMap(String channelConfig) throws InvalidPropertyException {
-        channels = new ArrayList();
+        channels = new ArrayList<>();
         parse(channelConfig);
     }
-    public ChannelMap(List channels) {
-        this.channels = channels;
+
+    public ChannelMap(List<Channel> channels) {
+        this.channels = new ArrayList<>(channels);
     }
 
     public String getChannelRegisterMap() {
         boolean init = true;
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it = channels.iterator();
-        while(it.hasNext()) {
-           if (!init) strBuff.append(":");
-           init = false;
-           Channel channel = (Channel)it.next();
-           strBuff.append(channel.getRegister());
+        StringBuilder builder = new StringBuilder();
+        for (Object channel1 : channels) {
+            if (!init) {
+                builder.append(":");
+            }
+            init = false;
+            Channel channel = (Channel) channel1;
+            builder.append(channel.getRegister());
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public boolean hasEqualRegisters(ChannelMap channelMap) {
         return (getChannelRegisterMap().compareTo(channelMap.getChannelRegisterMap())==0);
     }
 
-    public List getChannels() {
+    public List<Channel> getChannels() {
        return channels;
     }
 
@@ -58,34 +59,24 @@ public class ChannelMap {
     }
 
     public Channel getChannel(int index) {
-        return (Channel)channels.get(index);
+        return channels.get(index);
     }
 
     public boolean channelExists(String register) {
-        Iterator it = channels.iterator();
-        while(it.hasNext()) {
-           Channel channel = (Channel)it.next();
-           if (channel.getRegister().compareTo(register) == 0) return true;
+        for (Channel channel : channels) {
+            if (channel.getRegister().compareTo(register) == 0) {
+                return true;
+            }
         }
         return false;
     }
 
     private void parse(String channelConfig) throws InvalidPropertyException {
-        int channelNr=0;
-        StringTokenizer st1 = new StringTokenizer(channelConfig,":");
+        StringTokenizer st1 = new StringTokenizer(channelConfig, ":");
         while (st1.countTokens() > 0) {
             String strChannel = st1.nextToken();
             channels.add(new Channel(strChannel));
         }
     }
 
-    static public void main(String[] args) {
-        try {
-            ChannelMap channelMap = new ChannelMap("1");
-            System.out.println(channelMap.getChannel(1).getRegister());
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

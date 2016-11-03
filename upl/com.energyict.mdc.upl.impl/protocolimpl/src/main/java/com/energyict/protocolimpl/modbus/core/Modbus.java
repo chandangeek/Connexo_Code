@@ -14,6 +14,8 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -38,6 +40,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,13 +63,19 @@ import java.util.TimeZone;
  * 19/03/2009|JME - Added setter for InfoTypeResponseTimeout property.
  *
  */
-abstract public class Modbus extends AbstractProtocol implements Discover,MessageProtocol {
+public abstract class Modbus extends AbstractProtocol implements Discover, MessageProtocol {
 
-    abstract protected void doTheConnect() throws IOException;
-    abstract protected void doTheDisConnect() throws IOException;
-    abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    abstract protected List doTheGetOptionalKeys();
-    abstract protected void initRegisterFactory();
+    protected static final String PK_INTERFRAME_TIMEOUT = "InterframeTimeout";
+    protected static final String PK_PHYSICAL_LAYER = "PhysicalLayer";
+    protected static final String PK_RESPONSE_TIMEOUT = "ResponseTimeout";
+    protected static final String PK_FIRST_TIME_DELAY = "FirstTimeDelay";
+    public static final String PK_METER_FIRMWARE_VERSION = "MeterFirmwareVersion";
+
+    protected abstract void doTheConnect() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
+    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+    protected abstract List doTheGetOptionalKeys();
+    protected abstract void initRegisterFactory();
 
     protected ModbusConnection modbusConnection;
     private AbstractRegisterFactory registerFactory=null;
@@ -74,22 +83,18 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 
     private String networkId;
     private boolean virtualLoadProfile;
-    int responseTimeout;
-    int physicalLayer;
-    int firstTimeDelay;
-    String meterFirmwareVersion;
-    int connection;
-    int nodeAddress;
+    private int responseTimeout;
+    private int physicalLayer;
+    private int firstTimeDelay;
+    private String meterFirmwareVersion;
+    private int connection;
+    private int nodeAddress;
 
     private int registerOrderFixedPoint;
     private int registerOrderFloatingPoint;
 
-    /** Creates a new instance of Modbus */
-    public Modbus() {
-    }
-
+    @Override
     protected void doConnect() throws IOException {
-
     	try {
     		Thread.sleep(firstTimeDelay);
     	}
@@ -97,26 +102,26 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
             Thread.currentThread().interrupt();
             throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
-
         doTheConnect();
     }
 
+    @Override
     protected void doDisconnect() throws IOException {
         doTheDisConnect();
     }
 
-
+    @Override
     public void setTime() throws IOException {
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
-    public BigDecimal getRegisterMultiplier(int address) throws IOException, UnsupportedException {
+    public BigDecimal getRegisterMultiplier(int address) throws IOException {
         throw new UnsupportedException();
     }
-
 
     protected void setInfoTypePhysicalLayer(int physicalLayer) {
     	this.physicalLayer=physicalLayer;
@@ -126,84 +131,83 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         this.connection = connection;
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","15").trim()));
-        setNetworkId(properties.getProperty("NetworkId",""));
-        setVirtualLoadProfile(Integer.parseInt(properties.getProperty("VirtualLoadProfile","0").trim())==1);
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_INTERFRAME_TIMEOUT, false));
+        propertySpecs.add(UPLPropertySpecFactory.string("NetworkId", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("VirtualLoadProfile", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_PHYSICAL_LAYER, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_RESPONSE_TIMEOUT, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("RegisterOrderFixedPoint", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("RegisterOrderFloatingPoint", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_FIRST_TIME_DELAY, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PK_METER_FIRMWARE_VERSION, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("Connection", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("NodeAddress", false));
+        return propertySpecs;
+    }
 
-        physicalLayer = Integer.parseInt(properties.getProperty("PhysicalLayer","0").trim());
-        responseTimeout = Integer.parseInt(properties.getProperty("ResponseTimeout","200").trim());
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","2000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","2").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "15").trim()));
+        setNetworkId(properties.getProperty("NetworkId", ""));
+        setVirtualLoadProfile(Integer.parseInt(properties.getProperty("VirtualLoadProfile", "0").trim())==1);
 
-        setRegisterOrderFixedPoint(Integer.parseInt(properties.getProperty("RegisterOrderFixedPoint","1").trim()));
-        setRegisterOrderFloatingPoint(Integer.parseInt(properties.getProperty("RegisterOrderFloatingPoint","1").trim()));
-        firstTimeDelay = Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim());
-        meterFirmwareVersion = properties.getProperty("MeterFirmwareVersion", "");
+        physicalLayer = Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "0").trim());
+        responseTimeout = Integer.parseInt(properties.getProperty(PK_RESPONSE_TIMEOUT, "200").trim());
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "2000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
+
+        setRegisterOrderFixedPoint(Integer.parseInt(properties.getProperty("RegisterOrderFixedPoint", "1").trim()));
+        setRegisterOrderFloatingPoint(Integer.parseInt(properties.getProperty("RegisterOrderFloatingPoint", "1").trim()));
+        firstTimeDelay = Integer.parseInt(properties.getProperty(PK_FIRST_TIME_DELAY, "0").trim());
+        meterFirmwareVersion = properties.getProperty(PK_METER_FIRMWARE_VERSION, "");
         connection = Integer.parseInt(properties.getProperty("Connection", "0").trim());
         nodeAddress = Integer.parseInt(properties.getProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
         doTheValidateProperties(properties);
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add("VirtualLoadProfile");
-        result.add("InterframeTimeout");
-        result.add("ResponseTimeout");
-        result.add("PhysicalLayer");
-        result.add("RegisterOrderFixedPoint");
-        result.add("RegisterOrderFloatingPoint");
-
-        List optionalKeys = doTheGetOptionalKeys();
-        if (optionalKeys != null) {
-			result.addAll(optionalKeys);
-		}
-
-        return result;
-    }
-
+    @Override
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         if (connection == 1) {  // 1: use Modbus TCP/IP Frame Format
             modbusConnection = new ModbusTCPConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInterframeTimeout(), responseTimeout, physicalLayer, nodeAddress);
         } else {                // use normal Modbus Frame Format
-        modbusConnection = new ModbusConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInterframeTimeout(), responseTimeout, physicalLayer);
+            modbusConnection = new ModbusConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInterframeTimeout(), responseTimeout, physicalLayer);
         }
         return modbusConnection;
     }
 
+    @Override
     public Date getTime() throws IOException {
         return new Date(); // KV_TO_DO
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return 0; // KV_TO_DO
     }
 
-    /*
-     * Override this method if the subclass wants to set a specific register
-     */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-
+    @Override
+    public void setRegister(String name, String value) throws IOException {
     }
 
-    /*
-     * Override this method if the subclass wants to get a specific register
-     */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-
+    @Override
+    public String getRegister(String name) throws IOException {
         StringTokenizer strTok = new StringTokenizer(name,",");
         int functioncode=getTokVal(strTok.nextToken());
         int[] vals = new int[strTok.countTokens()];
-        int i=0;
-        while(strTok.countTokens()>0) {
+        int i = 0;
+        while (strTok.countTokens()>0) {
 			vals[i++]=getTokVal(strTok.nextToken());
 		}
         return getRegisterFactory().getFunctionCodeFactory().getRequest(functioncode, vals).toString();
     }
 
     private int getTokVal(String tok) {
-        if (tok.indexOf("0x")>=0) {
+        if (tok.contains("0x")) {
 			return Integer.parseInt(tok.substring(2),16);
 		} else {
 			return Integer.parseInt(tok);
@@ -211,9 +215,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     }
 
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             return new RegisterValue(obisCode,getRegisterFactory().findRegister(obisCode).quantityValue());
@@ -224,48 +226,39 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         // Note: ConnectionExceptions (due to timeout) are not catched, but will be thrown, so the session fails & retries
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-
-        //return new RegisterInfo(obisCode.getDescription());
-
         return new RegisterInfo(getRegisterFactory().findRegister(obisCode).getName());
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         if (extendedLogging==0) {
-            StringBuffer strBuff = new StringBuffer();
-            Iterator it = getRegisterFactory().getRegisters().iterator();
-            while (it.hasNext()) {
-                AbstractRegister ar = (AbstractRegister)it.next();
-//System.out.println("KV_DEBUG> "+ar.getObisCode());
-                if (ar.getObisCode()==null) {
-					strBuff.append(ar.getReg()+"("+ar.getRange()+"), "+ar.getName()+"\n");
-				} else {
-					strBuff.append(ar.getObisCode()+", "+ar.getReg()+"("+ar.getRange()+"), "+ar.getName()+"\n");
-				}
+            StringBuilder builder = new StringBuilder();
+            for (Object o : getRegisterFactory().getRegisters()) {
+                AbstractRegister ar = (AbstractRegister) o;
+                if (ar.getObisCode() == null) {
+                    builder.append(ar.getReg()).append("(").append(ar.getRange()).append("), ").append(ar.getName()).append("\n");
+                } else {
+                    builder.append(ar.getObisCode()).append(", ").append(ar.getReg()).append("(").append(ar.getRange()).append("), ").append(ar.getName()).append("\n");
+                }
             }
-            return strBuff.toString();
+            return builder.toString();
         }
         else if (extendedLogging==1) {
-            StringBuffer strBuff = new StringBuffer();
-            Iterator it = getRegisterFactory().getRegisters().iterator();
-            while (it.hasNext()) {
-                AbstractRegister ar = (AbstractRegister)it.next();
-                //System.out.println(ar.getObisCode());
-                if (ar.getObisCode()!=null) {
-					strBuff.append(readRegister(ar.getObisCode())+"\n");
-				}
+            StringBuilder builder = new StringBuilder();
+            for (Object o : getRegisterFactory().getRegisters()) {
+                AbstractRegister ar = (AbstractRegister) o;
+                if (ar.getObisCode() != null) {
+                    builder.append(readRegister(ar.getObisCode())).append("\n");
+                }
             }
-            return strBuff.toString();
+            return builder.toString();
         } else {
 			return "";
 		}
     }
 
-
-    /****************************************************************************************************************
-     * Implementing Modbus interface
-     ****************************************************************************************************************/
     public ModbusConnection getModbusConnection() {
         return modbusConnection;
     }
@@ -338,10 +331,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     	this.responseTimeout = responseTimeout;
     }
 
-    /*******************************************************************************************
-    M e s s a g e P r o t o c o l  i n t e r f a c e
-    *******************************************************************************************/
-   // message protocol
+    @Override
    public void applyMessages(List messageEntries) throws IOException {
    }
 
@@ -357,13 +347,13 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 	   return byteArray;
    }
 
+    @Override
    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		try {
-
-            boolean writeMultipleRegisters = messageEntry.getContent().indexOf("<WriteMultipleRegisters")>=0;
-            boolean writeMultipleCoils = messageEntry.getContent().indexOf("<WriteMultipleCoils")>=0;
-            boolean writeSingleRegister = messageEntry.getContent().indexOf("<WriteSingleRegisters")>=0;
-            boolean writeSingleCoil = messageEntry.getContent().indexOf("<WriteSingleCoil")>=0;
+            boolean writeMultipleRegisters = messageEntry.getContent().contains("<WriteMultipleRegisters");
+            boolean writeMultipleCoils = messageEntry.getContent().contains("<WriteMultipleCoils");
+            boolean writeSingleRegister = messageEntry.getContent().contains("<WriteSingleRegisters");
+            boolean writeSingleCoil = messageEntry.getContent().contains("<WriteSingleCoil");
 
 			if (writeMultipleRegisters || writeMultipleCoils) {
                 String operation = writeMultipleRegisters ? "WriteMultipleRegisters" : "WriteMultipleCoils";
@@ -410,9 +400,9 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 						}
 					}
 
-                    if(writeMultipleRegisters){
+                    if (writeMultipleRegisters) {
                         getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(address, values.length, convertToBytesArray(values));
-                    } else if(writeMultipleCoils){
+                    } else if (writeMultipleCoils) {
                         int[] converted_values = new int[values.length];
                         for (int i = 0; i < values.length; i++) {
                             converted_values[i] = values[i] == 1 ? 65280 : 0;
@@ -460,9 +450,9 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 						value = Integer.parseInt(contentEntries[1],16);
 					}
 
-                    if(writeSingleRegister){
+                    if (writeSingleRegister) {
                         getRegisterFactory().getFunctionCodeFactory().getWriteSingleRegister(address, value);
-                    } else if(writeSingleCoil){
+                    } else if (writeSingleCoil) {
                         getRegisterFactory().getFunctionCodeFactory().getWriteSingleCoil(address, value == 1 ? 65280 : 0);
                     }
 	                return MessageResult.createSuccess(messageEntry);
@@ -478,6 +468,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
        // Note: ConnectionExceptions (due to timeout) will be thrown, so the session fails & retries the message
    }
 
+    @Override
    public List getMessageCategories() {
        List theCategories = new ArrayList();
        // General Parameters
@@ -505,49 +496,53 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
        return msgSpec;
    }
 
+    @Override
    public String writeMessage(Message msg) {
        return msg.write(this);
    }
+
+    @Override
    public String writeTag(MessageTag msgTag) {
-       StringBuffer buf = new StringBuffer();
+       StringBuilder builder = new StringBuilder();
 
        // a. Opening tag
-       buf.append("<");
-       buf.append( msgTag.getName() );
+       builder.append("<");
+       builder.append( msgTag.getName() );
 
        // b. Attributes
        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
            MessageAttribute att = (MessageAttribute)it.next();
-           if (att.getValue()==null || att.getValue().length()==0) {
+           if (att.getValue()==null || att.getValue().isEmpty()) {
 			continue;
 		}
-           buf.append(" ").append(att.getSpec().getName());
-           buf.append("=").append('"').append(att.getValue()).append('"');
+           builder.append(" ").append(att.getSpec().getName());
+           builder.append("=").append('"').append(att.getValue()).append('"');
        }
-       buf.append(">");
+       builder.append(">");
 
        // c. sub elements
        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
            MessageElement elt = (MessageElement)it.next();
            if (elt.isTag()) {
-			buf.append( writeTag((MessageTag)elt) );
+			builder.append( writeTag((MessageTag)elt) );
 		} else if (elt.isValue()) {
                String value = writeValue((MessageValue)elt);
-               if (value==null || value.length()==0) {
+               if (value==null || value.isEmpty()) {
 				return "";
 			}
-               buf.append(value);
+               builder.append(value);
            }
        }
 
        // d. Closing tag
-       buf.append("</");
-       buf.append( msgTag.getName() );
-       buf.append(">");
+       builder.append("</");
+       builder.append( msgTag.getName() );
+       builder.append(">");
 
-       return buf.toString();
+       return builder.toString();
    }
 
+    @Override
    public String writeValue(MessageValue value) {
        return value.getValue();
    }

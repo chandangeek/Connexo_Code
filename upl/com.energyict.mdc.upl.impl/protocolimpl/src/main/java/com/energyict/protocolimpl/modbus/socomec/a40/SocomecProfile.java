@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.modbus.socomec.a40;
 
 import com.energyict.mdc.upl.UnsupportedException;
 
+import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -21,7 +21,7 @@ import java.util.ListIterator;
  * @author gna
  *
  */
-public class SocomecProfile {
+class SocomecProfile {
 
 	/** The used ModBus meter */
 	private final A40 modbus;
@@ -44,7 +44,7 @@ public class SocomecProfile {
 
 	private int[] startMemoryPointer;
 	private int[] channelInfoRegisters;
-	private List profileIntervalData;
+	private List<IntervalData> profileIntervalData;
 
 	/** Maximum allowed blocks to read in 1 readAction */
 	private static final int maxReadBlockSize = 100;
@@ -60,7 +60,7 @@ public class SocomecProfile {
 		this.modbus = (A40) modbus;
 	}
 
-	final SocomecProfileParser getProfileParser(){
+	private SocomecProfileParser getProfileParser(){
 		if(this.profileParser == null){
 			this.profileParser = new SocomecProfileParser();
 		}
@@ -87,7 +87,7 @@ public class SocomecProfile {
 	 * @return the AbstractRegister
 	 * @throws IOException if the register could not be found
 	 */
-	protected AbstractRegister findRegister(String registerName) throws IOException{
+	protected AbstractRegister findRegister(String registerName) throws IOException {
 		return this.modbus.getRegisterFactory().findRegister(registerName);
 	}
 
@@ -115,7 +115,7 @@ public class SocomecProfile {
 	 * @throws UnsupportedException if the register isn't supported
 	 * @throws IOException if the registername isn't known
 	 */
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		if(profileInterval == null){
 			profileInterval = getProfileParser().parseProfileInterval(findRegister(RegisterFactory.profileInterval).getReadHoldingRegistersRequest().getRegisters());
 		}
@@ -127,10 +127,9 @@ public class SocomecProfile {
 	 * @return the list of channelInfos
 	 * @throws IOException if the register could not be found
 	 */
-	public List getChannelInfos() throws IOException {
+	public List<ChannelInfo> getChannelInfos() throws IOException {
 		BigDecimal multiplier = this.modbus.getMultiplierFactory().getMultiplier(MultiplierFactory.CT);
-		List channelInfos = getProfileParser().parseChannelInfos(getChannelInforRegisters(), multiplier);
-		return channelInfos;
+		return getProfileParser().parseChannelInfos(getChannelInforRegisters(), multiplier);
 	}
 
 	/**
@@ -149,16 +148,15 @@ public class SocomecProfile {
 	 * @param lastReading the startDate from the interval
 	 * @return a list of {@link IntervalData} objects
 	 * @throws IOException
-	 * @throws UnsupportedException
 	 */
-	public List getIntervalDatas(Date lastReading) throws UnsupportedException, IOException {
-		boolean dontExit = true;
+	public List<IntervalData> getIntervalDatas(Date lastReading) throws IOException {
+		boolean dontExit;
 
 		generateStartMemoryPointer();
 		Date lastUpdate = getDateTimeLastProfileUpdate();
 
-		for(int i = 0; i < getChannelInforRegisters().length; i++){
-			if(getChannelInforRegisters()[i] == 1){	// the channel is enabled in the profile
+		for (int i = 0; i < getChannelInforRegisters().length; i++) {
+			if (getChannelInforRegisters()[i] == 1) {	// the channel is enabled in the profile
 				dontExit = true;
 				int currentState = SocomecProfile.normalReadState;
 				this.profileParser = new SocomecProfileParser();
@@ -168,11 +166,10 @@ public class SocomecProfile {
 				getProfileParser().setLastUpdate(lastUpdate);
 
 				int currentPointer = startMemoryPointer[i];
-				do{
+				do {
 					switch(currentState){
 					case SocomecProfile.normalReadState:{
-
-						if(((startAddresses[i] + currentPointer) - maxReadBlockSize) > startAddresses[i]){
+						if (((startAddresses[i] + currentPointer) - maxReadBlockSize) > startAddresses[i]) {
 							readFromPointer = (startAddresses[i] + currentPointer) - maxReadBlockSize;
 							readLength = maxReadBlockSize;
 							currentPointer -= readLength;
@@ -185,7 +182,7 @@ public class SocomecProfile {
 
 					}break;
 					case SocomecProfile.memoryOverFlowedState:{
-						if(((startAddresses[i] + currentPointer) - maxReadBlockSize) > (startAddresses[i] + startMemoryPointer[i])){
+						if (((startAddresses[i] + currentPointer) - maxReadBlockSize) > (startAddresses[i] + startMemoryPointer[i])){
 							readFromPointer = (startAddresses[i] + currentPointer) - maxReadBlockSize;
 							readLength = maxReadBlockSize;
 							currentPointer -= readLength;
@@ -200,17 +197,14 @@ public class SocomecProfile {
 					getProfileParser().addMemoryPointer(readLength);
 					getProfileParser().parseProfileDataBlock(this.modbus.readRawValue(readFromPointer, readLength));
 
-				}while(((IntervalData) getProfileParser().getIntervalDatas().get(getProfileParser().getIntervalDatas().size()-1)).getEndTime().after(lastReading) && dontExit);
+				} while(((IntervalData) getProfileParser().getIntervalDatas().get(getProfileParser().getIntervalDatas().size()-1)).getEndTime().after(lastReading) && dontExit);
 
 				checkForUnnecessaryIntervals(getProfileParser().getIntervalDatas(), lastReading);
 				addValuesToIntervals(getProfileParser().getIntervalDatas());
 
 			}
 		}
-
-
 		return this.profileIntervalData;
-
 	}
 
 	/**
@@ -222,16 +216,13 @@ public class SocomecProfile {
 			this.profileIntervalData = new ArrayList();
 			this.profileIntervalData = intervals;
 		} else {
-			ListIterator it = this.profileIntervalData.listIterator();
-			while(it.hasNext()){
-				IntervalData id = (IntervalData)it.next();
-				ListIterator newIt = intervals.listIterator();
-				while(newIt.hasNext()){
-					IntervalData nid = (IntervalData)newIt.next();
-					if(id.getEndTime().compareTo(nid.getEndTime()) == 0){
-						Iterator iter = nid.getIntervalValues().iterator();
-						while(iter.hasNext()){
-							IntervalValue iv = ((IntervalValue)iter.next());
+			for (Object aProfileIntervalData : this.profileIntervalData) {
+				IntervalData id = (IntervalData) aProfileIntervalData;
+				for (Object interval : intervals) {
+					IntervalData nid = (IntervalData) interval;
+					if (id.getEndTime().compareTo(nid.getEndTime()) == 0) {
+						for (Object o : nid.getIntervalValues()) {
+							IntervalValue iv = ((IntervalValue) o);
 							id.addValue(iv.getNumber());
 						}
 					}
@@ -245,7 +236,7 @@ public class SocomecProfile {
 	 * @throws UnsupportedException if we couldn't read the pointers
 	 * @throws IOException if we couldn't read the pointers
 	 */
-	private void generateStartMemoryPointer() throws UnsupportedException, IOException{
+	private void generateStartMemoryPointer() throws IOException{
 		int startedAEMemoryPointer = getActiveEnergyPointer();
 		int startedREMemoryPointer = getReactiveEnergyPointer();
 		startMemoryPointer = new int[4];
@@ -277,7 +268,7 @@ public class SocomecProfile {
 	 * @throws UnsupportedException if the register isn't supported
 	 * @throws IOException if the read failed
 	 */
-	protected int getActiveEnergyPointer() throws UnsupportedException, IOException{
+	int getActiveEnergyPointer() throws IOException {
 		if(this.activeEnergyPointer == null){
 			int[] aePointer = findRegister(RegisterFactory.aePointer).getReadHoldingRegistersRequest().getRegisters();
 			this.activeEnergyPointer = new Integer(getProfileParser().parseEnergyPointer(aePointer));
@@ -290,7 +281,7 @@ public class SocomecProfile {
  	 * @throws UnsupportedException if the register isn't supported
 	 * @throws IOException if the read failed
 	 */
-	protected int getReactiveEnergyPointer() throws UnsupportedException, IOException{
+	private int getReactiveEnergyPointer() throws IOException {
 		if(this.reActiveEnergyPointer == null){
 			int[] rePointer = findRegister(RegisterFactory.rePointer).getReadHoldingRegistersRequest().getRegisters();
 			this.reActiveEnergyPointer = new Integer(getProfileParser().parseEnergyPointer(rePointer));
@@ -302,10 +293,9 @@ public class SocomecProfile {
 	 * @return the dateTime of the last profileUpdate
 	 * @throws IOException if the read failed
 	 */
-	protected Date getDateTimeLastProfileUpdate() throws IOException{
+	Date getDateTimeLastProfileUpdate() throws IOException {
 		int[] dateTimeLastUpdate = findRegister(RegisterFactory.dtLastUpdate).getReadHoldingRegistersRequest().getRegisters();
 		return getProfileParser().parseDateTimeLastUpdate(dateTimeLastUpdate);
 	}
-
 
 }

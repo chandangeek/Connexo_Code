@@ -1,9 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
@@ -15,15 +13,13 @@ import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
  * RecDigit Cct meter is a pulse counter.
  */
 
-abstract public class RecDigitCdt extends Modbus {
+public abstract class RecDigitCdt extends Modbus {
 
     private BigDecimal ku;
     private BigDecimal ki;
@@ -31,25 +27,22 @@ abstract public class RecDigitCdt extends Modbus {
     private BigDecimal ctRatio;
     private BigDecimal ptRatio;
 
-
+    @Override
     protected void doTheConnect() throws IOException { }
+
+    @Override
     protected void doTheDisConnect() throws IOException {}
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
-    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer","1").trim()));
-    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","100").trim()));
-
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));
+    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));
     }
 
-    public String getFirmwareVersion()
-        throws IOException, UnsupportedException {
-
+    @Override
+    public String getFirmwareVersion() {
         return "unknown";
-
-    }
-
-    protected List doTheGetOptionalKeys() {
-        return new ArrayList();
     }
 
     /**
@@ -72,11 +65,13 @@ abstract public class RecDigitCdt extends Modbus {
 
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return getRecFactory().toString();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return 2;
     }
 
@@ -84,11 +79,13 @@ abstract public class RecDigitCdt extends Modbus {
         return (RegisterFactoryCdtPr)getRegisterFactory();
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
         return new RegisterInfo( r.getName() );
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
         String key          = r.getName();
@@ -138,6 +135,5 @@ abstract public class RecDigitCdt extends Modbus {
         }
         return ptRatio;
     }
-
 
 }

@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -14,11 +13,13 @@ import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -31,22 +32,20 @@ import java.util.Properties;
 public class RecDigitCdtPr extends RecDigitCdt {
 
     private boolean debug = false;
-    private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
+    private static final String PK_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
 
-    final static Unit kWh = Unit.get(BaseUnit.WATT);
+    private static final Unit kWh = Unit.get(BaseUnit.WATT);
 
-    private final int ACTIVE        = 0;
-    private final int READ_BYTES 	= 4;
+	private static final int ACTIVE = 0;
+	private static final int READ_BYTES = 4;
+	private static final int READ_STEP = 4;
 
-    public int searchPointer;
     private int flagState = 0;
 	private int interval;
-    private int READ_STEP = 4;
     private int pointer = -1;
     private int profileInterval = -1;
     private int tempPointer = 0;
 	private int addState = 0;
-	private int tempPermission = 0;
     private int limitMaxNrOfDays = 0;
 
     private Calendar currentTime = null;
@@ -65,22 +64,31 @@ public class RecDigitCdtPr extends RecDigitCdt {
 
 	private RegisterFactoryCdtPr rFactory;
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactoryCdtPr(this));
     }
 
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_LIMIT_MAX_NR_OF_DAYS, false));
+        return propertySpecs;
+    }
 
-        super.doTheValidateProperties(properties);
-        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PK_LIMIT_MAX_NR_OF_DAYS, "0"));
 
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()));
     }
 
-    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter) throws IOException {
         Date from = limiter.getFromDate();
         Date to = limiter.getToDate();
 
@@ -94,22 +102,23 @@ public class RecDigitCdtPr extends RecDigitCdt {
 	    ProfileData profileData = new ProfileData();
 	    profileData.setChannelInfos(newChannelInfo());
 
-		searchPointer = getPointer();
+        int searchPointer = getPointer();
 
     	memChannel[ACTIVE].initMemory(ACTIVE);
 
     	previousFourAct = new ByteArray( new byte[]{ 0, 0, 0, 0 } );
 
         ByteArray activeArray = new ByteArray();
-        IntervalData currentId[] = null;
+        IntervalData currentId[];
 
         calendar = Calendar.getInstance( gettimeZone() );
     	currentTime = Calendar.getInstance( gettimeZone() );
 
-        if( to != null )
-            calendar.setTime( round( to ) );
-        else
-            calendar.setTime( round( new Date() ) );
+        if( to != null ) {
+            calendar.setTime(round(to));
+        } else {
+            calendar.setTime(round(new Date()));
+        }
 
     	while( currentTime.getTime().after(from) & GO ){
 
@@ -117,8 +126,9 @@ public class RecDigitCdtPr extends RecDigitCdt {
 
             currentId = parse(activeArray);
 
-            if ( !currentTime.getTime().after(from) )
-            	addState = 1;
+            if ( !currentTime.getTime().after(from) ) {
+                addState = 1;
+            }
 
             searchPointer = searchPointer - READ_STEP;
             if ( searchPointer == -4 ){
@@ -138,27 +148,30 @@ public class RecDigitCdtPr extends RecDigitCdt {
 	    return profileData;
     }
 
+    @Override
     public void setTime() throws IOException {
 
-    	if (debug) System.out.println( "TESTING THE setTime!" );
-
-        	Calendar instTime = Calendar.getInstance( gettimeZone() );
-        	byte[] currentInstantTime = new byte[6];
-
-        	currentInstantTime[0] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MONTH) + 1) ,16)) ;
-        	currentInstantTime[1] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.YEAR) - 2000) ,16));
-        	currentInstantTime[2] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.HOUR_OF_DAY)) ,16));
-        	currentInstantTime[3] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.DATE)) ,16));
-        	currentInstantTime[4] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.SECOND)) ,16));
-        	currentInstantTime[5] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MINUTE)) ,16));
-
-        	FunctionCodeFactory fcf = new FunctionCodeFactory(this);
-
-        	fcf.getWriteMultipleRegisters(0x19DC, 4, new byte[] { 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55 });
-        	fcf.getWriteMultipleRegisters(0x0000, 3, currentInstantTime);
-        	fcf.getWriteMultipleRegisters(0x19DC, 4, new byte[] { 0x63, 0x65, 0x69, 0x72, 0x75, 0x74, 0x65, 0x72 });
-
+    	if (debug) {
+            System.out.println("TESTING THE setTime!");
         }
+
+        Calendar instTime = Calendar.getInstance( gettimeZone() );
+        byte[] currentInstantTime = new byte[6];
+
+        currentInstantTime[0] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MONTH) + 1) ,16)) ;
+        currentInstantTime[1] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.YEAR) - 2000) ,16));
+        currentInstantTime[2] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.HOUR_OF_DAY)) ,16));
+        currentInstantTime[3] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.DATE)) ,16));
+        currentInstantTime[4] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.SECOND)) ,16));
+        currentInstantTime[5] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MINUTE)) ,16));
+
+        FunctionCodeFactory fcf = new FunctionCodeFactory(this);
+
+        fcf.getWriteMultipleRegisters(0x19DC, 4, new byte[] { 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55 });
+        fcf.getWriteMultipleRegisters(0x0000, 3, currentInstantTime);
+        fcf.getWriteMultipleRegisters(0x19DC, 4, new byte[] { 0x63, 0x65, 0x69, 0x72, 0x75, 0x74, 0x65, 0x72 });
+
+    }
 
     private ProfileData dubbelCheck(ProfileData profileData) {
 
@@ -168,12 +181,15 @@ public class RecDigitCdtPr extends RecDigitCdt {
 
     				IntervalData doubleInterval = new IntervalData(profileData.getIntervalData(i).getEndTime());
 
-    				if(debug)System.out.println("We got a double!");
+    				if(debug) {
+                        System.out.println("We got a double!");
+                    }
 
-    				for (int k = 0; k < profileData.getNumberOfChannels(); k ++)
-    					doubleInterval.addValue( ( (BigDecimal)profileData.getIntervalData(i).get(k) )
-    							.add( (BigDecimal)profileData.getIntervalData(j).get(k) )
-    							, 0, profileData.getIntervalData(i).getEiStatus(k) | profileData.getIntervalData(j).getEiStatus(k) );
+    				for (int k = 0; k < profileData.getNumberOfChannels(); k ++) {
+                        doubleInterval.addValue(((BigDecimal) profileData.getIntervalData(i).get(k))
+                                        .add((BigDecimal) profileData.getIntervalData(j).get(k))
+                                , 0, profileData.getIntervalData(i).getEiStatus(k) | profileData.getIntervalData(j).getEiStatus(k));
+                    }
 
     				profileData.getIntervalDatas().remove(j);
     				profileData.getIntervalDatas().remove(i);
@@ -191,7 +207,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
 		return profileData;
 	}
 
-    IntervalData[] parse(ByteArray active) throws UnsupportedException, IOException{
+    private IntervalData[] parse(ByteArray active) throws IOException{
 
 		ByteArray fourByteAct = active.sub( 0, READ_BYTES );
 		BigDecimal actualAct = null, currentPercent, previousPercent;
@@ -203,7 +219,8 @@ public class RecDigitCdtPr extends RecDigitCdt {
 			System.out.println("The active value:" + fourByteAct.toHexaString(true));
 		}
 
-		if( !isEmpty(fourByteAct) ) {
+        int tempPermission = 0;
+        if( !isEmpty(fourByteAct) ) {
 
 			if( fourByteAct.getBytes()[2] == -1 ){
 
@@ -251,9 +268,9 @@ public class RecDigitCdtPr extends RecDigitCdt {
 			}
 		}
 
-		if ( tempPermission  == 1 ){
+		if ( tempPermission == 1 ){
 
-			timeChecks(intervalTime);
+			timeChecks();
 			actualAct = BigDecimal.valueOf( (long) 0 );
 
 			timeDifference = ( currentTime.getTimeInMillis() - ( currentTime.getTimeInMillis()%60000 ) )
@@ -293,8 +310,9 @@ public class RecDigitCdtPr extends RecDigitCdt {
 					addState = 1;
 				}
 
-				if ( ( flagState == IntervalStateBits.POWERDOWN ) | ( flagState == 3 ) )
-					flagState = 0;
+				if ( ( flagState == IntervalStateBits.POWERDOWN ) | ( flagState == 3 ) ) {
+                    flagState = 0;
+                }
 			}
 
             jumpBack(currentTime);
@@ -308,15 +326,14 @@ public class RecDigitCdtPr extends RecDigitCdt {
 		return temp;
     }
 
-    public ByteArray pivot(int pivotPoint, ByteArray victim) {
+    ByteArray pivot(int pivotPoint, ByteArray victim) {
         return new ByteArray( )
         .add( victim.sub(pivotPoint) )
         .add( victim.sub(0, pivotPoint) );
 	}
 
    private IntervalData[] intervalShift(IntervalData[] currentIntData){
-
-    	for(int i = 0; i<4; i++){
+    	for (int i = 0; i<4; i++){
     		currentIntData[i] = currentIntData[i+1];
     	}
     	temp = currentIntData;
@@ -344,7 +361,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
         currentTime.add(Calendar.SECOND, -interval);
     }
 
-    private void timeChecks(long intervalTime) throws UnsupportedException, IOException{
+    private void timeChecks() throws IOException{
 		while (currentTime.getTime().before(calendar.getTime())){
         	calendar.add( Calendar.SECOND, -getProfileInterval() );
 		}
@@ -358,12 +375,12 @@ public class RecDigitCdtPr extends RecDigitCdt {
         return bd;
     }
 
-    private Date round( Date date ) throws UnsupportedException, IOException {
+    private Date round( Date date ) throws IOException {
         long msRest = date.getTime() % (getProfileInterval() * 1000);
         return new Date(date.getTime() - msRest);
     }
 
-    private int getPointer() throws UnsupportedException, IOException {
+    private int getPointer() throws IOException {
         if( pointer == -1 ) {
             pointer = readValue(0x03FC, Type.WORD).intValue();
         }
@@ -371,31 +388,34 @@ public class RecDigitCdtPr extends RecDigitCdt {
         return pointer;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         if( profileInterval == -1 ) {
             profileInterval = readValue( 0x1B86, Type.WORD).intValue();
         }
         return profileInterval;
     }
 
+    @Override
     public Date getTime() throws IOException {
-        return (Date)getRecFactory().toDate( readRawValue(0x0000, 4) );
+        return getRecFactory().toDate( readRawValue(0x0000, 4) );
     }
 
-    private List newChannelInfo( ){
-        ArrayList result = new ArrayList();
-        result.add( new ChannelInfo(0, "0.1.128.0.0.255", kWh) );		//Active Power Stream
-        return result;
+    private List<ChannelInfo> newChannelInfo( ){
+        return Collections.singletonList(new ChannelInfo(0, "0.1.128.0.0.255", kWh));		//Active Power Stream
     }
 
+    @Override
     public RegisterFactoryCdtPr getRecFactory( ) {
         return (RegisterFactoryCdtPr)getRegisterFactory();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-06-06 09:40:43 +0300 (Mon, 06 Jun 2016)$";
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
     }
@@ -403,4 +423,5 @@ public class RecDigitCdtPr extends RecDigitCdt {
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
     }
+
 }

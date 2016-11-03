@@ -10,42 +10,36 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 /**
- *
  * @author Koen
  */
 public class HoldingRegister extends AbstractRegister {
-    
-    public HoldingRegister(int reg,int range) {
-        super(reg,range,null,"");    
-    }
-    
-    public HoldingRegister(int reg,int range,String name) {
-        super(reg,range,null,name);    
-    }
-    
-    public HoldingRegister(int reg,int range,ObisCode obisCode) {
-       super(reg,range,obisCode,obisCode.getUnitElectricity(0),obisCode.getDescription());    
-    }
-    
-    public HoldingRegister(int reg,int range,ObisCode obisCode,String name) {
-       super(reg,range,obisCode,Unit.get(""),name);    
-    }
-    
-    public HoldingRegister(int reg,int range,ObisCode obisCode,Unit unit) {
-       super(reg,range,obisCode,unit,obisCode.getDescription());    
-    }
-    
-    public HoldingRegister(int reg,int range,ObisCode obisCode,Unit unit,String name) {
-        super(reg,range,obisCode,unit,name);    
-    }
-    
 
-    
-} // public class HoldingRegister extends AbstractRegister
+    public HoldingRegister(int reg, int range) {
+        super(reg, range, null, "");
+    }
+
+    public HoldingRegister(int reg, int range, String name) {
+        super(reg, range, null, name);
+    }
+
+    public HoldingRegister(int reg, int range, ObisCode obisCode) {
+        super(reg, range, obisCode, obisCode.getUnitElectricity(0), obisCode.toString());
+    }
+
+    public HoldingRegister(int reg, int range, ObisCode obisCode, String name) {
+        super(reg, range, obisCode, Unit.get(""), name);
+    }
+
+    public HoldingRegister(int reg, int range, ObisCode obisCode, Unit unit) {
+        super(reg, range, obisCode, unit, obisCode.toString());
+    }
+
+    public HoldingRegister(int reg, int range, ObisCode obisCode, Unit unit, String name) {
+        super(reg, range, obisCode, unit, name);
+    }
+
+}

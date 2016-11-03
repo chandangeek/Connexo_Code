@@ -15,7 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ProfilePart {
+class ProfilePart {
 
 	private static final int DEBUG 		= 0;
 
@@ -26,18 +26,10 @@ public class ProfilePart {
 	private ProfileInfoEntry profileInfoEntry 	= null;
 	private Modbus modBus 						= null;
 
-	/*
-	 * Constructors
-	 */
-
-	public ProfilePart(ProfileInfoEntry profileInfoEntry, Modbus modBus) {
+	ProfilePart(ProfileInfoEntry profileInfoEntry, Modbus modBus) {
 		this.modBus = modBus;
 		this.profileInfoEntry = profileInfoEntry;
 	}
-
-	/*
-	 * Private getters, setters and methods
-	 */
 
 	private Date getStartDate() {
 		return getProfileInfoEntry().getStartTime();
@@ -50,30 +42,38 @@ public class ProfilePart {
 		return (RegisterFactory) this.modBus.getRegisterFactory();
 	}
 
-	/*
-	 * Public methods
-	 */
+	public List<IntervalData> getIntervalDatas(Date from, Date to) throws IOException {
+		List<IntervalData> intervalDatas = new ArrayList<>();
 
-	public List getIntervalDatas(Date from, Date to) throws IOException {
-		List intervalDatas = new ArrayList(0);
-
-		if (from.getTime() > getEndDate().getTime()) return intervalDatas;
-		if (to.getTime() < getStartDate().getTime()) return intervalDatas;
+		if (from.getTime() > getEndDate().getTime()) {
+			return intervalDatas;
+		}
+		if (to.getTime() < getStartDate().getTime()) {
+            return intervalDatas;
+        }
 
 		Date readFrom = from;
 		Date readTo	= to;
 
-		if (readFrom.getTime() < getStartDate().getTime()) readFrom = getStartDate();
-		if (readTo.getTime() > getEndDate().getTime()) readTo = getEndDate();
+		if (readFrom.getTime() < getStartDate().getTime()) {
+            readFrom = getStartDate();
+        }
+		if (readTo.getTime() > getEndDate().getTime()) {
+            readTo = getEndDate();
+        }
 
 		Calendar calFrom = Utils.getCalendarFromDate(readFrom, modBus);
 		Calendar calTo = Utils.getCalendarFromDate(readFrom, modBus);
 
-		do{
+		do {
 			calTo.add(Calendar.HOUR, MAX_READ_PERIOD);
-			if(calTo.getTimeInMillis() > readTo.getTime()) calTo.setTime(readTo);
+			if(calTo.getTimeInMillis() > readTo.getTime()) {
+                calTo.setTime(readTo);
+            }
 
-			if (DEBUG >= 1) System.out.println("Reading from: " + calFrom.getTime() + " to " + calTo.getTime());
+			if (DEBUG >= 1) {
+                System.out.println("Reading from: " + calFrom.getTime() + " to " + calTo.getTime());
+            }
 			intervalDatas.addAll(parse(readRawData(calFrom.getTime(), calTo.getTime())));
 
 			calFrom.setTime(calTo.getTime());
@@ -82,24 +82,25 @@ public class ProfilePart {
 		intervalDatas = Utils.sortIntervalDatas(intervalDatas);
 
 		Date previousDate = new Date(1L);
-		List intervalDatasReturn = new ArrayList(0);
+		List<IntervalData> intervalDatasReturn = new ArrayList<>();
 		for (int i = 0; i < intervalDatas.size(); i++) {
-			 if (previousDate.getTime() != ((IntervalData)intervalDatas.get(i)).getEndTime().getTime()) {
-				 intervalDatasReturn.add((IntervalData)intervalDatas.get(i));
+			 if (previousDate.getTime() != intervalDatas.get(i).getEndTime().getTime()) {
+				 intervalDatasReturn.add(intervalDatas.get(i));
 			 }
-			 previousDate = ((IntervalData)intervalDatas.get(i)).getEndTime();
+			 previousDate = intervalDatas.get(i).getEndTime();
 		}
 
 		return intervalDatasReturn;
 	}
 
-	private List parse(byte[] readRawData) throws ProtocolException {
-		List intervalDatas = new ArrayList(0);
+	private List<IntervalData> parse(byte[] readRawData) throws ProtocolException {
+		List<IntervalData> intervalDatas = new ArrayList<>();
 		int entryLength = getProfileInfoEntry().getEntryBytes();
 		int numberOfEntries = readRawData.length / getProfileInfoEntry().getEntryBytes();
 
-		if ((readRawData.length % entryLength) != 0)
-			throw new ProtocolException("ProfilePart.parse() readRawData has wrong length: " + readRawData.length);
+		if ((readRawData.length % entryLength) != 0) {
+            throw new ProtocolException("ProfilePart.parse() readRawData has wrong length: " + readRawData.length);
+        }
 
 		for (int i = 0; i < numberOfEntries; i++) {
 			byte[] singleProfileEntry = ProtocolUtils.getSubArray2(readRawData, i * entryLength, entryLength);
@@ -110,7 +111,9 @@ public class ProfilePart {
 			}
 		}
 
-		if (DEBUG >= 1) System.out.println("");
+		if (DEBUG >= 1) {
+            System.out.println("");
+        }
 
 		return intervalDatas;
 	}
@@ -125,7 +128,9 @@ public class ProfilePart {
 	}
 
 	private void setProfilePart(int entryID, Date readFrom) throws IOException {
-		if (DEBUG >= 1) System.out.println("DEBUG: Entering ProfilePart, setProfilePart(entryID, readFrom)");
+		if (DEBUG >= 1) {
+            System.out.println("DEBUG: Entering ProfilePart, setProfilePart(entryID, readFrom)");
+        }
 		byte[] rawProfilePardId	= Utils.shortToBytes((short) (entryID & 0x0000FFFF));
 		byte[] rawFromDate = TimeDateParser.getBytesFromDate(readFrom);
 		rawProfilePardId = ProtocolUtils.concatByteArrays(rawProfilePardId, new byte[] {0x00, 0x00});
@@ -133,13 +138,8 @@ public class ProfilePart {
 		Utils.writeRawByteValues(getRegisterFactory().writeFunctionReg.getReg(), Utils.SETPROFILEPART, rawData, this.modBus);
 	}
 
-	/*
-	 * Public getters and setters
-	 */
-
-	public ProfileInfoEntry getProfileInfoEntry() {
+	ProfileInfoEntry getProfileInfoEntry() {
 		return profileInfoEntry;
 	}
-
 
 }

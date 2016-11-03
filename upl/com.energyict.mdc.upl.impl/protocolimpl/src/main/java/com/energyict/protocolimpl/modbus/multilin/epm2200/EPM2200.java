@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
@@ -17,9 +16,7 @@ import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -32,24 +29,21 @@ import java.util.logging.Logger;
  */
 public class EPM2200 extends Modbus implements SerialNumberSupport {
 
-    public EPM2200() {
-    }
-
+    @Override
     protected void doTheConnect() throws IOException {
     }
 
+    @Override
     protected void doTheDisConnect() throws IOException {
     }
 
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "50").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "50").trim()));
     }
 
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
-    }
-
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
@@ -64,22 +58,23 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
         }
     }
 
-    /**
-     * The protocol version date
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         Object firmwareVersion = getRegisterFactory().findRegister("FirmwareVersion").value();
         return (String) firmwareVersion;
     }
 
+    @Override
     public Date getTime() throws IOException {
         return new Date();
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             Object value = getRegisterFactory().findRegister(obisCode).value();
@@ -95,6 +90,7 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
         }
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMODBUS();
@@ -110,7 +106,7 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
             String meterName = (String) getRegisterFactory().findRegister("MeterName").value();
             String firmwareVersion = (String) getRegisterFactory().findRegister("FirmwareVersion").value();
 
-            if ((meterName.toLowerCase().indexOf("shark 50") >= 0) && (firmwareVersion.indexOf("0051") >= 0)) {
+            if ((meterName.toLowerCase().contains("shark 50")) && (firmwareVersion.contains("0051"))) {
                 discoverResult.setDiscovered(true);
                 discoverResult.setProtocolName(this.getClass().getName());
                 discoverResult.setAddress(discoverTools.getAddress());
@@ -132,4 +128,5 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
             }
         }
     }
+
 }

@@ -7,7 +7,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,13 +29,9 @@ public class Profile {
 	private static final int POWER_FAIL 		= 0x004;
 
 	private ProfileInfo profileInfo = null;
-	private List profileParts		= null;
-	private List meterEvents		= null;
-	private Modbus modBus			= null;
-
-	/*
-	 * Constructors
-	 */
+	private List profileParts = null;
+	private List<MeterEvent> meterEvents = null;
+	private Modbus modBus = null;
 
 	public Profile(Modbus modBus) throws IOException {
 		this.modBus = modBus;
@@ -45,17 +39,12 @@ public class Profile {
 		this.profileParts = profileInfo.generateProfileParts();
 	}
 
-	/*
-	 * Public getters and setters
-	 */
-
 	public ProfileInfo getProfileInfo() {
 		return profileInfo;
 	}
 
-	public List getChannelInfos() {
-		List channelInfos = new ArrayList(0);
-
+	public List<ChannelInfo> getChannelInfos() {
+		List<ChannelInfo> channelInfos = new ArrayList<>();
 		channelInfos.add(new ChannelInfo(0, 0, "0.1.128.0.0.255", Unit.get("kW")));			//P+
 		channelInfos.add(new ChannelInfo(1, 1, "0.2.128.0.0.255", Unit.get("kW")));			//P-
 		channelInfos.add(new ChannelInfo(2, 2, "0.3.128.0.0.255", Unit.get("kVA")));		//S+
@@ -64,12 +53,11 @@ public class Profile {
 		channelInfos.add(new ChannelInfo(5, 5, "0.6.128.0.0.255", Unit.get("kvar")));		//Q4
 		channelInfos.add(new ChannelInfo(6, 6, "0.7.128.0.0.255", Unit.get("kvar")));		//Q2
 		channelInfos.add(new ChannelInfo(7, 7, "0.8.128.0.0.255", Unit.get("kvar")));		//Q3
-
 		return channelInfos;
 	}
 
-	public List getIntervalDatas(Date from, Date to, boolean generateEvents) throws IOException {
-		List intervalDatas = new ArrayList(0);
+	public List<IntervalData> getIntervalDatas(Date from, Date to, boolean generateEvents) throws IOException {
+		List<IntervalData> intervalDatas = new ArrayList<>();
 		for (int i = 0; i < profileParts.size(); i++) {
 			ProfilePart pp = (ProfilePart) profileParts.get(i);
 			if (pp.getProfileInfoEntry().getInterval() == getProfileInterval()){
@@ -84,17 +72,15 @@ public class Profile {
 		return filterIntervals(intervalDatas);
 	}
 
-	public List getMeterEvents() {
+	public List<MeterEvent> getMeterEvents() {
 		return meterEvents;
 	}
 
-	private List createEvents(List intervalDatas) {
-		List meterEvents = new ArrayList(0);
-		ProfileData profileData = new ProfileData();
-
+	private List<MeterEvent> createEvents(List<IntervalData> intervalDatas) {
+		List<MeterEvent> meterEvents = new ArrayList<>();
 		if (DEBUG >= 1) {
 			for (int i = 0; i < intervalDatas.size(); i++) {
-				IntervalData id = (IntervalData)intervalDatas.get(i);
+				IntervalData id = intervalDatas.get(i);
 				System.out.print("Endtime = " + id.getEndTime() + " ");
 				System.out.print("Eistatus = " + id.getEiStatus() + " ");
 				System.out.print("ProtocolStatus = " + id.getProtocolStatus() + " ");
@@ -103,11 +89,13 @@ public class Profile {
 		}
 
 		for (int i = 0; i < intervalDatas.size(); i++) {
-			IntervalData id = (IntervalData) intervalDatas.get(i);
+			IntervalData id = intervalDatas.get(i);
 			int protocolStatus = (id.getProtocolStatus() >> 26) & 0x0F;
 			MeterEvent me = null;
 
-			if (DEBUG >= 1) System.out.println("Events: " + id.getEndTime() + " status = " + ProtocolUtils.buildStringHex(protocolStatus, 8) + " original = " + ProtocolUtils.buildStringHex(id.getProtocolStatus(), 8));
+			if (DEBUG >= 1) {
+				System.out.println("Events: " + id.getEndTime() + " status = " + ProtocolUtils.buildStringHex(protocolStatus, 8) + " original = " + ProtocolUtils.buildStringHex(id.getProtocolStatus(), 8));
+			}
 
 			if (protocolStatus != 0x00) {
 				String eventMessage = "";
@@ -148,55 +136,42 @@ public class Profile {
 					me = new MeterEvent(id.getEndTime(), eisCode, protocolStatus, eventMessage);
 					meterEvents.add(me);
 				}
-
 			}
-
 		}
-
 		return checkOnOverlappingEvents(meterEvents);
 	}
 
-    private static List checkOnOverlappingEvents(List meterEvents) {
-    	Map eventsMap = new HashMap();
+    private static List<MeterEvent> checkOnOverlappingEvents(List<MeterEvent> meterEvents) {
+    	Map<Date, MeterEvent> eventsMap = new HashMap<>();
         int size = meterEvents.size();
 	    for (int i = 0; i < size; i++) {
-	    	MeterEvent event = (MeterEvent) meterEvents.get(i);
+	    	MeterEvent event = meterEvents.get(i);
 	    	Date time = event.getTime();
-	    	MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
+	    	MeterEvent eventInMap = eventsMap.get(time);
 	    	while (eventInMap != null) {
 	    		time.setTime(time.getTime() + 1000); // add one second
 				eventInMap = (MeterEvent) eventsMap.get(time);
 	    	}
-	    	MeterEvent newMeterEvent=
-	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
+	    	MeterEvent newMeterEvent = new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
     		eventsMap.put(time, newMeterEvent);
 	    }
-	    Iterator it = eventsMap.values().iterator();
-		List result = new ArrayList();
-	    while (it.hasNext())
-	        result.add((MeterEvent) it.next());
-		return result;
+	    return new ArrayList<>(eventsMap.values());
     }
 
-    private List roundUpIntervalDatas(List intervalDatas) throws IOException {
-    	List intervalDatasTemp = new ArrayList(0);
-
+    private List<IntervalData> roundUpIntervalDatas(List<IntervalData> intervalDatas) throws IOException {
+    	List<IntervalData> intervalDatasTemp = new ArrayList<>();
 		for (int i = 0; i < intervalDatas.size(); i++) {
-			IntervalData id = (IntervalData) intervalDatas.get(i);
+			IntervalData id = intervalDatas.get(i);
 			Calendar endCal = Utils.getCalendarFromDate(id.getEndTime(), this.modBus);
 			ParseUtils.roundUp2nearestInterval(endCal, getProfileInterval());
 			id.getEndTime().setTime(endCal.getTimeInMillis());
 			intervalDatasTemp.add(id);
 		}
-
 		return intervalDatasTemp;
-
     }
 
-	private List filterIntervals(List intervalDatas) throws IOException {
-		List intervalDatasTemp = new ArrayList(0);
-
-		intervalDatasTemp = roundUpIntervalDatas(intervalDatas);
+	private List<IntervalData> filterIntervals(List<IntervalData> intervalDatas) throws IOException {
+		List<IntervalData> intervalDatasTemp = roundUpIntervalDatas(intervalDatas);
 		intervalDatasTemp = Utils.sortIntervalDatas(intervalDatasTemp);
 
 		//dubbele waarden uitfilteren en optellen
@@ -205,7 +180,7 @@ public class Profile {
 
 		if (DEBUG >= 1) {
 			for (int i = 0; i < intervalDatasTemp.size(); i++) {
-				IntervalData id = (IntervalData)intervalDatasTemp.get(i);
+				IntervalData id = intervalDatasTemp.get(i);
 				System.out.print("Endtime = " + id.getEndTime() + " ");
 				System.out.print("Eistatus = " + id.getEiStatus() + " ");
 				System.out.print("ProtocolStatus = " + id.getProtocolStatus() + " ");
@@ -220,12 +195,12 @@ public class Profile {
 		return getProfileInfo().getProfileInterval();
 	}
 
-	private List mergeIntervalDatas(List intervalDatas) throws ProtocolException {
-		List intervalDatasTemp = new ArrayList(0);
+	private List<IntervalData> mergeIntervalDatas(List<IntervalData> intervalDatas) throws ProtocolException {
+		List<IntervalData> intervalDatasTemp = new ArrayList<>();
 		IntervalData previousId = null;
 
 		for (int i = 0; i < intervalDatas.size(); i++) {
-			IntervalData currentId = (IntervalData) intervalDatas.get(i);
+			IntervalData currentId = intervalDatas.get(i);
 
 			if (previousId != null) {
 				if (previousId.getEndTime().getTime() == currentId.getEndTime().getTime()) {
@@ -245,20 +220,22 @@ public class Profile {
 
 	private IntervalData merge(IntervalData id1, IntervalData id2) throws ProtocolException {
 
-		if (id1.getValueCount() != id2.getValueCount())
+		if (id1.getValueCount() != id2.getValueCount()) {
 			throw new ProtocolException(
 					"Profile.mergeIntervalDatas(id1, id2): Two intervaldatas contains different number of values: " +
-					id1.getValueCount()+"!="+id2.getValueCount()
+							id1.getValueCount() + "!=" + id2.getValueCount()
 			);
+		}
 
-		if (id1.getEndTime().getTime() != id2.getEndTime().getTime())
+		if (id1.getEndTime().getTime() != id2.getEndTime().getTime()) {
 			throw new ProtocolException(
 					"Profile.mergeIntervalDatas(id1, id2): Intervaldatas endtime are different from each other: " +
-					id1.getEndTime()+"!="+id2.getEndTime()
+							id1.getEndTime() + "!=" + id2.getEndTime()
 			);
+		}
 
 
-		List ivList = new ArrayList(0);
+		List<IntervalValue> ivList = new ArrayList<>();
 		IntervalData idReturn = new IntervalData(id1.getEndTime());
 		int ps = id1.getProtocolStatus();
 

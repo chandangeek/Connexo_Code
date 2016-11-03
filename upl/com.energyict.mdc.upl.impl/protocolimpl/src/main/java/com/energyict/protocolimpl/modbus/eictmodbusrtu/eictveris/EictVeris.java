@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -19,9 +18,7 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -32,45 +29,38 @@ import java.util.logging.Logger;
  */
 public class EictVeris extends Modbus {
 
+    private MultiplierFactory multiplierFactory = null;
 
-    MultiplierFactory multiplierFactory=null;
-
-    /**
-     * Creates a new instance of EictVeris
-     */
-    public EictVeris() {
-    }
-
+    @Override
     protected void doTheConnect() throws IOException {
-
     }
 
+    @Override
     protected void doTheDisConnect() throws IOException {
-
     }
 
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","25").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
     }
 
-
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
-    }
-
+    @Override
     public String getFirmwareVersion() throws IOException {
         return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getSlaveId()+", "+getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-07-17 08:54:15 +0200 (Thu, 17 Jul 2014) $";
     }
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
 
+    @Override
     public Date getTime() throws IOException {
         //return getRegisterFactory().findRegister("clock").dateValue();
         return new Date();
@@ -84,10 +74,12 @@ public class EictVeris extends Modbus {
         return multiplierFactory;
     }
 
+    @Override
     public BigDecimal getRegisterMultiplier(int address) throws IOException {
         return getMultiplierFactory().findMultiplier(address);
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMODBUS();

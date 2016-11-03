@@ -8,9 +8,9 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -29,6 +29,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.connection.UNIFLO12
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +37,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -44,7 +44,6 @@ import java.util.Properties;
  * @author jme
  *
  */
-
 public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 
 	private static final int DEBUG = 0;
@@ -71,6 +70,7 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
         }
     }
 
+	@Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
@@ -83,6 +83,7 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 		this.loadProfileNumber = loadProfileNumber;
 	}
 
+	@Override
 	public void setTime() throws IOException {
 		byte[] b;
 		Calendar cal = ProtocolUtils.getCleanCalendar(gettimeZone());
@@ -97,31 +98,38 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	@Override
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		return getLoadProfile().getProfileData(from, to, includeEvents);
 	}
 
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	@Override
+	public int getProfileInterval() throws IOException {
 		sendDebug("getProfileInterval()", 5);
 		return getLoadProfile().getProfileInterval();
 	}
 
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+	@Override
+	public int getNumberOfChannels() throws IOException {
 		return getLoadProfile().getNumberOfChannels();
 	}
 
+	@Override
 	public Date getTime() throws IOException {
 		return getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_TIME).dateValue();
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	@Override
+	public String getFirmwareVersion() throws IOException {
 		return (String) getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_DEVICE_TYPE).value();
 	}
 
+	@Override
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		return ((UNIFLO1200RegisterFactory)getRegisterFactory()).readRegister(obisCode);
 	}
 
+	@Override
 	protected void doTheConnect() throws IOException {
 		sendDebug("doTheConnect()", 5);
 		String password = getInfoTypePassword();
@@ -134,75 +142,73 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 
 		setSecLvl(((Integer)getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_ACTUAL_SECLEVEL).value()).intValue());
 
-		if (getInfoTypeSecurityLevel() != getSecLvl())
-			throw new InvalidPropertyException("SecurityLevel mismatch [" + getInfoTypeSecurityLevel() + " != " + getSecLvl() + "]: Reason may be wrong password or hardware lock.");
+		if (getInfoTypeSecurityLevel() != getSecLvl()) {
+            throw new InvalidPropertyException("SecurityLevel mismatch [" + getInfoTypeSecurityLevel() + " != " + getSecLvl() + "]: Reason may be wrong password or hardware lock.");
+        }
 
 		sendDebug("Actual security lvl: " + getSecLvl(), 2);
 		setLoadProfile(new UNIFLO1200Profile(this));
 
 	}
 
+	@Override
 	protected void doTheDisConnect() throws IOException {
 		sendDebug("doTheDisConnect()", 5);
 	}
 
-	protected List doTheGetOptionalKeys() {
-		sendDebug("doTheGetOptionalKeys()", 5);
-        List result = new ArrayList();
-        result.add("LoadProfileNumber");
-		return result;
+	@Override
+	public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("LoadProfileNumber", false, MIN_LOADPROFILE_NUMBER, MAX_LOADPROFILE_NUMBER));
+        return propertySpecs;
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		sendDebug("doTheValidateProperties()", 5);
-
         setLoadProfileNumber(Integer.parseInt(properties.getProperty("LoadProfileNumber","1").trim()));
-
-        if ((getLoadProfileNumber() > MAX_LOADPROFILE_NUMBER) || (getLoadProfileNumber() < MIN_LOADPROFILE_NUMBER))
-        	throw new InvalidPropertyException(
-        			"Invalid loadProfileNumber (" + getLoadProfileNumber() + ")! " +
-        			"Valid values are: '1' for INTERVAL_LOG, '2' for 24_HOUR_LOG or '3' for MONTH_LOG."
-        			);
-
 		if (getInfoTypePassword() != null) {
-			if (getInfoTypePassword().length() > 8)
-				throw new InvalidPropertyException("Password to long! Max length is 8 characters.");
-			while (getInfoTypePassword().length() < 8) setInfoTypePassword(getInfoTypePassword() + " ");
+			if (getInfoTypePassword().length() > 8) {
+                throw new InvalidPropertyException("Password to long! Max length is 8 characters.");
+            }
+			while (getInfoTypePassword().length() < 8) {
+                setInfoTypePassword(getInfoTypePassword() + " ");
+            }
 		}
 	}
 
+	@Override
 	protected void initRegisterFactory() {
 		sendDebug("initRegisterFactory()", 5);
         setRegisterFactory(new UNIFLO1200RegisterFactory(this));
 	}
 
+    @Override
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		sendDebug("discover()", 5);
 		return null;
 	}
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-    	StringBuffer strBuff = new StringBuffer();
+    	StringBuilder builder = new StringBuilder();
     	if (extendedLogging==1) {
-    		Iterator it = ((UNIFLO1200RegisterFactory)getRegisterFactory()).getRegisters().iterator();
-    		while (it.hasNext()) {
-    			AbstractRegister ar = (AbstractRegister)it.next();
-    			if (ar.getObisCode()!=null) {
-    				strBuff.append(ar.getObisCode().toString() + ", ");
-    				strBuff.append("unit = " + ar.getUnit() + ", ");
-    				strBuff.append("name = " + ar.getName());
-    				strBuff.append("\n");
-    			}
-    		}
+            for (AbstractRegister ar : ((UNIFLO1200RegisterFactory) getRegisterFactory()).getRegisters()) {
+                if (ar.getObisCode() != null) {
+                    builder.append(ar.getObisCode().toString()).append(", ");
+                    builder.append("unit = ").append(ar.getUnit()).append(", ");
+                    builder.append("name = ").append(ar.getName());
+                    builder.append("\n");
+                }
+            }
     	}
-    	return strBuff.toString();
+    	return builder.toString();
     }
 
-	public int getSecLvl() {
+	private int getSecLvl() {
 		return secLvl;
 	}
 
-	public void setSecLvl(int secLvl) {
+	private void setSecLvl(int secLvl) {
 		this.secLvl = secLvl;
 	}
 
@@ -240,6 +246,5 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
     		System.out.println(message);
     	}
     }
-
 
 }

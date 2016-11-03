@@ -4,8 +4,7 @@
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
@@ -17,10 +16,8 @@ import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -29,40 +26,32 @@ import java.util.Properties;
  */
 public class CompactNSX extends Modbus {
 
-	/**
-	 *
-	 */
-	public CompactNSX() {
-	}
-
+	@Override
 	protected void doTheConnect() throws IOException {
 	}
 
+	@Override
 	protected void doTheDisConnect() throws IOException {
 	}
 
-	protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
-	}
-
-	protected void doTheValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-		 setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim()));
+	@Override
+	public void setProperties(Properties properties) throws PropertyValidationException {
+		super.setProperties(properties);
+		 setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
 		 setInfoTypePhysicalLayer(1);
 	}
 
+    @Override
 	protected void initRegisterFactory() {
 		setRegisterFactory(new RegisterFactory(this));
 	}
 
+    @Override
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		return null;
 	}
 
-    /**
-     * The protocol version date
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-04-09 09:16:13 +0200 (Thu, 09 Apr 2015) $";
     }
@@ -71,12 +60,14 @@ public class CompactNSX extends Modbus {
     	return getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification().toString();
     }
 
+    @Override
     public void setTime() throws IOException {
     	byte[] time = perpareCurrentTime();
     	byte[] regValues = prepareCommand(769, 18, 768, "0", time);
     	getRegisterFactory().findRegister("Buffer").getWriteMultipleRegisters(regValues);
     }
 
+    @Override
 	public Date getTime() throws IOException{
     	byte[] regValues = prepareCommand(768, 10, 768, "0", null);
     	getRegisterFactory().findRegister("Buffer").getWriteMultipleRegisters(regValues);
@@ -94,9 +85,7 @@ public class CompactNSX extends Modbus {
     	return getRegisterFactory().findRegister("Date").dateValue();
     }
 
-    /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e
-    *******************************************************************************************/
+    @Override
    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 	   try {
 		   Object value = getRegisterFactory().findRegister(obisCode).value();
@@ -163,4 +152,5 @@ public class CompactNSX extends Modbus {
     	time[7] = (byte) ((cal.get(Calendar.MILLISECOND))&0xFF);
     	return time;
 	}
+
 }

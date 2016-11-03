@@ -15,12 +15,6 @@ public class PM5560 extends Generic {
         return "$Date: 2015-03-20 16:59:41 +0100 (Fri, 20 Mar 2015) $";
     }
 
-//    @Override - date/time currently out of scope
-//    public Date getTime() throws IOException {
-//        AbstractRegister dateTimeRegister = getRegisterFactory().findRegister(PM5560RegisterFactory.CurrentDateTimeAddress);
-//        return ((DateTime) dateTimeRegister.value()).getMeterCalender().getTime();
-//    }
-
     @Override
     public String getFirmwareVersion() throws IOException {
         String rawOsFirmwareVersion = getRegisterFactory().findRegister(PM5560RegisterFactory.OsFirmwareVersionAddress).value().toString();
@@ -35,7 +29,7 @@ public class PM5560 extends Generic {
 
     private String leftAppendWithZeros(String text) {
         while (text.length() < 5) {
-            text = "0".concat(text);
+            text = "0" + text;
         }
         return text;
     }
@@ -44,4 +38,5 @@ public class PM5560 extends Generic {
     protected void initRegisterFactory() {
         setRegisterFactory(new PM5560RegisterFactory(this));
     }
+
 }

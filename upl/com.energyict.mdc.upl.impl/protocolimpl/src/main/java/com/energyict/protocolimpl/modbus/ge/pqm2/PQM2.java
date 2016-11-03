@@ -10,9 +10,6 @@
 
 package com.energyict.protocolimpl.modbus.ge.pqm2;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -20,37 +17,23 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+
 /**
  *
  * @author Koen
  */
 public class PQM2 extends Modbus implements SerialNumberSupport {
 
-    /** Creates a new instance of PQM2 */
-    public PQM2() {
-    }
-
-
+    @Override
     protected void doTheConnect() throws IOException {
-
     }
 
+    @Override
     protected void doTheDisConnect() throws IOException {
-
     }
 
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-    }
-
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
-    }
-
+    @Override
     public String getFirmwareVersion() throws IOException {
         return (String)getRegisterFactory().findRegister("firmware version").objectValueWithParser("firmware version");
     }
@@ -64,21 +47,23 @@ public class PQM2 extends Modbus implements SerialNumberSupport {
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getRegisterFactory().findRegister("clock").dateValue();
         //return new Date();
     }
 
-
-
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
     }

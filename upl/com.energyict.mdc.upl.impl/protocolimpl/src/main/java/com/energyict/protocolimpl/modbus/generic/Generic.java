@@ -2,7 +2,8 @@ package com.energyict.protocolimpl.modbus.generic;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -14,6 +15,7 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -46,10 +48,9 @@ public class Generic extends Modbus {
 
     private static final String START_REGISTERS = "StartRegisters";
     private static final String START_REGISTERS_ZERO_BASED = "StartRegistersZeroBased";
-    private static final String CONNECTION = "Connection";
 
     private boolean startRegistersZeroBased;
-    private Map<Integer, Integer> customStartRegisterMap = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> customStartRegisterMap = new HashMap<>();
 
     @Override
     protected void doTheConnect() throws IOException {
@@ -60,13 +61,22 @@ public class Generic extends Modbus {
     }
 
     @Override
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(START_REGISTERS, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(START_REGISTERS_ZERO_BASED, false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         validateAndSetCustomStartRegisterMap(properties.getProperty(START_REGISTERS));
         validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS_ZERO_BASED, "1"));
     }
 
     private void validateAndSetCustomStartRegisterMap(String registerMap) throws InvalidPropertyException {
-        if (registerMap == null || registerMap.equals("")) {
+        if (registerMap == null || "".equals(registerMap)) {
             return;
         } else {
             registerMap = registerMap.trim();
@@ -94,15 +104,6 @@ public class Generic extends Modbus {
     }
 
     @Override
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(START_REGISTERS);
-        result.add(START_REGISTERS_ZERO_BASED);
-        result.add(CONNECTION);
-        return result;
-    }
-
-    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
@@ -118,7 +119,7 @@ public class Generic extends Modbus {
             } else if (value instanceof ReportSlaveId) {
                 ReportSlaveId rsi = (ReportSlaveId) value;
                 return new RegisterValue(obisCode,
-                        new Quantity(rsi.getSlaveId(), Unit.getUndefined()), null, null, null, new Date(), 0, new Boolean(rsi.isRun()).toString());
+                        new Quantity(rsi.getSlaveId(), Unit.getUndefined()), null, null, null, new Date(), 0, Boolean.toString(rsi.isRun()));
             }  else if (value instanceof ReadStatuses) {
                 ReadStatuses readStatuses = (ReadStatuses) value;
                 byte[] statuses = readStatuses.getStatuses();
@@ -133,24 +134,23 @@ public class Generic extends Modbus {
         }
     }
 
-    public Map<Integer, Integer> getCustomStartRegisterMap() {
+    Map<Integer, Integer> getCustomStartRegisterMap() {
         return customStartRegisterMap;
     }
 
-    public boolean isStartRegistersZeroBased() {
+    boolean isStartRegistersZeroBased() {
         return startRegistersZeroBased;
     }
 
-    /**
-     * The protocol version date
-     */
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-04-21 13:49:04 +0200 (Tue, 21 Apr 2015) $";
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         DiscoverResult discover = new DiscoverResult();
         return discover;
     }
+
 }

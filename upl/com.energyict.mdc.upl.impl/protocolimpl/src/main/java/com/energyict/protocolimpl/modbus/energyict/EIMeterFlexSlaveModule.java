@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.modbus.energyict;
 
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
@@ -7,9 +9,7 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -43,14 +43,10 @@ public class EIMeterFlexSlaveModule extends Modbus {
     }
 
     @Override
-    protected final void doTheValidateProperties(final Properties properties) {
-        this.setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim()));
-        this.setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim()));
-    }
-
-    @Override
-    protected final List<String> doTheGetOptionalKeys() {
-        return new ArrayList<>();
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        this.setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
+        this.setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty(PK_FIRST_TIME_DELAY, "0").trim()));
     }
 
     @Override
@@ -67,11 +63,6 @@ public class EIMeterFlexSlaveModule extends Modbus {
      */
     private static final class RegisterFactory extends NDBaseRegisterFactory {
 
-        /**
-         * Create a new instance.
-         *
-         * @param protocol
-         */
         private RegisterFactory(final Modbus protocol) {
             super(protocol);
         }
@@ -89,6 +80,7 @@ public class EIMeterFlexSlaveModule extends Modbus {
         }
     }
 
+    @Override
     public final String getProtocolVersion() {
         return "$Date: 2013-04-15 16:48:48 +0200 (ma, 15 apr 2013) $";
     }
@@ -98,6 +90,7 @@ public class EIMeterFlexSlaveModule extends Modbus {
         return String.valueOf(this.getRegisterFactory().findRegister(FIRMWARE_VERSION_REGISTER_NAME).objectValueWithParser("value0"));
     }
 
+    @Override
     public final Date getTime() {
         return new Date();
     }

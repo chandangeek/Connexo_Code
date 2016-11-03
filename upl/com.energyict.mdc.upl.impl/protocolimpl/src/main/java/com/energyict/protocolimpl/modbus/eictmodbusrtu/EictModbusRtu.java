@@ -10,59 +10,38 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
-import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 import com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.RegisterFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+
 /**
  *
  * @author Koen
  */
 public class EictModbusRtu extends Modbus {
 
-    ModbusConnection modbusConnection;
-    FunctionCodeFactory functionCodeFactory;
-
-    /** Creates a new instance of EictRtuModbus */
-    public EictModbusRtu() {
-    }
-
+    @Override
     protected void doTheConnect() throws IOException {
-
     }
 
+    @Override
     protected void doTheDisConnect() throws IOException {
-
     }
 
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-
-    }
-
-
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        return result;
-    }
-
+    @Override
     protected void initRegisterFactory(){
         setRegisterFactory(new RegisterFactory(this));
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
     }

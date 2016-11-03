@@ -1,15 +1,16 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.core;
 
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.HoldingRegister;
-import com.energyict.protocolimpl.modbus.core.Modbus;
 
 public class Utils {
 
@@ -18,10 +19,6 @@ public class Utils {
 
 	public static final int SETCLOCK			= 0x0104;
 	public static final int SETPROFILEPART 		= 0x0705;
-	
-	/*
-	 * Public methods
-	 */
 
 	public static byte[] intArrayToByteArray(int[] intArray) {
 		byte[] byteArray = new byte[intArray.length*2];
@@ -66,12 +63,12 @@ public class Utils {
         r.setRegisterFactory(modbus.getRegisterFactory());
         return r.getReadHoldingRegistersRequest().getRegisters();
     }
-	
+
     private static byte[] readRawByteValues(int address, int length, Modbus modbus)  throws IOException {
         return intArrayToByteArray(readRawIntValues(address, length, modbus));
     }
 
-    public static void writeRawByteValues(int address, byte[] rawData, Modbus modbus)  throws IOException {
+    private static void writeRawByteValues(int address, byte[] rawData, Modbus modbus)  throws IOException {
         HoldingRegister r = new HoldingRegister(address, rawData.length / 2);
         r.setRegisterFactory(modbus.getRegisterFactory());
         r.getWriteMultipleRegisters(rawData);
@@ -86,13 +83,15 @@ public class Utils {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		int currentPos = 0;
 
-		while(currentPos < length) {
+		while (currentPos < length) {
 			int currentLength = length - currentPos;
-			if (currentLength > MODBUS_MAX_SIZE) currentLength = MODBUS_MAX_SIZE;
+			if (currentLength > MODBUS_MAX_SIZE) {
+				currentLength = MODBUS_MAX_SIZE;
+			}
 			buffer.write(readRawByteValues(address + currentPos, currentLength, modbus));
 			currentPos += currentLength;
 		}
-		
+
 		return buffer.toByteArray();
     }
 
@@ -102,15 +101,18 @@ public class Utils {
     		return cal;
     }
 
-	public static List sortIntervalDatas(List intervalDatas) {
+	public static List<IntervalData> sortIntervalDatas(List<IntervalData> intervalDatas) {
 		ProfileData pd = new ProfileData();
 		pd.setIntervalDatas(intervalDatas);
 		pd.sort();
 		return pd.getIntervalDatas();
 	}
-    
+
 	public static long intToLongUnsigned(int value) {
 		return ((long)value) & 0x00000000FFFFFFFF;
 	}
-	
+
+	// Hide utility class constructor
+	private Utils() {}
+
 }

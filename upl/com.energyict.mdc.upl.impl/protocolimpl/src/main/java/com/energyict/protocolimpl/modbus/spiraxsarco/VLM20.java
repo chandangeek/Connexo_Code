@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.modbus.spiraxsarco;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -16,6 +16,7 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -31,30 +32,27 @@ import java.util.Properties;
 public class VLM20 extends Modbus{
 
     private static final String START_REGISTERS_ZERO_BASED = "StartRegistersZeroBased";
-    private static final String CONNECTION = "Connection";
     private boolean startRegistersZeroBased;
 
     @Override
     protected void doTheConnect() throws IOException {
-
     }
 
     @Override
     protected void doTheDisConnect() throws IOException {
-
     }
 
     @Override
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(START_REGISTERS_ZERO_BASED, false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS_ZERO_BASED, "1"));
-    }
-
-    @Override
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(START_REGISTERS_ZERO_BASED);
-        result.add(CONNECTION);
-        return result;
     }
 
     @Override
@@ -96,6 +94,7 @@ public class VLM20 extends Modbus{
         }
     }
 
+    @Override
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList<>();
 
@@ -110,7 +109,7 @@ public class VLM20 extends Modbus{
         startRegistersZeroBased = ProtocolTools.getBooleanFromString(zeroBasedFlag);
     }
 
-    public boolean isStartRegistersZeroBased() {
+    boolean isStartRegistersZeroBased() {
         return startRegistersZeroBased;
     }
 

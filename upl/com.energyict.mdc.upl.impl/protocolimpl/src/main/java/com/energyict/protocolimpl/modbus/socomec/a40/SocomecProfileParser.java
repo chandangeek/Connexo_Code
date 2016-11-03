@@ -89,10 +89,10 @@ public class SocomecProfileParser {
 	 * @param channelInfoRegisters the registers read from the ModBus meter
 	 * @return a List of ChannelInfo
 	 */
-	List parseChannelInfos(int[] channelInfoRegisters, BigDecimal multiplier) {
-		List channelInfos = new ArrayList();
-		for(int i = 0; i < channelInfoRegisters.length; i++){
-			if(channelInfoRegisters[i] == 1){
+	List<ChannelInfo> parseChannelInfos(int[] channelInfoRegisters, BigDecimal multiplier) {
+		List<ChannelInfo> channelInfos = new ArrayList<>();
+		for (int i = 0; i < channelInfoRegisters.length; i++) {
+			if (channelInfoRegisters[i] == 1) {
 				channelInfos.add(new ChannelInfo(channelInfos.size(), channelInfoNames[i], channelInfoUnits[i], 1, channelInfos.size(), multiplier));
 			}
 		}

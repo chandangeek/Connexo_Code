@@ -10,19 +10,15 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm750;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -31,65 +27,54 @@ import java.util.Properties;
  */
 public class PM750 extends Modbus  {
 
-	ModbusConnection modbusConnection;
-	private RegisterFactory registerFactory;
 	private MultiplierFactory multiplierFactory = null;
 
-	/**
-	 * Creates a new instance of PM750
-	 */
-	public PM750() {
-	}
-
+	@Override
 	protected void doTheConnect() throws IOException {
-
 	}
 
+	@Override
 	protected void doTheDisConnect() throws IOException {
-
 	}
 
-	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-
-		setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "50").trim()));
+	@Override
+	public void setProperties(Properties properties) throws PropertyValidationException {
+		super.setProperties(properties);
+		setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "50").trim()));
 	}
 
+    @Override
 	public String getFirmwareVersion() throws IOException {
 		return getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification().toString();
 	}
 
-	protected List doTheGetOptionalKeys() {
-		List result = new ArrayList();
-		return result;
-	}
-
-	/**
-	 * The protocol version
-	 */
+    @Override
     public String getProtocolVersion() {
 		return "$Date: 2015-04-09 09:16:13 +0200 (Thu, 09 Apr 2015) $";
 	}
 
+    @Override
 	protected void initRegisterFactory() {
 		setRegisterFactory(new RegisterFactory(this));
 	}
 
+    @Override
 	public Date getTime() throws IOException {
 		return new Date();
 	}
 
-
-
+    @Override
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		// discovery is implemented in the GenericModbusDiscover protocol
 		return null;
 	}
 
+    @Override
 	public BigDecimal getRegisterMultiplier(int address) throws IOException {
 		return getMultiplierFactory().getMultiplier(address);
 	}
 
-	public MultiplierFactory getMultiplierFactory() {
+	private MultiplierFactory getMultiplierFactory() {
 		if (multiplierFactory == null) {
 			multiplierFactory = new MultiplierFactory(this);
 		}

@@ -1,12 +1,9 @@
 package com.energyict.protocolimpl.modbus.enerdis.recdigit1800;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -22,15 +19,16 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
 
 /**
  *
@@ -50,20 +48,16 @@ public class RecDigit1800 extends Modbus {
 
     private byte[] currentInstantTime = new byte[6];
 
-    final static Unit kWh = Unit.get(BaseUnit.WATT);
-    final static Unit kVAr = Unit.get(BaseUnit.VOLTAMPEREREACTIVE);
-    private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
+    private static final String PK_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
 
-    private final int ACTIVE        = 0;
-    private final int REACTIVE      = 1;
-    private final int READ_BYTES 	= 4;
+    private static final int ACTIVE = 0;
+    private static final int REACTIVE = 1;
+    private static final int READ_BYTES = 4;
+    private static final int READ_STEP = 4;
 
-    private int READ_STEP = 4;
     private int tempPointer = 0;
     private int profileInterval = -1;
-	private int tempPermission = 0;
-    private int searchPointer;
-	private int addState = 0;
+    private int addState = 0;
     private int flagState = 0;
     private int interval;
     private int limitMaxNrOfDays;
@@ -90,40 +84,49 @@ public class RecDigit1800 extends Modbus {
 
     public RecDigit1800() { }
 
+    @Override
     protected void doTheConnect() throws IOException { }
+
+    @Override
     protected void doTheDisConnect() throws IOException {}
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
-    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer","1").trim()));
-    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","100").trim()));
-        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
-
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(PK_LIMIT_MAX_NR_OF_DAYS, false));
+        return propertySpecs;
     }
 
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));
+    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));
+        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PK_LIMIT_MAX_NR_OF_DAYS, "0"));
+    }
+
+    @Override
     public String getFirmwareVersion()
-        throws IOException, UnsupportedException {
+        throws IOException {
         return "unknown";
     }
 
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
-        return result;
-    }
-
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-06-06 09:40:43 +0300 (Mon, 06 Jun 2016)$";
     }
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()));
     }
 
-    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter) throws IOException {
         Date from = limiter.getFromDate();
         Date to = limiter.getToDate();
 
@@ -139,22 +142,23 @@ public class RecDigit1800 extends Modbus {
 
     	previousFourAct = new ByteArray( new byte[]{ 0, 0, 0, 0 } ); previousFourReact = new ByteArray( new byte[]{ 0, 0, 0, 0 } );
 
-    	searchPointer = getPointer();
+        int searchPointer = getPointer();
 
         ByteArray activeArray,reactiveArray = new ByteArray();
 
         ProfileData profileData = new ProfileData();
         profileData.setChannelInfos(newChannelInfo());
 
-        IntervalData currentId[] = null;
+        IntervalData currentId[];
 
         calendar = Calendar.getInstance( gettimeZone() );
     	currentTime = Calendar.getInstance( gettimeZone() );
 
-        if( to != null )
-            calendar.setTime( round( to ) );
-        else
-            calendar.setTime( round( new Date() ) );
+        if( to != null ) {
+            calendar.setTime(round(to));
+        } else {
+            calendar.setTime(round(new Date()));
+        }
 
         getLogger().info( "getProfileData( from=" + from + ", to=" + to + " ) " );
 
@@ -165,8 +169,9 @@ public class RecDigit1800 extends Modbus {
 
             currentId = parse(activeArray, reactiveArray);
 
-            if ( !currentTime.getTime().after(from) )
-            	addState = 1;
+            if ( !currentTime.getTime().after(from) ) {
+                addState = 1;
+            }
 
             searchPointer = searchPointer - READ_STEP/4;
             if ( searchPointer < 0 ){
@@ -189,9 +194,12 @@ public class RecDigit1800 extends Modbus {
 
     }
 
+    @Override
     public void setTime() throws IOException {
 
-    	if (debug) System.out.println( "TESTING THE setTime!" );
+    	if (debug) {
+            System.out.println("TESTING THE setTime!");
+        }
 
     	Calendar instTime = Calendar.getInstance( gettimeZone() );
 
@@ -218,12 +226,15 @@ public class RecDigit1800 extends Modbus {
 
     				IntervalData doubleInterval = new IntervalData(profileData.getIntervalData(i).getEndTime());
 
-    				if(debug)System.out.println("We got a double!");
+    				if(debug) {
+                        System.out.println("We got a double!");
+                    }
 
-    				for (int k = 0; k < profileData.getNumberOfChannels(); k ++)
-    					doubleInterval.addValue( ( (BigDecimal)profileData.getIntervalData(i).get(k) )
-    							.add( (BigDecimal)profileData.getIntervalData(j).get(k) )
-    							, 0, profileData.getIntervalData(i).getEiStatus(k) | profileData.getIntervalData(j).getEiStatus(k) );
+    				for (int k = 0; k < profileData.getNumberOfChannels(); k ++) {
+                        doubleInterval.addValue(((BigDecimal) profileData.getIntervalData(i).get(k))
+                                        .add((BigDecimal) profileData.getIntervalData(j).get(k))
+                                , 0, profileData.getIntervalData(i).getEiStatus(k) | profileData.getIntervalData(j).getEiStatus(k));
+                    }
 
     				profileData.getIntervalDatas().remove(j);
     				profileData.getIntervalDatas().remove(i);
@@ -240,7 +251,7 @@ public class RecDigit1800 extends Modbus {
 		return profileData;
 	}
 
-    IntervalData[] parse(ByteArray active, ByteArray reactive) throws UnsupportedException, IOException{
+    private IntervalData[] parse(ByteArray active, ByteArray reactive) throws IOException{
 
 		ByteArray fourByteAct = active.sub( 0, READ_BYTES ), fourByteReact = reactive.sub( 0, READ_BYTES );
 		BigDecimal actualAct = null, actualReact = null, currentPercent, previousPercent;
@@ -253,7 +264,8 @@ public class RecDigit1800 extends Modbus {
 			System.out.println("The reactive value:" + fourByteReact.toHexaString(true));
 		}
 
-		if( !isEmpty(fourByteAct) ) {
+        int tempPermission = 0;
+        if( !isEmpty(fourByteAct) ) {
 
 			if( fourByteAct.getBytes()[2] == -1 ){
 
@@ -303,7 +315,7 @@ public class RecDigit1800 extends Modbus {
 			}
 		}
 
-		if ( tempPermission  == 1 ){
+		if ( tempPermission == 1 ){
 
 			timeChecks(intervalTime);
 			actualAct = BigDecimal.valueOf( (long) 0 );
@@ -363,14 +375,13 @@ public class RecDigit1800 extends Modbus {
 		return temp;
     }
 
-    public ByteArray pivot(int pivotPoint, ByteArray victim) {
+    ByteArray pivot(int pivotPoint, ByteArray victim) {
         return new ByteArray( )
         .add( victim.sub(pivotPoint) )
         .add( victim.sub(0, pivotPoint) );
 	}
 
     private IntervalData[] intervalShift(IntervalData[] currentIntData){
-
     	for(int i = 0; i<9; i++){
     		currentIntData[i] = currentIntData[i+1];
     	}
@@ -379,7 +390,7 @@ public class RecDigit1800 extends Modbus {
     	return currentIntData;
     }
 
-    private void timeChecks(long intervalTime) throws UnsupportedException, IOException{
+    private void timeChecks(long intervalTime) throws IOException{
 		while (currentTime.getTime().before(calendar.getTime())){
         	calendar.add( Calendar.SECOND, -getProfileInterval() );
 		}
@@ -421,7 +432,7 @@ public class RecDigit1800 extends Modbus {
         return bd;
     }
 
-    private Date round( Date date ) throws UnsupportedException, IOException {
+    private Date round( Date date ) throws IOException {
         long msRest = date.getTime() % (getProfileInterval() * 1000);
         return new Date(date.getTime() - msRest);
     }
@@ -439,11 +450,9 @@ public class RecDigit1800 extends Modbus {
 
     }
 
-    BigDecimal readValue(int address, Type type) throws IOException {
-
+    private BigDecimal readValue(int address, Type type) throws IOException {
         int [] values = readRawValue( address, type.wordSize() );
         return getRecFactory().toBigDecimal(type, values);
-
     }
 
     /*
@@ -453,48 +462,53 @@ public class RecDigit1800 extends Modbus {
      *  - to keep things simple both channels are _always_ read.
      *
      */
-    private List newChannelInfo( ){
-        ArrayList result = new ArrayList();
-        result.add( new ChannelInfo(0, "0.1.128.0.0.255", RegisterFactory.W) );     //Active Power Stream
-        result.add( new ChannelInfo(1, "0.2.128.0.0.255", RegisterFactory.VAr) ); //Reactive Power Stream
-        return result;
+    private List<ChannelInfo> newChannelInfo( ){
+        return Arrays.asList(
+            new ChannelInfo(0, "0.1.128.0.0.255", RegisterFactory.W),     //Active Power Stream
+            new ChannelInfo(1, "0.2.128.0.0.255", RegisterFactory.VAr)); //Reactive Power Stream
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         if( profileInterval == -1 ) {
             profileInterval = readValue( 0x19F4, Type.WORD).intValue();
         }
         return profileInterval;
     }
 
-    private int getPointer() throws UnsupportedException, IOException {
+    private int getPointer() throws IOException {
         return readValue(0x03FC, Type.WORD).intValue();
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return getRecFactory().toString();
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         return 2;
     }
 
+    @Override
     public Date getTime() throws IOException {
-        return (Date)getRecFactory().toDate( readRawValue(0x0000, 4) );
+        return getRecFactory().toDate( readRawValue(0x0000, 4) );
     }
 
-    public RegisterFactory getRecFactory( ) {
+    private RegisterFactory getRecFactory() {
         return (RegisterFactory)getRegisterFactory();
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
         return new RegisterInfo( r.getName() );
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
-        String key          = r.getName();
+        AbstractRegister r = getRegisterFactory().findRegister(obisCode);
+        String key = r.getName();
 
         try {
             return r.registerValue(key);
@@ -542,6 +556,7 @@ public class RecDigit1800 extends Modbus {
         return ptRatio;
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
     }
@@ -549,4 +564,5 @@ public class RecDigit1800 extends Modbus {
     private int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
     }
+
 }

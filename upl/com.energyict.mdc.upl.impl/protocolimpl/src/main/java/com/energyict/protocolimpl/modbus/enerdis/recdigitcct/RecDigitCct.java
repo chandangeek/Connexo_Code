@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.modbus.enerdis.recdigitcct;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -23,6 +23,7 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -43,28 +44,24 @@ public class RecDigitCct extends Modbus {
     private boolean GO = true;
 
     /* Property Keys */
-    private final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    private final static String PK_CHANNEL_MAP = "ChannelMap";
+    private static final String PK_CHANNEL_MAP = "ChannelMap";
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
 
     /* Property Defaults */
-    private final static String PD_CHANNEL_MAP = "1:1:1:1:1:1:1:1";
+    private static final String PD_CHANNEL_MAP = "1:1:1:1:1:1:1:1";
 
     private ChannelMap channelMap;
 
-    private final int INTERVAL      = 1;
-    private final int POINTER       = 2;
-    private final int UNIT_COMPTEUR	= 5;
-    private final int UNIT_LOAD		= 6;
-    private final int CHANNEL_TYPE 	= 7;
+    private static final int INTERVAL = 1;
+    private static final int POINTER = 2;
+    private static final int UNIT_LOAD = 6;
 
-    public int searchPointer[] = {0, 0, 0, 0, 0, 0, 0, 0};
+    private int searchPointer[] = {0, 0, 0, 0, 0, 0, 0, 0};
     private int flagState = 0;
 	private int interval;
     private int READ_STEP = 4;
     private int tempPointer = 0;
 	private int addState = 0;
-	private int tempPermission = 0;
 
     private Calendar currentTime = null;
     private Calendar calendar = null;
@@ -90,24 +87,33 @@ public class RecDigitCct extends Modbus {
     private int nrChannels = -1;
     private int limitMaxNrOfDays;
 
-    public RecDigitCct() { }
-
-
+	@Override
     protected void doTheConnect() throws IOException { }
-    protected void doTheDisConnect() throws IOException {}
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
-       	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer","1").trim()));
-    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","100").trim()));
+	@Override
+    protected void doTheDisConnect() throws IOException {}
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(PK_CHANNEL_MAP, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(PR_LIMIT_MAX_NR_OF_DAYS, false));
+        return propertySpecs;
+    }
+
+    @Override
+	public void setProperties(Properties properties) throws PropertyValidationException {
+		super.setProperties(properties);
+       	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));
+    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));
 
         String property = properties.getProperty( PK_CHANNEL_MAP );
-        if( property != null ) {
+        if (property != null) {
 			channelMap = new ChannelMap( property );
 		} else {
 			channelMap = new ChannelMap( PD_CHANNEL_MAP );
 		}
-
-        if( channelMap.getNrOfChannels() > 8 ) {
+        if (channelMap.getNrOfChannels() > 8) {
             String msg =
                 "Nr of channels must be between 0 and 8 but is configured" +
                 "to " + channelMap.getNrOfChannels();
@@ -115,32 +121,29 @@ public class RecDigitCct extends Modbus {
         }
 
         this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
-
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return "unknown";
     }
 
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
-        return result;
-    }
-
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-06-03 12:47:33 +0300 (Fri, 03 Jun 2016)$";
     }
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()));
     }
 
-    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter) throws IOException {
         Date from = limiter.getFromDate();
         Date to = limiter.getToDate();
 
@@ -184,7 +187,7 @@ public class RecDigitCct extends Modbus {
         ByteArray dataArray[] = { new ByteArray(), new ByteArray(), new ByteArray(), new ByteArray(),
                 new ByteArray(), new ByteArray(), new ByteArray(), new ByteArray() };
 
-        IntervalData currentId[] = null;
+        IntervalData currentId[];
 
         calendar = Calendar.getInstance( gettimeZone() );
         currentTime = Calendar.getInstance( gettimeZone() );
@@ -270,7 +273,7 @@ public class RecDigitCct extends Modbus {
 		return profileData;
 	}
 
-
+    @Override
 	public void setTime() throws IOException {
 
     	if (debug) {
@@ -297,7 +300,7 @@ public class RecDigitCct extends Modbus {
 
 	}
 
-	IntervalData[] parse(ByteArray[] channel) throws UnsupportedException, IOException{
+	private IntervalData[] parse(ByteArray[] channel) throws IOException {
 
 		ByteArray fourByte[] = { null, null, null, null, null, null, null, null };
 		BigDecimal actualByte[] = { BigDecimal.valueOf( (long) 0 ), BigDecimal.valueOf( (long) 0 ), BigDecimal.valueOf( (long) 0 ),
@@ -315,7 +318,8 @@ public class RecDigitCct extends Modbus {
 			}
 		}
 
-		if( !isEmpty(fourByte) ) {
+        int tempPermission;
+        if( !isEmpty(fourByte) ) {
 
 			if( fourByte[0].getBytes()[2] == -1 ){
 
@@ -366,7 +370,7 @@ public class RecDigitCct extends Modbus {
 
 		}
 
-		if ( tempPermission  == 1 ){
+		if ( tempPermission == 1 ){
 
 			timeChecks(intervalTime);
 
@@ -454,7 +458,7 @@ public class RecDigitCct extends Modbus {
 		return count;
 	}
 
-    public ByteArray pivot(int pivotPoint, ByteArray victim) {
+    ByteArray pivot(int pivotPoint, ByteArray victim) {
         return new ByteArray( )
         .add( victim.sub(pivotPoint) )
         .add( victim.sub(0, pivotPoint) );
@@ -479,7 +483,7 @@ public class RecDigitCct extends Modbus {
     	return currentIntData;
     }
 
-    private void timeChecks(long intervalTime) throws UnsupportedException, IOException{
+    private void timeChecks(long intervalTime) throws IOException{
 
 		while (currentTime.getTime().before(calendar.getTime())){
         	calendar.add( Calendar.SECOND, -getProfileInterval() );
@@ -499,12 +503,8 @@ public class RecDigitCct extends Modbus {
 		boolean state = true;
 		for ( int i = 0; i < notNullCount(byteArray); i++ ){
 			if ( ( byteArray[i] != null ) & state ){
-				if ( byteArray[i].getBytes()[0] == -1 && byteArray[i].getBytes()[1] == -1 &&
-						byteArray[i].getBytes()[2] == -1 && byteArray[i].getBytes()[3] == -1 ) {
-					state = true;
-				} else {
-					state = false;
-				}
+				state = byteArray[i].getBytes()[0] == -1 && byteArray[i].getBytes()[1] == -1 &&
+						byteArray[i].getBytes()[2] == -1 && byteArray[i].getBytes()[3] == -1;
 			}
 		}
         return state;
@@ -557,36 +557,24 @@ public class RecDigitCct extends Modbus {
     }
 
     private int getUnit(int uIndex) throws IOException{
-    	int unit = readValue(VirtualMemory.MEMORY_BLOCKS[uIndex][UNIT_LOAD], Type.CHAR).intValue();
-    	return unit;
+        return readValue(VirtualMemory.MEMORY_BLOCKS[uIndex][UNIT_LOAD], Type.CHAR).intValue();
     }
 
-    private List newChannelInfo( ) throws IOException{
-
-//        Unit u = Unit.get(BaseUnit.UNITLESS);
+    private List<ChannelInfo> newChannelInfo( ) throws IOException{
     	Unit u;
-        ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> result = new ArrayList<>();
         int count = 0;
-
 		final ObisCode baseObisCode = ObisCode.fromString("0.0.128.0.0.255");
 		for (int i = 0; i < channelMap.getNrOfChannels(); i++) {
-
 			Channel channel = channelMap.getChannel(i);
-
 			if (!"0".equals(channel.getRegister())) {
-
 				int unitCode = getUnit(i);
 				int unitScale = unitCode % 10;
-
 				u = Unit.get(unitCode / 10, unitScale);
-
 				result.add(new ChannelInfo(count++, ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) (i + 1)).toString(), u));
 			}
-
 		}
-
 		return result;
-
     }
 
     /* Could save a rountrip here .... */
@@ -606,12 +594,14 @@ public class RecDigitCct extends Modbus {
 
     }
 
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return getRegisterFactory().toString();
     }
 
+    @Override
     public int getNumberOfChannels()
-        throws UnsupportedException, IOException {
+        throws IOException {
 
         if( nrChannels == -1 ) {    /* lazy init */
 
@@ -630,23 +620,25 @@ public class RecDigitCct extends Modbus {
 
     }
 
+    @Override
     public Date getTime() throws IOException {
-        return (Date)getRecFactory().toDate( readValue(0x0000, 4) );
+        return getRecFactory().toDate( readValue(0x0000, 4) );
     }
 
-    public RegisterFactory getRecFactory( ) {
+    private RegisterFactory getRecFactory() {
         return (RegisterFactory)getRegisterFactory();
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
         return new RegisterInfo( r.getName() );
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
-        String key          = r.getName();
-
+        AbstractRegister r = getRegisterFactory().findRegister(obisCode);
+        String key = r.getName();
         try {
             return r.registerValue(key);
         } catch (ModbusException e) {
@@ -661,18 +653,14 @@ public class RecDigitCct extends Modbus {
      * @return          int[] 2 bytes per int
      */
     int[] readRawValue(int address, int length)  throws IOException {
-
         HoldingRegister r = new HoldingRegister(address, length);
         r.setRegisterFactory(getRegisterFactory());
         return r.getReadHoldingRegistersRequest().getRegisters();
-
     }
 
-    BigDecimal readValue(int address, Type type) throws IOException {
-
+    private BigDecimal readValue(int address, Type type) throws IOException {
         int [] values = readRawValue( address, type.wordSize() );
         return getRecFactory().toBigDecimal(type, values);
-
     }
 
     void dbg( String msg ) {
@@ -680,6 +668,8 @@ public class RecDigitCct extends Modbus {
 			System.out.println(msg);
 		}
     }
+
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
     }
@@ -687,5 +677,5 @@ public class RecDigitCct extends Modbus {
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
     }
-}
 
+}

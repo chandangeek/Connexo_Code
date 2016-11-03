@@ -1,12 +1,10 @@
 package com.energyict.protocolimpl.modbus.socomec.countis.ci;
 
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
-import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
@@ -32,7 +30,7 @@ import java.util.Properties;
  */
 public class Ci extends Modbus {
 
-	private MultiplierFactory multiplierFactory=null;
+	private MultiplierFactory multiplierFactory = null;
 
 	@Override
 	protected void doTheConnect() throws IOException {
@@ -47,10 +45,10 @@ public class Ci extends Modbus {
 		return new ArrayList();
 	}
 
-	@Override
-	protected void doTheValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-		setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","50").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+		setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "50").trim()));
 	}
 
 	@Override
@@ -58,54 +56,36 @@ public class Ci extends Modbus {
 		setRegisterFactory(new RegisterFactory(this));
 	}
 
+    @Override
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		return null;
 	}
 
-    /**
-     * @param address - the given address
-     * @return the multiplier for the given address
-     */
+    @Override
     public BigDecimal getRegisterMultiplier(int address) throws IOException, UnsupportedException {
         return getMultiplierFactory().getMultiplier(address);
     }
 
-    /**
-     * Getter for the {@link MultiplierFactory}
-     *
-     * @return the MulitpliereFactory
-     */
-    public MultiplierFactory getMultiplierFactory() {
+    private MultiplierFactory getMultiplierFactory() {
         if (multiplierFactory == null) {
 			multiplierFactory = new MultiplierFactory(this);
 		}
         return multiplierFactory;
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
+    @Override
     public Date getTime() throws IOException {
     	return DateTime.parseDateTime(getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getReadHoldingRegistersRequest().getRegisters()).getMeterCalender().getTime();
     }
 
+    @Override
     public void setTime() throws IOException {
     	getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getWriteMultipleRegisters(DateTime.getCurrentDate());
-    }
-
-    /**
-     * Read the raw registers from the MobBus device
-     *
-     * @param address - startAddress
-     * @param length - the required data length
-     * @return the registers from the device
-     * @throws IOException if we couldn't read the data
-     */
-    int[] readRawValue(int address, int length)  throws IOException {
-    	HoldingRegister r = new HoldingRegister(address, length);
-        r.setRegisterFactory(getRegisterFactory());
-        return r.getReadHoldingRegistersRequest().getRegisters();
     }
 
 }

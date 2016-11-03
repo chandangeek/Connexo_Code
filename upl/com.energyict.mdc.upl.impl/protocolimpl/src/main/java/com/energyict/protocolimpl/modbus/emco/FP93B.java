@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.modbus.emco;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -16,6 +16,7 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -32,7 +33,6 @@ import java.util.TimeZone;
 public class FP93B extends Modbus {
 
     private static final String START_REGISTERS_ZERO_BASED = "StartRegistersZeroBased";
-    private static final String CONNECTION = "Connection";
     private static final String TIMEZONE = "TimeZone";
 
     private boolean startRegistersZeroBased;
@@ -40,27 +40,25 @@ public class FP93B extends Modbus {
 
     @Override
     protected void doTheConnect() throws IOException {
-
     }
 
     @Override
     protected void doTheDisConnect() throws IOException {
-
     }
 
     @Override
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(TIMEZONE, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(START_REGISTERS_ZERO_BASED, false));
+        return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setTimeZone(properties.getProperty(TIMEZONE, "GMT"));
         validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS_ZERO_BASED, "1"));
-    }
-
-    @Override
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(START_REGISTERS_ZERO_BASED);
-        result.add(CONNECTION);
-        result.add(TIMEZONE);
-        return result;
     }
 
     @Override
@@ -73,6 +71,7 @@ public class FP93B extends Modbus {
         return "$Date: 2015-11-26 15:02:16 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
     }
@@ -138,16 +137,8 @@ public class FP93B extends Modbus {
         return TimeZone.getTimeZone(timeZone);
     }
 
-    public boolean isStartRegistersZeroBased() {
+    boolean isStartRegistersZeroBased() {
         return startRegistersZeroBased;
-    }
-
-    private static void printOutReadings(FP93B protocol, List<String> obisCodes) throws IOException {
-        for(String obis: obisCodes){
-            System.out.println("---------"+protocol.translateRegister(ObisCode.fromString(obis))+"---------");
-            System.out.println(protocol.readRegister(ObisCode.fromString(obis)));
-            System.out.println("");
-        }
     }
 
 }

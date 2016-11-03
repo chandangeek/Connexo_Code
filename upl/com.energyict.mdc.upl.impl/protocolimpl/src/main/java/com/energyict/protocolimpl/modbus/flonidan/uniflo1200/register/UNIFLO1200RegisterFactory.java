@@ -13,6 +13,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
@@ -303,7 +304,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         return ObisCode.fromString( obis );
     }
 
-    public List getRegisters() {
+    public List<AbstractRegister> getRegisters() {
         return super.getRegisters();
     }
 

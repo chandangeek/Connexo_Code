@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.modbus.socomec.countis.e44;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
@@ -15,6 +15,7 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.socomec.countis.e44.profile.ProfileBuilder;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -35,7 +36,6 @@ import java.util.Properties;
  */
 public class E44 extends Modbus {
 
-    private static final String CONNECTION = "Connection";
     private static final String APPLY_CTRATIO = "ApplyCTRatio";
     private boolean applyCtRatio = false;
 
@@ -50,16 +50,16 @@ public class E44 extends Modbus {
     }
 
     @Override
-    protected List doTheGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(CONNECTION);
-        result.add(APPLY_CTRATIO);
-        return result;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(APPLY_CTRATIO, false));
+        return propertySpecs;
     }
 
     @Override
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeResponseTimeout(Integer.parseInt(properties.getProperty("ResponseTimeout", "400").trim()));
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeResponseTimeout(Integer.parseInt(properties.getProperty(PK_RESPONSE_TIMEOUT, "400").trim()));
         applyCtRatio = Integer.parseInt(properties.getProperty(APPLY_CTRATIO, "0").trim()) == 1;
     }
 
@@ -131,13 +131,14 @@ public class E44 extends Modbus {
         return getProfileBuilder().getProfileData(from, to, includeEvents);
     }
 
-    public ProfileBuilder getProfileBuilder() {
+    private ProfileBuilder getProfileBuilder() {
         if (this.profileBuilder == null) {
             this.profileBuilder = new ProfileBuilder(this);
         }
         return this.profileBuilder;
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
     }
@@ -150,4 +151,5 @@ public class E44 extends Modbus {
     public boolean isApplyCtRatio() {
         return applyCtRatio;
     }
+
 }

@@ -3,9 +3,7 @@
  */
 package com.energyict.protocolimpl.modbus.eimeter;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.MessageEntry;
@@ -19,7 +17,6 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -32,66 +29,68 @@ import java.util.Properties;
  */
 public class EIMeter extends Modbus {
 
-    public EIMeter() { }
-
+    @Override
     protected void doTheConnect() throws IOException { /* relax */ }
 
+    @Override
     protected void doTheDisConnect() throws IOException { /* relax */ }
 
-    protected void doTheValidateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim()));
-        setInfoTypeMeterFirmwareVersion(properties.getProperty("MeterFirmwareVersion", "1.07"));
-        if (Float.parseFloat(getInfoTypeMeterFirmwareVersion())>=1.07)
-            setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim()));
-        else
-            setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "400").trim()));
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
+        setInfoTypeMeterFirmwareVersion(properties.getProperty(PK_METER_FIRMWARE_VERSION, "1.07"));
+        if (Float.parseFloat(getInfoTypeMeterFirmwareVersion()) >= 1.07) {
+            setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty(PK_FIRST_TIME_DELAY, "0").trim()));
+        } else {
+            setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty(PK_FIRST_TIME_DELAY, "400").trim()));
+        }
     }
 
-    protected List<String> doTheGetOptionalKeys() {
-        return new ArrayList<String>();
-
-    }
-
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    @Override
+    public String getFirmwareVersion() throws IOException {
         return "" + getRegisterFactory().findRegister("firmwareVersion").objectValueWithParser("value0");
-
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2012-03-27 09:33:50 +0200 (di, 27 mrt 2012) $";
     }
 
+    @Override
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
 
+    @Override
     public Date getTime() throws IOException {
         return new Date();
     }
 
+    @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {
         // discovery is implemented in the GenericModbusDiscover protocol
         return null;
     }
 
-    /*******************************************************************************************
-     M e s s a g e P r o t o c o l  i n t e r f a c e  d e l e g a t e d  m e t h o d s
-     *******************************************************************************************/
+    @Override
     protected MessageResult doQueryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<TestMessage")>=0) {
+            if (messageEntry.getContent().contains("<TestMessage")) {
                 getLogger().info(messageEntry.getContent());
                 return MessageResult.createSuccess(messageEntry);
             }
-            else return MessageResult.createUnknown(messageEntry);
+            else {
+                return MessageResult.createUnknown(messageEntry);
+            }
         }
-        catch(Exception e) {
+        catch (Exception e) {
             return MessageResult.createFailed(messageEntry);
         }
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     protected List<MessageCategorySpec> doGetMessageCategories(List theCategories) {
         MessageCategorySpec cat = new MessageCategorySpec(getDeviceName() + " messages");
         MessageSpec msgSpec = addBasicMsg("Test message", "TestMessage", false);
@@ -111,18 +110,10 @@ public class EIMeter extends Modbus {
      */
     private static final class RegisterFactory extends NDBaseRegisterFactory {
 
-        /**
-         * Create a new instance.
-         *
-         * @param protocol
-         */
         private RegisterFactory(final Modbus protocol) {
             super(protocol);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         protected final void init() {
             super.init();
