@@ -7,7 +7,7 @@ import java.util.Properties;
  */
 public class MaxSys extends com.energyict.protocolimpl.landisgyr.maxsys2510.MaxSys {
 
-    final static String PD_NODE_PREFIX = "F";   // Standalone (this allows us in the US to interrogate standalone meters)
+    private static final String PD_NODE_PREFIX = "F";   // Standalone (this allows us in the US to interrogate standalone meters)
 
     @Override
     protected String getpNodePrefix(Properties p) {
@@ -18,4 +18,5 @@ public class MaxSys extends com.energyict.protocolimpl.landisgyr.maxsys2510.MaxS
     public String getProtocolVersion() {
         return "$Date: 2015-04-20 14:29:26 +0200 (Mon, 20 Apr 2015) $";
     }
+
 }
