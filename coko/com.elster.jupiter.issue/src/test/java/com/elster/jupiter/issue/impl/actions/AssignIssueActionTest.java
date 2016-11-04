@@ -61,7 +61,61 @@ public class AssignIssueActionTest extends BaseTest {
         assertThat(getIssueComments(issue)).hasSize(1);
         assertThat(getIssueComments(issue).get(0).getComment()).isEqualTo("Comment");
     }
-    
+
+    @Test
+    @Transactional
+    public void testExecuteAssignToMeAction() {
+        LdapUserDirectory local = getUserService().createApacheDirectory("local");
+        local.setSecurity("0");
+        local.setUrl("url");
+        local.setDirectoryUser("directoryUser");
+        local.setPassword("password");
+        local.update();
+        User user = getUserService().findOrCreateUser("user", "local", "APD");
+        getThreadPrincipalService().set(user);
+
+        Map<String, Object> properties = new HashMap<>();
+        Issue issue = createIssueMinInfo();
+
+        assertThat(issue.getAssignee().getUser()).isNull();
+        assertThat(issue.getAssignee().getWorkGroup()).isNull();
+        IssueAction actionAssignToMe = getDefaultActionsFactory().createIssueAction(AssignToMeIssueAction.class.getName());
+
+        IssueActionResult actionResult = actionAssignToMe.initAndValidate(properties).execute(issue);
+
+        assertThat(actionResult.isSuccess()).isTrue();
+        assertThat(issue.getAssignee().getUser().getId()).isEqualTo(user.getId());
+    }
+
+    @Test
+    @Transactional
+    public void testExecuteAssignToMeAndUnssignAction() {
+        LdapUserDirectory local = getUserService().createApacheDirectory("local");
+        local.setSecurity("0");
+        local.setUrl("url");
+        local.setDirectoryUser("directoryUser");
+        local.setPassword("password");
+        local.update();
+        User user = getUserService().findOrCreateUser("user", "local", "APD");
+        getThreadPrincipalService().set(user);
+
+        Map<String, Object> properties = new HashMap<>();
+        Issue issue = createIssueMinInfo();
+
+        assertThat(issue.getAssignee().getUser()).isNull();
+        assertThat(issue.getAssignee().getWorkGroup()).isNull();
+        IssueAction actionAssignToMe = getDefaultActionsFactory().createIssueAction(AssignToMeIssueAction.class.getName());
+        IssueAction actionUnssign = getDefaultActionsFactory().createIssueAction(UnassignIssueAction.class.getName());
+        IssueActionResult actionResult = actionAssignToMe.initAndValidate(properties).execute(issue);
+
+        assertThat(actionResult.isSuccess()).isTrue();
+        assertThat(issue.getAssignee().getUser().getId()).isEqualTo(user.getId());
+
+        actionResult = actionUnssign.initAndValidate(properties).execute(issue);
+        assertThat(actionResult.isSuccess()).isTrue();
+        assertThat(issue.getAssignee().getUser()).isEqualTo(null);
+    }
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_NOT_POSSIBLE_VALUE + "}", property = "properties.AssignIssueAction.assignee", strict = true)

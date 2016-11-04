@@ -142,30 +142,6 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
-    String getAssigneeCondition() {
-        //FixMe check this getAssigneeCondition;
-            /*StringBuilder builder = new StringBuilder();
-            for (AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
-                if (builder.length() != 0) {
-                    builder.append(" OR ");
-                }
-                AssigneeType type = AssigneeType.fromString(assigneeDetails.getAssigneeType());
-                if (type != null) {
-                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE).append(" = ").append(type.ordinal());
-                    builder.append(" AND isu.");
-                    builder.append(type.getColumnName());
-                    builder.append(" = ").append(assigneeDetails.getAssigneeId());
-                } else if (assigneeDetails.getAssigneeId() == -1L) {
-                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " IS NULL AND isu.ASSIGNEE_USER_ID IS NULL");
-                }
-            }
-            if (builder.length() != 0) {
-                builder.insert(0, " AND (").append(") ");
-                return builder.toString();
-            }*/
-        return "";
-    }
-
     String getDueDateCondition() {
             StringBuilder builder = new StringBuilder();
             for (DueDateRange dueDateRange : getFilter().getDueDates()) {

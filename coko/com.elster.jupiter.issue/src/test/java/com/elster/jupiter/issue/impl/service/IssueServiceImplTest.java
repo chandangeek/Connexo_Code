@@ -14,12 +14,12 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
-import org.junit.Test;
-
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,6 +41,19 @@ public class IssueServiceImplTest extends BaseTest {
         assertThat(issueList).isEmpty();
         Issue issue = createIssueMinInfo();
         assertThat(issue).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void testIssueAssigneeInfo() {
+        Query <OpenIssue> issueQuery = getIssueService().query(OpenIssue.class);
+        List<OpenIssue> issueList = issueQuery.select(Condition.TRUE);
+        assertThat(issueList).isEmpty();
+        Issue issue = createAssigneeInfo();
+        assertThat(issue).isNotNull();
+        assertThat(issue.getAssignee()).isNotNull();
+        assertThat(issue.getAssignee().getWorkGroup().getName()).isEqualTo("WorkGroupName");
+        assertThat(issue.getAssignee().getUser().getName()).isEqualTo("UserName");
     }
 
     @Test

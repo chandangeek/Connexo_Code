@@ -46,7 +46,6 @@ public class GroupByAssigneeImpl extends IssuesGroupOperation {
         builder.append(getIssueTypeCondition());
         builder.append(getStatusCondition());
         builder.append(getMeterCondition());
-        builder.append(getAssigneeCondition());
         builder.append(getDueDateCondition());
         if (getFilter().getGroupKey() != null) {
             builder.append(" AND reason.\"KEY\" = '" + getFilter().getGroupKey() + "'");
