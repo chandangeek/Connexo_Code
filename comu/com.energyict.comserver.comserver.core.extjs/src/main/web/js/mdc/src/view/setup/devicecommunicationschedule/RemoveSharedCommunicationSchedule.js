@@ -1,11 +1,10 @@
-Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedule', {
+Ext.define('Mdc.view.setup.devicecommunicationschedule.RemoveSharedCommunicationSchedule', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.addSharedCommunicationSchedule',
-    itemId: 'addSharedCommunicationSchedule',
+    alias: 'widget.removeSharedCommunicationSchedule',
+    itemId: 'removeSharedCommunicationSchedule',
     requires: [
         'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleSelectionGrid',
         'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedulePreview',
-        'Uni.util.FormInfoMessage',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
@@ -15,18 +14,12 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
 
     initComponent: function () {
         var me = this;
-        me.content = [
+        this.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('deviceCommunicationSchedule.addCommunicationSchedules', 'MDC', 'Add shared communication schedules'),
+                title: Uni.I18n.translate('deviceCommunicationSchedule.removeCommunicationSchedules', 'MDC', 'Remove shared communication schedules'),
                 items: [
-                    {
-                        xtype: 'uni-form-info-message',
-                        text: Uni.I18n.translate('deviceCommunicationSchedule.infoMessage', 'MDC', 'A communication task on device level can only be schedule in maximum one shared communication schedule. ' +
-                            'This list only contains shared communication schedules without communications tasks that are already scheduled with another shared communication schedule'),
-                        hidden: false,
-                    },
                     {
                         itemId: 'form-errors-shared-schedules',
                         xtype: 'uni-form-error-message',
@@ -50,22 +43,20 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                             },
                             title: Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.title', 'MDC', 'No shared communication schedules found'),
                             reasons: [
-                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item1', 'MDC', 'No shared communication schedules with communication tasks on this device have been added yet'),
-                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC', 'There are shared communication schedules defined in Administration but one or more communication tasks in the communication schedule are already scheduled on the device with a shared communication schedule (a communication task on device level can only be scheduled in maximum one shared communication schedule)'),
+                                Uni.I18n.translate('deviceSharedCommunicationSchedules.remove.empty.list.item1', 'MDC', 'No communication tasks on this device have been scheduled with a shared communication schedule'),
                             ],
-                            stepsText: '',
                             stepItems: [
                                 {
                                     xtype: 'button',
                                     ui: 'link',
                                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                    href: '#/devices/' + encodeURIComponent(this.mRID) + '/communicationplanning'
+                                    href: '#/devices/' + encodeURIComponent(me.mRID) + '/communicationplanning'
                                 }
                             ]
                         },
                         previewComponent: {
                             xtype: 'sharedCommunicationSchedulePreview',
-                            itemId: 'sharedCommunicationSchedulePreview'
+                            itemId: 'sharedCommunicationSchedulePreview',
                         }
                     },
                     {
@@ -77,7 +68,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                     {
                         xtype: 'form',
                         border: false,
-                        itemId: 'addSharedScheduleButtonForm',
+                        itemId: 'removeSharedScheduleButtonForm',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -97,10 +88,10 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                 width: '100%',
                                 items: [
                                     {
-                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                         xtype: 'button',
-                                        action: 'addAction',
-                                        itemId: 'addButton',
+                                        action: 'removeAction',
+                                        itemId: 'removeButton',
                                         ui: 'action'
                                     },
                                     {

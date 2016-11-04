@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                 xtype: 'button',
                                 text: Uni.I18n.translate('deviceCommunicationPlanning.removeSchedule', 'MDC', 'Remove shared communication schedule'),
                                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                                action: 'addSharedCommunicationSchedule',
+                                action: 'removeSharedCommunicationSchedule',
                                 itemId: 'mdc-device-communication-planning-removeSharedCommunicationScheduleButton'
                             },
                             {

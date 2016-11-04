@@ -220,23 +220,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         }
     },
 
-    //checkValidSelection: function (communicationSchedules) {
-    //    var me = this;
-    //    me.getUniFormErrorMessage().hide();
-    //    me.getWarningMessage().setVisible(false);
-    //    if (communicationSchedules.length === 1) {
-    //        return true;
-    //    } else if (communicationSchedules.length === 0) {
-    //        me.getUniFormErrorMessage().show();
-    //        me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one shared communication schedule') + '</span>');
-    //        me.getWarningMessage().setVisible(true);
-    //        return false;
-    //    } else if (communicationSchedules.length > 1) {
-    //        return me.checkOverlap(communicationSchedules);
-    //
-    //    }
-    //},
-
     checkOverlap: function(communicationSchedules) {
         var me = this;
         var valuesToCheck = [];
