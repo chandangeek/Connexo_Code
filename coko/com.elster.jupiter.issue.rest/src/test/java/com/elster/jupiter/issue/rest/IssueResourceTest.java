@@ -20,6 +20,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -101,6 +102,42 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         Map<?, ?> map = target("/issues").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
 
+        List<?> data = (List<?>) map.get("data");
+        assertThat(data).hasSize(1);
+
+        Map<?, ?> issueMap = (Map<?, ?>) data.get(0);
+        assertDefaultIssueMap(issueMap);
+    }
+
+    @Test
+    public void testGetAllIssuesFilterWorkGroupCase() {
+        Optional<IssueStatus> status = Optional.of(getDefaultStatus());
+        when(issueService.findStatus("open")).thenReturn(status);
+        when(issueService.newIssueFilter()).thenReturn(issueFilter);
+        Finder<? extends Issue> issueFinder = mock(Finder.class);
+        doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
+
+        Optional<IssueType> issueType = Optional.of(getDefaultIssueType());
+        when(issueService.findIssueType("datacollection")).thenReturn(issueType);
+
+        List<? extends Issue> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
+        doReturn(issues).when(issueFinder).find();
+
+        List<IssueProvider> issueProviders = Arrays.asList(issueProvider);
+        doReturn(issueProviders).when(issueService).getIssueProviders();
+        Optional<? extends Issue> issueRef = Optional.of(issues.get(0));
+        doReturn(issueRef).when(issueProvider).findIssue(1L);
+        IssueInfo issueInfo = new IssueInfo<>(issues.get(0), DeviceInfo.class);
+        when(infoFactory.from(issues.get(0))).thenReturn(issueInfo);
+        when(issueInfoFactoryService.getInfoFactoryFor(issues.get(0))).thenReturn(infoFactory);
+        WorkGroup workGroup = mock(WorkGroup.class);
+        when(workGroup.getName()).thenReturn("WorkGroup");
+        when(workGroup.getId()).thenReturn(1L);
+        when(userService.getWorkGroup(1L)).thenReturn(Optional.of(workGroup));
+        issueFilter.addWorkGroupAssignee(workGroup);
+        String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]},{\"property\":\"workGroupAssignee\",\"value\":[1]}]");
+        Map<?, ?> map = target("/issues").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(2);
         List<?> data = (List<?>) map.get("data");
         assertThat(data).hasSize(1);
 
@@ -264,9 +301,13 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(statusMap.get("name")).isEqualTo("open");
         assertThat(statusMap.get("allowForClosing")).isEqualTo(false);
 
-        Map<?, ?> assigneeMap = (Map<?, ?>) issueMap.get("assignee");
+        Map<?, ?> assigneeMap = (Map<?, ?>) issueMap.get("userAssignee");
         assertThat(assigneeMap.get("id")).isEqualTo(1);
         assertThat(assigneeMap.get("name")).isEqualTo("Admin");
+
+        Map<?, ?> workGroupAssignee = (Map<?, ?>) issueMap.get("workGroupAssignee");
+        assertThat(workGroupAssignee.get("id")).isEqualTo(1);
+        assertThat(workGroupAssignee.get("name")).isEqualTo("WorkGroup");
 
         Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
         assertThat(deviceMap.get("id")).isEqualTo(1);
