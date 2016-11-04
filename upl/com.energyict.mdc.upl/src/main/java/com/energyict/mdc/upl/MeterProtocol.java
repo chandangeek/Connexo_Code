@@ -50,7 +50,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * by the actual MeterProtocol implementation classes.
      */
     enum Property {
-        ADDRESS("DevideId"),
+        ADDRESS("DeviceId"),
         PASSWORD("Password"),
         RETRIES("Retries"),
         TIMEOUT("Timeout"),
