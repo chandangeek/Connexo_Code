@@ -19,9 +19,9 @@ import java.math.BigDecimal;
  */
 public class Channel {
 
-    String register=null;
-    boolean cumul=false;
-    BigDecimal wrapAroundValue=null;
+    private String register = null;
+    private boolean cumul = false;
+    private BigDecimal wrapAroundValue = null;
 
     /** Creates a new instance of Channel */
     public Channel(String strChannel) throws InvalidPropertyException {
@@ -29,12 +29,15 @@ public class Channel {
         if ((index=strChannel.indexOf("+")) != -1) {
             cumul = true;
             register = strChannel.substring(0,strChannel.indexOf("+"));
-            if (index == (strChannel.length()-1)) throw new InvalidPropertyException("Error in ChannelMap property! Nr of digits must be set for a cumul channel. Register must be followed by '+' sign followed by nr of digits (e.g. 1.0.3+7)");
+            if (index == (strChannel.length()-1)) {
+                throw new InvalidPropertyException("Error in ChannelMap property! Nr of digits must be set for a cumul channel. Register must be followed by '+' sign followed by nr of digits (e.g. 1.0.3+7)");
+            }
             int digits = Integer.parseInt(strChannel.substring(index+1,strChannel.length()));
             wrapAroundValue = new BigDecimal(Math.pow(10, digits));
         }
-        else
+        else {
             register = strChannel;
+        }
     }
 
     public String getRegister() {
@@ -48,6 +51,5 @@ public class Channel {
     public BigDecimal getWrapAroundValue() {
         return wrapAroundValue;
     }
-
 
 }

@@ -1,42 +1,42 @@
 /**
  * AS230ObisMapper.java
- * 
+ *
  * Created on 24-nov-2008, 11:46:49 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.iec1107.a1440;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author jme
  *
  */
-public class A1440ObisCodeMapper {
+class A1440ObisCodeMapper {
 
 	public static final String ID1 = "Device ID1";
-	public static final String ID2 = "Device ID2";
-	public static final String ID3 = "Device ID3";
-	public static final String ID4 = "Device ID4";
+	static final String ID2 = "Device ID2";
+	static final String ID3 = "Device ID3";
+	static final String ID4 = "Device ID4";
 	public static final String ID5 = "Device ID5";
-	public static final String ID6 = "Device ID6";
+	static final String ID6 = "Device ID6";
 	public static final String SERIAL = "Device Serial number";
 	public static final String FIRMWARE = "Device  Firmware/Hardware information";
-	public static final String FIRMWAREID = "Firmware version ID";
-	public static final String DATETIME = "Date and time (0.9.1 0.9.2)";
-	public static final String BILLINGCOUNTER = "Billing counter";
+	static final String FIRMWAREID = "Firmware version ID";
+	private static final String DATETIME = "Date and time (0.9.1 0.9.2)";
+	private static final String BILLINGCOUNTER = "Billing counter";
     public static final String ERROR_REGISTER = "Error register";
 
-	public static final String IEC1107_ID = "Device IEC1107_ID";
-	public static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
-	public static final String IEC1107_ADDRESS_EL = "Device IEC1107_ADDRESS_EL (electrical)";
+	static final String IEC1107_ID = "Device IEC1107_ID";
+	static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
+	static final String IEC1107_ADDRESS_EL = "Device IEC1107_ADDRESS_EL (electrical)";
 
-
-	private LinkedHashMap obisMap = new LinkedHashMap();
+	private Map<String, String> obisMap = new LinkedHashMap<>();
 	private A1440 a1440 = null;
 
-	public A1440ObisCodeMapper(A1440 a1440) {
+	A1440ObisCodeMapper(A1440 a1440) {
 		this.a1440 = a1440;
 		initObisUnconnected();
 	}
@@ -91,7 +91,7 @@ public class A1440ObisCodeMapper {
 	 * add only the used historical registers to te obismap
 	 * @throws IOException when somthing goes wrong while reading the billing counter
 	 */
-	public void initObis() throws IOException {
+	void initObis() throws IOException {
 		{
 
 			String obis;
@@ -229,7 +229,7 @@ public class A1440ObisCodeMapper {
 	 * Get the map with obiscodes, supported by the protocol and the device.
 	 * @return the map with obiscodes
 	 */
-	public LinkedHashMap getObisMap() {
+	Map<String, String> getObisMap() {
 		return this.obisMap;
 	}
 
