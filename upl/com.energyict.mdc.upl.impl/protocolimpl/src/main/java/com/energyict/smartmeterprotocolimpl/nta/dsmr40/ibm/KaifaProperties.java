@@ -9,7 +9,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
  * Time: 14:48
  * Author: khe
  */
-public class KaifaProperties extends Dsmr40Properties {
+class KaifaProperties extends Dsmr40Properties {
 
     @Override
     @ProtocolProperty

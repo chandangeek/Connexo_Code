@@ -1,8 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.common;
 
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import java.util.ArrayList;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -13,18 +16,18 @@ import java.util.List;
  */
 public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProperties {
 
-    public static final String SMS_BASE_URL_PROP = "SmsConnectionURL";
-    public static final String SMS_SERVICE_CODE_PROP = "SmsServiceCode";
-    public static final String SMS_SOURCE_PROP = "SmsSource";
-    public static final String SMS_AUTH_PROP = "SmsAuthentication";
-    public static final String SMS_PHONE_NUMBER_PROP = "SmsPhoneNumber";
+    private static final String SMS_BASE_URL_PROP = "SmsConnectionURL";
+    private static final String SMS_SERVICE_CODE_PROP = "SmsServiceCode";
+    private static final String SMS_SOURCE_PROP = "SmsSource";
+    private static final String SMS_AUTH_PROP = "SmsAuthentication";
+    private static final String SMS_PHONE_NUMBER_PROP = "SmsPhoneNumber";
 
-    public static final String WAKEUP_POLLING_TIMEOUT = "PollTimeOut";
-    public static final String WAKEUP_POLLING_FREQUENCY = "PollFrequency";
-    public static final String DEFAULT_WAKEUP_POLLING_TIMEOUT = "300";
-    public static final String DEFAULT_WAKEUP_POLLING_FREQUENCY = "20:5";
-    public static final int DEFAULT_FIRST_POLL_DELAY = 20;
-    public static final int DEFAULT_SECOND_POLL_DELAY = 5;
+    private static final String WAKEUP_POLLING_TIMEOUT = "PollTimeOut";
+    private static final String WAKEUP_POLLING_FREQUENCY = "PollFrequency";
+    private static final String DEFAULT_WAKEUP_POLLING_TIMEOUT = "300";
+    private static final String DEFAULT_WAKEUP_POLLING_FREQUENCY = "20:5";
+    private static final int DEFAULT_FIRST_POLL_DELAY = 20;
+    private static final int DEFAULT_SECOND_POLL_DELAY = 5;
 
     private long pollTimeOut;
     private int firstPollDelay;
@@ -119,17 +122,15 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
         secondPollDelay = (secondPollDelay < 1000) ? (secondPollDelay * 1000) : secondPollDelay;
     }
 
-    public List<String> getOptionalSmsWakeUpKeys() {
-        ArrayList<String> smsWakeUpKeys = new ArrayList<String>();
-        smsWakeUpKeys.add(SMS_BASE_URL_PROP);
-        smsWakeUpKeys.add(SMS_SOURCE_PROP);
-        smsWakeUpKeys.add(SMS_AUTH_PROP);
-        smsWakeUpKeys.add(SMS_SERVICE_CODE_PROP);
-        smsWakeUpKeys.add(SMS_PHONE_NUMBER_PROP);
-
-        smsWakeUpKeys.add(SmsWakeUpDlmsProtocolProperties.WAKEUP_POLLING_TIMEOUT);
-        smsWakeUpKeys.add(SmsWakeUpDlmsProtocolProperties.WAKEUP_POLLING_FREQUENCY);
-        return smsWakeUpKeys;
+    protected List<PropertySpec> getSmsWakeUpPropertySpecs(boolean required) {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(SMS_BASE_URL_PROP, required),
+                UPLPropertySpecFactory.string(SMS_SOURCE_PROP, required),
+                UPLPropertySpecFactory.string(SMS_AUTH_PROP, required),
+                UPLPropertySpecFactory.string(SMS_SERVICE_CODE_PROP, required),
+                UPLPropertySpecFactory.string(SMS_PHONE_NUMBER_PROP, required),
+                UPLPropertySpecFactory.longValue(WAKEUP_POLLING_TIMEOUT, required),
+                UPLPropertySpecFactory.string(WAKEUP_POLLING_FREQUENCY, required));
     }
 
 }

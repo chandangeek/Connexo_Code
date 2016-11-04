@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -19,6 +22,9 @@ import com.energyict.protocolimpl.dlms.prime.messaging.PrimeMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -30,7 +36,7 @@ import java.util.logging.Level;
  * Date: 21/02/12
  * Time: 14:43
  */
-public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements SerialNumberSupport {
+abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements SerialNumberSupport, CachingProtocol {
 
     private final PrimeProperties properties = new PrimeProperties();
     private PrimeProfile loadProfile;
@@ -41,6 +47,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
     private PrimeMessaging messaging;
     private ProfileCacheImpl cache = new ProfileCacheImpl();
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
     }
@@ -65,13 +72,14 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         return meterInfo.getMeterSerialNumber();
     }
 
+    @Override
     public void connect() throws IOException {
         getSession().connect();
         if (getProperties().isReadSerialNumber()) {
             String eisSerial = getProperties().getSerialNumber().trim();
             String meterSerialNumber = readSerialNumber().trim();
             getLogger().info("Meter serial number [" + meterSerialNumber + "]");
-            if (eisSerial.length() != 0) {
+            if (!eisSerial.isEmpty()) {
                 if (!eisSerial.equalsIgnoreCase(meterSerialNumber)) {
                     String message = "Configured serial number [" + eisSerial + "] does not match with the meter serial number [" + meterSerialNumber + "]!";
                     getLogger().severe(message);
@@ -83,19 +91,17 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         }
     }
 
-    /**
-     * Getter for the protocol properties wrapper
-     *
-     * @return The properties of the protocol
-     */
+    @Override
     public PrimeProperties getProperties() {
         return properties;
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return meterInfo.getAllFirmwareVersions();
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         if (getProperties().isFirmwareClient()) {
             getLogger().warning("Unable to read profile data from device while using firmware client ID. Skipping profile readout!");
@@ -121,6 +127,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
 
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (getProperties().isFirmwareClient()) {
             getLogger().warning("Unable to read number of profile channels from device while using firmware client ID. Returning [0] channels!");
@@ -135,6 +142,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         return loadProfile.getNumberOfChannels();
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         if (getProperties().isFirmwareClient()) {
             final int profileInterval = getProperties().getProfileInterval();
@@ -149,6 +157,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         return loadProfile.getProfileInterval();
     }
 
+    @Override
     public Date getTime() throws IOException {
         if (getProperties().isFirmwareClient()) {
             getLogger().warning("Unable to read device time while using firmware client ID. Returning system time!");
@@ -157,6 +166,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         return clock.getTime();
     }
 
+    @Override
     public void setTime() throws IOException {
         if (getProperties().isFirmwareClient()) {
             getLogger().warning("Unable to change device time while using firmware client ID. Skipping clock set!");
@@ -164,6 +174,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         clock.setTime();
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             return registers.readRegister(obisCode);
@@ -177,24 +188,35 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         }
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return messaging.queryMessage(messageEntry);
     }
 
+    @Override
     public List<MessageCategorySpec> getMessageCategories() {
         return PrimeMessaging.getMessageCategories();
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return this.cache;
     }
 
     @Override
-    public void setCache(Object cache) {
+    public void setCache(Serializable cache) {
         if ((cache != null) && (cache instanceof ProfileCacheImpl)) {
             this.cache = (ProfileCacheImpl) cache;
         }
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        return null;
+    }
+
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
     }
 
     /**

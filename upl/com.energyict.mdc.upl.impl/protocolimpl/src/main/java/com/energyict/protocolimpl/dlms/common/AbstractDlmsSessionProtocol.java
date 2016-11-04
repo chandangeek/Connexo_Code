@@ -1,13 +1,11 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -26,7 +24,6 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,39 +42,40 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     private DlmsSession session = null;
 
-    protected abstract DlmsSessionProperties getProperties();
+    protected abstract DlmsProtocolProperties getProperties();
 
     protected abstract void doInit();
 
     protected abstract String readSerialNumber() throws IOException;
 
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.session = new DlmsSession(inputStream, outputStream, logger, getProperties(), timeZone);
         doInit();
     }
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        ((DlmsProtocolProperties) getProperties()).addProperties(properties);
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        getProperties().setProperties(properties);
     }
 
     public DlmsSession getSession() {
         return this.session;
     }
 
+    @Override
     public void connect() throws IOException {
         this.session.connect();
     }
 
+    @Override
     public void disconnect() throws IOException {
         this.session.disconnect();
-    }
-
-    public List<String> getRequiredKeys() {
-        return ((DlmsProtocolProperties) getProperties()).getRequiredKeys();
-    }
-
-    public List<String> getOptionalKeys() {
-        return ((DlmsProtocolProperties) getProperties()).getOptionalKeys();
     }
 
     protected Logger getLogger() {
@@ -87,67 +85,63 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
         return this.session.getLogger();
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar lastReading = Calendar.getInstance();
         lastReading.add(Calendar.DAY_OF_MONTH, -1);
         return getProfileData(lastReading.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
+    @Override
     public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public void initializeDevice() throws IOException {
         // No init required
     }
 
+    @Override
     public void release() throws IOException {
         // No release required
     }
 
-    public void setCache(Object cacheObject) {
-        // TODO: Implement this method
-    }
-
-    public Object getCache() {
-        return null;  // TODO: Implement this method
-    }
-
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        return null;  // TODO: Implement this method
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-        // TODO: Implement this method
-    }
-
+    @Override
     public String writeValue(MessageValue value) {
         return value.getValue();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         StringBuilder builder = new StringBuilder();
 
@@ -189,14 +183,17 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return MessageResult.createFailed(messageEntry);
     }
 
+    @Override
     public List<MessageCategorySpec> getMessageCategories() {
         return new ArrayList<>();
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.toString());
     }

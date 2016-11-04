@@ -1,15 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,40 +18,31 @@ import java.util.List;
  * Date: 14/12/11
  * Time: 9:22
  */
-public class ZMDProperties extends DlmsProtocolProperties {
+class ZMDProperties extends DlmsProtocolProperties {
 
-    private static String DEFAULT_MAX_REC_PDU_SIZE = "-1";
-    private static String DEFAULT_ADDRESSING_MODE = "-1";
-    private static String DEFAULT_CLIENT_MAC_ADDRESS = "32";
+    private static final String DEFAULT_MAX_REC_PDU_SIZE = "-1";
+    private static final String DEFAULT_ADDRESSING_MODE = "-1";
+    private static final String DEFAULT_CLIENT_MAC_ADDRESS = "32";
 
     private SecurityProvider securityProvider;
 
-    public List<String> getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(TIMEOUT);
-        result.add(RETRIES);
-        result.add(DELAY_AFTER_ERROR);
-        result.add(SERVER_MAC_ADDRESS);
-        result.add(SECURITY_LEVEL);
-        result.add(CLIENT_MAC_ADDRESS);
-        result.add(ADDRESSING_MODE);
-        result.add(CONNECTION);
-        result.add(CIPHERING_TYPE);
-        result.add(INVOKE_ID_AND_PRIORITY);
-        result.add(MAX_REC_PDU_SIZE);
-
-        result.add("RequestTimeZone");
-        result.add("EventIdIndex");
-        return result;
-    }
-
-    public List<String> getRequiredKeys() {
-        List<String> required = new ArrayList<String>();
-        return required;
-    }
-
     @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
+                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
+                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(CONNECTION, false),
+                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
+                UPLPropertySpecFactory.integer(INFORMATION_FIELD_SIZE, false),
+                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
+                UPLPropertySpecFactory.integer(PK_RETRIES, false),
+                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
+                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
+                UPLPropertySpecFactory.integer(BULK_REQUEST, false),
+                UPLPropertySpecFactory.integer(CIPHERING_TYPE, false),
+                UPLPropertySpecFactory.integer(INVOKE_ID_AND_PRIORITY, false));
     }
 
     @Override
@@ -116,4 +107,5 @@ public class ZMDProperties extends DlmsProtocolProperties {
     public ConnectionMode getConnectionMode() {
         return ConnectionMode.HDLC;
     }
+
 }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.upl.MeterProtocol;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
@@ -29,7 +31,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     private static final int DEFAULT_DEST_WPDU_PORT = 1;
 
     public static final String CONNECTION = "Connection";
-    public static final String SECURITY_LEVEL = "SecurityLevel";
+    public static final String SECURITY_LEVEL = MeterProtocol.Property.SECURITYLEVEL.getName();
     public static final String CLIENT_MAC_ADDRESS = "ClientMacAddress";
     public static final String SERVER_MAC_ADDRESS = "ServerMacAddress";
     public static final String ADDRESSING_MODE = "AddressingMode";
@@ -48,7 +50,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String PROPOSED_DLMS_VERSION = "ProposedDlmsVersion";
     public static final String PROPOSED_QOS = "ProposedQOS";
     public static final String REQUEST_TIMEZONE = "RequestTimeZone";
-    public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
+    public static final String ROUND_TRIP_CORRECTION = MeterProtocol.Property.ROUNDTRIPCORRECTION.getName();
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
     public static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES = "IncrementFrameCounterForRetries";

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
@@ -9,10 +8,15 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
 
 /**
  * Copyrights EnergyICT
@@ -27,26 +31,21 @@ public class PrimeProperties extends DlmsProtocolProperties {
     private static final String PROPNAME_LOAD_PROFILE_OBIS_CODE = "LoadProfileObisCode";
     private static final String PROPNAME_EVENT_LOGBOOK_OBIS_CODE = "EventLogBookObisCode";
 
-    public static final String FW_UPGRADE_POLLING_DELAY = "FWUpgradePollingDelay";
-    public static final String FW_UPGRADE_POLLING_RETRIES = "FWUpgradePollingRetries";
-    public static final String FW_IMAGE_NAME = "FirmwareImageName";
-    public static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
+    private static final String FW_UPGRADE_POLLING_DELAY = "FWUpgradePollingDelay";
+    private static final String FW_UPGRADE_POLLING_RETRIES = "FWUpgradePollingRetries";
+    private static final String FW_IMAGE_NAME = "FirmwareImageName";
+    private static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
     public static final String EVENTS_ONLY = "EventsOnly";
 
     private static final String DEFAULT_EVENTS_ONLY = "0";
     private static final int FIRMWARE_CLIENT_ADDRESS = 3;
     private static final String DOT = ".";
 
-    public PrimeProperties() {
+    PrimeProperties() {
         this(new Properties());
     }
 
-    @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-
-    }
-
-    public PrimeProperties(Properties properties) {
+    private PrimeProperties(Properties properties) {
         super(properties);
     }
 
@@ -55,27 +54,21 @@ public class PrimeProperties extends DlmsProtocolProperties {
         return DLMSReference.LN;
     }
 
-    public List<String> getOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
-        optional.add(PROPNAME_LOAD_PROFILE_OBIS_CODE);
-        optional.add(PROPNAME_EVENT_LOGBOOK_OBIS_CODE);
-        optional.add(CLIENT_MAC_ADDRESS);
-        optional.add(SERVER_MAC_ADDRESS);
-        optional.add(SECURITY_LEVEL);
-        optional.add(FW_IMAGE_NAME);
-        optional.add(CONNECTION);
-        optional.add(FW_UPGRADE_POLLING_DELAY);
-        optional.add(FW_UPGRADE_POLLING_RETRIES);
-        optional.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optional.add(READ_SERIAL_NUMBER);
-        return optional;
-    }
-
-    public List<String> getRequiredKeys() {
-        List<String> required = new ArrayList<String>();
-        // TODO: Add required keys
-        return required;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
+                UPLPropertySpecFactory.integer(CONNECTION, false),
+                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
+                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
+                new ObisCodePropertySpec(PROPNAME_EVENT_LOGBOOK_OBIS_CODE, false),
+                UPLPropertySpecFactory.string(FW_IMAGE_NAME, false),
+                UPLPropertySpecFactory.integer(FW_UPGRADE_POLLING_DELAY, false),
+                UPLPropertySpecFactory.integer(FW_UPGRADE_POLLING_RETRIES, false),
+                UPLPropertySpecFactory.integer(READ_SERIAL_NUMBER, false));
     }
 
     @Override
@@ -155,4 +148,5 @@ public class PrimeProperties extends DlmsProtocolProperties {
         int extensionIndex = fullFileName.lastIndexOf(".");
         return fullFileName.substring(0, extensionIndex);
     }
+
 }

@@ -4,15 +4,14 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110RProperties;
 
-
-public class KaifaProperties extends AM110RProperties {
+class KaifaProperties extends AM110RProperties {
     public static final String PASSWORD = "Password";
+
     @Override
     @ProtocolProperty
     public boolean isBulkRequest() {
         return getBooleanProperty(BULK_REQUEST, "0");   //Don't use get-with-list by default
     }
-
 
     public void setProperty(String propertyName, String propertyValue) {
         this.getProtocolProperties().setProperty(propertyName, propertyValue);
@@ -25,4 +24,5 @@ public class KaifaProperties extends AM110RProperties {
         }
         return this.securityProvider;
     }
+
 }

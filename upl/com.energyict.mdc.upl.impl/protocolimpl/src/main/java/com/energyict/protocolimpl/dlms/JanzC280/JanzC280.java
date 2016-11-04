@@ -340,8 +340,8 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         propertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
         propertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
         propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_FORCEDTOREADCACHE, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.TIMEOUT, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.RETRIES, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_TIMEOUT, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_RETRIES, false));
         propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.SECURITY_LEVEL, false));
         return propertySpecs;
     }

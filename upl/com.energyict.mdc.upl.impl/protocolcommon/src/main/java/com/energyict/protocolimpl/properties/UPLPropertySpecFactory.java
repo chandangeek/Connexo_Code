@@ -25,6 +25,18 @@ public final class UPLPropertySpecFactory {
         return new IntegerPropertySpec(name, required, validValues);
     }
 
+    public static PropertySpec longValue(String name, boolean required) {
+        return new LongPropertySpec(name, required);
+    }
+
+    public static PropertySpec longValue(String name, boolean required, Range<Long> validRange) {
+        return new LongPropertySpec(name, required, validRange);
+    }
+
+    public static PropertySpec longValue(String name, boolean required, Long... validValues) {
+        return new LongPropertySpec(name, required, validValues);
+    }
+
     public static PropertySpec bigDecimal(String name, boolean required) {
         return new BigDecimalPropertySpec(name, required);
     }
@@ -43,6 +55,10 @@ public final class UPLPropertySpecFactory {
         StringPropertySpec spec = new StringPropertySpec(name, required);
         spec.setExactLength(length);
         return spec;
+    }
+
+    public static PropertySpec hexString(String name, boolean required) {
+        return new HexStringPropertySpec(name, required);
     }
 
     // Hide utility class constructor

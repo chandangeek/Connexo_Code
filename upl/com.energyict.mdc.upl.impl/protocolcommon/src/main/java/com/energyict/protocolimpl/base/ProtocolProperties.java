@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -11,14 +10,8 @@ import java.util.Properties;
  * Date: 29-sep-2010
  * Time: 15:59:31
  */
-public interface ProtocolProperties {
+public interface ProtocolProperties extends HasDynamicProperties {
 
-    List<String> getOptionalKeys();
-
-    List<String> getRequiredKeys();
-
-    void addProperties(Properties properties);
-
-    void validateProperties() throws MissingPropertyException, InvalidPropertyException;
+    void setProperties(Properties properties) throws PropertyValidationException;
 
 }

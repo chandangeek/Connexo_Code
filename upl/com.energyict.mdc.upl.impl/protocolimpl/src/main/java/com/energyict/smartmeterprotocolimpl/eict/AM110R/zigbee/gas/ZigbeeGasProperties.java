@@ -1,26 +1,29 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
 
 /**
  * Copyrights EnergyICT
  * Date: 20-jul-2011
  * Time: 13:29:29
  */
-public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
+class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
 
-    public static final String DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = "64";
+    private static final String DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = "64";
     public static final int FIRMWARE_CLIENT = 0x50;
 
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
@@ -35,7 +38,7 @@ public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
     /**
      * Default it starts at 30, but if more devices are supported then it can go from 30 to 45
      */
-    public static final String DEFAULT_ZIGBEE_GAS_LOGICAL_DEVICE_ADDRESS = "30";
+    private static final String DEFAULT_ZIGBEE_GAS_LOGICAL_DEVICE_ADDRESS = "30";
 
     private SecurityProvider securityProvider;
 
@@ -44,36 +47,27 @@ public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
     }
 
     @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-        // nothing to do
-    }
-
-    public List<String> getOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
-        optional.addAll(super.getOptionalSmsWakeUpKeys());
-        optional.add(DlmsProtocolProperties.CONNECTION);
-        optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
-        optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
-        optional.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
-        optional.add(DlmsProtocolProperties.RETRIES);
-        optional.add(DlmsProtocolProperties.TIMEOUT);
-        optional.add(DlmsProtocolProperties.FORCED_DELAY);
-        optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
-
-        optional.add(AM110RSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optional.add(AM110RSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optional.add(VERIFY_FIRMWARE_VERSION);
-        optional.add(LOGBOOK_SELECTOR);
-        optional.add(ZIGBEE_MAC);
-        optional.add(ZIGBEE_PCLK);
-        return optional;
-    }
-
-    public List<String> getRequiredKeys() {
-        ArrayList<String> required = new ArrayList<String>();
-        required.add(DlmsProtocolProperties.SECURITY_LEVEL);
-        return required;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
+        Stream.of(
+                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
+                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
+                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(CONNECTION, false),
+                UPLPropertySpecFactory.integer(PK_FORCED_DELAY, false),
+                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
+                UPLPropertySpecFactory.integer(PK_RETRIES, false),
+                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
+                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
+                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
+                UPLPropertySpecFactory.integer(LOGBOOK_SELECTOR, false),
+                UPLPropertySpecFactory.integer(VERIFY_FIRMWARE_VERSION, false),
+                UPLPropertySpecFactory.string(ZIGBEE_MAC, false),
+                UPLPropertySpecFactory.string(ZIGBEE_PCLK, false))
+            .forEach(propertySpecs::add);
+        return propertySpecs;
     }
 
     @ProtocolProperty
@@ -124,4 +118,5 @@ public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
         }
         return this.securityProvider;
     }
+
 }

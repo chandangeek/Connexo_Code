@@ -1,56 +1,47 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Copyrights EnergyICT
  * @author sva
  */
-public class SL7000Properties extends DlmsProtocolProperties {
+class SL7000Properties extends DlmsProtocolProperties {
 
-    public static final String USE_REGISTER_PROFILE = "UseRegisterProfile";
-    public static final String LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
+    private static final String USE_REGISTER_PROFILE = "UseRegisterProfile";
+    private static final String LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
     private static final String USE_LEGACY_HDLC_CONNECTION = "UseLegacyHDLCConnection";
 
-    public static final String DEFAULT_SECURITY_LEVEL = "1:0";
-    public static final String DEFAULT_ADDRESSING_MODE = "-1";
-    public static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";
-    public static final String DEFAULT_SERVER_MAC_ADDRESS = "1:17";
+    private static final String DEFAULT_SECURITY_LEVEL = "1:0";
+    private static final String DEFAULT_ADDRESSING_MODE = "-1";
+    private static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";
+    private static final String DEFAULT_SERVER_MAC_ADDRESS = "1:17";
     public static final String DEFAULT_MAX_REC_PDU_SIZE = "0";
-    public static final String DEFAULT_USE_REGISTER_PROFILE = "0";
-    public static final String DEFAULT_LIMIT_MAX_NR_OF_DAYS = "0";
-    public static final String DEFAULT_USE_LEGACY_HDLC_CONNECTION = "0";
-
-    public List<String> getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(TIMEOUT);
-        result.add(RETRIES);
-        result.add(DELAY_AFTER_ERROR);
-        result.add(SECURITY_LEVEL);
-        result.add(CLIENT_MAC_ADDRESS);
-        result.add(SERVER_MAC_ADDRESS);
-        result.add(USE_REGISTER_PROFILE);
-        result.add(LIMIT_MAX_NR_OF_DAYS);
-        result.add(USE_LEGACY_HDLC_CONNECTION);
-        return result;
-    }
-
-    public List<String> getRequiredKeys() {
-        List<String> required = new ArrayList<String>();
-        return required;
-    }
+    private static final String DEFAULT_USE_REGISTER_PROFILE = "0";
+    private static final String DEFAULT_LIMIT_MAX_NR_OF_DAYS = "0";
+    private static final String DEFAULT_USE_LEGACY_HDLC_CONNECTION = "0";
 
     @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
+                UPLPropertySpecFactory.integer(PK_RETRIES, false),
+                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
+                UPLPropertySpecFactory.string(SECURITY_LEVEL, false),
+                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(USE_REGISTER_PROFILE, false),
+                UPLPropertySpecFactory.integer(LIMIT_MAX_NR_OF_DAYS, false),
+                UPLPropertySpecFactory.integer(USE_LEGACY_HDLC_CONNECTION, false));
     }
 
     public DLMSReference getReference() {

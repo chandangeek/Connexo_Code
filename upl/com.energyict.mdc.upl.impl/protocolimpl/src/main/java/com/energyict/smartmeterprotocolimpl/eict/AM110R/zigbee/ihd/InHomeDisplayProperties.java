@@ -1,17 +1,24 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
+import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
+import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY;
+import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY;
+import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.NEW_HLS_SECRET;
+
 
 /**
  * Provides property information for the InHomeDisplay
@@ -21,12 +28,12 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
     private static final String ZIGBEE_MAC = "ZigbeeMAC";
     private static final String ZIGBEE_PCLK = "ZigbeePCLK";
 
-    public static final String DEFAULT_IHD_CLIENT_MAC_ADDRESS = "64";
+    private static final String DEFAULT_IHD_CLIENT_MAC_ADDRESS = "64";
 
     /**
      * Uses the same logical device address as the HUB!!
      */
-    public static final String DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS = "1";
+    private static final String DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS = "1";
 
     private SecurityProvider securityProvider;
 
@@ -36,42 +43,33 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
     }
 
     @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-       // nothing to do
-    }
-
-    public List<String> getOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
-        optional.addAll(super.getOptionalSmsWakeUpKeys());
-        optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
-        optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
-        optional.add(DlmsProtocolProperties.CONNECTION);
-        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
-        optional.add(DlmsProtocolProperties.FORCED_DELAY);
-        optional.add(DlmsProtocolProperties.DELAY_AFTER_ERROR);
-        optional.add(DlmsProtocolProperties.INFORMATION_FIELD_SIZE);
-        optional.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
-        optional.add(DlmsProtocolProperties.RETRIES);
-        optional.add(DlmsProtocolProperties.TIMEOUT);
-        optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
-        optional.add(DlmsProtocolProperties.BULK_REQUEST);
-        optional.add(DlmsProtocolProperties.CIPHERING_TYPE);
-        optional.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
-        optional.add(AM110RSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optional.add(AM110RSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optional.add(AM110RSecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optional.add(AM110RSecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optional.add(AM110RSecurityProvider.NEW_HLS_SECRET);
-        optional.add(ZIGBEE_MAC);
-        optional.add(ZIGBEE_PCLK);
-        return optional;
-    }
-
-    public List<String> getRequiredKeys() {
-        ArrayList<String> required = new ArrayList<String>();
-        required.add(DlmsProtocolProperties.SECURITY_LEVEL);
-        return required;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
+        Stream.of(
+                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
+                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
+                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(CONNECTION, false),
+                UPLPropertySpecFactory.integer(PK_FORCED_DELAY, false),
+                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
+                UPLPropertySpecFactory.integer(INFORMATION_FIELD_SIZE, false),
+                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
+                UPLPropertySpecFactory.integer(PK_RETRIES, false),
+                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
+                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
+                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
+                UPLPropertySpecFactory.hexString(NEW_DATATRANSPORT_AUTHENTICATION_KEY, false),
+                UPLPropertySpecFactory.hexString(NEW_DATATRANSPORT_ENCRYPTION_KEY, false),
+                UPLPropertySpecFactory.string(NEW_HLS_SECRET, false),
+                UPLPropertySpecFactory.string(ZIGBEE_MAC, false),
+                UPLPropertySpecFactory.string(ZIGBEE_PCLK, false),
+                UPLPropertySpecFactory.integer(NTA_SIMULATION_TOOL, false),
+                UPLPropertySpecFactory.integer(CIPHERING_TYPE, false),
+                UPLPropertySpecFactory.integer(BULK_REQUEST, false))
+            .forEach(propertySpecs::add);
+        return propertySpecs;
     }
 
     @Override
@@ -104,4 +102,5 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
         }
         return this.securityProvider;
     }
+
 }

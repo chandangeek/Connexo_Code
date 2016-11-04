@@ -49,8 +49,8 @@ class EDPProperties {
                 UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
                 UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
                 UPLPropertySpecFactory.string(DlmsProtocolProperties.CONNECTION, false),
-                UPLPropertySpecFactory.string(DlmsProtocolProperties.TIMEOUT, false),
-                UPLPropertySpecFactory.string(DlmsProtocolProperties.RETRIES, false),
+                UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_TIMEOUT, false),
+                UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_RETRIES, false),
                 UPLPropertySpecFactory.string(READCACHE_PROPERTY, false));
     }
 

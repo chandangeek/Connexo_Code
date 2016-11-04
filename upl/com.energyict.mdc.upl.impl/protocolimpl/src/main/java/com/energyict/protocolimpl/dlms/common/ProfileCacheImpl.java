@@ -17,8 +17,8 @@ import java.util.Map;
  */
 public class ProfileCacheImpl implements Serializable, ProfileCache {
 
-    private Map<ObisCodeAndAttribute, Unit> units = new HashMap<ObisCodeAndAttribute, Unit>();
-    private Map<ObisCode, List<ChannelInfo>> channelInfos = new HashMap<ObisCode, List<ChannelInfo>>();
+    private Map<ObisCodeAndAttribute, Unit> units = new HashMap<>();
+    private Map<ObisCode, List<ChannelInfo>> channelInfos = new HashMap<>();
 
     public void cache(final ObisCodeAndAttribute obisCodeAndAttribute, final Unit unit) {
         this.units.put(obisCodeAndAttribute, unit);

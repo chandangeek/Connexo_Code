@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.a1800;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
@@ -14,8 +15,10 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,7 +26,7 @@ import java.util.List;
  * <p/>
  * Created by heuckeg on 27.06.2014.
  */
-public class A1800Properties extends DlmsProtocolProperties implements DlmsSessionProperties {
+class A1800Properties extends DlmsProtocolProperties implements DlmsSessionProperties {
 
     private static final String PROPNAME_LOAD_PROFILE_OBIS_CODE = "LoadProfileObisCode";
     private static final String PROPNAME_SEND_PREFIX = "SendPrefix";
@@ -32,31 +35,26 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
     private static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
     private static final String PROPNAME_APPLY_TRANSFORMER_RATIOS = "ApplyTransformerRatios";
 
-    public static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
+    private static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
 
-    InvokeIdAndPriorityHandler invokeIdAndPriorityHandler = null;
+    private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler = null;
 
-    public List<String> getOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
-        optional.add(CLIENT_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
-        optional.add(SECURITY_LEVEL);
-        optional.add(READ_SERIAL_NUMBER);
-        optional.add(PROPNAME_SEND_PREFIX);
-        optional.add(PROPNAME_LOAD_PROFILE_OBIS_CODE);
-        optional.add(PROPNAME_APPLY_TRANSFORMER_RATIOS);
-        return optional;
-    }
-
-    public List<String> getRequiredKeys() {
-        List<String> required = new ArrayList<String>();
-        return required;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
+                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(READ_SERIAL_NUMBER, false),
+                UPLPropertySpecFactory.integer(PROPNAME_SEND_PREFIX, false),
+                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
+                UPLPropertySpecFactory.integer(PROPNAME_APPLY_TRANSFORMER_RATIOS, false));
     }
 
     protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
         final String obisString = getStringValue(PROPNAME_LOAD_PROFILE_OBIS_CODE, "");
-        if (obisString.length() > 0) {
+        if (!obisString.isEmpty()) {
             ObisCode obisCode = ObisCode.fromString(obisString);
             if (!obisCode.equals(A1800Profile.LOAD_PROFILE_EU_CUMULATIVE) &&
                     !obisCode.equals(A1800Profile.LOAD_PROFILE_PULSES) &&
@@ -132,7 +130,7 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
     }
 
     public int getTimeout() {
-        return getIntProperty(TIMEOUT, "10000");
+        return getIntProperty(PK_TIMEOUT, "10000");
     }
 
     @ProtocolProperty
@@ -143,7 +141,7 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
     @ProtocolProperty
     public final ObisCode getLoadProfileObiscode() {
         final String obisString = getStringValue(PROPNAME_LOAD_PROFILE_OBIS_CODE, "");
-        if (obisString.length() == 0) {
+        if (obisString.isEmpty()) {
             return A1800Profile.LOAD_PROFILE_PULSES;
         } else {
             return ObisCode.fromString(obisString);
@@ -164,4 +162,5 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
     public boolean needToApplyTransformerRatios() {
         return getBooleanProperty(PROPNAME_APPLY_TRANSFORMER_RATIOS, "0");
     }
+
 }

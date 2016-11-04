@@ -6,7 +6,7 @@ package com.energyict.protocolimpl.dlms.g3;
  * Time: 12:56
  * Author: khe
  */
-public class SagemComG3Properties extends G3Properties {
+class SagemComG3Properties extends G3Properties {
 
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "0";
 
@@ -26,6 +26,7 @@ public class SagemComG3Properties extends G3Properties {
 
     @Override
     protected boolean validateInvokeId() {
-        return getBooleanProperty(super.VALIDATE_INVOKE_ID, this.DEFAULT_VALIDATE_INVOKE_ID);
+        return getBooleanProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
     }
+
 }

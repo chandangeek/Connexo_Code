@@ -1,7 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 
 import java.util.List;
@@ -15,15 +18,15 @@ public class Dsmr40Properties extends Dsmr23Properties {
 
     public static final String DSMR_40_HEX_PASSWORD = "HexPassword";
     public static final String PROPERTY_FORCED_TO_READ_CACHE = "ForcedToReadCache";
-    public static final String CumulativeCaptureTimeChannel = "CumulativeCaptureTimeChannel";
+    private static final String CumulativeCaptureTimeChannel = "CumulativeCaptureTimeChannel";
 
     @Override
-    public List<String> getOptionalKeys() {
-        List<String> optionals = super.getOptionalKeys();
-        optionals.add(DSMR_40_HEX_PASSWORD);
-        optionals.add(PROPERTY_FORCED_TO_READ_CACHE);
-        optionals.add(CumulativeCaptureTimeChannel);
-        return optionals;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(UPLPropertySpecFactory.string(DSMR_40_HEX_PASSWORD, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(PROPERTY_FORCED_TO_READ_CACHE, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(CumulativeCaptureTimeChannel, false));
+        return propertySpecs;
     }
 
     @Override
@@ -48,4 +51,5 @@ public class Dsmr40Properties extends Dsmr23Properties {
     public int getForcedToReadCache() {
         return getIntProperty(PROPERTY_FORCED_TO_READ_CACHE, "0");
     }
+
 }

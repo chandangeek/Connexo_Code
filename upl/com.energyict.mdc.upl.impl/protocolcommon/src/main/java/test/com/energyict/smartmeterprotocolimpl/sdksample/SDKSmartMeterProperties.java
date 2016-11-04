@@ -1,12 +1,12 @@
 package test.com.energyict.smartmeterprotocolimpl.sdksample;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,33 +16,18 @@ import java.util.List;
  */
 public class SDKSmartMeterProperties extends AbstractProtocolProperties {
 
-    public static final String SIMULATE_REAL_COMMUNICATION = "SimulateRealCommunication";
+    private static final String SIMULATE_REAL_COMMUNICATION = "SimulateRealCommunication";
 
-    public static final String DEFAULT_SIMULATE_REAL_COMMUNICATION = "0";
+    private static final String DEFAULT_SIMULATE_REAL_COMMUNICATION = "0";
 
-    public List<String> getOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
-        optional.add(SIMULATE_REAL_COMMUNICATION);
-        return optional;
-    }
-
-    public List<String> getRequiredKeys() {
-        List<String> required = new ArrayList<String>();
-        return required;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.singletonList(UPLPropertySpecFactory.integer(SIMULATE_REAL_COMMUNICATION, false));
     }
 
     @ProtocolProperty
     public boolean isSimulateRealCommunication() {
         return getBooleanProperty(SIMULATE_REAL_COMMUNICATION, DEFAULT_SIMULATE_REAL_COMMUNICATION);
-    }
-
-    @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-
-    }
-
-    public static void main(String[] args) {
-        System.out.println(new SDKSmartMeterProperties());
     }
 
 }

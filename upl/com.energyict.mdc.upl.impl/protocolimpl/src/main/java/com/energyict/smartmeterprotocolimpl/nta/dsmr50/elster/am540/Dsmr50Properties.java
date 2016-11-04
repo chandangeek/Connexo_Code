@@ -1,11 +1,20 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.dlms.g3.G3SecurityProvider;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_RETRIES;
+import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_TIMEOUT;
+import static com.energyict.protocolimpl.dlms.g3.G3Properties.PROP_LASTSEENDATE;
+import static com.energyict.protocolimpl.dlms.g3.G3Properties.PSK;
 
 /**
  * Copyrights EnergyICT
@@ -22,14 +31,14 @@ public class Dsmr50Properties extends Dsmr40Properties {
     private G3SecurityProvider g3SecurityProvider;
 
     @Override
-    public List<String> getOptionalKeys() {
-        List<String> optionals = super.getOptionalKeys();
-        optionals.add(G3Properties.PROP_LASTSEENDATE);
-        optionals.add(G3Properties.AARQ_RETRIES);
-        optionals.add(G3Properties.AARQ_TIMEOUT);
-        optionals.add(G3Properties.PSK);
-        optionals.add(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
-        return optionals;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.string(PROP_LASTSEENDATE, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(AARQ_RETRIES, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(AARQ_TIMEOUT, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(PSK, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false));
+        return propertySpecs;
     }
 
     /**
@@ -44,7 +53,7 @@ public class Dsmr50Properties extends Dsmr40Properties {
     }
 
     public int getAARQRetries() {
-        return getIntProperty(G3Properties.AARQ_RETRIES, G3Properties.DEFAULT_AARQ_RETRIES);
+        return getIntProperty(AARQ_RETRIES, G3Properties.DEFAULT_AARQ_RETRIES);
     }
 
     @Override
