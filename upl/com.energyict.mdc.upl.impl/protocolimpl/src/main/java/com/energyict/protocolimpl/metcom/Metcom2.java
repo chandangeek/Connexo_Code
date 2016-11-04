@@ -19,10 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 /**
@@ -38,7 +36,7 @@ KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail st
  @endchanges
  */
 @Deprecated //Never released, technical class
-public class Metcom2 extends Metcom{
+public class Metcom2 extends Metcom {
 
     // TABENQ1(E1) list numbers
     private static final String REG_NR_OF_CHANNELS="60200";
@@ -49,26 +47,24 @@ public class Metcom2 extends Metcom{
     private static int iMeterProfileInterval=-1;
     private static int digitsPerDecade=-1;
 
-    /** Creates a new instance of Metcom2 */
-    public Metcom2() {
-    }
-
-    public int getDigitsPerDecade() throws IOException {
+    private int getDigitsPerDecade() throws IOException {
         if (digitsPerDecade == -1) {
             digitsPerDecade = Integer.parseInt(getRegister(DIGITS_PER_VALUE).trim());
         }
         return digitsPerDecade;
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (iNROfChannels == -1) {
            iNROfChannels = Integer.parseInt(getRegister(REG_NR_OF_CHANNELS).trim());
@@ -76,6 +72,7 @@ public class Metcom2 extends Metcom{
         return iNROfChannels;
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         if (iMeterProfileInterval == -1) {
            iMeterProfileInterval = (Integer.parseInt(getRegister(REG_PROFILEINTERVAL).trim())*60);
@@ -83,6 +80,7 @@ public class Metcom2 extends Metcom{
         return iMeterProfileInterval;
     }
 
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         // lazy initializing
        iNROfChannels = -1;
@@ -90,18 +88,21 @@ public class Metcom2 extends Metcom{
        super.init(inputStream, outputStream, timeZone, logger);
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendarFrom = ProtocolUtils.getCleanCalendar(getTimeZone());
         calendarFrom.add(Calendar.YEAR,-10);
         return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar calendarFrom=ProtocolUtils.getCleanCalendar(getTimeZone());
         calendarFrom.setTime(lastReading);
         return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
            Calendar calendarFrom=ProtocolUtils.getCleanCalendar(getTimeZone());
            calendarFrom.setTime(from);
@@ -109,7 +110,6 @@ public class Metcom2 extends Metcom{
            calendarTo.setTime(to);
            return doGetProfileData(calendarFrom,calendarTo,includeEvents);
     }
-
 
     private ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException {
        try {
@@ -139,34 +139,26 @@ public class Metcom2 extends Metcom{
        }
     }
 
-
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public String buildDefaultChannelMap() throws IOException {
         return null;
     }
+
+    @Override
     public String getDefaultChannelMap() {
         return "";
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "HalfDuplex",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "IntervalStatusBehaviour",
-                    "TimeSetMethod",
-                    "Software7E1");
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return null;
     }

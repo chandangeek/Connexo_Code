@@ -16,8 +16,6 @@ import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 /**
  *
  * @author  Koen
@@ -32,39 +30,21 @@ KV|23092005|Changed intervalstate bits behaviour (EDP)
  * @endchanges
  */
 
-
-//com.energyict.protocolimpl.sctm.enermete70x.EnermetE70x
 public class EnermetE70x extends Metcom2 implements RegisterProtocol {
 
-    RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
-    GenericRegisters genericRegisters;
+    private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
+    private GenericRegisters genericRegisters;
 
-    /** Creates a new instance of Metcom2 */
     public EnermetE70x() {
         genericRegisters = new GenericRegisters(this);
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "HalfDuplex",
-                    "ExtendedLogging",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "ForcedDelay",
-                    "TimeSetMethod",
-                    "Software7E1");
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e
-    *******************************************************************************************/
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode)) {
             return genericRegisters.getRegisterInfo(obisCode);
@@ -72,6 +52,8 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
             return ObisCodeMapper.getRegisterInfo(obisCode);
         }
     }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode)) {
             return genericRegisters.readRegisterValue(obisCode);
@@ -82,7 +64,9 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
         }
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return regs.getRegisterInfo()+"\n"+genericRegisters.getRegisterInfo();
     }
+
 }

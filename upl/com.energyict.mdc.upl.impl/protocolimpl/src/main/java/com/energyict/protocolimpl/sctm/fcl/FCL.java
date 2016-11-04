@@ -13,8 +13,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FCL;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  *
@@ -30,39 +28,28 @@ KV|30032007|Add support for FCM3 and FCR1.4W (Cegedel project)
  */
 public class FCL extends Metcom3FCL implements RegisterProtocol {
 
-    FCLRegisters fclRegisters;
+    private FCLRegisters fclRegisters;
 
-    /** Creates a new instance of MTT3A */
     public FCL() {
         fclRegisters = new FCLRegisters(this);
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "HalfDuplex",
-                    "ChannelMap",
-                    "ExtendedLogging",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "ForcedDelay",
-                    "TimeSetMethod",
-                    "Software7E1");
-    }
-
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return fclRegisters.getRegisterInfo(obisCode);
     }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return fclRegisters.readRegisterValue(obisCode);
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return fclRegisters.getRegisterInfo();
     }

@@ -13,8 +13,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FBC;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  *
@@ -29,39 +27,28 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FBC extends Metcom3FBC implements RegisterProtocol {
 
-    FBCRegisters fbcRegisters;
+    private FBCRegisters fbcRegisters;
 
-    /** Creates a new instance of MTT3A */
     public FBC() {
         fbcRegisters = new FBCRegisters(this);
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "HalfDuplex",
-                    "ChannelMap",
-                    "ExtendedLogging",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "ForcedDelay",
-                    "TimeSetMethod",
-                    "Software7E1");
-    }
-
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return fbcRegisters.getRegisterInfo(obisCode);
     }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return fbcRegisters.readRegisterValue(obisCode);
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return fbcRegisters.getRegisterInfo();
     }

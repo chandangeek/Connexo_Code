@@ -6,11 +6,7 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
@@ -29,58 +25,28 @@ import java.util.List;
 public class Metcom3FAF extends Metcom3 {
 
     private static final int DEBUG = 0;
-    //protected final String[] REG_NR_OF_CHANNELS8={"62300","63300"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
-    //protected final String[] REG_NR_OF_CHANNELS16={"62308","63308"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
-    protected final String REG_PROFILEINTERVAL="70300";
-    protected final String DIGITS_PER_VALUE="82001";
+    protected static final String REG_PROFILEINTERVAL = "70300";
+    protected static final String DIGITS_PER_VALUE = "82001";
 
-
-    /** Creates a new instance of Metcom3FAF */
-    public Metcom3FAF() {
+    @Override
+    protected BufferStructure getBufferStructure(int bufferNr) throws IOException {
+        throw new IOException("Metcom3FAF, invalid MeterClass property (" + getStrMeterClass() + ")");
     }
 
-    protected BufferStructure getBufferStructure(int bufferNr) throws IOException, UnsupportedException, NoSuchRegisterException {
-        //BufferStructure bs = new BufferStructure(getNumberOfChannels(),getNrOfDecades(),getProfileInterval());
-        BufferStructure bs=null;
-        int nrOfChannels = getNumberOfChannels(); //Integer.parseInt(getRegister(REG_NR_OF_CHANNELS[bufferNr]).trim());
-        byte[] data = getRegister(REG_PROFILEINTERVAL).getBytes();
-        //if (getStrMeterClass().compareTo("20") == 0) {
-        if (this instanceof com.energyict.protocolimpl.sctm.faf.FAF20) {
-            int tm[] = new int[2];
-            tm[0] = Integer.parseInt((new String(ProtocolUtils.getSubArray2(data, 0, 12))).trim());
-            tm[1] = Integer.parseInt((new String(ProtocolUtils.getSubArray2(data, 12, 4))).trim());
-            int profileInterval = tm[bufferNr];
-            int digitsPerValue = Integer.parseInt(getRegister(DIGITS_PER_VALUE).trim());
-            bs = new BufferStructure(getChannelMap().getBuffers()[bufferNr],digitsPerValue,profileInterval);
-        }
-        else if (this instanceof com.energyict.protocolimpl.sctm.faf.FAF10) {
-            int profileInterval = Integer.parseInt((new String(data)).trim());
-            int digitsPerValue = Integer.parseInt(getRegister(DIGITS_PER_VALUE).trim());
-            bs = new BufferStructure(nrOfChannels,digitsPerValue,profileInterval);
-        }
-        else throw new IOException("Metcom3FAF, invalid MeterClass property ("+getStrMeterClass()+")");
-
-        // Nr of channels can be found with
-        //System.out.println("KV_DEBUG> "+Integer.parseInt(getRegister(REG_NR_OF_CHANNELS8[0]).trim()));
-        //System.out.println("KV_DEBUG> "+Integer.parseInt(getRegister(REG_NR_OF_CHANNELS16[0]).trim()));
-        //System.out.println("KV_DEBUG> "+Integer.parseInt(getRegister(REG_NR_OF_CHANNELS8[1]).trim()));
-        //System.out.println("KV_DEBUG> "+Integer.parseInt(getRegister(REG_NR_OF_CHANNELS16[1]).trim()));
-        //System.out.println("KV_DEBUG> "+bs);
-        return bs;
-    }
-
+    @Override
     public String getDefaultChannelMap() {
         return "4";
     }
 
+    @Override
     protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException {
         try {
             ProfileData profileData = null;
             SCTMTimeData from = new SCTMTimeData(calendarFrom);
             SCTMTimeData to = new SCTMTimeData(calendarTo);
-            List bufferStructures = new ArrayList();
+            List<BufferStructure> bufferStructures = new ArrayList<>();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            List datas = new ArrayList();
+            List<byte[]> datas = new ArrayList<>();
             byte[] profileid = new byte[2];
             byte[] data;
             byte[] last = {0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39};
@@ -137,6 +103,6 @@ public class Metcom3FAF extends Metcom3 {
         catch (SiemensSCTMException e) {
             throw new IOException("Siemens7ED62, doGetProfileData, SiemensSCTMException, " + e.getMessage());
         }
-    } // protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException
+    }
 
 }

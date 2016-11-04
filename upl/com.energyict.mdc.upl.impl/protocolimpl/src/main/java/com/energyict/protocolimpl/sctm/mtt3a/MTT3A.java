@@ -16,8 +16,6 @@ import com.energyict.protocolimpl.metcom.Metcom3;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 /**
  *
  * @author  Koen
@@ -36,35 +34,19 @@ KV|14112007|Password mechanism
  */
 public class MTT3A extends Metcom3 implements RegisterProtocol {
 
-    RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
-    GenericRegisters genericRegisters;
+    private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
+    private GenericRegisters genericRegisters;
 
-
-    /** Creates a new instance of MTT3A */
     public MTT3A() {
         genericRegisters = new GenericRegisters(this);
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "HalfDuplex",
-                    "ChannelMap",
-                    "ExtendedLogging",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "ForcedDelay",
-                    "AutoBillingPointNrOfDigits",
-                    "TimeSetMethod",
-                    "Software7E1");
-    }
-
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode)) {
             return genericRegisters.getRegisterInfo(obisCode);
@@ -72,6 +54,8 @@ public class MTT3A extends Metcom3 implements RegisterProtocol {
             return ObisCodeMapper.getRegisterInfo(obisCode);
         }
     }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode)) {
             return genericRegisters.readRegisterValue(obisCode);
@@ -82,7 +66,9 @@ public class MTT3A extends Metcom3 implements RegisterProtocol {
         }
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return regs.getRegisterInfo()+"\n"+genericRegisters.getRegisterInfo();
     }
+
 }

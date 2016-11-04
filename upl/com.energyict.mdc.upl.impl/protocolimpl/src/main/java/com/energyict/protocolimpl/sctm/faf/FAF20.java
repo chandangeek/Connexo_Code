@@ -7,14 +7,14 @@
 package com.energyict.protocolimpl.sctm.faf;
 
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.metcom.BufferStructure;
 import com.energyict.protocolimpl.metcom.Metcom3FAF;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  *
@@ -27,51 +27,40 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FAF20 extends Metcom3FAF implements RegisterProtocol {
 
-    FAF20Registers fafRegisters=null;
+    private FAF20Registers fafRegisters = null;
 
-    /** Creates a new instance of MTT3A */
     public FAF20() {
         fafRegisters = new FAF20Registers(this);
     }
 
-    /**
-     * The protocol version
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "HalfDuplex",
-                    "ChannelMap",
-                    "ExtendedLogging",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "ForcedDelay",
-                    "TimeSetMethod",
-                    "Software7E1");
+    protected BufferStructure getBufferStructure(int bufferNr) throws IOException {
+        byte[] data = getRegister(REG_PROFILEINTERVAL).getBytes();
+        int tm[] = new int[2];
+        tm[0] = Integer.parseInt((new String(ProtocolUtils.getSubArray2(data, 0, 12))).trim());
+        tm[1] = Integer.parseInt((new String(ProtocolUtils.getSubArray2(data, 12, 4))).trim());
+        int profileInterval = tm[bufferNr];
+        int digitsPerValue = Integer.parseInt(getRegister(DIGITS_PER_VALUE).trim());
+        return new BufferStructure(getChannelMap().getBuffers()[bufferNr],digitsPerValue,profileInterval);
     }
 
-
-    /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e
-    *******************************************************************************************/
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        //return ObisCodeMapper.getRegisterInfo(obisCode);
         return fafRegisters.getRegisterInfo(obisCode);
     }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        //ObisCodeMapper ocm = new ObisCodeMapper(getDumpData(),getTimeZone(),regs);
-        //return ocm.getRegisterValue(obisCode);
         return fafRegisters.readRegisterValue(obisCode);
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
-        //return regs.getRegisterInfo();
         return fafRegisters.getRegisterInfo();
     }
 

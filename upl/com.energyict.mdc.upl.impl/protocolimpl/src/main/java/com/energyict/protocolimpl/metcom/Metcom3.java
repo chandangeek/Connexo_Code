@@ -15,11 +15,9 @@ import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
 
 /**
  *
@@ -36,26 +34,26 @@ public class Metcom3 extends Metcom {
 
     private static final int DEBUG = 0;
 
-    /** Creates a new instance of Metcom3 */
-    public Metcom3() {
-    }
-
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getChannelMap().getTotalNrOfChannels();
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendarFrom=ProtocolUtils.getCleanCalendar(getTimeZone());
         calendarFrom.add(Calendar.YEAR,-10);
         return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar calendarFrom=ProtocolUtils.getCleanCalendar(getTimeZone());
         calendarFrom.setTime(lastReading);
         return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar calendarFrom=ProtocolUtils.getCleanCalendar(getTimeZone());
         calendarFrom.setTime(from);
@@ -64,16 +62,14 @@ public class Metcom3 extends Metcom {
         return doGetProfileData(calendarFrom,calendarTo,includeEvents);
     }
 
-
-
     protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException {
        try {
            ProfileData profileData;
            SCTMTimeData from = new SCTMTimeData(calendarFrom);
            SCTMTimeData to = new SCTMTimeData(calendarTo);
-           List bufferStructures = new ArrayList();
+           List<BufferStructure> bufferStructures = new ArrayList<>();
            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-           List datas = new ArrayList();
+           List<byte[]> datas = new ArrayList<>();
            byte[] profileid = new byte[2];
            byte[] data;
 
@@ -123,35 +119,28 @@ public class Metcom3 extends Metcom {
        catch(SiemensSCTMException e) {
           throw new IOException("Siemens7ED62, doGetProfileData, SiemensSCTMException, "+e.getMessage());
        }
-    } // private ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException
+    }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public String buildDefaultChannelMap() throws IOException {
         return null;
     }
+
+    @Override
     public String getDefaultChannelMap() {
         return "1,1,1,1";
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "HalfDuplex",
-                    "ChannelMap",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "TimeSetMethod",
-                    "Software7E1");
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }
 
+    @Override
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return null;
     }
