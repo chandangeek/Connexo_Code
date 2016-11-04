@@ -44,7 +44,8 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName),
             PropertySpecFactory.dateTimePropertySpec(toDateAttributeName)),
     LOAD_PROFILE_OPT_IN_OUT(10,PropertySpecFactory.stringPropertySpecWithValues(loadProfileOptInOutModeAttributeName, LoadProfileOptInOut.getScriptNames())),
-    SET_DISPLAY_ON_OFF(11,PropertySpecFactory.stringPropertySpecWithValues(setDisplayOnOffModeAttributeName, SetDisplayMode.getModeNames()));
+    SET_DISPLAY_ON_OFF(11,PropertySpecFactory.stringPropertySpecWithValues(setDisplayOnOffModeAttributeName, SetDisplayMode.getModeNames())),
+    WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES(12,PropertySpecFactory.bigDecimalPropertySpec(NewValueAttributeName));
 
     private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILES;
 

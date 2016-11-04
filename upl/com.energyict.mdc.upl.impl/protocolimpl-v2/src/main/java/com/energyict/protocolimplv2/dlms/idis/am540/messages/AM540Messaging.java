@@ -53,6 +53,7 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR);
         supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT);
         supportedMessages.add(LoadProfileMessage.SET_DISPLAY_ON_OFF);
+        supportedMessages.add(LoadProfileMessage.WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES);
         supportedMessages.add(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects);
         supportedMessages.add(LogBookDeviceMessage.ResetAllSecurityGroupEventCounters);
     }
