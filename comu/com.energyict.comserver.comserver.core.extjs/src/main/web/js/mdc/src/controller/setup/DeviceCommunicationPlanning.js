@@ -202,7 +202,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 scheduleIds.push(communicationSchedule.get('id'));
             });
 
-            debugger;
             Ext.Ajax.request({
                 url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/sharedschedules',
                 method: 'PUT',
