@@ -1,6 +1,8 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -10,6 +12,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -79,7 +82,7 @@ public class SchedulingResource {
         String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
         boolean available = queryFilter.hasProperty("available") ? queryFilter.getBoolean("available") : false;
         List<ComSchedule> comSchedules = schedulingService.getAllSchedules();
-        Collections.sort(comSchedules, new CompareBySchedulingStatus());
+        Collections.sort(comSchedules, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         if (mrid != null && available) {
             filterAvailableSchedulesOnly(mrid, comSchedules);
         }
@@ -89,6 +92,32 @@ public class SchedulingResource {
         for (ComSchedule comSchedule : comSchedules) {
             comScheduleInfos.add(ComScheduleInfo.from(comSchedule, isInUse(comSchedule), clock.instant()));
         }
+        return PagedInfoList.fromPagedList("schedules", comScheduleInfos, queryParameters);
+    }
+
+    @GET
+    @Path("/used")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
+    public PagedInfoList getUsedSchedules(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+        String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
+        Device device = deviceService.findByUniqueMrid(mrid)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid MRID"));
+
+        List<ComSchedule> usedSchedules = device.getComTaskExecutions()
+                .stream()
+                .filter(ComTaskExecution::usesSharedSchedule)
+                .map(comTaskExecution -> (ScheduledComTaskExecution) comTaskExecution)
+                .map(ScheduledComTaskExecution::getComSchedule)
+                .distinct()
+                .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
+                .collect(Collectors.toList());
+        usedSchedules = ListPager.of(usedSchedules).from(queryParameters).find();
+
+        List<ComScheduleInfo> comScheduleInfos = usedSchedules.stream()
+                .map(comSchedule -> ComScheduleInfo.from(comSchedule, isInUse(comSchedule), clock.instant()))
+                .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("schedules", comScheduleInfos, queryParameters);
     }
 

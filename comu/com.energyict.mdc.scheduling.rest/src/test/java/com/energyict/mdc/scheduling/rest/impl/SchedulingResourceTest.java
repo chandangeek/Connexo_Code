@@ -119,21 +119,6 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
                 .containsKey("version");
     }
 
-    @Test
-    public void testGetScheduleListSecondPage() throws Exception {
-        List<ComSchedule> schedules = new ArrayList<>();
-        IntStream.range(1, 100).forEach(i -> schedules.add(mockComSchedule(i, MessageFormat.format("cs {0}", i))));
-        when(schedulingService.getAllSchedules()).thenReturn(schedules);
-        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
-
-        Response response = target("/schedules/").queryParam("start",10).queryParam("limit",10).request().get();
-        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
-        List<String> list = jsonModel.<List<String>>get("$.schedules[*].name");
-        assertThat(list).hasSize(10).containsOnly("cs 11", "cs 12", "cs 13", "cs 14", "cs 15", "cs 16", "cs 17", "cs 18", "cs 19", "cs 20");
-
-    }
-
     private ComSchedule mockComSchedule(long id, String name) {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(id);
