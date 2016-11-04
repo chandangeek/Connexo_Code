@@ -10,10 +10,10 @@ import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -28,11 +28,13 @@ public class ObjectFactoryTest {
 
     @Test
     public void testProfileData() {
-        ACE4000Outbound ace4000 = new ACE4000Outbound();
+        ACE4000Outbound ace4000 = spy(new ACE4000Outbound());
+        doReturn(TimeZone.getTimeZone("Europe/Athens")).when(ace4000).getTimeZone();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getSerialNumber()).thenReturn(SERIAL_NUMBER);
         when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
         ace4000.init(offlineDevice, new DummyComChannel());
+
         ObjectFactory objectFactory = new ObjectFactory(ace4000);
 
         objectFactory.parseXML(LOAD_PROFILE_DATA);
