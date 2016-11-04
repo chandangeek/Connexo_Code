@@ -25,9 +25,9 @@ import java.io.IOException;
  */
 public class DL220 extends LIS200 implements IRegisterReadable {
 
-    private RegisterDefinition[] registersE0N = {};
+    private static final RegisterDefinition[] registersE0N = {};
 
-    private RegisterDefinition[] registersE1N = {
+    private static final RegisterDefinition[] registersE1N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
@@ -47,7 +47,7 @@ public class DL220 extends LIS200 implements IRegisterReadable {
             new HistoricRegisterDefinition(Lis200ObisCode.MAX_DAY_VALUE_HIST, 1, "DAY1")
     };
 
-    private RegisterDefinition[] registersE2N = {
+    private static final RegisterDefinition[] registersE2N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
@@ -75,13 +75,12 @@ public class DL220 extends LIS200 implements IRegisterReadable {
         setEventInterpreter(new Dl220EventInterpreter());
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2011-09-01 11:00:00 +0200 (do, 1 Sep 2011) $";
     }
 
-    // *******************************************************************************************
-    // * I R e g i s t e r R e a d a b l e
-    // *******************************************************************************************/
+    @Override
     public RegisterDefinition[] getRegisterDefinition() {
         switch (getMeterIndex()) {
             case 1:
@@ -93,6 +92,7 @@ public class DL220 extends LIS200 implements IRegisterReadable {
         }
     }
 
+    @Override
     public int getBeginOfDay() throws IOException {
         if (beginOfDay == null) {
             String bodAddress;
@@ -117,6 +117,7 @@ public class DL220 extends LIS200 implements IRegisterReadable {
         return beginOfDay;
     }
 
+    @Override
     public HistoricalArchive getHistoricalArchive(int instance) {
         if (instance == 1) {
             return new HistoricalArchive(new GenericArchiveObject(this, 1));
@@ -127,27 +128,26 @@ public class DL220 extends LIS200 implements IRegisterReadable {
         }
     }
 
-
+    @Override
     public RawArchiveLineInfo getArchiveLineInfo(int archive, String value) {
-
         String archiveLineInfo = "";
-
         if ((archive == 1) || (archive == 2)) {
-            if (value.equals("VAL1")) {
+            if ("VAL1".equals(value)) {
                 archiveLineInfo = ",,TST,CHN00[C],,,,,,,,,,CHKSUM";
-            } else if (value.equals("VAL2")) {
+            } else if ("VAL2".equals(value)) {
                 archiveLineInfo = ",,TST,,CHN00[C],,,,,,,,,CHKSUM";
-            } else if (value.equals("INT1")) {
+            } else if ("INT1".equals(value)) {
                 archiveLineInfo = ",,,,,CHN00[C],TST,,,,,,,CHKSUM";
-            } else if (value.equals("DAY1")) {
+            } else if ("DAY1".equals(value)) {
                 archiveLineInfo = ",,,,,,,,CHN00[C],TST,,,,CHKSUM";
             }
         }
 
-        if (archiveLineInfo.length() > 0) {
+        if (!archiveLineInfo.isEmpty()) {
             return new RawArchiveLineInfo(archiveLineInfo);
         } else {
             return null;
         }
     }
+
 }

@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -29,19 +30,28 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author Koen
@@ -49,40 +59,14 @@ import java.util.logging.Logger;
 public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber,
         MeterExceptionInfo, RegisterProtocol {
 
-    /**
-     * Implement additional code after the SignOn has passed successfully
-     *
-     * @throws IOException in case of an Exception
-     */
-    protected abstract void doConnect() throws IOException;
-
-    /**
-     * Validate some protocol specific properties.<br>
-     * See {@link #setProperties(Properties)} for the overview of the default properties set for an
-     * AbstractIEC1107Protocol
-     *
-     * @param properties - The properties fetched from the Device
-     * @throws MissingPropertyException If a property from the {@link #getRequiredKeys()} list was missing.
-     * @throws InvalidPropertyException If a property has an invalid value/format
-     */
-    protected abstract void doValidateProperties(Properties properties) throws MissingPropertyException,
-            InvalidPropertyException;
-
-    /**
-     * Provide a List of Optional keys needed as Device Properties
-     *
-     * @return a String List of properties
-     */
-    protected abstract List<String> doGetOptionalKeys();
-
-    TimeZone timeZone;
-    Logger logger;
+    private TimeZone timeZone;
+    private Logger logger;
 
     protected String strID; // device id (default=null)
     protected String strPassword; // password (default=null)
     protected int iec1107TimeoutProperty; // protocol timeout in ms (default=10000)
     protected int protocolRetriesProperty; // nr of retries for the protocol (default=5)
-    protected int roundtripCorrection; // roundtrip correction for the set/get time methods in ms (default=0)
+    private int roundtripCorrection; // roundtrip correction for the set/get time methods in ms (default=0)
     protected int securityLevel; // 0=public level, 1=non encrypted password, 2=encrypted password (default=0)
     protected String nodeId; // multidrop and iec1107 flag id (default=empty)
     protected int echoCancelling; // 0=disabled, 1=enabled (default=0)
@@ -98,14 +82,14 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     protected ProtocolChannelMap protocolChannelMap; // null=unused configuration info of the meter's channels
     // (default=null)
     protected int profileInterval; // meter's profile interval in seconds (default=900)
-    protected int requestHeader; // Request Meter's profile header info (typycal VDEW)
+    private int requestHeader; // Request Meter's profile header info (typycal VDEW)
     protected int scaler; // Scaler to use when retrieving data from the meter
     protected int forcedDelay; // Delay before sending data
     protected FlagIEC1107Connection flagIEC1107Connection; // lower layer IEC1107 communication
     protected MeterType meterType; // signon information of the meter
 
     protected byte[] dataReadout;
-    protected boolean requestDataReadout;
+    private boolean requestDataReadout;
     protected boolean software7E1;
     protected Encryptor encryptor;
 
@@ -121,101 +105,119 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         this(false, encryptor);
     }
 
-    /**
-     * Creates a new instance of AbstractIEC1107Protocol, default constructor
-     *
-     * @param requestDataReadout true if the datadump is needed to read registers. We only use a datadump if there is no possibility in
-     *                           programming mode to read registers individual. Datadump registers are always cached.
-     * @param encryptor          interface to an encryption algorithm implemented specific for the protocol.
-     */
     public AbstractIEC1107Protocol(boolean requestDataReadout, Encryptor encryptor) {
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
     }
 
-    // *******************************************************************************************
-    // M e t e r p r o t o c o l i n t e r f a c e
-    // *******************************************************************************************/
+    @Override
     public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
-    // obsolete
-    public Quantity getMeterReading(String name) throws IOException {
+    @Override
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    // obsolete
-    public Quantity getMeterReading(int channelId) throws IOException {
+    @Override
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    /*
-      * Default, we ask for 2 months of profile data!
-      */
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        // Default, we ask for 2 months of profile data!
         Calendar calendar = Calendar.getInstance(getTimeZone());
         calendar.add(Calendar.MONTH, -2);
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return null;
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException();
     }
 
-    /*
-      * Override this method if the subclass wants to get the device time
-      */
+    @Override
     public Date getTime() throws IOException {
         return null;
     }
 
-    /*
-      * Override this method if the subclass wants to set the device time
-      */
+    @Override
     public void setTime() throws IOException {
     }
 
-    /*
-      * Override this method if the subclass wants to set a specific register
-      */
+    @Override
     public void setRegister(String name, String value) throws IOException {
     }
 
-    /*
-      * Override this method if the subclass wants to get a specific register
-      */
+    @Override
     public String getRegister(String name) throws IOException {
         return null;
     }
 
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                ProtocolChannelMap.propertySpec("ChannelMap", false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                UPLPropertySpecFactory.integer("RequestHeader", false),
+                UPLPropertySpecFactory.integer("Scaler", false),
+                UPLPropertySpecFactory.integer("ForcedDelay", false),
+                UPLPropertySpecFactory.string("Software7E1", false));
+    }
+
+    @Override
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties);
+        try {
+            strID = properties.getProperty(ADDRESS.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            iec1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
+            protocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            roundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getProperty(NODEID.getName(), "");
+            echoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
+            iec1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
+            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
+            serialNumber = properties.getProperty(SERIALNUMBER.getName());
+            if (properties.getProperty("ChannelMap") != null) {
+                channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
+                protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
+            }
+            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim());
+            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "0").trim());
+            scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
+            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "300").trim());
+            software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
+    /**
+     * Implement additional code after the SignOn has passed successfully
+     *
+     * @throws IOException in case of an Exception
+     */
+    protected abstract void doConnect() throws IOException;
 
-    public List<String> getOptionalKeys() {
-        List<String> result = new ArrayList<>();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ExtendedLogging");
-        result.add("ChannelMap");
-        result.add("ForcedDelay");
-        result.add("Software7E1");
-        result.addAll(doGetOptionalKeys());
-        return result;
-    }
-
+    @Override
     public void connect() throws IOException {
         try {
             if (requestDataReadout) {
@@ -225,7 +227,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
             meterType = getFlagIEC1107Connection().connectMAC(strID, strPassword, securityLevel, nodeId);
             doConnect();
         } catch (FlagIEC1107ConnectionException e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(e.getMessage(), e);
         }
 
         if (extendedLogging >= 1) {
@@ -233,6 +235,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         }
     }
 
+    @Override
     public void disconnect() throws NestedIOException {
         try {
             getFlagIEC1107Connection().disconnectMAC();
@@ -241,15 +244,17 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         }
     }
 
+    @Override
     public void release() throws IOException {
     }
 
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger)
-            throws IOException {
+    @Override
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
         try {
@@ -260,99 +265,77 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         }
     }
 
-    // Cach mechanism of the MeterProtocol interface
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException,
-            com.energyict.cbo.BusinessException {
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    public Object getCache() {
-        return null;
-    }
-
-    // *******************************************************************************************
-    // * P r o t o c o l L i n k i n t e r f a c e M e t e r p r o t o c o l i n t e r f a c e
-    // *******************************************************************************************/
-
+    @Override
     public int getProfileInterval() throws IOException {
         return profileInterval;
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfChannels();
     }
 
-    // *******************************************************************************************
-    // * P r o t o c o l L i n k i n t e r f a c e
-    // *******************************************************************************************/
-
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return (iec1107Compatible == 1);
     }
 
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
     }
 
+    @Override
     public ChannelMap getChannelMap() {
         return channelMap;
     }
 
+    @Override
     public int getNrOfRetries() {
         return protocolRetriesProperty;
     }
 
-    // *******************************************************************************************
-    // * R e g i s t e r P r o t o c o l i n t e r f a c e
-    // *******************************************************************************************/
-
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return null;
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return null;
     }
 
-    /**
-     * ****************************************************************************************
-     * H H U E n a b l e r i n t e r f a c e
-     * *****************************************************************************************
-     */
-    /*
-      * Default implementation of the HHU interfacing. These cklasses can be overridden by the subclass if the
-      * implementation should be different.
-      */
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iec1107TimeoutProperty,
                 protocolRetriesProperty, 300, echoCancelling);
@@ -362,137 +345,33 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-    /**
-     * ****************************************************************************************
-     * M e t e r E x c e p t i o n I n f o i n t e r f a c e
-     * *****************************************************************************************
-     */
-    /*
-      * This method must be overridden by the subclass to implement meter specific error messages. Us sample code of a
-      * static map with error codes below as a sample and use code in method as a sample of how to retrieve the error
-      * code. This code has been taken from a real protocol implementation.
-      */
-    /*
-      * static Map exceptionInfoMap = new HashMap(); static { exceptionInfoMap.put("ER01","Unknown command");
-      * exceptionInfoMap.put("ER02","Invalid command"); }
-      */
+    @Override
     public String getExceptionInfo(String id) {
-        /*
-           * String exceptionInfo = (String)exceptionInfoMap.get(id); if (exceptionInfo != null) return
-           * id+", "+exceptionInfo; else return "No meter specific exception info for "+id;
-           */
         return null;
     }
 
-    // *******************************************************************************************
-    // * S e r i a l N u m b e r i n t e r f a c e
-    // *******************************************************************************************/
-
-    /**
-     * Method to be overridden by the subclass if the serialnumber of the meter device is not in the datadump or the
-     * meter does not provide a datadump. The method is used by the Hand-Held mechanism to uniquely identify a meter
-     * device (com.energyict.protocolimpl.base.IEC1107HHUConnection). Use the sample code below as an example how to
-     * retrieve the serialnumber from a meter using a level 0 security (=no password). This code has been taken from a
-     * real protocol implementation.
-     */
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
-        /*
-           * SerialCommunicationChannel commChannel = discoverInfo.getCommChannel(); String nodeId =
-           * discoverInfo.getNodeId(); Properties properties = new Properties();
-           * properties.setProperty("SecurityLevel","0"); properties.setProperty(MeterProtocol.NODEID,nodeId);
-           * properties.setProperty("IEC1107Compatible","1"); setProperties(properties);
-           * init(commChannel.getInputStream(),commChannel .getOutputStream(),null,null); enableHHUSignOn(commChannel);
-           * connect(); String serialNumber = getRegister("SerialNumber"); disconnect(); return serialNumber;
-           */
         throw new IOException("Not implemented!");
     }
 
-    // *******************************************************************************************
-    // * G e t t e r s & s e t t e r s o f p r o p e r t i e s
-    // *******************************************************************************************/
-
-    /**
-     * Getter for property roundtripCorrection.
-     *
-     * @return Value of property roundtripCorrection.
-     */
     protected int getRoundtripCorrection() {
         return roundtripCorrection;
     }
 
-    /**
-     * Getter for the configured 'SerialNumber' infotype property.
-     *
-     * @return Value of infotype property meterType.
-     */
     protected String getInfoTypeSerialNumber() {
         return serialNumber;
     }
 
-    // *******************************************************************************************
-    // * C l a s s i m p l e m e n t a t i o n c o d e
-    // *******************************************************************************************/
-
-    /**
-     * Validate certain protocol specific properties
-     *
-     * @param properties - The properties fetched from the Device
-     * @throws MissingPropertyException If a property from the {@link #getRequiredKeys()} list was missing.
-     * @throws InvalidPropertyException If a property has an invalid value/format
-     */
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iec1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            protocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            roundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            echoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            iec1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            if (properties.getProperty("ChannelMap") != null) {
-                channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
-                protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
-            }
-            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "900").trim());
-            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "0").trim());
-            scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
-            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "300").trim());
-            software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
-            doValidateProperties(properties);
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
-        }
-    }
-
-    /**
-     * Method must be overridden by the subclass to build a StringBuffer with all possible registers that can be read
-     * from the particulart meter. The StringBuffer is then logged as info. This method is called if the
-     * 'ExtendedLogging' property is set to 1
-     */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return ("");
     }
 
-    /**
-     * Setter for property nodeId.
-     *
-     * @param nodeId New value of property nodeId.
-     */
     public void setNodeId(java.lang.String nodeId) {
         this.nodeId = nodeId;
     }
@@ -501,30 +380,16 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         return (requestHeader == 1);
     }
 
-    /**
-     * Getter for property scaler.
-     *
-     * @return Value of property scaler.
-     */
     public int getScaler() {
         return scaler;
     }
 
-    /**
-     * Setter for the {@link TimeZone}
-     *
-     * @param timeZone - the TimeZone to set
-     */
     protected void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }
 
-    /**
-     * Setter for the {@link Logger}
-     *
-     * @param logger - the Logger to set
-     */
     protected void setLogger(Logger logger) {
         this.logger = logger;
     }
+
 }

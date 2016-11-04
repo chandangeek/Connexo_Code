@@ -14,9 +14,6 @@ KV|06092005|VDEW changed to do channel mapping!
 
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -25,10 +22,7 @@ import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -44,6 +38,7 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
         super(true);
     }
 
+    @Override
     protected void doConnect() throws IOException {
         siemens7ED62Registry = new Siemens7ED62Registry(this,this);
         siemens7ED62Profile = new Siemens7ED62Profile(this,this,siemens7ED62Registry);
@@ -58,22 +53,26 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
         fromCalendar.add(Calendar.YEAR,-10);
         return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(lastReading);
         return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
@@ -81,7 +80,6 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
         toCalendar.setTime(to);
         return doGetProfileData(fromCalendar,toCalendar,includeEvents);
     }
-
 
     private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar,boolean includeEvents) throws IOException {
         return getSiemens7ED62Profile().getProfileData(fromCalendar,
@@ -100,40 +98,28 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
         false);
     }
 
-
+    @Override
     public String getRegister(String name) throws IOException {
         return getSiemens7ED62Registry().getRegister(name).toString();
     }
 
-    protected List<String> doGetOptionalKeys() {
-        return Collections.emptyList();
-    }
-
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-    }
-
+    @Override
     public Date getTime() throws IOException {
         Date dateTime = (Date)getSiemens7ED62Registry().getRegister("DateTime");
         return new Date(dateTime.getTime()-getRoundtripCorrection());
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getChannelMap().getNrOfChannels();
     }
 
-    /**
-     * Getter for property siemens7ED62Registry.
-     * @return Value of property siemens7ED62Registry.
-     */
-    public com.energyict.protocolimpl.iec1107.siemens7ED62.Siemens7ED62Registry getSiemens7ED62Registry() {
+    private com.energyict.protocolimpl.iec1107.siemens7ED62.Siemens7ED62Registry getSiemens7ED62Registry() {
         return siemens7ED62Registry;
     }
 
-    /**
-     * Getter for property siemens7ED62Profile.
-     * @return Value of property siemens7ED62Profile.
-     */
-    public com.energyict.protocolimpl.iec1107.siemens7ED62.Siemens7ED62Profile getSiemens7ED62Profile() {
+    private com.energyict.protocolimpl.iec1107.siemens7ED62.Siemens7ED62Profile getSiemens7ED62Profile() {
         return siemens7ED62Profile;
     }
+
 }

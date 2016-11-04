@@ -7,7 +7,6 @@ import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +15,10 @@ import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
+
+import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -69,7 +71,6 @@ public class TestDl220 extends DL220 {
             sb.append(rv);
             sb.append("\n");
         }
-
 
         String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/register/dl220registertest.txt");
         assertEquals(compareData, sb.toString());
@@ -133,19 +134,19 @@ public class TestDl220 extends DL220 {
         return stringBuilder.toString();
     }
 
-    public class MyDl220MonthlyArchive extends GenericArchiveObject {
+    private class MyDl220MonthlyArchive extends GenericArchiveObject {
 
         private TimeZone timeZone = TimeZone.getTimeZone("Europe/Berlin");
 
-        private HashMap<Date, String> archiveData;
+        private Map<Date, String> archiveData;
 
         private String units;
 
-        public MyDl220MonthlyArchive(ProtocolLink link, int archiveInstance) {
+        MyDl220MonthlyArchive(ProtocolLink link, int archiveInstance) {
 
             super(link, archiveInstance);
 
-            archiveData = new HashMap<Date, String>();
+            archiveData = new HashMap<>();
 
             if (archiveInstance == 1) {
                 // (GONr)(AONr)(ZEIT)(V1)(V1.P)(V1M.L)(ZEIT)(STAT)(V1T.L)(ZEIT)(STAT)(ST.1)(ST.SY)(Er.Ch)

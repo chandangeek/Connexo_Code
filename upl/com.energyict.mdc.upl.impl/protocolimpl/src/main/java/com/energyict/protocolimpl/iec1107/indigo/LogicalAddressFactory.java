@@ -6,23 +6,21 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author  Koen
  */
 public class LogicalAddressFactory {
-    
+
     private ProtocolLink protocolLink=null;
     private MeterExceptionInfo meterExceptionInfo=null;
-    
-    // cached registers 
+
+    // cached registers
     MeterIdentity meterIdentity=null;
     MeterStatus meterstatus=null;
     ClockDefinition clockDefinition=null;
@@ -33,17 +31,17 @@ public class LogicalAddressFactory {
     HistoricalData[] historicalData = new HistoricalData[NR_OF_REGISTER_SETS];
     BillingPeriodDefinition billingPeriodDefinition=null;
     GeneralMeterData generalMeterData=null;
-    
+
     /** Creates a new instance of LogicalAddressFactory */
     public LogicalAddressFactory(ProtocolLink protocolLink,MeterExceptionInfo meterExceptionInfo) {
         this.protocolLink=protocolLink;
         this.meterExceptionInfo=meterExceptionInfo;
     }
-    
-    static public final int NR_OF_REGISTER_SETS=17; // 0=current, 1..16=historical  
-    
+
+    public static final int NR_OF_REGISTER_SETS=17; // 0=current, 1..16=historical
+
     public MeterIdentity getMeterIdentity() throws IOException {
-        if (meterIdentity==null) { 
+        if (meterIdentity==null) {
             meterIdentity = new MeterIdentity(0xC100,30,this); // 30
             meterIdentity.retrieve();
         }
@@ -77,12 +75,12 @@ public class LogicalAddressFactory {
         }
         return customerNotes;
     }
-    
+
     public void setDateTimeGMT(Date date) throws IOException {
         DateTimeGMT ald = new DateTimeGMT(0xC700,12,this,date);
         ald.write();
     }
-    
+
     public DateTimeGMT getDateTimeGMT() throws IOException {
         DateTimeGMT ald = new DateTimeGMT(0xC700,12,this);
         ald.retrieve();
@@ -100,7 +98,7 @@ public class LogicalAddressFactory {
         }
         return meteringDefinition;
     }
-            
+
     public BillingPeriodDefinition getBillingPeriodDefinition() throws IOException {
         if (billingPeriodDefinition==null) {
             billingPeriodDefinition = new BillingPeriodDefinition(0xD800,60,this);
@@ -108,7 +106,7 @@ public class LogicalAddressFactory {
         }
         return billingPeriodDefinition;
     }
-    
+
     public GeneralMeterData getGeneralMeterData() throws IOException {
         if (generalMeterData==null) {
             generalMeterData = new GeneralMeterData(0xC900,38,this);
@@ -116,7 +114,7 @@ public class LogicalAddressFactory {
         }
         return generalMeterData;
     }
-    
+
     public CTVT getCTVT() throws IOException {
 //        throw new IOException("LogicalAddressFactory, getCTVT() is not implemented...");
         if (ctvt==null) {
@@ -125,12 +123,12 @@ public class LogicalAddressFactory {
         }
         return ctvt;
     }
-    
+
     public TotalRegisters getTotalRegisters() throws IOException {
         return getTotalRegisters(0);
     }
     public TotalRegisters getTotalRegisters(int set) throws IOException {
-        if (set >= NR_OF_REGISTER_SETS) 
+        if (set >= NR_OF_REGISTER_SETS)
             throw new IOException("LogicalAddressFactory, getTotalRegisters, wrong register set "+set);
         TotalRegisters ald = new TotalRegisters(0xCA00+set,36,this);
         ald.retrieve();
@@ -140,7 +138,7 @@ public class LogicalAddressFactory {
         return getRateRegisters(0);
     }
     public RateRegisters getRateRegisters(int set) throws IOException {
-        if (set >= NR_OF_REGISTER_SETS) 
+        if (set >= NR_OF_REGISTER_SETS)
             throw new IOException("LogicalAddressFactory, getRateRegisters, wrong register set "+set);
         RateRegisters ald = new RateRegisters(0xCB00+set,64,this);
         ald.retrieve();
@@ -150,7 +148,7 @@ public class LogicalAddressFactory {
         return getDemandRegisters(0);
     }
     public DemandRegisters getDemandRegisters(int set) throws IOException {
-        if (set >= NR_OF_REGISTER_SETS) 
+        if (set >= NR_OF_REGISTER_SETS)
             throw new IOException("LogicalAddressFactory, getDemandRegisters, wrong register set "+set);
         DemandRegisters ald = new DemandRegisters(0xCC00+set,64,this);
         ald.retrieve();
@@ -160,7 +158,7 @@ public class LogicalAddressFactory {
         return getDefaultRegisters(0);
     }
     public DefaultRegisters getDefaultRegisters(int set) throws IOException {
-        if (set >= NR_OF_REGISTER_SETS) 
+        if (set >= NR_OF_REGISTER_SETS)
             throw new IOException("LogicalAddressFactory, getDefaultRegisters, wrong register set "+set);
         DefaultRegisters ald = new DefaultRegisters(0xCD00+set,12,this);
         ald.retrieve();
@@ -171,14 +169,14 @@ public class LogicalAddressFactory {
     }
     public HistoricalData getHistoricalData(int set) throws IOException {
         if (historicalData[set] == null) {
-            if (set >= NR_OF_REGISTER_SETS) 
+            if (set >= NR_OF_REGISTER_SETS)
                 throw new IOException("LogicalAddressFactory, getHistoricalData, wrong register set "+set);
             historicalData[set] = new HistoricalData(0xCE00+set,33,this);
             historicalData[set].retrieve();
         }
         return historicalData[set];
     }
-    
+
     /**
      * Getter for property protocolLink.
      * @return Value of property protocolLink.
@@ -186,7 +184,7 @@ public class LogicalAddressFactory {
     public com.energyict.protocolimpl.iec1107.ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
     /**
      * Getter for property meterExceptionInfo.
      * @return Value of property meterExceptionInfo.
@@ -194,5 +192,5 @@ public class LogicalAddressFactory {
     public com.energyict.protocol.MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
-    
+
  } // public class LogicalAddressFactory

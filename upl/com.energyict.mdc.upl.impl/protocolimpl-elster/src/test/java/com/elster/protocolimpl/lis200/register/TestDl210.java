@@ -5,7 +5,6 @@ import com.elster.protocolimpl.lis200.objects.ClockObject;
 import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +13,8 @@ import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -49,7 +50,6 @@ public class TestDl210 extends DL210 {
         String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/register/dl210registertest.txt");
         assertEquals(compareData, sb.toString());
     }
-
 
     // *******************************************************************************************
     // * I R e g i s t e r R e a d a b l e

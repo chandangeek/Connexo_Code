@@ -1,14 +1,6 @@
 package com.energyict.protocolimpl.iec1107.indigo.pxar;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -46,46 +38,13 @@ import java.util.Properties;
 @Deprecated
 public class IndigoPXAR extends AbstractIEC1107Protocol {
 
-	/**
-	 * Default constructor
-	 */
-	public IndigoPXAR(){
-		super();
-		//TODO if necessary, add additional information to the super() [Like an encryptor for security]
-	}
-
-    /**
-	 * @return the ProtocolVerison
-	 */
+	@Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    /**
-     * Add additional functionality after a physical connect, like initializing some objects
-     */
 	@Override
-	protected void doConnect() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @return a List of Strings of optional keys
-	 */
-	@Override
-	protected List<String> doGetOptionalKeys() {
-		return Collections.emptyList();
-	}
-
-	/**
-	 * Validate some protocol specific properties
-	 */
-	@Override
-	protected void doValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-		// TODO Auto-generated method stub
-
+	protected void doConnect() {
 	}
 
 }

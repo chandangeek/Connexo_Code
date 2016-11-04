@@ -9,7 +9,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +17,10 @@ import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
+
+import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -116,7 +118,6 @@ public class TestEk260_V252 extends EK260 {
         assertEquals(c, sb.toString());
     }
 
-
     // *******************************************************************************************
     // * I R e g i s t e r R e a d a b l e
     // *******************************************************************************************/
@@ -174,19 +175,19 @@ public class TestEk260_V252 extends EK260 {
         return stringBuilder.toString();
     }
 
-    public class MyMonthlyArchive extends GenericArchiveObject {
+    private class MyMonthlyArchive extends GenericArchiveObject {
 
         private TimeZone timeZone = TimeZone.getTimeZone("Europe/Berlin");
 
-        private HashMap<Date, String> archiveData;
+        private Map<Date, String> archiveData;
 
         private String units;
 
-        public MyMonthlyArchive(ProtocolLink link, int archiveInstance) {
+        MyMonthlyArchive(ProtocolLink link, int archiveInstance) {
 
             super(link, archiveInstance);
 
-            archiveData = new HashMap<Date, String>();
+            archiveData = new HashMap<>();
 
             if (archiveInstance == 1) {
                 //(GONr)(AONr)(Zeit)(Vn [m3])(VnG [m3])(VnMP [m3])(Zeit)(Stat)(VnTg [m3])(Zeit)(Stat)(Vb [m3])(VbG [m3])(VbMP [m3])(Zeit)(Stat)(VbTg [m3])(Zeit)(Stat)(St.2)(St.4)(Check)

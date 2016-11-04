@@ -16,10 +16,13 @@ import com.energyict.protocolimpl.iec1107.siemenss4s.security.SiemensS4sEncrypto
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
 public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberSupport {
 
@@ -30,9 +33,8 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 	private String nodeAddress;
 	private String deviceId;
 	private String passWord;
-	private String serialNumber;
 
-	private boolean requestDataReadout;
+    private boolean requestDataReadout;
 
 	private int securityLevel;
 	private int channelMap;
@@ -55,6 +57,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
         }
     }
 
+	@Override
     public void connect() throws IOException {
         try {
             if (requestDataReadout) {
@@ -70,10 +73,12 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 
     }
 
+	@Override
 	protected void doConnect() throws IOException {
 		initLocalObjects();
 	}
 
+	@Override
     public int getNumberOfChannels(){
         return this.channelMap;
      }
@@ -86,65 +91,45 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 		this.profileObject = new SiemensS4sProfile(this.objectFactory);
 	}
 
-	protected List<String> doGetOptionalKeys() {
-		return Collections.emptyList();
-	}
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        super.setProperties(properties);
+        try {
+            this.deviceId = properties.getProperty(ADDRESS.getName());
+            this.passWord = properties.getProperty(PASSWORD.getName(), "4281602592");
+            if("".equalsIgnoreCase(this.passWord)){
+                this.passWord = "4281602592";
+            }
+            //TODO set the level in the encryptor
+            this.securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(),"2").trim());
+            this.nodeAddress = properties.getProperty(NODEID.getName(),"");
+            this.channelMap = Integer.parseInt(properties.getProperty("ChannelMap","1"));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
+    }
 
-	/**
-	 * Set certain properties before doing anything
-	 */
-	protected void doValidateProperties(Properties properties)
-	throws MissingPropertyException, InvalidPropertyException {
-		this.deviceId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-		this.passWord = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "4281602592");
-		if("".equalsIgnoreCase(this.passWord)){
-			this.passWord = "4281602592";
-		}
-		//TODO set the level in the encryptor
-		this.securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","2").trim());
-		this.nodeAddress=properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),"");
-		this.serialNumber=properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-		this.channelMap = Integer.parseInt(properties.getProperty("ChannelMap","1"));
-	}
-
-	/**
-	 * Read the time from the meter.
-	 */
+    @Override
 	public Date getTime() throws IOException {
 		Calendar s4sDateTime = getObjectFactory().getDateTimeObject().getMeterTime();
 		return s4sDateTime.getTime();
 	}
 
-	/**
-	 * @return the meter his current profileInterval.
-	 */
+    @Override
 	public int getProfileInterval() throws IOException {
 		return this.profileObject.getProfileInterval();
 	}
 
-	/**
-	 * Create the profileObject
-	 * @param lastReading - the from date from where to start reading
-	 * @param includeEvents - indicates whether we need to read the events
-	 * @return the requested loadProfile
-	 */
+    @Override
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return this.profileObject.getProfileData(lastReading, includeEvents);
 	}
 
-	/**
-	 * Read a register given the obisCode
-	 * @param obisCode - the ObisCode of the register
-	 * @return a registerValue containing necessary register information
-	 */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
 
-    /**
-     * Getter for the obisCodeMapper. If he doesn't exist, then create ONE.
-     * @return the registerObisCodeMapper
-     */
     private SiemensS4sObisCodeMapper getObisCodeMapper(){
     	if(this.obisCodeMapper == null){
     		this.obisCodeMapper = new SiemensS4sObisCodeMapper(this.getObjectFactory());
@@ -152,14 +137,13 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
     	return this.obisCodeMapper;
     }
 
-	/**
-	 * @return the current objectFactory
-	 */
 	private S4sObjectFactory getObjectFactory(){
 		return this.objectFactory;
 	}
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }
+
 }

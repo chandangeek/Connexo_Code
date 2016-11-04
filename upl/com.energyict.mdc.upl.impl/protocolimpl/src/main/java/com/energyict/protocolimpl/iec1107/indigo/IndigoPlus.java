@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.iec1107.indigo;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -19,14 +20,18 @@ import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
 
 // KV TO_DO
@@ -60,20 +65,22 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
 
     private static final int DEBUG=0;
 
-    LogicalAddressFactory logicalAddressFactory;
-    IndigoProfile indigoProfile;
-    int statusFlagChannel,readCurrentDay;
-    int emptyNodeAddress;
+    private LogicalAddressFactory logicalAddressFactory;
+    private IndigoProfile indigoProfile;
+    private int statusFlagChannel,readCurrentDay;
+    private int emptyNodeAddress;
 
     /** Creates a new instance of IndigoPlus */
     public IndigoPlus() {
         super(false,new Encryption());
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar calendarFrom = ProtocolUtils.getCalendar(getTimeZone());
         calendarFrom.setTime(lastReading);
@@ -82,6 +89,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         return indigoProfile.getProfileData(calendarFrom.getTime(),calendarTo.getTime(),isStatusFlagChannel(),isReadCurrentDay());
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
        int nrOfChannels = getLogicalAddressFactory().getMeteringDefinition().getNrOfIntervalRecordingChannels();
        if ((!(isStatusFlagChannel())) && (getLogicalAddressFactory().getMeteringDefinition().isChannelUnitsStatusFlagsChannel())) {
@@ -90,15 +98,15 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
        return nrOfChannels;
     }
 
+    @Override
     protected void doConnect() throws java.io.IOException {
         logicalAddressFactory = new LogicalAddressFactory(this, this);
         indigoProfile = new IndigoProfile(this, this,logicalAddressFactory);
     }
 
-    /*
-     *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
-     */
+    @Override
     protected String getRegistersInfo(int extendedLogging) throws IOException {
+        // extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
         StringBuilder builder = new StringBuilder();
         builder.append("************************* Extended Logging *************************\n");
         builder.append(getLogicalAddressFactory().getMeterIdentity().toString()).append("\n");
@@ -189,12 +197,14 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
        return "";
     }
 
+    @Override
     public Date getTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         calendar.setTime(getLogicalAddressFactory().getDateTimeGMT().getDate());
         return calendar.getTime();
     }
 
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         calendar.add(Calendar.MILLISECOND,getRoundtripCorrection());
@@ -210,25 +220,34 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         }
     }
 
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                    "StatusFlagChannel",
-                    "ReadCurrentDay",
-                    "EmptyNodeAddress");
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer("StatusFlagChannel", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("ReadCurrentDay", false));
+        propertySpecs.add(UPLPropertySpecFactory.integer("EmptyNodeAddress", false));
+        return propertySpecs;
     }
 
-    protected void doValidateProperties(java.util.Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel","0"));
-        readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0"));
-        emptyNodeAddress = Integer.parseInt(properties.getProperty("EmptyNodeAddress","0"));
-        setNodeId(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),(emptyNodeAddress==0?"001":"")));
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        super.setProperties(properties);
+        try {
+            statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel", "0"));
+            readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay", "0"));
+            emptyNodeAddress = Integer.parseInt(properties.getProperty("EmptyNodeAddress", "0"));
+            setNodeId(properties.getProperty(NODEID.getName(), emptyNodeAddress==0?"001":""));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return getLogicalAddressFactory().getMeterIdentity().getSoftwareVersionNumber();
-
     }
 
+    @Override
     public String getSerialNumber() {
         try {
             return getLogicalAddressFactory().getMeterIdentity().getMeterId();
@@ -237,23 +256,9 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         }
     }
 
-    /**
-     * Getter for property logicalAddressFactory.
-     * @return Value of property logicalAddressFactory.
-     */
-    public com.energyict.protocolimpl.iec1107.indigo.LogicalAddressFactory getLogicalAddressFactory() {
+    private com.energyict.protocolimpl.iec1107.indigo.LogicalAddressFactory getLogicalAddressFactory() {
         return logicalAddressFactory;
     }
-
-    /*******************************************************************************************
-     M e t e r E x c e p t i o n I n f o  i n t e r f a c e
-     *******************************************************************************************/
-    /*
-     *  This method must be overridden by the subclass to implement meter specific error
-     *  messages. Us sample code of a static map with error codes below as a sample and
-     *  use code in method as a sample of how to retrieve the error code.
-     *  This code has been taken from a real protocol implementation.
-     */
 
     private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
     static {
@@ -261,6 +266,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
            EXCEPTION_INFO_MAP.put("ERRADD","Protocol error");
     }
 
+    @Override
     public String getExceptionInfo(String id) {
         String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
         if (exceptionInfo != null) {
@@ -270,26 +276,23 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
         }
     }
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(getLogicalAddressFactory());
         return ocm.getRegisterValue(obisCode);
     }
 
-    /**
-     * Getter for property statusFlagChannel.
-     * @return Value of property statusFlagChannel.
-     */
-    public boolean isStatusFlagChannel() {
+    private boolean isStatusFlagChannel() {
         return statusFlagChannel==1;
     }
 
-    public boolean isReadCurrentDay() {
+    private boolean isReadCurrentDay() {
         return readCurrentDay==1;
     }
- }
+
+}

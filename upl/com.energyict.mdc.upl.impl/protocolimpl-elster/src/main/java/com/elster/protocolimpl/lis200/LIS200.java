@@ -2,6 +2,7 @@ package com.elster.protocolimpl.lis200;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.lis200.commands.AbstractCommand;
@@ -36,17 +37,22 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.collect.Range;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.elster.utils.VersionInfo.getVersionMajor;
+import static com.elster.utils.VersionInfo.getVersionMinor;
 
 /**
  * @author heuckeg
@@ -163,147 +169,91 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
      */
     private boolean suppressWakeupSequence = false;
 
-    public LIS200() {
-        super();
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(PROFILE_REQUEST_BLOCK_SIZE, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(DISABLE_AUTO_LOGOFF, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(SUPPRESS_WAKEUP_SEQUENCE, false));
+        propertySpecs.add(UPLPropertySpecFactory.string(USE_LOCK, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(METER_INDEX, false, Range.closed(1, this.maxMeterIndex)));
+        propertySpecs.add(UPLPropertySpecFactory.integer(ARCHIVE_TO_READOUT, false, Range.atLeast(1)));
+        propertySpecs.add(UPLPropertySpecFactory.integer(ARCHIVE_STRUCTURE, false, Range.atLeast(1)));
+        propertySpecs.add(LIS200Utils.propertySpec(ARCHIVE_INTERVAL_ADDRESS, false));
+        propertySpecs.add(UPLPropertySpecFactory.integer(DELAY_AFTER_CHECK, false));
+        return propertySpecs;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    @SuppressWarnings(value = {"unchecked"})
-    protected List<String> doGetOptionalKeys() {
-        return Arrays.asList(
-                    PROFILE_REQUEST_BLOCK_SIZE,
-                    USE_LOCK,
-                    METER_INDEX,
-                    ARCHIVE_TO_READOUT,
-                    ARCHIVE_STRUCTURE,
-                    ARCHIVE_INTERVAL_ADDRESS,
-                    SUPPRESS_WAKEUP_SEQUENCE,
-                    DISABLE_AUTO_LOGOFF,
-                    DELAY_AFTER_CHECK);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void doValidateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        super.setProperties(properties);
         try {
             securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());  //Default
-        } catch (Exception e) {
-            throw new InvalidPropertyException(
-                    String.format("Incorrect %s property. If the value is not empty, then only numeric values greater 0 are allowed.", "SecurityLevel"));
-        }
-
-        try {
-            this.profileRequestBlockSize = Integer.parseInt(properties.getProperty(
-                    PROFILE_REQUEST_BLOCK_SIZE, "10"));
-        } catch (Exception e) {
-            throw new InvalidPropertyException(
-                    String.format("Incorrect %s property. If the value is not empty, then only numeric values greater 0 are allowed.", PROFILE_REQUEST_BLOCK_SIZE));
-        }
-
-        try {
+            this.profileRequestBlockSize = Integer.parseInt(properties.getProperty(PROFILE_REQUEST_BLOCK_SIZE, "10"));
             this.disableAutoLogoff = Integer.parseInt(properties.getProperty(DISABLE_AUTO_LOGOFF, "0")) > 0;
-        } catch (Exception e) {
-            throw new InvalidPropertyException(
-                    String.format("Incorrect %s property. If the value is not empty, then only 0 and 1 is allowed.", DISABLE_AUTO_LOGOFF));
-        }
-
-        try {
             suppressWakeupSequence = Integer.parseInt(properties.getProperty(SUPPRESS_WAKEUP_SEQUENCE, "0")) != 0;
-        } catch (Exception ignored) {
-        }
 
         /* check for lock to open... */
-        usedLock = LockObject.CustomerLock;
-        final String lockName = properties.getProperty(USE_LOCK, "");
-        if (!lockName.isEmpty())
-        {
-            usedLock = null;
-
-            for (LockObject lock : getLockObjects())
-            {
-                if (lockName.equalsIgnoreCase(lock.getName()))
-                {
-                    usedLock = lock;
-                    break;
-                }
-            }
-            if (usedLock == null)
-            {
-                StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
-                boolean first = true;
+            usedLock = LockObject.CustomerLock;
+            final String lockName = properties.getProperty(USE_LOCK, "");
+            if (!lockName.isEmpty()) {
+                usedLock = null;
                 for (LockObject lock : getLockObjects())
                 {
-                    if (!first)
+                    if (lockName.equalsIgnoreCase(lock.getName()))
                     {
-                        msg.append(",");
+                        usedLock = lock;
+                        break;
                     }
-                    msg.append("'");
-                    msg.append(lock.getName());
-                    msg.append("'");
-                    first = false;
                 }
-                msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
+                if (usedLock == null)
+                {
+                    StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
+                    boolean first = true;
+                    for (LockObject lock : getLockObjects())
+                    {
+                        if (!first)
+                        {
+                            msg.append(",");
+                        }
+                        msg.append("'");
+                        msg.append(lock.getName());
+                        msg.append("'");
+                        first = false;
+                    }
+                    msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
 
-                throw new InvalidPropertyException(msg.toString());
+                    throw new InvalidPropertyException(msg.toString());
+                }
             }
-        }
 
         /* check which archive to readout... */
-        String strMeterIndex = properties.getProperty(METER_INDEX, "");
-        String strArchive = properties.getProperty(ARCHIVE_TO_READOUT, "");
+            String strMeterIndex = properties.getProperty(METER_INDEX, "");
+            String strArchive = properties.getProperty(ARCHIVE_TO_READOUT, "");
 
         /* property MeterIndex set ? */
-        if ((strMeterIndex != null) && (!strMeterIndex.isEmpty())) {
-            meterIndex = Integer.parseInt(strMeterIndex);
-            if (meterIndex > maxMeterIndex || meterIndex < 1) {
-                throw new InvalidPropertyException(
-                        "Incorrect MeterIndex property. If the value is not empty, then only values between 1 to "
-                                + maxMeterIndex
-                                + " are allowed. "
-                                + "If MeterIndex is empty, then default 1 will be used.");
+            if ((strMeterIndex != null) && (!strMeterIndex.isEmpty())) {
+                meterIndex = Integer.parseInt(strMeterIndex);
             }
-        }
 
         /* property ArchiveToReadout set? */
-        if ((strArchive != null) && (!strArchive.isEmpty())) {
-            archiveIndex = Integer.parseInt(strArchive);
-            if (archiveIndex < 1) {
-                throw new InvalidPropertyException(
-                        "Incorrect ArchiveToReadout property. If the value is not empty, then only values greater 0 are allowed. ");
+            if ((strArchive != null) && (!strArchive.isEmpty())) {
+                archiveIndex = Integer.parseInt(strArchive);
             }
-        }
 
         /* check if archive structure is given by property */
-        String struct = properties.getProperty("ArchiveStructure", "");
-        if ((struct != null) && (!struct.isEmpty()))
-        {
-            archiveStructure = struct;
-        }
-
-        archiveIntervalAddr = properties.getProperty("ArchiveIntervalAddress",
-                "");
-        if (!archiveIntervalAddr.isEmpty()) {
-            if (!LIS200Utils.isValidLis200Address(archiveIntervalAddr)) {
-                throw new InvalidPropertyException(
-                        "Incorrect ArchiveIntervalAddress property. Value is not a valid LIS200 address.");
+            String struct = properties.getProperty(ARCHIVE_STRUCTURE, "");
+            if ((struct != null) && (!struct.isEmpty())) {
+                archiveStructure = struct;
             }
-        }
 
-        try {
+            archiveIntervalAddr = properties.getProperty(ARCHIVE_INTERVAL_ADDRESS, "");
+
             delayAfterCheck = Integer.parseInt(properties.getProperty(DELAY_AFTER_CHECK, "0"));
         }
-        catch (NumberFormatException ignore) {
-
+        catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
-
     }
 
     @Override
@@ -317,9 +267,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream,
                      TimeZone timeZone, Logger logger) throws IOException {
 
@@ -328,8 +276,8 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         int vma;
         int vmi;
         try {
-            vma = com.elster.utils.VersionInfo.getVersionMajor();
-            vmi = com.elster.utils.VersionInfo.getVersionMinor();
+            vma = getVersionMajor();
+            vmi = getVersionMinor();
         } catch (NoClassDefFoundError de) {
             String msg = "Wrong version of ElsterUtils. Needed: V1.4  Found: ?";
             logger.severe("LIS200.init - " + msg);
@@ -357,17 +305,12 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String getProtocolVersion()
     {
         return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void doConnect() throws IOException {
         getLogger().info("--- entering doConnect....");
@@ -436,9 +379,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String getFirmwareVersion()
             throws IOException
     {
@@ -447,6 +388,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
                " - SoftwareVersion : " + getObjectFactory().getSoftwareVersionObject().getValue();
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         getLogger().info(
                 "--- requested getNumberOfChannels:"
@@ -484,52 +426,38 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Date getTime() throws IOException {
         return getObjectFactory().getClockObject().getDateTime().getTime();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void setTime() throws IOException {
         getObjectFactory().getClockObject().writeClock();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public int getProfileInterval() throws IOException {
         return getProfileObject().getInterval();
     }
 
-    /*
-      * Default, we ask for 2 months of profile data!
-      */
-
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        // Default, we ask for 2 months of profile data!
         Calendar calendar = Calendar.getInstance(getTimeZone());
         /* maximum readout range set to 2 year - 6/18/2010 gh */
         calendar.add(Calendar.MONTH, -24);
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents)
             throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-            throws IOException {
-
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         getLogger().info("getProfileData(" + from + "," + to + ","  + includeEvents + ")");
 
         ProfileData profileData = new ProfileData();
@@ -549,39 +477,23 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
             }
 
             /*
-                * Not all statuses are always mapped, therefore we use the events
-                * to create additional intervalStateBits (especially the clock
-                * statuses)
-                */
+             * Not all statuses are always mapped, therefore we use the events
+             * to create additional intervalStateBits (especially the clock statuses)
+             */
             getProfileObject().applyEvents(profileData.getMeterEvents(), profileData.getIntervalDatas());
         }
 
         return profileData;
     }
 
-    /**
-     * Getter for meterIndex
-     *
-     * @return meterIndex
-     */
     public int getMeterIndex() {
         return meterIndex;
     }
 
-    /**
-     * Getter for meter type in derived classes
-     *
-     * @return read meter type
-     */
     protected String getMeterType() {
         return meterType;
     }
 
-    /**
-     * Getter for the ObjectFactory
-     *
-     * @return the ObjectFactory
-     */
     protected Lis200ObjectFactory getObjectFactory() {
         if (this.objectFactory == null) {
             this.objectFactory = new Lis200ObjectFactory(this);
@@ -589,9 +501,6 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         return this.objectFactory;
     }
 
-    /**
-     * @return the {@link Lis200Profile}
-     */
     protected Lis200Profile getProfileObject() {
         if (this.profile == null) {
             IntervalObject archiveIntervalObj = new IntervalObject(this,
@@ -620,8 +529,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
      * @throws InvalidPropertyException
      *          - in case of a wrong meterIndex value
      */
-    protected int meterIndexToArchiveInstance(String mType)
-            throws InvalidPropertyException {
+    protected int meterIndexToArchiveInstance(String mType) throws InvalidPropertyException {
 
         // DL210 -> 1 --> Archive 2
         if (mType.startsWith("DL210")) {
@@ -772,45 +680,34 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     }
 
     protected int getLogBookInstance() {
-        if (meterType.equalsIgnoreCase("EK210")) {
+        if ("EK210".equalsIgnoreCase(meterType)) {
             return 4;
-        } else if (meterType.equalsIgnoreCase("EK220")
-                || meterType.equalsIgnoreCase("TVC220")) {
+        } else if ("EK220".equalsIgnoreCase(meterType)
+                || "TVC220".equalsIgnoreCase(meterType)) {
             return 4;
-        } else if (meterType.equalsIgnoreCase("EK230")
-                || meterType.equalsIgnoreCase("TVC230")) {
+        } else if ("EK230".equalsIgnoreCase(meterType)
+                || "TVC230".equalsIgnoreCase(meterType)) {
             return 4;
-        } else if (meterType.equalsIgnoreCase("EK240")) {
+        } else if ("EK240".equalsIgnoreCase(meterType)) {
             return 4;
-        } else if (meterType.equalsIgnoreCase("EK260")) {
+        } else if ("EK260".equalsIgnoreCase(meterType)) {
             return 4;
-        } else if (meterType.equalsIgnoreCase("DL210")) {
+        } else if ("DL210".equalsIgnoreCase(meterType)) {
             return 10;
         } else if (meterType.toUpperCase().startsWith("DL220")) {
             return 10;
-        } else if (meterType.equalsIgnoreCase("DL230")) {
+        } else if ("DL230".equalsIgnoreCase(meterType)) {
             return 10;
-        } else if (meterType.equalsIgnoreCase("DL240")) {
+        } else if ("DL240".equalsIgnoreCase(meterType)) {
             return 10;
         }
         return 0;
     }
 
-    /**
-     * Setter for eventInterpreter
-     *
-     * @param eventInterpreter - class what interprets the events
-     */
     public void setEventInterpreter(EventInterpreter eventInterpreter) {
         this.eventInterpreter = eventInterpreter;
     }
 
-    /**
-     * Getter for eventInterpreter. If no value was set by derived class, use
-     * default class.
-     *
-     * @return EventInterpreter
-     */
     public EventInterpreter getEventInterpreter() {
         if (eventInterpreter == null) {
             eventInterpreter = new EventInterpreter();
@@ -822,28 +719,14 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         meterIndex = index;
     }
 
-    /**
-     * Setter for maximum allowed meterIndex (used by derived classes)
-     *
-     * @param maxIndex - max. value for MeterIndex
-     */
     public void setMaxMeterIndex(int maxIndex) {
         maxMeterIndex = maxIndex;
     }
 
-    /**
-     * Getter for maximum allowed meterIndex
-     *
-     * @return maxMeterIndex
-     */
     @SuppressWarnings({"unused"})
     public int getMaxMeterIndex() {
         return maxMeterIndex;
     }
-
-    // *******************************************************************************************
-    // * R e g i s t e r P r o t o c o l i n t e r f a c e
-    // *******************************************************************************************/
 
     public Date getCurrentDate() {
         return new Date();
@@ -865,11 +748,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         return new RegisterInfo(result);
     }
 
-    /**
-     * interface function to read a register value
-     *
-     * @param obisCode - code for the register to read
-     */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         RegisterReader rr = getObisCodeMapper();
         if (rr != null) {
@@ -879,12 +758,6 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         }
     }
 
-    /**
-     * Getter for the ObisCodeMapper. getRegisterMap() has to be
-     * overridden by the derived class.
-     *
-     * @return the used ObisCodeMapper}
-     */
     protected RegisterReader getObisCodeMapper() {
         if ((this.obisCodeMapper == null) &&
                 (this instanceof IRegisterReadable)) {

@@ -19,9 +19,9 @@ import java.io.IOException;
 @SuppressWarnings({"unused"})
 public class DL230 extends LIS200 implements IRegisterReadable {
 
-    private RegisterDefinition[] registersE0N = {};
+    private static final RegisterDefinition[] registersE0N = {};
 
-    private RegisterDefinition[] registersE1N = {
+    private static final RegisterDefinition[] registersE1N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
@@ -43,7 +43,7 @@ public class DL230 extends LIS200 implements IRegisterReadable {
             new HistoricRegisterDefinition(Lis200ObisCode.MAX_DAY_VALUE_HIST, 1, "DAY1")
     };
 
-    private RegisterDefinition[] registersE2N = {
+    private static final RegisterDefinition[] registersE2N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
@@ -65,7 +65,7 @@ public class DL230 extends LIS200 implements IRegisterReadable {
             new HistoricRegisterDefinition(Lis200ObisCode.MAX_DAY_VALUE_HIST, 2, "DAY1")
     };
 
-    private RegisterDefinition[] registersE3N = {
+    private static final RegisterDefinition[] registersE3N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
@@ -87,7 +87,7 @@ public class DL230 extends LIS200 implements IRegisterReadable {
             new HistoricRegisterDefinition(Lis200ObisCode.MAX_DAY_VALUE_HIST, 3, "DAY1")
     };
 
-    private RegisterDefinition[] registersE4N = {
+    private static final RegisterDefinition[] registersE4N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
@@ -117,16 +117,12 @@ public class DL230 extends LIS200 implements IRegisterReadable {
 		setEventInterpreter(new Dl230EventInterpreter());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public String getProtocolVersion() {
         return "$Date: 2013-11-05 11:00:00 +0100 (5 nov 2013) $";
 	}
 
-    // *******************************************************************************************
-    // * I R e g i s t e r R e a d a b l e
-    // *******************************************************************************************/
+    @Override
     public RegisterDefinition[] getRegisterDefinition() {
         switch (getMeterIndex()) {
             case 1:
@@ -142,6 +138,7 @@ public class DL230 extends LIS200 implements IRegisterReadable {
         }
     }
 
+    @Override
     public int getBeginOfDay() throws IOException {
         if (beginOfDay == null) {
             String bodAddress;
@@ -172,6 +169,7 @@ public class DL230 extends LIS200 implements IRegisterReadable {
         return beginOfDay;
     }
 
+    @Override
     public HistoricalArchive getHistoricalArchive(int instance) {
         if (instance == 1) {
             return new HistoricalArchive(new GenericArchiveObject(this, 1));
@@ -186,24 +184,24 @@ public class DL230 extends LIS200 implements IRegisterReadable {
         }
     }
 
-
+    @Override
     public RawArchiveLineInfo getArchiveLineInfo(int archive, String value) {
 
         String archiveLineInfo = "";
 
         if ((archive > 0) && (archive < 5)) {
-            if (value.equals("VAL1")) {
+            if ("VAL1".equals(value)) {
                 archiveLineInfo = ",,TST,CHN00[C],,,,,,,,,,CHKSUM";
-            } else if (value.equals("VAL2")) {
+            } else if ("VAL2".equals(value)) {
                 archiveLineInfo = ",,TST,,CHN00[C],,,,,,,,,CHKSUM";
-            } else if (value.equals("INT1")) {
+            } else if ("INT1".equals(value)) {
                 archiveLineInfo = ",,,,,CHN00[C],TST,,,,,,,CHKSUM";
-            } else if (value.equals("DAY1")) {
+            } else if ("DAY1".equals(value)) {
                 archiveLineInfo = ",,,,,,,,CHN00[C],TST,,,,CHKSUM";
             }
         }
 
-        if (archiveLineInfo.length() > 0) {
+        if (!archiveLineInfo.isEmpty()) {
             return new RawArchiveLineInfo(archiveLineInfo);
         } else {
             return null;

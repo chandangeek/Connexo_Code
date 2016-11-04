@@ -28,7 +28,7 @@ import java.util.Collections;
 @SuppressWarnings({"unused"})
 public class EK260 extends LIS200 implements IRegisterReadable {
 
-    private RegisterDefinition[] registersE1N = {
+    private static final RegisterDefinition[] registersE1N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
@@ -85,13 +85,12 @@ public class EK260 extends LIS200 implements IRegisterReadable {
         setEventInterpreter(new Ek260EventInterpreter());
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2011-09-01 11:00:00 +0200 (do, 1 Sep 2011) $";
     }
 
-    // *******************************************************************************************
-    // * I R e g i s t e r R e a d a b l e
-    // *******************************************************************************************/
+    @Override
     public RegisterDefinition[] getRegisterDefinition() {
 
         ArrayList<RegisterDefinition> result = new ArrayList<RegisterDefinition>();
@@ -118,6 +117,7 @@ public class EK260 extends LIS200 implements IRegisterReadable {
         return result.toArray(new RegisterDefinition[result.size()]);
     }
 
+    @Override
     public int getBeginOfDay() throws IOException {
         if (beginOfDay == null) {
             String bodAddress;
@@ -139,6 +139,7 @@ public class EK260 extends LIS200 implements IRegisterReadable {
         return beginOfDay;
     }
 
+    @Override
     public HistoricalArchive getHistoricalArchive(int instance) {
         if (instance == 1) {
             return new HistoricalArchive(new GenericArchiveObject(this, 1));
@@ -149,42 +150,40 @@ public class EK260 extends LIS200 implements IRegisterReadable {
         }
     }
 
-
+    @Override
     public RawArchiveLineInfo getArchiveLineInfo(int archive, String value) {
-
         String archiveLineInfo = "";
-
         if (archive == 1) {
             if (getSoftwareVersion() < 200) {
-                if (value.equals("VAL1")) {
+                if ("VAL1".equals(value)) {
                     archiveLineInfo = ",,TST,CHN00[C],,,,,,,,,,,,,,,,CHKSUM";
-                } else if (value.equals("INT1")) {
+                } else if ("INT1".equals(value)) {
                     archiveLineInfo = ",,,,CHN00[C],TST,,,,,,,,,,,,,,CHKSUM";
-                } else if (value.equals("DAY1")) {
+                } else if ("DAY1".equals(value)) {
                     archiveLineInfo = ",,,,,,,CHN00[C],TST,,,,,,,,,,,CHKSUM";
-                } else if (value.equals("VAL2")) {
+                } else if ("VAL2".equals(value)) {
                     archiveLineInfo = ",,TST,,,,,,,,CHN00[C],,,,,,,,,CHKSUM";
-                } else if (value.equals("INT2")) {
+                } else if ("INT2".equals(value)) {
                     archiveLineInfo = ",,,,,,,,,,,CHN00[C],TST,,,,,,,CHKSUM";
-                } else if (value.equals("DAY2")) {
+                } else if ("DAY2".equals(value)) {
                     archiveLineInfo = ",,,,,,,,,,,,,,CHN00[C],TST,,,,CHKSUM";
                 }
             } else {
-                if (value.equals("VAL3")) {
+                if ("VAL3".equals(value)) {
                     archiveLineInfo = ",,TST,CHN00[C],,,,,,,,,,,,,,,,,,CHKSUM";
-                } else if (value.equals("VAL1")) {
+                } else if ("VAL1".equals(value)) {
                     archiveLineInfo = ",,TST,,CHN00[C],,,,,,,,,,,,,,,,,CHKSUM";
-                } else if (value.equals("INT1")) {
+                } else if ("INT1".equals(value)) {
                     archiveLineInfo = ",,,,,CHN00[C],TST,,,,,,,,,,,,,,,CHKSUM";
-                } else if (value.equals("DAY1")) {
+                } else if ("DAY1".equals(value)) {
                     archiveLineInfo = ",,,,,,,,CHN00[C],TST,,,,,,,,,,,,CHKSUM";
-                } else if (value.equals("VAL2")) {
+                } else if ("VAL2".equals(value)) {
                     archiveLineInfo = ",,TST,,,,,,,,,CHN00[C],,,,,,,,,,CHKSUM";
-                } else if (value.equals("VAL4")) {
+                } else if ("VAL4".equals(value)) {
                     archiveLineInfo = ",,TST,,,,,,,,,,CHN00[C],,,,,,,,,CHKSUM";
-                } else if (value.equals("INT2")) {
+                } else if ("INT2".equals(value)) {
                     archiveLineInfo = ",,,,,,,,,,,,,CHN00[C],TST,,,,,,,CHKSUM";
-                } else if (value.equals("DAY2")) {
+                } else if ("DAY2".equals(value)) {
                     archiveLineInfo = ",,,,,,,,,,,,,,,,CHN00[C],TST,,,,CHKSUM";
                 }
 
@@ -192,37 +191,38 @@ public class EK260 extends LIS200 implements IRegisterReadable {
         }
 
         if (archive == 2) {
-            if (value.equals("MAX1")) /* Qmes max */ {
+            if ("MAX1".equals(value)) /* Qmes max */ {
                 archiveLineInfo = ",,,CHN00,TST,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("MIN1")) /* Qmes min */ {
+            } else if ("MIN1".equals(value)) /* Qmes min */ {
                 archiveLineInfo = ",,,,,,CHN00,TST,,,,,,,,,,,,,,,,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("MAX2")) /* Qbase max */ {
+            } else if ("MAX2".equals(value)) /* Qbase max */ {
                 archiveLineInfo = ",,,,,,,,,CHN00,TST,,,,,,,,,,,,,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("MIN2")) /* Qbase min */ {
+            } else if ("MIN2".equals(value)) /* Qbase min */ {
                 archiveLineInfo = ",,,,,,,,,,,,CHN00,TST,,,,,,,,,,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("VAL1")) /* p mean */ {
+            } else if ("VAL1".equals(value)) /* p mean */ {
                 archiveLineInfo = ",,TST,,,,,,,,,,,,,CHN00,,,,,,,,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("MAX3")) /* p max */ {
+            } else if ("MAX3".equals(value)) /* p max */ {
                 archiveLineInfo = ",,,,,,,,,,,,,,,,CHN00,TST,,,,,,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("MIN3")) /* p max */ {
+            } else if ("MIN3".equals(value)) /* p max */ {
                 archiveLineInfo = ",,,,,,,,,,,,,,,,,,,CHN00,TST,,,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("VAL2")) /* t mean */ {
+            } else if ("VAL2".equals(value)) /* t mean */ {
                 archiveLineInfo = ",,TST,,,,,,,,,,,,,,,,,,,,CHN00,,,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("MAX4")) /* p max */ {
+            } else if ("MAX4".equals(value)) /* p max */ {
                 archiveLineInfo = ",,,,,,,,,,,,,,,,,,,,,,,CHN00,TST,,,,,,,,,,,CHKSUM";
-            } else if (value.equals("MIN4")) /* p max */ {
+            } else if ("MIN4".equals(value)) /* p max */ {
                 archiveLineInfo = ",,,,,,,,,,,,,,,,,,,,,,,,,,CHN00,TST,,,,,,,,CHKSUM";
-            } else if (value.equals("VAL3")) /* p max */ {
+            } else if ("VAL3".equals(value)) /* p max */ {
                 archiveLineInfo = ",,TST,,,,,,,,,,,,,,,,,,,,,,,,,,,CHN00,,,,,,CHKSUM";
-            } else if (value.equals("VAL4")) /* p max */ {
+            } else if ("VAL4".equals(value)) /* p max */ {
                 archiveLineInfo = ",,TST,,,,,,,,,,,,,,,,,,,,,,,,,,,,CHN00,,,,,CHKSUM";
             }
         }
 
-        if (archiveLineInfo.length() > 0) {
+        if (!archiveLineInfo.isEmpty()) {
             return new RawArchiveLineInfo(archiveLineInfo);
         } else {
             return null;
         }
     }
+
 }

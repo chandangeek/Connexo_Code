@@ -1,5 +1,10 @@
 package com.elster.protocolimpl.lis200;
 
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
@@ -13,8 +18,9 @@ public class LIS200Utils {
      */
     public static boolean isValidLis200Address(String objectAddress) {
         String[] addressPart = objectAddress.split(":");
-        if (addressPart.length != 2)
+        if (addressPart.length != 2) {
             return false;
+        }
 
         try {
             Integer.parseInt(addressPart[0]);
@@ -23,10 +29,11 @@ public class LIS200Utils {
         }
 
         String[] addressPart2 = addressPart[1].split("[.]");
-        if (addressPart2.length != 2)
+        if (addressPart2.length != 2) {
             return false;
+        }
 
-        return (addressPart2[0].length() != 0) && (addressPart2[1].length() != 0);
+        return (!addressPart2[0].isEmpty()) && (!addressPart2[1].isEmpty());
     }
 
     /**
@@ -87,13 +94,13 @@ public class LIS200Utils {
     public static Unit getUnitFromString(String unitStr) {
         String strUnit = unitStr.trim();
         int scaler = 0;
-        if (strUnit.equalsIgnoreCase("m3")) {
+        if ("m3".equalsIgnoreCase(strUnit)) {
             return Unit.get(BaseUnit.CUBICMETER);
-        } else if (strUnit.equalsIgnoreCase("bar")) {
+        } else if ("bar".equalsIgnoreCase(strUnit)) {
             return Unit.get(BaseUnit.BAR);
-        } else if (strUnit.equalsIgnoreCase("{F") ||
-                strUnit.equalsIgnoreCase("\u00B0F") ||
-                strUnit.equalsIgnoreCase("F")) {
+        } else if ("{F".equalsIgnoreCase(strUnit) ||
+                "\u00B0F".equalsIgnoreCase(strUnit) ||
+                "F".equalsIgnoreCase(strUnit)) {
             return Unit.get(BaseUnit.FAHRENHEIT);
         } else if (strUnit.contains("Wh")) {
             if (strUnit.contains("k")) {
@@ -115,8 +122,7 @@ public class LIS200Utils {
                 (strUnit.contains("m3/h")) ||
                 (strUnit.contains("m3:h"))) {
             return Unit.get(BaseUnit.CUBICMETERPERHOUR);
-        } else if (strUnit.equals("K") ||
-                strUnit.equals("\u00B0K")) {
+        } else if ("K".equals(strUnit) || "\u00B0K".equals(strUnit)) {
             return Unit.get(BaseUnit.KELVIN);
         } else {
             if (strUnit.endsWith("C") || strUnit.endsWith("c")) {
@@ -130,7 +136,7 @@ public class LIS200Utils {
                         }
                         break;
                 }
-                if (strUnit.equalsIgnoreCase("\u00B0c")) {
+                if ("\u00B0c".equalsIgnoreCase(strUnit)) {
                     return Unit.get(BaseUnit.DEGREE_CELSIUS);
                 }
             }
@@ -138,4 +144,52 @@ public class LIS200Utils {
         return Unit.getUndefined();
     }
 
+    public static PropertySpec propertySpec(String name, boolean required) {
+        return new LIS200AddressPropertySpec(name, required);
+    }
+
+    private static class LIS200AddressPropertySpec implements PropertySpec {
+        private final String name;
+        private final boolean required;
+
+        private LIS200AddressPropertySpec(String name, boolean required) {
+            this.name = name;
+            this.required = required;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return this.getName();
+        }
+
+        @Override
+        public String getDescription() {
+            return this.getDisplayName();
+        }
+
+        @Override
+        public boolean isRequired() {
+            return this.required;
+        }
+
+        @Override
+        public boolean validateValue(Object value) throws PropertyValidationException {
+            if (this.isRequired() && value == null) {
+                throw MissingPropertyException.forName(this.getName());
+            } else if (value instanceof String) {
+                if (!isValidLis200Address((String) value)) {
+                    throw InvalidPropertyException.forNameAndValue(this.getName(), value);
+                }
+                return true;
+            } else {
+                throw InvalidPropertyException.forNameAndValue(this.getName(), value);
+            }
+        }
+
+    }
 }
