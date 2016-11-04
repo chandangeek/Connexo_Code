@@ -367,7 +367,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocol.pluggable</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
