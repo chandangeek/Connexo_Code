@@ -4,9 +4,9 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -32,24 +32,32 @@ import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -72,7 +80,6 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     private String strID;
     private String strPassword;
     private String serialNumber;
-    private String mSerialNumber = null;
     private int iIEC1107TimeoutProperty;
     private int iProtocolRetriesProperty;
     private int iRoundtripCorrection;
@@ -102,31 +109,33 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     private DataDumpParser dataDumpParser;
     private boolean software7E1;
 
-    public Zmd() {
-    }
-
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.YEAR, -10);
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return profile.getProfileData(lastReading, includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return profile.getProfileData(from, to, includeEvents);
     }
 
-    public Quantity getMeterReading(String name) throws IOException {
+    @Override
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws IOException {
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
@@ -135,56 +144,55 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         registry.setRegister("Date", date);
     }
 
+    @Override
     public Date getTime() throws IOException {
         Date date = (Date) registry.getRegister("TimeDate");
         return new Date(date.getTime() - iRoundtripCorrection);
     }
 
-    public void setProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-
-        validateProperties(properties);
-
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                ProtocolChannelMap.propertySpec("ChannelMap", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.string("Software7E1", false));
     }
 
-    /**
-     * Validates the properties.  The default implementation checks that all
-     * required parameters are present.
-     */
-    private void validateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-
+    @Override
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            strID = properties.getProperty(ADDRESS.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getProperty(NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
+            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "3600").trim());
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(SERIALNUMBER.getName());
             this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
-            String msg = "validateProperties, NumberFormatException, " + e.getMessage();
-            throw new InvalidPropertyException(msg);
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
 
     }
 
+    @Override
     public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
@@ -193,45 +201,27 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return new String(data);
     }
 
+    @Override
     public void setRegister(String name, String value) throws IOException {
         registry.setRegister(name, value);
     }
 
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "IEC1107Compatible",
-                    "ChannelMap",
-                    "ExtendedLogging",
-                    "IgnoreSerialNumberCheck",
-                    "Software7E1",
-                    "ProfileInterval");
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException {
-        return ("Unknown");
+    @Override
+    public String getFirmwareVersion() {
+        return "Unknown";
     }
 
-    /**
-     * initializes the receiver
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -258,9 +248,9 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     }
 
+    @Override
     public void connect() throws IOException {
         try {
-
             if (getFlagIEC1107Connection().getHhuSignOn() == null) {
                 dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
                 flagIEC1107Connection.disconnectMAC();
@@ -288,9 +278,10 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     }
 
+    @Override
     public String getSerialNumber() {
         try {
-            mSerialNumber = getDataDumpParser().getRegisterFFStrValue("0.0.0");
+            String mSerialNumber = getDataDumpParser().getRegisterFFStrValue("0.0.0");
             return mSerialNumber.substring(mSerialNumber.indexOf("(") + 1, mSerialNumber.indexOf(")"));
         } catch (IOException e) {
            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
@@ -301,6 +292,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return (serialNumber == null) || ("".compareTo(serialNumber) == 0) || (serialNumber.compareTo(getSerialNumber()) == 0);
     }
 
+    @Override
     public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
@@ -309,6 +301,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getProtocolChannelMap().getNrOfProtocolChannels();
     }
@@ -317,56 +310,46 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return profileInterval;
     }
 
-    // Implementation of interface ProtocolLink
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return (iIEC1107Compatible == 1);
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject)
-            throws SQLException, BusinessException {
-    }
-
-    /**
-     * should not be called since deprecated
-     */
+    @Override
     public ChannelMap getChannelMap() {
         return null;
     }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @Override
     public String getExceptionInfo(String id) {
         String strippedId = ProtocolUtils.stripBrackets(id);
         if ("ER0001".equals(strippedId)) {
@@ -378,24 +361,22 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return null;
     }
 
+    @Override
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
     }
 
-    /**
-     * Getter for property requestHeader.
-     *
-     * @return Value of property requestHeader.
-     */
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
 
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
     }
 
-    /* Translate the obis codes to edis codes, and read */
+    @Override
     public RegisterValue readRegister(ObisCode obis) throws IOException {
         try {
             return toRegisterValue(obis);
@@ -408,7 +389,6 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     }
 
     private RegisterValue toRegisterValue(ObisCode obis) throws IOException {
-
         if (isTimeCode(obis) && (obis.getF() == 255)) {
             return new RegisterValue(obis, toQuantity(getTime()));
         }
@@ -504,10 +484,10 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo((String) obisMap.get(obisCode.toString()));
+        return new RegisterInfo(obisMap.get(obisCode.toString()));
     }
 
-    void initObis() throws IOException {
+    private void initObis() throws IOException {
 
         obisMap.put("1.1.0.1.2.255", "Date and time (0.9.1 0.9.2)");
         obisMap.put("1.1.0.1.2.VZ", "Date and time last billing point");
@@ -584,9 +564,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     private void getRegistersInfo() throws IOException {
         StringBuilder builder = new StringBuilder();
-        Iterator i = obisMap.keySet().iterator();
-        while (i.hasNext()) {
-            String obis = (String) i.next();
+        for (String obis : obisMap.keySet()) {
             ObisCode oc = ObisCode.fromString(obis);
             builder.append(obis)
                     .append(" ").append(translateRegister(oc).toString()).append("\n");
@@ -605,10 +583,12 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, true);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
                 iProtocolRetriesProperty, 300, iEchoCancelling);
@@ -618,6 +598,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
