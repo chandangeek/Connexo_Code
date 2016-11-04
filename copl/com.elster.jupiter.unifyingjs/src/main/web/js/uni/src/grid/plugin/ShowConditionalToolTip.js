@@ -4,7 +4,7 @@
 Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
     extend: 'Ext.AbstractPlugin',
     requires: [
-        'Ext.util.Format',
+        'Uni.util.String',
         'Ext.tip.ToolTip'
     ],
     alias: 'plugin.showConditionalToolTip',
@@ -57,9 +57,8 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                                 Ext.each(grid.getEl().query(grid.getCellSelector(column)), function (el) {
                                     var cell = Ext.get(el),
                                         inner = cell.down('.' + Ext.baseCSSPrefix + 'grid-cell-inner');
-
                                     if (inner) {
-                                        var text = Ext.util.Format.stripTags(inner.getHTML()),
+                                        var text = Uni.util.String.stripTags(inner.getHTML()),
                                             tooltip = cell.getAttribute('data-qtip');
 
                                         if (text && (width < tm.getSize(text).width)) {
