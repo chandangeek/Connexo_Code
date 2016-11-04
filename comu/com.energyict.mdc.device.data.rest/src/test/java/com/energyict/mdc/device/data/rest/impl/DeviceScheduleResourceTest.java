@@ -315,70 +315,6 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         verify(comTaskExecutionBuilder, times(1)).scheduleNow();
     }
 
-    @Test
-    public void testDeleteComTaskExecution() throws Exception {
-        Device device = mock(Device.class);
-        String deviceMrid = "ZAFB001";
-        when(deviceService.findByUniqueMrid(deviceMrid)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(deviceMrid, 1L)).thenReturn(Optional.of(device));
-        long comTaskId = 12L;
-        long comTaskExecution1Id = 14L;
-        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        mockComTask(comTaskEnablement, comTaskId);
-
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        ComTask comTask = mock(ComTask.class);
-        ComTask comTask2 = mock(ComTask.class);
-        when(comTask.isSystemComTask()).thenReturn(false);
-        when(comTask2.isSystemComTask()).thenReturn(false);
-        when(comTaskExecution.getId()).thenReturn(comTaskExecution1Id);
-        when(comTaskExecution.getDevice()).thenReturn(device);
-        when(comTaskExecution.getComTask()).thenReturn(comTask);
-        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
-        when(comTaskExecution2.getId()).thenReturn(13L);
-        when(comTaskExecution2.getDevice()).thenReturn(device);
-        when(comTaskExecution2.getComTask()).thenReturn(comTask2);
-        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(comTaskExecution1Id, 1L)).thenReturn(Optional.of(comTaskExecution));
-        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(13L, 1L)).thenReturn(Optional.of(comTaskExecution2));
-        when(communicationTaskService.findComTaskExecution(comTaskExecution1Id)).thenReturn(Optional.of(comTaskExecution));
-
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution2, comTaskExecution));
-
-        DeviceSchedulesInfo info = new DeviceSchedulesInfo();
-        info.id = comTaskExecution1Id;
-        info.version = 1L;
-        info.parent = new VersionInfo<>(deviceMrid, 1L);
-        Response response = target("/devices/ZAFB001/schedules/" + comTaskExecution1Id).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(device).removeComTaskExecution(comTaskExecution);
-    }
-
-    @Test
-    public void testDeleteNonExistingComTaskExecution() throws Exception {
-        Device device = mock(Device.class);
-        String deviceMrid = "ZAFB001";
-        when(deviceService.findByUniqueMrid(deviceMrid)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(deviceMrid, 1L)).thenReturn(Optional.of(device));
-
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        ComTask comTask = mock(ComTask.class);
-        when(comTaskExecution.getId()).thenReturn(12L);
-        when(comTaskExecution.getDevice()).thenReturn(device);
-        when(comTaskExecution.getComTask()).thenReturn(comTask);
-        when(comTask.isSystemComTask()).thenReturn(false);
-        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(12L, 1L)).thenReturn(Optional.empty());
-        when(communicationTaskService.findComTaskExecution(12L)).thenReturn(Optional.of(comTaskExecution));
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-
-        DeviceSchedulesInfo info = new DeviceSchedulesInfo();
-        info.id = 12L;
-        info.version = 1L;
-        info.parent = new VersionInfo<>(deviceMrid, 1L);
-        Response response = target("/devices/ZAFB001/schedules/12").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        verify(device, never()).removeComTaskExecution(comTaskExecution);
-    }
-
     private DeviceSchedulesInfo mockDataForFirmwareComTaskTests() {
         DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         schedulingInfo.id = firmwareComTaskId;
@@ -445,16 +381,6 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(communicationTaskService.findComTaskExecution(firmwareComTaskExecutionId)).thenReturn(Optional.of(comTaskExecution));
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
-    }
-
-    @Test
-    public void canNotDeleteFirmwareComTaskTest() throws IOException {
-        DeviceSchedulesInfo info = mockDataForFirmwareComTaskTests();
-
-        Response response = target("/devices/1/schedules/" + firmwareComTaskExecutionId).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());

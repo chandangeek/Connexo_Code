@@ -188,19 +188,4 @@ public class DeviceScheduleResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @DELETE
-    @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    @Path("/{comTaskExecutionId}")
-    public Response deleteComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskExecutionId") long id, DeviceSchedulesInfo info) {
-        // In this method, id == id of comtaskexec
-        checkForNoActionsAllowedOnSystemComTaskExecutions(id);
-        info.id = id;
-        ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
-        comTaskExecution.getDevice().removeComTaskExecution(comTaskExecution);
-        return Response.ok().build();
-    }
-
 }

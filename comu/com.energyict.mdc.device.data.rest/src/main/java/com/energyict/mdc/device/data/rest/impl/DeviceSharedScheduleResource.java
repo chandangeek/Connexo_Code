@@ -17,6 +17,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -41,8 +42,9 @@ public class DeviceSharedScheduleResource {
         this.schedulingService = schedulingService;
     }
 
-    @PUT @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, ScheduleIdsInfo info) {
@@ -53,18 +55,33 @@ public class DeviceSharedScheduleResource {
                 .map(Optional::get)
                 .collect(Collectors.toList());
         checkValidity(comSchedules, device);
-        comSchedules.forEach( comSchedule -> {
-                        try {
-                            device.newScheduledComTaskExecution(comSchedule).add();
-                        } catch (ConstraintViolationException cve) {
-                            throw new AlreadyLocalizedException(cve.getConstraintViolations().iterator().next().getMessage());
-                        }
+        comSchedules.forEach(comSchedule -> {
+            try {
+                device.newScheduledComTaskExecution(comSchedule).add();
+            } catch (ConstraintViolationException cve) {
+                throw new AlreadyLocalizedException(cve.getConstraintViolations().iterator().next().getMessage());
+            }
         });
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @DELETE
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response removeComSchedulesOnDevice(@PathParam("mRID") String mrid, ScheduleIdsInfo info) {
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
+        info.scheduleIds.stream()
+                .map(schedulingService::findSchedule)
+                .forEach(comSchedule -> comSchedule.ifPresent(device::removeComSchedule));
+
         return Response.status(Response.Status.OK).build();
     }
 
     /**
      * Checks if the comschedules have overlapping tasks or if the device already has a comtask execution for one of the comtasks of the comschedules
+     *
      * @param comSchedules
      * @param device
      */
@@ -75,7 +92,7 @@ public class DeviceSharedScheduleResource {
                 .findFirst()
                 .isPresent();
 
-        if(comTaskOfSchedulesAlreadyScheduled) {
+        if (comTaskOfSchedulesAlreadyScheduled) {
             throw new IllegalArgumentException("One of the ComTasks of the given schedule is already scheduled using a shared schedule.");
         }
 
@@ -83,7 +100,7 @@ public class DeviceSharedScheduleResource {
                 .anyMatch(schedule1 -> comSchedules.stream()
                         .anyMatch(schedule2 -> !schedule1.equals(schedule2) && hasOverlappingTasks(schedule1, schedule2)));
 
-        if(overlap) {
+        if (overlap) {
             throw new IllegalArgumentException("At least two of the given comschedules hava the same ComTask.");
         }
 
