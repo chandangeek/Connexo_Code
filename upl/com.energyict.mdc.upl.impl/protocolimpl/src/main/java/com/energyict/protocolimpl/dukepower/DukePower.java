@@ -14,11 +14,11 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 package com.energyict.protocolimpl.dukepower;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -33,6 +33,7 @@ import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,13 +42,17 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 
 public class DukePower extends PluggableMeterProtocol implements SerialNumber {
@@ -73,7 +78,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private InputStream inputStream;
     private boolean boolAbort = false;
 
-    private int[] crc_tab = {
+    private static final int[] CRC_TAB = {
             0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
             0x8033, 0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022,
             0x8063, 0x0066, 0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072,
@@ -108,9 +113,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             0x8213, 0x0216, 0x021C, 0x8219, 0x0208, 0x820D, 0x8207, 0x0202
     };
 
-    // Events for MV90Connection FSM
-
-    // ********************** Duke power Master command frame *************************
     private static final byte CMD_READ_CLOCK = 'Q';
 
     private Calendar gcalendarMeter = null;
@@ -128,18 +130,17 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private static final byte CMD_REMOTE_STATUS = 'F';
 
     private static final byte CMD_GET_RECORDING_TIME = 'G';
-    int iInterval = 0;
+    private int iInterval = 0;
 
     private static final byte CMD_GET_CONFIGURATION_DATA = 'L';
-    byte bMeterNROfChannels;
+    private byte bMeterNROfChannels;
     private static final byte CHANNEL_8BIT_DATA = 0x00;
     private static final byte CHANNEL_12BIT_DATA = 0x01;
     private static final byte CHANNEL_16BIT_DATA = 0x02;
     private static final byte CHANNEL_1416BIT_DATA = 0x03;
-    byte bChannelResolution;
+    private byte bChannelResolution;
 
     private static final byte CMD_VERIFY_TIME_WINDOW = 'V';
-    //private byte bTimeWindowYear;
 
     private static final byte MASTER_CMD = 1;
     private static final byte MASTER_CMD_CRN = 2;
@@ -161,7 +162,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private byte[] MasterDataBlockAckBuffer = new byte[MASTER_DBA_FRAME_SIZE];
     private static final byte MASTER_DBA_MSA = 1;
     private static final byte MASTER_DBA_MBN = 2;
-    //private byte bMBN=0;
 
     // ********************** Duke power Remote Response frame *************************
     private static final byte REMOTE_SHORT_RESPONSE_FRAME_SIZE = 16;
@@ -202,18 +202,18 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private static final byte EOT = 0x04;
     private static final byte ETB = 0x17;
 
-    public final byte DUKE_SUCCESS = 0x00;
-    public final byte DUKE_BADCRC = 0x01;
-    public final byte DUKE_TIMEOUT = 0x02;
-    public final byte DUKE_ABORT = 0x04;
-    public final byte DUKE_RETRY = 0x08;
-    public final byte DUKE_CRN_MISMATCH = 0x10;
-    public final byte DUKE_NAK = 0x20;
-    public final byte DUKE_FAILED = 0x40;
-    public final byte DUKE_ERROR = (byte) 0x80;
+    private static final byte DUKE_SUCCESS = 0x00;
+    private static final byte DUKE_BADCRC = 0x01;
+    private static final byte DUKE_TIMEOUT = 0x02;
+    private static final byte DUKE_ABORT = 0x04;
+    private static final byte DUKE_RETRY = 0x08;
+    private static final byte DUKE_CRN_MISMATCH = 0x10;
+    private static final byte DUKE_NAK = 0x20;
+    private static final byte DUKE_FAILED = 0x40;
+    private static final byte DUKE_ERROR = (byte) 0x80;
 
     // 4Ah (74) = ABORT | RETRY | FAILED
-    public final byte PSW = (byte) 0x80;
+    private static final byte PSW = (byte) 0x80;
     // Onderstaande sta bits worden niet getest.
     public final byte CMD = 0x40;
     public final byte CRC = 0x20;
@@ -229,36 +229,18 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private byte bProtocolState;
     private int iRoundtripCorrection;
 
-
     private byte bChannelNR;
     private Number[] channelValues;
 
     private static final byte DEBUG = 0;
 
-    //Logger logger=null;
-    TimeZone timeZone = null;
-    //Properties properties=null;
+    private TimeZone timeZone = null;
 
-    /**
-     * Creates a new instance of DukePower, empty constructor
-     */
-    public DukePower() {
-
-    }
-
-    /**
-     * initializes the receiver
-     *
-     * @param inputStream  <br>
-     * @param outputStream <br>
-     * @param timeZone     <br>
-     * @param logger       <br>
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.timeZone = timeZone;
-        //this.logger = logger;
 
         bCRN = 0;
         boolAbort = false;
@@ -271,10 +253,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         gcalendarTimeLastIntervalEnded = ProtocolUtils.getCalendar(timeZone);
 
         bProtocolState = 0;
-        //bMBN=0;
         bMeterNROfChannels = 0;
         bChannelResolution = 0;
-        //bTimeWindowYear=0;
         // Code for ID check 02052002
         lIDMV90 = (strID.charAt(0) - 48) * 1000000 +
                 (strID.charAt(1) - 48) * 100000 +
@@ -299,8 +279,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         setPassword(byteBuffer);
         clearCRC(byteBuffer);
         calcCRC(byteBuffer);
-
-    } // private void buildFrameMeterReading(byte[] byteBuffer,int iChannelNR)
+    }
 
     private void buildFrameGetConfigurationData(byte[] byteBuffer) {
         byteBuffer[0] = STX;
@@ -310,8 +289,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         setPassword(byteBuffer);
         clearCRC(byteBuffer);
         calcCRC(byteBuffer);
-
-    } // private void buildFrameGetConfigurationData(byte[] byteBuffer,int iChannelNR)
+    }
 
     private void buildFrameGetRecorderTime(byte[] byteBuffer) {
         byteBuffer[0] = STX;
@@ -321,8 +299,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         setPassword(byteBuffer);
         clearCRC(byteBuffer);
         calcCRC(byteBuffer);
-
-    } // private void buildFrameMeterReading(byte[] byteBuffer,int iChannelNR)
+    }
 
     /**
      * Method requests size of interval data memory in NR of 1024 byte pages.
@@ -342,16 +319,10 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             byte bMemoryPage = RemoteShortResponseBuffer[RSR_DATA2];
             return (long) bMemoryPage & 0xFF;
         }
+    }
 
-    } // private byte getRecorderMemoryPage() throws IOException
 
-
-    /**
-     * Method that requests the recorder interval in sec.
-     *
-     * @return Remote meter 'recorder interval' in sec.
-     * @throws IOException
-     */
+    @Override
     public int getProfileInterval() throws IOException {
         if (iInterval == 0) {
             buildFrameGetRecorderTime(MasterCommandBuffer);
@@ -371,16 +342,9 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         } else {
             return iInterval;
         }
+    }
 
-    } // private int getProfileInterval() throws IOException,UnsupportedException
-
-    /**
-     * this implementation throws UnSupportedException. Subclasses may override
-     *
-     * @return the number of channels
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
+    @Override
     public int getNumberOfChannels() throws IOException {
         buildFrameGetConfigurationData(MasterCommandBuffer);
 
@@ -405,8 +369,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             }
             return bMeterNROfChannels;
         }
-    } // public int getNumberOfChannels()  throws IOException
-
+    }
 
     private void buildFrameReadClock(byte[] byteBuffer) {
         byteBuffer[0] = STX;
@@ -419,6 +382,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         calcCRC(byteBuffer);
     }
 
+    @Override
     public Date getTime() throws IOException {
         buildFrameReadClock(MasterCommandBuffer);
         if (!sendAndWaitForResponse(iProtocolTimeoutProperty, iProtocolRetriesProperty, RemoteShortResponseBuffer, MasterCommandBuffer)) {
@@ -445,7 +409,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         byteBuffer[MASTER_CMD_DATA_OFFSET + 4] = ProtocolUtils.hex2BCD(calendar.get(Calendar.MINUTE));
         byteBuffer[MASTER_CMD_DATA_OFFSET + 5] = ProtocolUtils.hex2BCD((calendar.get(Calendar.YEAR) % 100));
 
-    } // private setCalendar(Calendar calendar)
+    }
 
     private void buildFrameWriteClock(byte[] byteBuffer) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
@@ -469,8 +433,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             } catch (IOException e) {
                 throw new IOException("DukePower, buildFrameWriteClock, IOException, " + e.getMessage());
             }
-
-        } // while(true)
+        }
 
         byteBuffer[0] = STX;
         byteBuffer[MASTER_CMD] = CMD_WRITE_CLOCK;
@@ -482,8 +445,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     }
 
     public void setTime() throws IOException {
-        int i;
-        byte bResult;
         buildFrameWriteClock(MasterCommandBuffer);
         if (!sendAndWaitForResponse(iProtocolTimeoutProperty, iProtocolRetriesProperty, RemoteShortResponseBuffer, MasterCommandBuffer)) {
             ProtocolUtils.delayProtocol(iDelayAfterFailProperty);
@@ -502,13 +463,15 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         clearCRC(byteBuffer);
         calcCRC(byteBuffer);
 
-    } // private void buildFrameMeterReading(byte[] byteBuffer,int iChannelNR)
+    }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         return new Quantity(BigDecimal.valueOf(doGetMeterReading(channelId)), Unit.get(BaseUnit.COUNT));
     }
 
-    public Quantity getMeterReading(String name) throws IOException {
+    @Override
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException("DukePower, getMeterReadingQuantity(DString name) is not supported!");
     }
 
@@ -534,17 +497,20 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             return lMeterReading;
         }
 
-    } // private long doGetMeterReading(int iChannelNr) throws MeterProtocolException
+    }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Date lastReading = new Date(0);
         return doGetProfileData(lastReading, ProtocolUtils.getCalendar(timeZone).getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return doGetProfileData(lastReading, ProtocolUtils.getCalendar(timeZone).getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
@@ -554,7 +520,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         long lNROfBlocks = getRecorderMemoryPage() * 4;
 
         long last = from.getTime() / 1000;
-        long now = to.getTime() / 1000; //ProtocolUtils.getCalendar(timeZone).getTime().getTime()/1000; // Current time
+        long now = to.getTime() / 1000;
         long lNROfBlocksToRetrieve = (((now - last) / (long) getProfileInterval()) * (long) bNROfChannels * 2);
 
         if ((lNROfBlocksToRetrieve % 256) != 0) {
@@ -582,17 +548,14 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     /**
      * This method requests for the demand values of the remote meter.
      *
-     * @param bNROfBlocks   NR of 256 byte block to read (first 2 blocks are always event blocks).
+     * @param lNROfBlocks   NR of 256 byte block to read (first 2 blocks are always event blocks).
      * @param bNROfChannels NR of channels active in the meter.
      * @return MeterDataCollection containing demand values and event codes with their timestamps.
-     * @throws MeterProtocolException
      */
     private ProfileData getDemandValues(long lNROfBlocks, byte bNROfChannels, boolean includeEvents) throws IOException {
         ProfileData profileData;
         byte bYear = 0;
         long lMBN = 0, blockscount = 0;
-
-//System.out.println("KV_DEBUG> lNROfBlocks "+lNROfBlocks+", bNROfChannels="+bNROfChannels+", includeEvents="+includeEvents);
 
         // 05082002 add to solve align bug
 
@@ -633,9 +596,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
         blockscount = lNROfBlocks - 1;
         do {
-//System.out.println("KV_DEBUG> blockscount "+blockscount);
             for (lMBN = (blockscount % 256); lMBN >= 0; lMBN--) {
-//System.out.println("KV_DEBUG> lMBN "+lMBN);
                 if (!sendAndWaitForDataBlock(iProtocolTimeoutProperty, iProtocolRetriesProperty, RemoteDataBlockBuffer, MasterDataBlockAckBuffer)) {
                     ProtocolUtils.delayProtocol(iDelayAfterFailProperty);
                     ProtocolUtils.flushInputStream(inputStream);
@@ -649,14 +610,12 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 //                   if (((lMBN == (lNROfBlocks-1)) || (lMBN == (lNROfBlocks-2))) && (includeEvents)) {
                     if (((lMBN == (blockscount % 256)) || (lMBN == ((blockscount % 256) - 1))) && (includeEvents)) {
 
-//System.out.println("KV_DEBUG> event block lMBN "+lMBN);
                         parseEvents(RemoteDataBlockBuffer, profileData, bYear);
 
                         if (lMBN == ((blockscount % 256) - 1)) {
                             includeEvents = false;
                         }
                     } else {
-//System.out.println("KV_DEBUG> interval block lMBN "+lMBN);
                         parseIntervals(RemoteDataBlockBuffer, profileData, bNROfChannels, bYear);
                     }
                 }
@@ -676,7 +635,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
         return profileData;
 
-    } // private ProfileData getDemandValues(...)
+    }
 
     private void parseEvents(byte[] byteReceiveBuffer, ProfileData profileData, byte bYear) throws IOException {
         for (int i = 0; i < NR_OF_EVENTS_IN_BLOCK; i++) {
@@ -697,9 +656,9 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                 profileData.addEvent(new MeterEvent(new Date(calendar.getTime().getTime()), (int) mapLogCodes(byteReceiveBuffer[RDB_DATA + 5 * i]), (int) byteReceiveBuffer[RDB_DATA + 5 * i]));
             }
 
-        } // for (i=0;i<NR_OF_EVENTS_IN_BLOCK;i++)
+        }
 
-    } // private void parseEvents(...)
+    }
 
     private long mapLogCodes(long lLogCode) {
         switch ((byte) lLogCode) {
@@ -727,9 +686,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                 return (MeterEvent.CONFIGURATIONCHANGE);
             default:
                 return (MeterEvent.OTHER);
-        } // switch(iLogCode)
-
-    } // private void mapLogCodes(int iLogCode)
+        }
+    }
 
     private void parseIntervals(byte[] byteReceiveBuffer, ProfileData profileData, byte bNROfChannels, byte bYear) throws IOException {
         for (int i = 0; i < 256 / 2; i++) // 1 block contains 128 interval values
@@ -748,9 +706,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                 gcalendarEarliestTimeIntervalRequested.add(Calendar.SECOND, (getProfileInterval()) * (-1));
             }
 
-        } // for (i=0;i<(byte)((256/2)/bNROfChannels);i++)
-
-    } // private void parseIntervals(...)
+        }
+    }
 
     private void buildFrameDumpIntervalData(byte[] byteBuffer, long lNROfBlocks, boolean includeEvents) {
         byteBuffer[0] = STX;
@@ -769,8 +726,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         setPassword(byteBuffer);
         clearCRC(byteBuffer);
         calcCRC(byteBuffer);
-
-    } // private void buildFrameDumpIntervalData(...)
+    }
 
     private void buildMasterDataBlockAck(byte[] byteBuffer, long lMBN) {
         byteBuffer[0] = STX;
@@ -780,125 +736,63 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         calcCRC(byteBuffer);
     }
 
-
+    @Override
     public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
-    /**
-     * this implementation calls <code> validateProperties </code>
-     * and assigns the argument to the properties field
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
-        //this.properties = properties;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.stringOfExactLength(ADDRESS.getName(), false, 7),
+                UPLPropertySpecFactory.stringOfExactLength(PASSWORD.getName(), false, 4),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer("DelayAfterFail", false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false));
     }
 
-    /**
-     * <p>validates the properties.</p><p>
-     * The default implementation checks that all required parameters are present.
-     * </p>
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            if (strID.length() != 7) {
-                throw new InvalidPropertyException("ID must be exact 7 characters.");
-            }
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            if (strPassword.length() != 4) {
-                throw new InvalidPropertyException("Password must be exact 4 characters.");
-            }
-            iProtocolTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "1").trim());
+            strID = properties.getProperty(ADDRESS.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            iProtocolTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "1").trim());
             iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterFail", "3000").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
     }
 
-    /**
-     * this implementation of connect does nothing. Subclasses can override
-     */
+    @Override
     public void connect() {
     }
 
-    /**
-     * this implementation of disconnect does nothing. Subclasses can override
-     */
+    @Override
     public void disconnect() {
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name <br>
-     * @return the register value
-     * @throws IOException             <br>
-     * @throws UnsupportedException    <br>
-     * @throws NoSuchRegisterException <br>
-     */
-    public String getRegister(String name) throws IOException {
+    @Override
+    public String getRegister(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name  <br>
-     * @param value <br>
-     * @throws IOException             <br>
-     * @throws NoSuchRegisterException <br>
-     * @throws UnsupportedException    <br>
-     */
-    public void setRegister(String name, String value) throws IOException {
+    @Override
+    public void setRegister(String name, String value) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
-
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "DelayAfterFail");
-    }
-
-    /**
-     * ************ Taken from DukePowerProtocol ****************
-     */
 
     private void clearData(byte[] byteBuffer) {
         byte i;
@@ -906,7 +800,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             byteBuffer[MASTER_CMD_DATA_OFFSET + i] = 0;
         }
 
-    } // private void clearData()
+    }
 
     private void setPassword(byte[] byteBuffer) {
         byte i;
@@ -915,7 +809,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                     (byte) strPassword.charAt(i);
         }
 
-    } // private void setPassword()
+    }
 
     private void clearCRC(byte[] byteBuffer) {
         byteBuffer[byteBuffer.length - 2] = 0;
@@ -933,7 +827,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             System.out.println();
         }
 
-    } // private void sendMasterCommandBuffer() throws IOException
+    }
 
     private int calcCRC(byte[] byteBuffer) {
         int iCRC;
@@ -942,7 +836,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         iCRC = 0;
         for (i = 1; i < byteBuffer.length; i++) {
             Ichar = ((int) byteBuffer[i] & 0x000000ff);
-            iCRC = crc_tab[(iCRC >> 8)] ^ (iCRC << 8) ^ Ichar;
+            iCRC = CRC_TAB[(iCRC >> 8)] ^ (iCRC << 8) ^ Ichar;
             iCRC &= 0x0000FFFF;
         }
 
@@ -950,7 +844,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         byteBuffer[byteBuffer.length - 1] = (byte) ((iCRC) & 0x000000FF);
         return iCRC;
 
-    } // private unsigned short CalcCRC()
+    }
 
     private int calcCRCDataBlock(byte[] byteBuffer) {
         int iCRC;
@@ -959,7 +853,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         iCRC = 0;
         for (i = 1; i < byteBuffer.length - 1; i++) {
             Ichar = ((int) byteBuffer[i] & 0x000000ff);
-            iCRC = crc_tab[(iCRC >> 8)] ^ (iCRC << 8) ^ Ichar;
+            iCRC = CRC_TAB[(iCRC >> 8)] ^ (iCRC << 8) ^ Ichar;
             iCRC &= 0x0000FFFF;
         }
 
@@ -967,9 +861,9 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         byteBuffer[byteBuffer.length - 1] = (byte) ((iCRC) & 0x000000FF);
         return iCRC;
 
-    } // private unsigned short calcCRCDataBlock()
+    }
 
-    private byte waitForRemoteFrame(int iTimeout, byte[] byteReceiveBuffer, byte[] byteSendBuffer) throws IOException {
+    private byte waitForRemoteFrame(int iTimeout, byte[] byteReceiveBuffer) throws IOException {
         long lMSTimeout;
         int inewKar;
         int iByteCount = 0;
@@ -980,7 +874,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         bCurrentState = WAIT_FOR_FRAME_STX;
         try {
 
-            while (boolAbort == false) {
+            while (!boolAbort) {
                 if (inputStream.available() != 0) {
                     inewKar = inputStream.read();
                     if (DEBUG == 1) {
@@ -1021,12 +915,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                                     iCRC |= (((int) byteReceiveBuffer[RDB_CRCLSB] & 0x000000FF));
                                     byteReceiveBuffer[RDB_CRCMSB] = 0;
                                     byteReceiveBuffer[RDB_CRCLSB] = 0;
-                                    if (byteReceiveBuffer[RDB_END] == EOT) {
-
-
-                                    } else if (byteReceiveBuffer[RDB_END] == ETB) {
-
-
+                                    if (byteReceiveBuffer[RDB_END] == EOT || byteReceiveBuffer[RDB_END] == ETB) {
                                     } else {
                                         return DUKE_ERROR;
                                     }
@@ -1038,7 +927,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                                     }
 
                                 } else {
-                                    iCRC = 0;
                                     iCRC = ((int) byteReceiveBuffer[byteReceiveBuffer.length - 2] << 8) & 0x0000FF00;
                                     iCRC |= (((int) byteReceiveBuffer[byteReceiveBuffer.length - 1] & 0x000000FF));
                                     byteReceiveBuffer[byteReceiveBuffer.length - 2] = 0;
@@ -1048,25 +936,19 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                                     } else {
                                         return DUKE_BADCRC;
                                     }
-
                                 }
-
                             }
                         }
                         break; // case WAIT_FOR_STX
-                    } // switch (bCurrentState)
-
-                } // if (inputStream.available() != 0)
+                    }
+                }
                 else {
                     Thread.sleep(100);
                 }
-
                 if (System.currentTimeMillis() - lMSTimeout > 0) {
                     return DUKE_TIMEOUT;
                 }
-
-            } // while(boolAbort==false)
-
+            }
             return 4;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -1074,9 +956,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IOException(e.getMessage());
         }
-
-    } // private byte waitForRemoteFrame(int iTimeout,byte[] byteReceiveBuffer,byte[] byteSendBuffer) throws IOException
-
+    }
 
     private boolean sendAndWaitForResponse(int iTimeout,
                                            int iRetries,
@@ -1090,7 +970,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         bProtocolState = 0;
         for (i = 0; i < iRetries; i++) {
             sendFrame(byteSendBuffer);
-            bResult = waitForRemoteFrame(iTimeout, byteReceiveBuffer, byteSendBuffer);
+            bResult = waitForRemoteFrame(iTimeout, byteReceiveBuffer);
 
             if ((bResult == DUKE_SUCCESS) && (byteReceiveBuffer[RSR_CRN] != byteSendBuffer[MASTER_CMD_CRN])) {
                 bResult = DUKE_CRN_MISMATCH;
@@ -1129,7 +1009,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         bCRN++;
         return true;
 
-    } // private boolean sendAndWaitForResponse(iProtocolTimeoutProperty,iProtocolRetriesProperty,RemoteShortResponseBuffer,MasterCommandBuffer) throws IOException
+    }
 
     // KV 05072002
     private long getDukePowerID(byte[] byteReceiveBuffer, int iOffset) {
@@ -1156,7 +1036,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         bProtocolState = 0;
         for (i = 0; i < iRetries; i++) {
             sendFrame(byteSendBuffer);
-            bResult = waitForRemoteFrame(iTimeout, byteReceiveBuffer, byteSendBuffer);
+            bResult = waitForRemoteFrame(iTimeout, byteReceiveBuffer);
 
             // KV 05072002
             lReadID = getDukePowerID(byteReceiveBuffer, RDB_ID_MSB);
@@ -1186,29 +1066,17 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-    }
-
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         return getIResponse(commChannel);
     }
 
-    public String getIResponse(SerialCommunicationChannel commChannel) throws IOException {
+    private String getIResponse(SerialCommunicationChannel commChannel) throws IOException {
         String response = doGetIResponse(commChannel);
         if (response == null) {
             response = doGetIResponse(commChannel); // try again
@@ -1247,6 +1115,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         } else {
             return new String(baos.toByteArray());
         }
+    }
 
-    } // public String getIResponse()
 }
