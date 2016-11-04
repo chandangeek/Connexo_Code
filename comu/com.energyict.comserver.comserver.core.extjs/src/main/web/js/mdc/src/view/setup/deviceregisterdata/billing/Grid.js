@@ -25,10 +25,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                     if (!Ext.isEmpty(value)) {
                         var startDate = new Date(value.start),
                             endDate = new Date(value.end);
-                        return  Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(startDate),Uni.DateTime.formatTimeShort(startDate)])
-                            + ' - '
-                            + Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(endDate),Uni.DateTime.formatTimeShort(endDate)])
+                        return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
                     }
+                    return '-';
                 },
                 flex: 2
             },

@@ -64,17 +64,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                         name: 'overruledObisCode'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
-                                        name: 'timeStamp',
-                                        renderer: function (value) {
-                                            if (!Ext.isEmpty(value)) {
-                                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))])
-                                            }
-
-                                            return '-';
-                                        }
-                                    },
-                                    {
                                         xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                         name: 'timeStamp',
@@ -93,18 +82,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                     {
                                         fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.interval', 'MDC', 'Interval'),
                                         name: 'interval',
-                                        format: 'M j, Y \\a\\t G:i',
                                         renderer: function (value) {
-                                            if (!Ext.isEmpty(value)) {
-                                                return Ext.util.Format.date(new Date(value.start), this.format) + '-' + Ext.util.Format.date(new Date(value.end), this.format);
-                                            }
-
-                                            return '-';
+                                            return Ext.isEmpty(value)
+                                                ? '-'
+                                                : Uni.DateTime.formatDateTimeShort(new Date(value.start)) + ' - ' + Uni.DateTime.formatDateTimeShort(new Date(value.end));
                                         }
-                                    },
-                                    {
-                                        fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfDigits', 'MDC', 'Number of digits'),
-                                        name: 'numberOfDigits'
                                     },
                                     {
                                         fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),

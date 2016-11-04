@@ -27,13 +27,13 @@ Ext.define('Mdc.model.RegisterReading', {
                     return '-';
                 }
                 if (record.get('type') === 'billing') {
-                    return Ext.isEmpty(record.get('value'))
-                        ? record.get('calcualtedValue') + ' ' + record.get('calculatedUnit')
-                        : record.get('value') + ' ' + record.get('unit');
+                    return Ext.isEmpty(record.get('calculatedValue'))
+                        ? record.get('value') + ' ' + record.get('unit')
+                        : record.get('calculatedValue') + ' ' + record.get('calculatedUnit');
                 } else if (record.get('type') === 'numerical') {
-                    return Ext.isEmpty(record.get('value'))
-                        ? Uni.Number.formatNumber(record.get('calculatedValue'), -1) + ' ' + record.get('calculatedUnit')
-                        : Uni.Number.formatNumber(record.get('value'), -1) + ' ' + record.get('unit');
+                    return Ext.isEmpty(record.get('calculatedValue'))
+                        ? Uni.Number.formatNumber(record.get('value'), -1) + ' ' + record.get('unit')
+                        : Uni.Number.formatNumber(record.get('calculatedValue'), -1) + ' ' + record.get('calculatedUnit');
                 } else if (record.data.type === 'text' || record.data.type === 'flags') {
                     return record.get('value');
                 }

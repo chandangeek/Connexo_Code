@@ -348,10 +348,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                     multiplierField = form.down('[name=multiplier]'),
                                     calculatedReadingTypeField = form.down('[name=calculatedReadingType]');
 
-                                customAttributesStore.getProxy().setUrl(mRID, registerId);
-                                customAttributesStore.load(function () {
-                                    widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
-                                });
+                                if (!Ext.isEmpty(widget.down('#custom-attribute-sets-placeholder-form-id'))) {
+                                    customAttributesStore.getProxy().setUrl(mRID, registerId);
+                                    customAttributesStore.load(function () {
+                                        widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                                    });
+                                }
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
@@ -363,10 +365,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                         multiplierField.hide();
                                     }
                                 }
-                                if (register.get('calculatedReadingType')) {
-                                    calculatedReadingTypeField.show();
-                                } else {
-                                    calculatedReadingTypeField.hide();
+                                if (!Ext.isEmpty(calculatedReadingTypeField)) {
+                                    if (register.get('calculatedReadingType')) {
+                                        calculatedReadingTypeField.show();
+                                    } else {
+                                        calculatedReadingTypeField.hide();
+                                    }
                                 }
                                 if (!register.get('detailedValidationInfo').validationActive) {
                                     config.down('#validateNowRegister').hide();
