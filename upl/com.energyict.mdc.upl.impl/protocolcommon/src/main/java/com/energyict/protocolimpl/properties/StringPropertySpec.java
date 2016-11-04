@@ -13,16 +13,19 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  */
 class StringPropertySpec extends AbstractPropertySpec {
 
-    private final LengthConstraint lengthConstraint;
+    private LengthConstraint lengthConstraint;
 
     StringPropertySpec(String name, boolean required) {
         super(name, required);
         this.lengthConstraint = new NoConstraint();
     }
 
-    StringPropertySpec(String name, boolean required, int maxLength) {
-        super(name, required);
-        this.lengthConstraint = new Max(maxLength);
+    void setMaximumLength(int maximumLength) {
+        this.lengthConstraint = new Max(maximumLength);
+    }
+
+    void setExactLength(int length) {
+        this.lengthConstraint = new Exact(length);
     }
 
     @Override
@@ -66,4 +69,20 @@ class StringPropertySpec extends AbstractPropertySpec {
             }
         }
     }
+
+    private static class Exact implements LengthConstraint {
+        private final int length;
+
+        private Exact(int length) {
+            this.length = length;
+        }
+
+        @Override
+        public void validateValue(String value, String propertyName) throws InvalidPropertyException {
+            if (value != null && value.length() != this.length) {
+                throw  new InvalidPropertyException(value + " is not a valid value for property " + propertyName + " because the length should be exactly" + this.length + " character(s)");
+            }
+        }
+    }
+
 }

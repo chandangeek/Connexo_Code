@@ -1118,7 +1118,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
+                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
                 UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
                 UPLPropertySpecFactory.integer(RETRIES.getName(), false),

@@ -242,13 +242,6 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                "KeyInfoRequired",
-                "ForcedRequestExtraDays");
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false),

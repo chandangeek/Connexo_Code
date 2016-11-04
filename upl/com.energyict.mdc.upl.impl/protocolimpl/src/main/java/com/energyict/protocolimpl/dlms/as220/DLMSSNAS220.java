@@ -441,7 +441,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 UPLPropertySpecFactory.integer(PR_EXTENDED_LOGGING, false),
                 UPLPropertySpecFactory.integer(PR_ADDRESSING_MODE, false),
                 UPLPropertySpecFactory.integer(PR_CONNECTION, false),
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
+                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
                 UPLPropertySpecFactory.integer(PR_TIMEOUT, false),
                 UPLPropertySpecFactory.integer(PR_FORCED_DELAY, false),

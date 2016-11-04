@@ -140,7 +140,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
+                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
                 UPLPropertySpecFactory.integer("ExtendedLogging", false),

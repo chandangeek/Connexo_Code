@@ -33,8 +33,16 @@ public final class UPLPropertySpecFactory {
         return new StringPropertySpec(name, required);
     }
 
-    public static PropertySpec string(String name, boolean required, int maxLength) {
-        return new StringPropertySpec(name, required, maxLength);
+    public static PropertySpec stringOfMaxLength(String name, boolean required, int maxLength) {
+        StringPropertySpec spec = new StringPropertySpec(name, required);
+        spec.setMaximumLength(maxLength);
+        return spec;
+    }
+
+    public static PropertySpec stringOfExactLength(String name, boolean required, int length) {
+        StringPropertySpec spec = new StringPropertySpec(name, required);
+        spec.setExactLength(length);
+        return spec;
     }
 
     // Hide utility class constructor
