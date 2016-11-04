@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2PHYAndMACCountersAttribute;
 import com.energyict.dlms.cosem.methods.PLCOFDMType2PHYAndMACCountersMethods;
 import com.energyict.obis.ObisCode;
@@ -134,7 +134,7 @@ public class PLCOFDMType2PHYAndMACCounters extends AbstractCosemObject {
      * @throws IOException
      */
     public void reset() throws IOException {
-        methodInvoke(PLCOFDMType2PHYAndMACCountersMethods.RESET, new Unsigned8(0));
+        methodInvoke(PLCOFDMType2PHYAndMACCountersMethods.RESET, new Integer8(0));
     }
 
 }
