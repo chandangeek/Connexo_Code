@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.messages.DeviceMessageStatus;
@@ -36,9 +37,9 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     private static final int MAX_MBUS_SLAVES = 4;
     private static final ObisCode LOAD_PROFILE_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.5.255");
     private static final ObisCode LOAD_PROFILE_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.109.255");
-
     private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.9.255");
     private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.113.255");
+    private static final ObisCode MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS = ObisCode.fromString("1.0.0.8.2.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -66,6 +67,8 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 loadProfileOptInOUT(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.SET_DISPLAY_ON_OFF)) {
                 setDiplayOnOff(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES)) {
+                collectedMessage = writeMeasurementPeriod3ForInstantaneousValues(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects)) {
                 collectedMessage = resetSecurityEventCounterObjects(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetAllSecurityGroupEventCounters)) {
@@ -198,7 +201,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 Data data = getCosemObjectFactory().getData(securityGroupEventObis);
                 data.setValueAttr(new Unsigned16(0));
             } catch (NotInObjectListException e) {
-                String errorMsg = "Selected security group event counter " + securityGroupEventCounter + " with obisCode = " + securityGroupEventObis + " is not not supported. " + e.getMessage();
+                String errorMsg = "Selected security group event counter " + securityGroupEventCounter + " with obisCode = " + securityGroupEventObis + " is not present in device object list. " + e.getMessage();
                 collectedMessage.setDeviceProtocolInformation(errorMsg);
                 collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMsg));
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -210,6 +213,25 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 break;
             }
+        }
+        return collectedMessage;
+    }
+
+    private CollectedMessage writeMeasurementPeriod3ForInstantaneousValues(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        try {
+            Data data = getCosemObjectFactory().getData(MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS);
+            long value = data.getValue();
+            data.setValueAttr(new Unsigned32(value));
+        } catch (NotInObjectListException e) {
+            String errorMsg = "Object identified by obisCode: " + MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS + " is not present in device object list. " + e.getMessage();
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMsg));
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        } catch (IOException e) {
+            String errorMsg = "Exception occurred while trying to write a new value for object with obisCode: " + MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS + ". " + e.getMessage();
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         }
         return collectedMessage;
     }

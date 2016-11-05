@@ -199,7 +199,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     private void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String newAuthenticationKey = getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName);
         String newWrappedAuthenticationKey = getDeviceMessageAttributeValue(pendingMessage, newWrappedAuthenticationKeyAttributeName);
-        byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedAuthenticationKey);
+        byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedAuthenticationKey, "");
 
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
@@ -215,10 +215,10 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        String oldEncryptionKey = ProtocolTools.getHexStringFromBytes(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
         String newEncrytionKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
         String newWrappedEncryptionKey = getDeviceMessageAttributeValue(pendingMessage, newWrappedEncryptionKeyAttributeName);
-        byte[] encryptionKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedEncryptionKey);
-
+        byte[] encryptionKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedEncryptionKey, "");
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
@@ -227,12 +227,11 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
         ss.transferGlobalKey(encryptionKeyArray);
-
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newEncrytionKey, ""));
 
         //Reset frame counter, only if a different key has been written
-        if (!newEncrytionKey.equalsIgnoreCase(newWrappedEncryptionKey)) {
+        if (!newEncrytionKey.equalsIgnoreCase(oldEncryptionKey)) {
             getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
         }
     }
