@@ -7,6 +7,6 @@ Ext.define('Mdc.model.MeterActivation', {
         {name: 'active', type: 'boolean'},
         {name: 'deviceConfiguration', type: 'auto'},
         {name: 'usagePoint', type: 'auto'},
-        {name: 'multiplier', type: 'int', defaultValue: null, useNull: true}
+        {name: 'multiplier', type: 'auto', defaultValue: null, useNull: true}
     ]
 });
