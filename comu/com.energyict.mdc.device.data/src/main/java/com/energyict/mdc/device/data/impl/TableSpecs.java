@@ -116,8 +116,8 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
-            Column mRID_10_1 = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).upTo(version(10, 2)).add();
-            Column mRID = table.column("MRID").varChar().notNull().map(DeviceFields.MRID.fieldName()).since(version(10, 2)).previously(mRID_10_1).add();
+            Column mRID_10_2 = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).upTo(version(10, 2, 1)).add();
+            Column mRID = table.column("MRID").varChar().notNull().map(DeviceFields.MRID.fieldName()).since(version(10, 2, 1)).previously(mRID_10_2).add();
             table.column("CERTIF_YEAR").number().map("yearOfCertification").conversion(ColumnConversion.NUMBER2INT).add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
@@ -148,7 +148,7 @@ public enum TableSpecs {
                     .add();
 
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
-            table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2)).add();
+            table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }
     },
