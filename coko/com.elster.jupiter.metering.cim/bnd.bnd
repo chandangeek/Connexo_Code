@@ -11,6 +11,6 @@ Private-Package: com.elster.jupiter.metering.cim.impl,\
     ch.iec.tc57._2011.sendmeterreadings,\
     com.moodykettle.webservice.helloworld,\
     org.w3._2001.xmlschema
-#Export-Package: !com.elster.jupiter.metering.cim
+Export-Package: com.elster.jupiter.metering.cim
 Import-Package: !net.jcip.annotations,\
 	*
