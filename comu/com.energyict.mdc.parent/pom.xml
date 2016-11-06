@@ -103,7 +103,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.common</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -241,7 +241,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.engine.config</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -277,7 +277,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.io</artifactId>
-                <version>2.1.0</version>
+                <version>2.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -355,19 +355,19 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols.api</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocol.pluggable</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
