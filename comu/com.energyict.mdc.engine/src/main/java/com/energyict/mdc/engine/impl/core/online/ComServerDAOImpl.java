@@ -104,6 +104,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 /**
@@ -393,7 +394,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public ConnectionTask<?, ?> executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
         return this.executeTransaction(() -> {
             Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
-            if (lockedConnectionTask.isPresent()){
+            if (lockedConnectionTask.isPresent()) {
                 ConnectionTask connectionTask1 = lockedConnectionTask.get();
                 connectionTask1.executionStarted(comServer);
                 return connectionTask1;
@@ -503,6 +504,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void releaseTasksFor(final ComPort comPort) {
         this.executeTransaction(() -> {
+            //first of all, lock the comserver object so you don't run into a deadlock
+            ComServer lockedComServer = getEngineModelService().lockComServer(comPort.getComServer());
+
             List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
             Set<ConnectionTask> lockedConnectionTasks = new HashSet<>();
 
@@ -532,7 +536,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     /**
      * Find and release any ComTaskExec executed by a ComPort
-     * <p/>
+     * <p>
      * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
      * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
      * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
@@ -742,6 +746,25 @@ public class ComServerDAOImpl implements ComServerDAO {
             return null;
         } else {
             return connectionTask.getTypedProperties();
+        }
+    }
+
+    @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        Device device = (Device) deviceIdentifier.findDevice();
+
+        List<OutboundConnectionTask> outboundConnectionTasks = device.getConnectionTasks().stream()
+                .filter(connectionTask -> connectionTask instanceof OutboundConnectionTask)
+                .map(connectionTask1 -> ((OutboundConnectionTask) connectionTask1))
+                .collect(Collectors.toList());
+        Optional<OutboundConnectionTask> defaultConnectionTask = outboundConnectionTasks.stream().filter(OutboundConnectionTask::isDefault).findAny();
+
+        if (defaultConnectionTask.isPresent()) {
+            return defaultConnectionTask.get().getTypedProperties();
+        } else if (outboundConnectionTasks.size() > 0) {
+            return outboundConnectionTasks.get(0).getTypedProperties();
+        } else {
+            return TypedProperties.empty();
         }
     }
 

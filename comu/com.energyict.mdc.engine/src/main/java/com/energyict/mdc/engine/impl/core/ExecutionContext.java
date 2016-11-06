@@ -157,14 +157,7 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.comPortRelatedComChannel.close();
             this.publish(new CloseConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), this.getConnectionTask()));
         } finally {
-            ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
-            comSessionBuilder.connectDuration(Duration.ofMillis(this.connecting.getElapsed() / NANOS_IN_MILLI));
-            comSessionBuilder.talkDuration(this.comPortRelatedComChannel.talkTime());
-            Counters sessionCounters = this.comPortRelatedComChannel.getSessionCounters();
-            comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
-            comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead());
-            comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent());
-            comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead());
+            jobExecution.appendStatisticalInformationToComSession();
         }
     }
 
@@ -200,6 +193,10 @@ public final class ExecutionContext implements JournalEntryFactory {
             }
         }
         return false;
+    }
+
+    protected Duration getElapsedTimeInMillis() {
+        return Duration.ofMillis(this.connecting.getElapsed() / NANOS_IN_MILLI);
     }
 
     private boolean isConnected() {
