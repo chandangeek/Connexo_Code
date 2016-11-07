@@ -81,7 +81,7 @@ final class ExportTaskImpl implements IExportTask {
     @Valid
     private List<IDataExportDestination> destinations = new ArrayList<>();
 
-    private String application;
+    private transient String application;
 
     @Inject
     ExportTaskImpl(DataModel dataModel, IDataExportService dataExportService, TaskService taskService, Thesaurus thesaurus) {
@@ -362,10 +362,9 @@ final class ExportTaskImpl implements IExportTask {
         Save.UPDATE.save(dataModel, this);
     }
 
-    //TODO: use dynamicac application name
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication("MultiSense")
+                .setApplication(application)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
@@ -551,5 +550,10 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String getApplication() {
+        return recurrentTask.get().getApplication();
     }
 }
