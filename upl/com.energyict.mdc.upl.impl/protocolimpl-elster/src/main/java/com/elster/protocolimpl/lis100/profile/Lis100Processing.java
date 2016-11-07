@@ -4,7 +4,11 @@ import com.elster.protocolimpl.lis100.ChannelData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 
 /**
@@ -25,17 +29,17 @@ public class Lis100Processing {
     private double ivFactor;
     private double mrFactor;
 
-    private ArrayList<DataElement> pivd;
-    private ArrayList<MeterEvent> events;
+    private List<DataElement> pivd;
+    private List<MeterEvent> events;
 
     public Lis100Processing(ChannelData channelData) {
         this.channelData = channelData;
-        pivd = new ArrayList<DataElement>();
-        events = new ArrayList<MeterEvent>();
+        pivd = new ArrayList<>();
+        events = new ArrayList<>();
     }
 
     @SuppressWarnings({"unused"})
-    public ArrayList<DataElement> getProcessedData() {
+    List<DataElement> getProcessedData() {
         return pivd;
     }
 
@@ -336,7 +340,7 @@ public class Lis100Processing {
         return result;
     }
 
-    private boolean isNewDateValid(Calendar workDate, Date newDate) throws ProcessingException {
+    private boolean isNewDateValid(Calendar workDate, Date newDate) {
         long l1 = workDate.getTimeInMillis();
         long l2 = newDate.getTime();
 
@@ -352,7 +356,7 @@ public class Lis100Processing {
         events.add(new MeterEvent(date.getTime(), eventCode, "Channel " + channelData.getChannelNo() + " : " + msg));
     }
 
-    public List getEvents() {
+    public List<MeterEvent> getEvents() {
         return events;
     }
 

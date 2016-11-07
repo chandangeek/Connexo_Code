@@ -17,14 +17,14 @@ import java.util.TreeMap;
  * @author heuckeg
  */
 @SuppressWarnings({"unused"})
-public class IntervalDataMap {
+class IntervalDataMap {
 
     private final int noOfChannel;
     private TreeMap<Long, ArrayList<DataElement>> data = null;
 
-    public IntervalDataMap(int noOfChannel) {
+    IntervalDataMap(int noOfChannel) {
         this.noOfChannel = noOfChannel;
-        data = new TreeMap<Long, ArrayList<DataElement>>();
+        data = new TreeMap<>();
     }
 
     /**
@@ -34,7 +34,7 @@ public class IntervalDataMap {
      * @param de    - the DateElement to add
      * @param index - position in the "line"
      */
-    public void addElement(DataElement de, int index) {
+    private void addElement(DataElement de, int index) {
 
         Long date = de.getDateLong();
         if (date == 0) {
@@ -46,7 +46,7 @@ public class IntervalDataMap {
         if (data.containsKey(date)) {
             line = data.get(date);
         } else {
-            line = new ArrayList<DataElement>();
+            line = new ArrayList<>();
             data.put(date, line);
         }
 
@@ -85,12 +85,13 @@ public class IntervalDataMap {
      * @param value - array list of data elements of a line
      * @return string of data
      */
-    private String getDataElementListAsString(ArrayList<DataElement> value) {
+    private String getDataElementListAsString(Iterable<DataElement> value) {
         String s = "";
 
         for (DataElement de : value) {
-            if (s.length() > 0)
+            if (!s.isEmpty()) {
                 s = s + ";";
+            }
             if (de != null) {
                 s = s + de.toString(",");
             } else {
@@ -106,7 +107,7 @@ public class IntervalDataMap {
      * @param timeZone - timezone of device
      * @return array of IntervalData
      */
-    public List<IntervalData> buildIntervalData(TimeZone timeZone) {
+    List<IntervalData> buildIntervalData(TimeZone timeZone) {
 
         IntervalData id;
         Object o;
@@ -114,7 +115,7 @@ public class IntervalDataMap {
 
         int state = IntervalStateBits.OK;
 
-        List<IntervalData> iList = new ArrayList<IntervalData>();
+        List<IntervalData> iList = new ArrayList<>();
 
         /* for every entry in the map (remember: it's sorted!) ... */
         for (Entry<Long, ArrayList<DataElement>> entry : data.entrySet()) {
@@ -125,7 +126,7 @@ public class IntervalDataMap {
             id = new IntervalData(new Date(entry.getKey()));
 
             /* and for every data element in the line... */
-            ArrayList<DataElement> des = entry.getValue();
+            List<DataElement> des = entry.getValue();
             for (int i = 0; i < noOfChannel; i++) {
                 if ((i < des.size()) && (des.get(i) != null)) {
                     de = des.get(i);
@@ -159,7 +160,7 @@ public class IntervalDataMap {
         data.clear();
     }
 
-    public void addAll(ArrayList<DataElement> processedData, int index) {
+    public void addAll(List<DataElement> processedData, int index) {
         for (DataElement e : processedData) {
             addElement(e, index);
         }

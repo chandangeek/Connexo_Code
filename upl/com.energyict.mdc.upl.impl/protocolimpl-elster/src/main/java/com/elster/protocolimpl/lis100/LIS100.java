@@ -3,13 +3,13 @@ package com.elster.protocolimpl.lis100;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.elster.protocolimpl.lis100.connection.Lis100Connection;
 import com.elster.protocolimpl.lis100.profile.Lis100Profile;
 import com.elster.protocolimpl.lis100.registers.Lis100Register;
 import com.elster.protocolimpl.lis100.registers.RegisterMap;
 import com.elster.protocolimpl.lis100.registers.SimpleObisCodeMapper;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -17,20 +17,22 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 import static com.energyict.protocolimpl.utils.ProtocolTools.delay;
 
 /**
@@ -75,9 +77,7 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     /* Serial number to verify */
     protected String serialNumber;
 
-    /**
-     * initialization -> create connection class
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream,
                      TimeZone timezone, Logger logger) throws IOException {
         connection = new Lis100Connection(inputStream, outputStream);
@@ -85,32 +85,32 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         this.logger = logger;
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2012-01-09 15:06:09 +0100 (ma, 09 jan 2012) $";
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false));
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList("Timeout", "Retries");
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        try {
+            serialNumber = properties.getProperty(SERIALNUMBER.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            protocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "3").trim());
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
-    /**
-     * set the protocol specific properties
-     *
-     * @param properties - properties to use
-     */
-    public void setProperties(Properties properties)
-            throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties);
-    }
-
+    @Override
     public void connect() throws IOException {
-
         connection.connect();
 
         delay(250);
@@ -129,23 +129,25 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         }
     }
 
+    @Override
     public void disconnect() throws IOException {
         connection.disconnect();
     }
 
-    public void verifySerialNumber() throws IOException
-    {
-
+    public void verifySerialNumber() throws IOException {
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return String.format("%d.%d", deviceData.getSoftwareVersion() / 100, deviceData.getSoftwareVersion() % 100);
     }
 
+    @Override
     public int getNumberOfChannels() {
         return deviceData.getNumberOfChannels();
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = Calendar.getInstance(getTimeZone());
         /* maximum readout range set to 2 year */
@@ -153,14 +155,14 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents)
             throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-            throws IOException {
-
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         getLogger().info("getProfileData(" + from + "," + to + "," + includeEvents + ")");
 
         ProfileData profileData = new ProfileData();
@@ -172,86 +174,51 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
 
         if (includeEvents) {
             profileData.setMeterEvents(getProfileObject().getMeterEvents());
-
             getProfileObject().applyEvents(profileData.getMeterEvents(), profileData.getIntervalDatas());
-
         }
 
         return profileData;
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         /* interval time of archive can't be easily read out as a value */
         return getObjectFactory().getIntervalObject().getIntervalSeconds();
     }
 
+    @Override
     public String getRegister(String arg0) throws IOException {
-        throw new NoSuchRegisterException(
-                "Lis100 devices have no register to read out!");
+        throw new NoSuchRegisterException("Lis100 devices have no register to read out!");
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getObjectFactory().getClockObject().getDate();
     }
 
+    @Override
     public void initializeDevice() throws IOException {
     }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public void setRegister(String arg0, String arg1) throws IOException {
-        throw new NoSuchRegisterException(
-                "Lis100 devices have no register to set!");
+        throw new NoSuchRegisterException("Lis100 devices have no register to set!");
 
     }
 
+    @Override
     public void setTime() throws IOException {
         getObjectFactory().getClockObject().setDate(new Date());
     }
 
-    public DeviceData getDeviceData() {
+    DeviceData getDeviceData() {
         return deviceData;
     }
 
-    /**
-     * Validate certain protocol specific properties
-     *
-     * @param properties - The properties fetched from the Device
-     * @throws MissingPropertyException
-     *          - if a required property is missed
-     * @throws InvalidPropertyException
-     *          - if there is a wrong parameter defined
-     */
-    @SuppressWarnings({"unchecked"})
-    private void validateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-        try {
-            for (String key : getRequiredKeys()) {
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            protocolRetriesProperty = Integer.parseInt(properties.getProperty(
-                    "Retries", "3").trim());
-
-            doValidateProperties(properties);
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(
-                    " validateProperties, NumberFormatException, "
-                            + e.getMessage());
-        }
-    }
-
-    /**
-     * Getter for the ObjectFactory
-     *
-     * @return the current ObjectFactory
-     */
     public Lis100ObjectFactory getObjectFactory() {
         if (this.objectFactory == null) {
             this.objectFactory = new Lis100ObjectFactory(this);
@@ -259,11 +226,6 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         return this.objectFactory;
     }
 
-    /**
-     * Getter for dsfg profile object
-     *
-     * @return DsfgProfile object
-     */
     @SuppressWarnings({"unused"})
     protected Lis100Profile getProfileObject() {
         if (this.profile == null) {
@@ -272,80 +234,59 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         return this.profile;
     }
 
-    @SuppressWarnings({"unused"})
-    public void doValidateProperties(Properties properties) {
-    }
-
-    // *******************************************************************************************
-    // *
-    // * Interface ProtocolLink
-    // *
-    // *******************************************************************************************/
+    @Override
     public byte[] getDataReadout() {
         return null;
     }
 
+    @Override
     public Lis100Connection getLis100Connection() {
         return connection;
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @Override
     public int getNrOfRetries() {
         return protocolRetriesProperty;
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return false;
     }
 
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
 
-
-    // *******************************************************************************************
-    // *
-    // * Interface RegisterProtocol
-    // *
-    // *******************************************************************************************/
-    /**
-     * Gets a description for the obis code
-     *
-     * @param obisCode - obis code to get the description for
-     */
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         Lis100Register reg = getObisCodeMapper().getRegister(obisCode);
         String desc = (reg == null) ? "" : reg.getDesc();
         return new RegisterInfo(desc);
     }
 
-    /**
-     * interface function to read a register value
-     *
-     * @param obisCode - code for the register to read
-     */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
 
-    /**
-     * Getter for the ObisCodeMapper. getRegisterMap() has to be
-     * overridden by the derived class.
-     *
-     * @return the used ObisCodeMapper}
-     */
-    protected SimpleObisCodeMapper getObisCodeMapper() {
+    private SimpleObisCodeMapper getObisCodeMapper() {
         if (this.obisCodeMapper == null) {
             this.obisCodeMapper = new SimpleObisCodeMapper(getRegisterMap(), getDeviceData());
         }
@@ -362,35 +303,12 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         return new RegisterMap(empty);
     }
 
-    // *******************************************************************************************
-    // *
-    // * not yet used methods
-    // *
-    // *******************************************************************************************/
-    public Object fetchCache(int arg0) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public Object getCache() {
-        return null;
-    }
-
-    public void updateCache(int arg0, Object arg1) throws SQLException,
-            BusinessException {
-    }
-
-    public void setCache(Object arg0) {
-    }
-
-    // *******************************************************************************************
-    // *
-    // * depreciated methods
-    // *
-    // *******************************************************************************************/
+    @Override
     public Quantity getMeterReading(int arg0) throws IOException {
         return null;
     }
 
+    @Override
     public Quantity getMeterReading(String arg0) throws IOException {
         return null;
     }

@@ -2,10 +2,14 @@ package com.elster.protocolimpl.lis100.profile;
 
 import com.elster.protocolimpl.lis100.ChannelData;
 import com.elster.protocolimpl.lis100.DeviceData;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -21,7 +25,7 @@ public class Lis100Profile {
     private Logger logger;
 
     private IntervalDataMap ivdm;
-    private ArrayList events = new ArrayList();
+    private List<MeterEvent> events = new ArrayList<>();
 
     /**
      * constructor for class to get profile data
@@ -42,14 +46,11 @@ public class Lis100Profile {
      * @throws IOException - in case of an error
      */
     public List<ChannelInfo> buildChannelInfo() throws IOException {
-
-        ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
-
+        List<ChannelInfo> result = new ArrayList<>();
         for (int i = 0; i < deviceData.getNumberOfChannels(); i++) {
             ChannelData cd = deviceData.getChannelData(i, null, null);
             result.add(cd.getAsChannelInfo());
         }
-
         return result;
     }
 
@@ -89,24 +90,14 @@ public class Lis100Profile {
                 }
             }
         }
-
-        //System.out.println(ivdm.toString());
-
         return ivdm.buildIntervalData(deviceData.getTimeZone());
     }
 
-    public List getMeterEvents() {
+    public List<MeterEvent> getMeterEvents() {
         return events;
     }
 
-    /**
-     * as the name says
-     *
-     * @param mes          - list of meter events
-     * @param intervalData - list of interval data
-     */
     public void applyEvents(List<MeterEvent> mes, List<IntervalData> intervalData) {
-
         for (MeterEvent me : mes) {
             applyEvent(me, intervalData);
         }
@@ -119,7 +110,7 @@ public class Lis100Profile {
      * @param list  - the list of IntervalData
      */
     private void applyEvent(MeterEvent event, List<IntervalData> list) {
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             return;
         }
         if (event.getEiCode() == MeterEvent.OTHER) {
@@ -140,6 +131,5 @@ public class Lis100Profile {
             id1.apply(event, (int) interval);
         } while (i < list.size());
     }
-
 
 }
