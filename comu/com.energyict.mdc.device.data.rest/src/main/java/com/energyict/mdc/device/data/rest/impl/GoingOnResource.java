@@ -129,7 +129,7 @@ public class GoingOnResource {
             goingOnInfo.description = issue.getReason().getName();
             goingOnInfo.dueDate = issue.getDueDate();
             goingOnInfo.severity = severity(issue.getDueDate());
-            goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).map(issueAssignee -> issueAssignee.getUser().getName()).orElse(null);
+            goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getName()).orElse(null);
             goingOnInfo.assigneeIsCurrentUser = Optional.ofNullable(issue.getAssignee()).map(issueAssignee -> issueAssignee.getUser().getId()).map(id -> id.equals(currentUser.getId())).orElse(false);
             goingOnInfo.status = issue.getStatus().getName();
             return goingOnInfo;
