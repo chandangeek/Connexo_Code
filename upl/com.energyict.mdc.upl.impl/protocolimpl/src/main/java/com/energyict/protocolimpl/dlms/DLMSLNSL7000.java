@@ -1373,7 +1373,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
             RtuDLMS rtu = new RtuDLMS(deviceId);
             try {
-                return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
+                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
             } catch (NotFoundException e) {
                 return new DLMSCache(null, -1);
             }
@@ -1414,8 +1414,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
 
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn =
-                new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
