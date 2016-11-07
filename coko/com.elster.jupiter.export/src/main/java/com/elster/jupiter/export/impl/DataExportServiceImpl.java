@@ -11,6 +11,7 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.ftpclient.FtpClientService;
@@ -42,6 +43,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -167,6 +169,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public DataExportTaskBuilder newBuilder() {
         return new DataExportTaskBuilderImpl(dataModel);
+    }
+
+    @Override
+    public ExportTaskFinder findExportTasks() {
+        Order order = Order.descending("lastRun").nullsLast();
+        return new ExportTaskFinderImpl(dataModel, order);
     }
 
     @Override

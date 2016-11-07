@@ -24,6 +24,8 @@ public interface DataExportService {
 
     DataExportTaskBuilder newBuilder();
 
+    ExportTaskFinder findExportTasks();
+
     Optional<? extends ExportTask> findExportTask(long id);
 
     Optional<? extends ExportTask> findAndLockExportTask(long id, long version);

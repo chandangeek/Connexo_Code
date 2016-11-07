@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.security;
 
 import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,4 @@ public enum Privileges implements TranslationKey {
         String UPDATE_SCHEDULE_DATA_EXPORT_TASK = "privilege.update.schedule.dataExportTask";
         String RUN_DATA_EXPORT_TASK = "privilege.run.dataExportTask";
     }
-
-
 }
