@@ -93,21 +93,46 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                             border: false,
                             shadow: false,
                             items: [
-                                //{
-                                //    text: Uni.I18n.translate('deviceCommunicationSchedules.addFrequency', 'MDC', 'Add frequency'),
-                                //    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                                //    itemId: 'addCommunicationSchedule',
-                                //    action: 'addCommunicationSchedule'
-                                //
-                                //},
-                                //{
-                                //    text: Uni.I18n.translate('deviceCommunicationSchedules.run', 'MDC', 'Run'),
-                                //    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                                //    itemId: 'runCommunicationSchedule',
-                                //    action: 'runCommunicationSchedule'
-                                //
-                                //}
-                            ]
+                                {
+                                    text: Uni.I18n.translate('deviceCommunicationPlanning.addSchedule', 'MDC', 'Add schedule'),
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    itemId: 'mdc-device-communication-planning-add-schedule',
+                                    action: 'addSchedule'
+                                },
+                                {
+                                    text: Uni.I18n.translate('deviceCommunicationPlanning.changeSchedule', 'MDC', 'Change schedule'),
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    itemId: 'mdc-device-communication-planning-change-schedule',
+                                    action: 'changeSchedule'
+                                },
+                                {
+                                    text: Uni.I18n.translate('deviceCommunicationPlanning.removeSchedule', 'MDC', 'Remove schedule'),
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    itemId: 'mdc-device-communication-planning-remove-schedule',
+                                    action: 'removeSchedule'
+                                }
+                            ],
+                            listeners: {
+                                beforeshow: function () {
+                                    var me = this,
+                                        taskType = me.record.get('type'),
+                                        addScheduleVisible = taskType==='ONREQUEST' || taskType==='ADHOC',
+                                        changeAndRemoveScheduleVisible = taskType==='INDIVIDUAL';
+
+                                    if (addScheduleVisible) {
+                                        me.down('#mdc-device-communication-planning-add-schedule').show();
+                                    } else {
+                                        me.down('#mdc-device-communication-planning-add-schedule').hide();
+                                    }
+                                    if (changeAndRemoveScheduleVisible) {
+                                        me.down('#mdc-device-communication-planning-change-schedule').show();
+                                        me.down('#mdc-device-communication-planning-remove-schedule').show();
+                                    } else {
+                                        me.down('#mdc-device-communication-planning-change-schedule').hide();
+                                        me.down('#mdc-device-communication-planning-remove-schedule').hide();
+                                    }
+                                }
+                            }
                         }
                     }
                 ],
@@ -125,14 +150,14 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                         items: [
                             {
                                 xtype: 'button',
-                                text: Uni.I18n.translate('deviceCommunicationPlanning.removeSchedule', 'MDC', 'Remove shared communication schedule'),
+                                text: Uni.I18n.translate('deviceCommunicationPlanning.removeSharedSchedule', 'MDC', 'Remove shared communication schedule'),
                                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                 action: 'removeSharedCommunicationSchedule',
                                 itemId: 'mdc-device-communication-planning-removeSharedCommunicationScheduleButton'
                             },
                             {
                                 xtype: 'button',
-                                text: Uni.I18n.translate('deviceCommunicationPlanning.addSchedule', 'MDC', 'Add shared communication schedule'),
+                                text: Uni.I18n.translate('deviceCommunicationPlanning.addSharedSchedule', 'MDC', 'Add shared communication schedule'),
                                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                 action: 'addSharedCommunicationSchedule',
                                 itemId: 'mdc-device-communication-planning-addSharedCommunicationScheduleButton'

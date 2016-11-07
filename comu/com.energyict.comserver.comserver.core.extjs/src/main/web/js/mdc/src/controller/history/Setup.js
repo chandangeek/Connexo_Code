@@ -653,8 +653,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showRemoveSharedSchedule',
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
+                                },
+                                addSchedule: {
+                                    title: Uni.I18n.translate('deviceCommunicationPlanning.addSchedule', 'MDC', 'Add schedule'),
+                                    route: '{comTaskId}/add',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    action: 'showAddSchedule'
+                                },
+                                editSchedule: {
+                                    title: Uni.I18n.translate('deviceCommunicationPlanning.editSchedule', 'MDC', 'Edit schedule'),
+                                    route: '{comTaskId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    action: 'showEditSchedule'
                                 }
-
                             }
                         },
                         communicationtasks: {

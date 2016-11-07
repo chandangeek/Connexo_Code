@@ -25,8 +25,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         {ref: 'onRequestCommunicationScheduleGrid', selector: '#onRequestComtaskGrid'},
         {ref: 'individualCommunicationScheduleGrid', selector: '#individualComtaskGrid'},
         {ref: 'scheduleField', selector: '#scheduleField'},
-        {ref: 'addButton', selector: '#addButton'},
-
+        {ref: 'addButton', selector: '#addButton'}
     ],
 
     init: function () {
@@ -39,12 +38,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             },
             'menuitem[action=changeCommunicationSchedule]': {
                 click: this.changeCommunicationSchedule
-            },
-            'menuitem[action=removeCommunicationSchedule]': {
-                click: this.removeCommunicationScheduleConfirmation
-            },
-            'button[action=addIndividualScheduleAction]': {
-                click: this.saveIndividualSchedule
             },
             'button[action=changeIndividualScheduleAction]': {
                 click: this.updateIndividualSchedule
@@ -168,15 +161,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         });
     },
 
-    addCommunicationSchedule: function () {
-        var me = this;
-        var widget = Ext.widget('addSchedulePopUp', {action: 'addIndividualScheduleAction'});
-        var comTask = this.getOnRequestCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
-        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.addFrequencyx', 'MDC', "Add frequency to communication task '{0}'",[comTask.get('comTaskInfos')[0].name]));
-        widget.show();
-
-    },
-
     changeCommunicationSchedule: function () {
         var me = this;
         var widget = Ext.widget('addSchedulePopUp', {action: 'changeIndividualScheduleAction'});
@@ -184,65 +168,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.changeFrequencyx', 'MDC', "Change frequency of communication task '{0}'",[comTask.get('comTaskInfos')[0].name]));
         widget.down('#addScheduleForm').loadRecord(comTask);
         widget.show();
-    },
-
-    removeCommunicationScheduleConfirmation: function () {
-        var me = this;
-        var record = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
-        Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceCommunicationSchedule.deleteIndividualConfirmation.msg', 'MDC', 'This individual communication schedule will no longer be available.'),
-            title: Ext.String.format(Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmation.title', 'MDC', 'Remove schedule from \'{0}\'?'), record.get('comTaskInfos')[0].name),
-            fn: function (state) {
-                switch (state) {
-                    case 'confirm':
-                        me.removeCommunicationSchedule(record);
-                        break;
-                    case 'cancel':
-                        break;
-                }
-            }
-        });
-    },
-
-    removeCommunicationSchedule: function (record) {
-        var me = this;
-
-        Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
-            isNotEdit: true,
-            method: 'PUT',
-            params: '',
-            jsonData: _.pick(record.getRecordData(), 'id', 'version', 'parent', 'name'),
-            timeout: 180000,
-            success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeIndividualScheduleSucceeded', 'MDC', 'Individual communication schedule removed'))
-                me.getController('Uni.controller.history.Router').getRoute().forward();
-            }
-        });
-    },
-
-    saveIndividualSchedule: function (button) {
-        var me = this;
-        var scheduleField = this.getScheduleField();
-        var jsonData;
-        var request = {};
-        if (this.getOnRequestCommunicationScheduleGrid().getSelectionModel().getSelection()[0] !== undefined) {
-            request.id = this.getOnRequestCommunicationScheduleGrid().getSelectionModel().getSelection()[0].get('comTaskInfos')[0].id;
-        }
-        request.schedule = scheduleField.getValue();
-        jsonData = Ext.encode(request);
-        Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
-            method: 'POST',
-            params: '',
-            jsonData: jsonData,
-            timeout: 180000,
-            success: function (response) {
-                me.showDeviceCommunicationScheduleView(me.mrid);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addIndividualScheduleSucceeded', 'MDC', 'Individual communication schedule added'));
-            }
-        });
-        button.up('.window').close();
     },
 
     runCommunicationSchedule: function () {

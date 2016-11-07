@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         device: me.device,
-                        toggleId: 'communicationSchedulesLink'
+                        toggleId: 'communicationPlanningLink'
                     }
                 ]
             }
