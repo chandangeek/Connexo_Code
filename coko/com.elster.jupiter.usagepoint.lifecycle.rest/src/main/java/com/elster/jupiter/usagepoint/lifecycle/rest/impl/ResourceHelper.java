@@ -24,7 +24,7 @@ public class ResourceHelper {
 
     public UsagePointLifeCycle getLifeCycleByIdOrThrowException(long id) {
         return this.usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(id)
-                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_LIFE_CYCLE));
+                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_LIFE_CYCLE, id));
     }
 
     private Long getCurrentLifeCycleVersion(long id) {

@@ -15,9 +15,9 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
     @Mock
     protected PropertyValueInfoService propertyValueInfoService;
     @Mock
-    private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    protected UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     @Mock
-    private UsagePointLifeCycleService usagePointLifeCycleService;
+    protected UsagePointLifeCycleService usagePointLifeCycleService;
 
     @Override
     public void setupMocks() {

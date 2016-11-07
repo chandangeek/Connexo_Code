@@ -3,11 +3,13 @@ package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -47,6 +49,7 @@ public class UsagePointLifeCycleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public PagedInfoList getAllLifeCycles(@BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointLifeCycleInfo> lifeCycles = this.usagePointLifeCycleConfigurationService.getUsagePointLifeCycles()
                 .from(queryParameters)
@@ -61,6 +64,7 @@ public class UsagePointLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleInfo newLifeCycle(UsagePointLifeCycleInfo lifeCycleInfo) {
         UsagePointLifeCycle lifeCycle = this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(lifeCycleInfo.name);
         return this.lifeCycleInfoFactory.fullInfo(lifeCycle);
@@ -69,6 +73,7 @@ public class UsagePointLifeCycleResource {
     @GET
     @Path("/{lid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleInfo getLifeCycleById(@PathParam("lid") long lifeCycleId) {
         return this.lifeCycleInfoFactory.fullInfo(this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId));
     }
@@ -78,6 +83,7 @@ public class UsagePointLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public Response deleteLifeCycle(UsagePointLifeCycleInfo lifeCycleInfo) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(lifeCycleInfo);
         lifeCycle.remove();
@@ -89,11 +95,23 @@ public class UsagePointLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleInfo updateLifeCycle(UsagePointLifeCycleInfo lifeCycleInfo) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(lifeCycleInfo);
         lifeCycle.setName(lifeCycleInfo.name);
         lifeCycle.save();
         return this.lifeCycleInfoFactory.fullInfo(lifeCycle);
+    }
+
+    @POST
+    @Path("/{lid}/clone")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public UsagePointLifeCycleInfo cloneLifeCycle(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleInfo lifeCycleInfo) {
+        UsagePointLifeCycle source = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
+        return this.lifeCycleInfoFactory.fullInfo(this.usagePointLifeCycleConfigurationService.cloneUsagePointLifeCycle(lifeCycleInfo.name, source));
     }
 
     @Path("{lid}/states")

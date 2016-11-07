@@ -7,7 +7,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -76,7 +75,6 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
-            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(UsagePointLifeCycleInfoFactory.class).to(UsagePointLifeCycleInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);

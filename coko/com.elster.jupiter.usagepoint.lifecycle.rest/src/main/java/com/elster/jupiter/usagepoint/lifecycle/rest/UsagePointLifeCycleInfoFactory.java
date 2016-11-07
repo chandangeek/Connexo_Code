@@ -9,6 +9,7 @@ public class UsagePointLifeCycleInfoFactory {
         info.id = lifeCycle.getId();
         info.name = lifeCycle.getName();
         info.version = lifeCycle.getVersion();
+        info.isDefault = lifeCycle.isDefault();
         return info;
     }
 
