@@ -14,7 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_REMOVE_INITIAL_STATE(6, Keys.CAN_NOT_REMOVE_INITIAL_STATE, "This state cannot be removed from this usage point life cycle because it is the initial state. Set another state as initial state first."),
     TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE(7, Keys.TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE, "The combination 'Name' and 'From' has to be unique in the usage point life cycle."),
     TRANSITION_FROM_AND_TO_ARE_THE_SAME(8, Keys.TRANSITION_FROM_AND_TO_ARE_THE_SAME, "The 'From' and 'To' states must be different."),
-    CAN_NOT_REMOVE_DEFAULT_LIFE_CYCLE(8, Keys.CAN_NOT_REMOVE_DEFAULT_LIFE_CYCLE, "'Default life cycle can''t be removed."),;
+    CAN_NOT_REMOVE_DEFAULT_LIFE_CYCLE(9, Keys.CAN_NOT_REMOVE_DEFAULT_LIFE_CYCLE, "'Default life cycle can''t be removed."),;
 
     private final int number;
     private final String key;
