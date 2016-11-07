@@ -222,8 +222,7 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
 
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false),
-                );
+                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
     }
 
     @Override
