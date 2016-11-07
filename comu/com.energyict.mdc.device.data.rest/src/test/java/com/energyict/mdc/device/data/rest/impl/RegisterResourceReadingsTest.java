@@ -20,7 +20,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Device;
@@ -33,7 +32,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
-import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -140,12 +138,12 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         when(billingRegister.getRegisterSpecId()).thenReturn(2L);
 
 
-        BillingReading billingReading = mockBillingReading(actualReading1, BILLING_READING_INTERVAL_END);
+        BillingReading billingReading = mockBillingReading(BILLING_READING_INTERVAL_END);
         when(actualReading1.edited()).thenReturn(true);
         doReturn(Collections.singletonList(mockReadingQuality("2.7.1"))).when(actualReading1).getReadingQualities();
         when(billingReading.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
 
-        BillingReading billingReading2 = mockBillingReading(actualReading4, BILLING_READING_INTERVAL_END.plusSeconds(63113851));
+        BillingReading billingReading2 = mockBillingReading(BILLING_READING_INTERVAL_END.plusSeconds(63113851));
         when(actualReading4.edited()).thenReturn(false);
         doReturn(Collections.singletonList(mockReadingQuality("2.7.1"))).when(actualReading4).getReadingQualities();
         when(billingReading2.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
@@ -206,7 +204,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         return numericalReading;
     }
 
-    private BillingReading mockBillingReading(ReadingRecord actialReading, Instant intervalEndTimestamp) {
+    private BillingReading mockBillingReading(Instant intervalEndTimestamp) {
         BillingReading billingReading = mock(BillingReading.class);
         Quantity quantity = Quantity.create(BigDecimal.TEN, "M");
         when(billingReading.getQuantity()).thenReturn(quantity);
@@ -266,7 +264,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
                 .ofEpochMilli(intervalEnd)))));
         String filter = ExtjsFilter.filter()
                 .property("toTimeStart", intervalStart)
-                .property("toTImeEnd", intervalEnd)
+                .property("toTimeEnd", intervalEnd)
                 .create();
         Map json = target("devices/1/registers/registerreadings")
                 .queryParam("filter", filter)

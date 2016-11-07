@@ -281,11 +281,14 @@ public class DeviceDataInfoFactory {
         if (timeStamp != null) {
             billingReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         }
-        if (reading.getQuantity() != null) {
-            billingReadingInfo.value = reading.getQuantity().getValue();
+        Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
+        int numberOfFractionDigits = ((BillingRegister) register).getNumberOfFractionDigits();
+        if (collectedValue != null) {
+            billingReadingInfo.value = reading.getQuantity().getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             billingReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
-            setCalculatedValueIfApplicable(reading, register, billingReadingInfo, 0);
+            billingReadingInfo.rawValue = billingReadingInfo.value;
         }
+        setCalculatedValueIfApplicable(reading, register, billingReadingInfo, numberOfFractionDigits);
         if (reading.getRange().isPresent()) {
             billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
         }
