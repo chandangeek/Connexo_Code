@@ -4,9 +4,9 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
@@ -39,24 +39,33 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.collect.Range;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -120,34 +129,34 @@ public class ABBA1350
 
     private boolean software7E1;
 
-    /**
-     * Creates a new instance of ABBA1350, empty constructor
-     */
-    public ABBA1350() {
-    }
-
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.YEAR, -10);
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getAbba1350Profile().getProfileData(lastReading, includeEvents, loadProfileNumber);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getAbba1350Profile().getProfileData(from, to, includeEvents, loadProfileNumber);
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public void setTime() throws IOException {
         if (vdewCompatible == 1) {
             setTimeVDEWCompatible();
@@ -155,7 +164,6 @@ public class ABBA1350
             setTimeAlternativeMethod();
         }
     }
-
 
     private void setTimeAlternativeMethod() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
@@ -172,15 +180,13 @@ public class ABBA1350
         getAbba1350Registry().setRegister("Date", date);
     }
 
+    @Override
     public Date getTime() throws IOException {
         sendDebug("getTime request !!!", 2);
         //if (this.meterDate == null)
         this.meterDate = (Date) getAbba1350Registry().getRegister("TimeDate");
         return new Date(this.meterDate.getTime() - iRoundtripCorrection);
     }
-
-
-    /** ************************************ MeterProtocol implementation ************************************** */
 
     @Override
     public String getSerialNumber() {
@@ -191,43 +197,49 @@ public class ABBA1350
         }
     }
 
-    /**
-     * This implementation calls <code> validateProperties </code> and assigns
-     * the argument to the properties field
-     */
-    public void setProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-
-        validateProperties(properties);
-
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                "Software7E1");
     }
 
-    /**
-     * Validates the properties.  The default implementation checks that all
-     * required parameters are present.
-     */
-    private void validateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("ForceDelay", false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                ProtocolChannelMap.propertySpec("ChannelMap", false),
+                UPLPropertySpecFactory.integer("RequestHeader", false),
+                UPLPropertySpecFactory.integer("Scaler", false),
+                UPLPropertySpecFactory.integer("DataReadout", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("VDEWCompatible", false),
+                UPLPropertySpecFactory.integer("LoadProfileNumber", false, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
+                UPLPropertySpecFactory.string("Software7E1", false));
+    }
 
+    @Override
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), "");
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            strID = properties.getProperty(ADDRESS.getName(), "");
+            strPassword = properties.getProperty(PASSWORD.getName());
+            serialNumber = properties.getProperty(SERIALNUMBER.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getProperty(NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iForceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "0").trim());
-            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
+            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "3600").trim());
             channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
             requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
@@ -238,20 +250,15 @@ public class ABBA1350
             loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
             this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "
-                    + e.getMessage());
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
-        if ((loadProfileNumber < MIN_LOADPROFILE) || (loadProfileNumber > MAX_LOADPROFILE)) {
-            throw new InvalidPropertyException("Invalid loadProfileNumber (" + loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE);
-        }
-
     }
 
     protected boolean isDataReadout() {
         return (dataReadoutRequest == 1);
     }
 
+    @Override
     public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
@@ -260,52 +267,30 @@ public class ABBA1350
         return new String(data);
     }
 
+    @Override
     public void setRegister(String name, String value) throws IOException {
         getAbba1350Registry().setRegister(name, value);
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     */
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "LoadProfileNumber",
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "ChannelMap",
-                    "RequestHeader",
-                    "Scaler",
-                    "DataReadout",
-                    "ExtendedLogging",
-                    "VDEWCompatible",
-                    "ForceDelay",
-                    "Software7E1");
-    }
-
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:40 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         if (this.firmwareVersion == null) {
             this.firmwareVersion = (String) getAbba1350Registry().getRegister(ABBA1350Registry.FIRMWAREID);
         }
         return this.firmwareVersion;
-    } // public String getFirmwareVersion()
+    }
 
-    /**
-     * initializes the receiver
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -324,6 +309,7 @@ public class ABBA1350
 
     }
 
+    @Override
     public void connect() throws IOException {
         try {
             if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (isDataReadout())) {
@@ -341,7 +327,6 @@ public class ABBA1350
         } catch (FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
         }
-
 
         abba1350ObisCodeMapper.initObis();
 
@@ -372,6 +357,7 @@ public class ABBA1350
         return dro;
     }
 
+    @Override
     public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
@@ -380,6 +366,7 @@ public class ABBA1350
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (requestHeader == 1) {
             return getAbba1350Profile().getProfileHeader(loadProfileNumber).getNrOfChannels();
@@ -388,10 +375,11 @@ public class ABBA1350
         }
     }
 
-    public int getISecurityLevel() {
+    int getISecurityLevel() {
         return iSecurityLevel;
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         if (requestHeader == 1) {
             return getAbba1350Profile().getProfileHeader(loadProfileNumber).getProfileInterval();
@@ -400,49 +388,41 @@ public class ABBA1350
         }
     }
 
-    // Implementation of interface ProtocolLink
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return true;
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject)
-            throws SQLException, BusinessException {
-    }
-
+    @Override
     public ChannelMap getChannelMap() {
         return channelMap;
     }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
@@ -455,6 +435,7 @@ public class ABBA1350
         EXCEPTION_INFO_MAP.put("ERROR06", "A1350 ERROR 06, invalid command!");
     }
 
+    @Override
     public String getExceptionInfo(String id) {
         String exceptionInfo = EXCEPTION_INFO_MAP.get(ProtocolUtils.stripBrackets(id));
         if (exceptionInfo != null) {
@@ -464,25 +445,22 @@ public class ABBA1350
         }
     }
 
+    @Override
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
     }
 
-    /**
-     * Getter for property requestHeader.
-     *
-     * @return Value of property requestHeader.
-     */
+    @Override
     public boolean isRequestHeader() {
         return requestHeader == 1;
     }
 
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
     }
 
-
-    /* Translate the obis codes to edis codes, and read */
+    @Override
     public RegisterValue readRegister(ObisCode obis) throws IOException {
         DataParser dp = new DataParser(getTimeZone());
         Date eventTime = null;
@@ -674,7 +652,7 @@ public class ABBA1350
         return data;
     }
 
-    Quantity readTime() throws IOException {
+    private Quantity readTime() throws IOException {
         Long seconds = new Long(getTime().getTime() / 1000);
         return new Quantity(seconds, Unit.get(BaseUnit.SECOND));
     }
@@ -693,9 +671,7 @@ public class ABBA1350
     private void getRegistersInfo() throws IOException {
         StringBuilder builder = new StringBuilder();
 
-        Iterator i = abba1350ObisCodeMapper.getObisMap().keySet().iterator();
-        while (i.hasNext()) {
-            String obis = (String) i.next();
+        for (String obis : abba1350ObisCodeMapper.getObisMap().keySet()) {
             ObisCode oc = ObisCode.fromString(obis);
 
             if (DEBUG >= 5) {
@@ -738,12 +714,12 @@ public class ABBA1350
         }
     }
 
-    // ********************************************************************************************************
-    // implementation of the HHUEnabler interface
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, isDataReadout());
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty,
                 iProtocolRetriesProperty, 300, iEchoCancelling);
@@ -753,15 +729,16 @@ public class ABBA1350
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-    public ABBA1350Registry getAbba1350Registry() {
+    private ABBA1350Registry getAbba1350Registry() {
         return abba1350Registry;
     }
 
-    public ABBA1350Profile getAbba1350Profile() {
+    private ABBA1350Profile getAbba1350Profile() {
         return abba1350Profile;
     }
 
@@ -811,34 +788,35 @@ public class ABBA1350
         return this.meterSerial;
     }
 
-    /**
-     * Implementation of methods in MessageProtocol
-     */
-
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         abba1350Messages.applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return abba1350Messages.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return abba1350Messages.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return abba1350Messages.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return abba1350Messages.writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return abba1350Messages.writeValue(value);
     }
-
 
     public void sendDebug(String str) {
         if (DEBUG >= 1) {
