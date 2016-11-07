@@ -50,6 +50,13 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(property = "name", messageId = "{CanNotBeEmpty}")
+    public void testCanNotCreateLifeCycleWithNullName() {
+        get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle(null);
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{FieldTooLong}")
     public void testCanNotCreateLifeCycleWithLongName() {
         String longName = IntStream.range(0, 80).mapToObj(i -> "a").collect(Collectors.joining(""));
@@ -84,6 +91,15 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         lifeCycle.remove();
 
         assertThat(service.findUsagePointLifeCycle(lifeCycle.getId())).isEmpty();
+    }
+
+    @Test(expected = UsagePointLifeCycleRemoveException.class)
+    @Transactional
+    public void testCanNotRemoveDefaultLifeCycle() {
+        UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
+        UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
+        lifeCycle.markAsDefault();
+        lifeCycle.remove();
     }
 
     @Test
@@ -131,5 +147,34 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         assertThat(clone.getStateMachine().getName()).isEqualTo("Clone");
         assertThat(clone.getStateMachine().getStates().size()).isEqualTo(source.getStateMachine().getStates().size());
         assertThat(clone.getStateMachine().getTransitions().size()).isEqualTo(source.getStateMachine().getTransitions().size());
+    }
+
+    @Test
+    @Transactional
+    public void testCanMarkLifeCycleAsDefault() {
+        UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
+        UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
+        assertThat(lifeCycle.isDefault()).isFalse();
+        lifeCycle.markAsDefault();
+
+        lifeCycle = service.findUsagePointLifeCycle(lifeCycle.getId()).get();
+        assertThat(lifeCycle.isDefault()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testCanMarkLifeCycleAsDefaultWhenAlreadyHaveMarked() {
+        UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
+        UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
+        lifeCycle.markAsDefault();
+        assertThat(lifeCycle.isDefault()).isTrue();
+
+        UsagePointLifeCycle lifeCycle2 = service.newUsagePointLifeCycle("Test 2");
+        lifeCycle2.markAsDefault();
+
+        lifeCycle = service.findUsagePointLifeCycle(lifeCycle.getId()).get();
+        assertThat(lifeCycle.isDefault()).isFalse();
+        lifeCycle2 = service.findUsagePointLifeCycle(lifeCycle2.getId()).get();
+        assertThat(lifeCycle2.isDefault()).isTrue();
     }
 }

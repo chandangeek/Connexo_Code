@@ -21,6 +21,7 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar().notNull().map(UsagePointLifeCycleImpl.Fields.NAME.fieldName()).add();
             Column obsoleteTimestamp = table.column("OBSOLETE_TIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(UsagePointLifeCycleImpl.Fields.OBSOLETE_TIME.fieldName()).add();
             Column stateMachine = table.column("FSM").number().notNull().add();
+            table.column("IS_DEFAULT").bool().map(UsagePointLifeCycleImpl.Fields.DEFAULT.fieldName()).add();
             table.primaryKey("PK_UPL_LIFE_CYCLE").on(id).add();
             table.unique("UK_UPL_LIFE_CYCLE_NAME").on(name, obsoleteTimestamp).add();
             table.foreignKey("FK_UPL_FSM")

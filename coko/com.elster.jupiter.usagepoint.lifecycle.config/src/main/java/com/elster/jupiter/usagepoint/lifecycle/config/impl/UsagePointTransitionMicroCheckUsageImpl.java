@@ -10,6 +10,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.util.logging.Logger;
 
 public class UsagePointTransitionMicroCheckUsageImpl {
 
@@ -28,6 +29,8 @@ public class UsagePointTransitionMicroCheckUsageImpl {
             return javaFieldName;
         }
     }
+
+    private static final Logger LOG = Logger.getLogger("UsagePointTransition MicroCheck");
 
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<UsagePointTransition> transition = ValueReference.absent();
@@ -57,7 +60,10 @@ public class UsagePointTransitionMicroCheckUsageImpl {
     public MicroCheck getCheck() {
         if (this.microCheckObj == null) {
             this.microCheckObj = this.lifeCycleConfService.getMicroCheckByKey(getKey())
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown micro check with key = " + getKey()));
+                    .orElseGet(() -> {
+                        LOG.warning("Unknown micro check with key = " + getKey());
+                        return null;
+                    });
         }
         return this.microCheckObj;
     }

@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -176,6 +177,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         return DecoratedStream.decorate(this.microActionUsages.stream())
                 .distinct(UsagePointTransitionMicroActionUsageImpl::getKey)
                 .map(UsagePointTransitionMicroActionUsageImpl::getAction)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
@@ -184,6 +186,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         return DecoratedStream.decorate(this.microCheckUsages.stream())
                 .distinct(UsagePointTransitionMicroCheckUsageImpl::getKey)
                 .map(UsagePointTransitionMicroCheckUsageImpl::getCheck)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 

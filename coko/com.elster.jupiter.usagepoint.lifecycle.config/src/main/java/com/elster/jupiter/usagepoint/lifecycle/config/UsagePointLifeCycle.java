@@ -32,5 +32,9 @@ public interface UsagePointLifeCycle extends HasId, HasName {
 
     UsagePointTransition.UsagePointTransitionCreator newTransition(String name, UsagePointState from, UsagePointState to);
 
+    boolean isDefault();
+
+    void markAsDefault();
+
     long getVersion();
 }

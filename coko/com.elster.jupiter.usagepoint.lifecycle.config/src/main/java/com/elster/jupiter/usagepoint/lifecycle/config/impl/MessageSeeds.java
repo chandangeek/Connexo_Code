@@ -13,7 +13,8 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_REMOVE_LAST_STATE(5, Keys.CAN_NOT_REMOVE_LAST_STATE, "This state cannot be removed from this usage point life cycle because it is the latest state. Add another state first."),
     CAN_NOT_REMOVE_INITIAL_STATE(6, Keys.CAN_NOT_REMOVE_INITIAL_STATE, "This state cannot be removed from this usage point life cycle because it is the initial state. Set another state as initial state first."),
     TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE(7, Keys.TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE, "The combination 'Name' and 'From' has to be unique in the usage point life cycle."),
-    TRANSITION_FROM_AND_TO_ARE_THE_SAME(8, Keys.TRANSITION_FROM_AND_TO_ARE_THE_SAME, "The 'From' and 'To' states must be different."),;
+    TRANSITION_FROM_AND_TO_ARE_THE_SAME(8, Keys.TRANSITION_FROM_AND_TO_ARE_THE_SAME, "The 'From' and 'To' states must be different."),
+    CAN_NOT_REMOVE_DEFAULT_LIFE_CYCLE(8, Keys.CAN_NOT_REMOVE_DEFAULT_LIFE_CYCLE, "'Default life cycle can''t be removed."),;
 
     private final int number;
     private final String key;
@@ -62,5 +63,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_REMOVE_INITIAL_STATE = "can.not.remove.initial.state";
         public static final String TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE = "transition.combination.of.from.and.name.not.unique";
         public static final String TRANSITION_FROM_AND_TO_ARE_THE_SAME = "transition.from.and.to.are.the.same";
+        public static final String CAN_NOT_REMOVE_DEFAULT_LIFE_CYCLE = "can.not.remove.default.life.cycle";
     }
 }

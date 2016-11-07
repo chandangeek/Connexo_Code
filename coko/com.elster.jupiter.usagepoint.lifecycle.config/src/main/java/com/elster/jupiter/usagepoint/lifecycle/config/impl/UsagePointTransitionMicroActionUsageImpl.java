@@ -10,6 +10,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.util.logging.Logger;
 
 public class UsagePointTransitionMicroActionUsageImpl {
 
@@ -28,6 +29,8 @@ public class UsagePointTransitionMicroActionUsageImpl {
             return javaFieldName;
         }
     }
+
+    private static final Logger LOG = Logger.getLogger("UsagePointTransition MicroAction");
 
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<UsagePointTransition> transition = ValueReference.absent();
@@ -57,7 +60,10 @@ public class UsagePointTransitionMicroActionUsageImpl {
     public MicroAction getAction() {
         if (this.microActionObj == null) {
             this.microActionObj = this.lifeCycleConfService.getMicroActionByKey(getKey())
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown micro action with key = " + getKey()));
+                    .orElseGet(() -> {
+                        LOG.warning("Unknown micro action with key = " + getKey());
+                        return null;
+                    });
         }
         return this.microActionObj;
     }

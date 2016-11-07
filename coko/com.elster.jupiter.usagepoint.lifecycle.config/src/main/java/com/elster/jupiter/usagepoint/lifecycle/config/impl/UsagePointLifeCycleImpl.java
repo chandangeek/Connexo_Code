@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -17,12 +18,15 @@ import com.elster.jupiter.util.Checks;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Unique(message = "{" + MessageSeeds.Keys.UNIQUE_USAGE_POINT_LIFE_CYCLE_NAME + "}")
 public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
@@ -31,7 +35,8 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         NAME("name"),
         OBSOLETE_TIME("obsoleteTime"),
         STATE_MACHINE("stateMachine"),
-        TRANSITIONS("transitions");
+        TRANSITIONS("transitions"),
+        DEFAULT("isDefault"),;
 
         private final String javaFieldName;
 
@@ -55,6 +60,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @Valid
     private List<UsagePointTransitionImpl> transitions = new ArrayList<>();
+    private boolean isDefault;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -67,11 +73,15 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public UsagePointLifeCycleImpl(DataModel dataModel, EventService eventService) {
+    public UsagePointLifeCycleImpl(DataModel dataModel, EventService eventService, Clock clock, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -100,6 +110,22 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     @Override
     public UsagePointTransition.UsagePointTransitionCreator newTransition(String name, UsagePointState from, UsagePointState to) {
         return this.dataModel.getInstance(UsagePointTransitionCreatorImpl.class).init(this, name, from, to);
+    }
+
+    @Override
+    public boolean isDefault() {
+        return this.isDefault;
+    }
+
+    @Override
+    public void markAsDefault() {
+        this.isDefault = true;
+        this.dataModel.query(UsagePointLifeCycleImpl.class).select(where(Fields.DEFAULT.fieldName()).isEqualTo(true))
+                .forEach(lifeCycle -> {
+                    lifeCycle.isDefault = false;
+                    lifeCycle.save();
+                });
+        save();
     }
 
     @Override
@@ -153,9 +179,13 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     @Override
     public void remove() {
         if (getId() > 0) {
+            if (this.isDefault) {
+                throw UsagePointLifeCycleRemoveException.lifeCycleIsDefault(this.thesaurus);
+            }
             this.eventService.postEvent(EventType.LIFE_CYCLE_BEFORE_DELETE.topic(), this);
             new ArrayList<>(this.transitions).forEach(UsagePointTransitionImpl::remove);
-            this.dataModel.remove(this);
+            this.obsoleteTime = this.clock.instant();
+            this.save();
             this.eventService.postEvent(EventType.LIFE_CYCLE_DELETED.topic(), this);
         }
     }

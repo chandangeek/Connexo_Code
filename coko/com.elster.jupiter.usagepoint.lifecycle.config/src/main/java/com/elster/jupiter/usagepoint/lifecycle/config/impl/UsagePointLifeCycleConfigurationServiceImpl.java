@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "UsagePointLifeCycleConfigurationServiceImpl",
         service = {UsagePointLifeCycleConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
@@ -211,12 +212,12 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Override
     public Optional<UsagePointLifeCycle> findUsagePointLifeCycle(long id) {
-        return this.dataModel.mapper(UsagePointLifeCycle.class).getOptional(id);
+        return this.dataModel.mapper(UsagePointLifeCycle.class).getOptional(id).filter(not(UsagePointLifeCycle::isObsolete));
     }
 
     @Override
     public Optional<UsagePointLifeCycle> findAndLockUsagePointLifeCycleByIdAndVersion(long id, long version) {
-        return this.dataModel.mapper(UsagePointLifeCycle.class).lockObjectIfVersion(version, id);
+        return this.dataModel.mapper(UsagePointLifeCycle.class).lockObjectIfVersion(version, id).filter(not(UsagePointLifeCycle::isObsolete));
     }
 
     @Override
