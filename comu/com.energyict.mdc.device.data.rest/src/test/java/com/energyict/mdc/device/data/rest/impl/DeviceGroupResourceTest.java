@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
@@ -68,8 +69,6 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     private Finder<Device> finder;
     @Mock
     private Query<EndDeviceGroup> endDeviceGroupQuery;
-    @Mock
-    private GroupBuilder.QueryGroupBuilder<EndDevice, QueryEndDeviceGroup> builder;
 
     @Override
     protected void setupTranslations() {
@@ -186,15 +185,8 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
 
         QueryEndDeviceGroup group = mock(QueryEndDeviceGroup.class);
         when(group.getId()).thenReturn(133L);
-        when(builder.setAliasName(anyString())).thenReturn(builder);
-        when(builder.setName(anyString())).thenReturn(builder);
-        when(builder.setMRID(anyString())).thenReturn(builder);
-        when(builder.setDescription(anyString())).thenReturn(builder);
-        when(builder.setLabel(anyString())).thenReturn(builder);
-        when(builder.setQueryProviderName(anyString())).thenReturn(builder);
-        when(builder.setSearchDomain(any(SearchDomain.class))).thenReturn(builder);
-        when(builder.setType(anyString())).thenReturn(builder);
-        when(builder.create()).thenReturn(group);
+        GroupBuilder.QueryGroupBuilder<EndDevice, QueryEndDeviceGroup> builder = FakeBuilder
+                .initBuilderStub(group, GroupBuilder.QueryGroupBuilder.class);
         doReturn(builder).when(meteringGroupService).createQueryEndDeviceGroup(anyVararg());
 
         DeviceGroupInfo info = new DeviceGroupInfo();
