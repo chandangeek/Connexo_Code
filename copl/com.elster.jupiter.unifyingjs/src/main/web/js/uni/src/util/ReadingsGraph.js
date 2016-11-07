@@ -150,6 +150,7 @@ Ext.define('Uni.util.ReadingsGraph', {
             },
 
             tooltip: {
+                shared: false,
                 style: {
                     color: '#333333',
                     fontSize: '12px',

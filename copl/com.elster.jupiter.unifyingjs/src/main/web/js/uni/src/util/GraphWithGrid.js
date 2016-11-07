@@ -27,9 +27,9 @@ Ext.define('Uni.util.GraphWithGrid', {
                 }
             }
 
-            me.suspendEvent('rowselect');
+            me.down('preview-container').suspendEvent('rowselect');
             grid.getSelectionModel().select(index);
-            me.resumeEvent('rowselect');
+            me.down('preview-container').resumeEvent('rowselect');
             me.setSelectionColor(graphView, point);
         }
     },
@@ -53,10 +53,8 @@ Ext.define('Uni.util.GraphWithGrid', {
                 } else if (!(intervalEnd > currentExtremes.min && intervalEnd < currentExtremes.max)) {
                     xAxis.setExtremes(intervalEnd - range / 2, intervalEnd + range / 2);
                 }
-                me.suspendEvent('barselect');
-                point.select(true, false);
-                me.resumeEvent('barselect');
                 me.setSelectionColor(graphView, point);
+                point.select(true, false);
             };
         
         if (index > -1) {
@@ -70,11 +68,10 @@ Ext.define('Uni.util.GraphWithGrid', {
 
     setSelectionColor: function (graphView, point) {        
         if (point.pointAttr) {
-            graphView.chart.series[0].update({
-                states: {
-                    select: {
-                        color: point.pointAttr.hover.fill
-                    }
+            point.pointAttr.select.fill = point.pointAttr.hover.fill;
+            point.series.options.states = Ext.merge(point.series.options.states || {}, {
+                select: {
+                    color: point.pointAttr.hover.fill
                 }
             });
         }
