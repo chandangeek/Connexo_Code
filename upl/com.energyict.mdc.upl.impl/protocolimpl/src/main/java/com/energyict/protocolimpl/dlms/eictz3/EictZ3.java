@@ -4,13 +4,11 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -92,6 +90,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
+import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.DisconnectControlLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.EventsLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.FraudDetectionLog;
@@ -99,6 +98,7 @@ import com.energyict.protocolimpl.dlms.nta.eventhandling.MbusLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -109,12 +109,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -123,8 +124,18 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+
 /**
- * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
+ * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2.
+ * There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
  */
 @Deprecated
 public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, SerialNumberSupport {
@@ -157,7 +168,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     /**
      * The name of the property containing the server qupper MAC address.
      */
-    private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "iServerUpperMacAddress";
+    private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
 
     /**
      * The name of the property containing the client MAC address.
@@ -167,7 +178,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     /**
      * The name of the property containing the security level.
      */
-    private static final String PROPNAME_SECURITY_LEVEL = "SecurityLevel";
+    private static final String PROPNAME_SECURITY_LEVEL = SECURITYLEVEL.getName();
 
     /**
      * Indicates whether to request the time zone from the meter.
@@ -177,12 +188,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     /**
      * Name of the property containing the number of retries.
      */
-    private static final String PROPNAME_RETRIES = "Retries";
+    private static final String PROPNAME_RETRIES = RETRIES.getName();
 
     /**
      * Name of the property containing the delay after failure in milliseconds.
      */
-    private static final String PROPNAME_TIMEOUT = "Timeout";
+    private static final String PROPNAME_TIMEOUT = TIMEOUT.getName();
 
     /**
      * The maximum APDU size property name.
@@ -197,7 +208,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     /**
      * Name of the property containing the (fixed) roundtrop correction.
      */
-    private static final String PROPNAME_ROUNDTRIP_CORRECTION = "RoundtripCorrection";
+    private static final String PROPNAME_ROUNDTRIP_CORRECTION = ROUNDTRIPCORRECTION.getName();
 
     /**
      * The name of the property containing the treshold in milliseconds we allow for a time request when determining the time shift. It defaults to 5 seconds (5000 ms).
@@ -509,10 +520,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private ApplicationServiceObject aso;
 
+    @Override
     public final DLMSConnection getDLMSConnection() {
         return this.dlmsConnection;
     }
 
+    @Override
     public final void init(final InputStream inputStream, final OutputStream outputStream, final TimeZone timeZone, final Logger logger) throws IOException {
         if (!propertiesSet) {
             throw new IllegalStateException("You have to call setProperties before calling init, otherwise this protocol will not work correctly.");
@@ -547,8 +560,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             this.dlmsConnection.setIskraWrapper(1);
         } catch (final DLMSConnectionException e) {
             // JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
-            final IOException ioException = new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]", e);
-            throw ioException;
+            throw new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]", e);
         }
     }
 
@@ -572,7 +584,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         Properties props = new Properties();
         props.put(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
         props.put(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
-        props.put(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
+        props.put(PASSWORD.getName(), password);
         return new LocalSecurityProvider(props);
     }
 
@@ -595,6 +607,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.capturedObjectsHelper;
     }
 
+    @Override
     public final int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             logger.info("Loading the number of channels, looping over the captured objects...");
@@ -607,6 +620,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.numberOfChannels;
     }
 
+    @Override
     public final int getProfileInterval() throws IOException {
         if (this.profileInterval == -1) {
             logger.info("Requesting the profile interval from the meter...");
@@ -626,7 +640,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The load profile obis code.
      * @throws IOException If an IO error occurs during the load profile determination.
      */
-    private final ObisCode getLoadprofileObisCode() throws IOException {
+    private ObisCode getLoadprofileObisCode() throws IOException {
         if (this.loadProfileObisCode == null) {
             logger.info("No specific obis code has been specified, trying to determine it...");
 
@@ -651,11 +665,9 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.loadProfileObisCode;
     }
 
-    /**
-     * As the meter has been invented in 2009, the from date is set fixed to 1st of January of 2009, which seems like a sensible default.
-     * <p/>
-     */
+    @Override
     public final ProfileData getProfileData(final boolean includeEvents) throws IOException {
+        // As the meter has been invented in 2009, the from date is set fixed to 1st of January of 2009, which seems like a sensible default.
         final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
 
         fromCalendar.set(Calendar.YEAR, 2009);
@@ -665,6 +677,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
     }
 
+    @Override
     public final ProfileData getProfileData(final Date lastReading, final boolean includeEvents) throws IOException {
         final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
 
@@ -673,6 +686,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
     }
 
+    @Override
     public final ProfileData getProfileData(final Date fromDate, final Date toDate, final boolean includeEvents) throws IOException {
         final Calendar from = ProtocolUtils.getCleanCalendar(this.timeZone);
         from.setTime(fromDate);
@@ -692,7 +706,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The profile data for the given period.
      * @throws IOException if an error occurs during the device communication.
      */
-    private final ProfileData getProfileData(final Calendar from, final Calendar to, final boolean includeEvents) throws IOException {
+    private ProfileData getProfileData(final Calendar from, final Calendar to, final boolean includeEvents) throws IOException {
         logger.info("Loading profile data starting at [" + from + "], ending at [" + to + "], " + (includeEvents ? "" : "not") + " including events");
 
         final ProfileData profileData = new ProfileData();
@@ -775,7 +789,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The meter events for the given period.
      * @throws IOException If an IO error occurs during the communication.
      */
-    private final List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
+    private List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
         logger.info("Fetching meter events from [" + (from != null ? from.getTime() : "Not specified") + "] to [" + (to != null ? to.getTime() : "Not specified") + "]");
 
         final List<MeterEvent> events = new ArrayList<MeterEvent>();
@@ -801,7 +815,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return events;
     }
 
-    private final Calendar mapIntervalEndTimeToCalendar(final Calendar cal, final DataStructure intervalData, final byte btype) throws IOException {
+    private Calendar mapIntervalEndTimeToCalendar(final Calendar cal, final DataStructure intervalData, final byte btype) throws IOException {
         final Calendar calendar = (Calendar) cal.clone();
 
         if (intervalData.getOctetString(0).getArray()[0] != -1) {
@@ -860,7 +874,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @param protocolStatus The protocol status to map.
      * @return The mapped eistatus.
      */
-    private final int map2IntervalStateBits(final int protocolStatus) {
+    private int map2IntervalStateBits(final int protocolStatus) {
         int eiStatus = 0;
 
         if ((protocolStatus & CLEAR_LOADPROFILE) != 0) {
@@ -911,10 +925,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return eiStatus;
     }
 
+    @Override
     public final Quantity getMeterReading(final String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public final Quantity getMeterReading(final int channelId) throws IOException {
         throw new UnsupportedException();
     }
@@ -926,7 +942,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The scaler.
      * @throws IOException If an IO error occurs while communicating with the meter.
      */
-    private final ScalerUnit getRegisterScalerUnit(final int channelId) throws IOException {
+    private ScalerUnit getRegisterScalerUnit(final int channelId) throws IOException {
         ScalerUnit unit = null;
 
         if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSClassId.REGISTER.getClassId()) {
@@ -948,11 +964,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return unit;
     }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
     public final void setTime() throws IOException {
         logger.info("Setting the time of the remote device, first requesting the device's time.");
 
@@ -1017,7 +1028,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      *
      * @param newTime The new time to set.
      */
-    private final void setDeviceTime(final Calendar newTime) throws IOException {
+    private void setDeviceTime(final Calendar newTime) throws IOException {
         // Calendar calendar =
         // Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         newTime.add(Calendar.MILLISECOND, roundtripCorrection);
@@ -1046,11 +1057,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
     }
 
+    @Override
     public Date getTime() throws IOException {
         final Clock clock = getCosemObjectFactory().getClock();
-        final Date date = clock.getDateTime();
-        // dstFlag = clock.getDstFlag();
-        return date;
+        return clock.getDateTime();
     }
 
     /**
@@ -1059,7 +1069,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return True if the device configuration has changed.
      * @throws IOException If an error occurs during the device communication.
      */
-    private final int requestConfigurationProgramChanges() throws IOException {
+    private int requestConfigurationProgramChanges() throws IOException {
         if (this.numberOfConfigurationChanges == -1) {
             logger.info("Asking meter if the configuration has changed since the last check...");
 
@@ -1074,6 +1084,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return null;      //Not used
     }
 
+    @Override
     public final void connect() throws IOException {
         logger.info("Connecting to EpIO / Z3, connecting MAC...");
 
@@ -1155,7 +1166,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      *
      * @throws IOException If an IO error occurs during the device communication.
      */
-    private final boolean verifyMeterSerialNumber() throws IOException {
+    private boolean verifyMeterSerialNumber() throws IOException {
         if ((this.serialNumber == null) || this.serialNumber.trim().equals("")) {
             logger.info("There was no serial number configured in EIServer, assuming the configuration is valid...");
 
@@ -1191,7 +1202,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      *
      * @return The node address as it is filled in in EIServer.
      */
-    private final int getNodeAddress() {
+    private int getNodeAddress() {
         if ((this.nodeAddress == null) || this.nodeAddress.trim().equals("")) {
             return -1;
         } else {
@@ -1211,7 +1222,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The MBus meter index.
      * @throws IOException If an IO error occurs during the fetch of the MBus serial numbers.
      */
-    private final int getMBusPhysicalAddress() throws IOException {
+    private int getMBusPhysicalAddress() throws IOException {
         if (this.getNodeAddress() == 0) {
             throw new IllegalStateException("Cannot determine MBus index as the node address is explicitly set to 0, meaning that the destination is the EpIO/Z3, and not an MBus meter.");
         } else if (this.getNodeAddress() > 0) {
@@ -1242,7 +1253,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The requested serial numbers.
      * @throws IOException If an IO error should occur when requesting the MBus serial numbers from the meter.
      */
-    private final String[] requestMBusSerialNumbers() throws IOException {
+    private String[] requestMBusSerialNumbers() throws IOException {
         final String[] serialNumbers = new String[this.maximumNumberOfMBusDevices];
 
         for (int i = 0; i < this.maximumNumberOfMBusDevices; i++) {
@@ -1260,7 +1271,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The serial number of the device, <code>null</code> if there is no such device.
      * @throws IOException If an IO error occurs during the query for the MBus serial number.
      */
-    private final String getMBusDeviceSerialNumberFromMeter(final int mbusPhysicalAddress) throws IOException {
+    private String getMBusDeviceSerialNumberFromMeter(final int mbusPhysicalAddress) throws IOException {
         logger.info("Requesting serial number for MBus device, physical address [" + mbusPhysicalAddress + "]");
 
         final UniversalObject serialNumberObject = this.meterConfig.getMbusSerialNumber(mbusPhysicalAddress);
@@ -1282,6 +1293,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
+    @Override
     public final void disconnect() throws IOException {
         try {
             if (this.dlmsConnection != null) {
@@ -1303,27 +1315,27 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      *
      * @throws IOException
      */
-    private final void requestObjectList() throws IOException {
+    private void requestObjectList() throws IOException {
         logger.info("Requesting object list from device and updating meter config...");
 
         this.meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
     }
 
-    private final String requestAttribute(final short sIC, final byte[] LN, final byte bAttr) throws IOException {
+    private String requestAttribute(final short sIC, final byte[] LN, final byte bAttr) throws IOException {
         return this.doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
     }
 
-    // IOException
-
-    private final DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
+    private DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
         final DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
         return dc;
     }
 
+    @Override
     public final String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public final String getFirmwareVersion() throws IOException {
         if (this.firmwareVersion == null) {
             this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getRawValueAttr()).getOctetString().stringValue();
@@ -1342,52 +1354,68 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
-    public final void setProperties(final Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        this.checkRequiredProperties(properties);
-        this.configure(properties);
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, 16),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.string(PROPNAME_SECURITY_LEVEL, false),
+                UPLPropertySpecFactory.integer(PROPNAME_REQUEST_TIME_ZONE, false),
+                UPLPropertySpecFactory.integer(PROPNAME_CLIENT_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.integer(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.integer(PROPNAME_ADDRESSING_MODE, false),
+                UPLPropertySpecFactory.integer(PROPNAME_CONNECTION, false),
+                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
+                UPLPropertySpecFactory.integer(PROPNAME_INFORMATION_FIELD_SIZE, false),
+                UPLPropertySpecFactory.integer(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, false),
+                UPLPropertySpecFactory.string(PROPNAME_MAX_APDU_SIZE, false),
+                UPLPropertySpecFactory.string(PROPNAME_FORCE_DELAY, false),
+                UPLPropertySpecFactory.string(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, false),
+                UPLPropertySpecFactory.string(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, false),
+                UPLPropertySpecFactory.integer("CipheringType", false, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
     }
 
-    /**
-     * Configures this protocol based on the {@link Properties}.
-     *
-     * @param properties The {@link Properties} that are supplied as configuration to {@link #setProperties(Properties)}.
-     */
-    private final void configure(final Properties properties) throws InvalidPropertyException {
-        String addressPropertyName = Property.ADDRESS.getName();
-        if (properties.containsKey(addressPropertyName)) {
-            if ((properties.getProperty(addressPropertyName) != null) && (properties.getProperty(addressPropertyName).length() <= 16)) {
-                this.deviceId = properties.getProperty(addressPropertyName);
+    @Override
+    public final void setProperties(final Properties properties) throws InvalidPropertyException {
+        try {
+            this.deviceId = properties.getProperty(ADDRESS.getName());
+            this.password = properties.getProperty(PASSWORD.getName());
+            this.hdlcTimeout = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, "10000").trim());
+            this.protocolRetries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "5").trim());
+
+            /* the format of the securityLevel is changed, now authenticationSecurityLevel and dataTransportSecurityLevel are in one */
+            String securityLevel = properties.getProperty(PROPNAME_SECURITY_LEVEL, "1").trim();
+            if (securityLevel.contains(":")) {
+                this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":"))));
+                this.encryptionLevel = EncryptionLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":") + 1)));
             } else {
-                throw new InvalidPropertyException("Property [" + addressPropertyName + "] should have 16 characters or less if it is specified, you specified [" + properties.getProperty(addressPropertyName).length() + "] characters !");
+                this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel));
+                this.encryptionLevel = EncryptionLevel.getByPropertyValue(0);
             }
+
+            this.requestTimeZone = Integer.parseInt(properties.getProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim()) != 0;
+            this.roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
+            this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
+            this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
+            this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
+            this.nodeAddress = properties.getProperty(NODEID.getName(), "");
+            this.serialNumber = properties.getProperty(SERIALNUMBER.getName());
+            this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1")));
+            this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")));
+            this.loadProfileObisCode = properties.containsKey(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;
+            this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
+            this.maximumNumberOfMBusDevices = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, "4"));
+            // the NTA meters normally use the global keys to encrypt
+            this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
-        this.password = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-        this.hdlcTimeout = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, "10000").trim());
-        this.protocolRetries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "5").trim());
-
-        /* the format of the securityLevel is changed, now authenticationSecurityLevel and dataTransportSecurityLevel are in one*/
-        String securityLevel = properties.getProperty(PROPNAME_SECURITY_LEVEL, "1").trim();
-        if (securityLevel.contains(":")) {
-            this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":"))));
-            this.encryptionLevel = EncryptionLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":") + 1)));
-        } else {
-            this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel));
-            this.encryptionLevel = EncryptionLevel.getByPropertyValue(0);
-        }
-
-        this.requestTimeZone = Integer.parseInt(properties.getProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim()) != 0;
-        this.roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
-        this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
-        this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
-        this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
-        this.nodeAddress = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-        this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-        this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1")));
-        this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")));
-        this.loadProfileObisCode = properties.containsKey(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;
-        this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
-        this.maximumNumberOfMBusDevices = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, "4"));
 
         try {
             this.maximumAPDUSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_APDU_SIZE, "-1"));
@@ -1405,7 +1433,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             this.clockSetRoundtripTreshold = Integer.parseInt(properties.getProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
         } catch (final NumberFormatException e) {
             logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
-
             this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
         }
 
@@ -1413,47 +1440,14 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             this.numberOfClocksetTries = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
         } catch (final NumberFormatException e) {
             logger.log(Level.SEVERE, "Cannot parse the number of clockset tries to a numeric value, setting to default value of [" + DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES + "]", e);
-
             this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
-        }
-
-        // the NTA meters normally use the global keys to encrypt
-        this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
-        if (cipheringType != CipheringType.GLOBAL.getType() && cipheringType != CipheringType.DEDICATED.getType()) {
-            throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
         }
 
         this.propertiesSet = true;
     }
 
-    /**
-     * Checks if all required properties are present in the given {@link Properties} object.
-     *
-     * @param properties The properties object to check.
-     * @throws MissingPropertyException If a required property is missing.
-     */
-    private final void checkRequiredProperties(final Properties properties) throws MissingPropertyException {
-        for (final String requiredProperty : this.getRequiredKeys()) {
-            if (!properties.containsKey(requiredProperty)) {
-                throw new MissingPropertyException("Property [" + requiredProperty + "] is required for this protocol !");
-            }
-        }
-    }
-
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name <br>
-     * @return the register value
-     * @throws IOException             <br>
-     * @throws UnsupportedException    <br>
-     * @throws NoSuchRegisterException <br>
-     */
+    @Override
     public String getRegister(final String name) throws IOException {
-        return doGetRegister(name);
-    }
-
-    private String doGetRegister(final String name) throws IOException {
         boolean classSpecified = false;
         if (name.indexOf(':') >= 0) {
             classSpecified = true;
@@ -1466,7 +1460,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 final UniversalObject uo = getMeterConfig().getObject(ln);
                 return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
             }
-        } else if (name.indexOf("-") >= 0) { // you get a from/to
+        } else if (name.contains("-")) { // you get a from/to
             final DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
             if (ln2.isLogicalName()) {
                 final String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
@@ -1490,15 +1484,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return cal;
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name  <br>
-     * @param value <br>
-     * @throws IOException             <br>
-     * @throws NoSuchRegisterException <br>
-     * @throws UnsupportedException    <br>
-     */
+    @Override
     public void setRegister(final String name, final String value) throws IOException {
         boolean classSpecified = false;
         if (name.indexOf(':') >= 0) {
@@ -1532,84 +1518,51 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
+    @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public final List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "DelayAfterFail",
-                    "RequestTimeZone",
-                    "FirmwareVersion",
-                    "SecurityLevel",
-                    "ClientMacAddress",
-                    "iServerUpperMacAddress",
-                    "ServerLowerMacAddress",
-                    "ExtendedLogging",
-                    "AddressingMode",
-                    "Connection",
-                    "LoadProfileObisCode",
-                    "FullLogbook",
-                    "InformationFieldSize",
-                    PROPNAME_MAX_APDU_SIZE,
-                    PROPNAME_FORCE_DELAY,
-                    PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD,
-                    PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
-    }
-
-    public final void setCache(final Object cacheObject) {
+    @Override
+    public final void setCache(Serializable cacheObject) {
         if (!(cacheObject instanceof DLMSCache)) {
             throw new IllegalArgumentException("This protocol expects a cache object of type [" + DLMSCache.class.getName() + "], you provided an object of type [" + cacheObject + "], which is not compatible with this implementation !");
         }
-
         this.dlmsCache = (DLMSCache) cacheObject;
     }
 
-    public final Object getCache() {
+    @Override
+    public Serializable getCache() {
         return this.dlmsCache;
     }
 
-    /**
-     * This is a default implementation, and it throws an exception telling the developer of calling it that if he/she wants this to work, he/she needs to provide an override that will work in his/her given situation (which will largely depend on EIServer database access).
-     * <p/>
-     * As such this method is marked overridable (which translates to non-final in Java).
-     * <p/>
-     */
-    public Object fetchCache(final int rtuid) {
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) {
         throw new UnsupportedOperationException("Fetching caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
-
     }
 
-    /**
-     * This is a default implementation, and it throws an exception telling the developer of calling it that if he/she wants this to work, he/she needs to provide an override that will work in his/her given situation (which will largely depend on EIServer database access).
-     * <p/>
-     * As such this method is marked overridable (which translates to non-final in Java).
-     * <p/>
-     */
-    public void updateCache(final int rtuid, final Object cacheObject) {
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) {
         throw new UnsupportedOperationException("Updating caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
     }
 
+    @Override
+    public final String getFileName() {
+        final Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.password + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_DLMSEICTZ3.cache";
+    }
+
+    @Override
     public final void release() {
         // Not implemented for this protocol.
     }
 
-    public final void enableHHUSignOn(final SerialCommunicationChannel commChannel) throws ConnectionException {
+    @Override
+    public final void enableHHUSignOn(final SerialCommunicationChannel commChannel) {
         this.enableHHUSignOn(commChannel, false);
     }
 
+    @Override
     public final void enableHHUSignOn(final SerialCommunicationChannel commChannel, final boolean datareadout) {
         final HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.hdlcTimeout, this.protocolRetries, 300, 0);
 
@@ -1620,30 +1573,37 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         this.getDLMSConnection().setHHUSignOn(hhuSignOn, this.nodeAddress);
     }
 
+    @Override
     public final byte[] getHHUDataReadout() {
         return this.getDLMSConnection().getHhuSignOn().getDataReadout();
     }
 
+    @Override
     public final Logger getLogger() {
         return this.logger;
     }
 
+    @Override
     public final DLMSMeterConfig getMeterConfig() {
         return this.meterConfig;
     }
 
+    @Override
     public final int getReference() {
         return LN_REFERENCE;
     }
 
+    @Override
     public final int getRoundTripCorrection() {
         return this.roundtripCorrection;
     }
 
+    @Override
     public final TimeZone getTimeZone() {
         return this.timeZone;
     }
 
+    @Override
     public final boolean isRequestTimeZone() {
         return this.requestTimeZone;
     }
@@ -1657,19 +1617,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return cosemObjectFactory;
     }
 
-    /**
-     * This one returns the file name for the DLMS cache.
-     * <p/>
-     */
-    public final String getFileName() {
-        final Calendar calendar = Calendar.getInstance();
-        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.password + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_DLMSEICTZ3.cache";
-    }
-
+    @Override
     public final StoredValues getStoredValues() {
         return this.storedValuesImpl;
     }
 
+    @Override
     public final RegisterValue readRegister(final ObisCode obisCode) throws IOException {
         try {
 
@@ -1695,12 +1648,14 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
+    @Override
     public final RegisterInfo translateRegister(final ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
     public final List<MessageCategorySpec> getMessageCategories() {
-        final List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        final List<MessageCategorySpec> categories = new ArrayList<>();
 
         // Firmware.
         //categories.add(this.getFirmwareMessages());
@@ -1729,13 +1684,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return categories;
     }
 
-    /**
-     * @param keyId
-     * @param tagName
-     * @param advanced
-     * @return
-     */
-    private final MessageSpec addConnectControl(final String keyId, final String tagName, final boolean advanced) {
+    private MessageSpec addConnectControl(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         final MessageValueSpec msgVal = new MessageValueSpec();
@@ -1747,13 +1696,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return msgSpec;
     }
 
-    /**
-     * @param keyId
-     * @param tagName
-     * @param advanced
-     * @return
-     */
-    private final MessageSpec addConnectControlMode(final String keyId, final String tagName, final boolean advanced) {
+    private MessageSpec addConnectControlMode(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         final MessageValueSpec msgVal = new MessageValueSpec();
@@ -1765,14 +1708,14 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return msgSpec;
     }
 
-    private final MessageSpec addNoValueMsg(final String keyId, final String tagName, final boolean advanced) {
+    private MessageSpec addNoValueMsg(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         msgSpec.add(tagSpec);
         return msgSpec;
     }
 
-    private final MessageSpec addEncryptionkeys(final String keyId, final String tagName, final boolean advanced) {
+    private MessageSpec addEncryptionkeys(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         final MessageValueSpec msgVal = new MessageValueSpec();
@@ -1786,11 +1729,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return msgSpec;
     }
 
+    @Override
     public final String writeMessage(final Message msg) {
         return msg.write(this);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public final String writeTag(final MessageTag msgTag) {
         final StringBuilder buf = new StringBuilder();
 
@@ -1801,7 +1745,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         // b. Attributes
         for (final Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             final MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
             buf.append(" ").append(att.getSpec().getName());
@@ -1819,7 +1763,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 buf.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 final String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
                 buf.append(value);
@@ -1834,21 +1778,23 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return buf.toString();
     }
 
+    @Override
     public final String writeValue(final MessageValue msgValue) {
         return msgValue.getValue();
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public void applyMessages(final List messageEntries) {
         // Not implemented for this protocol.
     }
 
-    /**
-     * @param message
-     * @param handler
-     * @throws BusinessException
-     */
-    private final void importMessage(final String message, final DefaultHandler handler) throws BusinessException {
+    private class ImportMessageException extends Exception {
+        private ImportMessageException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    private void importMessage(final String message, final DefaultHandler handler) throws ImportMessageException {
         try {
 
             final byte[] bai = message.getBytes();
@@ -1858,15 +1804,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             final SAXParser saxParser = factory.newSAXParser();
             saxParser.parse(i, handler);
 
-        } catch (final ParserConfigurationException thrown) {
+        } catch (final ParserConfigurationException | SAXException thrown) {
             thrown.printStackTrace();
-            throw new BusinessException(thrown);
-        } catch (final SAXException thrown) {
-            thrown.printStackTrace();
-            throw new BusinessException(thrown);
+            throw new ImportMessageException(thrown);
         } catch (final IOException thrown) {
             thrown.printStackTrace();
-            throw new BusinessException(thrown);
+            throw new ImportMessageException(thrown);
         }
     }
 
@@ -1918,7 +1861,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @param messageContents The contents of the message.
      * @return <code>true</code> if the message contents concern a firmware upgrade.
      */
-    private final boolean isEpIOFirmwareUpgrade(final String messageContents) {
+    private boolean isEpIOFirmwareUpgrade(final String messageContents) {
         return (messageContents != null) && messageContents.contains("<FirmwareUpdate>");
     }
 
@@ -1928,7 +1871,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @param image The new image to push to the remote device.
      * @throws IOException If an IO error occurs during the upgrade.
      */
-    private final void upgradeDevice(final byte[] image) throws IOException {
+    private void upgradeDevice(final byte[] image) throws IOException {
         logger.info("Upgrading EpIO with new firmware image of size [" + image.length + "] bytes");
 
         final ImageTransfer imageTransfer = this.getCosemObjectFactory().getImageTransfer();
@@ -1946,6 +1889,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         logger.info("Upgrade has finished successfully...");
     }
 
+    @Override
     public final MessageResult queryMessage(final MessageEntry messageEntry) {
         if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
             logger.info("Received a firmware upgrade message, using firmware message builder...");
@@ -2013,7 +1957,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
                     getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Connect");
 
-                    if (!messageHandler.getConnectDate().equals("")) { // use the
+                    if (!"".equals(messageHandler.getConnectDate())) { // use the
                         // disconnectControlScheduler
 
                         final Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
@@ -2135,8 +2079,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 logger.log(Level.SEVERE, "Caught an IO error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
 
                 return MessageResult.createFailed(messageEntry);
-            } catch (final BusinessException e) {
-                logger.log(Level.SEVERE, "Caught an business error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
+            } catch (final ImportMessageException e) {
+                logger.log(Level.SEVERE, "Caught an import error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
 
                 return MessageResult.createFailed(messageEntry);
             }
@@ -2149,7 +2093,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return The device serial number from the device itself.
      * @throws IOException If an error occurs during the communication with the device.
      */
-    private final String getDeviceSerialNumber() throws IOException {
+    private String getDeviceSerialNumber() throws IOException {
         if (this.deviceSerialNumber == null) {
             this.deviceSerialNumber = this.getCosemObjectFactory().getData(OBISCODE_R2_SERIAL_NUMBER).getString();
         }
@@ -2205,4 +2149,5 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             return null;
         }
     }
+
 }
