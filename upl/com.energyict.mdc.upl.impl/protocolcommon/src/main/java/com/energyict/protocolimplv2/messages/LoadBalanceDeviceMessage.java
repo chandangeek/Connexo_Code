@@ -96,6 +96,14 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(positiveThresholdInAmpereAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(negativeThresholdInAmpereAttributeName)
     ),
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_EXCEPT_EMERGENCY_ONES(17,
+            PropertySpecFactory.stringPropertySpec(monitoredValueAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
+            PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
+            PropertySpecFactory.timeDurationPropertySpec(underThresholdDurationAttributeName),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenOverThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())
+    ),
 
     ;
 

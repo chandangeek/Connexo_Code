@@ -419,8 +419,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 		private static final int ITEM_CLASS_ID = 0;
 		private static final int ITEM_LOGICAL_NAME = 1;
 		private static final int ITEM_ATTRIBUTE_INDEX = 2;
+        private int attribute = Integer.MIN_VALUE;
 
-		public ValueDefinitionType(){
+        public ValueDefinitionType(){
 			super();
 		}
 
@@ -444,9 +445,14 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			}
 
 		public Integer8 getAttributeIndex(){
-			return (Integer8) getDataType(ITEM_ATTRIBUTE_INDEX);
+            int attr = attribute == Integer.MIN_VALUE ? ITEM_ATTRIBUTE_INDEX : attribute;
+			return (Integer8) getDataType(attr);
 		}
-	}
+
+        public void setAttribute(int attribute) {
+            this.attribute = attribute;
+        }
+    }
 
 	public class EmergencyProfile extends Structure {
 

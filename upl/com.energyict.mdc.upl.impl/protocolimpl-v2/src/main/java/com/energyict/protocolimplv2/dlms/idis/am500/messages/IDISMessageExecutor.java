@@ -46,7 +46,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final ObisCode RELAY_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
-    private static final ObisCode DISCONNECTOR_SCRIPT_OBISCODE = ObisCode.fromString("0.0.10.0.106.255");
+    protected static final ObisCode DISCONNECTOR_SCRIPT_OBISCODE = ObisCode.fromString("0.0.10.0.106.255");
     private static final ObisCode ERROR_BITS_OBISCODE = ObisCode.fromString("0.0.97.97.0.255");
     private static final ObisCode ALARM_BITS_OBISCODE = ObisCode.fromString("0.0.97.98.0.255");
     private static final ObisCode ALARM_FILTER_OBISCODE = ObisCode.fromString("0.0.97.98.10.255");
@@ -312,7 +312,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         limiter.writeEmergencyProfile(emergencyProfile);
     }
 
-    private void writeEmergencyThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
+    protected void writeEmergencyThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
         if (monitoredValue == 1) {
             limiter.writeThresholdEmergency(new Unsigned16((int) activeThreshold));
         } else {
@@ -320,7 +320,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void writeNormalThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
+    protected void writeNormalThreshold(int monitoredValue, long activeThreshold, Limiter limiter) throws IOException {
         if (monitoredValue == 1) {
             limiter.writeThresholdNormal(new Unsigned16((int) activeThreshold));
         } else {
@@ -328,7 +328,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void setMonitoredValue(Limiter limiter, int monitoredValue) throws IOException {
+    protected void setMonitoredValue(Limiter limiter, int monitoredValue) throws IOException {
         byte[] monitoredAttribute = new byte[]{1, 0, 15, 24, 0, (byte) 255};
         int classId = DLMSClassId.DEMAND_REGISTER.getClassId();
         if (monitoredValue == 1) {

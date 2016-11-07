@@ -9,7 +9,10 @@ package com.energyict.protocolimplv2.messages.enums;
 public enum LoadControlActions {
 
     Nothing(0, "Nothing"),
-    Reconnect(2, "Reconnect");
+    Local_Disconnect(1, "Local Disconnect"),
+    Local_Reconnect(2, "Local Reconnect"),
+    Remote_Disconnect(3, "Remote Disconnect"),
+    Remote_Reconnect(4, "Remote Reconnect");
 
     private final String description;
     private final int id;

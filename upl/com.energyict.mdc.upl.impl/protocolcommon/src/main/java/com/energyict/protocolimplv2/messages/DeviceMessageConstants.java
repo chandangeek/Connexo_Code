@@ -191,6 +191,7 @@ public class DeviceMessageConstants {
     public static final String emergencyProfileDurationAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileDuration";
     public static final String emergencyProfileGroupIdListAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyprofilegroupidlist";
     public static final String actionWhenUnderThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionwhenunderthreshold";
+    public static final String actionWhenOverThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionwhenoverthreshold";
     public static final String invertDigitalOutput1AttributeName = "LoadBalanceDeviceMessage.invertdigitaloutput1";
     public static final String invertDigitalOutput2AttributeName = "LoadBalanceDeviceMessage.invertdigitaloutput2";
     public static final String activateNowAttributeName = "LoadBalanceDeviceMessage.activatenow";
