@@ -41,6 +41,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -151,6 +152,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new FiniteStateMachineModule(),
                 new ServiceCallModule(),
                 new CustomPropertySetsModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -165,7 +167,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                         "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
                         "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
 
-                        ),
+                ),
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new OrmModule(),
@@ -280,7 +282,9 @@ public abstract class AbstractCollectedDataIntegrationTest {
         return masterDataService;
     }
 
-    public TopologyService getTopologyService() {return topologyService;}
+    public TopologyService getTopologyService() {
+        return topologyService;
+    }
 
     private static class MockModule extends AbstractModule {
 
