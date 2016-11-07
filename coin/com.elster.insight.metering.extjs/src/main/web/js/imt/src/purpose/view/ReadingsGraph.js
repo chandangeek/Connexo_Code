@@ -28,8 +28,8 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
 
     createTooltip: function (tooltip) {
         var me = this,
-            html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', tooltip.x),
-            point = tooltip.points[0].point,
+            html = '<b>' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
+            point = tooltip.point,
             icon,
             bgColor,
             value;
@@ -46,8 +46,8 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             value = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'IMT', 'Missing');
         }
 
-        html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'IMT', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
-        html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
+        html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'IMT', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
+        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + '<br>';
         html += '<table style="margin-top: 10px"><tbody>';
         bgColor = point.tooltipColor;
         html += '<tr><td colspan="2"><b>' + Uni.I18n.translate('general.value', 'IMT', 'Value') + ':</b>&nbsp;' + value + (icon ? icon : '') + '</td></tr>';
