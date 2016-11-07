@@ -8,9 +8,8 @@ package com.energyict.protocolimpl.iec1107.unilog;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -24,18 +23,25 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * @author fbo
@@ -49,8 +55,8 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     /**
      * Property keys specific for PPM protocol.
      */
-    private static final String PK_TIMEOUT = "Timeout";
-    private static final String PK_RETRIES = "Retries";
+    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
+    private static final String PK_RETRIES = Property.RETRIES.getName();
     private static final String PK_FORCE_DELAY = "ForceDelay";
     private static final String PK_ECHO_CANCELLING = "EchoCancelling";
     private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
@@ -91,7 +97,6 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     private int pIec1107Compatible = PD_IEC1107_COMPATIBLE;
     /* Offset in ms to the get/set time */
     private int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
-    private int pSecurityLevel = PD_SECURITY_LEVEL;
 
     private MeterType meterType;
     private FlagIEC1107Connection flagIEC1107Connection = null;
@@ -102,91 +107,90 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     private boolean software7E1;
     private static final String PK_SOFTWARE_7E1 = "Software7E1";
 
-    /**
-     * Creates a new instance of Unilog, empty constructor
-     */
-    public Unilog() {
-    }
-
-
-    /**
-     * Validate the properties
-     *
-     * @param properties
-     * @throws MissingPropertyException
-     * @throws InvalidPropertyException
-     */
-    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-
-        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
-            pAddress = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-        }
-
-        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
-            pNodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
-        }
-
-        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-        }
-
-        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
-            pPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-        }
-
-        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = Integer.parseInt(properties
-                    .getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()));
-        }
-
-        if (properties.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = Integer.parseInt(properties.getProperty(PK_TIMEOUT));
-        }
-
-        if (properties.getProperty(PK_RETRIES) != null) {
-            pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
-        }
-
-        if (properties.getProperty(PK_FORCE_DELAY) != null) {
-            pForceDelay = Integer.parseInt(properties.getProperty(PK_FORCE_DELAY));
-        }
-
-        if (properties.getProperty(PK_ECHO_CANCELLING) != null) {
-            pEchoCanceling = Integer
-                    .parseInt(properties.getProperty(PK_ECHO_CANCELLING));
-        }
-
-        if (properties.getProperty(PK_IEC1107_COMPATIBLE) != null) {
-            pIec1107Compatible = Integer.parseInt(properties
-                    .getProperty(PK_IEC1107_COMPATIBLE));
-        }
-
-        if (properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()) != null) {
-            pRountTripCorrection = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()));
-        }
-
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty(PK_SOFTWARE_7E1, "0"));
-
-        if (properties.getProperty(Unilog.PK_CHANNEL_MAP) != null) {
-            this.pChannelMap = properties.getProperty(Unilog.PK_CHANNEL_MAP);
-        }
-
-        protocolChannelMap = new ProtocolChannelMap(pChannelMap);
-
-    }
-
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
     public List<String> getOptionalKeys() {
         return Arrays.asList(
-                    PK_TIMEOUT,
-                    PK_RETRIES,
-                    PK_ECHO_CANCELLING,
-                    com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName(),
-                    PK_SOFTWARE_7E1,
-                    PK_CHANNEL_MAP);
+                PK_TIMEOUT,
+                PK_RETRIES,
+                PK_ECHO_CANCELLING,
+                ROUNDTRIPCORRECTION.getName(),
+                PK_SOFTWARE_7E1,
+                PK_CHANNEL_MAP);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
+                UPLPropertySpecFactory.integer(PK_RETRIES, false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(PK_FORCE_DELAY, false),
+                UPLPropertySpecFactory.integer(PK_ECHO_CANCELLING, false),
+                UPLPropertySpecFactory.integer(PK_IEC1107_COMPATIBLE, false),
+                UPLPropertySpecFactory.string(PK_SOFTWARE_7E1, false),
+                ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false));
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException {
+        try {
+            if (properties.getProperty(ADDRESS.getName()) != null) {
+                pAddress = properties.getProperty(ADDRESS.getName());
+            }
+
+            if (properties.getProperty(NODEID.getName()) != null) {
+                pNodeId = properties.getProperty(NODEID.getName());
+            }
+
+            if (properties.getProperty(SERIALNUMBER.getName()) != null) {
+                pSerialNumber = properties.getProperty(SERIALNUMBER.getName());
+            }
+
+            if (properties.getProperty(PASSWORD.getName()) != null) {
+                pPassword = properties.getProperty(PASSWORD.getName());
+            }
+
+            if (properties.getProperty(PROFILEINTERVAL.getName()) != null) {
+                pProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName()));
+            }
+
+            if (properties.getProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(properties.getProperty(PK_TIMEOUT));
+            }
+
+            if (properties.getProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
+            }
+
+            if (properties.getProperty(PK_FORCE_DELAY) != null) {
+                pForceDelay = Integer.parseInt(properties.getProperty(PK_FORCE_DELAY));
+            }
+
+            if (properties.getProperty(PK_ECHO_CANCELLING) != null) {
+                pEchoCanceling = Integer.parseInt(properties.getProperty(PK_ECHO_CANCELLING));
+            }
+
+            if (properties.getProperty(PK_IEC1107_COMPATIBLE) != null) {
+                pIec1107Compatible = Integer.parseInt(properties.getProperty(PK_IEC1107_COMPATIBLE));
+            }
+
+            if (properties.getProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+                pRountTripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName()));
+            }
+
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty(PK_SOFTWARE_7E1, "0"));
+
+            if (properties.getProperty(Unilog.PK_CHANNEL_MAP) != null) {
+                this.pChannelMap = properties.getProperty(Unilog.PK_CHANNEL_MAP);
+            }
+            protocolChannelMap = new ProtocolChannelMap(pChannelMap);
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
     @Override
@@ -202,15 +206,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         }
     }
 
-    /**
-     * Init the protocol with all the given parameters
-     *
-     * @param inputStream
-     * @param outputStream
-     * @param timeZone
-     * @param logger
-     * @throws IOException
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         setTimeZone(timeZone);
         setLogger(logger);
@@ -223,14 +219,10 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         }
     }
 
-    /**
-     * Connect to the meter
-     *
-     * @throws IOException
-     */
+    @Override
     public void connect() throws IOException {
         try {
-            meterType = flagIEC1107Connection.connectMAC(pAddress, pPassword, pSecurityLevel, pNodeId);
+            meterType = flagIEC1107Connection.connectMAC(pAddress, pPassword, PD_SECURITY_LEVEL, pNodeId);
         } catch (FlagIEC1107ConnectionException e) {
             disconnect();
             throw new IOException(e.getMessage());
@@ -239,11 +231,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         }
     }
 
-    /**
-     * Disconnect from the meter
-     *
-     * @throws IOException
-     */
+    @Override
     public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
@@ -252,27 +240,12 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         }
     }
 
-    /**
-     * Getter for the profile interval field
-     *
-     * @return
-     * @throws UnsupportedException
-     * @throws IOException
-     */
+    @Override
     public int getProfileInterval() throws IOException {
         return pProfileInterval;
     }
 
-    /**
-     * Read the profile data
-     *
-     * @param from
-     * @param to
-     * @param includeEvents
-     * @return
-     * @throws IOException
-     * @throws UnsupportedException
-     */
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
@@ -281,11 +254,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         return profile.getProfileData(fromCalendar, toCalendar, getNumberOfChannels(), 1);
     }
 
-    /**
-     * Set the device time to the current system time
-     *
-     * @throws IOException
-     */
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         calendar.add(Calendar.MILLISECOND, pRountTripCorrection);
@@ -294,122 +263,63 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
         registry.setRegister("0.9.2", date);
     }
 
-    /**
-     * Read the device time from the connected meter
-     *
-     * @return
-     * @throws IOException
-     */
+    @Override
     public Date getTime() throws IOException {
         Date date = (Date) registry.getRegister(registry.R_TIME_DATE);
         return new Date(date.getTime() - pRountTripCorrection);
     }
 
-    /**
-     * Get the number of channels. This value is extracted from the channelMap propertie
-     *
-     * @return
-     * @throws UnsupportedException
-     * @throws IOException
-     */
+    @Override
     public int getNumberOfChannels() throws IOException {
         return protocolChannelMap.getNrOfProtocolChannels();
     }
 
-    /**
-     * Getter for the password field
-     *
-     * @return
-     */
+    @Override
     public String getPassword() {
         return pPassword;
     }
 
-    /**
-     * Getter for the number of retries
-     *
-     * @return
-     */
+    @Override
     public int getNrOfRetries() {
         return pRetries;
     }
 
-    /**
-     * Get the protocol version
-     *
-     * @return
-     */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-30 13:55:02 +0100 (Mon, 30 Nov 2015)$";
     }
 
-    /**
-     * If possible, read the firmware version from the device. At the moment, this is not possible yet
-     * with the Unilog protcol, so this method allways returns "Unknown"
-     *
-     * @return
-     * @throws IOException
-     * @throws UnsupportedException
-     */
-    public String getFirmwareVersion() throws IOException {
-        return ("Unknown");
+    @Override
+    public String getFirmwareVersion() {
+        return "Unknown";
     }
 
-    /**
-     * Getter for the protocol connection
-     *
-     * @return
-     */
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
-    /**
-     * Not supported in the Unigas300 protocol
-     *
-     * @return
-     */
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
     }
 
-    /**
-     * Checks if the protocol should behave like IEC1107 or manufacturer specific
-     *
-     * @return
-     */
+    @Override
     public boolean isIEC1107Compatible() {
         return (pIec1107Compatible == 1);
     }
 
-    /**
-     * Getter for the data readout bytes.
-     * Not used in the Unilog protocol, so always returns null
-     *
-     * @return
-     */
+    @Override
     public byte[] getDataReadout() {
         return null;
     }
 
-
-    /**
-     * Check if we should request the header while reading profile data.
-     * Not used in the Unilog protocol, so always returns false
-     *
-     * @return
-     */
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
 
-    /**
-     * Read a register identified by its obiscode
-     *
-     * @param obisCode
-     * @return
-     * @throws IOException
-     */
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             Object register = registry.getRegister(obisCode);
@@ -422,4 +332,5 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
             throw new NoSuchRegisterException("Problems while reading register " + obisCode + ": " + e.getMessage());
         }
     }
+
 }
