@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -43,15 +44,18 @@ public class DataExportTaskHistoryInfoFactory {
     private final PropertyValueInfoService propertyValueInfoService;
     private final DataExportTaskInfoFactory dataExportTaskInfoFactory;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final StandardDataSelectorInfoFactory standardDataSelectorInfoFactory;
 
     @Inject
     public DataExportTaskHistoryInfoFactory(Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService,
-                                            DataExportTaskInfoFactory dataExportTaskInfoFactory, ReadingTypeInfoFactory readingTypeInfoFactory) {
+                                            DataExportTaskInfoFactory dataExportTaskInfoFactory, ReadingTypeInfoFactory readingTypeInfoFactory,
+                                            StandardDataSelectorInfoFactory standardDataSelectorInfoFactory) {
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.dataExportTaskInfoFactory = dataExportTaskInfoFactory;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.standardDataSelectorInfoFactory = standardDataSelectorInfoFactory;
     }
 
     public DataExportTaskHistoryInfo asInfo(DataExportOccurrence dataExportOccurrence) {
@@ -100,12 +104,21 @@ public class DataExportTaskHistoryInfoFactory {
                         .orElseGet(dataExportOccurrence::getTask));
 
         info.task = dataExportTaskInfoFactory.asInfoWithoutHistory(version);
+        // set standard data selector configuration from history
         version.getStandardDataSelectorConfig(dataExportOccurrence.getStartDate().get())
                 .ifPresent(selectorConfig -> populateStandardDataSelectorHistoricalData(info, selectorConfig, dataExportOccurrence));
+        // set custom data selector properties from history
+        info.task.dataSelector.properties = propertyValueInfoService.getPropertyInfos(
+                version.getDataSelectorPropertySpecs(), version.getProperties(dataExportOccurrence.getStartDate().get())
+        );
+        // set data formatter properties from history
+        info.task.dataProcessor.properties = propertyValueInfoService.getPropertyInfos(
+                version.getDataFormatterPropertySpecs(), version.getProperties(dataExportOccurrence.getStartDate().get())
+        );
+        // set destination from history
         version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
                 .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
                 .forEach(destination -> info.task.destinations.add(typeOf(destination).toInfo(destination)));
-        info.task.dataProcessor.properties = propertyValueInfoService.getPropertyInfos(version.getDataFormatterPropertySpecs(), version.getProperties());
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getStartDate().get());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             info.task.schedule = null;
@@ -116,7 +129,6 @@ public class DataExportTaskHistoryInfoFactory {
             } else {
                 info.task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
-            info.task.dataSelector.properties = propertyValueInfoService.getPropertyInfos(version.getDataSelectorPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
         if (dataExportOccurrence.wasScheduled() && info.task.schedule == null) {
             info.trigger = NONRECURRING.translate(thesaurus);
@@ -130,21 +142,24 @@ public class DataExportTaskHistoryInfoFactory {
                 new DataSelectorConfig.DataSelectorConfigVisitor() {
                     @Override
                     public void visit(MeterReadingSelectorConfig config) {
-                        addReadingTypes(config);
+                        info.task.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                        setReadingTypes(config);
                         addStrategy(config);
                     }
 
                     @Override
                     public void visit(UsagePointReadingSelectorConfig config) {
-                        addReadingTypes(config);
+                        info.task.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                        setReadingTypes(config);
                     }
 
                     @Override
                     public void visit(EventSelectorConfig config) {
-                        // nothing to do
+                        info.task.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
                     }
 
-                    private void addReadingTypes(ReadingDataSelectorConfig config) {
+                    private void setReadingTypes(ReadingDataSelectorConfig config) {
+                        info.task.standardDataSelector.readingTypes = new ArrayList<>();
                         for (ReadingType readingType : config.getReadingTypes(dataExportOccurrence.getStartDate().get())) {
                             info.task.standardDataSelector.readingTypes.add(readingTypeInfoFactory.from(readingType));
                         }
