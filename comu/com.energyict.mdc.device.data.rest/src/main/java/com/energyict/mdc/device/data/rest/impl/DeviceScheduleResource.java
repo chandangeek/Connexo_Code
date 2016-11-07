@@ -87,12 +87,13 @@ public class DeviceScheduleResource {
             } else if(comTaskExecution.isAdHoc()){
                 info = DeviceSchedulesInfo.fromAdHoc(comTaskExecution);
             }
-        }
-        Optional<ComTaskEnablement> cteb = comTaskEnablements.stream()
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTaskId)
-                .findFirst();
-        if(cteb.isPresent()) {
-            info = DeviceSchedulesInfo.fromEnablement(cteb.get());
+        } else {
+            Optional<ComTaskEnablement> cteb = comTaskEnablements.stream()
+                    .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTaskId)
+                    .findFirst();
+            if(cteb.isPresent()) {
+                info = DeviceSchedulesInfo.fromEnablement(cteb.get());
+            }
         }
         if(info != null) {
             return Response.ok(info).build();
