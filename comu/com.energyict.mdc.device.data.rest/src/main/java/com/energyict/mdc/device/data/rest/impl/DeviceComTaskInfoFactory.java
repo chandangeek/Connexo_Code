@@ -58,7 +58,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
             for(ComTaskExecution comTaskExecution:compatibleComTaskExecutions){
                 if (comTaskExecution.usesSharedSchedule()) {
-                    setFieldsForSharedScheduleExecution(deviceComTasksInfo, comTaskExecution);
+                    setFieldsForSharedScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
                 } else if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
                     setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution);
                 } else if (comTaskExecution.isAdHoc()) {
@@ -121,7 +121,7 @@ public class DeviceComTaskInfoFactory {
         }
     }
 
-    private void setFieldsForSharedScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution) {
+    private void setFieldsForSharedScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution, ComTaskEnablement comTaskEnablement) {
         deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getTemporalExpression());
         deviceComTasksInfo.scheduleName = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getName();
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
@@ -149,8 +149,8 @@ public class DeviceComTaskInfoFactory {
         }
         else {
             ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask().orElse(null);
-            deviceComTasksInfo.connectionMethod = connectionTask.getName();
-            deviceComTasksInfo.connectionDefinedOnDevice = true;
+            deviceComTasksInfo.connectionMethod = comTaskEnablement.getPartialConnectionTask().orElse(null).getName();
+            deviceComTasksInfo.connectionDefinedOnDevice = connectionTask != null;
             if (connectionTask instanceof ScheduledConnectionTask) {
                 ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
                 ConnectionStrategy connectionStrategy = scheduledConnectionTask.getConnectionStrategy();
