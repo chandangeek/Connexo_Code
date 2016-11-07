@@ -61,6 +61,14 @@ public final class UPLPropertySpecFactory {
         return new HexStringPropertySpec(name, required);
     }
 
+    public static PropertySpec character(String name, boolean required) {
+        return new CharPropertySpec(name, required);
+    }
+
+    public static PropertySpec character(String name, boolean required, String possibleValues) {
+        return new CharPropertySpec(name, required, possibleValues);
+    }
+
     // Hide utility class constructor
     private UPLPropertySpecFactory() {}
 

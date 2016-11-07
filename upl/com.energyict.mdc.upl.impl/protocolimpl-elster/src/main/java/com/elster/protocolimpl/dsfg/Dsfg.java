@@ -3,13 +3,13 @@ package com.elster.protocolimpl.dsfg;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
 import com.elster.protocolimpl.dsfg.objects.AbstractObject;
 import com.elster.protocolimpl.dsfg.profile.ArchiveRecordConfig;
 import com.elster.protocolimpl.dsfg.profile.DsfgProfile;
 import com.elster.protocolimpl.dsfg.register.DsfgRegisterReader;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -17,11 +17,11 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,6 +29,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * ProtocolImplementation for DSfG devices. <br>
@@ -41,7 +46,6 @@ import java.util.logging.Logger;
  * <li>Optical interface according to IEC1107 <li>Internal GSM modem <br>
  * <br>
  * <b>Additional information:</b><br>
- *
  *
  * @author gh
  * @since 5-mai-2010
@@ -102,9 +106,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
      */
     private ArchiveRecordConfig archiveStructure = null;
 
-    /**
-     * initialization -> create connection class
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream,
                      TimeZone timezone, Logger logger) throws IOException {
         connection = new DsfgConnection(inputStream, outputStream);
@@ -112,34 +114,47 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         this.logger = logger;
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-10-30 12:00:00 +0100$";
     }
 
-    public List<String> getRequiredKeys() {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                    "RegistrationInstance",
-                    "ArchiveInstance",
-                    "ChannelMap");
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.string(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.string(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                UPLPropertySpecFactory.character("RegistrationInstance", true, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[^"),
+                UPLPropertySpecFactory.character("ArchiveInstance", true, "abcdefghijklmnopqrstuvwxyz"),
+                UPLPropertySpecFactory.string("ChannelMap", true));
     }
 
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries");
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        try {
+            strPassword = properties.getProperty(PASSWORD.getName());
+            protocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+
+            /* DSfG specific properties */
+            registrationInstance = properties.getProperty("RegistrationInstance", "0").substring(0, 1).toUpperCase();
+            archiveInstance = properties.getProperty("ArchiveInstance", "0").substring(0, 1).toLowerCase();
+
+            try {
+                channelMap = properties.getProperty("ChannelMap", "");
+                archiveStructure = new ArchiveRecordConfig(archiveInstance, channelMap);
+            } catch (Exception e) {
+                throw new InvalidPropertyException(" validateProperties, ChannelMap is not valid (" + channelMap + ")");
+            }
+
+            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600"));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
-    /**
-     * set the protocol specific properties
-     *
-	 * @param properties
-	 *            - properties to use
-     */
-    public void setProperties(Properties properties)
-            throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties);
-    }
-
+    @Override
     public void connect() throws IOException {
         connection.connect();
         connection.signon(strPassword);
@@ -148,24 +163,23 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         AbstractObject meterTypeObj = getObjectFactory().getMeterTypeObject();
         String meterType = meterTypeObj.getValue();
         getLogger().info("-- Type of device: " + meterType);
-
-        // DataBlock db = new DataBlock(getRegistrationInstance(),
-        // 'A', 'J', 'V', new String[] {"caaa","czzz"});
-        // @SuppressWarnings("unused")
-        // DataBlock in = getDsfgConnection().request(db);
     }
 
+    @Override
     public void disconnect() throws IOException {
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return getObjectFactory().getSoftwareVersionObject().getValue();
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return getProfileObject().getNumberOfChannels();
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = Calendar.getInstance(getTimeZone());
         /* maximum readout range set to 2 year - 6/18/2010 gh */
@@ -173,121 +187,46 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents)
-            throws IOException {
+    @Override
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-            throws IOException {
-
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         getLogger().info("getProfileData(" + from + "," + to + ")");
-
         ProfileData profileData = new ProfileData();
-
         profileData.setChannelInfos(getProfileObject().buildChannelInfos());
-
         getProfileObject().setInterval(profileInterval);
-        profileData.setIntervalDatas(getProfileObject().getIntervalData(from,
-                to));
-
+        profileData.setIntervalDatas(getProfileObject().getIntervalData(from, to));
         return profileData;
     }
 
-    public int getProfileInterval() throws IOException {
+    @Override
+    public int getProfileInterval() {
         /* interval time of archive can't be easily read out as a value */
 		return profileInterval;
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getObjectFactory().getClockObject().getDateTime();
     }
 
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() {
     }
 
-    public void release() throws IOException {
+    @Override
+    public void release() {
     }
 
+    @Override
     public void setTime() throws IOException {
         /* It is not possible to set clock ! */
         throw new IOException("Clock not setable in dsfg devices!");
     }
 
-    // *******************************************************************************************
-    // * C l a s s i m p l e m e n t a t i o n c o d e
-    // *******************************************************************************************/
-
-    /**
-     * Validate certain protocol specific properties
-     *
-     * @param properties - The properties fetched from the Device
-     * @throws MissingPropertyException - in case of an error
-     * @throws InvalidPropertyException - in case of an error
-     */
-    @SuppressWarnings({"unchecked"})
-    private void validateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-        try {
-            for (Object o : getRequiredKeys()) {
-                String key = (String) o;
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            protocolRetriesProperty = Integer.parseInt(properties.getProperty(
-                    "Retries", "5").trim());
-
-            /* DSfG specific properties */
-            registrationInstance = properties.getProperty(
-                    "RegistrationInstance", "0").toUpperCase().substring(0, 1);
-            if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZ[^".contains(registrationInstance)) {
-                throw new InvalidPropertyException(
-                        " validateProperties, RegistrationInstance ("
-                                + registrationInstance
-                                + ") out of Range (A-Z).");
-            }
-
-            archiveInstance = properties.getProperty("ArchiveInstance", "0")
-                    .toLowerCase().substring(0, 1);
-            if (!"abcdefghijklmnopqrstuvwxyz".contains(archiveInstance)) {
-                throw new InvalidPropertyException(
-                        " validateProperties, ArchiveInstance ("
-                                + archiveInstance + ") out of Range (a-y).");
-            }
-
-            try {
-                channelMap = properties.getProperty("ChannelMap", "");
-                archiveStructure = new ArchiveRecordConfig(archiveInstance,
-                        channelMap);
-            } catch (Exception e) {
-                throw new InvalidPropertyException(
-                        " validateProperties, ChannelMap is not valid ("
-                                + channelMap + ")");
-			}
-
-            final String intervalString = properties.getProperty("ProfileInterval", "3600");
-            try {
-                profileInterval = Integer.parseInt(intervalString);
-            } catch (NumberFormatException nfe) {
-                throw new InvalidPropertyException(
-                        " validateProperties, no valid value for ProfileInterval (" + intervalString + ")");
-            }
-
-            doValidateProperties(properties);
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(
-                    " validateProperties, NumberFormatException, "
-                            + e.getMessage());
-        }
-    }
-
-    /**
-     * Getter for the ObjectFactory
-     *
-     * @return the current ObjectFactory
-     */
     protected DsfgObjectFactory getObjectFactory() {
         if (this.objectFactory == null) {
             this.objectFactory = new DsfgObjectFactory(this);
@@ -295,11 +234,6 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         return this.objectFactory;
     }
 
-    /**
-     * Getter for dsfg profile object
-     *
-     * @return DsfgProfile object
-     */
     protected DsfgProfile getProfileObject() {
         if (this.profile == null) {
             this.profile = new DsfgProfile(this, archiveStructure);
@@ -307,26 +241,25 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         return this.profile;
     }
 
-    public void doValidateProperties(Properties properties) {
-    }
-
-    public String getRegister(String arg0) throws IOException {
+    @Override
+    public String getRegister(String arg0) throws NoSuchRegisterException {
         /* dsfg register instances have no register values ! */
-        throw new NoSuchRegisterException(
-                "Dsfg devices have no register to read out!");
+        throw new NoSuchRegisterException("Dsfg devices have no register to read out!");
     }
 
-    public void setRegister(String arg0, String arg1) throws IOException {
+    @Override
+    public void setRegister(String arg0, String arg1) throws NoSuchRegisterException {
         /* dsfg register instances have no register values ! */
-        throw new NoSuchRegisterException(
-                "Register setting currently not supported!");
+        throw new NoSuchRegisterException("Register setting currently not supported!");
 
     }
 
-    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+    @Override
+    public RegisterInfo translateRegister(ObisCode obisCode) {
         return new RegisterInfo("");
     }
 
+    @Override
     public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         return getRegisterReader().getRegisterValue(obisCode, new Date());
     }
@@ -338,81 +271,62 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         return this.dsfgRegisterReader;
     }
 
-
-    // *******************************************************************************************
-    // *
-    // * Interface ProtocolLink
-    // *
-    // *******************************************************************************************/
+    @Override
     public byte[] getDataReadout() {
         return null;
     }
 
+    @Override
     public DsfgConnection getDsfgConnection() {
         return connection;
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @Override
     public int getNrOfRetries() {
         return protocolRetriesProperty;
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return false;
     }
 
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
 
+    @Override
     public String getArchiveInstance() {
         return this.archiveInstance;
     }
 
+    @Override
     public String getRegistrationInstance() {
         return this.registrationInstance;
     }
 
-    // *******************************************************************************************
-    // *
-    // * not yet used methods
-    // *
-    // *******************************************************************************************/
-    public Object fetchCache(int arg0) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public Object getCache() {
-        return null;
-    }
-
-    public void updateCache(int arg0, Object arg1) throws SQLException,
-            BusinessException {
-    }
-
-    public void setCache(Object arg0) {
-    }
-
-    // *******************************************************************************************
-    // *
-    // * deprecicated methods
-    // *
-    // *******************************************************************************************/
+    @Override
     public Quantity getMeterReading(int arg0) throws IOException {
         return null;
     }
 
+    @Override
     public Quantity getMeterReading(String arg0) throws IOException {
         return null;
     }
