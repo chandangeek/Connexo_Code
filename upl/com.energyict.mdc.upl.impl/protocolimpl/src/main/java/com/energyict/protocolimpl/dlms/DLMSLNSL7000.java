@@ -29,8 +29,11 @@ package com.energyict.protocolimpl.dlms;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
@@ -76,19 +79,31 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
 import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
 
@@ -116,44 +131,41 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
     private static final int EV_POWER_FAILURE = 0x40;
     private static final int EV_START_OF_MEASUREMENT = 0x80;
-    String version = null;
-    String serialnr = null;
+    private String version = null;
+    private String serialnr = null;
 
     //private boolean boolAbort=false;
-    String nodeId;
-    CapturedObjects capturedObjects = null;
-    DLMSConnection dlmsConnection = null;
-    CosemObjectFactory cosemObjectFactory = null;
-    StoredValuesImpl storedValuesImpl = null;
-    ObisCodeMapper ocm = null;
+    private String nodeId;
+    private CapturedObjects capturedObjects = null;
+    private DLMSConnection dlmsConnection = null;
+    private CosemObjectFactory cosemObjectFactory = null;
+    private StoredValuesImpl storedValues = null;
+    private ObisCodeMapper ocm = null;
     // Lazy initializing
-    int numberOfChannels = -1;
-    int configProgramChanges = -1;
-    int addressingMode;
-    int connectionMode;
-//    private Properties properties=null;
+    private int numberOfChannels = -1;
+    private int configProgramChanges = -1;
+    private int addressingMode;
+    private int connectionMode;
 
-    // filled in when getTime is invoked!
-//    private int dstFlag; // -1=unknown, 0=not set, 1=set
     /**
      * Property "UseLegacyHDLCConnection" indicates to use the old HDLC connection layer, or the new (default) HDLC connection layer.
      */
-    boolean useLegacyHDLCConnection = false;
-    byte[] aarqlowlevel17 = {
+    private boolean useLegacyHDLCConnection = false;
+    private static final byte[] aarqlowlevel17 = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
             (byte) 0x60, // AARQ
             (byte) 0x37, // bytes to follow
             (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
             (byte) 0xAA, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
             (byte) 0xAB, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-    byte[] aarqlowlevel17_2 = {
+    private static final byte[] aarqlowlevel17_2 = {
             (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
             (byte) 0x01, // initiate request
             (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
             (byte) 0x06,  // dlms version nr
             (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
             (byte) 0x21, (byte) 0x34};
-    byte[] aarqlowlevelANY = {
+    private static final byte[] aarqlowlevelANY = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
             (byte) 0x60, // AARQ
             (byte) 0x35, // bytes to follow
@@ -161,13 +173,13 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
             (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
             (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-    byte[] aarqlowlevelANY_2 = {(byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
+    private static final byte[] aarqlowlevelANY_2 = {(byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
             (byte) 0x01, // initiate request
             (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
             (byte) 0x06,  // dlms version nr
             (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
             (byte) 0x21, (byte) 0x34};
-    byte[] aarqlowestlevel = {
+    private static final byte[] aarqlowestlevel = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
             (byte) 0x60, // AARQ
             (byte) 0x1C, // bytes to follow
@@ -202,24 +214,12 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     private DLMSCache dlmsCache = new DLMSCache();
     private int extendedLogging;
 
-    /**
-     * Creates a new instance of DLMSLNSL7000, empty constructor
-     */
-    public DLMSLNSL7000() {
-    } // public DLMSLNSL7000(...)
-
+    @Override
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
     }
 
-    /**
-     * initializes the receiver
-     *
-     * @param inputStream  <br>
-     * @param outputStream <br>
-     * @param timeZone     <br>
-     * @param logger       <br>
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -234,7 +234,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
 
         try {
             cosemObjectFactory = new CosemObjectFactory(this);
-            storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
+            storedValues = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0) {
                 if (useLegacyHDLCConnection) {
                     dlmsConnection = new HDLCConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, iServerUpperMacAddress, addressingMode);
@@ -260,10 +260,9 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     private byte[] buildaarq(byte[] aarq1, byte[] aarq2) {
-        byte[] aarq = null;
         int i, t = 0;
         // prepare aarq buffer
-        aarq = new byte[3 + aarq1.length + 1 + strPassword.length() + aarq2.length];
+        byte[] aarq = new byte[3 + aarq1.length + 1 + strPassword.length() + aarq2.length];
         // copy aarq1 to aarq buffer
         for (i = 0; i < aarq1.length; i++) {
             aarq[t++] = aarq1[i];
@@ -297,13 +296,13 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
 
     /**
      * Method to request the Application Association Establishment for a DLMS session.
- * @exception IOException
+     * @exception IOException
      */
     public void requestApplAssoc() throws IOException {
         byte[] aarq;
         aarq = getLowLevelSecurity();
         doRequestApplAssoc(aarq);
-    } // public void requestApplAssoc() throws IOException
+    }
 
     private void requestApplAssoc(int iLevel) throws IOException {
         byte[] aarq;
@@ -316,7 +315,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         }
         doRequestApplAssoc(aarq);
 
-    } // public void requestApplAssoc(int iLevel) throws IOException
+    }
 
     private void doRequestApplAssoc(byte[] aarq) throws IOException {
         byte[] responseData;
@@ -326,11 +325,10 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             ProtocolUtils.printResponseData(responseData);
         }
 
-    } // public void doRequestApplAssoc(int iLevel) throws IOException
+    }
 
     private void CheckAARE(byte[] responseData) throws IOException {
         int i;
-        int iLength;
         String strResultSourceDiagnostics = "";
         InitiateResponse initiateResponse = new InitiateResponse();
 
@@ -531,20 +529,15 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         this.capturedObjects = co;
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         if (numberOfChannels == -1) {
             numberOfChannels = getCapturedObjects().getNROfChannels();
         }
         return numberOfChannels;
-    } // public int getNumberOfChannels() throws IOException
+    }
 
-    /**
-     * Method that requests the recorder interval in min.
-     * Hardcoded for SL7000 meter to 15 min.
-     *
-     * @return Remote meter 'recorder interval' in min.
-     * @throws IOException
-     */
+    @Override
     public int getProfileInterval() throws IOException {
         if (iInterval == 0) {
             byte[] LN = {0, 0, (byte) 136, 0, 1, (byte) 255};
@@ -554,33 +547,27 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return iInterval;
     }
 
-    /**
-     * Protected setter of the profileInterval, used for tests
-     *
-     * @param iInterval the interval in seconds
-     */
-    protected void setIinterval(int iInterval) {
-        this.iInterval = iInterval;
-    }
-
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         int iNROfIntervals = getNROfIntervals();
         Calendar fromCalendar = ProtocolUtils.getCalendar(timeZone);
         fromCalendar.add(Calendar.MINUTE, (-1) * iNROfIntervals * (getProfileInterval() / 60));
-        return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
+        return doGetProfileData(fromCalendar, includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(lastReading);
-        return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
+        return doGetProfileData(fromCalendar, includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
-    private ProfileData doGetProfileData(Calendar fromCalendar, Calendar toCalendar, boolean includeEvents) throws IOException {
+    private ProfileData doGetProfileData(Calendar fromCalendar, boolean includeEvents) throws IOException {
         byte bNROfChannels = (byte) getNumberOfChannels();
         return doGetDemandValues(fromCalendar,
                 bNROfChannels,
@@ -617,9 +604,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     private Calendar setCalendar(Calendar cal, DataStructure dataStructure, byte btype) throws IOException {
-
         Calendar calendar = (Calendar) cal.clone();
-
         if (dataStructure.getOctetString(0).getArray()[0] != -1) {
             calendar.set(Calendar.YEAR, (((int) dataStructure.getOctetString(0).getArray()[0] & 0xff) << 8) |
                     (((int) dataStructure.getOctetString(0).getArray()[1] & 0xff)));
@@ -732,7 +717,6 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-//        calendar = setCalendar(calendar,dataStructure.getStructure(1),(byte)0x01);
         Calendar endIntervalCal = setCalendar(calendar, dataStructure.getStructure(1), (byte) 0x01);
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
@@ -758,10 +742,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                     EV_DST));
             return true;
         }
-
         return (getProfileInterval() * 1000) - (endIntervalCal.getTimeInMillis() - calendar.getTimeInMillis()) <= 2000;
-
-        //        return true; // KV 16012004
     }
 
     private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
@@ -914,10 +895,12 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return intervalData;
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
@@ -945,13 +928,9 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     private int getNROfIntervals() {
         // TODO fix amound for the moment
         return iNROfIntervals;
-    } // private int getNROfIntervals() throws IOException
+    }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = null;
         if (iRequestTimeZone != 0) {
@@ -961,7 +940,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         }
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         doSetTime(calendar);
-    } // public void setTime() throws IOException
+    }
 
     private void doSetTime(Calendar calendar) throws IOException {
         byte[] byteTimeBuffer = new byte[14];
@@ -988,13 +967,12 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
 
         getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
 
-    } // private void doSetTime(Calendar calendar)
+    }
 
+    @Override
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
-        Date date = clock.getDateTime();
-        //dstFlag = clock.getDstFlag();
-        return date;
+        return clock.getDateTime();
     }
 
     private boolean verifyMeterID() {
@@ -1011,8 +989,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             configProgramChanges = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
         }
         return configProgramChanges;
-    } // public int requestConfigurationProgramChanges() throws IOException
-
+    }
 
     /**
      * This method requests for the COSEM object SAP.
@@ -1026,8 +1003,9 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                 throw new IOException("DLMSSN, requestSAP, Wrong DeviceID!, settings=" + strID + ", meter=" + devID);
             }
         }
-    } // public void requestSAP() throws IOException
+    }
 
+    @Override
     public void connect() throws IOException {
         try {
             getDLMSConnection().connectMAC();
@@ -1103,11 +1081,10 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         }
-    } // public void connect() throws IOException
-
+    }
 
     private String getAllMaximumDemandRegisterInfos(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         Iterator it;
         // All maximum demands (profile generic objects)
         List allMaximumDemandProfiles = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.6.255")).getCaptureObjects();
@@ -1117,59 +1094,73 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             // get the first of the list of captured objects
             List allMaximumDemands = getCosemObjectFactory().getProfileGeneric(capturedObjectMDProfile.getLogicalName().getObisCode()).getCaptureObjects();
             CapturedObject capturedObject = (CapturedObject) allMaximumDemands.get(0);
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
+            builder.append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(" ")
+                    .append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(billingPoint ? " (billing point)\n" : "\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     private String getAllDemandRegisterInfos(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         Iterator it;
         // All demands
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.5.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
+            builder.append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(" ")
+                    .append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(billingPoint ? " (billing point)\n" : "\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     private String getAllCumulativeMaximumDemandRegisterInfos(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         Iterator it;
         // All cumulative maximum demands
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.90.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
+            builder.append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(" ")
+                    .append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(billingPoint ? " (billing point)\n" : "\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     private String getAllEnergyRates(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         Iterator it;
         // All energy rates
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("255.255.98.133.1.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
+            builder.append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(" ")
+                    .append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(billingPoint ? " (billing point)\n" : "\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     private String getAllTotalEnergies(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         Iterator it;
         // All total energies
         it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("255.255.98.133.2.255")).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + (billingPoint ? " (billing point)\n" : "\n"));
+            builder.append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(" ")
+                    .append(capturedObject.getLogicalName().getObisCode().toString())
+                    .append(billingPoint ? " (billing point)\n" : "\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
-
 
     /*
      *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
@@ -1182,7 +1173,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         builder.append("********************* All instantiated objects in the meter *********************\n");
         for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-            builder.append(uo.getObisCode().toString() + " " + uo.getObisCode().toString() + "\n");
+            builder.append(uo.getObisCode().toString()).append(" ").append(uo.getObisCode().toString()).append("\n");
         }
 
         builder.append(getAllTotalEnergies(false));
@@ -1206,13 +1197,13 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            builder.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().toString() + " (load profile)\n");
+            builder.append(capturedObject.getLogicalName().getObisCode().toString()).append(" ").append(capturedObject.getLogicalName().getObisCode().toString()).append(" (load profile)\n");
         }
 
         return builder.toString();
     }
 
-
+    @Override
     public void disconnect() throws IOException {
         try {
             if (dlmsConnection != null) {
@@ -1233,7 +1224,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
     }
 
-    public String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
+    private String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
         return doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
     }
 
@@ -1241,6 +1232,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
     }
 
+    @Override
     public String getSerialNumber() {
         UniversalObject uo;
         try {
@@ -1251,10 +1243,12 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2016-01-19 14:30:01 +0100 (Tue, 19 Jan 2016)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         if (version == null) {
             StringBuilder builder = new StringBuilder();
@@ -1262,7 +1256,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                 UniversalObject uo = meterConfig.getVersionObject();
                 DataContainer dataContainer = getCosemObjectFactory().getGenericRead(uo).getDataContainer();
                 /* 020211011104 --> structure, 2 elements, 1 en 4 --> 1.4
-        Voor de root moet je geen structure opvragen! */
+                 * Voor de root moet je geen structure opvragen! */
                 builder.append(String.valueOf(dataContainer.getRoot().getInteger(0)));
                 builder.append(".");
                 builder.append(String.valueOf(dataContainer.getRoot().getInteger(1)));
@@ -1274,47 +1268,35 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return version;
     }
 
-    /**
-     * this implementation calls <code> validateProperties </code>
-     * and assigns the argument to the properties field
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
-        //this.properties = properties;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, 16),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer("ClientMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
+                UPLPropertySpecFactory.string("FirmwareVersion", false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("AddressingMode", false),
+                UPLPropertySpecFactory.integer("Connection", false),
+                UPLPropertySpecFactory.integer(USE_LEGACY_HDLC_CONNECTION, false));
     }
 
-    /**
-     * <p>validates the properties.</p><p>
-     * The default implementation checks that all required parameters are present.
-     * </p>
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    @Override
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            if ((strID != null) && (strID.length() > 16)) {
-                throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            }
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            //iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-            final String securityLevel = properties.getProperty("SecurityLevel", "1").trim();
+            strID = properties.getProperty(ADDRESS.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            final String securityLevel = properties.getProperty(SECURITYLEVEL.getName(), "1").trim();
             try {
                 iSecurityLevelProperty = Integer.parseInt(securityLevel);
             } catch (NumberFormatException e) {
@@ -1322,42 +1304,26 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                 iSecurityLevelProperty = Integer.parseInt(securityLevel.substring(0, 1));
             }
             iRequestTimeZone = 0;
-            //iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
 
             iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "1").trim());
             iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17").trim());
             iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "17").trim());
             firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
+            serialNumber = properties.getProperty(SERIALNUMBER.getName());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
             useLegacyHDLCConnection = Integer.parseInt(properties.getProperty(USE_LEGACY_HDLC_CONNECTION, "0")) == 1;   //By default, do not use the old HDLC connection layer. So use the new HDLC connection layer.
-
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
-
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name <br>
-     * @return the register value
-     * @throws IOException             <br>
-     * @throws UnsupportedException    <br>
-     * @throws NoSuchRegisterException <br>
-     */
+    @Override
     public String getRegister(String name) throws IOException {
-        return doGetRegister(name);
-    }
-
-    private String doGetRegister(String name) throws IOException {
         boolean classSpecified = false;
         if (name.indexOf(':') >= 0) {
             classSpecified = true;
@@ -1375,100 +1341,78 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name  <br>
-     * @param value <br>
-     * @throws IOException             <br>
-     * @throws NoSuchRegisterException <br>
-     * @throws UnsupportedException    <br>
-     */
-    public void setRegister(String name, String value) throws IOException {
+    @Override
+    public void setRegister(String name, String value) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "DelayAfterFail",
-                    "RequestTimeZone",
-                    "FirmwareVersion",
-                    "SecurityLevel",
-                    "ClientMacAddress",
-                    "ServerUpperMacAddress",
-                    "ServerLowerMacAddress",
-                    "ExtendedLogging",
-                    "AddressingMode",
-                    USE_LEGACY_HDLC_CONNECTION);
-    }
-
-    public int requestTimeZone() throws IOException {
-        // All time reporting is UTC for the SL7000
+    public int requestTimeZone() {
         return (0);
     }
 
-    public Object getCache() {
+    @Override
+    public Serializable getCache() {
         return dlmsCache;
     }
 
-    public void setCache(Object cacheObject) {
+    @Override
+    public void setCache(Serializable cacheObject) {
         if (cacheObject != null) {
             this.dlmsCache = (DLMSCache) cacheObject;
         }
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        if (deviceId != 0) {
+            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+            RtuDLMS rtu = new RtuDLMS(deviceId);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if (rtuid != 0) {
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        if (deviceId != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
-                rtuCache.saveObjectList(dc.getObjectList());
-                rtu.setConfProgChange(dc.getConfProgChange());
+                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+                RtuDLMS rtu = new RtuDLMS(deviceId);
+                rtuCache.saveObjectList(dc.getObjectList(), connection);
+                rtu.setConfProgChange(dc.getConfProgChange(), connection);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
+    @Override
+    public String getFileName() {
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + strID + "_" + strPassword + "_" + serialNumber + "_" + iServerUpperMacAddress + "_DLMSSL7000.cache";
+    }
+
+    @Override
     public void release() throws IOException {
     }
 
-    // implementation oh HHUEnabler interface
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
                 new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
@@ -1478,54 +1422,51 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         getDLMSConnection().setHHUSignOn(hhuSignOn, nodeId);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getDLMSConnection().getHhuSignOn().getDataReadout();
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
+    @Override
     public DLMSMeterConfig getMeterConfig() {
         return meterConfig;
     }
 
+    @Override
     public int getReference() {
         return ProtocolLink.LN_REFERENCE;
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return iRoundtripCorrection;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return (iRequestTimeZone != 0);
     }
 
-    /**
-     * Getter for property cosemObjectFactory.
-     *
-     * @return Value of property cosemObjectFactory.
-     */
     public com.energyict.dlms.cosem.CosemObjectFactory getCosemObjectFactory() {
         return cosemObjectFactory;
     }
 
-    public String getFileName() {
-
-
-        Calendar calendar = Calendar.getInstance();
-        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + strID + "_" + strPassword + "_" + serialNumber + "_" + iServerUpperMacAddress + "_DLMSSL7000.cache";
-    }
-
+    @Override
     public StoredValues getStoredValues() {
-        return storedValuesImpl;
+        return storedValues;
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             if (ocm == null) {
@@ -1537,17 +1478,18 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     class InitiateResponse {
 
-        protected byte bNegotiatedQualityOfService;
-        protected byte bNegotiatedDLMSVersionNR;
-        protected long lNegotiatedConformance;
-        protected short sServerMaxReceivePduSize;
-        protected short sVAAName;
+        byte bNegotiatedQualityOfService;
+        byte bNegotiatedDLMSVersionNR;
+        long lNegotiatedConformance;
+        short sServerMaxReceivePduSize;
+        short sVAAName;
 
         InitiateResponse() {
             bNegotiatedQualityOfService = 0;
