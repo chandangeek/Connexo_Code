@@ -22,10 +22,12 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.tasks.support.ProtocolLoggingSupport;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
@@ -57,6 +59,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -64,7 +67,7 @@ import java.util.logging.Logger;
  * Date: 9/04/13
  * Time: 16:00
  */
-public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
+public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, ProtocolLoggingSupport {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
@@ -248,9 +251,65 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                 }
             }
         }
+
+        try {
+            deviceTopology = cleanupDuplicatesLastSeenDate(deviceTopology);
+        } catch (Exception ex){
+            getLogger().log(Level.WARNING, ex.getMessage(), ex);
+        }
+
         return deviceTopology;
     }
 
+    /**
+     * Issue EISERVERSG-4655 - when a G3 Gateway is restarted, all slave devices will have the SAME lastSeenDate.
+     * This method will clear the lastSeenDate in this case.
+     *
+     * @param deviceTopology
+     */
+    protected CollectedTopology cleanupDuplicatesLastSeenDate(CollectedTopology deviceTopology) {
+        getLogger().finest("Cleaning up lastSeenDate with the same value, due to a gateway reset");
+        Map<Long, Integer> counters = new HashMap<>();
+
+        Iterator<DeviceIdentifier> iterator = deviceTopology.getSlaveDeviceIdentifiers().keySet().iterator();
+        while(iterator.hasNext()){
+            DeviceIdentifier deviceIdentifier = iterator.next();
+            Long currentValue = deviceTopology.getSlaveDeviceIdentifiers().get(deviceIdentifier).toLong();
+
+            getLogger().finest(" - "+deviceIdentifier.toString()+" : "+getDateString(currentValue));
+
+            if (counters.containsKey(currentValue)){
+                counters.put(currentValue, counters.get(currentValue) + 1);
+            } else {
+                counters.put(currentValue, 1);
+            }
+        }
+
+        getLogger().finest("Checking lastSeenDate duplicates:");
+
+        iterator = deviceTopology.getSlaveDeviceIdentifiers().keySet().iterator();
+        while(iterator.hasNext()){
+            DeviceIdentifier deviceIdentifier = iterator.next();
+            Long currentValue = deviceTopology.getSlaveDeviceIdentifiers().get(deviceIdentifier).toLong();
+
+            Integer count = counters.get(currentValue);
+            if (count > 1) {
+                getLogger().finest(" - removing LSD from " + deviceIdentifier.toString() + ", appears "+count+ " times. (" + getDateString(currentValue)+")");
+                iterator.remove();
+            }
+        }
+        getLogger().finest("-done checking duplicates.");
+        return deviceTopology;
+    }
+
+    private String getDateString(Long time){
+        if (time == null){
+            return "null";
+        }
+
+        Date date = new Date(time);
+        return date.toString();
+    }
     /**
      * This node is only considered an actual slave device if:
      * - the configuredLastSeenDate in EIServer is still empty
@@ -492,5 +551,10 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
             logger = Logger.getLogger(this.getClass().getName());
         }
         return logger;
+    }
+
+    @Override
+    public void setProtocolLogger(Logger protocolLogger) {
+        this.logger = protocolLogger;
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.registers;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
@@ -19,6 +20,7 @@ import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
+import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 
 import java.io.IOException;
 import java.util.Date;
@@ -73,6 +75,23 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
             return true;
         } else {
             return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+        }
+    }
+
+    @Override
+    protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        AM540Properties am540Properties = (AM540Properties) getMeterProtocol().getDlmsSessionProperties();
+        if (captureTime!=null && am540Properties.useBeaconMirrorDeviceDialect()) {
+            // for composed registers:
+            // - readTime is the value stored in attribute#5=captureTime = the metrological date
+            // - eventTime is the communication time -> not used in metrology
+            return new RegisterValue(offlineRegister, new Quantity(attributeValue.toBigDecimal(), unit),
+                    new Date(), // eventTime = read-out time
+                    null,       // fromTime
+                    null,       // toTime
+                    captureTime); // readTime
+        } else {
+            return super.getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
         }
     }
 
