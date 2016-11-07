@@ -63,6 +63,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
@@ -129,6 +130,8 @@ public class UsagePointImpl implements UsagePoint {
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
     private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
+    private TemporalReference<UsagePointStateTemporalImpl> state = Temporals.absent();
+
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -296,7 +299,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setInstallationTime(Instant installationTime) {
-        this.installationTime = installationTime !=null ? installationTime.truncatedTo(ChronoUnit.MINUTES) : null;
+        this.installationTime = installationTime != null ? installationTime.truncatedTo(ChronoUnit.MINUTES) : null;
     }
 
     @Override
@@ -1067,6 +1070,36 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public UsagePointMeterActivator linkMeters() {
         return this.dataModel.getInstance(UsagePointMeterActivatorImpl.class).init(this);
+    }
+
+    @Override
+    public UsagePointState getState() {
+        return this.state.effective(this.clock.instant())
+                .map(UsagePointStateTemporalImpl::getState)
+                .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at the moment."));
+    }
+
+    @Override
+    public UsagePointState getState(Instant instant) {
+        Objects.requireNonNull(instant);
+        return this.state.effective(instant)
+                .map(UsagePointStateTemporalImpl::getState)
+                .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at " + instant));
+    }
+
+    @Override
+    public void setState(UsagePointState state, Instant startTime) {
+        Objects.requireNonNull(state);
+        Objects.requireNonNull(startTime);
+        this.state.all().stream()
+                .filter(candidate -> !candidate.getRange().lowerEndpoint().isBefore(startTime))
+                .findFirst()
+                .ifPresent(nextState -> {
+                    throw new IllegalArgumentException("Can't change state for usage point because it has state changes after that time: " + startTime);
+                });
+        this.state.effective(startTime).ifPresent(activeState -> activeState.close(startTime));
+        this.state.add(this.dataModel.getInstance(UsagePointStateTemporalImpl.class).init(this, state, startTime));
+        touch();
     }
 
     public void adopt(MeterActivationImpl meterActivation) {

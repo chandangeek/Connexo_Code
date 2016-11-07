@@ -110,7 +110,9 @@ public enum MessageSeeds implements MessageSeed {
     ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS(7016, Constants.ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS, "Usage point activation failed by custom validator: {0}"),
     USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
 
-    DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0");
+    DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
+
+    CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can't remove usage point life cycle because it's in use by at least one of the usage point.");
 
     private final int number;
     private final String key;
@@ -247,6 +249,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNIQUE_DETAILS = "usage.point.details.not.unique.for.interval";
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
         public static final String ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS = "activation.failed.by.custom.validators";
+        public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "can.not.delete.active.life.cycle";
     }
 
 }

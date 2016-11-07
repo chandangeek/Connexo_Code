@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -231,6 +232,12 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     MeterActivation activate(Meter meter, MeterRole meterRole, Instant from);
 
     UsagePointMeterActivator linkMeters();
+
+    UsagePointState getState();
+
+    UsagePointState getState(Instant instant);
+
+    void setState(UsagePointState state, Instant startTime);
 
     interface UsagePointConfigurationBuilder {
 

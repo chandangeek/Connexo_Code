@@ -1847,7 +1847,28 @@ public enum TableSpecs {
                     .map(fieldName)
                     .add();
         }
-    };
+    },
+    MTR_UPL_STATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointStateTemporalImpl> table = dataModel.addTable(name(), UsagePointStateTemporalImpl.class);
+            table.map(UsagePointStateTemporalImpl.class);
+            table.since(version(10, 3));
+            Column usagePoint = table.column("USAGE_POINT").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.column("UPL_STATE").map("stateId").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_UPL_STATE_PK").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_UPL_STATE_2_UP_FK")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("state")
+                    .composition()
+                    .add();
+        }
+    },;
 
     abstract void addTo(DataModel dataModel);
 
