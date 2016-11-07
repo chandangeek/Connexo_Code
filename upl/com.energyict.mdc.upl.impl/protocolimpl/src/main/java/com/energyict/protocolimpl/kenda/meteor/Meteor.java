@@ -3,8 +3,8 @@ package com.energyict.protocolimpl.kenda.meteor;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.core.DialerCarrierException;
 import com.energyict.obis.ObisCode;
@@ -16,90 +16,35 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+
 public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
 
-    /**
-     * ---------------------------------------------------------------------------------<p>
-     * Meteor Protocol description:<p>
-     * The protocol consists out of layers<p>
-     * <p/>
-     * 1) The deepest layer is the Parsers layer.  Part of the layer has been made
-     * static and made abstract.  The second layer extends this class.
-     * <p/>
-     * 2) All registers are implemented in classes. The classes always implement the
-     * type of methods: process to parse (deserializes) the byte array in the
-     * object variables,printData visualizes the data matrix (parsed) in the console
-     * and parseToByteArray serializes the object.
-     * <p/>
-     * 3) The MeteorCommunicationsFactory deals with all the communication issues.  It
-     * arranges the data flows and communication.  It starts with sending the command
-     * and getting back the right object to parse the data in.  Also the profileData
-     * factory is implemented in this class.
-     * <p/>
-     * 4) This class: Meteor.java masters and is the interface from the server
-     * <p/>
-     * Additional classes are implemented mostly to help in the Unit testing.
-     * <p/>
-     * Initial version:<p>
-     * ----------------<p>
-     * Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * Version: 1.0 <p>
-     * First edit date: 1/07/2008 PST<p>
-     * Last edit date: 13/08/2008  PST<p>
-     * Comments: Beta ready for testing<p>
-     * Released for testing: 13/08/2008<p>
-     * <p/>
-     * Revisions<p>
-     * ----------------<p>
-     *
-     * @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-     * @Version: 1.01 <p>
-     * First edit date: 26/08/2008 PST<p>
-     * Last edit date: 1/09/2008  PST<p>
-     * Comments: Beta+ ready for testing<p>
-     * Released for testing: 1/09/2008<p>
-     * ---------------------------------------------------------------------------------<p>
-     * <p/>
-     * Changes:
-     * JME	|05022009|	Fixed timing issues that prevented some meters to readout the load profile data.
-     * -> Fixed by changing the receive interframe timeout to 3 times the timeout.
-     * -> Lowered the interframe retries to prevent huge call times when meter hangs.
-     */
-
-    private OutputStream outputStream;
-    private InputStream inputStream;
     private int DEBUG = 0;
     private MeteorCommunicationsFactory mcf;
     private int outstationID, retry, timeout, delayAfterConnect;
 
-    // command descriptions from the datasheet
-    // Header format, at the moment I consider only ident as a variable
-    private byte ident;                    // see ident format listed below
-    private byte blockSize;                 // character count of block modulo 256
     private byte[] sourceCode;        // Defines central equipment of origin
     private byte sourceCodeExt;        // Defines peripheral equipment of origin
     private byte[] destinationCode;    // Defines central equipment of final destination
     private byte destinationCodeExt;// Defines peripheral equipment of final destination
-    private byte unit;                    // DIP routing ???
-    private byte port;                    // DIP routing ???
 
     // data objects
     private MeteorFullPersonalityTable fullperstable = null;
-    private MeteorExtendedPersonalityTable extperstable = null;
     private MeteorStatus statusreg = null;
     private ObisCodeMapper ocm;
     private ProtocolChannelMap channelMap;
@@ -146,14 +91,10 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
       */
     public Meteor() {// blank constructor for testing purposes only
         byte[] blank = {0, 0};
-        ident = 0;                // see ident format listed below
-        blockSize = 11;            // character count of block modulo 256
         sourceCode = blank;        // Defines central equipment of origin
         sourceCodeExt = 0;        // Defines peripheral equipment of origin
         destinationCode = blank;    // Defines central equipment of final destination
         destinationCodeExt = 0;    // Defines peripheral equipment of final destination
-        unit = 0;                    // DIP routing ???
-        port = 0;                    // DIP routing ???
     }
 
     public Meteor(  // real constructor, sets header correct.
@@ -161,50 +102,30 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
                     byte sourceCodeExt,
                     byte[] destinationCode,
                     byte destinationCodeExt) {
-        ident = 0;
         this.sourceCode = sourceCode;
         this.sourceCodeExt = sourceCodeExt;
         this.destinationCode = destinationCode;
         this.destinationCodeExt = destinationCodeExt;
-        unit = 0; // correct?
-        port = 0; // correct?
     }
 
-//	protected ProtocolConnection doInit(InputStream inputStream,
-//			OutputStream outputStream, int timeoutProperty,
-//			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
-//			int protocolCompatible, Encryptor encryptor,
-//			HalfDuplexController halfDuplexController) throws IOException {
-//
-//		this.inputStream=inputStream;
-//		this.outputStream=outputStream;
-//
-//		return null;
-//	}
-
-    protected void doValidateProperties(Properties properties)
-            throws MissingPropertyException, InvalidPropertyException {
-
-    }
-
+    @Override
     public String getFirmwareVersion() throws IOException {
         MeteorFirmwareVersion mfv = (MeteorFirmwareVersion) mcf.transmitData(firmwareVersion, null);
         return mfv.getVersion();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
+    @Override
     public Date getTime() throws IOException {
         MeteorCLK clk = (MeteorCLK) mcf.transmitData(readRTC, null);
         return clk.getCalendar().getTime();
     }
 
-    public MeteorPowerFailDetails getPowerFailDetails() throws IOException {
-        return (MeteorPowerFailDetails) mcf.transmitData(powerFailDetails, null);
-    }
-
+    @Override
     public void setTime() throws IOException {
         // set time is only possible on commissioning or after loading a new personality table (pg 8)
         // => use only trimmer.
@@ -228,13 +149,11 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         mcf.trimRTC(result);
     }
 
-    public MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
-        MeteorFullPersonalityTable mfpt = (MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);
-        ;
-        return mfpt;
+    private MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
+        return (MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);
     }
 
-    public MeteorStatus getMeteorStatus() throws IOException {
+    private MeteorStatus getMeteorStatus() throws IOException {
         MeteorStatus statusreg = null;
         boolean ack = false;
         int pog = this.retry;
@@ -260,12 +179,46 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return statusreg;
     }
 
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
                      Logger arg3) throws IOException {
         System.out.println("init");
         // set streams
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
+        /*
+      ---------------------------------------------------------------------------------<p>
+      Meteor Protocol description:<p>
+      The protocol consists out of layers<p>
+      <p/>
+      1) The deepest layer is the Parsers layer.  Part of the layer has been made
+      static and made abstract.  The second layer extends this class.
+      <p/>
+      2) All registers are implemented in classes. The classes always implement the
+      type of methods: process to parse (deserializes) the byte array in the
+      object variables,printData visualizes the data matrix (parsed) in the console
+      and parseToByteArray serializes the object.
+      <p/>
+      3) The MeteorCommunicationsFactory deals with all the communication issues.  It
+      arranges the data flows and communication.  It starts with sending the command
+      and getting back the right object to parse the data in.  Also the profileData
+      factory is implemented in this class.
+      <p/>
+      4) This class: Meteor.java masters and is the interface from the server
+      <p/>
+      Additional classes are implemented mostly to help in the Unit testing.
+      <p/>
+      Initial version:<p>
+      ----------------<p>
+      Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+      Version: 1.0 <p>
+      First edit date: 1/07/2008 PST<p>
+      Last edit date: 13/08/2008  PST<p>
+      Comments: Beta ready for testing<p>
+      Released for testing: 13/08/2008<p>
+      <p/>
+      Revisions<p>
+      ----------------<p>
+
+      */
         // build command factory
         this.mcf = new MeteorCommunicationsFactory(sourceCode, sourceCodeExt, destinationCode, destinationCodeExt, inputStream, outputStream);
         // set the timeout and retry (set in the properties method)
@@ -276,6 +229,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         //setTime();
     }
 
+    @Override
     public void connect() throws IOException {
         // full personality table should be downloaded because some of the registers
         // are needed in the communicationsfactory
@@ -302,41 +256,37 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         // 2) the format described in the datasheet is not correct
     }
 
+    @Override
     public void disconnect() throws IOException {
     }
 
-    public Object fetchCache(int arg0) throws SQLException, BusinessException {
+    @Override
+    public Quantity getMeterReading(int arg0) throws IOException {
         return null;
     }
 
-    public Object getCache() {
+    @Override
+    public Quantity getMeterReading(String arg0) throws IOException {
         return null;
     }
 
-    public Quantity getMeterReading(int arg0) throws
-            IOException {
-        return null;
-    }
-
-    public Quantity getMeterReading(String arg0) throws
-            IOException {
-        return null;
-    }
-
+    @Override
     public int getNumberOfChannels() throws IOException {
         return channelMap.getNrOfUsedProtocolChannels();  // the meter always has the same number of physical channels
     }
 
+    @Override
     public ProfileData getProfileData(boolean arg0) throws IOException {
         return null;
     }
 
-    public ProfileData getProfileData(Date fromTime, boolean includeEvents)
-            throws IOException {
+    @Override
+    public ProfileData getProfileData(Date fromTime, boolean includeEvents) throws IOException {
         Calendar cal = Calendar.getInstance(timezone);
         return getProfileData(fromTime, cal.getTime(), includeEvents);
     }
 
+    @Override
     public ProfileData getProfileData(Date start, Date stop, boolean arg2) throws IOException {
         long dataInc = 24 * 3600 * 1000;
         boolean firstentry = true;
@@ -380,6 +330,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return pd;
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         if (fullperstable == null) {
             fullperstable = getFullPersonalityTable();
@@ -387,54 +338,48 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return 60 * fullperstable.getDemper();
     }
 
+    @Override
     public String getRegister(String arg0) throws IOException {
         throw new UnsupportedException("No registers configured on meter.");
     }
 
+    @Override
     public void initializeDevice() throws IOException {
     }
 
+    @Override
     public void release() throws IOException {
     }
 
-    public void setCache(Object arg0) {
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.integer(NODEID.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer("Retry", false),
+                UPLPropertySpecFactory.integer("DelayAfterConnect", false),
+                ProtocolChannelMap.propertySpec("ChannelMap", false));
     }
 
-    public void setProperties(Properties properties) throws InvalidPropertyException,
-            MissingPropertyException {
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
-            this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
+            this.outstationID = Integer.parseInt(properties.getProperty(NODEID.getName()));
+            this.destinationCode = Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));
+            this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "1"));
+            this.timeout = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "5000"));
+            this.retry = Integer.parseInt(properties.getProperty("Retry", "3"));
+            this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0"));
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("The node address field has not been filled in");
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-        this.destinationCode = Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));
-        this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "1"));
-        this.timeout = Integer.parseInt(properties.getProperty("TimeOut", "5000"));
-        this.retry = Integer.parseInt(properties.getProperty("Retry", "3"));
-        this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0"));
     }
 
+    @Override
     public void setRegister(String arg0, String arg1) throws IOException {
     }
 
-    public void updateCache(int arg0, Object arg1) throws SQLException,
-            BusinessException {
-    }
-
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "TimeOut",
-                    "Retry",
-                    "ChannelMap",
-                    "DelayAfterConnect");
-    }
-
-    @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (ocm == null) {
             ocm = new ObisCodeMapper(this);
@@ -442,11 +387,12 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return ocm.getRegisterValue(obisCode);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo("");
     }
 
-    public MeteorCommunicationsFactory getMcf() {
+    MeteorCommunicationsFactory getMcf() {
         return mcf;
     }
 
@@ -457,4 +403,5 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     public int getTimeout() {
         return timeout;
     }
+
 }
