@@ -57,7 +57,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
             metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View');
 
         if (!tab) {
-            router.getRoute('administration/metrologyconfiguration/view/estimation').forward({tab: 'rules'});
+            window.location.replace(router.getRoute('administration/metrologyconfiguration/view/estimation').buildUrl({tab: 'rules'}));
         } else {
             pageMainContent.setLoading();
             metrologyConfigurationController.loadMetrologyConfiguration(mcid, {
@@ -93,7 +93,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
             ruleSetId: ruleSet.get('id')
         };
         rulesStore.load(function () {
-            view.down('#est-purpose-rules-grid-paging-top').child('#displayItem')
+            view.down('#est-purpose-rules-grid-paging-top #displayItem')
                 .setText(Uni.I18n.translate('metrologyConfiguration.estimation.rulesCount', 'IMT', '{0} estimation rule(s)', rulesStore.getCount()));
         });
         Ext.resumeLayouts(true);
