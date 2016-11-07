@@ -603,10 +603,12 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by workGroup
         if (!filter.getWorkGroupAssignees().isEmpty()) {
-            condition = condition.and(where("workGroup").in(filter.getWorkGroupAssignees()));
+            Condition wgCondition = Condition.TRUE;
+            wgCondition = wgCondition.and(where("workGroup").in(filter.getWorkGroupAssignees()));
             if (filter.isUnassignedWorkGroupSelected()) {
-                condition = condition.or(where("workGroup").isNull());
+                wgCondition = wgCondition.or(where("workGroup").isNull());
             }
+            condition = condition.and(wgCondition);
         }
         if (filter.getWorkGroupAssignees().isEmpty() && filter.isUnassignedWorkGroupSelected()) {
             condition = condition.and(where("workGroup").isNull());
