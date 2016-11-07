@@ -656,8 +656,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from: Uni.DateTime.formatDateTime(this.query('date-time')[0].getValue(), Uni.DateTime.LONG, Uni.DateTime.SHORT),
-                            to: Uni.DateTime.formatDateTime(this.query('date-time')[1].getValue(), Uni.DateTime.LONG, Uni.DateTime.SHORT)
+                            from: Ext.Date.format(this.query('date-time')[0].getValue(), 'Y-m-d H:i:s'),
+                            to: Ext.Date.format(this.query('date-time')[1].getValue(), 'Y-m-d H:i:s')
                         };
                     },
                     getFieldValue : function (){
@@ -768,8 +768,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from: Uni.DateTime.formatDateLong(this.query('datefield')[0].getValue()),
-                            to: Uni.DateTime.formatDateLong(this.query('datefield')[1].getValue())
+                            from: Ext.Date.format(this.query('datefield')[0].getValue(), 'Y-m-d'),
+                            to: Ext.Date.format(this.query('datefield')[1].getValue(), 'Y-m-d')
                         };
                     },
                     getFieldValue : function (){
