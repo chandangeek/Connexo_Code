@@ -124,6 +124,7 @@ public class UsagePointResource {
     private final Provider<GoingOnResource> goingOnResourceProvider;
     private final Provider<UsagePointOutputResource> usagePointOutputResourceProvider;
     private final Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider;
+    private final Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
@@ -142,7 +143,7 @@ public class UsagePointResource {
                               CustomPropertySetService customPropertySetService,
                               Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider, UsagePointInfoFactory usagePointInfoFactory,
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                              ExceptionFactory exceptionFactory,
+                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider, ExceptionFactory exceptionFactory,
                               LocationInfoFactory locationInfoFactory,
                               ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
                               Thesaurus thesaurus,
@@ -162,6 +163,7 @@ public class UsagePointResource {
         this.customPropertySetService = customPropertySetService;
         this.usagePointCalendarResourceProvider = usagePointCalendarResourceProvider;
         this.usagePointInfoFactory = usagePointInfoFactory;
+        this.usagePointCalendarHistoryResourceProvider = usagePointCalendarHistoryResourceProvider;
         this.locationInfoFactory = locationInfoFactory;
         this.validationSummaryInfoFactory = validationSummaryInfoFactory;
         this.thesaurus = thesaurus;
@@ -525,6 +527,11 @@ public class UsagePointResource {
     @Path("/{mrid}/calendars")
     public UsagePointCalendarResource getUsagePointCalendarResource() {
         return usagePointCalendarResourceProvider.get();
+    }
+
+    @Path("/{mrid}/history/calendars")
+    public UsagePointCalendarHistoryResource getUsagePointCalendarHistoryResource() {
+        return usagePointCalendarHistoryResourceProvider.get();
     }
 
     @Path("/{mRID}/whatsgoingon")
