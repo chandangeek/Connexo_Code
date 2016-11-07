@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -31,6 +32,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,15 +41,22 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -90,7 +99,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
     private LZQJRegistry lzqjRegistry = null;
     private LZQJProfile lzqjProfile = null;
 
-    private List registerValues = null;
+    private List<RegisterValue> registerValues = null;
 
     private byte[] dataReadout = null;
 
@@ -103,12 +112,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
      */
     private boolean longNameObisCodes = false;
 
-    /**
-     * Creates a new instance of LZQJ, empty constructor
-     */
-    public LZQJ() {
-    } // public LZQJ()
-
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         this.profileHelper = true;
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
@@ -118,6 +122,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return pd;
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         this.profileHelper = true;
         ProfileData pd = getLzqjProfile().getProfileData(lastReading, includeEvents);
@@ -125,27 +130,25 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return pd;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         this.profileHelper = true;
         ProfileData pd = getLzqjProfile().getProfileData(from, to, includeEvents);
         this.profileHelper = false;
         return pd;
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    @Override
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    @Override
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
-
+    @Override
     public void setTime() throws IOException {
         if (vdewCompatible == 1) {
             setTimeVDEWCompatible();
@@ -160,7 +163,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getLzqjRegistry().setRegister("TimeDate2", date);
-    } // public void setTime() throws IOException
+    }
 
     private void setTimeVDEWCompatible() throws IOException {
         Calendar calendar;
@@ -169,86 +172,67 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         Date date = calendar.getTime();
         getLzqjRegistry().setRegister("Time", date);
         getLzqjRegistry().setRegister("Date", date);
-    } // public void setTime() throws IOException
+    }
 
+    @Override
     public Date getTime() throws IOException {
         Date date = (Date) getLzqjRegistry().getRegister("TimeDate");
         return new Date(date.getTime() - iRoundtripCorrection);
     }
 
-    public byte getLastProtocolState() {
-        return -1;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                UPLPropertySpecFactory.integer("RequestHeader", false),
+                ProtocolChannelMap.propertySpec("ChannelMap", false),
+                UPLPropertySpecFactory.integer("DataReadout", false),
+                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                UPLPropertySpecFactory.integer("VDEWCompatible", false),
+                UPLPropertySpecFactory.integer("FixedProfileTimeZone", false),
+                UPLPropertySpecFactory.string("Software7E1", false));
     }
 
-    /************************************** MeterProtocol implementation ***************************************/
-
-    /**
-     * this implementation calls <code> validateProperties </code>
-     * and assigns the argument to the properties field
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
+    @Override
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
-    }
-
-    /**
-     * <p>validates the properties.</p><p>
-     * The default implementation checks that all required parameters are present.
-     * </p>
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            strID = properties.getProperty(ADDRESS.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getProperty(NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "900").trim());
+            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim());
             requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "0").trim());
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
             dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "1").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "1").trim());
             isFixedProfileTimeZone = (Integer.parseInt(properties.getProperty("FixedProfileTimeZone", "1")) == 1);
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
     }
 
     private boolean isDataReadout() {
         return (dataReadoutRequest == 1);
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name <br>
-     * @return the register value
-     * @throws IOException             <br>
-     * @throws UnsupportedException    <br>
-     * @throws NoSuchRegisterException <br>
-     */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    @Override
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -256,57 +240,23 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return new String(data);
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name  <br>
-     * @param value <br>
-     * @throws IOException             <br>
-     * @throws NoSuchRegisterException <br>
-     * @throws UnsupportedException    <br>
-     */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    @Override
+    public void setRegister(String name, String value) throws IOException {
         getLzqjRegistry().setRegister(name, value);
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    @Override
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "IEC1107Compatible",
-                    "ChannelMap",
-                    "RequestHeader",
-                    "DataReadout",
-                    "ExtendedLogging",
-                    "VDEWCompatible",
-                    "Software7E1",
-                    "FixedProfileTimeZone");
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
-
+    @Override
+    public String getFirmwareVersion() throws IOException {
         String name;
         String firmware = "";
         ByteArrayOutputStream byteArrayOutputStream;
@@ -356,16 +306,9 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
             firmware += " - Set number: (none)";
         }
         return firmware;
-    } // public String getFirmwareVersion()
+    }
 
-    /**
-     * initializes the receiver
-     *
-     * @param inputStream  <br>
-     * @param outputStream <br>
-     * @param timeZone     <br>
-     * @param logger       <br>
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -378,11 +321,9 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
             logger.severe("LZQJ: init(...), " + e.getMessage());
         }
 
-    } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
+    }
 
-    /**
-     * @throws IOException
-     */
+    @Override
     public void connect() throws IOException {
         try {
             if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (isDataReadout())) {
@@ -395,9 +336,6 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
                     throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
-
-//			flagIEC1107Connection.getHhuSignOn().setMode(HHUSignOn.MODE_READOUT);
-//			flagIEC1107Connection.getHhuSignOn().setProtocol(HHUSignOn.PROTOCOL_NORMAL);
 
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
 
@@ -424,6 +362,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     }
 
+    @Override
     public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
@@ -432,7 +371,8 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    @Override
+    public int getNumberOfChannels() throws IOException {
         if (requestHeader == 1) {
             return getLzqjProfile().getProfileHeader().getNrOfChannels();
         } else {
@@ -440,7 +380,8 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    @Override
+    public int getProfileInterval() throws IOException {
         if (requestHeader == 1) {
             return getLzqjProfile().getProfileHeader().getProfileInterval();
         } else {
@@ -448,18 +389,16 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
-
-    // Implementation of interface ProtocolLink
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
-    /**
-     * Apparently the profile is always returned in GMT+01 ...
-     */
+    @Override
     public TimeZone getTimeZone() {
         if (profileHelper) {
             if (isFixedProfileTimeZone) {
+                // Apparently the profile is always returned in GMT+01 ...
                 return TimeZone.getTimeZone("GMT+01:00");
             } else {
                 return timeZone;
@@ -469,62 +408,50 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return (iIEC1107Compatible == 1);
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
-    /**
-     * Setter for the DataReadout
-     *
-     * @param dataReadout the new DataReadout to set
-     */
     protected void setDataReadout(byte[] dataReadout) {
         this.dataReadout = dataReadout.clone();
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-    }
-
+    @Override
     public ChannelMap getChannelMap() {
         return null;
     }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
 
-    private static final Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
 
     static {
-        exceptionInfoMap.put("ERROR", "Request could not execute!");
-        exceptionInfoMap.put("ERROR01", "EMH LZQJ ERROR 01, invalid command!");
-        exceptionInfoMap.put("ERROR06", "EMH LZQJ ERROR 06, invalid command!");
+        EXCEPTION_INFO_MAP.put("ERROR", "Request could not execute!");
+        EXCEPTION_INFO_MAP.put("ERROR01", "EMH LZQJ ERROR 01, invalid command!");
+        EXCEPTION_INFO_MAP.put("ERROR06", "EMH LZQJ ERROR 06, invalid command!");
     }
 
+    @Override
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String) exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
+        String exceptionInfo = EXCEPTION_INFO_MAP.get(ProtocolUtils.stripBrackets(id));
         if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
         } else {
@@ -532,23 +459,22 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
+    @Override
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
     }
 
-    /**
-     * Getter for property requestHeader.
-     *
-     * @return Value of property requestHeader.
-     */
+    @Override
     public boolean isRequestHeader() {
         return requestHeader == 1;
     }
 
+    @Override
     public com.energyict.protocolimpl.base.ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
     }
 
+    @Override
     public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             RegisterValue billingPointRegister = doReadRegister(ObisCode.fromString("1.1.0.1.0.255"), false);
@@ -646,7 +572,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
             data = flagIEC1107Connection.receiveRawData();
         } else {
             DataDumpParser ddp = new DataDumpParser(getDataReadout());
-            if (edisNotation.indexOf("0.1.0") >= 0) {
+            if (edisNotation.contains("0.1.0")) {
                 String name = edisNotation + "(;)";
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 byteArrayOutputStream.write(name.getBytes());
@@ -758,11 +684,9 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     private RegisterValue findRegisterValue(com.energyict.obis.ObisCode obisCode) {
         if (registerValues == null) {
-            registerValues = new ArrayList();
+            registerValues = new ArrayList<>();
         } else {
-            Iterator it = registerValues.iterator();
-            while (it.hasNext()) {
-                RegisterValue r = (RegisterValue) it.next();
+            for (RegisterValue r : registerValues) {
                 if (r.getObisCode().equals(obisCode)) {
                     return r;
                 }
@@ -771,7 +695,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return null;
     }
 
-
+    @Override
     public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.toString());
     }
@@ -791,13 +715,12 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     }
 
-
-    // ********************************************************************************************************
-    // implementation of the HHUEnabler interface
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, isDataReadout());
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
@@ -806,50 +729,30 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-    /**
-     * Getter for property lzqjRegistry.
-     *
-     * @return Value of property lzqjRegistry.
-     */
-    public LZQJRegistry getLzqjRegistry() {
+    private LZQJRegistry getLzqjRegistry() {
         return lzqjRegistry;
     }
 
-    /**
-     * Getter for property lzqjProfile.
-     *
-     * @return Value of property lzqjProfile.
-     * @throws IOException
-     */
-    public LZQJProfile getLzqjProfile() {
+    private LZQJProfile getLzqjProfile() {
         lzqjProfile = new LZQJProfile(this, this, lzqjRegistry);
         return lzqjProfile;
     }
 
-    /**
-     * Setter for the TimeZone
-     *
-     * @param timeZone - the TimeZone to set
-     */
     public void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }
 
-    public void profileHelperSetter(boolean value) {
+    void profileHelperSetter(boolean value) {
         this.profileHelper = value;
     }
 
-    /**
-     * Setter for the connection class
-     *
-     * @param connection the new connection class to set
-     */
     protected void setConnection(FlagIEC1107Connection connection) {
         this.flagIEC1107Connection = connection;
     }
 
-} // public class LZQJ implements MeterProtocol {
+}

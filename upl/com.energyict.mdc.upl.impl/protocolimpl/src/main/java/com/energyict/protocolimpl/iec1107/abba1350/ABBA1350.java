@@ -197,11 +197,6 @@ public class ABBA1350
         }
     }
 
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                "Software7E1");
-    }
-
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
