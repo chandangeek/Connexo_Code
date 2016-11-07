@@ -28,12 +28,9 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
             useNull: true,
             convert: function (v, record) {
                 if (!Ext.isEmpty(record.data.lastReading)) {
-                    if (record.get('type') === 'billing') {
-                        return record.get('lastReading').value + ' ' + record.get('lastReading').unit;
-                    }
-                    if (record.get('type') === 'numerical') {
+                    if (record.get('type') === 'numerical' || record.get('type') === 'billing') {
                         if(!Ext.isEmpty(record.get('lastReading').value)) {
-                            return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('readingType').names.unitOfMeasure;
+                            return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('lastReading').unit;
                         }
                         if(!Ext.isEmpty(record.get('lastReading').calculatedValue)) {
                             return Uni.Number.formatNumber(record.get('lastReading').calculatedValue, -1) + ' ' + record.get('lastReading').calculatedUnit;

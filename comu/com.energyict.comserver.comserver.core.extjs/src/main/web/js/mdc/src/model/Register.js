@@ -9,19 +9,14 @@ Ext.define('Mdc.model.Register', {
             convert: function (v, record) {
                 if (!Ext.isEmpty(record.data.lastReading)) {
                     var value, unit;
-                    if (record.get('type') === 'billing') {
+                    if (record.get('type') === 'billing' || record.get('type') === 'numerical') {
                         value = record.get('lastReading').value;
                         unit = record.get('lastReading').unit;
-                        return Ext.isEmpty(value) ? '-' : value + ' ' + (unit ? unit : '');
-                    }
-                    else if (record.get('type') === 'numerical') {
-                        value = record.get('lastReading').value;
-                        unit = record.get('readingType').names.unitOfMeasure;
                         if (Ext.isEmpty(value)) {
                             value = record.get('lastReading').calculatedValue;
                             unit = record.get('lastReading').calculatedUnit;
                         }
-                        return Ext.isEmpty(value) ? '-' : Uni.Number.formatNumber(value, -1) + ' ' + (unit ? unit : '');
+                        return Ext.isEmpty(value) ? '-' : value + ' ' + (unit ? unit : '');
                     }
                     else if (record.data.type === 'text') {
                         value = record.data.lastReading.value;

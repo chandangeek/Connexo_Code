@@ -8,6 +8,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
         'Uni.grid.column.Edited',
         'Uni.grid.column.ValidationFlag'
     ],
+    useMultiplier: false,
+
     initComponent: function () {
         var me = this;
 
@@ -33,7 +35,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
             },
             {
                 xtype: 'validation-flag-column',
-                dataIndex: 'value',
+                dataIndex: me.useMultiplier ? 'calculatedValue' : 'value',
                 align: 'right',
                 minWidth: 150,
                 flex: 1
