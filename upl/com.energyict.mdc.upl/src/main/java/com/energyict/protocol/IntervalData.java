@@ -402,7 +402,7 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @return an iterator over the values for the interval
      */
-    public Iterator getValuesIterator() {
+    public Iterator<IntervalValue> getValuesIterator() {
         return intervalValues.iterator();
     }
 
@@ -412,7 +412,7 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      * @return List
      */
     @XmlAttribute
-    public List getIntervalValues() {
+    public List<IntervalValue> getIntervalValues() {
         return intervalValues;
     }
 
@@ -421,7 +421,7 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @return List Iterator
      */
-    public ListIterator getIntervalValueIterator() {
+    public ListIterator<IntervalValue> getIntervalValueIterator() {
         return intervalValues.listIterator();
     }
 
