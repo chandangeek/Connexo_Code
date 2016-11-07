@@ -30,6 +30,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -70,7 +71,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link AdapterDeviceProtocolDialect} component.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/10/12
  * Time: 15:59
@@ -99,7 +100,7 @@ public class AdapterDeviceProtocolDialectTest {
     private InMemoryBootstrapModule bootstrapModule;
 
     @Before
-    public void before () {
+    public void before() {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
@@ -118,6 +119,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new UserModule(),
                 new PartyModule(),
                 new FiniteStateMachineModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
@@ -130,7 +132,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule(),
                 new CustomPropertySetsModule()
-                );
+        );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(OrmService.class);
             injector.getInstance(CustomPropertySetService.class);
@@ -148,7 +150,7 @@ public class AdapterDeviceProtocolDialectTest {
     }
 
     @Test
-    public void testDialectName () {
+    public void testDialectName() {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
         AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, mockDeviceProtocol);
 
@@ -156,7 +158,7 @@ public class AdapterDeviceProtocolDialectTest {
     }
 
     @Test
-    public void getRequiredKeysTest () {
+    public void getRequiredKeysTest() {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
         AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, mockDeviceProtocol);
 
@@ -164,7 +166,7 @@ public class AdapterDeviceProtocolDialectTest {
     }
 
     @Test
-    public void getOptionalKeysTest () {
+    public void getOptionalKeysTest() {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
         AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, mockDeviceProtocol);
 
@@ -172,7 +174,7 @@ public class AdapterDeviceProtocolDialectTest {
     }
 
     @Test
-    public void getPropertySpecTest () {
+    public void getPropertySpecTest() {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol(propertySpecService);
         AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(thesaurus, mockDeviceProtocol);
 
