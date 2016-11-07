@@ -1,32 +1,9 @@
-/**
- * @version 2.0
- * @author Koenraad Vanderschaeve
- * <p/>
- * <B>Description :</B><BR>
- * Class that implements the Siemens ZMD DLMS profile implementation
- * <BR>
- * <B>@beginchanges</B><BR>
- * KV|08042003|Initial version
- * KV|08102003|Set default of RequestTimeZone to 0
- * KV|10102003|generate OTHER MeterEvent when statusbit is not supported
- * KV|27102003|changed code for correct dst transition S->W
- * KV|20082004|Extended with obiscode mapping for register reading
- * KV|17032005|improved registerreading
- * KV|23032005|Changed header to be compatible with protocol version tool
- * KV|30032005|Improved registerreading, configuration data
- * KV|31032005|Handle DataContainerException
- * KV|15072005|applyEvents() done AFTER getting the logbook!
- * KV|10102006|extension to support cumulative values in load profile
- * KV|10102006|fix to support 64 bit values in load profile
- * @endchanges
- */
-
 package com.energyict.protocolimpl.dlms;
 
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -61,20 +38,42 @@ import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
 @Deprecated
-/** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
+/**
+ * <p/>
+ * <B>Description :</B><BR>
+ * Class that implements the Siemens ZMD DLMS profile implementation
+ * Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead.
+ * <BR>
+ * @version 2.0
+ * @author Koenraad Vanderschaeve
+ * <B>@beginchanges</B><BR>
+ * KV|08042003|Initial version
+ * KV|08102003|Set default of RequestTimeZone to 0
+ * KV|10102003|generate OTHER MeterEvent when statusbit is not supported
+ * KV|27102003|changed code for correct dst transition S->W
+ * KV|20082004|Extended with obiscode mapping for register reading
+ * KV|17032005|improved registerreading
+ * KV|23032005|Changed header to be compatible with protocol version tool
+ * KV|30032005|Improved registerreading, configuration data
+ * KV|31032005|Handle DataContainerException
+ * KV|15072005|applyEvents() done AFTER getting the logbook!
+ * KV|10102006|extension to support cumulative values in load profile
+ * KV|10102006|fix to support 64 bit values in load profile
+ * @endchanges
+ */
 public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;
@@ -93,20 +92,21 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     private static final long EV_POWER_DOWN = 0x00000080;
     private static final long EV_EVENT_LOG_CLEARED = 0x00002000;
     private static final long EV_LOAD_PROFILE_CLEARED = 0x00004000;
+    private static final String PROPNAME_EVENT_ID_INDEX = "EventIdIndex";
     private final MessageProtocol messageProtocol;
-    int eventIdIndex;
+    private int eventIdIndex;
 
     public DLMSZMD() {
         this.messageProtocol = new ZmdMessages(this);
     }
 
+    @Override
     protected String getDeviceID() {
         return "LGZ";
     }
-    //private static final long EV_CAPTURED_EVENTS=       0x008860E5; // Add new events...
 
     //KV 27102003
-    public Calendar initCalendarSW(boolean protocolDSTFlag, TimeZone timeZone) {
+    private Calendar initCalendarSW(boolean protocolDSTFlag, TimeZone timeZone) {
         Calendar calendar;
         if (protocolDSTFlag) {
             calendar = Calendar.getInstance(ProtocolUtils.getSummerTimeZone(timeZone));
@@ -116,11 +116,12 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         return calendar;
     }
 
-    /** ProtocolVersion date */
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     protected void getEventLog(ProfileData profileData, Calendar fromCalendar, Calendar toCalendar) throws IOException {
         LogBookReader logBookReader = new LogBookReader(this, getCosemObjectFactory());
         List<MeterEvent> meterEvents = logBookReader.getEventLog(fromCalendar, toCalendar);
@@ -145,13 +146,12 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         return new ConformanceBlock(1573408L);
     }
 
+    @Override
     protected void buildProfileData(byte bNROfChannels, ProfileData profileData, ScalerUnit[] scalerunit, UniversalObject[] intervalList) throws IOException {
-        byte bDOW;
-        Calendar stdCalendar = null;
-        Calendar dstCalendar = null;
-        Calendar calendar = null;
+        Calendar stdCalendar;
+        Calendar dstCalendar;
+        Calendar calendar;
         int i, t;
-        IntervalData savedIntervalData = null;
 
         if (isRequestTimeZone()) {
             stdCalendar = ProtocolUtils.getCalendar(false, requestTimeZone());
@@ -194,7 +194,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                 if ((iField & bit) != 0) {
                     profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
                             (int) mapLogCodes(bit),
-                            (int) bit));
+                            bit));
                 }
             } // for (int bit=0x1;bit!=0;bit<<=1)
 
@@ -244,17 +244,16 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                     roundUp2nearestInterval(intervalData);
                         profileData.addInterval(intervalData);
                     }
-            } // if ((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0)
+            }
 
             if (DEBUG >= 1) {
                 System.out.println();
             }
-
-        } // for (i=0;i<intervalList.length;i++) {
+        }
 
         // In case of double intervals (which can occur if a time shift has been done) then merge them together
         profileData.setIntervalDatas(mergeDuplicateIntervalsIncludingIntervalStatus(profileData.getIntervalDatas()));
-    } // ProfileData buildProfileData(...)
+    }
 
     /**
      * Merge the duplicate intervals from the given list of IntervalData elements.
@@ -265,7 +264,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
      * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
      */
     private List<IntervalData> mergeDuplicateIntervalsIncludingIntervalStatus(List<IntervalData> intervals) throws IOException {
-        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        List<IntervalData> mergedIntervals = new ArrayList<>();
         for (IntervalData id2compare : intervals) {
             boolean alreadyProcessed = false;
             for (IntervalData merged : mergedIntervals) {
@@ -276,7 +275,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
             }
 
             if (!alreadyProcessed) {
-                List<IntervalData> toAdd = new ArrayList<IntervalData>();
+                List<IntervalData> toAdd = new ArrayList<>();
                 for (IntervalData id : intervals) {
                     if (id.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
                         toAdd.add(id);
@@ -300,24 +299,11 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     }
 
     // KV 15122003
-    private void roundDown2nearestInterval(IntervalData intervalData) throws IOException {
-        int rest = (int) (intervalData.getEndTime().getTime() / 1000) % getProfileInterval();
-        if (rest > 0) {
-            intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime() / 1000) - rest) * 1000);
-        }
-    }
-
-    // KV 15122003
     private void roundUp2nearestInterval(IntervalData intervalData) throws IOException {
         int rest = (int) (intervalData.getEndTime().getTime() / 1000) % getProfileInterval();
         if (rest > 0) {
             intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime() / 1000) + (getProfileInterval() - rest)) * 1000);
         }
-    }
-
-    // KV 15122003
-    private int getNrOfIntervals(IntervalData intervalData) throws IOException {
-        return (int) (intervalData.getEndTime().getTime() / 1000) / getProfileInterval();
     }
 
     // KV 15122003 changed
@@ -328,9 +314,9 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         long current;
         for (i = 0; i < currentCount; i++) {
             if (getMeterConfig().getChannelObject(i).isCapturedObjectCumulative()) {
-                current = ((Number) currentIntervalData.get(i)).longValue();
+                current = currentIntervalData.get(i).longValue();
             } else {
-                current = ((Number) currentIntervalData.get(i)).longValue() + ((Number) cumulatedIntervalData.get(i)).longValue();
+                current = currentIntervalData.get(i).longValue() + cumulatedIntervalData.get(i).longValue();
             }
             intervalData.addValue(new Long(current));
         }
@@ -355,21 +341,16 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                 return (MeterEvent.CLEAR_DATA);
             default:
                 return (MeterEvent.OTHER);
-        } // switch(lLogCode)
-    } // private void mapLogCodes(long lLogCode)
+        }
+    }
 
-    /**
-     * Return the serialNumber of the device.
-     *
-     * @return the serialNumber of the device.
-     */
     @Override
     public String getSerialNumber(){
-        /** The serial number is present in a reserved object: COSEM Logical device name object
+        /* The serial number is present in a reserved object: COSEM Logical device name object
          * In order to facilitate access using SN referencing, this object has a reserved short name by DLMS/COSEM convention: 0xFD00.
          * See topic 'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
-         **/
-        String retrievedSerial = null;
+         */
+        String retrievedSerial;
         try {
             retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
             if (retrievedSerial.toLowerCase().startsWith("lgz")) {
@@ -378,43 +359,27 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                 return retrievedSerial;
             }
         } catch (IOException e) {
-           throw DLMSIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
+           throw DLMSIOExceptionHandler.handle(e, getProtocolRetriesProperty() + 1);
         }
     }
 
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            // KV 19012004
-            if ((strID != null) && (strID.length() > 16)) {
-                throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            }
-
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterfail", "3000").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
-            iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "32").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
-            eventIdIndex = Integer.parseInt(properties.getProperty("EventIdIndex", "-1").trim()); // ZMD=1, ZMQ=2
-
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DLMS ZMD, validateProperties, NumberFormatException, " + e.getMessage());
-        }
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_EVENT_ID_INDEX, false));
+        return propertySpecs;
     }
 
+    @Override
+    protected void doSetProperties(Properties properties) throws PropertyValidationException {
+        super.doSetProperties(properties);
+        this.setClientMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32").trim()));
+        this.setServerUpperMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1").trim()));
+        this.setServerLowerMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
+        eventIdIndex = Integer.parseInt(properties.getProperty(PROPNAME_EVENT_ID_INDEX, "-1").trim()); // ZMD=1, ZMQ=2
+    }
+
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory(), getMeterConfig(), this);
@@ -433,59 +398,45 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         }
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    /**
-     * Execute a billing reset on the device. After receiving the 'Demand Reset'
-     * command the meter executes a demand reset by doing a snap shot of all
-     * energy and demand registers.
-     *
-     * @throws java.io.IOException
-     */
+    @Override
     public void resetDemand() throws IOException {
         GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short) 10100, (short) 0)).getBaseName()), 6);
         gi.invoke(new Integer8(0).getBEREncodedByteArray());
     }
 
-    /**
-     * Provides the full list of outstanding messages to the protocol.
-     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
-     * perform the message.
-     *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
-     * @throws java.io.IOException if a logical error occurs
-     */
+    @Override
     public void applyMessages(final List messageEntries) throws IOException {
         this.messageProtocol.applyMessages(messageEntries);
     }
 
-    /**
-     * Indicates that each message has to be executed by the protocol.
-     *
-     * @param messageEntry a definition of which message needs to be sent
-     * @return a state of the message which was just sent
-     * @throws java.io.IOException if a logical error occurs
-     */
+    @Override
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
         return this.messageProtocol.queryMessage(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         return this.messageProtocol.getMessageCategories();
     }
 
+    @Override
     public String writeMessage(final Message msg) {
         return this.messageProtocol.writeMessage(msg);
     }
 
+    @Override
     public String writeTag(final MessageTag tag) {
         return this.messageProtocol.writeTag(tag);
     }
 
+    @Override
     public String writeValue(final MessageValue value) {
         return this.messageProtocol.writeValue(value);
     }
+
 }

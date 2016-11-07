@@ -13,8 +13,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
 /**
- *
- * @author  Koen
+ * @author Koen
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public class DLMSCache implements ServerDeviceProtocolCache, Serializable {
@@ -23,33 +22,36 @@ public class DLMSCache implements ServerDeviceProtocolCache, Serializable {
     private boolean changed;
 
     public DLMSCache() {
-        this(null,-1);
+        this(null, -1);
     }
 
-    public DLMSCache(UniversalObject[] objectList,int confProgChange,boolean changed) {
-        this.objectList=objectList;
-        this.confProgChange=confProgChange;
-        this.changed=changed;
+    public DLMSCache(UniversalObject[] objectList, int confProgChange, boolean changed) {
+        this.objectList = objectList;
+        this.confProgChange = confProgChange;
+        this.changed = changed;
     }
 
-    public DLMSCache(UniversalObject[] objectList,int confProgChange) {
-        this.objectList=objectList;
-        this.confProgChange=confProgChange;
+    public DLMSCache(UniversalObject[] objectList, int confProgChange) {
+        this.objectList = objectList;
+        this.confProgChange = confProgChange;
         setChanged(false);
     }
 
     public void setChanged(boolean changed) {
         this.changed = changed;
     }
+
     public void saveObjectList(UniversalObject[] objectList) {
-        this.objectList=objectList;
+        this.objectList = objectList;
         setChanged(true);
     }
-    public UniversalObject[] getObjectList () {
+
+    public UniversalObject[] getObjectList() {
         return objectList;
     }
+
     public void setConfProgChange(int confProgChange) {
-        this.confProgChange=confProgChange;
+        this.confProgChange = confProgChange;
         setChanged(true);
     }
 

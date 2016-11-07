@@ -13,8 +13,8 @@ KV|31032005|Handle DataContainerException
  */
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
@@ -25,19 +25,20 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
 public class DLMSEMO extends DLMSSN {
 
     private static final byte DEBUG=0;
-
-    public DLMSEMO() {
-    }
 
     protected String getDeviceID() {
         return "EMO";
@@ -54,6 +55,7 @@ public class DLMSEMO extends DLMSSN {
     private static final long EV_POWER_DOWN=            0x00000080;
     private static final long EV_CAPTURED_EVENTS=       0x000000A9; // Add new events...
 
+    @Override
     protected void getEventLog(ProfileData profileDate,Calendar fromCalendar, Calendar toCalendar) throws IOException {
     }
 
@@ -73,9 +75,8 @@ public class DLMSEMO extends DLMSSN {
         return new ConformanceBlock(1573408L);
     }
 
-    protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException
-    {
-        byte bDOW;
+    @Override
+    protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException {
         Calendar stdCalendar=null;
         Calendar dstCalendar=null;
         Calendar calendar=null;
@@ -85,17 +86,22 @@ public class DLMSEMO extends DLMSSN {
            stdCalendar = ProtocolUtils.getCalendar(false,requestTimeZone());
            dstCalendar = ProtocolUtils.getCalendar(true,requestTimeZone());
         }
-        else
-           calendar = ProtocolUtils.initCalendar(false,getTimeZone());
+        else {
+            calendar = ProtocolUtils.initCalendar(false, getTimeZone());
+        }
 
-        for (i=(intervalList.length-1);i>=0;i--)
-        {
+        for (i=(intervalList.length-1);i>=0;i--) {
             if (isRequestTimeZone()) {
             if (intervalList[i].getField(IL_CAPUTURETIME+11) != 0xff) {
-                if ((intervalList[i].getField(IL_CAPUTURETIME+11)&0x80) == 0x80) calendar = dstCalendar;
-                else calendar = stdCalendar;
+                if ((intervalList[i].getField(IL_CAPUTURETIME+11)&0x80) == 0x80) {
+                    calendar = dstCalendar;
+                } else {
+                    calendar = stdCalendar;
+                }
               }
-              else calendar = stdCalendar;
+              else {
+                calendar = stdCalendar;
+            }
             }
 
            // Build Timestamp
@@ -119,66 +125,59 @@ public class DLMSEMO extends DLMSSN {
 
            // Fill profileData
            IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
-           for (t=0;t<bNROfChannels;t++)
-              intervalData.addValue(new Long(intervalList[i].getField(IL_DEMANDVALUE+t)));
+           for (t=0;t<bNROfChannels;t++) {
+               intervalData.addValue(new Long(intervalList[i].getField(IL_DEMANDVALUE + t)));
+           }
 
-           if (iField != 0) intervalData.addStatus(IntervalData.CORRUPTED);
+           if (iField != 0) {
+               intervalData.addStatus(IntervalData.CORRUPTED);
+           }
 
-           if ((intervalList[i].getField(IL_EVENT) & EV_FATAL_ERROR) != 0)
-                  intervalData.addStatus(IntervalData.CORRUPTED);
-           if ((intervalList[i].getField(IL_EVENT) & EV_TIME_DATE_ADJUSTED) != 0)
-                  intervalData.addStatus(IntervalData.SHORTLONG);
-           if ((intervalList[i].getField(IL_EVENT) & EV_POWER_DOWN) != 0)
-                  intervalData.addStatus(IntervalData.POWERDOWN);
-
+           if ((intervalList[i].getField(IL_EVENT) & EV_FATAL_ERROR) != 0) {
+               intervalData.addStatus(IntervalData.CORRUPTED);
+           }
+           if ((intervalList[i].getField(IL_EVENT) & EV_TIME_DATE_ADJUSTED) != 0) {
+               intervalData.addStatus(IntervalData.SHORTLONG);
+           }
+           if ((intervalList[i].getField(IL_EVENT) & EV_POWER_DOWN) != 0) {
+               intervalData.addStatus(IntervalData.POWERDOWN);
+           }
            profileData.addInterval(intervalData);
-
-        } // for (i=0;i<intervalList.length;i++)
-
-    } // ProfileData buildProfileData(...)
-
-    private long mapLogCodes(long lLogCode)
-    {
-        switch((int)lLogCode)
-        {
-            case (int)EV_FATAL_ERROR: return(MeterEvent.FATAL_ERROR);
-            case (int)EV_TIME_DATE_ADJUSTED: return(MeterEvent.SETCLOCK);
-            case (int)EV_POWER_DOWN: return(MeterEvent.POWERDOWN);
-            default: return(MeterEvent.OTHER);
-        } // switch(lLogCode)
-    } // private void mapLogCodes(long lLogCode)
-
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            Iterator iterator= getRequiredKeys().iterator();
-            while (iterator.hasNext())
-            {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null)
-                    throw new MissingPropertyException (key + " key missing");
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            if (strID.length()>16) throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
-            iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
-            iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
-            iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-            iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
-            iRequestClockObject=Integer.parseInt(properties.getProperty("RequestClockObject","0").trim());
-            iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
-            iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","4").trim());
-            iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","58").trim());
-            iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","74").trim());
-            iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());
-        }
-        catch (NumberFormatException e) {
-           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
         }
     }
 
+    private long mapLogCodes(long lLogCode) {
+        switch ((int) lLogCode) {
+            case (int) EV_FATAL_ERROR:
+                return (MeterEvent.FATAL_ERROR);
+            case (int) EV_TIME_DATE_ADJUSTED:
+                return (MeterEvent.SETCLOCK);
+            case (int) EV_POWER_DOWN:
+                return (MeterEvent.POWERDOWN);
+            default:
+                return (MeterEvent.OTHER);
+        }
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false));
+        return propertySpecs;
+    }
+
+    @Override
+    protected void doSetProperties(Properties properties) throws PropertyValidationException {
+        super.doSetProperties(properties);
+        this.setSecurityLevelProperty(Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim()));
+        this.setClientMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "58").trim()));
+        this.setServerUpperMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "74").trim()));
+        this.setServerLowerMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
-} // public class DLMSEMO
 
+}
