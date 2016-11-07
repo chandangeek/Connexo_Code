@@ -44,6 +44,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -185,6 +186,7 @@ public class InMemoryIntegrationPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
                          "0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0"
                         ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
