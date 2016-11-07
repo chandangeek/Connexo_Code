@@ -31,6 +31,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -72,7 +73,7 @@ public class InMemoryPersistence {
     private Injector injector;
     private InMemoryBootstrapModule bootstrapModule;
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults, String ... readingTypes) {
+    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults, String... readingTypes) {
         this.initializeMocks(testName);
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
@@ -92,7 +93,8 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new OrmModule(),
                 new FiniteStateMachineModule(),
-                readingTypes.length==0?MeteringModule.withAllReadingTypes_AVOID_AVOID():new MeteringModule(readingTypes),
+                new UsagePointLifeCycleConfigurationModule(),
+                readingTypes.length == 0 ? MeteringModule.withAllReadingTypes_AVOID_AVOID() : new MeteringModule(readingTypes),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new CustomPropertySetsModule(),
@@ -115,7 +117,8 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewMasterDataService(boolean createDefaults) {
-        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.injector.getInstance(Publisher.class), this.mdcReadingTypeUtilService, UpgradeModule.FakeUpgradeService.getInstance());
+        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.injector.getInstance(Publisher.class), this.mdcReadingTypeUtilService, UpgradeModule.FakeUpgradeService
+                .getInstance());
         return this.masterDataService.getDataModel();
     }
 
