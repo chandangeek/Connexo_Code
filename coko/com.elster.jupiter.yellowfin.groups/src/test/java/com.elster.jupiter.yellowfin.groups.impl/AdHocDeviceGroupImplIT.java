@@ -26,6 +26,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
@@ -91,6 +92,7 @@ public class AdHocDeviceGroupImplIT {
                     new YellowfinGroupsModule(),
                     new TaskModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new BasicPropertiesModule(),
                     new TimeModule(),
