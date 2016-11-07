@@ -236,24 +236,6 @@ Irrelevant as delete is not supported any more
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
-    public void setNotToUseDefaultAndNoConnectionTaskSetTest() {
-        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "WithValidationError", "WithValidationError", Instant.now());
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
-        comTaskExecutionBuilder.useDefaultConnectionTask(false);
-
-        // Business methods
-        comTaskExecutionBuilder.add();
-        device.save();
-
-        // Asserts: see expected contraint violation rule
-    }
-
-    @Test
-    @Transactional
     public void setPriorityOnBuilderTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         int myPriority = 514;

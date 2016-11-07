@@ -148,6 +148,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -2285,6 +2286,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<Batch> getBatch() {
         return this.batch.getOptional();
+    }
+
+    @Override
+    public void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask) {
+        List<ComTask> comTasksWithConnectionTask = this.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> !comTaskEnablement.usesDefaultConnectionTask())
+                .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().isPresent())
+                .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().get().equals(connectionTask.getPartialConnectionTask()))
+                .map(ComTaskEnablement::getComTask)
+                .collect(Collectors.toList());
+
+        this.getComTaskExecutions().stream()
+                .filter(comTaskExecution -> comTasksWithConnectionTask.contains(comTaskExecution.getComTask()))
+                .forEach((comTaskExecution) -> {
+                    ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+                    comTaskExecutionUpdater.connectionTask(connectionTask);
+                    comTaskExecutionUpdater.update();
+                });
     }
 
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {

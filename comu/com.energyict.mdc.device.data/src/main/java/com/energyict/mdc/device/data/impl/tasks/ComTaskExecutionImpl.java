@@ -67,7 +67,7 @@ import java.util.TimeZone;
  * Date: 11/04/14
  * Time: 15:09
  */
-@ConnectionTaskIsRequiredWhenNotUsingDefault(groups = {Save.Create.class, Save.Update.class})
+//@ConnectionTaskIsRequiredWhenNotUsingDefault(groups = {Save.Create.class, Save.Update.class})
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution {
     public static final String SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR = "0";
@@ -787,7 +787,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void connectionTaskRemoved() {
         this.setConnectionTask(null);
-        this.setUseDefaultConnectionTask(true);
         this.update();
     }
 

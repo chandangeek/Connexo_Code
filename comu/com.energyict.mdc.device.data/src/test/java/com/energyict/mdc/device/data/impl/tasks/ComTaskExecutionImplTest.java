@@ -317,22 +317,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
-    public void setNotToUseDefaultAndNoConnectionTaskSetTest() {
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "WithValidationError", "WithValidationError", Instant.now());
-
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        comTaskExecutionBuilder.useDefaultConnectionTask(false);
-
-        // Business method
-        comTaskExecutionBuilder.add();
-
-    }
-
-    @Test
-    @Transactional
     public void setPriorityOnBuilderTest() {
         int myPriority = 514;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -777,7 +761,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         // Asserts
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
-        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
     }
 
     @Test

@@ -493,6 +493,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<Batch> getBatch();
 
+    void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */

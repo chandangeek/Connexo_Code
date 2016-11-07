@@ -43,7 +43,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         this.setIgnoreNextExecutionSpecsForInbound(true);
         this.setExecutingPriority(ComTaskExecution.DEFAULT_PRIORITY);
         this.setPlannedPriority(ComTaskExecution.DEFAULT_PRIORITY);
-        this.setUseDefaultConnectionTask(true);
+        this.setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
         this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties());
         this.comTask.set(comTaskEnablement.getComTask());
         this.comSchedule.set(comSchedule);
