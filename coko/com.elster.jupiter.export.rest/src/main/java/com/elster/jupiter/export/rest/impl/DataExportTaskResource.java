@@ -142,7 +142,7 @@ public class DataExportTaskResource {
     @PUT
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public Response triggerDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
         info.id = id;
         transactionService.execute(VoidTransaction.of(() -> dataExportService.findAndLockExportTask(info.id, info.version)
