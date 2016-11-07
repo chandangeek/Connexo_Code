@@ -39,6 +39,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
@@ -77,7 +78,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
@@ -172,6 +172,7 @@ public class PartialInboundConnectionTaskCrudIT {
                     new UserModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
@@ -242,9 +243,9 @@ public class PartialInboundConnectionTaskCrudIT {
 
     private static void setupMasterData () {
         try (TransactionContext context = transactionService.getContext()) {
-            ((ProtocolPluggableServiceImpl) protocolPluggableService).addInboundDeviceProtocolService(new InboundDeviceProtocolService());
-            ((ProtocolPluggableServiceImpl) protocolPluggableService).addLicensedProtocolService(licensedProtocolService);
-            ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(connectionTypeService);
+            protocolPluggableService.addInboundDeviceProtocolService(new InboundDeviceProtocolService());
+            protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
+            protocolPluggableService.addConnectionTypeService(connectionTypeService);
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType", InboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", InboundNoParamsConnectionTypeImpl.class.getName());
