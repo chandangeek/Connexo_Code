@@ -233,7 +233,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.getStep3().down('#step3-errors').setVisible(false);
             return true;
         } else {
-            me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') + '</span>');
+            me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', "Shared communication schedules can't contain the same communication task.") + '</span>');
             me.getWarningMessage().show();
             me.getStep3().down('#step3-errors').setVisible(true);
             return false;
