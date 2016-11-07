@@ -67,6 +67,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -208,6 +209,7 @@ public class ExportTaskImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"),
                     new PartyModule(),
                     new EventsModule(),
@@ -690,7 +692,7 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
             task.update();
             context.commit();
         }
@@ -715,7 +717,7 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            IReadingTypeDataExportItem item = ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            IReadingTypeDataExportItem item = task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
             item.deactivate();
             item.update();
             context.commit();

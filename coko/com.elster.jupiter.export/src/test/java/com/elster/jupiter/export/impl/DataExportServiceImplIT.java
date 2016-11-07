@@ -59,6 +59,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -194,6 +195,7 @@ public class DataExportServiceImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"),
                     new PartyModule(),
                     new DataVaultModule(),
