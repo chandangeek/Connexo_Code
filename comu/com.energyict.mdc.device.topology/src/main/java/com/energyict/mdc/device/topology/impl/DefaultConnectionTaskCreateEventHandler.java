@@ -2,12 +2,16 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Listens for create events of {@link ConnectionTask}s against
@@ -18,7 +22,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (14:28)
  */
-@Component(name="com.energyict.mdc.device.topology.create.default.connectiontask", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.topology.create.default.connectiontask", service = TopicHandler.class, immediate = true)
 @SuppressWarnings("unused")
 public class DefaultConnectionTaskCreateEventHandler implements TopicHandler {
 
@@ -51,6 +55,8 @@ public class DefaultConnectionTaskCreateEventHandler implements TopicHandler {
     private void handle(ConnectionTask connectionTask) {
         if (connectionTask.isDefault()) {
             this.topologyService.setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology(connectionTask.getDevice(), connectionTask);
+        } else {
+            connectionTask.getDevice().setConnectionTaskForComTaskExecutions(connectionTask);
         }
     }
 
