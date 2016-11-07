@@ -9,8 +9,8 @@ package com.energyict.protocolimpl.iec1107.ppm;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -37,14 +37,13 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppm.opus.OpusConnection;
 import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +52,15 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author fbo
@@ -142,12 +150,12 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
      * Property keys specific for PPM protocol.
      */
     private static final String PK_OPUS = "OPUS";
-    private static final String PK_TIMEOUT = "Timeout";
-    private static final String PK_RETRIES = "Retries";
+    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
+    private static final String PK_RETRIES = Property.RETRIES.getName();
     private static final String PK_FORCE_DELAY = "ForcedDelay";
 
     private static final String PK_DELAY_AFTER_FAIL = "DelayAfterFail";
-    private static final String PK_SECURITY_LEVEL = "SecurityLevel";
+    private static final String PK_SECURITY_LEVEL = Property.SECURITYLEVEL.getName();
     private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
 
     /**
@@ -206,21 +214,13 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
 
     private boolean software7E1;
 
-    private final String[] REGISTERCONFIG = {
+    private static final String[] REGISTERCONFIG = {
             "TotalImportKwh",
             "TotalExportKwh",
             "TotalImportKvarh",
             "TotalExportKvarh",
             "TotalKvah"
     };
-
-    /**
-     * Creates a new instance of PPM
-     */
-    public PPM() {
-    }
-
-    /* ___ Implement interface MeterProtocol ___ */
 
     @Override
     public String getSerialNumber() {
@@ -231,105 +231,90 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         }
     }
 
-    /*
-          * (non-Javadoc)
-          *
-          * @see com.energyict.protocol.MeterProtocol#
-          *      setProperties(java.util.Properties)
-          */
-    public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName()) != null) {
-            this.pAddress = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
-            this.pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            this.pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
-            this.pPassword = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-        }
-
-        if (p.getProperty(PK_OPUS) != null) {
-            this.pOpus = p.getProperty(PK_OPUS);
-        }
-
-        if (p.getProperty(PK_TIMEOUT) != null) {
-            this.pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
-        }
-
-        if (p.getProperty(PK_RETRIES) != null) {
-            this.pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()) != null) {
-            this.pRountTripCorrection = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()));
-        }
-
-        if (p.getProperty(PK_DELAY_AFTER_FAIL) != null) {
-            this.pDelayAfterFail = Integer.parseInt(p.getProperty(PK_DELAY_AFTER_FAIL));
-        }
-
-        if (p.getProperty(PK_SECURITY_LEVEL) != null) {
-            this.pRetries = Integer.parseInt(p.getProperty(PK_SECURITY_LEVEL));
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-            this.pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
-        }
-
-        if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
-            this.pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
-        }
-
-        if (p.getProperty(PK_FORCE_DELAY) != null) {
-            this.pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
-        }
-
-        this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
-
-        validateProperties();
-
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.stringOfExactLength(PASSWORD.getName(), true, 8),
+                UPLPropertySpecFactory.string(PK_OPUS, false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_FAIL, false),
+                UPLPropertySpecFactory.integer(PK_SECURITY_LEVEL, false),
+                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false),
+                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
+                UPLPropertySpecFactory.integer(PK_FORCE_DELAY, false),
+                UPLPropertySpecFactory.string("Software7E1", false));
     }
 
-    private void validateProperties() throws InvalidPropertyException {
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        try {
+            if (properties.getProperty(ADDRESS.getName()) != null) {
+                this.pAddress = properties.getProperty(ADDRESS.getName());
+            }
 
-        if (this.pPassword == null) {
-            String msg = "";
-            msg += "There was no password entered, stopping communication. ";
-            throw new InvalidPropertyException(msg);
+            if (properties.getProperty(NODEID.getName()) != null) {
+                this.pNodeId = properties.getProperty(NODEID.getName());
+            }
+
+            if (properties.getProperty(SERIALNUMBER.getName()) != null) {
+                this.pSerialNumber = properties.getProperty(SERIALNUMBER.getName());
+            }
+
+            if (properties.getProperty(PASSWORD.getName()) != null) {
+                this.pPassword = properties.getProperty(PASSWORD.getName());
+            }
+
+            if (properties.getProperty(PK_OPUS) != null) {
+                this.pOpus = properties.getProperty(PK_OPUS);
+            }
+
+            if (properties.getProperty(PK_TIMEOUT) != null) {
+                this.pTimeout = Integer.parseInt(properties.getProperty(PK_TIMEOUT));
+            }
+
+            if (properties.getProperty(PK_RETRIES) != null) {
+                this.pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
+            }
+
+            if (properties.getProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+                this.pRountTripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName()));
+            }
+
+            if (properties.getProperty(PK_DELAY_AFTER_FAIL) != null) {
+                this.pDelayAfterFail = Integer.parseInt(properties.getProperty(PK_DELAY_AFTER_FAIL));
+            }
+
+            if (properties.getProperty(PK_SECURITY_LEVEL) != null) {
+                this.pRetries = Integer.parseInt(properties.getProperty(PK_SECURITY_LEVEL));
+            }
+
+            if (properties.getProperty(CORRECTTIME.getName()) != null) {
+                this.pCorrectTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName()));
+            }
+
+            if (properties.getProperty(PK_EXTENDED_LOGGING) != null) {
+                this.pExtendedLogging = properties.getProperty(PK_EXTENDED_LOGGING);
+            }
+
+            if (properties.getProperty(PK_FORCE_DELAY) != null) {
+                this.pForceDelay = Integer.parseInt(properties.getProperty(PK_FORCE_DELAY));
+            }
+
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
-        if (this.pPassword.length() < 8) {
-            String msg = "";
-            msg += "Password is too short, the length must be 8 characters, stopping communication. ";
-            throw new InvalidPropertyException(msg);
-        }
-
-        if (this.pPassword.length() > 8) {
-            String msg = "";
-            msg += "Password is too long, the length must be 8 characters, stopping communication. ";
-            throw new InvalidPropertyException(msg);
-        }
-
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#init( java.io.InputStream,
-      *      java.io.OutputStream, java.util.TimeZone, java.util.logging.Logger)
-      */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
-
         this.timeZone = timeZone;
         this.logger = logger;
-
         if (logger.isLoggable(Level.INFO)) {
             String infoMsg = "PPM protocol init \n"
                     + "- Address          = " + this.pAddress + "\n"
@@ -372,11 +357,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
 
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#connect()
-      */
+    @Override
     public void connect() throws IOException {
         try {
             if (!isOpus()) {
@@ -401,11 +382,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
 
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#disconnect()
-      */
+    @Override
     public void disconnect() throws IOException {
         if (!isOpus()) {
             try {
@@ -417,52 +394,37 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    PK_OPUS,
-                    PK_TIMEOUT,
-                    PK_RETRIES,
-                    PK_EXTENDED_LOGGING,
-                    PK_FORCE_DELAY,
-                    "Software7E1");
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         return this.pAddress;
     }
 
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         ProfileData profileData = this.profile.getProfileData(new Date(), new Date(), includeEvents);
         this.logger.log(Level.INFO, profileData.toString());
         return profileData;
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         ProfileData profileData = this.profile.getProfileData(lastReading, new Date(), includeEvents);
         this.logger.log(Level.INFO, profileData.toString());
         return profileData;
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = this.profile.getProfileData(from, to, includeEvents);
         this.logger.log(Level.INFO, profileData.toString());
         return profileData;
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
-      */
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         LoadProfileDefinition lpd = this.rFactory.getLoadProfileDefinition();
         List l = lpd.toChannelInfoList();
@@ -471,62 +433,37 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId);
             return null;
         } else {
-            this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId + " " + this.rFactory.getRegister(this.REGISTERCONFIG[ci.getChannelId() - 1]));
-            return (Quantity) this.rFactory.getRegister(this.REGISTERCONFIG[ci.getChannelId() - 1]);
+            this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId + " " + this.rFactory.getRegister(REGISTERCONFIG[ci.getChannelId() - 1]));
+            return (Quantity) this.rFactory.getRegister(REGISTERCONFIG[ci.getChannelId() - 1]);
         }
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#getMeterReading(java.lang.String)
-      */
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         return (Quantity) this.rFactory.getRegister(name);
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()
-      */
+    @Override
     public int getNumberOfChannels() throws IOException {
         return this.rFactory.getLoadProfileDefinition().getNrOfChannels();
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getProfileInterval()
-      */
+    @Override
     public int getProfileInterval() throws IOException {
         return this.rFactory.getSubIntervalPeriod().intValue() * 60;
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
-      */
+    @Override
     public String getRegister(String name) throws IOException {
         return null;
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#getTime()
-      */
+    @Override
     public Date getTime() throws IOException {
         return rFactory.getTimeDate();
     }
 
-    /*
-      * Important: A timeset can only be done if the difference is less than
-      * 50 seconds.
-      *
-      * @see com.energyict.protocol.MeterProtocol#setTime()
-      */
+    @Override
     public void setTime() throws IOException {
         logger.log(Level.INFO, "Setting time");
 
@@ -577,27 +514,16 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         return returValue;
     }
 
+    @Override
     public void setRegister(String name, String value) throws IOException {
     }
 
+    @Override
     public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-    }
-
+    @Override
     public void release() throws IOException {
     }
 
@@ -625,6 +551,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         return this.timeZone;
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.pTimeout, this.pRetries, this.pForceDelay, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
@@ -633,14 +560,17 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         getFlagIEC1107Connection().setHHUSignOn(hhuSignOn);
     }
 
+    @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
+    @Override
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
+    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         return this.rFactory.getSerialNumber();
     }
@@ -655,11 +585,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         EXCEPTION.put("ERR6", "General Comms error");
     }
 
-    /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocolimpl.base.MeterExceptionInfo#getExceptionInfo(java.lang.String)
-      */
+    @Override
     public String getExceptionInfo(String id) {
         String exceptionInfo = EXCEPTION.get(id);
         if (exceptionInfo != null) {
@@ -669,6 +595,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         }
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
@@ -680,6 +607,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         return obisCodeMapper;
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
@@ -688,7 +616,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         return this.rFactory;
     }
 
-    public OpusConnection getOpusConnection() {
+    OpusConnection getOpusConnection() {
         return this.opusConnection;
     }
 
@@ -716,12 +644,10 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         return this.pTimeout;
     }
 
-    public void doExtendedLogging() throws IOException {
-
+    private void doExtendedLogging() throws IOException {
         if ("1".equals(this.pExtendedLogging)) {
             this.logger.info(this.rFactory.getRegisterInformation().getExtendedLogging() + " \n");
         }
-
     }
 
 }
