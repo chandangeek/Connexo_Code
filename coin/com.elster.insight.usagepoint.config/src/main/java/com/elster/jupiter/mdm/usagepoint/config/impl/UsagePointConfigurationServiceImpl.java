@@ -335,16 +335,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                     .stream()
                     .flatMap(rule -> rule.getReadingTypes().stream())
                     .collect(Collectors.toList());
-            List<String> ruleSetReadingTypeMRIDs = ruleSetReadingTypes
-                    .stream()
-                    .map(ReadingType::getMRID)
-                    .collect(Collectors.toList());
             if (!metrologyContract.getDeliverables().isEmpty()) {
-                List<String> deliverableReadingTypeMRIDs = metrologyContract.getDeliverables()
+                List<ReadingType> deliverableReadingTypes = metrologyContract.getDeliverables()
                         .stream()
-                        .map(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().getMRID())
+                        .map(ReadingTypeDeliverable::getReadingType)
                         .collect(Collectors.toList());
-                if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
+                if (deliverableReadingTypes.stream().anyMatch(ruleSetReadingTypes::contains)) {
                     return true;
                 }
             }
@@ -358,7 +354,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         return !this.dataModel
                 .query(MetrologyContractEstimationRuleSetUsage.class)
                 .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName())
-                        .isEqualTo(ruleset), new Order[0], false, new String[0], 1, 1)
+                        .isEqualTo(ruleset), Order.NOORDER, false, new String[0], 1, 1)
                 .isEmpty();
     }
 
