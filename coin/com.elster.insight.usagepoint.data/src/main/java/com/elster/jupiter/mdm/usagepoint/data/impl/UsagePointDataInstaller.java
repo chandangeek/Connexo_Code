@@ -38,8 +38,8 @@ public class UsagePointDataInstaller implements FullInstaller, PrivilegesProvide
                         Privileges.RESOURCE_USAGE_POINT_GROUPS.getKey(),
                         Privileges.RESOURCE_USAGE_POINT_GROUPS_DESCRIPTION.getKey(),
                         Arrays.asList(
-                                Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
-                                Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
+                                Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
+                                Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
                                 Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL))
         );
     }
