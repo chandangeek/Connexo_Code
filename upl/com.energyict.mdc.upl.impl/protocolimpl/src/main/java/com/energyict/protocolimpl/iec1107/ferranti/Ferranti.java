@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.ferranti;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -22,21 +22,29 @@ import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -75,30 +83,27 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
     private TimeZone timeZone;
     private Logger logger;
 
-    FlagIEC1107Connection flagIEC1107Connection = null;
-    FerrantiRegistry ferrantiRegistry = null;
-    FerrantiProfile ferrantiProfile = null;
+    private FlagIEC1107Connection flagIEC1107Connection = null;
+    private FerrantiRegistry ferrantiRegistry = null;
+    private FerrantiProfile ferrantiProfile = null;
 
-    byte[] dataReadout = null;
+    private byte[] dataReadout = null;
 
     private boolean software7E1;
 
-    /**
-     * Creates a new instance of Ferranti, empty constructor
-     */
-    public Ferranti() {
-    } // public Ferranti()
-
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.YEAR, -10);
         return doGetProfileData(calendar.getTime());
     }
 
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return doGetProfileData(lastReading);
     }
 
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(from);
@@ -124,6 +129,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
                 getNumberOfChannels());
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws IOException {
         try {
             return (Quantity) getFerrantiRegistry().getRegister(name);
@@ -132,6 +138,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         }
     }
 
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         try {
             if (channelId >= FERRANTI_NR_OF_METERREADINGS) {
@@ -143,142 +150,89 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         }
     }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     *
-     * @throws IOException
-     */
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         Date date = calendar.getTime();
         getFerrantiRegistry().setRegister("Time in the device", date);
-    } // public void setTime() throws IOException
+    }
 
+    @Override
     public Date getTime() throws IOException {
         Date date = (Date) getFerrantiRegistry().getRegister("Time in the device");
         return new Date(date.getTime() - iRoundtripCorrection);
     }
 
-    public byte getLastProtocolState() {
-        return -1;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.string(NODEID.getName(), false),
+                UPLPropertySpecFactory.integer("EchoCancelling", false),
+                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
+                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                UPLPropertySpecFactory.string("ChannelMap", false),
+                UPLPropertySpecFactory.string("Software7E1", false),
+                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
+                UPLPropertySpecFactory.integer("ForceDelay", false),
+                UPLPropertySpecFactory.integer("AddressingMode", false),
+                UPLPropertySpecFactory.integer("RequestTimeZone", false));
     }
 
-    /**
-     * this implementation calls <code> validateProperties </code>
-     * and assigns the argument to the properties field
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
+    @Override
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
-    }
-
-    /**
-     * <p>validates the properties.</p><p>
-     * The default implementation checks that all required parameters are present.
-     * </p>
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            strID = properties.getProperty(ADDRESS.getName());
+            strPassword = properties.getProperty(PASSWORD.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getProperty(NODEID.getName(), "");
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
+            iProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "3600").trim());
             channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
             this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
 
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name <br>
-     * @return the register value
-     * @throws IOException             <br>
-     * @throws UnsupportedException    <br>
-     * @throws NoSuchRegisterException <br>
-     */
+    @Override
     public String getRegister(String name) throws IOException {
         return ProtocolUtils.obj2String(getFerrantiRegistry().getRegister(name));
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @param name  <br>
-     * @param value <br>
-     * @throws IOException             <br>
-     * @throws NoSuchRegisterException <br>
-     * @throws UnsupportedException    <br>
-     */
+    @Override
     public void setRegister(String name, String value) throws IOException {
         getFerrantiRegistry().setRegister(name, value);
     }
 
-    /**
-     * this implementation throws UnsupportedException. Subclasses may override
-     *
-     * @throws IOException          <br>
-     * @throws UnsupportedException <br>
-     */
-    public void initializeDevice() throws IOException {
+    @Override
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "IEC1107Compatible",
-                    "ChannelMap",
-                    "Software7E1");
-    }
-
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }
 
-    public String getFirmwareVersion() throws IOException {
-        return ("Unknown");
-    } // public String getFirmwareVersion()
+    @Override
+    public String getFirmwareVersion() {
+        return "Unknown";
+    }
 
-    /**
-     * initializes the receiver
-     *
-     * @param inputStream  <br>
-     * @param outputStream <br>
-     * @param timeZone     <br>
-     * @param logger       <br>
-     */
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -293,22 +247,18 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
 
     }
 
+    @Override
     public void connect() throws IOException {
         try {
             dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
             flagIEC1107Connection.disconnectMAC();
-            /*   try {
-                Thread.sleep(2000);
-            }
-            catch(InterruptedException e) {
-                throw new NestedIOException(e);
-            }*/
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
         } catch (FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
         }
     }
 
+    @Override
     public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
@@ -317,10 +267,12 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         }
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return FERRANTI_NR_OF_PROFILE_CHANNELS;
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         return iProfileInterval;
     }
@@ -333,52 +285,46 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         return ferrantiProfile;
     }
 
-    // Implementation of interface ProtocolLink
+    @Override
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public boolean isIEC1107Compatible() {
         return (iIEC1107Compatible == 1);
     }
 
+    @Override
     public String getPassword() {
         return strPassword;
     }
 
+    @Override
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-    }
-
+    @Override
     public ChannelMap getChannelMap() {
         return channelMap;
     }
 
+    @Override
     public ProtocolChannelMap getProtocolChannelMap() {
         return null;
     }
 
+    @Override
     public void release() throws IOException {
     }
 
+    @Override
     public Logger getLogger() {
         return logger;
     }
@@ -395,6 +341,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
 
     }
 
+    @Override
     public String getExceptionInfo(String id) {
         String exceptionInfo = EXCEPTION_INFO_MAP.get(id);
         if (exceptionInfo != null) {
@@ -404,10 +351,12 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         }
     }
 
+    @Override
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
     }
 
+    @Override
     public boolean isRequestHeader() {
         return false;
     }
