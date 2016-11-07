@@ -4,12 +4,11 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -18,15 +17,14 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -35,6 +33,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * @author fbo
@@ -73,8 +78,8 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      * Property keys
      */
     private static final String PK_NODE_PREFIX = "NodeIdPrefix";
-    private static final String PK_TIMEOUT = "Timeout";
-    private static final String PK_RETRIES = "Retries";
+    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
+    private static final String PK_RETRIES = Property.RETRIES.getName();
     private static final String PK_SHOULD_DISCONNECT = "ShouldDisconnect";
     private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_FORCE_DELAY = "ForceDelay";
@@ -84,40 +89,40 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     /**
      * Property Default values
      */
-    static final String PD_NODE_PREFIX = "3";   // MSU Slave (used in EU, doesn't work in US)
-    static final String PD_NODE_ID = "";
-    static final int PD_TIMEOUT = 10000;
-    static final int PD_RETRIES = 5;
-    static final int PD_ROUNDTRIP_CORRECTION = 0;
-    static final int PD_SECURITY_LEVEL = 2;
-    static final String PD_EXTENDED_LOGGING = "0";
-    static final int PD_FORCE_DELAY = 250;
+    private static final String PD_NODE_PREFIX = "3";   // MSU Slave (used in EU, doesn't work in US)
+    private static final String PD_NODE_ID = "";
+    private static final int PD_TIMEOUT = 10000;
+    private static final int PD_RETRIES = 5;
+    private static final int PD_ROUNDTRIP_CORRECTION = 0;
+    private static final int PD_SECURITY_LEVEL = 2;
+    private static final String PD_EXTENDED_LOGGING = "0";
+    private static final int PD_FORCE_DELAY = 250;
+    private static final String PD_SHOULD_DISCONNECT = "1";
 
     /**
      * Property values Required properties will have NO default value Optional
      * properties make use of default value
      */
     String pAddress = null;
-    String pNodeId = PD_NODE_ID;
-    String pSerialNumber = null;
-    int pProfileInterval;
-    byte[] pPassword;
+    private String pNodeId = PD_NODE_ID;
+    private String pSerialNumber = null;
+    private int pProfileInterval;
+    private byte[] pPassword;
 
     /* Protocol timeout fail in msec */
-    int pTimeout = PD_TIMEOUT;
+    private int pTimeout = PD_TIMEOUT;
 
     /* Max nr of consecutive protocol errors before end of communication */
-    int pRetries = PD_RETRIES;
+    private int pRetries = PD_RETRIES;
     /* Offset in ms to the get/set time */
-    int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
-    int pSecurityLevel = PD_SECURITY_LEVEL;
-    int pCorrectTime = 0;
-    int pForceDelay = PD_FORCE_DELAY;
+    private int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
+    private int pCorrectTime = 0;
+    private int pForceDelay = PD_FORCE_DELAY;
 
-    String pExtendedLogging = PD_EXTENDED_LOGGING;
-    boolean pShouldDisconnect;
+    private String pExtendedLogging = PD_EXTENDED_LOGGING;
+    private boolean pShouldDisconnect;
 
-    LinkLayer linkLayer;
+    private LinkLayer linkLayer;
     CommandFactory commandFactory;
 
     private ObisCodeMapper obisCodeMapper = null;
@@ -127,11 +132,6 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     private Firmware firmware;
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
-    private String PD_SHOULD_DISCONNECT = "1";
-
-
-    public Quad4() {
-    }
 
     public Logger getLogger() {
         return this.logger;
@@ -155,93 +155,88 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         }
     }
 
-    /*
-         * (non-Javadoc)
-         *
-         * @see com.energyict.protocol.MeterProtocol# setProperties(java.util.Properties)
-         */
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.stringOfExactLength(NODEID.getName(), false, 7),
+                UPLPropertySpecFactory.string(PROFILEINTERVAL.getName(), false),
+                UPLPropertySpecFactory.stringOfExactLength(PASSWORD.getName(), false, 4),
+                UPLPropertySpecFactory.string(PK_NODE_PREFIX, false),
+                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
+                UPLPropertySpecFactory.integer(PK_RETRIES, false),
+                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
+                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false),
+                UPLPropertySpecFactory.integer(PK_FORCE_DELAY, false),
+                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
+                UPLPropertySpecFactory.string(PK_SHOULD_DISCONNECT, false),
+                UPLPropertySpecFactory.string(PK_READ_UNIT1_SERIALNUMBER, false),
+                UPLPropertySpecFactory.string(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, false));
+    }
+
+    @Override
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName()) != null) {
-            pNodeId = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
-            //Node Address must be 7 digits
-            if (pNodeId.length() != 7) {
-                throw new InvalidPropertyException("NodeId must be a string of 7 numbers long");
+        try {
+            if (p.getProperty(SERIALNUMBER.getName()) != null) {
+                pSerialNumber = p.getProperty(SERIALNUMBER.getName());
             }
 
-            pNodeId = getpNodePrefix(p) + pNodeId;
-
-            //Replace integer.parse because of overflow, REGEX is cleaner as well
-            Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
-            Matcher matcher = pattern.matcher(pNodeId);
-            if (!matcher.matches()) {
-                throw new InvalidPropertyException("NodeId and prefix must be hexadecimal numbers");
-            }
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName()));
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName()) != null) {
-            String pwd = p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            if (pwd == null) {
-                pwd = "    ";
+            if (p.getProperty(NODEID.getName()) != null) {
+                pNodeId = getpNodePrefix(p) + p.getProperty(NODEID.getName());
+                //Replace integer.parse because of overflow, REGEX is cleaner as well
+                Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
+                Matcher matcher = pattern.matcher(pNodeId);
+                if (!matcher.matches()) {
+                    throw new InvalidPropertyException("NodeId and prefix must be hexadecimal numbers");
+                }
             }
 
-            if (pwd.length() != 4) {
-                String msg = "Password must be a string of 4 characters long. eg 0000";
-                throw new InvalidPropertyException(msg);
+            if (p.getProperty(PROFILEINTERVAL.getName()) != null) {
+                pProfileInterval = Integer.parseInt(p.getProperty(PROFILEINTERVAL.getName()));
             }
 
-            for (int i = pwd.length(); i < 4; i++) {
-                pwd += " ";
+            if (p.getProperty(Property.PASSWORD.getName()) != null) {
+                String pwd = p.getProperty(Property.PASSWORD.getName());
+                pPassword = new byte[4];
+                pPassword[0] = pwd.getBytes()[0];
+                pPassword[1] = pwd.getBytes()[1];
+                pPassword[2] = pwd.getBytes()[2];
+                pPassword[3] = pwd.getBytes()[3];
             }
 
-            pPassword = new byte[4];
-            pPassword[0] = pwd.getBytes()[0];
-            pPassword[1] = pwd.getBytes()[1];
-            pPassword[2] = pwd.getBytes()[2];
-            pPassword[3] = pwd.getBytes()[3];
+            if (p.getProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
+            }
 
+            if (p.getProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
+            }
+
+            if (p.getProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
+                pRountTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORRECTION.getName()));
+            }
+
+            if (p.getProperty(Property.CORRECTTIME.getName()) != null) {
+                pCorrectTime = Integer.parseInt(p.getProperty(Property.CORRECTTIME.getName()));
+            }
+
+            if (p.getProperty(PK_FORCE_DELAY) != null) {
+                pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
+            }
+
+            if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
+                pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
+            }
+
+            if (p.getProperty(PK_SHOULD_DISCONNECT) != null) {
+                pShouldDisconnect = p.getProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT) == "1";
+            }
+
+            readUnit1SerialNumber = "1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
+            readProfileDataBeforeConfigChange = !"0".equals(p.getProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-
-        if (p.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
-        }
-
-        if (p.getProperty(PK_RETRIES) != null) {
-            pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()) != null) {
-            pRountTripCorrection = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION.getName()));
-        }
-
-        if (p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()) != null) {
-            pCorrectTime = Integer.parseInt(p.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME.getName()));
-        }
-
-        if (p.getProperty(PK_FORCE_DELAY) != null) {
-            pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
-        }
-
-        if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
-        }
-
-        if (p.getProperty(PK_SHOULD_DISCONNECT) != null) {
-            pShouldDisconnect = p.getProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT) == "1";
-        }
-
-        readUnit1SerialNumber =
-                "1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
-        readProfileDataBeforeConfigChange =
-                !"0".equals(p.getProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
     }
 
     /**
@@ -262,17 +257,17 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      *     <liF -> Standalone (this allows us in the US to interrogate standalone meters)></li>
      * </ul>
      */
-    protected String getpNodePrefix(Properties p) {
+    private String getpNodePrefix(Properties p) {
          return p.getProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
     }
 
-    public Date getBeginningOfRecording() throws IOException {
+    Date getBeginningOfRecording() throws IOException {
         TableAddress ta = new TableAddress(this, 2, 30);
         byte[] values = ta.readBytes(6);
         return TypeDateTimeRcd.parse(new Assembly(this, new ByteArray(values))).toDate();
     }
 
-    protected void sendNodeId() throws IOException {
+    private void sendNodeId() throws IOException {
         try {
             if ((this.pNodeId != null) && !"".equals(pNodeId)) {
                 XCommand xCommand = commandFactory.createX(nextCrn(), 0x00, 0x0b); // 0b => slave
@@ -290,42 +285,18 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),
-                    PK_NODE_PREFIX,
-                    PK_TIMEOUT,
-                    PK_RETRIES,
-                    PK_EXTENDED_LOGGING,
-                    PK_READ_UNIT1_SERIALNUMBER,
-                    PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE,
-                    PK_SHOULD_DISCONNECT);
-    }
-
-    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger)
-            throws IOException {
-
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
-
         try {
-
             commandFactory = new CommandFactory();
-            linkLayer =
-                    new LinkLayer(inputStream, outputStream, 0, 0, pRetries, pForceDelay, this);
+            linkLayer = new LinkLayer(inputStream, outputStream, 0, 0, pRetries, pForceDelay, this);
             sendNodeId();
             obisCodeMapper = new ObisCodeMapper(this);
-
         } catch (ConnectionException e) {
             logger.severe("MAXSys 2510, " + e.getMessage());
             throw e;
         }
-
         if (logger.isLoggable(Level.INFO)) {
             String infoMsg = "Quad4 protocol init \n";
             infoMsg += " SerialNr = " + pSerialNumber + ",";
@@ -338,14 +309,9 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             infoMsg += " TimeZone = " + timeZone.getID();
             logger.info(infoMsg);
         }
-
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.MeterProtocol#connect()
-     */
+    @Override
     public void connect() throws IOException {
         connect(0);
     }
@@ -411,7 +377,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    void doExtendedLogging() throws IOException {
+    private void doExtendedLogging() throws IOException {
         if ("1".equals(pExtendedLogging)) {
             logger.log(Level.INFO, obisCodeMapper.getExtendedLogging() + "\n");
         }
@@ -420,7 +386,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         }
     }
 
-    protected String getSerialNumber(byte[] data) {
+    private String getSerialNumber(byte[] data) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < data.length; i++) {
             int bKar = data[i] & 0xFF;
@@ -430,35 +396,34 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         return builder.toString();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
-        String rslt = getTable0().getTypeMaximumValues().getVersionNumber() +
+        return getTable0().getTypeMaximumValues().getVersionNumber() +
                 " " +
                 getTable0().getTypeMaximumValues().getRevisionNumber();
-        return rslt;
     }
 
-    public Quantity getMeterReading(int channelId) throws IOException {
+    @Override
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws IOException {
+    @Override
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getTable1().getTypeMaximumValues().getClockCalendar().toDate();
     }
 
-    /**
-     * Send the time delta in milliseconds.
-     * (non-Javadoc)
-     *
-     * @see MeterProtocol#setTime()
-     */
+    @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, pRountTripCorrection);
@@ -476,106 +441,59 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         XCommand xCommand = commandFactory.createX(nextCrn(), 0x00, 0x0d);
         xCommand.setArgumnt(new byte[]{0, 0, b2, b1});
         linkLayer.send(xCommand);
-
     }
 
-    public String getRegister(String name) throws IOException {
-        // TODO Auto-generated method stub
+    @Override
+    public String getRegister(String name) {
         return null;
     }
 
-    public void setRegister(String name, String value) throws IOException {
-        // TODO Auto-generated method stub
+    @Override
+    public void setRegister(String name, String value) {
     }
 
-    public void initializeDevice() throws IOException {
-        // TODO Auto-generated method stub
+    @Override
+    public void initializeDevice() {
     }
 
-    public void release() throws IOException {
-        // TODO Auto-generated method stub
+    @Override
+    public void release() {
     }
 
-    public boolean isRequestHeader() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    public byte[] getPassword() {
+    byte[] getPassword() {
         return pPassword;
-    }
-
-    /* ___ Unsupported methods ___ */
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
-     */
-    public byte[] getDataReadout() {
-        return null;
-    }
-
-    /**
-     * for easy debugging
-     */
-    void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
     }
 
     TimeZone getTimeZone() {
         return timeZone;
     }
 
-    /**
-     * for easy debugging
-     */
     void setLogger(Logger logger) {
         this.logger = logger;
-    }
-
-    LinkLayer getLinkLayer() {
-        return linkLayer;
     }
 
     Firmware getFirmware() {
         return firmware;
     }
 
+    private int crn = 0;
 
-    int crn = 0;
-
-    int nextCrn() {
+    private int nextCrn() {
         crn = crn + 1;
         return crn;
     }
 
-    Table0 table0;
-    Table1 table1;
-    Table3 table3;
-    Table4 table4;
-    Table8 table8;
-    Table11 table11;
-    Table13 table13;
-    Table14 table14;
-    Table15 table15;
-    Table16 table16;
-    Table18 table18;
-
+    private Table0 table0;
+    private Table1 table1;
+    private Table3 table3;
+    private Table4 table4;
+    private Table8 table8;
+    private Table11 table11;
+    private Table13 table13;
+    private Table14 table14;
+    private Table15 table15;
+    private Table16 table16;
+    private Table18 table18;
 
     Table0 getTable0() throws IOException {
         if (table0 == null) {
