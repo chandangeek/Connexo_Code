@@ -26,8 +26,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
     
     createTooltip: function (tooltip) {        
         var me = this,
-            html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', tooltip.x),
-            point = tooltip.points[0].point,
+            html = '<b>' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
+            point = tooltip.point,
             deltaIcon = '',
             bulkIcon = '',
             deviceQualityIcon = '',
@@ -66,8 +66,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                 : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
             calculatedValue = null;
         }
-        html += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
-        html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + deviceQualityIcon + '<br>';
+        html += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
+        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + deviceQualityIcon + '<br>';
         html += '<table style="margin-top: 10px"><tbody>';
         bgColor = point.tooltipColor;
         if (me.mentionDataLoggerSlave) {

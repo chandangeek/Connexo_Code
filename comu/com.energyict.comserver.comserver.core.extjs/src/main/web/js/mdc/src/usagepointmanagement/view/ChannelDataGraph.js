@@ -25,16 +25,16 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
     ],
 
     createTooltip: function (tooltip) {
-        var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', tooltip.x),
-            point = tooltip.points[0].point,
+        var html = '<b>' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
+            point = tooltip.point,
             bgColor,
             editedIconSpan = '<span class="uni-icon-edit"' + 'style="height: 13px; ' + 'width: 13px; ' +
                 'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
             value;
 
         value = !Ext.isEmpty(point.y) ? point.y + ' ' + point.unit : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
-        html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
-        html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
+        html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
+        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + '<br>';
         html += '<table style="margin-top: 10px"><tbody>';
         bgColor = point.tooltipColor;
         html += '<tr><td><b>' + Uni.I18n.translate('general.value', 'MDC', 'Value') + ':</b></td><td>' + value + (point.edited ? editedIconSpan : '') + ' ' + point.icon + '</td></tr>';
