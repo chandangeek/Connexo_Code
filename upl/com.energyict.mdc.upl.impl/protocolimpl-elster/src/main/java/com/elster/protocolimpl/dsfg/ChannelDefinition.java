@@ -2,10 +2,10 @@ package com.elster.protocolimpl.dsfg;
 
 /**
  * class to hold channel info
- * 
+ *
  * @author gh
  * @since 19-apr-2010
- * 
+ *
  */
 
 public class ChannelDefinition {
@@ -37,8 +37,7 @@ public class ChannelDefinition {
 	 *            channel 3, overflow at 99 999 999<br>
 	 * @throws Exception
 	 */
-	public ChannelDefinition(String archiveAddress, String channelInfoString)
-			throws Exception {
+	public ChannelDefinition(String archiveAddress, String channelInfoString) throws Exception {
 		this.archiveAddress = archiveAddress;
 		channelOv = 9;
 		channelType = "I";
@@ -54,9 +53,7 @@ public class ChannelDefinition {
 		try {
 			channelNo = Integer.parseInt(parts[0]);
 		} catch (Exception e) {
-			throw new Exception(
-					"Error in channel definition: wrong channel number("
-							+ parts[0] + ")");
+			throw new Exception("Error in channel definition: wrong channel number(" + parts[0] + ")");
 		}
 
 		/* get content between brackets */
@@ -95,7 +92,7 @@ public class ChannelDefinition {
 
 	/**
 	 * Getter for channel no of definition
-	 * 
+	 *
 	 * @return channel no
 	 */
 	public int getChannelNo() {
@@ -104,16 +101,16 @@ public class ChannelDefinition {
 
 	/**
 	 * Getter for channel type (Counter or not)
-	 * 
-	 * @return "C" if it's a channel for advances, else "I" 
+	 *
+	 * @return "C" if it's a channel for advances, else "I"
 	 */
 	public String getChannelType() {
 		return channelType;
 	}
 
-	/** 
+	/**
 	 * Getter for channel overflow
-	 * 
+	 *
 	 * @return overflow value (no. of digits)
 	 */
 	public int getChannelOv() {
@@ -122,7 +119,7 @@ public class ChannelDefinition {
 
 	/**
 	 * Getter for address letter of box
-	 * 
+	 *
 	 * @return address letter
 	 */
 	public String getChannelAddress() {
@@ -131,7 +128,7 @@ public class ChannelDefinition {
 
 	/**
 	 * Gets a valid dsfg address for the type of the value
-	 * 
+	 *
 	 * @return dsfg address
 	 */
 	public String getValueTypeAddress() {
@@ -140,21 +137,21 @@ public class ChannelDefinition {
 
 	/**
 	 * Gets a valid dsfg address for the unit of the value
-	 * 
+	 *
 	 * @return dsfg address
 	 */
 	public String getValueUnitAddress() {
 		return "ca" + archiveAddress + boxAddress + "f";
-		
+
 	}
 
 	/**
 	 * Gets a valid dsfg address for the profile data of the value
-	 * 
+	 *
 	 * @return dsfg address
 	 */
 	public String getValueProfileData() {
 		return "ca" + archiveAddress + boxAddress + "d";
-		
+
 	}
 }

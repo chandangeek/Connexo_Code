@@ -62,15 +62,6 @@ public class ChannelMap {
         return channels.get(index);
     }
 
-    public boolean channelExists(String register) {
-        for (Channel channel : channels) {
-            if (channel.getRegister().compareTo(register) == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void parse(String channelConfig) throws InvalidPropertyException {
         StringTokenizer st1 = new StringTokenizer(channelConfig, ":");
         while (st1.countTokens() > 0) {

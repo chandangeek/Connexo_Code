@@ -1,4 +1,4 @@
-/**
+/*
  * AS230ObisMapper.java
  *
  * Created on 24-nov-2008, 11:46:49 by jme
@@ -8,35 +8,34 @@ package com.energyict.protocolimpl.iec1107.as220;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author jme
  */
-public class AS220ObisCodeMapper {
+class AS220ObisCodeMapper {
 
     public static final String ID1 = "Device ID1";
-    public static final String ID2 = "Device ID2";
-    public static final String ID3 = "Device ID3";
-    public static final String ID4 = "Device ID4";
+    static final String ID2 = "Device ID2";
+    static final String ID3 = "Device ID3";
+    static final String ID4 = "Device ID4";
     public static final String ID5 = "Device ID5";
-    public static final String ID6 = "Device ID6";
+    static final String ID6 = "Device ID6";
     public static final String SERIAL = "Device Serial number";
     public static final String FIRMWARE = "Device  Firmware/Hardware information";
-    public static final String FIRMWAREID = "Firmware version ID";
-    public static final String DATETIME = "Date and time (0.9.1 0.9.2)";
-    public static final String BILLINGCOUNTER = "Billing counter";
-    public static final String BILLINGRESETTIME = "Billing reset time";
-//    public static final String PROGRAMCOUNTER = "Program Counter";
+    static final String FIRMWAREID = "Firmware version ID";
+    private static final String DATETIME = "Date and time (0.9.1 0.9.2)";
+    private static final String BILLINGCOUNTER = "Billing counter";
+    private static final String BILLINGRESETTIME = "Billing reset time";
 
-    public static final String IEC1107_ID = "Device IEC1107_ID";
-    public static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
-    public static final String IEC1107_ADDRESS_EL = "Device IEC1107_ADDRESS_EL (electrical)";
+    static final String IEC1107_ID = "Device IEC1107_ID";
+    static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
+    static final String IEC1107_ADDRESS_EL = "Device IEC1107_ADDRESS_EL (electrical)";
 
-
-    private LinkedHashMap obisMap = new LinkedHashMap();
+    private Map<String, String> obisMap = new LinkedHashMap<>();
     private AS220 aS220 = null;
 
-    public AS220ObisCodeMapper(AS220 aS220) {
+    AS220ObisCodeMapper(AS220 aS220) {
         this.aS220 = aS220;
         initObisUnconnected();
     }
@@ -78,7 +77,6 @@ public class AS220ObisCodeMapper {
         this.obisMap.put("1.1.71.7.0.255", "I L3, total");
         this.obisMap.put("1.1.21.7.0.255", "+P L1, T0");
         this.obisMap.put("1.1.22.7.0.255", "-P L1, T0");
-
     }
 
     /**
@@ -87,7 +85,7 @@ public class AS220ObisCodeMapper {
      *
      * @throws IOException when something goes wrong while reading the billing counter
      */
-    public void initObis() throws IOException {
+    void initObis() throws IOException {
         String obis;
         String dscr;
 
@@ -185,12 +183,7 @@ public class AS220ObisCodeMapper {
         }
     }
 
-    /**
-     * Get the map with obiscodes, supported by the protocol and the device.
-     *
-     * @return the map with obiscodes
-     */
-    public LinkedHashMap getObisMap() {
+    Map<String, String> getObisMap() {
         return this.obisMap;
     }
 

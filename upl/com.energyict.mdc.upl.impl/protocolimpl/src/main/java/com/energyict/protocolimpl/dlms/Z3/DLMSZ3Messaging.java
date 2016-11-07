@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
@@ -52,6 +53,7 @@ import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -63,11 +65,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -75,6 +75,11 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author gna
@@ -114,10 +119,9 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private Device rtu;
     private TimeZone timeZone;
 
+    @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
-
         try {
-
             this.logger = logger;
             this.timeZone = timeZone;
             this.cosemObjectFactory = new CosemObjectFactory(this);
@@ -150,20 +154,19 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return this.rtu;
     }
 
+    @Override
     public void connect() throws IOException {
         try {
-
             getDLMSConnection().connectMAC();
             getDLMSConnection().setIskraWrapper(1);
             aarq = new AARQ(this.securityLevel, this.password, getDLMSConnection());
-
-
         } catch (DLMSConnectionException e) {
             e.printStackTrace();
             throw new IOException(e.getMessage());
         }
     }
 
+    @Override
     public void disconnect() throws IOException {
         try {
             getDLMSConnection().disconnectMAC();
@@ -173,6 +176,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         }
     }
 
+    @Override
     public DLMSConnection getDLMSConnection() {
         return this.dlmsConnection;
     }
@@ -181,10 +185,12 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return this.cosemObjectFactory;
     }
 
-    public String getFirmwareVersion() throws IOException {
+    @Override
+    public String getFirmwareVersion() {
         return null;
     }
 
+    @Override
     public String getRegister(String name) throws IOException {
         return Long.toString(getCosemObjectFactory().getRegister(ObisCode.fromString(name)).getValue());
     }
@@ -196,42 +202,51 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return this.clock;
     }
 
+    @Override
     public Date getTime() throws IOException {
         return getClock().getDateTime();
     }
 
+    @Override
     public void setTime() throws IOException {
         DateTime dateTime = new DateTime(Calendar.getInstance(getTimeZone()));
         getClock().setTimeAttr(dateTime);
     }
 
-    public void setProperties(Properties properties)
-            throws InvalidPropertyException, MissingPropertyException {
-        Iterator iterator = getRequiredKeys().iterator();
-        while (iterator.hasNext()) {
-            String key = (String) iterator.next();
-            if (properties.getProperty(key) == null) {
-                throw new MissingPropertyException(key + " key missing");
-            }
-        }
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
+                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
+                UPLPropertySpecFactory.integer("ConnectionMode", false),
+                UPLPropertySpecFactory.integer("ClientMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
+                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
+                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
+                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
+                UPLPropertySpecFactory.integer("ForceDelay", false),
+                UPLPropertySpecFactory.integer("AddressingMode", false),
+                UPLPropertySpecFactory.integer("RequestTimeZone", false));
+    }
 
-        this.password = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
-        this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        this.password = properties.getProperty(PASSWORD.getName(), "");
+        this.securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("ConnectionMode", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
         // if HDLC set default timeout to 10s, if TCPIP set default timeout to 60s
-        this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode == 0) ? "10000" : "60000"));
+        this.timeout = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? "10000" : "60000"));
         this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "100"));
-        this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
+        this.retries = Integer.parseInt(properties.getProperty(RETRIES.getName(), "3"));
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
         this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
     }
 
-    // not supported
+    @Override
     public void setRegister(String name, String value) throws IOException {
-//		throw new UnsupportedException();
         String type = value.substring(0, value.indexOf(" "));
         String dataStr = value.substring(value.indexOf(" ") + 1, value.length());
 
@@ -248,12 +263,6 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
             final AxdrType axdrType = AxdrType.fromTag((byte) (typeInt & 0x0FF));
             switch (axdrType) {
-
-//			case DLMSCOSEMGlobals.TYPEDESC_ARRAY:{
-//				Array array = new Array();
-////				array.
-//
-//			};break;
 
                 case BOOLEAN: {
                     byte[] data = new byte[]{axdrType.getTag(), (byte) Integer.parseInt(dataStr)};
@@ -328,49 +337,26 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         }
     }
 
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "DelayAfterFail",
-                    "RequestTimeZone",
-                    "FirmwareVersion",
-                    "SecurityLevel",
-                    "ClientMacAddress",
-                    "ServerUpperMacAddress",
-                    "ServerLowerMacAddress",
-                    "ExtendedLogging",
-                    "LoadProfileId",
-                    "AddressingMode",
-                    "Connection");
-
-    }
-
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
     public String getVersion() {
         return getProtocolVersion();
     }
 
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2009-01-19 16:26:22 +0100 (ma, 19 jan 2009) $";
-//		return "$Revision$";
     }
 
+    @Override
     public Logger getLogger() {
         return this.logger;
     }
 
+    @Override
     public DLMSMeterConfig getMeterConfig() {
         return this.dlmsMeterConfig;
     }
 
-    /**
-     * Messages
-     */
-
+    @Override
     public List getMessageCategories() {
         List theCategories = new ArrayList();
         MessageCategorySpec catPrePaid = new MessageCategorySpec("PrePaid");
@@ -482,6 +468,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return msgSpec;
     }
 
+    @Override
     public String writeTag(MessageTag msgTag) {
         StringBuilder builder = new StringBuilder();
 
@@ -525,23 +512,21 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return builder.toString();
     }
 
+    @Override
     public String writeValue(MessageValue msgValue) {
         return msgValue.getValue();
     }
 
+    @Override
     public void applyMessages(List rtuMessages) throws IOException {
-
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-
         MessageHandler messageHandler = new MessageHandler();
         String content = messageEntry.getContent();
-
         boolean success = false;
-
         try {
-
             importMessage(content, messageHandler);
             boolean disConnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
             boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
@@ -554,7 +539,6 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
             boolean loadLimitDisable = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
 
             if (disConnect) {
-
                 // Execute the message
                 String digOut = messageHandler.getResult();
                 if ("1".equals(digOut) || "2".equals(digOut)) {
@@ -565,9 +549,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                     String error = "Disonnect message does not contain a valid digital output: " + digOut + ".";
                     log(Level.INFO, error);
                 }
-
             } else if (connect) {
-
                 // Execute the message
                 String digOut = messageHandler.getResult();
                 if ("1".equals(digOut) || "2".equals(digOut)) {
@@ -578,23 +560,16 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                     String error = "Disonnect message does not contain a valid digital output: " + digOut + ".";
                     log(Level.INFO, error);
                 }
-
             } else if (prepaidEnable) {
-
                 getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
                 success = true;
-
             } else if (prepaidDisable) {
-
                 getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(false));
                 success = true;
-
             } else if (prepaidConfiguration) {
-
                 /*
                  * Note: after the configuration setting we also enable the prepaid configuration!
                  */
-
                 // The Budget register
                 if (messageHandler.getBudget() != null) {
                     getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getBudget()).intValue()));
@@ -617,9 +592,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                 getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
 
                 success = true;
-
             } else if (prepaidAdd) {
-
                 /*
                  * Note: after the configuration setting we also enable the prepaid configuration!
                  */
@@ -630,9 +603,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                 getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
 
                 success = true;
-
             } else if (loadLimitConfiguration) {
-
                 // The Threshold register
                 getCosemObjectFactory().getRegister(loadLimitThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold()).longValue()));
 
@@ -670,17 +641,12 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                 }
 
                 success = true;
-
             } else if (loadLimitEnable) {
-
                 getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(true));
                 success = true;
-
             } else if (loadLimitDisable) {
-
                 getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(false));
                 success = true;
-
             } else {
                 success = false;
             }
@@ -695,7 +661,6 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         } else {
             return MessageResult.createFailed(messageEntry);
         }
-
     }
 
     private void importMessage(String message, DefaultHandler handler) throws BusinessException {
@@ -714,12 +679,13 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         }
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
 
+    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-
         try {
             if (obisCode.toString().equalsIgnoreCase(prepaidSetBudgetObisCode.toString())) {
                 Register register = getCosemObjectFactory().getRegister(obisCode);
@@ -737,26 +703,22 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
     }
 
-    public void addProperties(Properties properties) {
-        try {
-            setProperties(properties);
-        } catch (InvalidPropertyException | MissingPropertyException e) {
-            e.printStackTrace();
-        }
-    }
-
+    @Override
     public int getReference() {
         return 0;
     }
 
+    @Override
     public int getRoundTripCorrection() {
         return 0;
     }
 
+    @Override
     public StoredValues getStoredValues() {
         return null;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         try {
             return isRequestTimeZone() ? TimeZone.getTimeZone(Integer.toString(getClock().getTimeZone())) : this.timeZone;
@@ -767,61 +729,58 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         }
     }
 
+    @Override
     public boolean isRequestTimeZone() {
         return (this.requestTimeZone == 1);
     }
 
+    @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo("RegisterInfo");
     }
 
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public Object getCache() {
-        return null;
-    }
-
+    @Override
     public Quantity getMeterReading(int channelId) throws IOException {
         return null;
     }
 
+    @Override
     public Quantity getMeterReading(String name) throws
             IOException {
         return null;
     }
 
+    @Override
     public int getNumberOfChannels() throws IOException {
         return 0;
     }
 
-    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+    @Override
+    public ProfileData getProfileData(boolean includeEvents) throws UnsupportedException {
         throw new UnsupportedException("LoadProfile not supported.");
     }
 
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+    @Override
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws UnsupportedException {
         throw new UnsupportedException("LoadProfile not supported.");
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws UnsupportedException {
         throw new UnsupportedException("LoadProfile not supported.");
     }
 
+    @Override
     public int getProfileInterval() throws IOException {
         return 900;
     }
 
+    @Override
     public void initializeDevice() throws IOException {
     }
 
+    @Override
     public void release() throws IOException {
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
     }
 
 }

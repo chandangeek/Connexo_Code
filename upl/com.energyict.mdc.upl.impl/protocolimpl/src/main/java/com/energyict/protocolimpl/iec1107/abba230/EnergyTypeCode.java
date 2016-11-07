@@ -6,127 +6,120 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 /**@author  Koen */
 
 public class EnergyTypeCode {
 
-    static List list = new ArrayList();
+    private static final List<EnergyTypeCode> ENERGY_TYPE_CODES = new ArrayList<>();
 
     static {
-        list.add(new EnergyTypeCode(0,Unit.get(BaseUnit.WATTHOUR,-3),1,"active import"));
-        list.add(new EnergyTypeCode(1,Unit.get(BaseUnit.WATTHOUR,-3),2,"active export"));
-        list.add(new EnergyTypeCode(2,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),5,"reactive Q1"));
-        list.add(new EnergyTypeCode(3,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),6,"reactive Q2"));
-        list.add(new EnergyTypeCode(4,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),7,"reactive Q3"));
-        list.add(new EnergyTypeCode(5,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),8,"reactive Q4"));
-        list.add(new EnergyTypeCode(6,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),9,"apparent"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(0,Unit.get(BaseUnit.WATTHOUR,-3),1,"active import"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(1,Unit.get(BaseUnit.WATTHOUR,-3),2,"active export"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(2,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),5,"reactive Q1"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(3,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),6,"reactive Q2"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(4,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),7,"reactive Q3"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(5,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),8,"reactive Q4"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(6,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),9,"apparent"));
         //list.add(new EnergyTypeCode(7,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),10,"export apparent"));
 
-        list.add(new EnergyTypeCode(7,Unit.get(""),130,"reserved"));
-        list.add(new EnergyTypeCode(8,Unit.get(""),131,"reserved"));
-        list.add(new EnergyTypeCode(9,Unit.get(""),132,"reserved"));
-        list.add(new EnergyTypeCode(0xA,Unit.get(""),133,"reserved"));
-        list.add(new EnergyTypeCode(0xB,Unit.get(""),134,"reserved"));
-        list.add(new EnergyTypeCode(0xC,Unit.get(""),135,"reserved"));
-        list.add(new EnergyTypeCode(0xD,Unit.get(""),136,"reserved"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(7,Unit.get(""),130,"reserved"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(8,Unit.get(""),131,"reserved"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(9,Unit.get(""),132,"reserved"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(0xA,Unit.get(""),133,"reserved"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(0xB,Unit.get(""),134,"reserved"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(0xC,Unit.get(""),135,"reserved"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(0xD,Unit.get(""),136,"reserved"));
 
-        list.add(new EnergyTypeCode(0xE,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),3,"reactive import"));
-        list.add(new EnergyTypeCode(0xF,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),4,"reactive export"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(0xE,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),3,"reactive import"));
+        ENERGY_TYPE_CODES.add(new EnergyTypeCode(0xF,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),4,"reactive export"));
     }
 
-    int regSource;
-    Unit unit;
-    int obisC;
-    String description;
+    private int regSource;
+    private Unit unit;
+    private int obisC;
+    private String description;
 
-
-    static  public boolean isCustomerDefined(int regSource) {
+    static boolean isCustomerDefined(int regSource) {
         return (regSource>=8) && (regSource<=10);
     }
 
-    /** Creates a new instance of EnergyTypeCode */
-    private EnergyTypeCode(int regSource,Unit unit,int obisC,String description) {
+    private EnergyTypeCode(int regSource, Unit unit, int obisC, String description) {
        this.regSource=regSource;
        this.unit=unit;
        this.obisC=obisC;
        this.description=description;
     }
 
-
-
-    static public Unit getUnitFromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            EnergyTypeCode etc = (EnergyTypeCode)it.next();
-            if (etc.getRegSource()==regSource) {
+    public static Unit getUnitFromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
+        for (EnergyTypeCode etc : ENERGY_TYPE_CODES) {
+            if (etc.getRegSource() == regSource) {
                 Unit unit = etc.getUnit();
-                if (energy) return unit.getVolumeUnit();
-                else return unit.getFlowUnit();
+                if (energy) {
+                    return unit.getVolumeUnit();
+                } else {
+                    return unit.getFlowUnit();
+                }
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getUnitFromSource, invalid register source code, "+regSource);
     }
 
-    static public String getDescriptionfromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            EnergyTypeCode etc = (EnergyTypeCode)it.next();
-            if (etc.getRegSource()==regSource) {
+    static String getDescriptionfromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
+        for (EnergyTypeCode etc : ENERGY_TYPE_CODES) {
+            if (etc.getRegSource() == regSource) {
                 return etc.getDescription();
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getUnitFromSource, invalid register source code, "+regSource);
     }
 
-    static public int getObisCFromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            EnergyTypeCode etc = (EnergyTypeCode)it.next();
-            if (etc.getRegSource()==regSource) {
+    static int getObisCFromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
+        for (EnergyTypeCode etc : ENERGY_TYPE_CODES) {
+            if (etc.getRegSource() == regSource) {
                 return etc.getObisC();
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getUnitFromSource, invalid register source code, "+regSource);
     }
 
-    static public List getEnergyTypeCodes() throws NoSuchRegisterException {
-        return list;
+    static List<EnergyTypeCode> getEnergyTypeCodes() {
+        return Collections.unmodifiableList(ENERGY_TYPE_CODES);
     }
 
-    static public Unit getUnitFromObisCCode(int obisC, boolean energy) throws NoSuchRegisterException {
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            EnergyTypeCode etc = (EnergyTypeCode)it.next();
-            if (etc.getObisC()==obisC) {
+    static Unit getUnitFromObisCCode(int obisC, boolean energy) throws NoSuchRegisterException {
+        for (EnergyTypeCode etc : ENERGY_TYPE_CODES) {
+            if (etc.getObisC() == obisC) {
                 Unit unit = etc.getUnit();
-                if (energy) return unit.getVolumeUnit();
-                else return unit.getFlowUnit();
+                if (energy) {
+                    return unit.getVolumeUnit();
+                } else {
+                    return unit.getFlowUnit();
+                }
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getUnitObisCCode, invalid obis C code, "+obisC);
     }
 
-    static public int getRegSourceFromObisCCode(int obisC) throws NoSuchRegisterException {
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            EnergyTypeCode etc = (EnergyTypeCode)it.next();
-            if (etc.getObisC()==obisC) {
+    static int getRegSourceFromObisCCode(int obisC) throws NoSuchRegisterException {
+        for (EnergyTypeCode etc : ENERGY_TYPE_CODES) {
+            if (etc.getObisC() == obisC) {
                 return etc.getRegSource();
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getRegSourceFromObisCCode, invalid obis C code, "+obisC);
     }
 
-    static public String getCompountInfoFromObisC(int obisC, boolean energy) throws NoSuchRegisterException {
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            EnergyTypeCode etc = (EnergyTypeCode)it.next();
-            if (etc.getObisC()==obisC) {
-                if (energy) return "energy, "+etc.getDescription();
-                else return "power, "+etc.getDescription();
+    public static String getCompountInfoFromObisC(int obisC, boolean energy) throws NoSuchRegisterException {
+        for (EnergyTypeCode etc : ENERGY_TYPE_CODES) {
+            if (etc.getObisC() == obisC) {
+                if (energy) {
+                    return "energy, " + etc.getDescription();
+                } else {
+                    return "power, " + etc.getDescription();
+                }
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getCompountInfoFromObisC, invalid obis C code, "+obisC);
@@ -168,7 +161,7 @@ public class EnergyTypeCode {
      * Getter for property obisC.
      * @return Value of property obisC.
      */
-    public int getObisC() {
+    int getObisC() {
         return obisC;
     }
 
