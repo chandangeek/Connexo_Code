@@ -7,12 +7,12 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 
 public enum EventType {
 
-    LIFE_CYCLE_CREATED("lifecycle/CREATED"),
-    LIFE_CYCLE_UPDATED("lifecycle/UPDATED"),
-    LIFE_CYCLE_BEFORE_DELETE("lifecycle/BEFORE_DELETE"),
-    LIFE_CYCLE_DELETED("lifecycle/DELETED"),;
+    LIFE_CYCLE_CREATED("CREATED"),
+    LIFE_CYCLE_UPDATED("UPDATED"),
+    LIFE_CYCLE_BEFORE_DELETE("BEFORE_DELETE"),
+    LIFE_CYCLE_DELETED("DELETED"),;
 
-    private static final String NAMESPACE = "com/elster/jupiter/mdm/usagepoint";
+    private static final String NAMESPACE = "com/elster/jupiter/usagepoint/lifecycle/";
     private final String topic;
 
     EventType(String topic) {
