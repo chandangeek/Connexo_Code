@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -279,5 +281,10 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     @Override
     public String getSerialNumber() {
         return getMeterSerialNumber();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

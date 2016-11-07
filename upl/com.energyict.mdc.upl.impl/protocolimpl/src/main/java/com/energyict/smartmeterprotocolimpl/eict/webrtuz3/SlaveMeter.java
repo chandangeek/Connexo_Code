@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -47,21 +47,6 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter, Seria
         return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
     /**
      * add the properties
      *
@@ -69,24 +54,6 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter, Seria
      */
     public void addProperties(final Properties properties) {
         // currently nothing to do
-    }
-
-    /**
-     * Returns a list of required property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    /**
-     * Returns a list of optional property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getOptionalKeys() {
-        return Collections.emptyList();
     }
 
     /**
@@ -135,5 +102,15 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter, Seria
 
     public DLMSMeterConfig getMeterConfig() {
         return this.meterProtocol.getDlmsSession().getMeterConfig();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+
     }
 }

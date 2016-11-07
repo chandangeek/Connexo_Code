@@ -4,18 +4,15 @@ import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.List;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -33,12 +30,14 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
     protected abstract ProtocolProperties getProtocolProperties();
 
-    public void addProperties(TypedProperties properties) {
-        getProtocolProperties().setProperties(properties.toStringProperties());
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        getProtocolProperties().setProperties(properties);
     }
 
     public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
-        getProtocolProperties().validateProperties();
+        //TODO what needs to be done?
+//        getProtocolProperties().validateProperties();
     }
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -54,32 +53,6 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
     public void release() throws IOException {
         //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setCache(Object cacheObject) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Object getCache() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getOptionalKeys());
     }
 
     public InputStream getInputStream() {

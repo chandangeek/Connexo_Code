@@ -1,5 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.NotFoundException;
@@ -14,6 +18,8 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.base.RTUCache;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
@@ -22,7 +28,11 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.AM5
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers.AM540RegisterFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -55,7 +65,7 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         if (dlmsCache == null || !(dlmsCache instanceof AM540Cache)) {
             this.dlmsCache = new AM540Cache();
         }
@@ -64,7 +74,7 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public void setCache(Object cache) {
+    public void setCache(Serializable cache) {
         if ((cache != null) && (cache instanceof AM540Cache)) {
             this.dlmsCache = (AM540Cache) cache;
             long initialFrameCounter = ((AM540Cache) this.dlmsCache).getFrameCounter();
@@ -73,18 +83,16 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
         if (deviceId != 0) {
             RTUCache rtuCache = new RTUCache(deviceId);
             try {
-                return rtuCache.getCacheObject();
+                return rtuCache.getCacheObject(connection);
             } catch (NotFoundException e) {
-                return new AM540Cache();
-            } catch (IOException e) {
-                return new AM540Cache();
+                return new AM540Cache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -111,18 +119,14 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            Transaction tr = new Transaction() {
-                public Object doExecute() throws BusinessException, SQLException {
-                    AM540Cache dc = (AM540Cache) cacheObject;
-                    new RTUCache(rtuid).setBlob(dc);
-                    return null;
-                }
-            };
-            MeteringWarehouse.getCurrent().execute(tr);
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        if (deviceId != 0) {
+            AM540Cache dc = (AM540Cache) cacheObject;
+            if (dc.contentChanged()) {
+                new RTUCache(deviceId).setBlob(dc, connection);
+            }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
@@ -174,6 +178,12 @@ public class AM540 extends E350 {
     @Override
     protected void initAfterConnect() throws ConnectionException {
         //Do nothing. No MBUS slave devices are supported.
+    }
+
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 
     @Override

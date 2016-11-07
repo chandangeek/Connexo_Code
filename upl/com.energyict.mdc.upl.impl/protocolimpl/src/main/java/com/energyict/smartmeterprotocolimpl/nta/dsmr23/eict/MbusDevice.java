@@ -1,8 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.MessageProtocol;
@@ -10,6 +9,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbus
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -42,21 +42,6 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
     /**
      * add the properties
      *
@@ -72,5 +57,15 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
         return new LegacyPartialLoadProfileMessageBuilder();
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        // currently no properties to add
     }
 }

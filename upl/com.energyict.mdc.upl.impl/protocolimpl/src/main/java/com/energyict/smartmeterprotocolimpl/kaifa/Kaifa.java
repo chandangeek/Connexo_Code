@@ -122,7 +122,7 @@ public class Kaifa extends AM110R {
 
             getProperties().getProtocolProperties().setProperty(AM110RProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
             getProperties().getProtocolProperties().setProperty(AM110RProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
+            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
             getProperties().getProtocolProperties().setProperty(AM110RProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
 
             if (link instanceof IPDialer || link instanceof NullDialer) {

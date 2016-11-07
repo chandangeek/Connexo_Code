@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -179,5 +181,10 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
     @Override
     public String getSerialNumber() {
         return getMeterSerialNumber();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

@@ -1,5 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas;
 
+import com.energyict.mdc.upl.SmartMeterProtocol;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
@@ -16,7 +19,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
@@ -260,7 +262,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
 
             getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
             getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
+            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
 
             if (link instanceof IPDialer) {
                 String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
@@ -280,5 +282,10 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
 
     private void reInitDlmsSession(final Link link) {
         this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

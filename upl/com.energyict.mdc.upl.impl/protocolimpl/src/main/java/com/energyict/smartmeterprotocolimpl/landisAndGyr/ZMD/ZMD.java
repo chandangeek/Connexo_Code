@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -256,7 +257,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
 
     @Override
     public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
-        getProtocolProperties().validateProperties();
+        // no additional validation is done
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -328,5 +329,10 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

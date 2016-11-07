@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
@@ -402,7 +404,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
             getProperties().getProtocolProperties().setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
             getProperties().getProtocolProperties().setProperty(UkHubProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
+            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
             getProperties().getProtocolProperties().setProperty(UkHubProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
 
             if (link instanceof IPDialer) {
@@ -436,4 +438,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         }
     }
 
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
+    }
 }

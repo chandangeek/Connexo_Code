@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
@@ -262,7 +263,7 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
 
             getProperties().getProtocolProperties().setProperty(AS300PProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
             getProperties().getProtocolProperties().setProperty(AS300PProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
+            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
 
             if (link instanceof IPDialer) {
                 String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
@@ -288,5 +289,10 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
     @Override
     public String getSerialNumber() {
         return getMeterSerialNumber();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
@@ -20,6 +22,8 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
@@ -199,12 +203,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     }
 
     @Override
-    public void setCache(Object cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return dlmsCache;
     }
 
@@ -218,54 +217,38 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + getProperties().getSerialNumber() + "_SimpleDLMS.cache";
     }
 
-    /**
-     * Fetch the DLMS cache from the database
-     *
-     * @param deviceId - the RTU database id
-     * @return a DLMS cache object
-     * @throws java.sql.SQLException if a database access error occurs
-     * @throws com.energyict.cbo.BusinessException
-     *                               if multiple records were found
-     */
     @Override
-    public Object fetchCache(final int deviceId) throws SQLException, BusinessException {
+    public void setCache(Serializable cacheObject) {
+        this.dlmsCache = (DLMSCache) cacheObject;
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
         if (deviceId != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
             RtuDLMS rtu = new RtuDLMS(deviceId);
             try {
-                return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
+                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
             } catch (NotFoundException e) {
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 
-    /**
-     * Write the DLMSCache back to the database
-     *
-     * @param rtuid       - the RTU database id
-     * @param cacheObject - the DLMSCache
-     * @throws java.sql.SQLException if a database access error occurs
-     * @throws com.energyict.cbo.BusinessException
-     *                               if multiple records were found
-     */
     @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if (rtuid != 0) {
-            Transaction tr = new Transaction() {
-                public Object doExecute() throws BusinessException, SQLException {
-                    DLMSCache dc = (DLMSCache) cacheObject;
-                    if (dc.contentChanged()) {
-                        new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
-                    }
-                    return null;
-                }
-            };
-            MeteringWarehouse.getCurrent().execute(tr);
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+        if (deviceId != 0) {
+            DLMSCache dc = (DLMSCache) cacheObject;
+            if (dc.contentChanged()) {
+                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+                RtuDLMS rtu = new RtuDLMS(deviceId);
+                rtuCache.saveObjectList(dc.getObjectList(), connection);
+                rtu.setConfProgChange(dc.getConfProgChange(), connection);
+            }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

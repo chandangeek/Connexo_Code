@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.SmartMeterProtocol;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Dialer;
@@ -9,7 +11,6 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 
@@ -79,7 +80,7 @@ public abstract class AbstractSmartDebuggingMain<P extends SmartMeterProtocol> {
     }
 
     public void initAndConnectMeterProtocol() throws LinkException, IOException, BusinessException {
-        getMeterProtocol().addProperties(TypedProperties.copyOf(getProperties()));
+        getMeterProtocol().setProperties(getProperties());
 
         boolean wakeUpSuccess = true;
         if (getMeterProtocol() instanceof WakeUpProtocolSupport) {
