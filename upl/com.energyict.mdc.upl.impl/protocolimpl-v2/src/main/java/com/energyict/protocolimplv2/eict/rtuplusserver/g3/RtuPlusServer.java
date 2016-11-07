@@ -267,7 +267,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
      *
      * @param deviceTopology
      */
-    private CollectedTopology cleanupDuplicatesLastSeenDate(CollectedTopology deviceTopology) {
+    protected CollectedTopology cleanupDuplicatesLastSeenDate(CollectedTopology deviceTopology) {
         getLogger().finest("Cleaning up lastSeenDate with the same value, due to a gateway reset");
         Map<Long, Integer> counters = new HashMap<>();
 
@@ -294,8 +294,8 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
 
             Integer count = counters.get(currentValue);
             if (count > 1) {
-                getLogger().finest(" - removing LSD from " + deviceIdentifier.toString() + ", appears "+count+ "times. (" + getDateString(currentValue)+")");
-                deviceTopology.getSlaveDeviceIdentifiers().remove(deviceIdentifier);
+                getLogger().finest(" - removing LSD from " + deviceIdentifier.toString() + ", appears "+count+ " times. (" + getDateString(currentValue)+")");
+                iterator.remove();
             }
         }
         getLogger().finest("-done checking duplicates.");
