@@ -48,6 +48,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -145,6 +146,7 @@ public abstract class BaseTest {
                 new IdsModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
@@ -268,7 +270,7 @@ public abstract class BaseTest {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
         when(template.getName()).thenReturn("template");
         when(template.getContent()).thenReturn("Content");
-        ((IssueServiceImpl)getIssueService()).addCreationRuleTemplate(template);
+        ((IssueServiceImpl) getIssueService()).addCreationRuleTemplate(template);
         return template;
     }
 
@@ -290,7 +292,7 @@ public abstract class BaseTest {
     }
 
     protected DataModel getIssueDataModel() {
-        return ((IssueServiceImpl)getIssueService()).getDataModel();
+        return ((IssueServiceImpl) getIssueService()).getDataModel();
     }
 
     protected DataCollectionActionsFactory getDefaultActionsFactory() {
