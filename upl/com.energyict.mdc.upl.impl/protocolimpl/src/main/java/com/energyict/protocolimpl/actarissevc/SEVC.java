@@ -286,11 +286,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     }
 
     @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList("Timeout", "Retries", "ForcedDelay");
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false),
@@ -300,7 +295,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
                 UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer("ForcedDelay", false),
+                UPLPropertySpecFactory.integer("ForcedDelay", false));
     }
 
     @Override
