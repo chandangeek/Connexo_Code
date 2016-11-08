@@ -5,7 +5,7 @@ Ext.define('CSMonitor.controller.logging.Communication', {
     requires: [Ext.String],
 
     config: {
-        deviceMRID: '',
+        deviceName: '',
         comportName: ''
     },
 
@@ -25,8 +25,8 @@ Ext.define('CSMonitor.controller.logging.Communication', {
             'communication': {
                 afterrender: this.onAfterRender
             },
-            'criteria textfield[name="deviceMRID"]': {
-                change: this.onChangeDeviceMRID,
+            'criteria textfield[name="deviceName"]': {
+                change: this.onChangeDeviceName,
                 specialkey: this.onSpecialKey
             },
             'criteria textfield[name="comportName"]': {
@@ -44,7 +44,7 @@ Ext.define('CSMonitor.controller.logging.Communication', {
     },
 
     onCommunicationClicked: function(event, element) {
-        if (!this.getDeviceMRID() && !this.getComportName()) {
+        if (!this.getDeviceName() && !this.getComportName()) {
             // No criteria defined, so warn/guide the user
             this.getViewPanel().warnForEmptyCriteria();
             this.getCriteriaPanel().warnForEmptyCriteria();
@@ -57,8 +57,8 @@ Ext.define('CSMonitor.controller.logging.Communication', {
         var url = '#logging/comm/',
             appendAnd = false;
 
-        if (this.getDeviceMRID()) {
-            url += ('devid=' + Ext.String.htmlEncode(this.getDeviceMRID()));
+        if (this.getDeviceName()) {
+            url += ('devid=' + Ext.String.htmlEncode(this.getDeviceName()));
             appendAnd = true;
         }
         if (this.getComportName()) {
@@ -70,9 +70,9 @@ Ext.define('CSMonitor.controller.logging.Communication', {
         return url;
     },
 
-    onChangeDeviceMRID: function(field, newValue, oldValue) {
+    onChangeDeviceName: function (field, newValue, oldValue) {
         newValue = newValue.replace(/\s*,\s*/g, ",");
-        this.setDeviceMRID(newValue.trim());
+        this.setDeviceName(newValue.trim());
 
     },
 
