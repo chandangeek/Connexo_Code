@@ -1,11 +1,11 @@
 Ext.define('Dsh.model.FlaggedDevice', {
     extend: 'Ext.data.Model',
-    idProperty: 'mRID',
+    idProperty: 'name',
 
     requires: ['Mdc.model.DeviceLabel'],
 
     fields: [
-        { name: 'mRID', type: 'string'},
+        { name: 'name', type: 'string'},
         { name: 'serialNumber', type: 'string'},
         { name: 'deviceTypeName', type: 'string'}
     ],

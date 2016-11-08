@@ -96,7 +96,7 @@ Ext.define('Dsh.controller.Communications', {
                     action: {
                         action: 'viewlog',
                         comTask: {
-                            mRID: record.get('device').id,
+                            deviceId: record.get('device').name,
                             sessionId: record.get('sessionId'),
                             comTaskId: item.id
                         }
@@ -142,7 +142,7 @@ Ext.define('Dsh.controller.Communications', {
             action: {
                 action: 'viewlog',
                 connection: {
-                    mRID: record.get('device').id,
+                    deviceId: record.get('device').name,
                     connectionMethodId: record.get('connectionTask').id,
                     sessionId: record.get('connectionTask').comSessionId
 
@@ -186,7 +186,7 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewCommunicationLog: function (item) {
-        location.href = '#/devices/' + item.action.comTask.mRID
+        location.href = '#/devices/' + item.action.comTask.deviceId
         + '/communicationtasks/' + item.action.comTask.comTaskId
         + '/history/' + item.action.comTask.sessionId
         + '/viewlog' +
@@ -194,7 +194,7 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewConnectionLog: function (item) {
-        location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
+        location.href = '#/devices/' + item.action.connection.deviceId + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
         '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     },
 

@@ -33,8 +33,9 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     renderer: function (val) {
                         var res = '-';
                         if (val) {
-                            Mdc.privileges.Device.canViewOrAdministrateDeviceData()
-                                ? res = '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.id) + '">' + Ext.String.htmlEncode(val.id) + '</a>' : res = Ext.String.htmlEncode(val.name);
+                            res = Mdc.privileges.Device.canViewOrAdministrateDeviceData()
+                                ? '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.name) + '">' + Ext.String.htmlEncode(val.name) + '</a>'
+                                : Ext.String.htmlEncode(val.name);
                         }
                         return res;
                     }

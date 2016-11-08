@@ -154,7 +154,7 @@ Ext.define('Dsh.controller.Connections', {
                 action: {
                     action: 'viewlog',
                     comTask: {
-                        mRID: record.get('device').id,
+                        deviceId: record.get('device').name,
                         sessionId: record.get('id'),
                         comTaskId: record.get('comTask').id
                     }
@@ -199,13 +199,13 @@ Ext.define('Dsh.controller.Connections', {
     initConnectionMenu: function (menu) {
         if (menu && menu.record) {
             if (menu.record.get('comSessionId') !== 0 && menu.down('menuitem[action=viewLog]')!== null) {
-                menu.down('menuitem[action=viewLog]').show()
+                menu.down('menuitem[action=viewLog]').show();
             }
         }
     },
 
     viewCommunicationLog: function (item) {
-        location.href = '#/devices/' + item.action.comTask.mRID
+        location.href = '#/devices/' + item.action.comTask.deviceId
             + '/communicationtasks/' + item.action.comTask.comTaskId
             + '/history/' + item.action.comTask.sessionId
             + '/viewlog' +
@@ -308,7 +308,7 @@ Ext.define('Dsh.controller.Connections', {
             case 'viewLog':
                 router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
                     {
-                        mRID: encodeURIComponent(menu.record.get('device').id),
+                        deviceId: encodeURIComponent(menu.record.get('device').name),
                         connectionMethodId: menu.record.get('id'),
                         historyId: menu.record.get('comSessionId')
                     });
@@ -316,7 +316,7 @@ Ext.define('Dsh.controller.Connections', {
             case 'viewHistory':
                 router.getRoute('devices/device/connectionmethods/history').forward(
                     {
-                        mRID: encodeURIComponent(menu.record.get('device').id),
+                        deviceId: encodeURIComponent(menu.record.get('device').name),
                         connectionMethodId: menu.record.get('id')
                     }
                 );
