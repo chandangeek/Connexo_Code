@@ -56,6 +56,7 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(LoadProfileMessage.WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES);
         supportedMessages.add(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects);
         supportedMessages.add(LogBookDeviceMessage.ResetAllSecurityGroupEventCounters);
+        supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_EXCEPT_EMERGENCY_ONES);
     }
 
     @Override
