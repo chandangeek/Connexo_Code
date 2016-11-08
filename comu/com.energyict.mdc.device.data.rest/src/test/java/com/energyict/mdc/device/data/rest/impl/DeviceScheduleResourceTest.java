@@ -54,6 +54,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTask comTask = mock(ComTask.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.getPartialConnectionTask()).thenReturn(Optional.empty());
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
         List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");

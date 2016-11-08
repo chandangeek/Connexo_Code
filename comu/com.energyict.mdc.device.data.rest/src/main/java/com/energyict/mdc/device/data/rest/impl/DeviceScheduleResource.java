@@ -55,7 +55,7 @@ public class DeviceScheduleResource {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
-        List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements);
+        List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements, device);
         return Response.ok(PagedInfoList.fromPagedList("schedules", deviceSchedulesInfos, queryParameters)).build();
     }
 
@@ -89,7 +89,7 @@ public class DeviceScheduleResource {
                     .filter(c -> c.getComTask().getId() == comTaskId)
                     .findFirst();
             if(comTaskEnablement.isPresent()) {
-                info = DeviceSchedulesInfo.fromEnablement(comTaskEnablement.get());
+                info = DeviceSchedulesInfo.fromEnablement(comTaskEnablement.get(), device);
             }
         }
         if(info != null) {

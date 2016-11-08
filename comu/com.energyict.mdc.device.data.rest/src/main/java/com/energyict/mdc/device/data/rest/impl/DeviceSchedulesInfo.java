@@ -3,8 +3,11 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
@@ -13,6 +16,7 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,7 +39,7 @@ public class DeviceSchedulesInfo {
     public DeviceSchedulesInfo() {
     }
 
-    public static List<DeviceSchedulesInfo> from(List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements) {
+    public static List<DeviceSchedulesInfo> from(List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements, Device device) {
         List<DeviceSchedulesInfo> deviceSchedulesInfos = new ArrayList<>();
         Set<Long> usedComtaskIds =
                 comTaskExecutions
@@ -51,26 +55,37 @@ public class DeviceSchedulesInfo {
                     deviceSchedulesInfos.add(DeviceSchedulesInfo.fromAdHoc(comTaskExecution));
             }
         }
-        deviceSchedulesInfos.addAll(DeviceSchedulesInfo.fromEnablements(comTaskEnablements, usedComtaskIds));
+        deviceSchedulesInfos.addAll(DeviceSchedulesInfo.fromEnablements(comTaskEnablements, usedComtaskIds, device));
         return deviceSchedulesInfos;
     }
 
-    private static List<DeviceSchedulesInfo> fromEnablements(List<ComTaskEnablement> comTaskEnablements, Set<Long> usedComtasks) {
+    private static List<DeviceSchedulesInfo> fromEnablements(List<ComTaskEnablement> comTaskEnablements, Set<Long> usedComtasks, Device device) {
         List<DeviceSchedulesInfo> deviceSchedulesInfos = new ArrayList<>();
         for(ComTaskEnablement comTaskEnablement : comTaskEnablements){
             if(!usedComtasks.contains(comTaskEnablement.getComTask().getId())){
-                deviceSchedulesInfos.add(fromEnablement(comTaskEnablement));
+                deviceSchedulesInfos.add(fromEnablement(comTaskEnablement, device));
             }
         }
         return deviceSchedulesInfos;
     }
 
-    public static DeviceSchedulesInfo fromEnablement(ComTaskEnablement comTaskEnablement) {
+    public static DeviceSchedulesInfo fromEnablement(ComTaskEnablement comTaskEnablement, Device device) {
         DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
         deviceSchedulesInfo.id = comTaskEnablement.getComTask().getId();
         deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
         deviceSchedulesInfo.active = !comTaskEnablement.isSuspended();
         deviceSchedulesInfo.type = ScheduleType.ONREQUEST;
+        if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
+            PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
+            Optional<ConnectionTask<?, ?>> deviceConnectionTaskOptional = device.getConnectionTasks().stream()
+                    .filter(connectionTask -> connectionTask.getName().equals(partialConnectionTask.getName())).findFirst();
+            deviceSchedulesInfo.connectionDefinedOnDevice = deviceConnectionTaskOptional.isPresent();
+
+            if (partialConnectionTask instanceof PartialScheduledConnectionTask) {
+                ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
+                deviceSchedulesInfo.connectionStrategyKey = connectionStrategy.name();
+            }
+        }
         return deviceSchedulesInfo;
     }
 
@@ -87,7 +102,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        setConnectionStrategyKey(comTaskExecution, deviceSchedulesInfo);
+        setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -104,7 +119,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        setConnectionStrategyKey(comTaskExecution, deviceSchedulesInfo);
+        setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -120,7 +135,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        setConnectionStrategyKey(comTaskExecution, deviceSchedulesInfo);
+        setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -136,7 +151,7 @@ public class DeviceSchedulesInfo {
         return false;
     }
 
-    private static void setConnectionStrategyKey(ComTaskExecution comTaskExecution, DeviceSchedulesInfo info) {
+    private static void setConnectionTaskInfo(ComTaskExecution comTaskExecution, DeviceSchedulesInfo info) {
         if(comTaskExecution.getConnectionTask().isPresent()) {
             info.connectionDefinedOnDevice = true;
             if(comTaskExecution.getConnectionTask().get() instanceof ScheduledConnectionTask) {
