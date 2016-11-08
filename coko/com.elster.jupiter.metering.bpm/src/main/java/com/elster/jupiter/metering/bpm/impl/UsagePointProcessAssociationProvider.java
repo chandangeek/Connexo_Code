@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Component(name = "UsagePointProcessAssociationProvider",
@@ -95,7 +96,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
                 this.metrologyConfigurationService
                         .findAllMetrologyConfigurations().stream()
                         .map(MetrologyConfigurationInfo::new)
-                        .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
+                        .sorted(Comparator.comparing(MetrologyConfigurationInfo::getName, String.CASE_INSENSITIVE_ORDER))
                         .toArray(MetrologyConfigurationInfo[]::new);
 
         return this.propertySpecService
