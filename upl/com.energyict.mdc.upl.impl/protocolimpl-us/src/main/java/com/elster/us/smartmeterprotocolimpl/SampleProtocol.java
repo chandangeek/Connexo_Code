@@ -1,8 +1,10 @@
 package com.elster.us.smartmeterprotocolimpl;
 
+import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.PropertySpec;
@@ -14,12 +16,12 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -100,11 +102,6 @@ public class SampleProtocol implements SmartMeterProtocol {
         return null;
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-
-    }
-
     public void addProperties(Properties properties) {
 
     }
@@ -129,13 +126,14 @@ public class SampleProtocol implements SmartMeterProtocol {
         return null;
     }
 
+
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return null;
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return null;
+    public void setProperties(Properties properties) throws PropertyValidationException {
+
     }
 }

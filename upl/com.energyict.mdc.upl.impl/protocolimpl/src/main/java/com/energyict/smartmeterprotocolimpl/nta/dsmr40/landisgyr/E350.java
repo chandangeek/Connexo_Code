@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
@@ -15,6 +17,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExe
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -113,5 +116,10 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     @Override
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {
         return AXDRDateTimeDeviationType.Negative;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

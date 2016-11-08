@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -12,6 +14,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40Messa
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40Messaging;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -67,5 +70,10 @@ public class Kaifa extends E350 {
             this.properties = new KaifaProperties();
         }
         return this.properties;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

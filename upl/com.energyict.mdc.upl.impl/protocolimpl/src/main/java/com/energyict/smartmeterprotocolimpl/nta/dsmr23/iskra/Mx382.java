@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -11,6 +13,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExe
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -56,5 +59,10 @@ public class Mx382 extends AbstractSmartNtaProtocol {
     @Override
     public String getVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

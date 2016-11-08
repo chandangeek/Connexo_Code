@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -137,5 +139,10 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
             this.properties = new WatchTalkProperties();
         }
         return this.properties;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

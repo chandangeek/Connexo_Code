@@ -2,11 +2,9 @@ package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -14,7 +12,7 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -85,21 +83,6 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return "$Date: 2015-03-10 09:02:30 +0100 (Tue, 10 Mar 2015) $";
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
     /**
      * add the properties
      *
@@ -115,26 +98,13 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         }
     }
 
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
+    }
+
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         rtuType = properties.getProperty("DeviceType", "mbus");
-    }
-
-    /**
-     * Returns a list of required property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getRequiredKeys() {
-        return new ArrayList(0);
-    }
-
-    /**
-     * Returns a list of optional property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getOptionalKeys() {
-        return new ArrayList(0);
     }
 
     public String getCustomerID() {

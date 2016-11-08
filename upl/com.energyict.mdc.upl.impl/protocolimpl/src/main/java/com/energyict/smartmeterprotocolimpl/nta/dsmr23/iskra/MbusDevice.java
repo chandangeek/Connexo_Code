@@ -1,14 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -42,45 +42,12 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
+    public void setProperties(Properties properties) throws PropertyValidationException {
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
-
-    /**
-     * add the properties
-     *
-     * @param properties properties to add
-     */
-    public void addProperties(final Properties properties) {
-        //TODO implement proper functionality.
-    }
-
-    /**
-     * Returns a list of required property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getRequiredKeys() {
-        return new ArrayList<String>();
-    }
-
-    /**
-     * Returns a list of optional property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getOptionalKeys() {
-        return new ArrayList<String>();
-    }
-
 }

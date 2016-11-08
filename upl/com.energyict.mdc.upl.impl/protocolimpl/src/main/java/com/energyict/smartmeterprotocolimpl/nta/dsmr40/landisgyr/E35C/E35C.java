@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -11,6 +13,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.profiles.E
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -80,5 +83,10 @@ public class E35C extends E350 {
     @Override
     public String getVersion() {
         return "$Date: 2015-07-03 13:41:47 +0200 (Fri, 03 Jul 2015) $";
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }

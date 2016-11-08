@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.MessageProtocol;
@@ -10,8 +10,10 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbus
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author sva
@@ -41,30 +43,21 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return "$Date: 2012-08-06 14:46:33 +0200 (ma, 06 aug 2012) $";
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return new ArrayList<>();
-    }
-
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
         return new LegacyLoadProfileRegisterMessageBuilder();
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
         return new LegacyPartialLoadProfileMessageBuilder();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+
     }
 }
