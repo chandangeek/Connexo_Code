@@ -1,8 +1,12 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.common.rest.FieldResource;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
@@ -14,11 +18,6 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -44,7 +43,7 @@ import static java.util.stream.Collectors.toList;
 @Path("/field")
 public class DashboardFieldResource extends FieldResource {
 
-    private static final Comparator<HasName> byNameComparator = (HasName d1, HasName d2) -> d1.getName().compareToIgnoreCase(d2.getName());
+    private static final Comparator<HasName> BY_NAME_COMPARATOR = Comparator.comparing(HasName::getName, String.CASE_INSENSITIVE_ORDER);
     private static final BreakdownOptionAdapter BREAKDOWN_OPTION_ADAPTER = new BreakdownOptionAdapter();
     private final DeviceConfigurationService deviceConfigurationService;
     private final EngineConfigurationService engineConfigurationService;
@@ -167,7 +166,7 @@ public class DashboardFieldResource extends FieldResource {
 
     private <H extends HasId & HasName> Map<String, List<IdWithNameInfo>> asInfoMap(String name, List<H> list) {
         Map<String, List<IdWithNameInfo>> map = new HashMap<>();
-        map.put(name, list.stream().sorted(byNameComparator).map(IdWithNameInfo::new).collect(toList()));
+        map.put(name, list.stream().sorted(BY_NAME_COMPARATOR).map(IdWithNameInfo::new).collect(toList()));
         return map;
     }
 

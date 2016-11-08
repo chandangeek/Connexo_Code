@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
@@ -12,8 +13,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class ComTaskExecutionSessionInfoFactory {
         }
         info.id = comTaskExecutionSession.getId();
         Device device = comTaskExecutionSession.getDevice();
-        info.device = new IdWithNameInfo(device.getmRID(), device.getName());
+        info.device = new IdWithNameInfo(device.getId(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
