@@ -30,6 +30,7 @@ public class DeviceSchedulesInfo {
     public boolean active;
     public boolean hasConnectionWindow;
     public String connectionStrategyKey;
+    public boolean connectionDefinedOnDevice;
 
     public DeviceSchedulesInfo() {
     }
@@ -86,7 +87,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        deviceSchedulesInfo.connectionStrategyKey = getConnectionStrategyKey(comTaskExecution);
+        setConnectionStrategyKey(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -103,7 +104,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        deviceSchedulesInfo.connectionStrategyKey = getConnectionStrategyKey(comTaskExecution);
+        setConnectionStrategyKey(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -119,7 +120,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        deviceSchedulesInfo.connectionStrategyKey = getConnectionStrategyKey(comTaskExecution);
+        setConnectionStrategyKey(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -135,14 +136,14 @@ public class DeviceSchedulesInfo {
         return false;
     }
 
-    private static String getConnectionStrategyKey(ComTaskExecution comTaskExecution) {
+    private static void setConnectionStrategyKey(ComTaskExecution comTaskExecution, DeviceSchedulesInfo info) {
         if(comTaskExecution.getConnectionTask().isPresent()) {
+            info.connectionDefinedOnDevice = true;
             if(comTaskExecution.getConnectionTask().get() instanceof ScheduledConnectionTask) {
                 ScheduledConnectionTask task = (ScheduledConnectionTask) comTaskExecution.getConnectionTask().get();
-                return task.getConnectionStrategy().name();
+                info.connectionStrategyKey = task.getConnectionStrategy().name();
             }
         }
-        return null;
     }
 
 
