@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                 xtype: 'preview-container',
                                 grid: {
                                     xtype: 'deviceDataValidationRulesSetGrid',
-                                    mRID: me.device.get('mRID')
+                                    deviceId: me.device.get('name')
                                 },
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',

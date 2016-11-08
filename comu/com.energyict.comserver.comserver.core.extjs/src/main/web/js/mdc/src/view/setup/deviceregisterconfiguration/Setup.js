@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'deviceRegisterConfigurationGrid',
-                            mRID: encodeURIComponent(me.device.get('mRID')),
+                            deviceId: encodeURIComponent(me.device.get('name')),
                             showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
                             router: me.router
                         },

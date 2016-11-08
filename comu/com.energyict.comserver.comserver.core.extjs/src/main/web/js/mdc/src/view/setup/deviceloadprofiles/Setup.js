@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'deviceLoadProfilesGrid',
-                        mRID: me.device.get('mRID'),
+                        deviceId: me.device.get('name'),
                         router: me.router
                     },
                     emptyComponent: {
@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
                     },
                     previewComponent: {
                         xtype: 'deviceLoadProfilesPreview',
-                        mRID: me.device.get('mRID'),
+                        deviceId: me.device.get('name'),
                         router: me.router
                     }
                 }

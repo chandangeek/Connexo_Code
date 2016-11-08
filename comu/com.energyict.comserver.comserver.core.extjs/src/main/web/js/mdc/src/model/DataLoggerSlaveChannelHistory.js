@@ -3,7 +3,7 @@ Ext.define('Mdc.model.DataLoggerSlaveChannelHistory', {
     fields: [
         {name: 'startDate', type: 'number', useNull: true},
         {name: 'endDate', type: 'number', useNull: true},
-        {name: 'mrid', type: 'string', useNull: true},
+        {name: 'deviceName', type: 'string', useNull: true},
         {name: 'channelId', type: 'number', useNull: true},
 
         {

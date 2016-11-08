@@ -97,18 +97,18 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
         this.getCancelBtn().show();
     },
 
-    showExecuteTransition: function (mRID, transition) {
+    showExecuteTransition: function (deviceId, transition) {
         var me = this,
             widget = Ext.widget('deviceTransitionExecuteBrowse'),
             transitionModel = me.getModel('Mdc.model.DeviceTransition');
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
             }
         });
 
-        transitionModel.getProxy().setUrl(mRID);
+        transitionModel.getProxy().setExtraParam('deviceId', deviceId);
         me.getApplication().fireEvent('changecontentevent', widget);
 
         widget.setLoading();
