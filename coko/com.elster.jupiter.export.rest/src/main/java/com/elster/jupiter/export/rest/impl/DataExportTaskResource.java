@@ -31,13 +31,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.streams.Functions;
@@ -80,7 +78,6 @@ public class DataExportTaskResource {
     private final MeteringGroupsService meteringGroupsService;
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
-    private final TransactionService transactionService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final DataSourceInfoFactory dataSourceInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
@@ -88,8 +85,8 @@ public class DataExportTaskResource {
     private final DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory;
 
     @Inject
-    public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, MeteringService meteringService,
-                                  Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService,
+    public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService,
+                                  MeteringService meteringService, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService,
                                   ConcurrentModificationExceptionFactory conflictFactory, DataSourceInfoFactory dataSourceInfoFactory,
                                   DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory) {
         this.dataExportService = dataExportService;
@@ -97,7 +94,6 @@ public class DataExportTaskResource {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
-        this.transactionService = transactionService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
         this.dataSourceInfoFactory = dataSourceInfoFactory;
@@ -143,14 +139,16 @@ public class DataExportTaskResource {
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @Transactional
     public Response triggerDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
         info.id = id;
-        transactionService.execute(VoidTransaction.of(() -> dataExportService.findAndLockExportTask(info.id, info.version)
+        ExportTask exportTask = dataExportService.findAndLockExportTask(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> dataExportService.findExportTask(info.id).map(ExportTask::getVersion).orElse(null))
                         .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
-                        .supplier()).triggerNow()));
+                        .supplier());
+        exportTask.triggerNow();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -158,6 +156,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK)
+    @Transactional
     public Response addExportTask(DataExportTaskInfo info, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
@@ -235,12 +234,8 @@ public class DataExportTaskResource {
             builder.addProperty(spec.getName()).withValue(value);
         });
 
-        ExportTask dataExportTask;
-        try (TransactionContext context = transactionService.getContext()) {
-            dataExportTask = builder.create();
-            info.destinations.forEach(destinationInfo -> destinationInfo.type.create(dataExportTask, destinationInfo));
-            context.commit();
-        }
+        ExportTask dataExportTask = builder.create();
+        info.destinations.forEach(destinationInfo -> destinationInfo.type.create(dataExportTask, destinationInfo));
         return Response.status(Response.Status.CREATED).entity(dataExportTaskInfoFactory.asInfo(dataExportTask)).build();
     }
 
@@ -248,18 +243,17 @@ public class DataExportTaskResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK)
+    @Transactional
     public Response removeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
         String taskName = info.name;
-        try (TransactionContext context = transactionService.getContext()) {
+        try {
             info.id = id;
             ExportTask task = findAndLockExportTask(info);
-
             if (!task.canBeDeleted()) {
                 throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
             }
             taskName = task.getName();
             task.delete();
-            context.commit();
             return Response.status(Response.Status.OK).build();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", taskName);
@@ -270,38 +264,36 @@ public class DataExportTaskResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
+    @Transactional
     public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
-        try (TransactionContext context = transactionService.getContext()) {
-            info.id = id;
-            ExportTask task = findAndLockExportTask(info);
+        info.id = id;
+        ExportTask task = findAndLockExportTask(info);
 
-            task.setName(info.name);
-            task.setScheduleExpression(getScheduleExpression(info));
-            task.setNextExecution(info.nextRun);
+        task.setName(info.name);
+        task.setScheduleExpression(getScheduleExpression(info));
+        task.setNextExecution(info.nextRun);
 
-            if (info.standardDataSelector != null) {
-                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
-                }
-                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
-                }
-                if (info.destinations.isEmpty()) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
-                }
-                String selectorString = task.getDataSelectorFactory().getName();
-                SelectorType selectorType = SelectorType.forSelector(selectorString);
-                task.getStandardDataSelectorConfig()
-                        .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST))
-                        .apply(new StandardDataSelectorUpdater(selectorType, info));
+        if (info.standardDataSelector != null) {
+            if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
             }
-
-            updateProperties(info, task);
-            updateDestinations(info, task);
-            task.update();
-            context.commit();
-            return Response.status(Response.Status.CREATED).entity(dataExportTaskInfoFactory.asInfo(task)).build();
+            if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+            }
+            if (info.destinations.isEmpty()) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
+            }
+            String selectorString = task.getDataSelectorFactory().getName();
+            SelectorType selectorType = SelectorType.forSelector(selectorString);
+            task.getStandardDataSelectorConfig()
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST))
+                    .apply(new StandardDataSelectorUpdater(selectorType, info));
         }
+
+        updateProperties(info, task);
+        updateDestinations(info, task);
+        task.update();
+        return Response.status(Response.Status.OK).entity(dataExportTaskInfoFactory.asInfo(task)).build();
     }
 
     private class StandardDataSelectorUpdater implements DataSelectorConfig.DataSelectorConfigVisitor {

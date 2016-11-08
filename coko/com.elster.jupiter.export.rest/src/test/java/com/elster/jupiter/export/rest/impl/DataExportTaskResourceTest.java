@@ -305,7 +305,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
 
         // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
@@ -347,7 +347,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
 
         // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(exportTask).removeDestination(obsolete);
         verify(exportTask, never()).removeDestination(newDestination);
