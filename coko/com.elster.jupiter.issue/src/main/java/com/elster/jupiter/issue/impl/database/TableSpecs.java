@@ -410,8 +410,8 @@ public enum TableSpecs {
             table.foreignKey(fkKeysIter.next()).map("reason").on(reasonRefIdColumn).references(IssueReason.class).add();
             table.foreignKey(fkKeysIter.next()).map("status").on(statusRefIdColumn).references(IssueStatus.class).add();
             table.foreignKey(fkKeysIter.next()).map("device").on(deviceRefIdColumn).references(EndDevice.class).add();
-            table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).add();
-            table.foreignKey(fkKeysIter.next()).map("workGroup").on(workGroupRefIdColumn).references(WorkGroup.class).add();
+            table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).onDelete(DeleteRule.SETNULL).add();
+            table.foreignKey(fkKeysIter.next()).map("workGroup").on(workGroupRefIdColumn).references(WorkGroup.class).onDelete(DeleteRule.SETNULL).add();
             table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(CreationRule.class).add();
         }
     }
