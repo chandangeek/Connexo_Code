@@ -84,9 +84,9 @@ public interface IssueService {
 
     List<IssueGroup> getIssueGroupList(IssueGroupFilter builder);
 
-    Finder<OpenIssue> findOpenIssuesForDevices(List<String> mRID);
+    Finder<OpenIssue> findOpenIssuesForDevices(List<String> deviceNames);
 
-    Finder<OpenIssue> findOpenIssuesForDevice(String mRID);
+    Finder<OpenIssue> findOpenIssuesForDevice(String deviceName);
 
     List<IssueProvider> getIssueProviders();
 
