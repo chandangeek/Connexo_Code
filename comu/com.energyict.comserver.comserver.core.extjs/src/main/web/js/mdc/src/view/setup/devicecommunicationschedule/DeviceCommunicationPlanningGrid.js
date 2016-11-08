@@ -116,6 +116,18 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
                                 },
                                 {
+                                    text: Uni.I18n.translate('deviceCommunicationPlanning.activate', 'MDC', 'Activate'),
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    itemId: 'mdc-device-communication-planning-activate-task',
+                                    action: 'activateComTask'
+                                },
+                                {
+                                    text: Uni.I18n.translate('deviceCommunicationPlanning.deactivate', 'MDC', 'Deactivate'),
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    itemId: 'mdc-device-communication-planning-deactivate-task',
+                                    action: 'deactivateComTask'
+                                },
+                                {
                                     text: Uni.I18n.translate('deviceCommunicationPlanning.addSchedule', 'MDC', 'Add schedule'),
                                     privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                     itemId: 'mdc-device-communication-planning-add-schedule',
@@ -132,23 +144,18 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                     privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                     itemId: 'mdc-device-communication-planning-remove-schedule',
                                     action: 'removeSchedule'
-                                },
-                                {
-                                    text: Uni.I18n.translate('deviceCommunicationPlanning.activate', 'MDC', 'Activate'),
-                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                                    itemId: 'mdc-device-communication-planning-activate-task',
-                                    action: 'activateComTask'
-                                },
-                                {
-                                    text: Uni.I18n.translate('deviceCommunicationPlanning.deactivate', 'MDC', 'Deactivate'),
-                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                                    itemId: 'mdc-device-communication-planning-deactivate-task',
-                                    action: 'deactivateComTask'
-                                },
+                                }
                             ],
                             listeners: {
                                 beforeshow: function () {
                                     var me = this,
+                                        activateMenuItem = me.down('#mdc-device-communication-planning-activate-task'),
+                                        deactivateMenuItem = me.down('#mdc-device-communication-planning-deactivate-task'),
+                                        runMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTask'),
+                                        runNowMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTaskNow'),
+                                        addScheduleMenuItem = me.down('#mdc-device-communication-planning-add-schedule'),
+                                        changeScheduleMenuItem = me.down('#mdc-device-communication-planning-change-schedule'),
+                                        removeScheduleMenuItem = me.down('#mdc-device-communication-planning-remove-schedule'),
                                         taskType = me.record.get('type'),
                                         addScheduleVisible = taskType==='ONREQUEST' || taskType==='ADHOC',
                                         changeAndRemoveScheduleVisible = taskType==='INDIVIDUAL',
@@ -158,33 +165,33 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
 
                                     if (isActive && connectionDefinedOnDevice) {
                                         if (isMinimize) {
-                                            me.down('#mdc-device-communication-planning-runDeviceComTask').show();
+                                            runMenuItem.show();
                                         } else {
-                                            me.down('#mdc-device-communication-planning-runDeviceComTask').hide();
+                                            runMenuItem.hide();
                                         }
-                                        me.down('#mdc-device-communication-planning-runDeviceComTaskNow').show();
+                                        runNowMenuItem.show();
                                     } else {
-                                        me.down('#mdc-device-communication-planning-runDeviceComTask').hide();
-                                        me.down('#mdc-device-communication-planning-runDeviceComTaskNow').hide();
+                                        runMenuItem.hide();
+                                        runNowMenuItem.hide();
                                     }
                                     if (addScheduleVisible) {
-                                        me.down('#mdc-device-communication-planning-add-schedule').show();
+                                        addScheduleMenuItem.show();
                                     } else {
-                                        me.down('#mdc-device-communication-planning-add-schedule').hide();
+                                        addScheduleMenuItem.hide();
                                     }
                                     if (changeAndRemoveScheduleVisible) {
-                                        me.down('#mdc-device-communication-planning-change-schedule').show();
-                                        me.down('#mdc-device-communication-planning-remove-schedule').show();
+                                        changeScheduleMenuItem.show();
+                                        removeScheduleMenuItem.show();
                                     } else {
-                                        me.down('#mdc-device-communication-planning-change-schedule').hide();
-                                        me.down('#mdc-device-communication-planning-remove-schedule').hide();
+                                        changeScheduleMenuItem.hide();
+                                        removeScheduleMenuItem.hide();
                                     }
-                                    if(isActive) {
-                                        me.down('#mdc-device-communication-planning-activate-task').hide();
-                                        me.down('#mdc-device-communication-planning-deactivate-task').show();
+                                    if (isActive) {
+                                        activateMenuItem.hide();
+                                        deactivateMenuItem.show();
                                     } else {
-                                        me.down('#mdc-device-communication-planning-activate-task').show();
-                                        me.down('#mdc-device-communication-planning-deactivate-task').hide();
+                                        activateMenuItem.show();
+                                        deactivateMenuItem.hide();
                                     }
                                 }
                             }
