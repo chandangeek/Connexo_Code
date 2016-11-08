@@ -17,6 +17,9 @@ Ext.define('Mdc.model.DeviceSchedule', {
         {name: 'nextCommunication', dateFormat: 'time', type: 'date'},
         {name: 'comTask'},
         {name: 'active', type: 'boolean'},
+        {name: 'hasConnectionWindow', type: 'boolean'},
+        {name: 'connectionStrategyKey', type: 'string'},
+        {name: 'connectionDefinedOnDevice', type: 'boolean'},
         {name: 'type', type: 'string'}
     ],
     idProperty: 'internalId',

@@ -34,6 +34,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         {ref: 'sharedCommunicationSchedulePreviewForm', selector: '#sharedCommunicationSchedulePreviewForm'}
     ],
 
+    REQUEST_TIMEOUT: 180000,
     deviceMRID: undefined,
 
     init: function () {
@@ -58,6 +59,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             },
             '#mdc-device-communication-planning-change-schedule': {
                 click: this.onEditSchedule
+            },
+            '#mdc-device-communication-planning-runDeviceComTask': {
+                click: this.onRunSchedule
+            },
+            '#mdc-device-communication-planning-runDeviceComTaskNow': {
+                click: this.onRunNowSchedule
             },
             '#device-schedule-add-addButton': {
                 click: this.addOrEditSchedule
@@ -230,7 +237,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                     device: _.pick(device.getRecordData(), 'mRID', 'version', 'parent'),
                     scheduleIds: scheduleIds
                 },
-                timeout: 180000,
+                timeout: me.REQUEST_TIMEOUT,
                 success: function () {
                     route.forward();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedSchedulesSucceeded', 'MDC', 'Shared communication schedule(s) added'));
@@ -260,7 +267,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                     device: _.pick(device.getRecordData(), 'mRID', 'version', 'parent'),
                     scheduleIds: scheduleIds
                 },
-                timeout: 180000,
+                timeout: me.REQUEST_TIMEOUT,
                 success: function () {
                     route.forward();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeSharedSchedulesSucceeded', 'MDC', 'Shared communication schedule(s) removed'));
@@ -378,7 +385,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 method: 'POST',
                 params: '',
                 jsonData: jsonData,
-                timeout: 180000,
+                timeout: me.REQUEST_TIMEOUT,
                 success: function (response) {
                     me.showDeviceCommunicationPlanning(deviceMRID);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.addScheduleSucceeded', 'MDC', 'Schedule added.'));
@@ -397,7 +404,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 method: 'PUT',
                 params: '',
                 jsonData: jsonData,
-                timeout: 180000,
+                timeout: me.REQUEST_TIMEOUT,
                 success: function (response) {
                     me.showDeviceCommunicationPlanning(deviceMRID);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.editScheduleSucceeded', 'MDC', 'Schedule saved.'));
@@ -481,10 +488,45 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             method: 'PUT',
             params: '',
             jsonData: _.pick(record.getRecordData(), 'id', 'version', 'parent', 'name'),
-            timeout: 180000,
+            timeout: me.REQUEST_TIMEOUT,
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.removeScheduleSucceeded', 'MDC', 'Schedule removed.'));
                 me.navigateToCommunicationPlanning();
+            }
+        });
+    },
+
+    onRunSchedule: function () {
+        this.doRunSchedule('run');
+    },
+
+    onRunNowSchedule: function () {
+        this.doRunSchedule('runnow');
+    },
+
+    doRunSchedule: function(runOrRunNow) {
+        var me = this,
+            jsonData,
+            request = {},
+            gridRecord = me.getDeviceCommunicationPlanningGrid().getSelectionModel().getSelection()[0];
+
+        debugger;
+        request.device = {};
+        request.device.mRID = gridRecord.get('parent').mRID;
+        request.device.parent = gridRecord.get('parent').parent;
+        request.device.version = gridRecord.get('parent').version;
+        jsonData = Ext.encode(request);
+        Ext.Ajax.request({
+            url: '/api/ddr/devices/' + encodeURIComponent(gridRecord.get('parent').id) + '/comtasks/' + gridRecord.get('comTask').id + '/' + runOrRunNow,
+            method: 'PUT',
+            isNotEdit: true,
+            params: '',
+            jsonData: jsonData,
+            timeout: me.REQUEST_TIMEOUT,
+            success: function (response) {
+                me.getApplication().fireEvent('acknowledge', runOrRunNow === 'run'
+                    ? Uni.I18n.translate('deviceCommunicationPlanning.runSuccess', 'MDC', 'Run succeeded.')
+                    : Uni.I18n.translate('deviceCommunicationPlanning.runNowSuccess', 'MDC', 'Run now succeeded.'));
             }
         });
     }
