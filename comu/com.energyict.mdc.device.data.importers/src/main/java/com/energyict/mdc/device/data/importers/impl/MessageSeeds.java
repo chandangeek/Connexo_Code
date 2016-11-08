@@ -17,12 +17,12 @@ public enum MessageSeeds implements MessageSeed {
 
     NO_DEVICE_TYPE(101, "ImportProcessorNoDeviceType", "Can''t process line {0}: No device type found with name: {1}.", Level.WARNING),
     NO_DEVICE_CONFIGURATION(102, "ImportProcessorNoDeviceConfiguration", "Can''t process line {0}: No device configuration found with name: {1}.", Level.WARNING),
-    NO_DEVICE(103, "ImportProcessorNoDevice", "Can''t process line {0}: No device found with MRID: {1}.", Level.WARNING),
-    NO_MASTER_DEVICE(104, "ImportProcessorNoMasterDevice", "Can''t process line {0}: Master device with MRID: {1} was not found.", Level.WARNING),
-    DEVICE_CAN_NOT_BE_MASTER(105, "ImportProcessorDeviceCanNotBeMaster", "Can''t process line {0}: Master device with MRID: {0} is not configured to act as master device", Level.WARNING),
-    NO_USAGE_POINT(106, "ImportProcessorNoUsagePoint", "Can''t process line {0}: Usage point with MRID: {1} is not found. " +
-            "New usage point can't be created because of incorrect value of Service category. The list of available Service categories: {2}", Level.WARNING),
-    DEVICE_ALREADY_EXISTS(107, "ImportProcessorDeviceAlreadyExists", "Can''t process line {0}: The device (MRID: {1}) is already in use", Level.WARNING),
+    NO_DEVICE(103, "ImportProcessorNoDevice", "Can''t process line {0}: No device found: {1}.", Level.WARNING),
+    NO_MASTER_DEVICE(104, "ImportProcessorNoMasterDevice", "Can''t process line {0}: Master device {1} was not found.", Level.WARNING),
+    DEVICE_CAN_NOT_BE_MASTER(105, "ImportProcessorDeviceCanNotBeMaster", "Can''t process line {0}: Master device {0} is not configured to act as master device", Level.WARNING),
+    NO_USAGE_POINT(106, "ImportProcessorNoUsagePoint", "Can''t process line {0}: Usage point {1} is not found. " +
+            "New usage point can''t be created because of incorrect value of Service category. The list of available Service categories: {2}", Level.WARNING),
+    DEVICE_ALREADY_EXISTS(107, "ImportProcessorDeviceAlreadyExists", "Can''t process line {0}: The device (name: {1}) is already in use", Level.WARNING),
     DEVICE_ALREADY_IN_THAT_STATE(108, "ImportProcessorDeviceAlreadyInThatState", "Can''t process line {0}: The device is already in {1} state", Level.WARNING),
     DEVICE_CAN_NOT_BE_MOVED_TO_STATE(109, "ImportProcessorDeviceCanNotBeMovedToState", "Can''t process line {0}: The device can''t be moved from state {2} to {1}", Level.WARNING),
     PRE_TRANSITION_CHECKS_FAILED(110, "ImportProcessorPreTransitionsChecksFailed", "Can''t process line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
@@ -35,13 +35,13 @@ public enum MessageSeeds implements MessageSeed {
     READING_DATE_AFTER_METER_ACTIVATION(202, "ReadingDateAfterMeterActivation", "Note for line {0}: Reading date: {1} is after the last meter activation end date and will not be stored.", Level.WARNING),
     NO_SUCH_READING_TYPE(203, "NoSuchReadingType", "Can''t process line {0}: Reading type {1} doesn''t exist", Level.WARNING),
     NOT_SUPPORTED_READING_TYPE(204, "NotSupportedReadingType", "Can''t process line {0}: Reading type {1} is not supported. Supported reading types: registers and channels with integration time >= day.", Level.WARNING),
-    DEVICE_DOES_NOT_SUPPORT_READING_TYPE(205, "DeviceDoesNotSupportReadingType", "Can''t process line {0}: Reading type {1} is not available for the device with MRID: {2}", Level.WARNING),
-    READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW(206, "ReadingValueDoesNotMatchRegisterConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with register configuration settings (overflow)", Level.WARNING),
-    READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(207, "ReadingValueDoesNotMatchChannelConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
+    DEVICE_DOES_NOT_SUPPORT_READING_TYPE(205, "DeviceDoesNotSupportReadingType", "Can''t process line {0}: Reading type {1} is not available for device {2}", Level.WARNING),
+    READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW(206, "ReadingValueDoesNotMatchRegisterConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device {2} doesn''t match with register configuration settings (overflow)", Level.WARNING),
+    READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(207, "ReadingValueDoesNotMatchChannelConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
     READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(208, "ReadingValueWasTruncatedToRegisterConfig", "Note for line {0}: Reading value was truncated to {1} according to register configuration.", Level.INFO),
     READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(209, "ReadingValueWasTruncatedToChannelConfig", "Note for line {0}: Reading value was truncated to {1} according to channel configuration.", Level.INFO),
-    READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(210, "ReadingImportIsNotAllowedForDecommissionedDevices", "Can''t process line {0}: Import service doesn''t have privileges to import readings for device with MRID: {1} since it is in Decommissioned state.", Level.WARNING),
-    READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE(211, "ReadingImportIsNotAllowedForInStockDevices", "Note for line {0}: Reading can''t be imported for device with MRID: {1} since this device is in In Stock state and was not installed or commissioned yet.", Level.WARNING),
+    READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(210, "ReadingImportIsNotAllowedForDecommissionedDevices", "Can''t process line {0}: Import service doesn''t have privileges to import readings for device {1} since it is in Decommissioned state.", Level.WARNING),
+    READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE(211, "ReadingImportIsNotAllowedForInStockDevices", "Note for line {0}: Reading can''t be imported for device {1} since this device is in In Stock state and was not installed or commissioned yet.", Level.WARNING),
     READING_DATE_INCORRECT_FOR_DAILY_CHANNEL(212, "ReadingDateIncorrectForDailyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Time of reading date of daily reading must be midnight in device timezone ({2}).", Level.WARNING),
     READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL(213, "ReadingDateIncorrectForMonthlyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of monthly reading must be the 1st day of the month and time of the day must be midnight in device timezone ({2}).", Level.WARNING),
 
@@ -60,9 +60,9 @@ public enum MessageSeeds implements MessageSeed {
     INCORRECT_LOCATION_FORMAT(406, "IncorrectLocationFormat", "Incorrect location format. Expected : {0}", Level.SEVERE),
     LINE_MISSING_LOCATION_VALUE(407, "LineMissingLocationValue", "Can''t process line {0}: missing value for field ''{1}''.", Level.SEVERE),
 
-    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(501, "UsagePointAlreadyLinkedToAnotherDeviceX", "Can''t process line {0}: Usage point with MRID: {1} is already linked to device with MRID: {2} starting from {3}", Level.WARNING),
-    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(502, "UsagePointAlreadyLinkedToAnotherDeviceXUntil", "Can''t process line {0}: Usage point with MRID: {1} is already linked to device with MRID: {2} starting from {3} until {4}", Level.WARNING),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(503, "DeviceDoesNotProvideRequiredReadingTypes", "Can''t process line {0}: The device with MRID: {1} doesn''t have the following reading types that are specified in the metrology configurations of the selected usage point with MRID: {2}: {3}", Level.WARNING),
+    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(501, "UsagePointAlreadyLinkedToAnotherDeviceX", "Can''t process line {0}: Usage point {1} is already linked to device {2} starting from {3}", Level.WARNING),
+    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(502, "UsagePointAlreadyLinkedToAnotherDeviceXUntil", "Can''t process line {0}: Usage point {1} is already linked to device {2} from {3} until {4}", Level.WARNING),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(503, "DeviceDoesNotProvideRequiredReadingTypes", "Can''t process line {0}: Device {1} doesn''t have the following reading types that are specified in the metrology configurations of selected usage point {2}: {3}", Level.WARNING),
     PROCESS_SQL_EXCEPTION(504, "ProcessSqlException", "Can''t process line {0}.  There was a problem accessing the database", Level.SEVERE),
     ;
 

@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -41,6 +40,7 @@ import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterPro
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -87,6 +87,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         context.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
     }
 
     private void setupTranslations() {
@@ -119,12 +120,12 @@ public class DeviceActivationDeactivationImporterFactoryTest {
 
     @Test
     public void testActivateTransitionIsNotSupportedByImporter() {
-        String csv = "Device MRID;Transition date;Activate\n" +
+        String csv = "Device name;Transition date;Activate\n" +
                 "VPB0001;01/08/2015 00:30;true";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -132,31 +133,30 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         when(device.forValidation().getLastChecked()).thenReturn(Optional.empty());
 
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
-        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        when(finiteStateMachineService.findCustomStateTransitionEventType(anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
 
         createDeviceActivationDeactivationImporter().process(importOccurrence);
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
-        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).info(anyString());
         verify(logger).warning(contains(
                 thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
                          .format(2, DefaultState.ACTIVE.getDefaultFormat(), DefaultState.IN_STOCK.getDefaultFormat(), DefaultState.INACTIVE.getDefaultFormat())));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).severe(anyString());
     }
-
 
     @Test
     public void testDeactivateTransitionIsNotSupportedByImporter() {
-        String csv = "Device MRID;Transition date;Activate\n" +
+        String csv = "Device name;Transition date;Activate\n" +
                 "VPB0001;01/08/2015 00:30;false";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
         Device device = mock(Device.class);
         CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
         DeviceValidation validation = mock(DeviceValidation.class);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.COMMISSIONING.getKey());
@@ -166,17 +166,17 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         when(validation.getLastChecked()).thenReturn(Optional.empty());
 
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
-        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        when(finiteStateMachineService.findCustomStateTransitionEventType(anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
 
         createDeviceActivationDeactivationImporter().process(importOccurrence);
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
-        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).info(anyString());
         verify(logger).warning(contains(
                 thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
                          .format(2, DefaultState.INACTIVE.getDefaultFormat(), DefaultState.COMMISSIONING.getDefaultFormat(), DefaultState.ACTIVE.getDefaultFormat())));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).severe(anyString());
     }
 }

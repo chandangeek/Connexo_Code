@@ -10,7 +10,6 @@ import java.util.List;
 public class DeviceReadingsImportRecord extends FileImportRecord {
 
     private ZonedDateTime readingDateTime;
-
     private List<String> readingTypes = new ArrayList<>();
     private List<BigDecimal> values = new ArrayList<>();
 

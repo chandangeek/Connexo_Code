@@ -9,7 +9,7 @@ import java.util.Optional;
 public class DeviceTransitionRecord extends FileImportRecord {
 
     private ZonedDateTime transitionDate;
-    private String masterDeviceMrid;
+    private String masterDeviceIdentifier;
 
     public Optional<Instant> getTransitionDate() {
         return Optional.ofNullable(this.transitionDate != null ? this.transitionDate.toInstant() : null);
@@ -19,12 +19,12 @@ public class DeviceTransitionRecord extends FileImportRecord {
         this.transitionDate = transitionDate;
     }
 
-    public String getMasterDeviceMrid() {
-        return masterDeviceMrid;
+    public String getMasterDeviceIdentifier() {
+        return masterDeviceIdentifier;
     }
 
-    public void setMasterDeviceMrid(String masterDeviceMrid) {
-        this.masterDeviceMrid = masterDeviceMrid;
+    public void setMasterDeviceIdentifier(String masterDeviceIdentifier) {
+        this.masterDeviceIdentifier = masterDeviceIdentifier;
     }
 
     public Optional<Instant> getTransitionActionDate() {

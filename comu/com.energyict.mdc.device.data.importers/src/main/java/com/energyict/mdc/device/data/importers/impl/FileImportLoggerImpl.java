@@ -41,10 +41,10 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
         } else {
-            // Always specify line number and device mrid
+            // Always specify line number and device identifier
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
-                    .format(data.getLineNumber(), data.getDeviceMRID(), exception.getLocalizedMessage());
+                    .format(data.getLineNumber(), data.getDeviceIdentifier(), exception.getLocalizedMessage());
         }
         fileImportOccurrence.getLogger().warning(message);
     }

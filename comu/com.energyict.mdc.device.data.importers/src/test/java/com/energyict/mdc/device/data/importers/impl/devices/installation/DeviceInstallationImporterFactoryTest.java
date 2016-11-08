@@ -6,7 +6,6 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -87,13 +86,11 @@ import static org.mockito.Mockito.withSettings;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceInstallationImporterFactoryTest {
 
-    @Mock
-    private Thesaurus thesaurus;
-
     private DeviceDataImporterContext context;
-
     private LocationTemplate locationTemplate;
 
+    @Mock
+    private Thesaurus thesaurus;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -121,7 +118,7 @@ public class DeviceInstallationImporterFactoryTest {
     @Mock
     private MeterRole defaultMeterRole;
 
-    private EndDevice endDevice;
+    private Meter meter;
 
     @Before
     public void beforeTest() {
@@ -136,14 +133,18 @@ public class DeviceInstallationImporterFactoryTest {
         context.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findEndDeviceByMRID(anyString())).thenReturn(Optional.empty());
+
         final String templateMembers = "#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale";
         when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
-        endDevice = mock(EndDevice.class, Mockito.RETURNS_DEEP_STUBS);
-        when(endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder()).thenReturn(locationBuilder);
+        meter = mock(Meter.class, Mockito.RETURNS_DEEP_STUBS);
+        when(meter.getAmrSystem().newMeter(eq(meter.getAmrId()), anyString()).newLocationBuilder()).thenReturn(locationBuilder);
         locationTemplate = LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
         locationTemplate.parseTemplate(templateMembers, templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
+        when(meteringService.findEndDeviceByName("VPB0002")).thenReturn(Optional.of(meter));
         when(locationBuilder.getMemberBuilder("locale")).thenReturn(Optional.empty());
         when(locationBuilder.member()).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
@@ -195,21 +196,21 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseInstallActive() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -218,7 +219,44 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
+    }
+
+    @Test
+    public void testSuccessCaseInstallActiveForDevicesIdentifiedByMrid() {
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "6a2632a4-6b73-4a13-bbcc-09c8bdd02308;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;7a2632a4-6b73-4a13-bbcc-09c8bdd02308;UP0001;electricity;false;01/08/2015 00:30";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceInstallImporter();
+
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
+        when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(meter));
+        State deviceState = mock(State.class);
+        when(device.getState()).thenReturn(deviceState);
+        when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device masterDevice = mock(Device.class);
+        when(masterDevice.getName()).thenReturn("VPB0001");
+        when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
+        when(deviceService.findDeviceByMrid("7a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(masterDevice));
+        CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
+        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        ExecutableAction executableAction = mock(ExecutableAction.class);
+        when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
+        AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
+        when(executableAction.getAction()).thenReturn(authorizedAction);
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
 
@@ -232,20 +270,20 @@ public class DeviceInstallationImporterFactoryTest {
     @Test
     public void testSuccessCaseInstallActiveWithoutLocation() {
         String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;;;;;;;;;;;;;;;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;;;;;;;;;;;;;;;VPB0001;Usage Point;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -254,7 +292,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("Usage Point")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
 
@@ -267,7 +305,7 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadColumnNumberCase() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
                 "VPB0002;";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
@@ -278,9 +316,9 @@ public class DeviceInstallationImporterFactoryTest {
     }
 
     @Test
-    public void testMissingMandatoryDeviceMridValueCase() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "   ;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+    public void testMissingMandatoryDeviceNameValueCase() {
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "   ;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -291,8 +329,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testMissingMandatoryInstallationDateValueCase() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;  ;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;  ;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -302,13 +340,13 @@ public class DeviceInstallationImporterFactoryTest {
     }
 
     @Test
-    public void testBadDeviceMrid() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;countryCode;countryName;17;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+    public void testBadDeviceName() {
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;countryCode;countryName;17;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.empty());
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
@@ -317,21 +355,21 @@ public class DeviceInstallationImporterFactoryTest {
     }
 
     @Test
-    public void testSuccessCaseAlreadyHasMasterWithTheSameMrid() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+    public void testSuccessCaseAlreadyHasTheSameMaster() {
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -340,7 +378,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(masterDevice));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
@@ -351,22 +389,22 @@ public class DeviceInstallationImporterFactoryTest {
     }
 
     @Test
-    public void testSuccessCaseAlreadyHasMasterWithDifferentMrid() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+    public void testSuccessCaseHasAnotherMaster() {
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -374,10 +412,10 @@ public class DeviceInstallationImporterFactoryTest {
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
         Device oldMasterDevice = mock(Device.class);
-        when(oldMasterDevice.getmRID()).thenReturn("VPB0000");
+        when(oldMasterDevice.getName()).thenReturn("VPB0000");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMasterDevice));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
@@ -388,18 +426,18 @@ public class DeviceInstallationImporterFactoryTest {
     }
 
     @Test
-    public void testBadMasterDeviceMrid() {
-        String csv = "mrid;installation date;countryCode;countryName;elevation;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+    public void testBadMasterDeviceIdentifier() {
+        String csv = "name;installation date;countryCode;countryName;elevation;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -416,21 +454,21 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testWithoutUsagePoint() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
                 "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001; ; ;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -445,26 +483,26 @@ public class DeviceInstallationImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(meteringService, never()).findUsagePoint(Matchers.anyString());
+        verify(meteringService, never()).findUsagePointByName(Matchers.anyString());
     }
 
     @Test
     public void testBadUsagePointAndGoodServiceKind() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -472,37 +510,37 @@ public class DeviceInstallationImporterFactoryTest {
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.empty());
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint(eq("Usage MRID"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
+        when(serviceCategory.newUsagePoint(eq("UP0001"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
 
         importer.process(importOccurrence);
 
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
-        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
+        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "UP0001"));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
     }
 
     @Test
     public void testBadUsagePointAndBadServiceKind() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;some;false;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;some;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -510,38 +548,38 @@ public class DeviceInstallationImporterFactoryTest {
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.empty());
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint(eq("Usage MRID"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
+        when(serviceCategory.newUsagePoint(eq("UP0001"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
 
         importer.process(importOccurrence);
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
-        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
+        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "UP0001"));
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_USAGE_POINT)
-                .format(2, "Usage MRID", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
+                .format(2, "UP0001", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
     @Test
     public void testBadUsagePointAndNoServiceKind() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;    ;false;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;    ;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -549,31 +587,31 @@ public class DeviceInstallationImporterFactoryTest {
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.empty());
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint(eq("Usage MRID"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
+        when(serviceCategory.newUsagePoint(eq("UP0001"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
 
         importer.process(importOccurrence);
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
-        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
+        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "UP0001"));
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_USAGE_POINT)
-                .format(2, "Usage MRID", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
+                .format(2, "UP0001", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
     @Test
     public void testSuccessCaseInstallInactive() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
                 "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;  ;  ;  ;true;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -594,21 +632,21 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseInstallActiveWithMultiplier() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation;multiplier\n" +
                 "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;;;electricity;false;01/08/2015 00:30;5.6";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -630,21 +668,21 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testFailureCaseInstallActiveWithIncorrectMultiplier() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation;multiplier\n" +
                 "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;;;electricity;false;01/08/2015 00:30;abc";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -666,21 +704,21 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseInstallActiveWithMultiplierWhenNotApplicableForAction() {
-        String csv = "mrid;installation date;latitude;longitude;countryCode;elevation;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+        String csv = "name;installation date;latitude;longitude;countryCode;elevation;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation;multiplier\n" +
                 "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;;;electricity;false;01/08/2015 00:30;5.6";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -700,13 +738,13 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testDeviceCanNotBeMovedToThatState() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -723,13 +761,13 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testDeviceAlreadyInThatState() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
@@ -743,13 +781,13 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testPreTransitionCheckFailed() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -771,13 +809,13 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testTransitionIsNotSupportedByImporter() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.INACTIVE.getKey());
@@ -797,21 +835,21 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testDeviceCanNotBeLinkedToUsagePointAlreadyInUse() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -820,8 +858,8 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(usagePoint.getMRID()).thenReturn("Usage MRID");
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getName()).thenReturn("UP0001");
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT+00:00");
         Instant installationTime = dateParser.parse("01/08/2015 00:30").toInstant();
@@ -829,7 +867,7 @@ public class DeviceInstallationImporterFactoryTest {
         MeterActivation ma = mock(MeterActivation.class);
         when(ma.getStart()).thenReturn(installationTime);
         Meter alreadyLinkedMeter = mock(Meter.class);
-        when(alreadyLinkedMeter.getMRID()).thenReturn("VPB0003");
+        when(alreadyLinkedMeter.getName()).thenReturn("VPB0003");
         when(ma.getMeter()).thenReturn(Optional.of(alreadyLinkedMeter));
         when(ex.getMeterActivation()).thenReturn(ma);
         when(device.activate(installationTime, usagePoint, defaultMeterRole)).thenThrow(ex);
@@ -839,29 +877,29 @@ public class DeviceInstallationImporterFactoryTest {
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE)
-                .format(2, "Usage MRID", "VPB0003", DeviceInstallationImportProcessor.getFormattedInstant(installationTime)));
+                .format(2, "UP0001", "VPB0003", DeviceInstallationImportProcessor.getFormattedInstant(installationTime)));
         verify(logger, never()).severe(Matchers.anyString());
         verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
     }
 
     @Test
     public void testDeviceCanNotBeLinkedToUsagePointMissingReadingTypeRequirements() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(device.getmRID()).thenReturn("VPB0002");
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(device.getName()).thenReturn("VPB0002");
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
-        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getName()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -870,8 +908,8 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(usagePoint.getMRID()).thenReturn("Usage MRID");
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getName()).thenReturn("UP0001");
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT+00:00");
         Instant installationTime = dateParser.parse("01/08/2015 00:30").toInstant();
@@ -883,7 +921,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT).format(2, "VPB0002", "Usage MRID", ""));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT).format(2, "VPB0002", "UP0001", ""));
         verify(logger, never()).severe(Matchers.anyString());
         verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
     }

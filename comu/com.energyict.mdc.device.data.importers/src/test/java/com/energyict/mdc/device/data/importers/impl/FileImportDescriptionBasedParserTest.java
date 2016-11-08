@@ -1,22 +1,22 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 
-import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
-import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
-
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
+import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
+import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -74,7 +74,7 @@ public class FileImportDescriptionBasedParserTest {
             List<FileImportField<?>> fields = new ArrayList<>();
             LiteralStringParser stringParser = new LiteralStringParser();
             fields.add(CommonField.withParser(stringParser)
-                    .withSetter(record::setDeviceMRID)
+                    .withSetter(record::setDeviceIdentifier)
                     .markMandatory()
                     .build());
             fields.add(CommonField.withParser(stringParser)
@@ -143,11 +143,11 @@ public class FileImportDescriptionBasedParserTest {
                 List<FileImportField<?>> fields = new ArrayList<>();
                 LiteralStringParser stringParser = new LiteralStringParser();
                 fields.add(CommonField.withParser(stringParser)
-                        .withSetter(record::setDeviceMRID)
+                        .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
-                        .withSetter(record::setDeviceMRID)
+                        .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
@@ -190,7 +190,7 @@ public class FileImportDescriptionBasedParserTest {
                 List<FileImportField<?>> fields = new ArrayList<>();
                 LiteralStringParser stringParser = new LiteralStringParser();
                 fields.add(CommonField.withParser(stringParser)
-                        .withSetter(record::setDeviceMRID)
+                        .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)
@@ -231,7 +231,7 @@ public class FileImportDescriptionBasedParserTest {
                 List<FileImportField<?>> fields = new ArrayList<>();
                 LiteralStringParser stringParser = new LiteralStringParser();
                 fields.add(CommonField.withParser(stringParser)
-                        .withSetter(record::setDeviceMRID)
+                        .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
                 fields.add(CommonField.withParser(stringParser)

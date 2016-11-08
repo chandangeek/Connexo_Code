@@ -9,18 +9,18 @@ import java.util.Optional;
 
 public class DeviceInstallationImportRecord extends DeviceTransitionRecord {
 
-    private String usagePointMrid;
+    private String usagePointIdentifier;
     private String serviceCategory;
     private boolean installInactive;
     private ZonedDateTime startValidationDate;
     private BigDecimal multiplier;
 
-    public String getUsagePointMrid() {
-        return usagePointMrid;
+    public String getUsagePointIdentifier() {
+        return usagePointIdentifier;
     }
 
-    public void setUsagePointMrid(String usagePointMrid) {
-        this.usagePointMrid = usagePointMrid;
+    public void setUsagePointIdentifier(String usagePointIdentifier) {
+        this.usagePointIdentifier = usagePointIdentifier;
     }
 
     public String getServiceCategory() {
