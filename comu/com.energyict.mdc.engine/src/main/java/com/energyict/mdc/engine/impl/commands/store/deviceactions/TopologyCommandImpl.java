@@ -18,7 +18,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.TopologyTask;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -65,8 +67,8 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         addCollectedDataItem(this.deviceTopology);
     }
 
-    protected List<DeviceIdentifier> getSlaveIdentifiersFromOfflineDevices() {
-        return this.offlineDevice.getAllSlaveDevices().stream().map(OfflineDevice::getDeviceIdentifier).collect(Collectors.toList());
+    protected Set<DeviceIdentifier> getSlaveIdentifiersFromOfflineDevices() {
+        return this.offlineDevice.getAllSlaveDevices().stream().map(OfflineDevice::getDeviceIdentifier).collect(Collectors.toSet());
     }
 
     public TopologyAction getTopologyAction() {
@@ -106,11 +108,11 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         PropertyDescriptionBuilder originalSlavesBuilder = builder.addListProperty("originalSlaves");
         appendSlaves(originalSlavesBuilder, getSlaveIdentifiersFromOfflineDevices());
         PropertyDescriptionBuilder receivedSlavesBuilder = builder.addListProperty("receivedSlaves");
-        appendSlaves(receivedSlavesBuilder, this.deviceTopology.getSlaveDeviceIdentifiers());
+        appendSlaves(receivedSlavesBuilder, new HashSet<>(this.deviceTopology.getSlaveDeviceIdentifiers()));
         appendCollectedDeviceInfo(builder, this.deviceTopology.getAdditionalCollectedDeviceInfo());
     }
 
-    private void appendSlaves(PropertyDescriptionBuilder builder, List<DeviceIdentifier> slaveDeviceIdentifiers) {
+    private void appendSlaves(PropertyDescriptionBuilder builder, Set<DeviceIdentifier> slaveDeviceIdentifiers) {
         if (slaveDeviceIdentifiers.isEmpty()) {
             builder.append("None").next();
         } else {

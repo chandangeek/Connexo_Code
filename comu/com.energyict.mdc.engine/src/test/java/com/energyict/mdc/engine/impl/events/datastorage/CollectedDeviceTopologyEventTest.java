@@ -4,14 +4,15 @@ import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import java.time.Clock;
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.util.Arrays;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -75,7 +76,7 @@ public class CollectedDeviceTopologyEventTest {
 
         CollectedTopology topology = mock(CollectedTopology.class);
         when(topology.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        when(topology.getSlaveDeviceIdentifiers()).thenReturn(Arrays.asList(slave1,slave2));
+        when(topology.getSlaveDeviceIdentifiers()).thenReturn(Arrays.asList(slave1, slave2));
 
         CollectedDeviceTopologyEvent event = new CollectedDeviceTopologyEvent(serviceProvider, topology);
         // Business method
