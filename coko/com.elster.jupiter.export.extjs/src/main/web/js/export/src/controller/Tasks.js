@@ -879,7 +879,7 @@ Ext.define('Dxp.controller.Tasks', {
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
             timeFrameRadioGroup = view.down('#export-updated'),
-            continuousDataRadioGroup = view.down('#continuous-data-radiogroup')
+            continuousDataRadioGroup = view.down('#continuous-data-radiogroup');
 
         // --- Begin --- Take privileges update vs. update.schedule into account:
         if (Dxp.privileges.DataExport.canUpdateSchedule() && !Dxp.privileges.DataExport.canUpdateFull()) {
@@ -887,6 +887,7 @@ Ext.define('Dxp.controller.Tasks', {
             view.down('#task-name').setDisabled(true);
             view.down('#dxp-data-selector-container').setDisabled(true);
             view.down('#device-group-container').setDisabled(true);
+            view.down('#usage-point-group-container').setDisabled(true);
             view.down('#readingTypesFieldContainer').setDisabled(true);
             view.down('#eventTypesFieldContainer').setDisabled(true);
             view.down('#readingTypesGridPanel').setDisabled(true);
