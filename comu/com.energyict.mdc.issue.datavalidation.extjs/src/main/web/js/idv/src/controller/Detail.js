@@ -68,13 +68,13 @@ Ext.define('Idv.controller.Detail', {
                     var me = this;
                     if (record.get('registerId')) {
                         this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/registerdata').forward({
-                            mRID: me.getDetailForm().getRecord().get('device').serialNumber,
+                            deviceId: me.getDetailForm().getRecord().get('device').name,
                             channelId: record.get('registerId')
                         });
                     } else if(record.get('channelId')) {
                         this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channelvalidationblocks').forward(
                             {
-                                mRID: me.getDetailForm().getRecord().get('device').serialNumber,
+                                deviceId: me.getDetailForm().getRecord().get('device').name,
                                 channelId: record.get('channelId'),
                                 issueId: record.getId()
                             },
@@ -160,11 +160,11 @@ Ext.define('Idv.controller.Detail', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setUrl({
-                mRID: me.getDetailForm().getRecord().get('device').serialNumber,
-                channelId: readings.get('channelId')
-            }
-        );
+        record.getProxy().extraParams = {
+            deviceId: me.getDetailForm().getRecord().get('device').name,
+            channelId: readings.get('channelId')
+        };
+
         me.getReadingEstimationWindow().setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
