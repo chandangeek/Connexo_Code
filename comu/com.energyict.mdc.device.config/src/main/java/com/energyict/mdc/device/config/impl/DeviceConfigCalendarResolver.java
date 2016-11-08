@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarResolver;
+import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -11,17 +12,21 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.energyict.mdc.device.config.calendarResolver", service = CalendarResolver.class)
 public class DeviceConfigCalendarResolver implements CalendarResolver {
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ServerDeviceConfigurationService deviceConfigurationService;
 
 
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceConfigurationService = (ServerDeviceConfigurationService) deviceConfigurationService;
     }
 
     @Override
     public boolean isCalendarInUse(Calendar calendar) {
-        return !deviceConfigurationService.findDeviceTypesForCalendar(calendar).isEmpty();
+        return deviceConfigurationService.getAllowedCalendarsQuery()
+                .filter(Operator.EQUAL.compare(AllowedCalendarImpl.Fields.CALENDAR.fieldName(), calendar))
+                .limit(1)
+                .findAny()
+                .isPresent();
     }
 }
 
