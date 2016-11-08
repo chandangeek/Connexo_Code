@@ -5,7 +5,7 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ValidationOverview {
 
-    String getDevice_mRID();
+    String getDeviceName();
 
     String getDeviceSerialNumber();
 

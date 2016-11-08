@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * @since 2015-02-07
  */
 public class ValidationOverviewImpl implements ValidationOverview {
-    private final String mRID;
+    private final String deviceName;
     private final String serialNumber;
     private final String deviceTypeName;
     private final String deviceConfigurationName;
@@ -28,8 +28,8 @@ public class ValidationOverviewImpl implements ValidationOverview {
     }
 
     // For testing purposes
-    public ValidationOverviewImpl(String mRID, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResultsImpl deviceValidationKpiResults) {
-        this.mRID = mRID;
+    public ValidationOverviewImpl(String deviceName, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResultsImpl deviceValidationKpiResults) {
+        this.deviceName = deviceName;
         this.serialNumber = serialNumber;
         this.deviceTypeName = deviceTypeName;
         this.deviceConfigurationName = deviceConfigurationName;
@@ -37,8 +37,8 @@ public class ValidationOverviewImpl implements ValidationOverview {
     }
 
     @Override
-    public String getDevice_mRID() {
-        return mRID;
+    public String getDeviceName() {
+        return deviceName;
     }
 
     @Override
