@@ -2,36 +2,39 @@ package com.energyict.mdc.common;
 
 import com.energyict.mdc.common.impl.ObisCodeAnalyzer;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.NoSuchElementException;
+import java.text.ParseException;
 import java.util.StringTokenizer;
 
+@XmlRootElement
 public class ObisCode implements Serializable {
 
-    public static final int CODE_D_CUMULATIVE_MAXUMUM_DEMAND = 2;
-    public static final int CODE_D_RISING_DEMAND = 4;
-    public static final int CODE_D_LAST_AVERAGE = 5;
-    public static final int CODE_D_MAXIMUM_DEMAND = 6;
-    public static final int CODE_D_MINIMUM = 3;
-    public static final int CODE_D_TIME_INTEGRAL = 8; // keep for compatibility reasons
-    public static final int CODE_D_TIME_INTEGRAL1 = 8;
-    public static final int CODE_D_CURRENT_AVERAGE5 = 27;
-    public static final int CODE_D_TIME_INTEGRAL5 = 29;
-    public static final int CODE_D_INSTANTANEOUS = 7;
+    static public final int CODE_D_CUMULATIVE_MAXUMUM_DEMAND = 2;
+    static public final int CODE_D_RISING_DEMAND = 4;
+    static public final int CODE_D_LAST_AVERAGE = 5;
+    static public final int CODE_D_MAXIMUM_DEMAND = 6;
+    static public final int CODE_D_MINIMUM = 3;
+    static public final int CODE_D_TIME_INTEGRAL = 8; // keep for compatibility reasons
+    static public final int CODE_D_TIME_INTEGRAL1 = 8;
+    static public final int CODE_D_CURRENT_AVERAGE5 = 27;
+    static public final int CODE_D_TIME_INTEGRAL5 = 29;
+    static public final int CODE_D_INSTANTANEOUS = 7;
 
-    public static final int CODE_C_ACTIVE_IMPORT = 1;
-    public static final int CODE_C_ACTIVE_EXPORT = 2;
-    public static final int CODE_C_REACTIVE_IMPORT = 3;
-    public static final int CODE_C_REACTIVE_EXPORT = 4;
-    public static final int CODE_C_REACTIVE_Q1 = 5;
-    public static final int CODE_C_REACTIVE_Q2 = 6;
-    public static final int CODE_C_REACTIVE_Q3 = 7;
-    public static final int CODE_C_REACTIVE_Q4 = 8;
-    public static final int CODE_C_APPARENT = 9;
-    public static final int CODE_C_CURRENTANYPHASE = 11;
-    public static final int CODE_C_VOLTAGEANYPHASE = 12;
-    public static final int CODE_C_POWERFACTOR = 13;
-    public static final int CODE_C_UNITLESS = 82;
+    static public final int CODE_C_ACTIVE_IMPORT = 1;
+    static public final int CODE_C_ACTIVE_EXPORT = 2;
+    static public final int CODE_C_REACTIVE_IMPORT = 3;
+    static public final int CODE_C_REACTIVE_EXPORT = 4;
+    static public final int CODE_C_REACTIVE_Q1 = 5;
+    static public final int CODE_C_REACTIVE_Q2 = 6;
+    static public final int CODE_C_REACTIVE_Q3 = 7;
+    static public final int CODE_C_REACTIVE_Q4 = 8;
+    static public final int CODE_C_APPARENT = 9;
+    static public final int CODE_C_CURRENTANYPHASE = 11;
+    static public final int CODE_C_VOLTAGEANYPHASE = 12;
+    static public final int CODE_C_POWERFACTOR = 13;
+    static public final int CODE_C_UNITLESS = 82;
 
 
     private int a;
@@ -40,13 +43,15 @@ public class ObisCode implements Serializable {
     private int d;
     private int e;
     private int f;
-    private boolean hasRelativeBillingPeriod;
+    private boolean relativeBillingPeriod;
 
     //needed for Flex synchronization
+
     public ObisCode() {
     }
 
-    public ObisCode(int a, int b, int c, int d, int e, int f, boolean hasRelativeBillingPeriod) {
+
+    public ObisCode(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod) {
         if (a < 0 || a > 255) {
             throw new IllegalArgumentException("Invalid a value " + a);
         }
@@ -62,7 +67,7 @@ public class ObisCode implements Serializable {
         if (e < 0 || e > 255) {
             throw new IllegalArgumentException("Invalid e value " + e);
         }
-        if (hasRelativeBillingPeriod) {
+        if (relativeBillingPeriod) {
             if (f < -99 || f > 1) {
                 throw new IllegalArgumentException("Invalid f value " + f);
             }
@@ -77,7 +82,7 @@ public class ObisCode implements Serializable {
         this.d = d;
         this.e = e;
         this.f = f;
-        this.hasRelativeBillingPeriod = hasRelativeBillingPeriod;
+        this.relativeBillingPeriod = relativeBillingPeriod;
     }
 
     public ObisCode(int a, int b, int c, int d, int e, int f) {
@@ -92,7 +97,7 @@ public class ObisCode implements Serializable {
             base.getD(),
             base.getE(),
             base.getF(),
-            base.hasRelativeBillingPeriod());
+                base.useRelativeBillingPeriod());
     }
 
     public ObisCode(ObisCode base, int channelIndex, int billingPeriodIndex) {
@@ -102,18 +107,23 @@ public class ObisCode implements Serializable {
             base.getC(),
             base.getD(),
             base.getE(),
-            base.hasRelativeBillingPeriod() ?
+                base.useRelativeBillingPeriod() ?
                     ((billingPeriodIndex + base.getF()) % 100) :
                     base.getF(),
             false);
     }
 
+    public boolean useRelativeBillingPeriod() {
+        return relativeBillingPeriod;
+    }
+
+    @XmlAttribute
     public boolean hasRelativeBillingPeriod() {
-        return hasRelativeBillingPeriod;
+        return relativeBillingPeriod;
     }
 
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        StringBuffer buffer = new StringBuffer();
         buffer.append(a);
         buffer.append(".");
         if (b < 0) {
@@ -128,7 +138,7 @@ public class ObisCode implements Serializable {
         buffer.append(".");
         buffer.append(e);
         buffer.append(".");
-        if (hasRelativeBillingPeriod()) {
+        if (useRelativeBillingPeriod()) {
             buffer.append("VZ");
             if (f > 0) {
                 buffer.append("+");
@@ -151,6 +161,14 @@ public class ObisCode implements Serializable {
         return equalsSelectiveFieldsCheck(o, true, false, true, true, true, true, true);
     }
 
+    public boolean equalsIgnoreBAndEChannel(Object o) {
+        return equalsSelectiveFieldsCheck(o, true, false, true, true, false, true, true);
+    }
+
+    public boolean equalsIgnoreBillingField(Object o) {
+        return equalsSelectiveFieldsCheck(o, true, true, true, true, true, false, true);
+    }
+
     private boolean equalsSelectiveFieldsCheck(Object o, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean relative) {
         if (o == null) {
             return false;
@@ -164,7 +182,7 @@ public class ObisCode implements Serializable {
                             ((this.d == other.d) || !d) &&
                             ((this.e == other.e) || !e) &&
                             ((this.f == other.f) || !f) &&
-                            ((this.hasRelativeBillingPeriod == other.hasRelativeBillingPeriod) || !relative);
+                            ((this.relativeBillingPeriod == other.relativeBillingPeriod) || !relative);
         } catch (ClassCastException ex) {
             return false;
         }
@@ -187,40 +205,46 @@ public class ObisCode implements Serializable {
         return new byte[]{(byte) getA(), (byte) getB(), (byte) getC(), (byte) getD(), (byte) getE(), (byte) getF()};
     }
 
+    @XmlAttribute
     public int getA() {
         return a;
     }
 
+    @XmlAttribute
     public int getB() {
         return b;
     }
 
+    @XmlAttribute
     public int getC() {
         return c;
     }
 
+    @XmlAttribute
     public int getD() {
         return d;
     }
 
+    @XmlAttribute
     public int getE() {
         return e;
     }
 
+    @XmlAttribute
     public int getF() {
         return f;
     }
 
     public boolean isCurrentBillingPeriod() {
-        return hasRelativeBillingPeriod() && f == 1;
+        return useRelativeBillingPeriod() && f == 1;
     }
 
     public boolean isLastBillingPeriod() {
-        return hasRelativeBillingPeriod() && f == 0;
+        return useRelativeBillingPeriod() && f == 0;
     }
 
     public boolean hasBillingPeriod() {
-        return hasRelativeBillingPeriod() || f < 100;
+        return useRelativeBillingPeriod() || f < 100;
     }
 
     public String getDescription() {
@@ -230,45 +254,48 @@ public class ObisCode implements Serializable {
     // KV 12102004
 
     public static ObisCode fromByteArray(byte[] ln) {
+        boolean hasRelativeBillingPoint = false;
         int a = ln[0] & 0xFF;
         int b = ln[1] & 0xFF;
         int c = ln[2] & 0xFF;
         int d = ln[3] & 0xFF;
         int e = ln[4] & 0xFF;
         int f = ln[5] & 0xFF;
-        return new ObisCode(a, b, c, d, e, f, false);
+        return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
     }
 
     public static ObisCode fromString(String codeString) {
-        try {
             StringTokenizer tokenizer = new StringTokenizer(codeString, ".");
-            String aToken = tokenizer.nextToken().trim();
-            int a = Integer.parseInt(aToken);
-            String bToken = tokenizer.nextToken().trim();
-            int b = "x".equalsIgnoreCase(bToken) ? -1 : Integer.parseInt(bToken);
-            String cToken = tokenizer.nextToken().trim();
-            int c = Integer.parseInt(cToken);
-            String dToken = tokenizer.nextToken().trim();
-            int d = Integer.parseInt(dToken);
-            String eToken = tokenizer.nextToken().trim();
-            int e = Integer.parseInt(eToken);
-            String fToken = tokenizer.nextToken().trim();
-
-            if (tokenizer.hasMoreElements()) {
-                throw new IllegalArgumentException("Invalid obis format");
+        if (tokenizer.countTokens() != 6) {
+            throw new IllegalArgumentException(codeString);
             }
-
-            boolean hasRelativeBillingPoint = fToken.startsWith("VZ");
+        String token = tokenizer.nextToken().trim();
+        int a = Integer.parseInt(token);
+        token = tokenizer.nextToken().trim();
+        int b = "x".equalsIgnoreCase(token) ? -1 : Integer.parseInt(token);
+        token = tokenizer.nextToken().trim();
+        int c = Integer.parseInt(token);
+        token = tokenizer.nextToken().trim();
+        int d = Integer.parseInt(token);
+        token = tokenizer.nextToken().trim();
+        int e = Integer.parseInt(token);
+        token = tokenizer.nextToken().trim();
+        boolean hasRelativeBillingPoint = token.startsWith("VZ");
             int f;
             if (hasRelativeBillingPoint) {
-                f = fToken.length() == 2 ? 0 : Integer.parseInt(fToken.substring(2).trim());
+            if (token.trim().length() == 2) {
+                f = 0;
             } else {
-                f = Integer.parseInt(fToken);
+                String billingPointOffset = token.substring(2).trim();
+                if (billingPointOffset.startsWith("+")) {
+                    billingPointOffset = billingPointOffset.substring(1);
+                }
+                f = Integer.parseInt(billingPointOffset);
+            }
+        } else {
+            f = Integer.parseInt(token);
             }
             return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
-        } catch (NumberFormatException | NoSuchElementException e) {
-            throw new IllegalArgumentException("Invalid obis format");
-        }
     }
 
     // first 20 C field codes, applied to electricity related codes
@@ -334,8 +361,24 @@ public class ObisCode implements Serializable {
         return toString();
     }
 
+
+    public void setValue(String value) throws ParseException {
+        ObisCode obisCode = ObisCode.fromString(value);
+        this.a = obisCode.getA();
+        this.b = obisCode.getB();
+        this.c = obisCode.getC();
+        this.d = obisCode.getD();
+        this.e = obisCode.getE();
+        this.f = obisCode.getF();
+        this.relativeBillingPeriod = obisCode.useRelativeBillingPeriod();
+    }
+
     public ObisCode nextB () {
         return new ObisCode(this.a, this.b + 1, this.c, this.d, this.e, this.f);
     }
 
+
+    public void setB(int b) {
+        this.b = b;
+    }
 }
