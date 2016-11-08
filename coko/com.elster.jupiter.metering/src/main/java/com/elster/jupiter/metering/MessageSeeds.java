@@ -112,7 +112,8 @@ public enum MessageSeeds implements MessageSeed {
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
 
-    CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can't remove usage point life cycle because it's in use by at least one of the usage point.");
+    CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can't remove usage point life cycle because it's in use by at least one of the usage point."),
+    CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state cannot be removed from this usage point life cycle because one or more usage points use this state.");
 
     private final int number;
     private final String key;
@@ -250,6 +251,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
         public static final String ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS = "activation.failed.by.custom.validators";
         public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "can.not.delete.active.life.cycle";
+        public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
     }
 
 }

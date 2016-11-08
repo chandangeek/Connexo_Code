@@ -5,9 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 
 import org.osgi.service.component.annotations.Component;
@@ -15,27 +13,25 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
-@Component(name = "UsagePointLifeCycleDeletionEventHandler",
+@Component(name = "UsagePointStateDeletionEventHandler",
         service = {TopicHandler.class},
         immediate = true)
-public class UsagePointLifeCycleDeletionEventHandler implements TopicHandler {
+public class UsagePointStateDeletionEventHandler implements TopicHandler {
 
     private Clock clock;
     private ServerMeteringService meteringService;
     private Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // OSGI
-    public UsagePointLifeCycleDeletionEventHandler() {
+    public UsagePointStateDeletionEventHandler() {
     }
 
     @Inject
-    public UsagePointLifeCycleDeletionEventHandler(Clock clock, ServerMeteringService meteringService, NlsService nlsService) {
+    public UsagePointStateDeletionEventHandler(Clock clock, ServerMeteringService meteringService, NlsService nlsService) {
         setClock(clock);
         setMeteringService(meteringService);
         setNlsService(nlsService);
@@ -43,18 +39,17 @@ public class UsagePointLifeCycleDeletionEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        UsagePointLifeCycle source = (UsagePointLifeCycle) localEvent.getSource();
-        List<Long> stateIds = source.getStates().stream().map(UsagePointState::getId).collect(Collectors.toList());
+        UsagePointState source = (UsagePointState) localEvent.getSource();
         if (!this.meteringService.getDataModel().query(UsagePointStateTemporalImpl.class)
-                .select(ListOperator.IN.contains("stateId", stateIds).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
+                .select(where("stateId").isEqualTo(source.getId()).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
                 .isEmpty()) {
-            throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveLifeCycle(this.thesaurus);
+            throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveState(this.thesaurus);
         }
     }
 
     @Override
     public String getTopicMatcher() {
-        return "com/elster/jupiter/usagepoint/lifecycle/BEFORE_DELETE";
+        return "com/elster/jupiter/usagepoint/lifecycle/state/BEFORE_DELETE";
     }
 
     @Reference

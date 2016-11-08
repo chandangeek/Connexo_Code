@@ -244,7 +244,7 @@ public class UsagePointImplIT {
         usagePoint.setState(state2, AUG_1ST_2016);
     }
 
-    @Test(expected = CannotDeleteUsagePointLifeCycleException.class)
+    @Test(expected = UsagePointLifeCycleDeleteObjectException.class)
     @Transactional
     public void testCanNotDeleteUsagePointLifeCycleWhichIsInUse() {
         UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
@@ -253,5 +253,17 @@ public class UsagePointImplIT {
         usagePoint.setState(lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get(), AUG_1ST_2016);
 
         lifeCycle.remove();
+    }
+
+    @Test(expected = UsagePointLifeCycleDeleteObjectException.class)
+    @Transactional
+    public void testCanNotDeleteUsagePointStateWhichIsInUse() {
+        UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
+        UsagePointState state = lifeCycle.newState("State").complete();
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotDeleteUsagePointStateWhichIsInUse", AUG_1ST_2016).create();
+        usagePoint.setState(state, AUG_1ST_2016);
+
+        state.remove();
     }
 }

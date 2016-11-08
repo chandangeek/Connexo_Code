@@ -146,6 +146,7 @@ public class MeteringInMemoryBootstrapModule {
     private void addMessageHandlers() {
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(MetrologyPurposeDeletionVetoEventHandler.class));
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointLifeCycleDeletionEventHandler.class));
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateDeletionEventHandler.class));
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateChangeEventHandler.class));
     }
 
