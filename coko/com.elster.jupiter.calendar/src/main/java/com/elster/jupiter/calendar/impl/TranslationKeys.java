@@ -1,5 +1,6 @@
 package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.calendar.impl.importers.CalendarImporterFactory;
 import com.elster.jupiter.calendar.impl.importers.CalendarImporterMessageHandler;
 import com.elster.jupiter.nls.TranslationKey;
