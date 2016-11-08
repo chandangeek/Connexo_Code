@@ -217,4 +217,44 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         assertThat(model.<String>get("$.name")).isEqualTo("Clone");
     }
 
+    @Test
+    public void testMarkLifeCycleDefault() throws Exception {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
+        when(lifeCycle.getId()).thenReturn(12L);
+        when(lifeCycle.getName()).thenReturn("Life cycle");
+        when(lifeCycle.isDefault()).thenReturn(true);
+        when(lifeCycle.getVersion()).thenReturn(4L);
+
+        UsagePointLifeCycleInfo info = new UsagePointLifeCycleInfo();
+        info.id = 12L;
+        info.version = 4L;
+        info.name = "Life cycle";
+        info.isDefault = true;
+        Entity<UsagePointLifeCycleInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12/default").request().put(json);
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.id")).isEqualTo(12);
+        assertThat(model.<Number>get("$.version")).isEqualTo(4);
+        assertThat(model.<Boolean>get("$.isDefault")).isEqualTo(true);
+    }
+
+    @Test
+    public void testMarkLifeCycleDefaultConcurrent() throws Exception {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 3L)).thenReturn(Optional.empty());
+        when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(lifeCycle));
+
+        UsagePointLifeCycleInfo info = new UsagePointLifeCycleInfo();
+        info.id = 12L;
+        info.version = 3L;
+        info.name = "Life cycle";
+        info.isDefault = true;
+        Entity<UsagePointLifeCycleInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12").request().put(json);
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'Life cycle'");
+        assertThat(model.<String>get("$.error")).isEqualTo("Life cycle has changed since the page was last updated.");
+    }
 }

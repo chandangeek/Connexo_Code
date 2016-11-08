@@ -103,6 +103,18 @@ public class UsagePointLifeCycleResource {
         return this.lifeCycleInfoFactory.fullInfo(lifeCycle);
     }
 
+    @PUT
+    @Path("/{lid}/default")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public UsagePointLifeCycleInfo setLifeCycleDefault(UsagePointLifeCycleInfo lifeCycleInfo) {
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(lifeCycleInfo);
+        lifeCycle.markAsDefault();
+        return this.lifeCycleInfoFactory.fullInfo(lifeCycle);
+    }
+
     @POST
     @Path("/{lid}/clone")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
