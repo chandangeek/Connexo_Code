@@ -188,11 +188,7 @@ public class DeviceComTaskInfoFactory {
                     deviceComTasksInfo.connectionDefinedOnDevice = false;
                 }
 
-                if (partialConnectionTask instanceof PartialScheduledConnectionTask) {
-                    ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
-                    deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(connectionStrategy, thesaurus);
-                    deviceComTasksInfo.connectionStrategyKey = connectionStrategy.name();
-                }
+                setConnectionTaskInfo(deviceComTasksInfo, partialConnectionTask, deviceConnectionTaskOptional);
 
             } else {
                 Optional<ConnectionTask> deviceConnectionTaskOptional = findDefaultConnectionTaskInCompleteTopology(device);
@@ -208,7 +204,10 @@ public class DeviceComTaskInfoFactory {
         } else {
             if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
                 PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
-                Optional<ConnectionTask<?, ?>> deviceConnectionTaskOptional = device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(partialConnectionTask.getName())).findFirst();
+                Optional<ConnectionTask> deviceConnectionTaskOptional = device.getConnectionTasks().stream()
+                        .filter(connectionTask -> connectionTask.getName().equals(partialConnectionTask.getName()))
+                        .map(connectionTask -> (ConnectionTask) connectionTask)
+                        .findFirst();
                 if (deviceConnectionTaskOptional.isPresent()) {
                     deviceComTasksInfo.connectionMethod = partialConnectionTask.getName();
                     deviceComTasksInfo.connectionDefinedOnDevice = true;
@@ -217,11 +216,7 @@ public class DeviceComTaskInfoFactory {
                     deviceComTasksInfo.connectionDefinedOnDevice = false;
                 }
 
-                if (partialConnectionTask instanceof PartialScheduledConnectionTask) {
-                    ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
-                    deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(connectionStrategy, thesaurus);
-                    deviceComTasksInfo.connectionStrategyKey = connectionStrategy.name();
-                }
+                setConnectionTaskInfo(deviceComTasksInfo, partialConnectionTask, deviceConnectionTaskOptional);
             }
         }
 
@@ -234,6 +229,17 @@ public class DeviceComTaskInfoFactory {
                     .getDisplayName();
         }
         return deviceComTasksInfo;
+    }
+
+    private void setConnectionTaskInfo(DeviceComTaskInfo deviceComTasksInfo, PartialConnectionTask partialConnectionTask, Optional<ConnectionTask> deviceConnectionTaskOptional) {
+        if(partialConnectionTask instanceof PartialScheduledConnectionTask) {
+            boolean connectionMethodDefined = deviceConnectionTaskOptional.isPresent();
+            ConnectionStrategy strategy = connectionMethodDefined ? ((ScheduledConnectionTask) deviceConnectionTaskOptional.get()).getConnectionStrategy()
+                    : ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
+            deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(strategy, thesaurus);
+            deviceComTasksInfo.connectionStrategyKey = strategy.name();
+
+        }
     }
 
     private Optional<ConnectionTask> findDefaultConnectionTaskInCompleteTopology(Device device) {
