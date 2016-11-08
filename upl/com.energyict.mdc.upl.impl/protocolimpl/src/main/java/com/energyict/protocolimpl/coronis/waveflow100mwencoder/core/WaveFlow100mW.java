@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
@@ -367,6 +368,16 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     public void cacheRegisters(List<ObisCode> obisCodes) throws IOException {
         getLogger().info("Cache internal data reading (0x0B command) if not already done");
         readInternalDatas();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public int getInfoTypeProtocolRetriesProperty() {
+        return super.getInfoTypeProtocolRetriesProperty();
     }
 
 }

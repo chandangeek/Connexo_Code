@@ -30,25 +30,24 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
+
 /**
  *
  * @author  Koen
  */
 public class ObisCodeMapper {
 
-    DLMSLNSL7000 meterProtocol;
-    RegisterProfileMapper registerProfileMapper=null;
+    private DLMSLNSL7000 meterProtocol;
+    private RegisterProfileMapper registerProfileMapper = null;
 
-
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(DLMSLNSL7000 meterProtocol) {
         this.meterProtocol = meterProtocol;
         registerProfileMapper = new RegisterProfileMapper(meterProtocol.getCosemObjectFactory(), meterProtocol);
 
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) {
-			return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+			return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
@@ -74,7 +73,7 @@ public class ObisCodeMapper {
         if (obisCode.getF() != 255) {
             billingPoint = Math.abs(obisCode.getF());
             // Billing point timestamp
-            if ((obisCode.toString().indexOf("1.1.0.1.2.") != -1) || (obisCode.toString().indexOf("1.0.0.1.2.") != -1)) {
+            if ((obisCode.toString().contains("1.1.0.1.2.")) || (obisCode.toString().contains("1.0.0.1.2."))) {
                 return new RegisterValue(obisCode, meterProtocol.getCosemObjectFactory().getStoredValues().getBillingPointTimeDate(billingPoint));
             } else { // billing register
                 // Electricity related ObisRegisters mapped to a registerProfile
@@ -95,7 +94,7 @@ public class ObisCodeMapper {
 
         // *********************************************************************************
         // Billing counter
-        if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) {
+        if ((obisCode.toString().contains("1.1.0.1.0.255")) || (obisCode.toString().contains("1.0.0.1.0.255"))) {
             return new RegisterValue(obisCode, new Quantity(new Integer(meterProtocol.getCosemObjectFactory().getStoredValues().getBillingPointCounter()), Unit.getUndefined()));
         }
         // Firmware version
@@ -241,4 +240,5 @@ public class ObisCodeMapper {
         BitString alarmStatuses = (BitString) register.getValueAttr();
         return new RegisterValue(obisCode, "0x" + ProtocolTools.getHexStringFromBytes(ProtocolTools.getBytesFromLong(alarmStatuses.longValue(), length), " "));
     }
+
 }

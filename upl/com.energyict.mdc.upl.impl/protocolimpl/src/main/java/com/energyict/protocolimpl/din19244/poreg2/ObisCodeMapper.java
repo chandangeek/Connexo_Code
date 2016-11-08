@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class ObisCodeMapper {
 
-    static Map<ObisCode, String> registerMaps = new HashMap<ObisCode, String>();
+    private static final Map<ObisCode, String> REGISTER_MAPS = new HashMap<>();
 
     private static final ObisCode OBISCODE_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode OBISCODE_FIRMWARE = ObisCode.fromString("0.0.96.1.5.255");
@@ -80,55 +80,55 @@ public class ObisCodeMapper {
 
 
     static {
-        registerMaps.put(OBISCODE_SERIAL_NUMBER, "Meter ID (serial number)");
-        registerMaps.put(OBISCODE_LAST_DEMAND_RESET_TIMESTAMP, "Time of last demand reset");
-        registerMaps.put(OBISCODE_BILLING_COUNTER, "Demand reset counter");
-        registerMaps.put(OBISCODE_FIRMWARE, "Active firmware version");
-        registerMaps.put(OBISCODE_PROFILE_INTERVAL, "Profile interval");
-        registerMaps.put(OBISCODE_NR_OF_CHANNELS, "Number of channels");
+        REGISTER_MAPS.put(OBISCODE_SERIAL_NUMBER, "Meter ID (serial number)");
+        REGISTER_MAPS.put(OBISCODE_LAST_DEMAND_RESET_TIMESTAMP, "Time of last demand reset");
+        REGISTER_MAPS.put(OBISCODE_BILLING_COUNTER, "Demand reset counter");
+        REGISTER_MAPS.put(OBISCODE_FIRMWARE, "Active firmware version");
+        REGISTER_MAPS.put(OBISCODE_PROFILE_INTERVAL, "Profile interval");
+        REGISTER_MAPS.put(OBISCODE_NR_OF_CHANNELS, "Number of channels");
 
-        registerMaps.put(OBISCODE_DST_SWITCH_SUMMER, "Daylight switching time (start of summertime)");
-        registerMaps.put(OBISCODE_DST_SWITCH_WINTER, "Daylight switching time (end of summertime)");
+        REGISTER_MAPS.put(OBISCODE_DST_SWITCH_SUMMER, "Daylight switching time (start of summertime)");
+        REGISTER_MAPS.put(OBISCODE_DST_SWITCH_WINTER, "Daylight switching time (end of summertime)");
 
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY, "Max apparent energy total");
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY2, "Max apparent energy total");
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY_RATE1, "Max apparent energy total, rate 1");
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY_RATE2, "Max apparent energy total, rate 2");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY, "Max apparent energy total");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY2, "Max apparent energy total");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY_RATE1, "Max apparent energy total, rate 1");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY_RATE2, "Max apparent energy total, rate 2");
 
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY, "Cumulative apparent energy total");
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY2, "Cumulative apparent energy total");
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE1, "Cumulative apparent energy total, rate 1");
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE2, "Cumulative apparent energy total, rate 2");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY, "Cumulative apparent energy total");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY2, "Cumulative apparent energy total");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE1, "Cumulative apparent energy total, rate 1");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE2, "Cumulative apparent energy total, rate 2");
 
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL, "Active energy (import) total");
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2, "Active energy (import) total");
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1, "Active energy (import) rate 1");
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2, "Active energy (import) rate 2");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL, "Active energy (import) total");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2, "Active energy (import) total");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1, "Active energy (import) rate 1");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2, "Active energy (import) rate 2");
 
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL, "Max demand active energy (import) total");
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2, "Max demand active energy (import) total");
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE1, "Max demand active energy (import) rate 1");
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE2, "Max demand active energy (import) rate 2");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL, "Max demand active energy (import) total");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2, "Max demand active energy (import) total");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE1, "Max demand active energy (import) rate 1");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE2, "Max demand active energy (import) rate 2");
 
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY_BILLING, "Max apparent energy total at last billing point");
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY2_BILLING, "Max apparent energy total at last billing point");
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY_RATE1_BILLING, "Max apparent energy total, rate 1 at last billing point");
-        registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY_RATE2_BILLING, "Max apparent energy total, rate 2 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY_BILLING, "Max apparent energy total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY2_BILLING, "Max apparent energy total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY_RATE1_BILLING, "Max apparent energy total, rate 1 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_APPARENT_ENERGY_RATE2_BILLING, "Max apparent energy total, rate 2 at last billing point");
 
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_BILLING, "Cumulative apparent energy total at last billing point");
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY2_BILLING, "Cumulative apparent energy total at last billing point");
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE1_BILLING, "Cumulative apparent energy total, rate 1 at last billing point");
-        registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE2_BILLING, "Cumulative apparent energy total, rate 2 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY_BILLING, "Cumulative apparent energy total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY2_BILLING, "Cumulative apparent energy total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE1_BILLING, "Cumulative apparent energy total, rate 1 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE2_BILLING, "Cumulative apparent energy total, rate 2 at last billing point");
 
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL_BILLING, "Max demand active energy (import) total at last billing point");
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2_BILLING, "Max demand active energy (import) total at last billing point");
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE1_BILLING, "Max demand active energy (import) rate 1 at last billing point");
-        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE2_BILLING, "Max demand active energy (import) rate 2 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL_BILLING, "Max demand active energy (import) total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2_BILLING, "Max demand active energy (import) total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE1_BILLING, "Max demand active energy (import) rate 1 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE2_BILLING, "Max demand active energy (import) rate 2 at last billing point");
 
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL_BILLING, "Cumulative active energy (import) total at last billing point");
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2_BILLING, "Cumulative active energy (import) total at last billing point");
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1_BILLING, "Cumulative active energy (import) rate 1 at last billing point");
-        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2_BILLING, "Cumulative active energy (import) rate 2 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL_BILLING, "Cumulative active energy (import) total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2_BILLING, "Cumulative active energy (import) total at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1_BILLING, "Cumulative active energy (import) rate 1 at last billing point");
+        REGISTER_MAPS.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2_BILLING, "Cumulative active energy (import) rate 2 at last billing point");
     }
 
     private Poreg poreg;
@@ -138,15 +138,15 @@ public class ObisCodeMapper {
     }
 
     public final String getRegisterExtendedLogging() {
-        StringBuilder strBuilder = new StringBuilder();
-        for (Map.Entry<ObisCode, String> obisCodeStringEntry : registerMaps.entrySet()) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<ObisCode, String> obisCodeStringEntry : REGISTER_MAPS.entrySet()) {
             poreg.getLogger().info(obisCodeStringEntry.getKey().toString() + ", " + obisCodeStringEntry.getValue());
         }
-        return strBuilder.toString();
+        return builder.toString();
     }
 
-    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        String info = registerMaps.get(obisCode);
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        String info = REGISTER_MAPS.get(obisCode);
         return new RegisterInfo(info);
     }
 
@@ -257,4 +257,5 @@ public class ObisCodeMapper {
     private boolean isDSTSwitchWinter(ObisCode obisCode) {
         return obisCode.equals(OBISCODE_DST_SWITCH_WINTER);
     }
+
 }

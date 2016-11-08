@@ -34,7 +34,7 @@ public class ZigbeeGasEventProfiles {
     }
 
     public List<MeterEvent> getEvents(Date from) throws IOException {
-        ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         getLogger().log(Level.INFO, "Reading EVENTS from G-meter with serial number " + getZigbeeGas().getProperties().getSerialNumber() + ".");
         if (from == null) {
             from = ProtocolUtils.getClearLastMonthDate(this.zigbeeGas.getTimeZone());
@@ -42,17 +42,17 @@ public class ZigbeeGasEventProfiles {
         Calendar fromCalendar = getFromCalendar(from);
         int logbookSelectorBitMask = zigbeeGas.getProperties().getLogbookSelector();
 
-        meterEvents.addAll(((logbookSelectorBitMask &  0x01) == 0x01) ? getStandardEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x02) == 0x02) ? getFraudDetectionEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x04) == 0x04) ? getDisconnectControlEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x08) == 0x08) ? getFirmwareEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getPowerQualityEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x20) == 0x20) ? getCommFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x40) == 0x40) ? getPrepaymentEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x80) == 0x80) ? getCoTSEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x100) == 0x100) ? getManufacturerEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x01) == 0x01) ? getStandardEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x02) == 0x02) ? getFraudDetectionEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x04) == 0x04) ? getDisconnectControlEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x08) == 0x08) ? getFirmwareEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getPowerQualityEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x20) == 0x20) ? getCommFailureEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x40) == 0x40) ? getPrepaymentEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x80) == 0x80) ? getCoTSEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x100) == 0x100) ? getManufacturerEventLog(fromCalendar) : new ArrayList<>());
         EventUtils.removeDuplicateEvents(meterEvents);
-        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
+        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());
         return meterEvents;
     }
 

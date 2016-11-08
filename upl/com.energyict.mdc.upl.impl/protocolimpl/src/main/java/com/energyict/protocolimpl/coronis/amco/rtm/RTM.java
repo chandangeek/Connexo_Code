@@ -41,6 +41,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
@@ -314,6 +315,16 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         return BubbleUpFrameParser.parse(data, this);
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public int getInfoTypeProtocolRetriesProperty() {
+        return super.getInfoTypeProtocolRetriesProperty();
     }
 
 }

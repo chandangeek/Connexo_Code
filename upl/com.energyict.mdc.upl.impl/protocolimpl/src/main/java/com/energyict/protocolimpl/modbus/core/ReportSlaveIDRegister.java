@@ -24,7 +24,7 @@ public class ReportSlaveIDRegister extends AbstractRegister {
     }
 
     public ReportSlaveIDRegister(int reg, int range, ObisCode obisCode) {
-        super(reg, range, obisCode, obisCode.getUnitElectricity(0), obisCode.getDescription());
+        super(reg, range, obisCode, obisCode.getUnitElectricity(0), obisCode.toString());
     }
 
     public ReportSlaveIDRegister(int reg, int range, ObisCode obisCode, String name) {
@@ -32,10 +32,11 @@ public class ReportSlaveIDRegister extends AbstractRegister {
     }
 
     public ReportSlaveIDRegister(int reg, int range, ObisCode obisCode, Unit unit) {
-        super(reg, range, obisCode, unit, obisCode.getDescription());
+        super(reg, range, obisCode, unit, obisCode.toString());
     }
 
     public ReportSlaveIDRegister(int reg, int range, ObisCode obisCode, Unit unit, String name) {
         super(reg, range, obisCode, unit, name);
     }
+
 }

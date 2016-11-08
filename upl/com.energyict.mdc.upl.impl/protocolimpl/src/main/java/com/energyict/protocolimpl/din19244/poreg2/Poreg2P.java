@@ -43,7 +43,7 @@ public class Poreg2P extends Poreg {
     @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         isPoreg2 = false;
-        connection = new PoregConnection(this, inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, protocolCompatible, encryptor, halfDuplexController);
+        connection = new PoregConnection(this, inputStream, outputStream, timeoutProperty, protocolRetriesProperty);
         registerFactory = new RegisterFactory(this);
         requestFactory = new RequestFactory(this);
         profileDataReader = new ProfileDataReader(this);

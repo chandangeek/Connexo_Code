@@ -1,12 +1,13 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.dlms.as220.gmeter;
+
+import com.energyict.mdc.upl.MeterProtocol;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractMbusInstallController;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
@@ -14,19 +15,16 @@ import java.io.IOException;
 
 /**
  * AM500 specific implementation fo the installation/deinstallation of an Mbus(gas) device
- * 
+ *
  * @author gna
  * @since 16-feb-2010
  */
 public class GasInstallController extends AbstractMbusInstallController {
 
-	/**
-	 * @param protocol
-	 */
 	public GasInstallController(MeterProtocol protocol) {
 		super(protocol);
 	}
-	
+
 	/**
 	 * Getter for the {@link GasDevice} {@link MeterProtocol}
 	 *

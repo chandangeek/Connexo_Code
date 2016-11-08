@@ -6,7 +6,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocol.meteridentification.MeterTypeImpl;
+import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -21,12 +21,12 @@ public class IF2HHUSignon implements HHUSignOn {
     /**
      * The default baudrate if there is no baudrate given
      */
-    public static final int DEFAULT_BAUDRATE = 9600;
+    private static final int DEFAULT_BAUDRATE = 9600;
 
     /**
      * The default delay after switching the baudrate to a new value
      */
-    public static final int DELAY_AFTER_SWITCH = 500;
+    private static final int DELAY_AFTER_SWITCH = 500;
 
     /**
      * The serial communication channel, used to change the connection settings (baudrate, parity, ...)
@@ -58,11 +58,11 @@ public class IF2HHUSignon implements HHUSignOn {
      *
      * @param strIdent Not used
      * @param meterID  Not used
-     * @return A dummy {@link MeterTypeImpl}
-     * @throws java.io.IOException         If there occurred an error while switching the baudrate
-     * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
+     * @return A dummy MeterType
+     * @throws IOException         If there occurred an error while switching the baudrate
+     * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID) throws IOException {
         return signOn(strIdent, meterID, DEFAULT_BAUDRATE);
     }
 
@@ -72,11 +72,11 @@ public class IF2HHUSignon implements HHUSignOn {
      * @param strIdent Not used
      * @param meterID  Not used
      * @param baudrate The baudrate value to switch to (eg. 9600, 115200, 300, ...)
-     * @return A dummy {@link MeterTypeImpl}
-     * @throws java.io.IOException         If there occurred an error while switching the baudrate
-     * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
+     * @return A dummy MeterType
+     * @throws IOException         If there occurred an error while switching the baudrate
+     * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException {
         return signOn(strIdent, meterID, false, baudrate);
     }
 
@@ -87,11 +87,11 @@ public class IF2HHUSignon implements HHUSignOn {
      * @param meterID  Not used
      * @param wakeup   Not used
      * @param baudrate The baudrate value to switch to (eg. 9600, 115200, 300, ...)
-     * @return A dummy {@link MeterTypeImpl}
-     * @throws java.io.IOException         If there occurred an error while switching the baudrate
-     * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
+     * @return A dummy MeterType
+     * @throws IOException         If there occurred an error while switching the baudrate
+     * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException {
         this.logger.info("Switching serial channel to [" + baudrate + "] baud.");
         this.serialCommunicationChannel.setBaudrate(baudrate);
         try {

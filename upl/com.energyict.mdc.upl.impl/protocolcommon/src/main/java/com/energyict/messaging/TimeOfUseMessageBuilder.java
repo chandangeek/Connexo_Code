@@ -2,7 +2,10 @@ package com.energyict.messaging;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.HtmlEnabledBusinessException;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.User;
+import com.energyict.mdw.core.UserFile;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -39,11 +42,11 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     protected static final String ENCODEB64_ATTRIBUTE_TAG = "encodeB64";
 
-    private final static String MESSAGETAG = "TimeOfUse";
-    private final static String ATTRIBUTE_NAME = "name";
-    private final static String ATTRIBUTE_ACTIVATIONDATE = "activationDate";
-    private final static String TAG_CODE = "CodeId";
-    private final static String TAG_USERFILE = "UserFileId";
+    private static final String MESSAGETAG = "TimeOfUse";
+    private static final String ATTRIBUTE_NAME = "name";
+    private static final String ATTRIBUTE_ACTIVATIONDATE = "activationDate";
+    private static final String TAG_CODE = "CodeId";
+    private static final String TAG_USERFILE = "UserFileId";
 
     private String name;
     private Date activationDate;
@@ -80,7 +83,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      * Set the name for the time of use schedule
      * This name is optional, it should not be used, this depends on the protocol
      *
-     * @rparam name The name to be set
+     * @param name The name to be set
      */
     public void setName(String name) {
         this.name = name;
@@ -187,9 +190,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         return MESSAGETAG;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     protected String getMessageContent() throws BusinessException {
         if ((codeId == 0) && (userFileId == 0)) {
             throw new HtmlEnabledBusinessException() {
@@ -235,29 +236,29 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         return builder.toString();
     }
 
+    @Override
     public String getDescription() {
         User user = MeteringWarehouse.getCurrentUser();
         formatter = new SimpleDateFormat(user.getDateFormat() + " " + user.getLongTimeFormat());
         formatter.setTimeZone(MeteringWarehouse.getCurrent().getSystemTimeZone());
 
-        StringBuffer buf = new StringBuffer(MESSAGETAG);
-        buf.append(" ");
-        buf.append("Name='").append(name).append("', ");
+        StringBuilder builder = new StringBuilder(MESSAGETAG);
+        builder.append(" ");
+        builder.append("Name='").append(name).append("', ");
         if (activationDate != null) {
-            buf.append("ActivationDate='").append(formatter.format(activationDate)).append("', ");
+            builder.append("ActivationDate='").append(formatter.format(activationDate)).append("', ");
         }
         if (codeId > 0) {
-            buf.append("Code='").append(getCode().getName()).append("', ");
+            builder.append("Code='").append(getCode().getName()).append("', ");
         }
         if (userFileId > 0) {
-            buf.append("UserFile='").append(getUserFile().getName()).append("'");
+            builder.append("UserFile='").append(getUserFile().getName()).append("'");
         }
 
-        return buf.toString();
+        return builder.toString();
     }
 
-    // Parsing the message use SAX
-
+    @Override
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {
         return new TimeOfUseMessageHandler((TimeOfUseMessageBuilder) builder, getMessageNodeTag());
     }
@@ -268,19 +269,21 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         return builder;
     }
 
-    public static class TimeOfUseMessageHandler extends AbstractMessageBuilder.AdvancedMessageHandler {
+    private static class TimeOfUseMessageHandler extends AbstractMessageBuilder.AdvancedMessageHandler {
 
-        protected TimeOfUseMessageBuilder msgBuilder;
+        TimeOfUseMessageBuilder msgBuilder;
 
-        public TimeOfUseMessageHandler(TimeOfUseMessageBuilder builder, String messageTag) {
+        TimeOfUseMessageHandler(TimeOfUseMessageBuilder builder, String messageTag) {
             super(messageTag);
             this.msgBuilder = builder;
         }
 
+        @Override
         protected AbstractMessageBuilder getMessageBuilder() {
             return msgBuilder;
         }
 
+        @Override
         public void startElement(String namespaceURI, String localName,
                                  String qName, Attributes atts) throws SAXException {
             super.startElement(namespaceURI, localName, qName, atts);
@@ -302,6 +305,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
             }
         }
 
+        @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             if (TAG_CODE.equals(localName)) {
                 String codeId = (String) getCurrentValue();
@@ -373,4 +377,5 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     public void setEncodeB64(final boolean encodeB64) {
         this.encodeB64 = encodeB64;
     }
+
 }

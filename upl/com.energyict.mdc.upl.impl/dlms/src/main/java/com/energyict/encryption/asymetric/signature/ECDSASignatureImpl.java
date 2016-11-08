@@ -55,7 +55,7 @@ public final class ECDSASignatureImpl implements DigitalSignature {
     /**
      * {@inheritDoc}
      */
-    public synchronized final byte[] sign(final byte[] data, final PrivateKey key) {
+    public final synchronized byte[] sign(final byte[] data, final PrivateKey key) {
         try {
             this.signature.initSign(Objects.requireNonNull(key));
             this.signature.update(Objects.requireNonNull(data));
@@ -76,7 +76,7 @@ public final class ECDSASignatureImpl implements DigitalSignature {
      * @param derEncodedSignature The DER encoded signature.
      * @return The octet string format.
      */
-    private final byte[] toOctetString(final byte[] derEncodedSignature) {
+    private byte[] toOctetString(final byte[] derEncodedSignature) {
         try {
             final DerInputStream stream = new DerInputStream(derEncodedSignature);
             final DerValue[] values = stream.getSequence(2);
@@ -130,7 +130,7 @@ public final class ECDSASignatureImpl implements DigitalSignature {
      * @param octetString The concatenated signature (R || S).
      * @return The signature encoded as DER.
      */
-    private final byte[] toDEREncodedSignature(final byte[] octetString) {
+    private byte[] toDEREncodedSignature(final byte[] octetString) {
         try {
             if (octetString.length == 2 * this.algorithm.getSignatureComponentSize()) {
                 final byte[] r = Arrays.copyOfRange(octetString, 0, this.algorithm.getSignatureComponentSize());
@@ -156,7 +156,7 @@ public final class ECDSASignatureImpl implements DigitalSignature {
      * {@inheritDoc}
      */
     @Override
-    public synchronized final boolean verify(final byte[] data, final byte[] signature, final PublicKey key) {
+    public final synchronized boolean verify(final byte[] data, final byte[] signature, final PublicKey key) {
         try {
             this.signature.initVerify(key);
             this.signature.update(data);

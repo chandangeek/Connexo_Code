@@ -59,22 +59,21 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
     public static final String REG_ALARM_LOG_INDEX 		= "Alarm_Log_INDEX";
     public static final String REG_INTERVAL				= "Interval_Time";
 
-    /** Creates a new instance of RegisterFactory */
     public UNIFLO1200RegisterFactory(Modbus modBus) {
         super(modBus);
         init();
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-		Unit returnUnit = null;
+		Unit returnUnit;
 		String returnText = null;
 		Date returnEventTime = null;
 		Date returnFromTime = new Date();
 		Date returnToTime = new Date();
 		Date returnReadTime = new Date();
 		Quantity returnQuantity = null;
-		int returnRtuRegisterID = 0;
-		int returnDecimals = 0;
+		int returnRtuRegisterID;
+		int returnDecimals;
 
 		try {
 
@@ -87,7 +86,9 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	Object result = hr.value();
         	Class rc = result.getClass();
 
-        	if (DEBUG >= 1) System.out.println("Result class type: " + result.getClass().getName());
+        	if (DEBUG >= 1) {
+		        System.out.println("Result class type: " + result.getClass().getName());
+	        }
 
         	if (rc == String.class)	{
         		returnText = (String)result;
@@ -117,9 +118,9 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
             getModBus().getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
         }
-
 	}
 
+	@Override
 	protected void init() {
         try {
         	this.fwRegisters  = new UNIFLO1200Registers(UNIFLO1200Registers.UNIFLO1200_FW_28);
@@ -241,7 +242,9 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 
 			if (DEBUG >= 1) {
 				for (int i = 0; i < 255; i++) {
-					if (i != 244) add(i, new ObisCode(7, 128, 0, 0, 0, i).toString());
+					if (i != 244) {
+						add(i, new ObisCode(7, 128, 0, 0, 0, i).toString());
+					}
 				}
 			}
 

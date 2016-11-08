@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
@@ -36,14 +37,14 @@ import java.util.logging.Level;
  */
 public class ObisCodeMapper {
 
-    private List<RegisterMapping> registerMapping = new ArrayList<RegisterMapping>();
+    private List<RegisterMapping> registerMapping = new ArrayList<>();
 
     // Map containing the mapping of unit string to EIServer units.
-    private HashMap<String, Unit> unitTextHashMap = new HashMap<String, Unit>();
+    private Map<String, Unit> unitTextHashMap = new HashMap<>();
 
     // Mapping of Register Unit Number to its EIServer Unit -- used to prevent the same unit register is read out multiple times in one comm session.
-    private HashMap<String, Unit> unitHashMap = new HashMap<String, Unit>();
-    private HashMap<BigDecimal, String> totalizerAssignmentMap = new HashMap<BigDecimal, String>(5);
+    private Map<String, Unit> unitHashMap = new HashMap<>();
+    private Map<BigDecimal, String> totalizerAssignmentMap = new HashMap<>(5);
     private FP93 meterProtocol;
 
     public ObisCodeMapper(FP93 meterProtocol) {
@@ -223,7 +224,7 @@ public class ObisCodeMapper {
      * @param obis: the given obiscode
      * @return a matching Object ID
      */
-    public RegisterMapping searchRegisterMapping(ObisCode obis) throws NoSuchRegisterException {
+     RegisterMapping searchRegisterMapping(ObisCode obis) throws NoSuchRegisterException {
         for (RegisterMapping regMapping : registerMapping) {
             if (obis.equals(regMapping.getObisCode())) {
                 return regMapping;
@@ -238,7 +239,7 @@ public class ObisCodeMapper {
      * @param objectId: the given obiscode
      * @return a matching Object ID
      */
-    public RegisterMapping searchRegisterMapping(int objectId) throws NoSuchRegisterException {
+     RegisterMapping searchRegisterMapping(int objectId) throws NoSuchRegisterException {
         for (RegisterMapping regMapping : registerMapping) {
             if (objectId == regMapping.getObjectId()) {
                 return regMapping;

@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
@@ -20,12 +19,12 @@ import java.util.Map;
  */
 public abstract class RegisterConfig {
 
-    abstract protected Map getRegisterMap();
-    abstract protected void initRegisterMap();
-    abstract public int getScaler();
+    protected abstract Map<ObisCode, Register> getRegisterMap();
+    protected abstract void initRegisterMap();
+    public abstract int getScaler();
 
-    Map map = new HashMap();
-    Map deviceRegisterMapping = new HashMap();
+    Map<ObisCode, Register> map = new HashMap<>();
+    private Map<String, String> deviceRegisterMapping = new HashMap<>();
 
 
     /** Creates a new instance of RegisterMapping */
@@ -33,21 +32,23 @@ public abstract class RegisterConfig {
         initRegisterMap();
     }
 
-    public Map getDeviceRegisterMapping() {
+    public Map<String, String> getDeviceRegisterMapping() {
 		return deviceRegisterMapping;
 	}
 
     public String getMeterRegisterCode(ObisCode oc) {
-        Register register = (Register)getRegisterMap().get(oc);
-        if (register == null) return null;
+        Register register = getRegisterMap().get(oc);
+        if (register == null) {
+	        return null;
+        }
         return oc.toString();
     }
 
     public String getRegisterDescription(ObisCode obis) throws NoSuchRegisterException {
-    	Register reg = (Register) getRegisterMap().get(obis);
+    	Register reg = getRegisterMap().get(obis);
     	if (reg == null) {
     		if (checkRegister(obis)) {
-    			reg = new Register(obis.getDescription(), 0);
+    			reg = new Register(obis.toString(), 0);
     		} else {
         		throw new NoSuchRegisterException("Register with obiscode=" + obis.toString() + " is not supported!");
         	}
@@ -56,17 +57,17 @@ public abstract class RegisterConfig {
 	}
 
     public String getRegisterInfo() {
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it = getRegisterMap().keySet().iterator();
-        while(it.hasNext()) {
-        	ObisCode oc = (ObisCode)it.next();
-        	strBuff.append(oc+" "+((Register)getRegisterMap().get(oc)).getName()+"\n");
-        }
-        return strBuff.toString();
+        StringBuilder builder = new StringBuilder();
+	    for (ObisCode oc : getRegisterMap().keySet()) {
+		    builder.append(oc).append(" ").append(getRegisterMap().get(oc).getName()).append("\n");
+	    }
+        return builder.toString();
     }
 
-    public boolean checkRegister(ObisCode obis) {
-    	if (obis.getA() != 1) return false;
+    boolean checkRegister(ObisCode obis) {
+    	if (obis.getA() != 1) {
+		    return false;
+	    }
 
     	switch (obis.getB()) {
     		case 1: break;
@@ -74,11 +75,15 @@ public abstract class RegisterConfig {
     		default: return false;
     	}
 
-    	if (!((obis.getC() >= 1) && (obis.getC() <= 10)))
-    		if (!((obis.getC() >= 21) && (obis.getC() <= 30)))
-    			if (!((obis.getC() >= 41) && (obis.getC() <= 50)))
-    				if (!((obis.getC() >= 61) && (obis.getC() <= 70)))
-    					return false;
+    	if (!((obis.getC() >= 1) && (obis.getC() <= 10))) {
+		    if (!((obis.getC() >= 21) && (obis.getC() <= 30))) {
+			    if (!((obis.getC() >= 41) && (obis.getC() <= 50))) {
+				    if (!((obis.getC() >= 61) && (obis.getC() <= 70))) {
+					    return false;
+				    }
+			    }
+		    }
+	    }
 
     	switch (obis.getD()) {
     		case 2: break;
@@ -90,15 +95,10 @@ public abstract class RegisterConfig {
     		default: return false;
     	}
 
-    	if ((obis.getE() > 6) || (obis.getE() < 0)) return false;
-
-//    	if (obis.getF() != 255) {
-//    		if ((obis.getF() < 0) || ((obis.getF() > 14))) {
-//    			return false;
-//    		}//    	}
+    	if ((obis.getE() > 6) || (obis.getE() < 0)) {
+		    return false;
+	    }
 
     	return true;
-
     }
-
 }

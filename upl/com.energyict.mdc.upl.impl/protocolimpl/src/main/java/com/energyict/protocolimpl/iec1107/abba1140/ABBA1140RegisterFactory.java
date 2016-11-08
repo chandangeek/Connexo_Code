@@ -602,7 +602,9 @@ public class ABBA1140RegisterFactory {
                         register2Retrieve = findRegister(name);
                         return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint - NUMBER_OF_HISTORICAL_REGS));
                     }
-                } else throw new IOException("Elster A1140, getRegister, invalid billing point "+billingPoint+"!");
+                } else {
+                throw new IOException("Elster A1140, getRegister, invalid billing point " + billingPoint + "!");
+            }
         } catch(FlagIEC1107ConnectionException e) {
             throw new ProtocolConnectionException("ABBA1140, getRegister, "+e.getMessage(), e.getReason());
         }

@@ -26,34 +26,28 @@ public class ObisCodeMapper {
         return instromet555.getRegisterFactory().getRegisterInfo();
     }
 
-
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
     	if (obisCode.getD() == 10) {
-    		BigDecimal value =
-    			instromet555.getTableFactory().getCountersTable().getUnCorrectedVolume();
+    		BigDecimal value = instromet555.getTableFactory().getCountersTable().getUnCorrectedVolume();
     		return new RegisterValue(obisCode, new Quantity(value, Unit.get("m3")));
     	}
         else if (obisCode.getD() == 1) {
-        	BigDecimal value =
-    			instromet555.getTableFactory().getCountersTable().getCorrectedVolume();
+        	BigDecimal value = instromet555.getTableFactory().getCountersTable().getCorrectedVolume();
         	return new RegisterValue(obisCode, new Quantity(value, Unit.get("m3")));
         }
         else if (obisCode.getD() == 5) {
-        	PeakHourPeakDayTable peakTable =
-        		instromet555.getTableFactory().getPeakHourPeakDayTable();
+        	PeakHourPeakDayTable peakTable = instromet555.getTableFactory().getPeakHourPeakDayTable();
         	BigDecimal value = peakTable.getPeak();
         	Date peakTime = peakTable.getPeakTime();
-        	return new RegisterValue(
-        			obisCode, new Quantity(value, Unit.get("m3/h")), peakTime);
+        	return new RegisterValue(obisCode, new Quantity(value, Unit.get("m3/h")), peakTime);
+        } else {
+            throw new NoSuchRegisterException(
+                    "ObisCode " + obisCode.toString() + " is not supported!");
         }
-        else
-        	throw new NoSuchRegisterException(
-        			"ObisCode "+obisCode.toString()+" is not supported!");
     }
-
 
 }

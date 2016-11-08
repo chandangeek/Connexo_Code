@@ -36,43 +36,31 @@ import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactor
  */
 public class ObisCodeMapper {
 
-    ABBA1700RegisterFactory abba1700RegisterFactory;
+    private final ABBA1700RegisterFactory abba1700RegisterFactory;
 
-    /**
-     * Creates a new instance of ObisCodeMapping
-     */
     public ObisCodeMapper(ABBA1700RegisterFactory abba1700RegisterFactory) {
         this.abba1700RegisterFactory = abba1700RegisterFactory;
     }
 
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null);
         return (RegisterInfo) ocm.doGetRegister(obisCode, false);
     }
-
-//    public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-//        return (RegisterInfo)doGetRegister(obisCode,false);
-//    }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         return (RegisterValue) doGetRegister(obisCode, true);
     }
 
-
     private boolean isWithinRange(int id, int c) {
-        if ((c == id) || (c == (id + 20)) || (c == (id + 40))) {
-            return true;
-        } else {
-            return false;
-        }
+        return (c == id) || (c == (id + 20)) || (c == (id + 40));
     }
 
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         RegisterValue registerValue = null;
         String registerName = null;
         int billingPoint = -1;
-        StringBuffer obisTranslation = new StringBuffer();
+        StringBuilder obisTranslation = new StringBuilder();
         Unit unit = null;
 
         // obis F code
@@ -88,7 +76,7 @@ public class ObisCodeMapper {
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        if (obisCode.toString().indexOf("1.1.0.1.0.255") != -1) { // billing counter
+        if (obisCode.toString().contains("1.1.0.1.0.255")) { // billing counter
             if (read) {
                 HistoricalValueSetInfo hvsi = ((HistoricalValues) abba1700RegisterFactory.getRegister(HistoricalValuesKey, 0)).getHistoricalValueSetInfo();
                 registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(hvsi.getBillingCount()), Unit.get("")));
@@ -97,7 +85,7 @@ public class ObisCodeMapper {
                 return new RegisterInfo("billing counter");
             }
         } // billing counter
-        else if (obisCode.toString().indexOf("1.1.0.1.2.") != -1) { // billing point timestamp
+        else if (obisCode.toString().contains("1.1.0.1.2.")) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 if (read) {
                     HistoricalValueSetInfo hvsi = ((HistoricalValues) abba1700RegisterFactory.getRegister(HistoricalValuesKey, billingPoint)).getHistoricalValueSetInfo();
@@ -111,7 +99,7 @@ public class ObisCodeMapper {
                 throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
             }
         } // // billing point timestamp
-        else if (obisCode.toString().indexOf("0.0.96.50.0.255") != -1) { // current system status
+        else if (obisCode.toString().contains("0.0.96.50.0.255")) { // current system status
             if (read) {
                 SystemStatus ss = (SystemStatus) abba1700RegisterFactory.getRegister("SystemStatus");
                 registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(ss.getValue()), Unit.get(255)));
@@ -119,7 +107,7 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo("Current System Status (32 bit word)");
             }
-        } else if (obisCode.toString().indexOf("0.0.96.51.0.255") != -1) { // historical system status
+        } else if (obisCode.toString().contains("0.0.96.51.0.255")) { // historical system status
             if (read) {
                 SystemStatus ss = (SystemStatus) abba1700RegisterFactory.getRegister("HistoricalSystemStatus");
                 registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(ss.getValue()), Unit.get(255)));
@@ -127,7 +115,7 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo("Historical System Status (32 bit word)");
             }
-        } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { // CT numerator
+        } else if ((obisCode.toString().contains("1.1.0.4.2.255")) || (obisCode.toString().contains("1.0.0.4.2.255"))) { // CT numerator
             if (read) {
                 BigDecimal ctPrimary = (BigDecimal) abba1700RegisterFactory.getRegister(CurrentTransformerRatioPrimary);
                 BigDecimal ctSecondary = (BigDecimal) abba1700RegisterFactory.getRegister(CurrentTransformerRatioSecondary);
@@ -137,7 +125,7 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo("CT numerator");
             }
-        } else if ((obisCode.toString().indexOf("1.1.0.4.3.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.3.255") != -1)) { // VT numerator
+        } else if ((obisCode.toString().contains("1.1.0.4.3.255")) || (obisCode.toString().contains("1.0.0.4.3.255"))) { // VT numerator
             if (read) {
                 BigDecimal vtPrimary = (BigDecimal) abba1700RegisterFactory.getRegister(VoltageTransformerRatioPrimary);
                 BigDecimal vtSecondary = (BigDecimal) abba1700RegisterFactory.getRegister(VoltageTransformerRatioSecondary);
@@ -165,7 +153,7 @@ public class ObisCodeMapper {
 //            } else {
 //                return new RegisterInfo("VT denominator");
 //            }
-        } else if (obisCode.toString().indexOf("1.0.0.0.1.255") != -1) { // SchemeID
+        } else if (obisCode.toString().contains("1.0.0.0.1.255")) { // SchemeID
             if (read) {
                 String schemeId = (String) abba1700RegisterFactory.getRegister("SchemeID");
                 registerValue = new RegisterValue(obisCode, schemeId);
@@ -173,7 +161,7 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo("SchemeID");
             }
-        } else if (obisCode.toString().indexOf("0.0.96.1.0.255") != -1) { // Meter SerialNumber
+        } else if (obisCode.toString().contains("0.0.96.1.0.255")) { // Meter SerialNumber
             if (read) {
                 String schemeId = (String) abba1700RegisterFactory.getRegister(SerialNumberKey);
                 registerValue = new RegisterValue(obisCode, schemeId);
@@ -181,14 +169,14 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo(SerialNumberKey);
             }
-        } else if (obisCode.toString().indexOf("0.0.96.1.5.255") != -1) {
+        } else if (obisCode.toString().contains("0.0.96.1.5.255")) {
             if (read) {
                 registerValue = new RegisterValue(obisCode, abba1700RegisterFactory.getMeterType().getFirmwareVersion());
                 return registerValue;
             } else {
                 return new RegisterInfo("FirmwareVersion");
             }
-        } else if (obisCode.toString().indexOf("0.0.96.1.4.255") != -1) {   //ProgrammingCounter
+        } else if (obisCode.toString().contains("0.0.96.1.4.255")) {   //ProgrammingCounter
             if (read) {
                 ProgrammingCounter pc = (ProgrammingCounter) abba1700RegisterFactory.getRegister(ProgrammingCounterKey);
                 registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(pc.getCounter()),Unit.getUndefined()), pc.getMostRecentEventTime());
@@ -196,7 +184,7 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo(ProgrammingCounterKey);
             }
-        } else if (obisCode.toString().indexOf("0.0.96.6.0.255") != -1) {   // Battery Status
+        } else if (obisCode.toString().contains("0.0.96.6.0.255")) {   // Battery Status
             if(read){
                 BatterySupportStatus bss = (BatterySupportStatus) abba1700RegisterFactory.getRegister(BatterySupportStatusKey);
                 registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(bss.getRemainingBatterySupportTime()), Unit.get(BaseUnit.DAY)));
@@ -378,7 +366,7 @@ public class ObisCodeMapper {
                         //MaximumDemand md = (MaximumDemand)abba1700RegisterFactory.getRegister("MaximumDemand"+(i+obisCode.getB()-1),billingPoint);
                         List mds = new ArrayList();
                         for (int j = 0; j < 3; j++) {
-                            mds.add((MaximumDemand) abba1700RegisterFactory.getRegister("MaximumDemand" + (i + j), billingPoint));
+                            mds.add(abba1700RegisterFactory.getRegister("MaximumDemand" + (i + j), billingPoint));
                         }
                         // sort in accending datetime
                         MaximumDemand.sortOnDateTime(mds);
@@ -457,7 +445,7 @@ public class ObisCodeMapper {
                 }
             } else {
                 if (obisCode.getE() > 0) {
-                    obisTranslation.append(", tariff register " + obisCode.getE());
+                    obisTranslation.append(", tariff register ").append(obisCode.getE());
                 }
             }
         } else {
@@ -467,7 +455,7 @@ public class ObisCodeMapper {
         if (billingPoint == -1) {
             obisTranslation.append(", current value");
         } else {
-            obisTranslation.append(", billing point " + (billingPoint + 1));
+            obisTranslation.append(", billing point ").append(billingPoint + 1);
         }
 
         if (read) {
@@ -476,14 +464,6 @@ public class ObisCodeMapper {
             return new RegisterInfo(obisTranslation.toString());
         }
 
-    } // private Object doGetRegister(ObisCode obisCode, boolean read)
-
-    static public void main(String[] args) {
-        try {
-            System.out.println(ObisCodeMapper.getRegisterInfo(ObisCode.fromString("1.1.0.1.2.VZ")).toString());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
+
 }

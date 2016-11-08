@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
@@ -17,9 +12,14 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 /**
  * Functional implementation of a GasMeter
- * 
+ *
  * @author gna
  * @since 19-mrt-2010
  *
@@ -30,10 +30,6 @@ public class GMeter {
 	private final AS220 				as220;
 	private final GasInstallController 	gasInstallController;
 
-	/**
-	 * Default Constructor
-	 * @param as220
-	 */
 	public GMeter(AS220 as220) {
 		this.gasValveController = new GasValveController(as220);
 		this.gasInstallController = new GasInstallController(as220);

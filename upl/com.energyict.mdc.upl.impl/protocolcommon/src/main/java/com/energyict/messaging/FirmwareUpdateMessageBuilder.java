@@ -21,9 +21,9 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
      */
     private static final String INCLUDED_USERFILE_TAG = "IncludedFile";
 
-    private final static String MESSAGETAG = "FirmwareUpdate";
-    private final static String TAG_URL = "Url";
-    private final static String TAG_USERFILE = "UserFileId";
+    private static final String MESSAGETAG = "FirmwareUpdate";
+    private static final String TAG_URL = "Url";
+    private static final String TAG_USERFILE = "UserFileId";
 
     /**
      * The tag that is used for an include file.
@@ -133,15 +133,15 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
     }
 
     public String getDescription() {
-        StringBuffer buf = new StringBuffer(MESSAGETAG);
-        buf.append(" ");
+        StringBuilder builder = new StringBuilder(MESSAGETAG);
+        builder.append(" ");
         if (url != null) {
-            buf.append("Url='").append(url).append("', ");
+            builder.append("Url='").append(url).append("', ");
         }
         if (userFile != null) {
-            buf.append("UserFile='").append(getUserFile().getName()).append("', ");
+            builder.append("UserFile='").append(getUserFile().getName()).append("', ");
         }
-        return buf.toString();
+        return builder.toString();
     }
 
     // Parsing the message use SAX

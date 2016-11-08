@@ -43,7 +43,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
  *
  * @author Koen
  */
-public class S4 extends AbstractProtocol implements SerialNumberSupport{
+public class S4 extends AbstractProtocol implements SerialNumberSupport {
 
     private DGCOMConnection dgcomConnection;
     private CommandFactory commandFactory;
@@ -192,6 +192,11 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport{
 
     RegisterMapperFactory getRegisterMapperFactory() {
         return registerMapperFactory;
+    }
+
+    @Override
+    public int getInfoTypeRoundtripCorrection() {
+        return super.getInfoTypeRoundtripCorrection();
     }
 
 }

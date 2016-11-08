@@ -11,24 +11,22 @@ public class UDPListener extends ListenerImpl implements UDPListen {
 
     private ServerDatagramConnection sdc = null;
 
-    /**
-     * Creates a new instance of IPListener
-     */
-    public UDPListener() {
-    }
-
     public StreamConnection getAcceptedStreamConnection() {
         return sdc.getAcceptedDatagramConnection();
     }
 
     protected void doAccept(int timeout, int nrOfRings) throws NestedIOException, ListenerException {
-        if (getStreamConnection() == null) {
-            sdc = new ServerDatagramConnection(connectionString);
-            setStreamConnection(sdc);
-            getStreamConnection().setStreamObservers(inputStreamObserver, outputStreamObserver);
-            getStreamConnection().serverOpen();
+        try {
+            if (getStreamConnection() == null) {
+                sdc = new ServerDatagramConnection(connectionString);
+                setStreamConnection(sdc);
+                getStreamConnection().setStreamObservers(inputStreamObserver, outputStreamObserver);
+                getStreamConnection().serverOpen();
+            }
+            getStreamConnection().accept(timeout);
+        } catch (IOException e) {
+            throw new NestedIOException(e);
         }
-        getStreamConnection().accept(timeout);
     }
 
     protected void doConnect() throws IOException, ListenerException {

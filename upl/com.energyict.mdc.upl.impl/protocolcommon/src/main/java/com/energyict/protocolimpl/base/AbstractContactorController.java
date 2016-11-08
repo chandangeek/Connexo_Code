@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
-
-import com.energyict.protocol.MeterProtocol;
 
 import java.io.IOException;
 
@@ -14,7 +13,7 @@ public abstract class AbstractContactorController implements ContactorController
 	/**
 	 * The {@link MeterProtocol} who's owning this {@link ContactorController}
 	 */
-	private final MeterProtocol	protocol;
+	private final MeterProtocol protocol;
 
 	/**
 	 * Constructor given a {@link MeterProtocol}

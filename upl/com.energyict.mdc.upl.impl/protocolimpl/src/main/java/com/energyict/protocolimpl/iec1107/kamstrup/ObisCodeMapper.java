@@ -19,7 +19,6 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 /**
  *
@@ -27,27 +26,23 @@ import java.util.Iterator;
  */
 public class ObisCodeMapper {
 
-    Kamstrup kamstrup;
+    private final Kamstrup kamstrup;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(Kamstrup kamstrup) {
         this.kamstrup=kamstrup;
     }
 
-
     public String getRegisterInfo() {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         RegisterMappingFactory rmf = new RegisterMappingFactory();
-        Iterator it = rmf.getRegisterMappings().iterator();
-        while(it.hasNext()) {
-            RegisterMapping rm = (RegisterMapping)it.next();
-            strBuff.append(rm.getObisCode()+", "+rm.getDescription()+", "+rm.getRegisterCode()+"\n");
+        for (RegisterMapping rm : rmf.getRegisterMappings()) {
+            builder.append(rm.getObisCode()).append(", ").append(rm.getDescription()).append(", ").append(rm.getRegisterCode()).append("\n");
 
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         RegisterMappingFactory rmf = new RegisterMappingFactory();
         RegisterMapping rm = rmf.findRegisterMapping(obisCode);
         return new RegisterInfo(rm.getDescription()+", "+rm.getRegisterCode());

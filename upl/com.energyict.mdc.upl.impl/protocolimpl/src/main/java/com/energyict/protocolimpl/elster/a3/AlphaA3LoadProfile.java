@@ -11,19 +11,30 @@
 package com.energyict.protocolimpl.elster.a3;
 
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalFormat;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileStatusTable;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.elster.a3.tables.EventLogMfgCodeFactory;
 import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Koen
@@ -32,17 +43,11 @@ public class AlphaA3LoadProfile {
 
     protected static final int DEBUG = 0; //-1;ff;k;
 
-    AlphaA3 alphaA3;
+    private AlphaA3 alphaA3;
 
-    Date previousDate;
-
-    /**
-     * Creates a new instance of KVLoadProfile
-     */
     public AlphaA3LoadProfile(AlphaA3 alphaA3) {
         this.alphaA3 = alphaA3;
     }
-
 
     public ProfileData getProfileData(Date lastReading, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
@@ -85,7 +90,7 @@ public class AlphaA3LoadProfile {
         if (alphaA3.getManufacturerTableFactory().getPowerQualityMonitorTests().hasPQMFunctionality()) {
             List<MeterEvent> meterEvents = alphaA3.getManufacturerTableFactory().getPowerQualityMonitorLog().getMeterEvents();
             meterEvents = filterEvents(meterEvents, from, to);
-            if (meterEvents.size() > 0) {
+            if (!meterEvents.isEmpty()) {
                 profileData.getMeterEvents().addAll(meterEvents);
             }
         } else {
@@ -97,7 +102,7 @@ public class AlphaA3LoadProfile {
         if (to == null) {
             to = new Date();
         }
-        List<MeterEvent> result = new ArrayList<MeterEvent>();
+        List<MeterEvent> result = new ArrayList<>();
         for (MeterEvent event : meterEvents) {
             if (event.getTime().after(from) && event.getTime().before(to)) {
                 result.add(event);
@@ -115,7 +120,7 @@ public class AlphaA3LoadProfile {
 
     private void buildEventLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
         // order = 0 oldest -> newest
-        List meterEvents = new ArrayList();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         EventLog header = alphaA3.getStandardTableFactory().getEventLogDataTableHeader().getEventLog();
         int order = header.getEventFlags().getOrder();
         int event2Read = order == 0 ? header.getLastEntryElement() : 0;
@@ -199,13 +204,13 @@ public class AlphaA3LoadProfile {
 //            return true;
 //        else
 //            return false;
-//    }    
+//    }
 
     private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException {
         // get blocks until last interval enddate < lastreading
         // parse blocks to load profile data
-        List loadProfileBlockDatas = new ArrayList();
-        LoadProfileBlockData lpbd = null;
+        List<LoadProfileBlockData> loadProfileBlockDatas = new ArrayList<>();
+        LoadProfileBlockData lpbd;
         int validBlockCount = 0;
         LoadProfileStatusTable lpst = alphaA3.getStandardTableFactory().getLoadProfileStatusTable();
         int nrOfValidBlocks = lpst.getLoadProfileSet1Status().getNrOfValidBlocks();
@@ -272,7 +277,7 @@ public class AlphaA3LoadProfile {
 
 
 //            lpbd = alphaA3.getStandardTableFactory().getLoadProfileDataSetTableBlockHeader(0,block2read).getLoadProfileDataSet().getLoadProfileDataSets()[0];
-//if (DEBUG>=2) System.out.println("KV_DEBUG> (2) header lpbd="+lpbd);   
+//if (DEBUG>=2) System.out.println("KV_DEBUG> (2) header lpbd="+lpbd);
 //            if ((validBlockCount >=nrOfValidBlocks) || (lpbd.getBlockEndTime().before(lastReading))) break;
 //            validBlockCount++;
 
@@ -336,7 +341,7 @@ public class AlphaA3LoadProfile {
             if (block2read++ >= (maxNrOfBlocks - 1)) {
                 block2read = 0;
             }
-        } // while(true) 
+        } // while(true)
 
         /**************************************************************************************************************************************************
          P A R S E  T H E  D A T A
@@ -350,7 +355,7 @@ public class AlphaA3LoadProfile {
 
         IntervalSet previousIntervalSet = null;
         //currentDayBlock=true;
-        List intervalDatas = new ArrayList();
+        List<IntervalData> intervalDatas = new ArrayList<>();
         Calendar cal = null;
         Iterator it = loadProfileBlockDatas.iterator();
         boolean firstInterval = true;
@@ -422,7 +427,7 @@ public class AlphaA3LoadProfile {
                     continue;
                 }
 
-                // if first interval marked as DST AND time is NOT in DST, subtract ONE hour! 
+                // if first interval marked as DST AND time is NOT in DST, subtract ONE hour!
                 if (firstInterval && intervalSet.isValid() && intervalSet.isDSTActive() && !alphaA3.getTimeZone().inDaylightTime(cal.getTime())) {
                     cal.add(Calendar.HOUR, -1);
                 }
@@ -494,7 +499,7 @@ public class AlphaA3LoadProfile {
 
         profileData.setIntervalDatas(intervalDatas);
 
-    } // private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException 
+    } // private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException
 
     private IntervalData createIntervalData(IntervalSet intervalSet, Date endDate, int interval, boolean powerOn) throws IOException {
 
@@ -516,7 +521,7 @@ public class AlphaA3LoadProfile {
                 // KV_TO_DO
                 // Depending on the UON for the profile data quantity, the engineering value calculation differs!
                 // See KV2(c) document with all explanation about that. For the moment we only use
-                // KVAh load profile calculation!  
+                // KVAh load profile calculation!
 
                 if (alphaA3.getProtocolChannelMap().isProtocolChannel(channel)) {
                     if (alphaA3.getProtocolChannelMap().getProtocolChannel(channel).getValue() == 1) { // engineering values
@@ -571,7 +576,7 @@ public class AlphaA3LoadProfile {
     }
 
     private void waitUntilTimeValid() throws IOException {
-        Date date = null;
+        Date date;
         long offset2IntervalBoundary = 0;
         while (true) {
             date = alphaA3.getTime();
@@ -589,6 +594,7 @@ public class AlphaA3LoadProfile {
             } else {
                 break;
             }
-        } // while(true)
-    } // private void waitUntilTimeValid()    
+        }
+    }
+
 }

@@ -27,7 +27,7 @@ KV|29072005|Changes to parsing of event log numbers (0x)
 KV|01092005|Add manufacturer specific code
  * @endchanges
  */
-public class Sdc extends SdcBase implements SerialNumberSupport{
+public class Sdc extends SdcBase implements SerialNumberSupport {
 
     private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
 

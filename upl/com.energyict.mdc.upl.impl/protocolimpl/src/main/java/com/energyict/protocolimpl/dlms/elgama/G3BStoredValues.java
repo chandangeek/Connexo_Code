@@ -28,19 +28,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-public class G3BStoredValues implements StoredValues {
+class G3BStoredValues implements StoredValues {
 
-    public static final ObisCode OBISCODE_BILLING_PROFILE = ObisCode.fromString("1.0.98.1.0.126");
+    private static final ObisCode OBISCODE_BILLING_PROFILE = ObisCode.fromString("1.0.98.1.0.126");
 
     private final CosemObjectFactory cosemObjectFactory;
-    private List<UnitInfo> unitInfos = new ArrayList<UnitInfo>();
+    private List<UnitInfo> unitInfos = new ArrayList<>();
     private ProfileGeneric profileGeneric = null;
     private List<ObisCode> capturedCodes = null;
     private Array dataArray = null;
     private boolean hasATimeStamp = false;
     private TimeZone timeZone;
 
-    public G3BStoredValues(CosemObjectFactory cosemObjectFactory) {
+    G3BStoredValues(CosemObjectFactory cosemObjectFactory) {
         this.cosemObjectFactory = cosemObjectFactory;
     }
 
@@ -55,7 +55,7 @@ public class G3BStoredValues implements StoredValues {
      */
     private List<ObisCode> getCapturedCodes() throws IOException {
         if (capturedCodes == null) {
-            this.capturedCodes = new ArrayList<ObisCode>();
+            this.capturedCodes = new ArrayList<>();
             for (CapturedObject co : getProfileGeneric().getCaptureObjects()) {
                 if (co.getClassId() != DLMSClassId.CLOCK.getClassId()) {
                     capturedCodes.add(co.getLogicalName().getObisCode());
@@ -267,7 +267,7 @@ public class G3BStoredValues implements StoredValues {
         private final Unit unit;
         private final ScalerUnit scalerUnit;
 
-        public UnitInfo(ObisCode obisCode, Unit unit, ScalerUnit scalerUnit) {
+        UnitInfo(ObisCode obisCode, Unit unit, ScalerUnit scalerUnit) {
             this.obis = obisCode;
             this.unit = unit;
             this.scalerUnit = scalerUnit;
@@ -277,11 +277,11 @@ public class G3BStoredValues implements StoredValues {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         String crlf = "\r\n";
 
-        int billingPointCount = 0;
+        int billingPointCount;
 
         try {
             billingPointCount = getBillingPointCounter();
@@ -289,30 +289,30 @@ public class G3BStoredValues implements StoredValues {
             billingPointCount = 0;
         }
 
-        sb.append("G3BStoredValues").append(crlf);
-        sb.append(" > getBillingPointCounter = ").append(billingPointCount).append(crlf);
+        builder.append("G3BStoredValues").append(crlf);
+        builder.append(" > getBillingPointCounter = ").append(billingPointCount).append(crlf);
 
-        sb.append(" > obisCodes = ").append(crlf);
+        builder.append(" > obisCodes = ").append(crlf);
         try {
             for (ObisCode oc : getCapturedCodes()) {
-                sb.append("     # ").append(oc).append(" - ");
-                sb.append(oc.getDescription()).append(crlf);
+                builder.append("     # ").append(oc).append(" - ");
+                builder.append(oc.toString()).append(crlf);
             }
         } catch (IOException e) {
-            sb.append(e.getMessage()).append(crlf);
+            builder.append(e.getMessage()).append(crlf);
         }
 
-        sb.append(" > billingPointDates = ").append(crlf);
+        builder.append(" > billingPointDates = ").append(crlf);
         for (int i = 0; i < billingPointCount; i++) {
-            sb.append("     # ").append(i).append(" = ");
+            builder.append("     # ").append(i).append(" = ");
             try {
-                sb.append(getBillingPointTimeDate(i)).append(crlf);
+                builder.append(getBillingPointTimeDate(i)).append(crlf);
             } catch (IOException e) {
-                sb.append(e.getMessage()).append(crlf);
+                builder.append(e.getMessage()).append(crlf);
             }
         }
-        sb.append(crlf);
+        builder.append(crlf);
 
-        return sb.toString();
+        return builder.toString();
     }
 }

@@ -5,11 +5,9 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
-import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -47,7 +45,7 @@ public class PoregConnection implements ProtocolConnection {
     private static final String CONNECTED = "C";
     private boolean doContinue = false;
 
-    public PoregConnection(Poreg poreg, InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) {
+    public PoregConnection(Poreg poreg, InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.timeout = timeoutProperty;

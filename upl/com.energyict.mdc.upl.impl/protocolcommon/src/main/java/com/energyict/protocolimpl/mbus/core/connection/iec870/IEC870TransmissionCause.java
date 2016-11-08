@@ -8,14 +8,15 @@ package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
 import com.energyict.cbo.NotFoundException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author  Koen
  */
-public class IEC870TransmissionCause {
-    public static final List causes = new ArrayList();
+class IEC870TransmissionCause {
+    private static final List<IEC870TransmissionCause> causes = new ArrayList<>();
     static {
         causes.add(new IEC870TransmissionCause(0,"not used",""));
         causes.add(new IEC870TransmissionCause(1,"periodic, cyclic per/cyc","CYCLIC"));
@@ -57,24 +58,23 @@ public class IEC870TransmissionCause {
         causes.add(new IEC870TransmissionCause(45,"unknown cause of transmission",""));
         causes.add(new IEC870TransmissionCause(46,"unknown common address of ASDU",""));
         causes.add(new IEC870TransmissionCause(47,"unknown information object address",""));
-        
+
         // reserved cause ranges
         causes.add(new IEC870TransmissionCause(48,"(48..63)for special use (private range)",""));
         causes.add(new IEC870TransmissionCause(14,"(14..19)reserved for further compatible definitions",""));
         causes.add(new IEC870TransmissionCause(42,"(42..43)reserved for further compatible definitions",""));
     }
-    
-    int id;
-    String description;
-    String abbr; 
-    
-    /** Creates a new instance of TransmissionCause */
-    public IEC870TransmissionCause(int id, String description, String abbr) {
+
+    private int id;
+    private String description;
+    private String abbr;
+
+    private IEC870TransmissionCause(int id, String description, String abbr) {
         this.id=id;
         this.description=description;
         this.abbr=abbr;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -84,29 +84,29 @@ public class IEC870TransmissionCause {
     public String getAbbr() {
         return abbr;
     }
-   
+
     public static IEC870TransmissionCause getTransmissionCause(int id) {
-        
+
         // reserved cause ranges
         if ((id>=48) && (id<=63)) id = 48;
         if ((id>=14) && (id<=19)) id = 14;
         if ((id>=42) && (id<=43)) id = 42;
-        
-        Iterator it = causes.iterator();
-        while(it.hasNext()) {
-            IEC870TransmissionCause cause = (IEC870TransmissionCause)it.next();
-            if (cause.getId() == id) return cause;
+
+        for (IEC870TransmissionCause cause : causes) {
+            if (cause.getId() == id) {
+                return cause;
+            }
         }
         throw new NotFoundException("IEC870TransmissionCause, id "+id+" not found");
     }
+
     public static int getId(String abbr) {
-        
-        Iterator it = causes.iterator();
-        while(it.hasNext()) {
-            IEC870TransmissionCause cause = (IEC870TransmissionCause)it.next();
-            if (cause.getAbbr().compareTo(abbr) == 0) return cause.getId();
+        for (IEC870TransmissionCause cause : causes) {
+            if (cause.getAbbr().compareTo(abbr) == 0) {
+                return cause.getId();
+            }
         }
         throw new NotFoundException("IEC870TransmissionCause, "+abbr+" not found");
     }
-    
+
 }

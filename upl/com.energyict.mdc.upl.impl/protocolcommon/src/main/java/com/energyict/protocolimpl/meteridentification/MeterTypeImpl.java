@@ -19,9 +19,9 @@ import java.io.IOException;
 */
 public class MeterTypeImpl implements MeterType {
 
-    String receivedIdent;
-    String meter3letterId;
-    Object instance = null;
+    private String receivedIdent;
+    private String meter3letterId;
+    private Object instance = null;
 
     public MeterTypeImpl(String receivedIdent) throws IOException {
         this.receivedIdent = receivedIdent;
@@ -64,13 +64,7 @@ public class MeterTypeImpl implements MeterType {
             } else {
                 return instance;
             }
-        } catch (InstantiationException e) {
-            throw new NestedIOException(e);
-        } catch (ClassNotFoundException e) {
-            throw new NestedIOException(e);
-        } catch (IllegalAccessException e) {
-            throw new NestedIOException(e);
-        } catch (IOException e) {
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException | IOException e) {
             throw new NestedIOException(e);
         }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * UNIFLO1200.java
  *
  * Created on 4-dec-2008, 15:00:50 by jme
@@ -9,8 +9,8 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -34,11 +34,13 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  * @author jme
@@ -158,23 +160,31 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 
 	@Override
 	public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        List<PropertySpec> propertySpecs =
+                super.getPropertySpecs()
+                        .stream()
+                        .filter(propertySpec -> !propertySpec.getName().equals(PASSWORD.getName()))
+                        .collect(Collectors.toList());
+        propertySpecs.add(UPLPropertySpecFactory.stringOfMaxLength(PASSWORD.getName(), false, 8));
         propertySpecs.add(UPLPropertySpecFactory.integer("LoadProfileNumber", false, MIN_LOADPROFILE_NUMBER, MAX_LOADPROFILE_NUMBER));
         return propertySpecs;
 	}
 
-	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		sendDebug("doTheValidateProperties()", 5);
-        setLoadProfileNumber(Integer.parseInt(properties.getProperty("LoadProfileNumber","1").trim()));
-		if (getInfoTypePassword() != null) {
-			if (getInfoTypePassword().length() > 8) {
-                throw new InvalidPropertyException("Password to long! Max length is 8 characters.");
+	@Override
+	public void setProperties(Properties properties) throws PropertyValidationException {
+		super.setProperties(properties);
+		sendDebug("setProperties()", 5);
+        try {
+            setLoadProfileNumber(Integer.parseInt(properties.getProperty("LoadProfileNumber", "1").trim()));
+            if (getInfoTypePassword() != null) {
+                while (getInfoTypePassword().length() < 8) {
+                    setInfoTypePassword(getInfoTypePassword() + " ");
+                }
             }
-			while (getInfoTypePassword().length() < 8) {
-                setInfoTypePassword(getInfoTypePassword() + " ");
-            }
-		}
-	}
+        } catch (NumberFormatException e) {
+            e.printStackTrace(System.err);
+        }
+    }
 
 	@Override
 	protected void initRegisterFactory() {

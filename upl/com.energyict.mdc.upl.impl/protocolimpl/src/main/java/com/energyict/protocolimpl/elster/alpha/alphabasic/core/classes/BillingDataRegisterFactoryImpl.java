@@ -14,6 +14,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.elster.alpha.BillingDataRegister;
 import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
 
 import java.io.IOException;
@@ -26,17 +27,15 @@ import java.util.List;
  */
 public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactory {
 
+	public static final int CURRENT_BILLING_REGISTERS=0;
+	public static final int PREVIOUS_MONTH_BILLING_REGISTERS=1;
+	public static final int PREVIOUS_SEASON_BILLING_REGISTERS=2;
 
 	private ClassFactory classFactory;
 
-	static public final int CURRENT_BILLING_REGISTERS=0;
-	static public final int PREVIOUS_MONTH_BILLING_REGISTERS=1;
-	static public final int PREVIOUS_SEASON_BILLING_REGISTERS=2;
-
-
 	// KV_TO_DO, max blocks is 6 TOU and 2 COIN
 
-	private List[] billingDataRegisters=null;
+	private List<BillingDataRegister>[] billingDataRegisters=null;
 
 	/** Creates a new instance of BillingDataQuantities */
 	public BillingDataRegisterFactoryImpl(ClassFactory classFactory) {
@@ -44,10 +43,7 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
 		this.classFactory=classFactory;
 	}
 
-
 	public void buildAll() throws IOException {
-
-
 		// current, previous and previous season
 		build(CURRENT_BILLING_REGISTERS);
 		build(PREVIOUS_MONTH_BILLING_REGISTERS);
@@ -62,17 +58,17 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
 		int maxBlocks=6;
 
 		if (set == CURRENT_BILLING_REGISTERS) {
-			this.billingDataRegisters[0] = new ArrayList();
+			this.billingDataRegisters[0] = new ArrayList<>();
 			cbd = this.classFactory.getClass11BillingData();
 			fieldF=255;
 		}
 		if (set == PREVIOUS_MONTH_BILLING_REGISTERS) {
-			this.billingDataRegisters[1] = new ArrayList();
+			this.billingDataRegisters[1] = new ArrayList<>();
 			cbd = this.classFactory.getClass12PreviousMonthBillingData();
 			fieldF=0;
 		}
 		if (set == PREVIOUS_SEASON_BILLING_REGISTERS) {
-			this.billingDataRegisters[2] = new ArrayList();
+			this.billingDataRegisters[2] = new ArrayList<>();
 			cbd = this.classFactory.getClass13PreviousSeasonBillingData();
 			fieldF=1;
 		}
@@ -127,23 +123,23 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
 		quantity = new Quantity(cbd.getKWH(block, fieldE),this.classFactory.getClass14LoadProfileConfiguration().getTOUUnit(block, true));
 		obisCode = ObisCode.fromByteArray(new byte[]{1,1,(byte)fieldC,8,(byte)(fieldEOffset+fieldE),(byte)fieldF});
 		registerValue = new RegisterValue(obisCode,quantity);
-		this.billingDataRegisters[set].add(new BillingDataRegister(obisCode, description, registerValue));
+		this.billingDataRegisters[set].add(new BillingDataRegisterImpl(obisCode, description, registerValue));
 
 		quantity = new Quantity(cbd.getKW(block, fieldE),this.classFactory.getClass14LoadProfileConfiguration().getTOUUnit(block, false));
 		obisCode = ObisCode.fromByteArray(new byte[]{1,1,(byte)fieldC,6,(byte)(fieldEOffset+fieldE),(byte)fieldF});
 		registerValue = new RegisterValue(obisCode,quantity,cbd.getTD(block, fieldE));
-		this.billingDataRegisters[set].add(new BillingDataRegister(obisCode, description, registerValue));
+		this.billingDataRegisters[set].add(new BillingDataRegisterImpl(obisCode, description, registerValue));
 
 		quantity = new Quantity(cbd.getKWCUM(block, fieldE),this.classFactory.getClass14LoadProfileConfiguration().getTOUUnit(block, false));
 		obisCode = ObisCode.fromByteArray(new byte[]{1,1,(byte)fieldC,2,(byte)(fieldEOffset+fieldE),(byte)fieldF});
 		registerValue = new RegisterValue(obisCode,quantity);
-		this.billingDataRegisters[set].add(new BillingDataRegister(obisCode, description, registerValue));
+		this.billingDataRegisters[set].add(new BillingDataRegisterImpl(obisCode, description, registerValue));
 
 		if ((fieldEOffset == 1) && (fieldE == 0)) {
 			quantity = new Quantity(cbd.getKWHtotal(block),this.classFactory.getClass14LoadProfileConfiguration().getTOUUnit(block, true));
 			obisCode = ObisCode.fromByteArray(new byte[]{1,1,(byte)fieldC,8,0,(byte)fieldF});
 			registerValue = new RegisterValue(obisCode,quantity);
-			this.billingDataRegisters[set].add(new BillingDataRegister(obisCode, description, registerValue));
+			this.billingDataRegisters[set].add(new BillingDataRegisterImpl(obisCode, description, registerValue));
 		}
 
 
@@ -167,31 +163,28 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
 		quantity = new Quantity(cbd.getAK(block-6, fieldE),this.classFactory.getClass14LoadProfileConfiguration().getTOUUnit(captureTOUBlock, false));
 		obisCode = ObisCode.fromByteArray(new byte[]{1,1,(byte)captureFieldC,(byte)128,(byte)(fieldEOffset+fieldE),(byte)fieldF});
 		registerValue = new RegisterValue(obisCode,quantity,cbd.getTD(captureTOUBlock,fieldE));
-		this.billingDataRegisters[set].add(new BillingDataRegister(obisCode,"coincident "+captureDescription+" on demand trigger "+triggerDescription , registerValue));
+		this.billingDataRegisters[set].add(new BillingDataRegisterImpl(obisCode,"coincident "+captureDescription+" on demand trigger "+triggerDescription , registerValue));
 
 		// Power factor
 		quantity = new Quantity(cbd.getPF(block-6, fieldE),Unit.get(""));
 		obisCode = ObisCode.fromByteArray(new byte[]{1,1,13,(byte)128,(byte)(fieldEOffset+fieldE),(byte)fieldF});
 		registerValue = new RegisterValue(obisCode,quantity);
-		this.billingDataRegisters[set].add(new BillingDataRegister(obisCode,"coincident power factor on demand trigger "+triggerDescription , registerValue));
+		this.billingDataRegisters[set].add(new BillingDataRegisterImpl(obisCode,"coincident power factor on demand trigger "+triggerDescription , registerValue));
 
 		if ((fieldEOffset == 1) && (fieldE == 0)) {
 			// average Power factor for multiple rate TOU meter
 			quantity = new Quantity(cbd.getPF(block-6, fieldE),Unit.get(""));
 			obisCode = ObisCode.fromByteArray(new byte[]{1,1,13,(byte)128,0,(byte)fieldF});
 			registerValue = new RegisterValue(obisCode,quantity);
-			this.billingDataRegisters[set].add(new BillingDataRegister(obisCode,"coincident power factor on demand trigger "+triggerDescription , registerValue));
+			this.billingDataRegisters[set].add(new BillingDataRegisterImpl(obisCode,"coincident power factor on demand trigger "+triggerDescription , registerValue));
 		}
 	}
 
-
-
-	public List getBillingDataRegisters(int set) throws IOException {
+	public List<BillingDataRegister> getBillingDataRegisters(int set) throws IOException {
 		if (this.billingDataRegisters[set] == null) {
 			build(set);
 		}
 		return this.billingDataRegisters[set];
 	}
 
-
-} // public class BillingDataQuantities
+}

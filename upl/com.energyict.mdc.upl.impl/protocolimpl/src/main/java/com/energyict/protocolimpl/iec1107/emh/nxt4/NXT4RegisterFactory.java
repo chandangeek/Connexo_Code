@@ -38,7 +38,7 @@ public class NXT4RegisterFactory implements RegisterProtocol {
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -133,7 +133,7 @@ public class NXT4RegisterFactory implements RegisterProtocol {
 
     private void checkForError(byte[] rawData, ObisCode obisCode) throws NoSuchRegisterException {
         String dataStr = new String(rawData);
-        if (dataStr.indexOf("ERROR") != -1) {
+        if (dataStr.contains("ERROR")) {
             String msg = "Failed to read object " + obisCode + " - NXT4RegisterFactory, readRegisterData, " + getProtocol().getExceptionInfo("ERROR");
             getProtocol().getLogger().warning(msg);
             throw new NoSuchRegisterException(msg);

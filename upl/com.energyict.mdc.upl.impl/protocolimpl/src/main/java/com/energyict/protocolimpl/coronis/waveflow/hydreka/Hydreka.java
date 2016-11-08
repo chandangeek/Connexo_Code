@@ -2,11 +2,16 @@ package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUpObject;
+import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.HydrekaMessages;
@@ -111,6 +116,36 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         return BubbleUpFrameParser.parseFrame(data, this);
+    }
+
+    @Override
+    public void applyMessages(List messageEntries) throws IOException {
+        getWaveFlowMessages().applyMessages(messageEntries);
+    }
+
+    @Override
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        return getWaveFlowMessages().queryMessage(messageEntry);
+    }
+
+    @Override
+    public List getMessageCategories() {
+        return getWaveFlowMessages().getMessageCategories();
+    }
+
+    @Override
+    public String writeMessage(Message msg) {
+        return getWaveFlowMessages().writeMessage(msg);
+    }
+
+    @Override
+    public String writeTag(MessageTag tag) {
+        return getWaveFlowMessages().writeTag(tag);
+    }
+
+    @Override
+    public String writeValue(MessageValue value) {
+        return getWaveFlowMessages().writeValue(value);
     }
 
 }

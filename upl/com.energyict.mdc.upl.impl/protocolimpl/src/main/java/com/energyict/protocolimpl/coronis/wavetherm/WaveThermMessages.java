@@ -1,7 +1,18 @@
 package com.energyict.protocolimpl.coronis.wavetherm;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,7 +20,7 @@ import java.util.List;
 
 public class WaveThermMessages implements MessageProtocol {
 
-    WaveTherm waveTherm;
+    private WaveTherm waveTherm;
     private static final int MAX_SAMPLING_INTERVAL_SECONDS = 63 * 30 * 60;  //See documentation, largest interval possible is 31,5 hours.
 
     WaveThermMessages(WaveTherm waveTherm) {
@@ -20,84 +31,85 @@ public class WaveThermMessages implements MessageProtocol {
         return content.substring(content.indexOf(">") + 1, content.lastIndexOf("<"));
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<ForceTimeSync") >= 0) {
+            if (messageEntry.getContent().contains("<ForceTimeSync")) {
                 return forceTimeSync(messageEntry);
             }
-            if (messageEntry.getContent().indexOf("<RestartDataLogging") >= 0) {
+            if (messageEntry.getContent().contains("<RestartDataLogging")) {
                 return restartDataLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<StopDataLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<StopDataLogging")) {
                 return stopDataLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetOperatingMode") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetOperatingMode")) {
                 return setOperatingMode(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatus") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatus")) {
                 return resetApplicationStatus(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetDayOfWeek") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetDayOfWeek")) {
                 return setDayOfWeek(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetHourOfMeasurement") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHourOfMeasurement")) {
                 return setHourOfMeasurement(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetPeriodicStepLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetPeriodicStepLogging")) {
                 return setPeriodicStepLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetProfileInterval") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetProfileInterval")) {
                 return setProfileInterval(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetWeeklyLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetWeeklyLogging")) {
                 return setWeeklyLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMonthlyLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMonthlyLogging")) {
                 return setMonthlyLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnLowThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnLowThreshold")) {
                 return sendAlarmOnLowThreshold(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnHighThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnHighThreshold")) {
                 return sendAlarmOnHighThreshold(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EnableHighThresholdDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableHighThresholdDetection")) {
                 return setHighThresholdDetection(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<EnableLowThresholdDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableLowThresholdDetection")) {
                 return setLowThresholdDetection(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<DisableHighThresholdDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableHighThresholdDetection")) {
                 return setHighThresholdDetection(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<DisableHighThresholdDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableLowThresholdDetection")) {
                 return setLowThresholdDetection(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnBatteryEnd") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnBatteryEnd")) {
                 return sendAlarmOnBatteryEnd(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAllAlarms") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAllAlarms")) {
                 return sendAllAlarms(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnLowThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnLowThreshold")) {
                 return disableAlarmOnLowThreshold(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnHighThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnHighThreshold")) {
                 return disableAlarmOnHighThreshold(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnBatteryEnd") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnBatteryEnd")) {
                 return disableAlarmOnBatteryEnd(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAllAlarms") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAllAlarms")) {
                 return disableAllAlarms(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetAlarmConfig") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetAlarmConfig")) {
                 return setAlarmConfig(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfRepeaters") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfRepeaters")) {
                 return setNumberOfRepeaters(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRepeaterAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRepeaterAddress")) {
                 return setRepeaterAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRecipientAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRecipientAddress")) {
                 return setRecipientAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfRetries") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfRetries")) {
                 return setNumberOfRetries(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTimeBetweenRetries") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTimeBetweenRetries")) {
                 return setTimeBetweenRetries(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMeasurementPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMeasurementPeriod")) {
                 return setMeasurementPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetLowThresholdAlarmDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLowThresholdAlarmDuration")) {
                 return setLowThresholdAlarmDuration(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetHighThresholdAlarmDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHighThresholdAlarmDuration")) {
                 return setHighThresholdAlarmDuration(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetLowThresholdSensor1") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLowThresholdSensor1")) {
                 return setLowThreshold(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<SetLowThresholdSensor2") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLowThresholdSensor2")) {
                 return setLowThreshold(messageEntry, 2);
-            } else if (messageEntry.getContent().indexOf("<SetHighThresholdSensor1") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHighThresholdSensor1")) {
                 return setHighThreshold(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<SetHighThresholdSensor2") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHighThresholdSensor2")) {
                 return setHighThreshold(messageEntry, 2);
-            } else if (messageEntry.getContent().indexOf("<SetCumulativeDetectionMode") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetCumulativeDetectionMode")) {
                 return setCumulativeDetectionMode(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetSuccessiveDetectionMode") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetSuccessiveDetectionMode")) {
                 return setSuccessiveDetectionMode(messageEntry);
             } else {
                 return MessageResult.createFailed(messageEntry);
@@ -272,7 +284,6 @@ public class WaveThermMessages implements MessageProtocol {
         return MessageResult.createSuccess(messageEntry);
     }
 
-
     private MessageResult sendAlarmOnLowThreshold(MessageEntry messageEntry) throws IOException {
         waveTherm.getLogger().info("************************* SendAlarmOnLowThreshold *************************");
         waveTherm.getParameterFactory().sendAlarmOnLowThreshold();
@@ -418,6 +429,7 @@ public class WaveThermMessages implements MessageProtocol {
         return MessageResult.createSuccess(messageEntry);
     }
 
+    @Override
     public List getMessageCategories() {
         List theCategories = new ArrayList();
 
@@ -478,7 +490,6 @@ public class WaveThermMessages implements MessageProtocol {
 
         theCategories.add(cat6);
 
-
         return theCategories;
     }
 
@@ -523,54 +534,59 @@ public class WaveThermMessages implements MessageProtocol {
         return msgSpec;
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
 
+    @Override
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
         for (Object o1 : msgTag.getAttributes()) {
             MessageAttribute att = (MessageAttribute) o1;
-            if (att.getValue() == null || att.getValue().length() == 0) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Object o : msgTag.getSubElements()) {
             MessageElement elt = (MessageElement) o;
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return value.getValue();
     }
 
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
     }
+
 }

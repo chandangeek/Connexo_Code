@@ -4,8 +4,7 @@ package com.energyict.protocolimpl.modbus.schneider.powerlogic;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -44,7 +43,8 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     }
 
     @Override
-    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
         setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
         setConnectionMode(Integer.parseInt(properties.getProperty("Connection", "1").trim()));
         setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer", "1").trim()));
@@ -56,7 +56,6 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     private void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
     }
-
 
     @Override
     protected void initRegisterFactory() {

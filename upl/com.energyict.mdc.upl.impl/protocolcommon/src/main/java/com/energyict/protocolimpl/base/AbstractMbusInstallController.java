@@ -1,9 +1,6 @@
-/**
- * 
- */
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.upl.MeterProtocol;
 
 /**
  * @author gna
@@ -11,12 +8,12 @@ import com.energyict.protocol.MeterProtocol;
  *
  */
 public abstract class AbstractMbusInstallController implements MbusInstallController {
-	
+
 	/**
 	 * The {@link MeterProtocol} who's owning this {@link ContactorController}
 	 */
-	private final MeterProtocol	protocol;
-	
+	private final MeterProtocol protocol;
+
 	/**
 	 * Constructor given a {@link MeterProtocol}
 	 *

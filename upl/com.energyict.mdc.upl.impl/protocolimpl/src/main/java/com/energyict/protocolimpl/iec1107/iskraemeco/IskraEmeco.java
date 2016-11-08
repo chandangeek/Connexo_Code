@@ -465,7 +465,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
 
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        ObisCodeMapper ocm = new ObisCodeMapper(getIskraEmecoRegistry(), getTimeZone(), regs);
+        ObisCodeMapper ocm = new ObisCodeMapper(getIskraEmecoRegistry(), regs);
         return ocm.getRegisterValue(obisCode);
     }
 

@@ -6,91 +6,93 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import java.io.IOException;
-import java.util.*;
-
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 /**
- *
- * @author  Koen
- * <B>@Beginchanges</B><BR>
- * GN|27012008| only able to read one loadProfile channel
+ * @author Koen
+ *         <B>@Beginchanges</B><BR>
+ *         GN|27012008| only able to read one loadProfile channel
  * @Endchanges
  */
 public class SdcLoadProfile {
-    
+
     private static final int DEBUG = 1;
-//    private static final boolean ALL_EVENTS = true;
-    private static final int MAX_SDC_PROFILES_CHANNELS=3;
-    
-    SdcBase sdc=null;
-    
+    //    private static final boolean ALL_EVENTS = true;
+    private static final int MAX_SDC_PROFILES_CHANNELS = 3;
+
+    SdcBase sdc = null;
+
     // cached
-    int nrOfChannels=-1;
-    
-    /** Creates a new instance of SdcLoadProfile */
+    private int nrOfChannels = -1;
+
     public SdcLoadProfile(SdcBase sdc) {
-        this.sdc=sdc;
+        this.sdc = sdc;
     }
-    
-    //    public int getProfileInterval() {
-    //        sdc.getDataReadingCommandFactory().getHistorySeriesRead().getProfileDataBlock(new Date((new Date()).getTime()-3600),1,channel);
-    //    }
-    
+
     public int getNrOfChannels() throws IOException {
-    	
-    	// a way to read get the channel number is to readout the profile and see if it is possible for that channel!
-    	// have to adjust the histerySeriesRead again with the channel number!
-    	
+
+        // a way to read get the channel number is to readout the profile and see if it is possible for that channel!
+        // have to adjust the histerySeriesRead again with the channel number!
+
         if (nrOfChannels == -1) {
             if (sdc.getProtocolChannelMap() == null) {
-                nrOfChannels=0;
-                for (int channel=1;channel<=MAX_SDC_PROFILES_CHANNELS;channel++) {
+                nrOfChannels = 0;
+                for (int channel = 1; channel <= MAX_SDC_PROFILES_CHANNELS; channel++) {
                     try {
-                        sdc.getDataReadingCommandFactory().getHistorySeriesRead().getLoadProfileDataBlock(new Date((new Date()).getTime()-1800),1,channel);
+                        sdc.getDataReadingCommandFactory().getHistorySeriesRead().getLoadProfileDataBlock(new Date((new Date()).getTime() - 1800), 1, channel);
                         nrOfChannels++;
-                    }
-                    catch(ProtocolConnectionException e) {
+                    } catch (ProtocolConnectionException e) {
                         //absorb ([4])
-                        if (e.getProtocolErrorCode().compareTo(sdc.COMMAND_CANNOT_BE_EXECUTED) != 0)
+                        if (e.getProtocolErrorCode().compareTo(SdcBase.COMMAND_CANNOT_BE_EXECUTED) != 0) {
                             throw e;
-                        else
+                        } else {
                             break;
+                        }
                     }
                 }
+            } else {
+                nrOfChannels = sdc.getProtocolChannelMap().getNrOfProtocolChannels();
             }
-            else nrOfChannels = sdc.getProtocolChannelMap().getNrOfProtocolChannels();
         } // if (nrOfChannels == -1)
-        
+
         return nrOfChannels;
-        
+
     } // public int getNrOfChannels()
-    
-    
-    public void setNrOfChannels(int channels){
-    	nrOfChannels = channels;
+
+
+    public void setNrOfChannels(int channels) {
+        nrOfChannels = channels;
     }
-    
-    public ProfileData getProfileData(Date fromDate, boolean includeEvents) throws IOException{
-        
+
+    public ProfileData getProfileData(Date fromDate, boolean includeEvents) throws IOException {
+
         ProfileData profileData = new ProfileData();
-        List intervalDatas = new ArrayList();
+        List<IntervalData> intervalDatas = new ArrayList<>();
         Calendar from = ProtocolUtils.getCleanGMTCalendar();
         from.setTime(fromDate);
-        from.set(Calendar.HOUR_OF_DAY,0);
-        from.set(Calendar.MINUTE,0);
-        from.set(Calendar.SECOND,0);
-        
-        
-        int nrOfDays = (int)(((new Date()).getTime() - from.getTime().getTime()) / (24*3600000L))+1;
-        
+        from.set(Calendar.HOUR_OF_DAY, 0);
+        from.set(Calendar.MINUTE, 0);
+        from.set(Calendar.SECOND, 0);
+
+        int nrOfDays = (int) (((new Date()).getTime() - from.getTime().getTime()) / (24 * 3600000L)) + 1;
+
         int nr = getNrOfChannels();
-        
-        for (int day=0; day<nrOfDays ; day++) {
+
+        for (int day = 0; day < nrOfDays; day++) {
             // starting oldest day, get a LoadProfileDataBlock for each channel and add to an array
-            
-//************************************************************************************************************************************************************            
+
+//************************************************************************************************************************************************************
 //            LoadProfileDataBlock[] loadProfileDataBlocks = new LoadProfileDataBlock[getNrOfChannels()];
 //            for (int channel=0;channel<getNrOfChannels();channel++) {
 //                loadProfileDataBlocks[channel] = sdc.getDataReadingCommandFactory().getHistorySeriesRead().getLoadProfileDataBlock(from.getTime(),channel);
@@ -98,112 +100,112 @@ public class SdcLoadProfile {
 //                    System.out.println("KV_DEBUG> 2 DAY="+day+", "+loadProfileDataBlocks[channel]+", "+from.getTime());
 //            }
 //************************************************************************************************************************************************************
-        	
-        	
-        	// Only able to readout one channel (device is programmed as on phase ...)
-        	LoadProfileDataBlock[] loadProfileDataBlocks = new LoadProfileDataBlock[1];
-        	
-        	loadProfileDataBlocks[0] = sdc.getDataReadingCommandFactory().getHistorySeriesRead().getLoadProfileDataBlock(from.getTime(), 0);
-        	
-            // construct channelinfos using first day first interval        	
-        	
-        	if (loadProfileDataBlocks[0].getLoadProfileEntries().size() != 0){
-        		
+
+
+            // Only able to readout one channel (device is programmed as on phase ...)
+            LoadProfileDataBlock[] loadProfileDataBlocks = new LoadProfileDataBlock[1];
+
+            loadProfileDataBlocks[0] = sdc.getDataReadingCommandFactory().getHistorySeriesRead().getLoadProfileDataBlock(from.getTime(), 0);
+
+            // construct channelinfos using first day first interval
+
+            if (!loadProfileDataBlocks[0].getLoadProfileEntries().isEmpty()) {
+
                 if (day == 0) {
-                    List channelInfos = new ArrayList();
-                    for (int channel=0; channel<loadProfileDataBlocks.length; channel++) {
+                    List<ChannelInfo> channelInfos = new ArrayList<>();
+                    for (int channel = 0; channel < loadProfileDataBlocks.length; channel++) {
                         LoadProfileEntry loadProfileEntry =
-                        (LoadProfileEntry)loadProfileDataBlocks[channel].getLoadProfileEntries().get(0);
-                        channelInfos.add(new ChannelInfo(channel,"SdC IEC1107 "+(channel+1),loadProfileEntry.getQuantity().getUnit()));
+                                (LoadProfileEntry) loadProfileDataBlocks[channel].getLoadProfileEntries().get(0);
+                        channelInfos.add(new ChannelInfo(channel, "SdC IEC1107 " + (channel + 1), loadProfileEntry.getQuantity().getUnit()));
                     }
                     profileData.setChannelInfos(channelInfos);
                 } // if (day == 0)
-                
+
                 // build the intervaldata
-                intervalDatas.addAll(buildIntervalDatas(loadProfileDataBlocks,fromDate));
-                
-        	}
-            
+                intervalDatas.addAll(buildIntervalDatas(loadProfileDataBlocks, fromDate));
+
+            }
+
             from.add(Calendar.DATE, 1);
-            
+
         } // for (int day=0; day<nrOfDays ; day++)
-        
+
         profileData.setIntervalDatas(intervalDatas);
-        
+
         // KV 28072005
         // GN 31012008 No Events in SdC meter
 //        if (includeEvents)
-//            profileData.setMeterEvents(retrieveEventLog(fromDate));     
-        
+//            profileData.setMeterEvents(retrieveEventLog(fromDate));
+
         profileData.sort();
 //        profileData.applyEvents(sdc.getProfileInterval()/60);
-        
+
         return profileData;
-        
-    } // public ProfileData getProfileData(Date fromDate, boolean includeEvents) throws IOException
-    
-    private List buildIntervalDatas(LoadProfileDataBlock[] loadProfileDataBlocks, Date fromDate) {
+
+    }
+
+    private List<IntervalData> buildIntervalDatas(LoadProfileDataBlock[] loadProfileDataBlocks, Date fromDate) {
         int profileInterval = loadProfileDataBlocks[0].getProfileInterval();
-        
+
         Calendar calendar = ProtocolUtils.getCleanGMTCalendar();
         calendar.setTime(loadProfileDataBlocks[0].getFirstStartingDate());
         calendar.add(Calendar.SECOND, profileInterval);
-        
+
         int nrOfIntervals = loadProfileDataBlocks[0].getLoadProfileEntries().size();
-        List intervalDatas=new ArrayList();
-        
-        for (int interval=0; interval<nrOfIntervals; interval ++) {
-            int status=0,eiStatus=0;
-            List intervalValues=new ArrayList();
-            
-            for (int channel=0; channel<loadProfileDataBlocks.length; channel++) {
+        List<IntervalData> intervalDatas = new ArrayList<>();
+
+        for (int interval = 0; interval < nrOfIntervals; interval++) {
+            int status = 0, eiStatus = 0;
+            List<IntervalValue> intervalValues = new ArrayList<>();
+
+            for (int channel = 0; channel < loadProfileDataBlocks.length; channel++) {
                 LoadProfileEntry loadProfileEntry =
-                (LoadProfileEntry)loadProfileDataBlocks[channel].getLoadProfileEntries().get(interval);
+                        (LoadProfileEntry) loadProfileDataBlocks[channel].getLoadProfileEntries().get(interval);
                 if (!loadProfileEntry.isMissing()) {
-                    intervalValues.add(new IntervalValue(loadProfileEntry.getQuantity().getAmount(),loadProfileEntry.getStatus(),loadProfileEntry.getEiStatus()));
+                    intervalValues.add(new IntervalValue(loadProfileEntry.getQuantity().getAmount(), loadProfileEntry.getStatus(), loadProfileEntry.getEiStatus()));
                     status |= loadProfileEntry.getStatus();
                     eiStatus |= loadProfileEntry.getEiStatus();
+                } else {
+                    break;
                 }
-                else break;
-            } // for (int channel=0; channel<loadProfileDataBlocks.size(); channel++)
-            
-            if ((intervalValues.size() > 0) && (!(fromDate.after(calendar.getTime()))))
-                intervalDatas.add(new IntervalData(((Calendar)calendar.clone()).getTime(),eiStatus,status,0,intervalValues));
-            
+            }
+
+            if ((!intervalValues.isEmpty()) && (!(fromDate.after(calendar.getTime())))) {
+                intervalDatas.add(new IntervalData(((Calendar) calendar.clone()).getTime(), eiStatus, status, 0, intervalValues));
+            }
+
             // add interval to timestamp
             calendar.add(Calendar.SECOND, profileInterval);
-            
-        } // for (int interval=0; interval<nrOfIntervals; interval ++)
-        
+
+        }
         return intervalDatas;
-        
-    } // private List buildIntervalDatas(LoadProfileDataBlock[] loadProfileDataBlocks)
-    
-    
+    }
+
+
     /*
      *  We use a local seqNr to keep track of the circular logbuffer because we do not have any idea
-     *  about the size of the buffer. We must however avoid duplicate log entries...  
+     *  about the size of the buffer. We must however avoid duplicate log entries...
      */
 //    private List retrieveEventLog(Date fromDate) throws IOException{
-//    	
+//
 //        List eventLogEntries=new ArrayList();
 //        EventLogRead eventLogRead = sdc.getDataReadingCommandFactory().getEventLog();
 //        //int count=0;
-//        
+//
 //        EventLogEntry lastEventLogEntry = eventLogRead.getEventLogLatestEntry();
 //        if ((lastEventLogEntry == null) || (fromDate.after(lastEventLogEntry.getDate())))
 //            return new ArrayList();
-//        
+//
 //        int latestSequenceNr = lastEventLogEntry.getId();
-//        
+//
 //        if (DEBUG>=1) System.out.println("KV_DEBUG> latestSequenceNr="+latestSequenceNr);
-//        
+//
 //        int seqNr = latestSequenceNr;
 //        boolean found=false;
 //        while(!found) {
-//            
+//
 //            //int seqNr = latestSequenceNr-count*eventLogRead.NR_OF_LOG_ENTRIES;
-//            
+//
 //            List events = eventLogRead.getEventLogFrom(seqNr);
 //            if (events.size()==0)
 //                found=true;
@@ -215,15 +217,15 @@ public class SdcLoadProfile {
 //                        found=true;
 //                        break;
 //                    }
-//                    seqNr = ele.getId(); 
+//                    seqNr = ele.getId();
 //                    //eventLogEntries.add(ele);
 //                    addEventLogEntry(eventLogEntries,ele);
 //                } // while(it.hasNext())
 //            }
 //            //count++;
 //        } // while(!found)
-//        
-//        
+//
+//
 //        if (DEBUG>=1) {
 //            System.out.println("Event Log Entries from "+fromDate+" ("+eventLogEntries.size()+"):");
 //            Iterator it = eventLogEntries.iterator();
@@ -232,11 +234,11 @@ public class SdcLoadProfile {
 //                System.out.println(ele);
 //            } // while(it.hasNext())
 //        }
-//        
+//
 //        return buildMeterEvents(eventLogEntries);
-//        
+//
 //    } // private List retrieveEventLog(Date fromDate) throws IOException
-    
+
     /*
      *  Find in eventlist if event already exist
      */
@@ -248,10 +250,10 @@ public class SdcLoadProfile {
 //            if (ele.getId() == ele2add.getId())
 //                add=false;
 //        } // while(it.hasNext())
-//        if (add) 
+//        if (add)
 //            eventLogEntries.add(ele2add);
 //    } // private void addEventLogEntry(List eventLogEntries,EventLogEntry ele2add)
-    
+
 //    private static final int EVENT_TYPE_POWERFAIL=1;
 //    private static final int EVENT_TYPE_FAULT_SITUATION=2;
 //    private static final int EVENT_TYPE_STATE_INPUT_CHANGE=3;
@@ -265,15 +267,15 @@ public class SdcLoadProfile {
 //    private static final int EVENT_TYPE_CORE_FAULT=20;
 //    private static final int EVENT_TYPE_MEASURE_FAULT=21;
 //    private static final int EVENT_TYPE_UNEXPECTED_BRANCH=32;
-    
+
 //    private List buildMeterEvents(List eventLogEntries) {
 //        List meterEvents = new ArrayList();
 //        Iterator it = eventLogEntries.iterator();
 //        while(it.hasNext()) {
 //            EventLogEntry ele = (EventLogEntry)it.next();
-//            
+//
 //            switch(ele.getType()) {
-//                
+//
 //                case EVENT_TYPE_POWERFAIL: {
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.POWERDOWN,ele.getType()));
 //                    Calendar calendar = ProtocolUtils.getCleanGMTCalendar();
@@ -284,7 +286,7 @@ public class SdcLoadProfile {
 //                    calendar.add(Calendar.SECOND,ele.getInfo4());
 //                    meterEvents.add(new MeterEvent(calendar.getTime(),MeterEvent.POWERUP,ele.getType()));
 //                } break; // case EVENT_TYPE_POWERFAIL:
-//                
+//
 //                case EVENT_TYPE_FAULT_SITUATION: {
 //                    String description=null;
 //                    int eiCode = MeterEvent.OTHER;
@@ -326,7 +328,7 @@ public class SdcLoadProfile {
 //                        case 16:
 //                            description="pulse output overflow or underflow has occurred";
 //                            break;
-//                            
+//
 //                        case 1:
 //                        case 2:
 //                        case 5:
@@ -336,26 +338,26 @@ public class SdcLoadProfile {
 //                            eiCode = MeterEvent.OTHER;
 //                            description = "reserved for future use (decription taken from Enermet V5.17 IEC1107 protocol document";
 //                            break;
-//                            
+//
 //                        default:
 //                            eiCode = MeterEvent.OTHER;
 //                            description = "unknown fault type code "+ele.getInfo1();
 //                            break;
 //                    } // switch(ele.getInfo1())
-//                    
+//
 //                    description += getAppearing(ele.getInfo2());
-//                    
+//
 //                    meterEvents.add(new MeterEvent(ele.getDate(),eiCode,ele.getType(),description));
-//                    
+//
 //                } break; // case EVENT_TYPE_FAULT_SITUATION:
-//                
+//
 //                case EVENT_TYPE_STATE_INPUT_CHANGE: {
 //                    String description = "state input "+ele.getInfo1()+" changed state to "+ele.getInfo2();
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.OTHER,ele.getType(),description));
 //                } break; // case EVENT_TYPE_STATE_INPUT_CHANGE:
-//                
+//
 //                case EVENT_TYPE_REPROGRAMMED: {
-//                    
+//
 //                    StringBuffer description=new StringBuffer();
 //                    description.append(getCommunicationchannelDescription(ele.getInfo1()));
 //                    switch(ele.getInfo2()) {
@@ -364,7 +366,7 @@ public class SdcLoadProfile {
 //                            break;
 //                        case 1:
 //                            description.append(", partial reprogramming");
-//                            
+//
 //                            switch(ele.getInfo3()) {
 //                                case 1:
 //                                    description.append(", partial programming starts");
@@ -391,22 +393,22 @@ public class SdcLoadProfile {
 //                                    description.append(", unknown partial programmed section code "+ele.getInfo3());
 //                                    break;
 //                            } // switch(ele.getInfo3())
-//                            
+//
 //                            break; // case 1:
-//                            
+//
 //                        default:
 //                            description.append(", unknown programming mode code "+ele.getInfo2());
 //                            break;
 //                    } // switch(ele.getInfo2())
-//                    
+//
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.CONFIGURATIONCHANGE,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_REPROGRAMMED:
-//                
+//
 //                case EVENT_TYPE_COMMSTART: {
 //                    StringBuffer description=new StringBuffer();
 //                    description.append(getCommunicationchannelDescription(ele.getInfo1()));
-//                    
+//
 //                    switch(ele.getInfo2()) {
 //                        case 0:
 //                            description.append(", successful connection was established");
@@ -415,7 +417,7 @@ public class SdcLoadProfile {
 //                            description.append(", unknown reason code "+ele.getInfo2());
 //                            break;
 //                    } // switch(ele.getInfo2())
-//                    
+//
 //                    switch(ele.getInfo3()) {
 //                        case 0:
 //                            description.append(", no rights, wrong password");
@@ -448,7 +450,7 @@ public class SdcLoadProfile {
 //                            description.append(", unknown access rights code "+ele.getInfo3());
 //                            break;
 //                    } // switch(ele.getInfo3())
-//                    
+//
 //                    switch(ele.getInfo4()) {
 //                        case 0:
 //                            description.append(", IEC1107");
@@ -463,15 +465,15 @@ public class SdcLoadProfile {
 //                            description.append(", unknown protocol code "+ele.getInfo4());
 //                            break;
 //                    } // switch(ele.getInfo4())
-//                    
+//
 //                    if (ALL_EVENTS)
 //                        meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.OTHER,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_COMMSTART:
-//                
+//
 //                case EVENT_TYPE_RTCSET: {
 //                    StringBuffer description=new StringBuffer();
-//                    
+//
 //                    switch(ele.getInfo1()) {
 //                        case 0:
 //                            description.append("time set command is given via push buttons");
@@ -488,7 +490,7 @@ public class SdcLoadProfile {
 //                            description.append(", unknown communicationchannel code "+ele.getInfo1());
 //                            break;
 //                    } // switch(ele.getInfo1())
-//                    
+//
 //                    switch(ele.getInfo2()) {
 //                        case 0:
 //                            description.append(", time adjustment command was received and performed. No additional information id available");
@@ -511,18 +513,18 @@ public class SdcLoadProfile {
 //                        case 6:
 //                            description.append(", master time set command was executed (the real time was moved backwards)");
 //                            break;
-//                            
+//
 //                        default:
 //                            description.append(", unknown type of time adjustment code "+ele.getInfo2());
 //                            break;
 //                    } // switch(ele.getInfo2())
-//                    
+//
 //                    description.append(", time difference "+ele.getInfo3()+" sec.");
-//                    
+//
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.SETCLOCK,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_RTCSET:
-//                
+//
 //                case EVENT_TYPE_DIALOUT_SESSION: {
 //                    StringBuffer description=new StringBuffer();
 //                    switch(ele.getInfo1()) {
@@ -534,7 +536,7 @@ public class SdcLoadProfile {
 //                            description.append("unknown communicationchannel code "+ele.getInfo1());
 //                            break;
 //                    } // switch(ele.getInfo1())
-//                    
+//
 //                    switch(ele.getInfo2()) {
 //                        case 1:
 //                            description.append(", time event was the reason for dialing");
@@ -549,7 +551,7 @@ public class SdcLoadProfile {
 //                            description.append(", unknown reason code "+ele.getInfo2());
 //                            break;
 //                    } // switch(ele.getInfo2())
-//                    
+//
 //                    switch(ele.getInfo3()) {
 //                        case 0:
 //                            description.append(", successfull connection was established");
@@ -561,20 +563,20 @@ public class SdcLoadProfile {
 //                            description.append(", unknown success code "+ele.getInfo3());
 //                            break;
 //                    } // switch(ele.getInfo3())
-//                    
+//
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.OTHER,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_DIALOUT_SESSION:
-//                
+//
 //                case EVENT_TYPE_STATE_OUTPUT_CHANGE: {
 //                    String description = "state output "+ele.getInfo1()+" changed state to "+ele.getInfo2();
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.OTHER,ele.getType(),description));
 //                } break; // case EVENT_TYPE_STATE_OUTPUT_CHANGE:
-//                
+//
 //                case EVENT_TYPE_COMMSTOP: {
 //                    StringBuffer description=new StringBuffer();
 //                    description.append(getCommunicationchannelDescription(ele.getInfo1()));
-//                    
+//
 //                    switch(ele.getInfo2()) {
 //                        case 0:
 //                            description.append(", normal logout (break command with IEC1107), normal logout in COSEM using DISC command");
@@ -586,7 +588,7 @@ public class SdcLoadProfile {
 //                            description.append(", unknown reason code "+ele.getInfo2());
 //                            break;
 //                    } // switch(ele.getInfo2())
-//                    
+//
 //                    switch(ele.getInfo3()) {
 //                        case 0:
 //                            break;
@@ -594,12 +596,12 @@ public class SdcLoadProfile {
 //                            description.append(", unknown info3 code "+ele.getInfo3());
 //                            break;
 //                    } // switch(ele.getInfo3())
-//                    
+//
 //                    if (ALL_EVENTS)
 //                        meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.OTHER,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_COMMSTOP:
-//                
+//
 //                case EVENT_TYPE_VERSION_NR_CHANGED: {
 //                    StringBuffer description=new StringBuffer();
 //                    switch(ele.getInfo1()) {
@@ -619,11 +621,11 @@ public class SdcLoadProfile {
 //                            description.append("unknown mode code "+ele.getInfo1());
 //                            break;
 //                    } // switch(ele.getInfo1())
-//                    
+//
 //                    description.append(", "+ele.getInfo2()+", "+ele.getInfo3());
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.CONFIGURATIONCHANGE,ele.getType(),description.toString()));
 //                } break; // case EVENT_TYPE_VERSION_NR_CHANGED:
-//                
+//
 //                case EVENT_TYPE_CORE_FAULT: {
 //                    StringBuffer description=new StringBuffer();
 //                    int eiCode = MeterEvent.OTHER;
@@ -648,18 +650,18 @@ public class SdcLoadProfile {
 //                            description.append("fault on core AD convertor");
 //                            eiCode = MeterEvent.HARDWARE_ERROR;
 //                            break;
-//                            
+//
 //                        default:
 //                            description.append("unknown fault type code "+ele.getInfo1());
 //                            break;
 //                    } // switch(ele.getInfo1())
-//                    
+//
 //                    description.append(getAppearing(ele.getInfo2()));
-//                    
+//
 //                    meterEvents.add(new MeterEvent(ele.getDate(),eiCode,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_CORE_FAULT:
-//                
+//
 //                case EVENT_TYPE_MEASURE_FAULT: {
 //                    StringBuffer description=new StringBuffer();
 //                    int eiCode = MeterEvent.METER_ALARM;
@@ -706,23 +708,23 @@ public class SdcLoadProfile {
 //                        case 14:
 //                            description.append("high current on L3");
 //                            break;
-//                            
+//
 //                        default:
 //                            description.append("unknown fault type code "+ele.getInfo1());
 //                            break;
-//                            
+//
 //                    } // switch(ele.getInfo1())
-//                    
+//
 //                    description.append(getAppearing(ele.getInfo2()));
-//                    
+//
 //                    meterEvents.add(new MeterEvent(ele.getDate(),eiCode,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_MEASURE_FAULT:
-//                
+//
 //                case EVENT_TYPE_UNEXPECTED_BRANCH: {
 //                    StringBuffer description=new StringBuffer();
 //                    int eiCode = MeterEvent.PROGRAM_FLOW_ERROR;
-//                    
+//
 //                    switch(ele.getInfo1()) {
 //                        case 1:
 //                            description.append("invalid parameter");
@@ -782,23 +784,23 @@ public class SdcLoadProfile {
 //                            description.append("unknown fault type code "+ele.getInfo1());
 //                            break;
 //                    } // switch(ele.getInfo1())
-//                    
+//
 //                    description.append(", "+ele.getInfo2());
-//                    
+//
 //                    meterEvents.add(new MeterEvent(ele.getDate(),eiCode,ele.getType(),description.toString()));
-//                    
+//
 //                } break; // case EVENT_TYPE_UNEXPECTED_BRANCH:
-//                
+//
 //                default: {
 //                    meterEvents.add(new MeterEvent(ele.getDate(),MeterEvent.OTHER,ele.getType()));
 //                } break;
-//                
+//
 //            } // switch(ele.getType())
-//            
+//
 //        } // while(it.hasNext())
-//        
+//
 //        return meterEvents;
-//        
+//
 //    } // private List buildMeterEvents(List eventLogEntries)
 
 //    private String getAppearing(int info) {
@@ -813,12 +815,12 @@ public class SdcLoadProfile {
 //            default:
 //               description = ", unknown info2 code "+info;
 //               break;
-//               
+//
 //        } // switch(info)
 //        return description;
-//        
+//
 //    } // private String getAppearing(int info)
-    
+
 //    private String getCommunicationchannelDescription(int info) {
 //        StringBuffer description = new StringBuffer();
 //        switch(info) {
@@ -840,9 +842,8 @@ public class SdcLoadProfile {
 //        } // switch(info)
 //        return description.toString();
 //    } // private String getCommunicationchannelDescription(int info)
-    
-    
-    
+
+
 } // public class SdcLoadProfile
 
 

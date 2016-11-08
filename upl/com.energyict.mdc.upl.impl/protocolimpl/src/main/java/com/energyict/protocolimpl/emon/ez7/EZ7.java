@@ -21,6 +21,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannel;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.SecurityLevelException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
@@ -33,6 +34,7 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  *
@@ -250,6 +252,16 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         connect();
         // disconnect(); // no disconnect because the meter will hangup the link... disconnect contains an EZ7 protocol command to the meter that hangup the link!
         return getEz7CommandFactory().getRGLInfo().getSerialNumber();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public ProtocolChannelMap getProtocolChannelMap() {
+        return super.getProtocolChannelMap();
     }
 
 }

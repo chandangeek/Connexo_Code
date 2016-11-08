@@ -11,24 +11,22 @@ public class IPListener extends ListenerImpl implements IPListen {
 
     private ServerSocketStreamConnection sssc = null;
 
-    /**
-     * Creates a new instance of IPListener
-     */
-    public IPListener() {
-    }
-
     public StreamConnection getAcceptedStreamConnection() {
         return sssc.getAcceptedSocketStreamConnection();
     }
 
     protected void doAccept(int timeout, int nrOfRings) throws NestedIOException, ListenerException {
-        if (getStreamConnection() == null) {
-            sssc = new ServerSocketStreamConnection(connectionString);
-            setStreamConnection(sssc);
-            getStreamConnection().setStreamObservers(inputStreamObserver, outputStreamObserver);
-            getStreamConnection().serverOpen();
+        try {
+            if (getStreamConnection() == null) {
+                sssc = new ServerSocketStreamConnection(connectionString);
+                setStreamConnection(sssc);
+                getStreamConnection().setStreamObservers(inputStreamObserver, outputStreamObserver);
+                getStreamConnection().serverOpen();
+            }
+            getStreamConnection().accept(timeout);
+        } catch (IOException e) {
+            throw new NestedIOException(e);
         }
-        getStreamConnection().accept(timeout);
     }
 
     protected void doConnect() throws IOException, ListenerException {

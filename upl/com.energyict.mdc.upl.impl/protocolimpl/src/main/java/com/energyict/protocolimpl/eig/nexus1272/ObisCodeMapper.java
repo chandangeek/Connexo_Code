@@ -23,9 +23,9 @@ import java.util.Date;
 
 public class ObisCodeMapper {
 
-	NexusCommandFactory nexusCommandFactory;
-	NexusProtocolConnection connection;
-	OutputStream outputStream;
+	private NexusCommandFactory nexusCommandFactory;
+	private NexusProtocolConnection connection;
+	private OutputStream outputStream;
 	private ScaledEnergySettingFactory sesf;
 	private BigDecimal multiplier = null;
 	private BigDecimal PTmultiplier = null;
@@ -44,7 +44,7 @@ public class ObisCodeMapper {
 		this.isDeltaWired=isDeltaWired;
 	}
 
-	static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+	public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
 		ObisCodeMapper ocm = new ObisCodeMapper(null,null, null, null, false);
 		return (RegisterInfo)ocm.doGetRegister(obisCode,false);
 	}
@@ -81,8 +81,9 @@ public class ObisCodeMapper {
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 2:
 						if (read) {
 							//196AH-196BH
@@ -98,8 +99,9 @@ public class ObisCodeMapper {
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 3:
 						if (read) {
 							//196EH-196FH
@@ -115,8 +117,9 @@ public class ObisCodeMapper {
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
 
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -138,8 +141,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 2:
 						if (read) {
 							//1114H-1115H
@@ -153,8 +157,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 3:
 						if (read) {
 							//1158H-1159H
@@ -168,8 +173,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -192,16 +198,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
+								if (numDecimals!=0) {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								}
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 1:
 						if (read) {
 							//1CCF-1CD0
@@ -225,8 +233,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 2:
 						if (read) {
 							//1CE3H-1CE4H
@@ -250,8 +259,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 3:
 						if (read) {
 							//1CF7H-1CF8H
@@ -267,16 +277,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
+								if (numDecimals!=0) {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								}
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -302,8 +314,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 2:
 						if (read) {
 							//196CH-196DH
@@ -317,8 +330,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 3:
 						if (read) {
 							//1970H-1971H
@@ -332,8 +346,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -352,8 +367,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 2:
 						if (read) {
 							//1116H-1117H
@@ -367,8 +383,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					case 3:
 						if (read) {
 							//115AH-115BH
@@ -382,8 +399,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("W"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
+						} else {
+							return new RegisterInfo(obisCode.toString());
 						}
-						else return new RegisterInfo(obisCode.getDescription());
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -404,16 +422,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
+								if (numDecimals!=0) {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								}
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 1:
 						if (read) {
 							//1CD9-1CDA
@@ -430,16 +450,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 2:
 						if (read) {
 							//1CED-1CEE
@@ -456,16 +478,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 3:
 						if (read) {
 							//1D01-1D02
@@ -482,16 +506,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -518,16 +544,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 1:
 						if (read) {
 							//1CD3-1CD4
@@ -550,8 +578,9 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
@@ -560,8 +589,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 2:
 						if (read) {
 							//1CE7-1CE8
@@ -586,8 +616,9 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
@@ -596,8 +627,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 3:
 						if (read) {
 							//1CFB-1CFC
@@ -622,8 +654,9 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
@@ -632,8 +665,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -660,16 +694,18 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
 							Quantity q = new Quantity(bd, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 1:
 						if (read) {
 							//1CE3-1CE4
@@ -694,8 +730,9 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
@@ -704,8 +741,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 2:
 						if (read) {
 							//1CF7-1CF8
@@ -730,8 +768,9 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
@@ -740,8 +779,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 3:
 						if (read) {
 							//1D0B-1D0C
@@ -766,8 +806,9 @@ public class ObisCodeMapper {
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
-								if (numDecimals!=0)
-									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								if (numDecimals!=0) {
+                                    divisor = new BigDecimal(Math.pow(10, numDecimals));
+                                }
 								unitEnergy=ses.getUnit();
 							}
 							bd = bd.divide(divisor, MathContext.DECIMAL128);
@@ -776,8 +817,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(val, unitEnergy);
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -800,8 +842,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -826,8 +869,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("A"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 124:
 						if (read) {
 							//0A00H
@@ -839,8 +883,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -870,8 +915,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("V"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 124:
 						if (read) {
 							//09FDH
@@ -883,8 +929,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -909,8 +956,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("A"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 124:
 						if (read) {
 							//0A01H
@@ -922,8 +970,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -953,8 +1002,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("V"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 124:
 						if (read) {
 							//09FEH
@@ -966,8 +1016,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -992,8 +1043,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("A"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 124:
 						if (read) {
 							//0A02H
@@ -1005,8 +1057,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -1036,8 +1089,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("V"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 124:
 						if (read) {
 							//09FFH
@@ -1049,8 +1103,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -1078,8 +1133,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 4:
 						if (read) {
 							//0a25H
@@ -1091,8 +1147,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 10:
 						if (read) {
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -1109,8 +1166,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 15:
 						if (read) {
 							//0a26H
@@ -1122,8 +1180,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 21:
 						if (read) {
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
@@ -1140,8 +1199,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 26:
 						if (read) {
 							//0a27H
@@ -1153,8 +1213,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.get("\u00B0"));
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -1178,8 +1239,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 50:
 						if (read) {
 							//0B91H-0B94H
@@ -1193,8 +1255,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 69:
 						if (read) {
 							//0B89H-0B8CH
@@ -1207,8 +1270,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity (bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 70:
 						if (read) {
 							//0B95H-0B98H
@@ -1221,8 +1285,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity (bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 89:
 						if (read) {
 							//0B8DH-0B90H
@@ -1235,8 +1300,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity (bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					case 90:
 						if (read) {
 							//0B99H-0B9CH
@@ -1249,8 +1315,9 @@ public class ObisCodeMapper {
 							Quantity q = new Quantity(bd, Unit.getUndefined());
 							registerValue = new RegisterValue(obisCode,q,new Date());
 							return registerValue;
-						}
-						else return new RegisterInfo(obisCode.getDescription());
+						} else {
+                            return new RegisterInfo(obisCode.toString());
+                        }
 					default:
 						throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 					}
@@ -1261,15 +1328,13 @@ public class ObisCodeMapper {
 			default:
 				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 			}
-
-
-
 		}
 
-		if ((read) && (registerValue != null))
-			return registerValue;
-		else
-			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		if ((read) && (registerValue != null)) {
+            return registerValue;
+        } else {
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+        }
 	}
 
 	private BigDecimal applyPTCTRatio(BigDecimal bd) throws IOException {
@@ -1288,7 +1353,7 @@ public class ObisCodeMapper {
 			multiplier = new BigDecimal(ctNum).divide(new BigDecimal(ctDen), MathContext.DECIMAL128).multiply(new BigDecimal(ptNum).divide(new BigDecimal(ptDen), MathContext.DECIMAL128));
 		}
 
-		return bd.multiply((multiplier));
+		return bd.multiply(multiplier);
 	}
 
 	private BigDecimal applyPTRatio(BigDecimal bd) throws IOException {
@@ -1308,7 +1373,7 @@ public class ObisCodeMapper {
 			PTmultiplier = new BigDecimal(ptNum).divide(new BigDecimal(ptDen), MathContext.DECIMAL128);
 		}
 
-		return bd.multiply((PTmultiplier));
+		return bd.multiply(PTmultiplier);
 	}
 
 	private BigDecimal applyCTRatio(BigDecimal bd) throws IOException {
@@ -1324,7 +1389,7 @@ public class ObisCodeMapper {
 			CTmultiplier = new BigDecimal(ctNum).divide(new BigDecimal(ctDen), MathContext.DECIMAL128);
 		}
 
-		return bd.multiply((CTmultiplier));
+		return bd.multiply(CTmultiplier);
 	}
 
 }

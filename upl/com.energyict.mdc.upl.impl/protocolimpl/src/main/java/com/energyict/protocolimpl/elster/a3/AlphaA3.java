@@ -39,6 +39,7 @@ import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
@@ -55,6 +56,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
@@ -478,6 +480,21 @@ if (skip<=29) { skip+=2;builder.append("----------------------------------------
 
     public void setRetrieveExtraIntervals(int retrieveExtraIntervals) {
         this.retrieveExtraIntervals = retrieveExtraIntervals;
+    }
+
+    @Override
+    public ProtocolChannelMap getProtocolChannelMap() {
+        return super.getProtocolChannelMap();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public int getInfoTypeRoundtripCorrection() {
+        return super.getInfoTypeRoundtripCorrection();
     }
 
 }

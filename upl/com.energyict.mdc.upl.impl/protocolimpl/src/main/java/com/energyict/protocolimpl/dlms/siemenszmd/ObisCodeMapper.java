@@ -42,8 +42,8 @@ public class ObisCodeMapper {
         this.protocol = protocol;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
@@ -52,8 +52,8 @@ public class ObisCodeMapper {
 
     private Object doGetRegister(ObisCode obisCode) throws IOException {
 
-        RegisterValue registerValue = null;
-        int billingPoint = -1;
+        RegisterValue registerValue;
+        int billingPoint;
 
         // obis F code
         if ((obisCode.getF() >= 0) && (obisCode.getF() <= 99)) {
@@ -68,11 +68,11 @@ public class ObisCodeMapper {
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
+        if ((obisCode.toString().contains("1.0.0.1.0.255")) || (obisCode.toString().contains("1.1.0.1.0.255"))) { // billing counter
             registerValue = new RegisterValue(obisCode, cof.getCosemObject(ObisCode.fromString("1.0.0.1.0.255")).getQuantityValue());
             return registerValue;
         } // billing counter
-        else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+        else if ((obisCode.toString().contains("1.0.0.1.2.")) || (obisCode.toString().contains("1.1.0.1.2."))) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 registerValue = new RegisterValue(obisCode,
                         cof.getStoredValues().getBillingPointTimeDate(billingPoint));
@@ -133,5 +133,6 @@ public class ObisCodeMapper {
 
         return registerValue;
 
-    } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
+    }
+
 }

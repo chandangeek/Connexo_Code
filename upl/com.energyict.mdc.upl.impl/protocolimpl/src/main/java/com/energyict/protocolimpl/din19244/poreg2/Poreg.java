@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -159,6 +160,11 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
     }
 
 }

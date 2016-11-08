@@ -12,8 +12,6 @@ package com.energyict.protocolimpl.modbus.core;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
@@ -53,6 +51,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *
@@ -73,8 +72,6 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
 
     protected abstract void doTheConnect() throws IOException;
     protected abstract void doTheDisConnect() throws IOException;
-    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    protected abstract List doTheGetOptionalKeys();
     protected abstract void initRegisterFactory();
 
     protected ModbusConnection modbusConnection;
@@ -167,7 +164,6 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
         meterFirmwareVersion = properties.getProperty(PK_METER_FIRMWARE_VERSION, "");
         connection = Integer.parseInt(properties.getProperty("Connection", "0").trim());
         nodeAddress = Integer.parseInt(properties.getProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
-        doTheValidateProperties(properties);
     }
 
     @Override
@@ -546,5 +542,10 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
    public String writeValue(MessageValue value) {
        return value.getValue();
    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
 
 }

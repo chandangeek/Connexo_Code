@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 
@@ -203,6 +204,11 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
     @Override
     public String writeValue(MessageValue value) {
         return this.messageProtocol.writeValue(value);
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
     }
 
 }

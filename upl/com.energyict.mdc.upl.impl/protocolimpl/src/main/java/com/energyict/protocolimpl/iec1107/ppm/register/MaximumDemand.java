@@ -1,16 +1,16 @@
 package com.energyict.protocolimpl.iec1107.ppm.register;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /* @author fbo */
 
@@ -53,13 +53,13 @@ public class MaximumDemand {
 	}
 
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 		SimpleDateFormat df = new SimpleDateFormat();
-		sb.append("1) " + this.quantity[0] + " " + df.format(this.date[0]) + "\n");
-		sb.append("2) " + this.quantity[1] + " " + df.format(this.date[1]) + "\n");
-		sb.append("3) " + this.quantity[2] + " " + df.format(this.date[2]) + "\n");
+		builder.append("1) ").append(this.quantity[0]).append(" ").append(df.format(this.date[0])).append("\n");
+		builder.append("2) ").append(this.quantity[1]).append(" ").append(df.format(this.date[1])).append("\n");
+		builder.append("3) ").append(this.quantity[2]).append(" ").append(df.format(this.date[2])).append("\n");
 
-		return sb.toString();
+		return builder.toString();
 	}
 
 }

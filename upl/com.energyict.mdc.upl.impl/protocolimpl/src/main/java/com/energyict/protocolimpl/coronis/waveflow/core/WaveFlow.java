@@ -8,14 +8,9 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUp;
 import com.energyict.protocol.EventMapper;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -41,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
@@ -155,36 +151,6 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     protected abstract WaveFlowMessageParser getWaveFlowMessages();
-
-    @Override
-    public void applyMessages(List messageEntries) throws IOException {
-        getWaveFlowMessages().applyMessages(messageEntries);
-    }
-
-    @Override
-    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        return getWaveFlowMessages().queryMessage(messageEntry);
-    }
-
-    @Override
-    public List getMessageCategories() {
-        return getWaveFlowMessages().getMessageCategories();
-    }
-
-    @Override
-    public String writeMessage(Message msg) {
-        return getWaveFlowMessages().writeMessage(msg);
-    }
-
-    @Override
-    public String writeTag(MessageTag tag) {
-        return getWaveFlowMessages().writeTag(tag);
-    }
-
-    @Override
-    public String writeValue(MessageValue value) {
-        return getWaveFlowMessages().writeValue(value);
-    }
 
     public ParameterFactory getParameterFactory() {
         if (parameterFactory == null) {
@@ -502,6 +468,16 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     public int getDeviceType() {
         return deviceType;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public int getInfoTypeProtocolRetriesProperty() {
+        return super.getInfoTypeProtocolRetriesProperty();
     }
 
 }

@@ -1,13 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.base.AbstractContactorController;
+
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.base.AbstractContactorController;
-import com.energyict.protocolimplv2.MdcManager;
-
-public class ABBA230ContactorController extends AbstractContactorController {
+class ABBA230ContactorController extends AbstractContactorController {
 
 	private static final int	CONTACTOR_STATE_CONNECTED		= 0x00;
 	private static final int	CONTACTOR_STATE_DISCONNECTED	= 0x01;
@@ -15,11 +14,7 @@ public class ABBA230ContactorController extends AbstractContactorController {
 	private static final long	CONTACTOR_DELAY					= 2000;
 	private static final int	CONTACTOR_RETRIES				= 5;
 
-	/*
-	 * Constructors
-	 */
-
-	public ABBA230ContactorController(ABBA230 protocol) {
+	ABBA230ContactorController(ABBA230 protocol) {
 		super(protocol);
 	}
 
@@ -30,10 +25,6 @@ public class ABBA230ContactorController extends AbstractContactorController {
 	private ABBA230RegisterFactory getRegisterFactory() {
 		return ((ABBA230) getProtocol()).getRegisterFactory();
 	}
-
-	/*
-	 * Private getters, setters and methods
-	 */
 
 	private int armContactor() throws IOException {
 		int contactorState = readContactorState();
@@ -84,10 +75,7 @@ public class ABBA230ContactorController extends AbstractContactorController {
 		return (int) (val & 0x00000003);
 	}
 
-	/*
-	 * Public methods
-	 */
-
+	@Override
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");
 
@@ -115,6 +103,7 @@ public class ABBA230ContactorController extends AbstractContactorController {
 
 	}
 
+	@Override
 	public void doDisconnect() throws IOException {
 		getLogger().info("************************* DISCONNECT CONTACTOR *************************");
 		int state = disconnectContactor();
@@ -133,6 +122,7 @@ public class ABBA230ContactorController extends AbstractContactorController {
 		}
 	}
 
+	@Override
 	public void doArm() throws IOException {
 		getLogger().info("***************************** ARM CONTACTOR ****************************");
 		if (armContactor() == CONTACTOR_STATE_CONNECTED) {

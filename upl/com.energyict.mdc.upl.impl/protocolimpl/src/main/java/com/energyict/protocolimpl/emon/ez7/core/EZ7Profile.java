@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.emon.ez7.EZ7;
 
@@ -24,43 +24,40 @@ import java.util.List;
 public class EZ7Profile {
 
     private static final int NR_OF_CHANNELS=8;
-    EZ7 ez7=null;
+    private EZ7 ez7 = null;
 
-    /** Creates a new instance of EZ7Profile */
     public EZ7Profile(EZ7 ez7) {
         this.ez7=ez7;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
-        List intervalDatas=new ArrayList();
+        List<IntervalData> intervalDatas = new ArrayList<>();
 
         int dayBlockNr=0;
         for (int i=0;i<ez7.getEz7CommandFactory().getProfileStatus().getNrOfDayBlocks();i++) {
             if (ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(i)!= null) {
                 dayBlockNr=i;
                 if (from.before(ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(i))) {
-                    if (dayBlockNr > 0)
+                    if (dayBlockNr > 0) {
                         dayBlockNr--;
+                    }
                     break;
                 }
             }
         }
 
-        //if ((dayBlockNr > 0) && (dayBlockNr != (ez7.getEz7CommandFactory().getProfileStatus().getCurrentDayBlock()-1)))
-        //   dayBlockNr--;
-
         for (int i=dayBlockNr;i<ez7.getEz7CommandFactory().getProfileStatus().getCurrentDayBlock();i++) {
-            if (ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(dayBlockNr)!= null)
-               intervalDatas.addAll(ez7.getEz7CommandFactory().getProfileDataCompressed(i).getIntervalDatas());
-
+            if (ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(dayBlockNr)!= null) {
+                intervalDatas.addAll(ez7.getEz7CommandFactory().getProfileDataCompressed(i).getIntervalDatas());
+            }
         }
         profileData.setIntervalDatas(intervalDatas);
 
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
            if (ez7.getEz7CommandFactory().getHookUp().isChannelEnabled(channel)) {
               // see EZ7 protocoldescription page 1-28
-              ChannelInfo chi=null;
+              ChannelInfo chi;
               if (ez7.getProtocolChannelMap() == null) {
                   chi = ez7.getEz7CommandFactory().getMeterInformation().getChannelInfo(channel,true);
               }
@@ -74,12 +71,11 @@ public class EZ7Profile {
                   }
               }
               profileData.addChannel(chi);
-
-           } // if (ez7.getEz7CommandFactory().getHookUp().isChannelEnabled(channel))
+           }
         }
 
         if (includeEvents) {
-            List meterEvents = new ArrayList();
+            List<MeterEvent> meterEvents = new ArrayList<>();
             meterEvents.addAll(ez7.getEz7CommandFactory().getEventGeneral().toMeterEvents());
             meterEvents.addAll(ez7.getEz7CommandFactory().getFlagsStatus().toMeterEvents(from, to == null ? new Date() : to));
             profileData.setMeterEvents(meterEvents);
@@ -89,4 +85,5 @@ public class EZ7Profile {
         profileData.sort();
         return profileData;
     }
+
 }

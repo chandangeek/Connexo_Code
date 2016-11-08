@@ -40,25 +40,21 @@ import java.util.Date;
  */
 public class ObisCodeMapper {
 
-    static ObisCode billingProfileObiscodeMonthly = ObisCode.fromString("1.0.98.1.0.255");
-    static ObisCode billingProfileObiscodeDaily = ObisCode.fromString("1.0.98.2.0.255");
+    private static final ObisCode billingProfileObiscodeMonthly = ObisCode.fromString("1.0.98.1.0.255");
+    private static final ObisCode billingProfileObiscodeDaily = ObisCode.fromString("1.0.98.2.0.255");
 
-    IskraME37X meterProtocol;
-    CosemObjectFactory cof;
-    StoredValuesImpl[] storedValues;
+    private final IskraME37X meterProtocol;
+    private final CosemObjectFactory cof;
+    private final StoredValuesImpl[] storedValues;
 
-
-    /**
-     * Creates a new instance of ObisCodeMapper
-     */
     public ObisCodeMapper(IskraME37X meterProtocol) throws IOException {
         this.meterProtocol = meterProtocol;
         this.cof = meterProtocol.getCosemObjectFactory();
         storedValues = new StoredValuesImpl[]{new StoredValuesImpl(cof, billingProfileObiscodeMonthly), new StoredValuesImpl(cof, billingProfileObiscodeDaily)};
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
@@ -76,7 +72,7 @@ public class ObisCodeMapper {
                 int billingPoint = absBillingPoint > 11 ? absBillingPoint - 12 : absBillingPoint;
 
                 try {
-                    if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+                    if ((obisCode.toString().contains("1.0.0.1.2.")) || (obisCode.toString().contains("1.1.0.1.2."))) { // billing point timestamp
                         Date billingPointTimeDate = getStoredValues(obisCode).getBillingPointTimeDate(billingPoint);
                         registerValue = new RegisterValue(obisCode, billingPointTimeDate);
                         return registerValue;
@@ -94,7 +90,7 @@ public class ObisCodeMapper {
 
             // *********************************************************************************
             // General purpose ObisRegisters & abstract general service
-            if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) { // billing counter
+            if ((obisCode.toString().contains("1.1.0.1.0.255")) || (obisCode.toString().contains("1.0.0.1.0.255"))) { // billing counter
                 Data data = cof.getData(new ObisCode(1, 0, 0, 1, 0, 255));
                 Unsigned16 counter = (Unsigned16) data.getValueAttr();
                 registerValue = new RegisterValue(obisCode, new Quantity(counter.toBigDecimal(), Unit.getUndefined()));
@@ -102,13 +98,13 @@ public class ObisCodeMapper {
             } // billing counter
 
             // *********************************************************************************
-            if (obisCode.toString().indexOf("1.0.0.1.1.255") != -1) { // nr of available monthly billing periods
+            if (obisCode.toString().contains("1.0.0.1.1.255")) { // nr of available monthly billing periods
                 int counter = storedValues[0].getBillingPointCounter();
                 registerValue = new RegisterValue(obisCode, new Quantity(counter, Unit.getUndefined()));
                 return registerValue;
             } // billing counter
 
-            if (obisCode.toString().indexOf("1.1.0.1.1.255") != -1) { // nr of available daily billing periods
+            if (obisCode.toString().contains("1.1.0.1.1.255")) { // nr of available daily billing periods
                 int counter = storedValues[1].getBillingPointCounter();
                 registerValue = new RegisterValue(obisCode, new Quantity(counter, Unit.getUndefined()));
                 return registerValue;
@@ -214,11 +210,7 @@ public class ObisCodeMapper {
      */
     private boolean isValidCaptureTime(Date captureTime) {
         Calendar cleanCalendar = ProtocolUtils.getCleanCalendar(meterProtocol.getTimeZone());   // Thu Jan 01 00:00:00 1970, device time zone
-        if (captureTime.after(cleanCalendar.getTime())) {
-            return true;
-        } else {
-            return false;
-        }
+        return captureTime.after(cleanCalendar.getTime());
     }
 
     private StoredValuesImpl getStoredValues(ObisCode obisCode) {
@@ -228,5 +220,6 @@ public class ObisCodeMapper {
             return storedValues[1];
         }
     }
-} // public class ObisCodeMapper
+
+}
 

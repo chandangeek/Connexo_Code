@@ -2,11 +2,21 @@ package com.energyict.protocolimpl.din19244.poreg2.factory;
 
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
-import com.energyict.protocolimpl.din19244.poreg2.request.*;
-import com.energyict.protocolimpl.din19244.poreg2.request.register.*;
+import com.energyict.protocolimpl.din19244.poreg2.request.AlarmParameters;
+import com.energyict.protocolimpl.din19244.poreg2.request.Firmware;
+import com.energyict.protocolimpl.din19244.poreg2.request.ProfileData;
+import com.energyict.protocolimpl.din19244.poreg2.request.ProfileDataEntry;
+import com.energyict.protocolimpl.din19244.poreg2.request.SetTime;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.AlarmLinks;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.BillingParameters;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileDescription;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Factory able to execute general requests, like reading the firmware version or setting the clock.
@@ -17,32 +27,32 @@ import java.util.*;
  */
 public class RequestFactory {
 
-    Poreg poreg;
+    private Poreg poreg;
 
     public RequestFactory(Poreg poreg) {
         this.poreg = poreg;
     }
 
     //Add a new time alarm to the table. This one is used for to terminate the billing period.
-    public void writeNewTimeAlarm(int alarmTimeIndex) throws IOException {
+    private void writeNewTimeAlarm(int alarmTimeIndex) throws IOException {
         AlarmParameters alarmParam = new AlarmParameters(poreg, alarmTimeIndex, 0, 1, 9);    //Only update the fields in row [alarmTimeIndex]
         alarmParam.setDate(new Date());
         alarmParam.write();
     }
 
-    public void writeAlarmLink(int alarmTimeIndex) throws IOException {
+    private void writeAlarmLink(int alarmTimeIndex) throws IOException {
         AlarmLinks link = new AlarmLinks(poreg, 0, 3 + alarmTimeIndex, 1, 1);
         link.setWriteValue(alarmTimeIndex);
         link.write();
     }
 
-    public void initializeAlarmLink() throws IOException {
+    private void initializeAlarmLink() throws IOException {
         AlarmLinks link = new AlarmLinks(poreg, 0, 0, 1, 1);
         link.setWriteValue(3);
         link.write();
     }
 
-    public void setBillingAlarmIndex(int value) throws IOException {
+    private void setBillingAlarmIndex(int value) throws IOException {
         int numberOfBillingConfigs = poreg.getRegisterFactory().readBillingConfiguration().size();
         BillingParameters billingParameters = new BillingParameters(poreg, 0, 4, numberOfBillingConfigs, 1); //Only write the value to the fields in the 4th column
         billingParameters.setWriteValue(value);
@@ -60,7 +70,7 @@ public class RequestFactory {
      * This means, a new LP data request is sent, with a new from date, being the timestamp of the most recently received LP entry.
      */
     public List<ProfileDataEntry> readProfileData(int length, ProfileDescription description, int registerAddress, int fieldAddress, Date lastReading, Date toDate) throws IOException {
-        List<ProfileDataEntry> profileDataEntries = new ArrayList<ProfileDataEntry>();
+        List<ProfileDataEntry> profileDataEntries = new ArrayList<>();
 
         ProfileData profileData;
         boolean isCorruptResponse = true;
@@ -72,7 +82,7 @@ public class RequestFactory {
             profileDataEntries.addAll(profileData.getProfileDataEntries());
             isCorruptResponse = profileData.isCorruptFrame();
             Date newLastReading = updateLastReading(profileDataEntries, lastReading);
-            if (profileDataEntries.size() == 0 && newLastReading.equals(lastReading) && !firstBlockFirstAttempt && count == 0) {
+            if (profileDataEntries.isEmpty() && newLastReading.equals(lastReading) && !firstBlockFirstAttempt && count == 0) {
                 firstBlockFirstAttempt = true;       //Necessary to indicate this because a failed first block always has the same newLastReading as the original request
             } else {
                 firstBlockFirstAttempt = false;
@@ -101,7 +111,7 @@ public class RequestFactory {
     }
 
     private Date updateLastReading(List<ProfileDataEntry> profileDataEntries, Date lastReading) {
-        if (profileDataEntries == null || profileDataEntries.size() == 0) {
+        if (profileDataEntries == null || profileDataEntries.isEmpty()) {
             return lastReading;
         }
         int lastEntryIndex = profileDataEntries.size() - 1;

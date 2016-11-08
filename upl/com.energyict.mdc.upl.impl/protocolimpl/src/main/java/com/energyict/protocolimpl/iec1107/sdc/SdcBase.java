@@ -18,6 +18,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
@@ -51,7 +52,6 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     private ObisCodeMapper ocm = null;
 	private int extendedLogging;
 	private boolean software7E1;
-
 
     protected abstract RegisterConfig getRegs();
 
@@ -183,7 +183,7 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	if (ocm == null) {
-            ocm = new ObisCodeMapper(getDataReadingCommandFactory(), getTimeZone(), getRegs());
+            ocm = new ObisCodeMapper(getDataReadingCommandFactory(), getRegs());
         }
         return ocm.getRegisterValue(obisCode);
     }
@@ -201,6 +201,11 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
+    }
+
+    @Override
+    public ProtocolChannelMap getProtocolChannelMap() {
+        return super.getProtocolChannelMap();
     }
 
 }

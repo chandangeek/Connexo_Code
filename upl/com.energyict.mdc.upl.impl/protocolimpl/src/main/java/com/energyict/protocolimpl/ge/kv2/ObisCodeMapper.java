@@ -21,40 +21,39 @@ import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
 import java.io.IOException;
 
 /**
- *
  * @author Koen
  */
 public class ObisCodeMapper {
 
-    GEKV2 gekv2;
+    private final GEKV2 gekv2;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(GEKV2 gekv2) {
-        this.gekv2=gekv2;
+        this.gekv2 = gekv2;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        return (RegisterValue)doGetRegister(obisCode, true);
+        return (RegisterValue) doGetRegister(obisCode, true);
     }
 
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         if (read) {
             try {
-               return gekv2.getObisCodeInfoFactory().getRegister(obisCode);
+                return gekv2.getObisCodeInfoFactory().getRegister(obisCode);
+            } catch (ResponseIOException e) {
+                // table does not exist!
+                if (e.getReason() == AbstractResponse.IAR) {
+                    throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported! (" + e.toString() + ")");
+                } else {
+                    throw e;
+                }
             }
-            catch(ResponseIOException e) {
-                if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-                   throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! ("+e.toString()+")");
-                else
-                   throw e;
-            }
-        }
-        else {
+        } else {
             return gekv2.getObisCodeInfoFactory().getRegisterInfo(obisCode);
         }
     }
+
 }

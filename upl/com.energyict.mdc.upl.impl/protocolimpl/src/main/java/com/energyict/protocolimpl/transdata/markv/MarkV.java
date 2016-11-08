@@ -236,4 +236,9 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         return Math.abs(src.getTime() - dst.getTime()) <= verifyTimeDelay;
     }
 
+    @Override
+    public int getInfoTypeRoundtripCorrection() {
+        return super.getInfoTypeRoundtripCorrection();
+    }
+
 }

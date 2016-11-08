@@ -8,9 +8,7 @@ import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.User;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.messaging.AbstractMessageBuilder;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -127,7 +125,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             throw new BusinessException("needLoadProfile", "LoadProfile needed.");
         } else if (this.startReadingTime == null) {
             throw new BusinessException("emptyStartTime", "StartTime can not be empty.");
-        } else if (this.meterSerialNumber.equalsIgnoreCase("")) {
+        } else if ("".equalsIgnoreCase(this.meterSerialNumber)) {
             throw new BusinessException("noDeviceSerialNumber", "Device Serial Number must be filled in.");
         }
 
@@ -147,7 +145,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         addAttribute(builder, StartReadingTimeTag, this.formatter.format(this.startReadingTime));
         addAttribute(builder, LoadProfileIdTag, this.loadProfileId);
         builder.append(">");
-        if (this.registers.size() > 0) {
+        if (!this.registers.isEmpty()) {
             builder.append("<");
             builder.append(RtuRegistersTag);
             builder.append(">");
@@ -209,15 +207,15 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         formatter = new SimpleDateFormat(user.getDateFormat() + " " + user.getLongTimeFormat());
         formatter.setTimeZone(MeteringWarehouse.getCurrent().getSystemTimeZone());
 
-        StringBuffer buf = new StringBuffer(MESSAGETAG);
-        buf.append(" ");
-        buf.append("LoadProfileObisCode = '").append(profileObisCode).append("', ");
-        buf.append("MeterSerialNumber = '").append(meterSerialNumber).append("', ");
+        StringBuilder builder = new StringBuilder(MESSAGETAG);
+        builder.append(" ");
+        builder.append("LoadProfileObisCode = '").append(profileObisCode).append("', ");
+        builder.append("MeterSerialNumber = '").append(meterSerialNumber).append("', ");
         if (startReadingTime != null) {
-            buf.append("StartReadingTime = '").append(formatter.format(startReadingTime)).append("', ");
+            builder.append("StartReadingTime = '").append(formatter.format(startReadingTime)).append("', ");
         }
-        buf.append("LoadProfileId = '").append(loadProfileId).append("', ");
-        return buf.toString();
+        builder.append("LoadProfileId = '").append(loadProfileId).append("', ");
+        return builder.toString();
     }
 
     public LoadProfile getLoadProfile() {
@@ -262,7 +260,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      * @return the new Register List
      */
     private List<com.energyict.protocol.Register> createRegisterList(final LoadProfile loadProfile) {
-        List<com.energyict.protocol.Register> registers = new ArrayList<com.energyict.protocol.Register>();
+        List<com.energyict.protocol.Register> registers = new ArrayList<>();
         for (Channel channel : loadProfile.getAllChannels()) {
             registers.add(new com.energyict.protocol.Register(-1, channel.getDeviceRegisterMapping().getObisCode(), channel.getDevice().getSerialNumber()));
         }
@@ -270,7 +268,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     public LoadProfileReader getLoadProfileReader() {
-        return new LoadProfileReader(this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, meterSerialNumber, Collections.<ChannelInfo>emptyList());
+        return new LoadProfileReader(this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, meterSerialNumber, Collections.emptyList());
     }
 
 
@@ -299,7 +297,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
 
         private final LegacyLoadProfileRegisterMessageBuilder messageBuilder;
 
-        public LoadProfileRegisterMessageHandler(final LegacyLoadProfileRegisterMessageBuilder legacyLoadProfileRegisterMessageBuilder, final String messageNodeTag) {
+        LoadProfileRegisterMessageHandler(final LegacyLoadProfileRegisterMessageBuilder legacyLoadProfileRegisterMessageBuilder, final String messageNodeTag) {
             super(messageNodeTag);
             this.messageBuilder = legacyLoadProfileRegisterMessageBuilder;
         }
@@ -334,7 +332,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
                         this.messageBuilder.setLoadProfileId(Integer.valueOf(atts.getValue(namespaceURI, LoadProfileIdTag)));
                     }
                 } else if (RtuRegistersTag.equals(localName)) {
-                    registers = new ArrayList<com.energyict.protocol.Register>();
+                    registers = new ArrayList<>();
                 } else if (RegisterTag.equals(localName)) {
                     registers.add(new com.energyict.protocol.Register(-1, ObisCode.fromString(atts.getValue(namespaceURI, RegisterObiscodeTag)), atts.getValue(namespaceURI, RtuRegisterSerialNumber)));
                 }

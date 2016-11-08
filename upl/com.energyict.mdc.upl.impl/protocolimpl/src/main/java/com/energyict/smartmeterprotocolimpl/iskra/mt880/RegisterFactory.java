@@ -46,8 +46,8 @@ public class RegisterFactory implements BulkRegisterProtocol {
     private static final ObisCode BILLING_PROFILE_OBIS = ObisCode.fromString("0.0.98.1.0.255");
 
     private IskraMT880 protocol;
-    private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<Register, ComposedRegister>();
-    private Map<Register, ComposedData> composedDataMap = new HashMap<Register, ComposedData>();
+    private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<>();
+    private Map<Register, ComposedData> composedDataMap = new HashMap<>();
     private DLMSStoredValues storedValues;
 
     public RegisterFactory(final IskraMT880 protocol) {
@@ -55,12 +55,12 @@ public class RegisterFactory implements BulkRegisterProtocol {
     }
 
     public RegisterInfo translateRegister(Register register) throws IOException {
-        return new RegisterInfo(register.getObisCode().getDescription());
+        return new RegisterInfo(register.getObisCode().toString());
     }
 
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         List<Register> toRead;
-        List<RegisterValue> result = new ArrayList<RegisterValue>();
+        List<RegisterValue> result = new ArrayList<>();
 
         // Read out all billing registers
         result.addAll(doReadBillingRegisters(getBillingRegisters(registers)));
@@ -79,7 +79,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
     }
 
     private List<RegisterValue> doReadBillingRegisters(List<Register> registers) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
 
         for (Register register : registers) {
             DLMSStoredValues storedValues = getStoredValues();
@@ -96,7 +96,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
     }
 
     private List<RegisterValue> doReadRegisters(List<Register> registers) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(registers, protocol.supportsBulkRequests());
         for (Register register : registers) {
             RegisterValue rv = null;
@@ -156,7 +156,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
      */
     protected ComposedCosemObject constructComposedObjectFromRegisterList(final List<Register> registers, final boolean supportsBulkRequest) {
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (Register register : registers) {
                 ObisCode rObisCode = register.getObisCode();
 
@@ -204,7 +204,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
     }
 
     private List<Register> getBillingRegisters(List<Register> registers) {
-        List<Register> billingRegisters = new ArrayList<Register>(registers.size());
+        List<Register> billingRegisters = new ArrayList<>(registers.size());
         for (Register register : registers) {
             if (register.getObisCode().getF() != 255) {
                 billingRegisters.add(register);
@@ -215,7 +215,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
     }
 
     private List<Register> getNonBillingRegisters(List<Register> registers) {
-        List<Register> nonBillingRegisters = new ArrayList<Register>(registers.size());
+        List<Register> nonBillingRegisters = new ArrayList<>(registers.size());
         for (Register register : registers) {
             if (register.getObisCode().getF() == 255) {
                 nonBillingRegisters.add(register);
@@ -225,7 +225,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
         return nonBillingRegisters;
     }
 
-    private DLMSStoredValues getStoredValues() throws IOException {
+    private DLMSStoredValues getStoredValues() {
         if (storedValues == null) {
             storedValues = new DLMSStoredValues(protocol.getDlmsSession().getCosemObjectFactory(), BILLING_PROFILE_OBIS);
         }

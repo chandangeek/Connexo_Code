@@ -345,7 +345,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return serialNumber;
     }
 
-    private static final Map<String, String> EXCEPTION = new HashMap<>();
+    static final Map<String, String> EXCEPTION = new HashMap<>();
 
     static {
         EXCEPTION.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");

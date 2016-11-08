@@ -18,7 +18,6 @@ import com.energyict.cbo.Unit;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -27,29 +26,27 @@ import java.util.List;
  */
 public class ValueInformationfieldCoding {
 
-    static public final int TYPE_UNIT=0;
-    static public final int TYPE_A=1;
-    static public final int TYPE_B=2;
-    static public final int TYPE_C=3;
-    static public final int TYPE_D=4;
-    static public final int TYPE_E=5;
-    static public final int TYPE_F=6;
-    static public final int TYPE_G=7;
-    static public final int TYPE_H=8;
-    static public final int TYPE_I=9;
-    static public final int TYPE_J=10;
-    static public final int TYPE_K=11;
-    static public final int TYPE_L=12;
-    static public final int TYPE_DURATION=13;
+    private static final int TYPE_UNIT=0;
+    static final int TYPE_A=1;
+    static final int TYPE_B=2;
+    static final int TYPE_C=3;
+    static final int TYPE_D=4;
+    static final int TYPE_E=5;
+    static final int TYPE_F=6;
+    static final int TYPE_G=7;
+    static final int TYPE_H=8;
+    static final int TYPE_I=9;
+    static final int TYPE_J=10;
+    static final int TYPE_K=11;
+    static final int TYPE_L=12;
+    static final int TYPE_DURATION=13;
 
-    static List primaryVIFs = new ArrayList();
-    static List fdVIFEs = new ArrayList();
-    static List fbVIFEs = new ArrayList();
-    static List manufacturerVIFEs = new ArrayList();
-    static List combinableVIFEs = new ArrayList();
+    private static final List<ValueInformationfieldCoding> primaryVIFs = new ArrayList<>();
+    private static final List<ValueInformationfieldCoding> fdVIFEs = new ArrayList<>();
+    private static final List<ValueInformationfieldCoding> fbVIFEs = new ArrayList<>();
+    private static final List<ValueInformationfieldCoding> manufacturerVIFEs = new ArrayList<>();
+    private static final List<ValueInformationfieldCoding> combinableVIFEs = new ArrayList<>();
     static {
-
-
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x00,0x78,-3,Unit.get(BaseUnit.WATTHOUR),TYPE_UNIT,"Energy",new ObisCodeCreator().setB(1).setC(1).setD(8).setE(0).setF(255)));
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x08,0x78,0,Unit.get(BaseUnit.JOULE),TYPE_UNIT,"Energy",new ObisCodeCreator().setB(1).setC(1).setD(8).setE(0).setF(255)));
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x10,0x78,-6,Unit.get(BaseUnit.CUBICMETER),TYPE_UNIT,"Volume",new ObisCodeCreator().setB(1).setC(1).setD(8).setE(0).setF(255)));
@@ -291,7 +288,6 @@ public class ValueInformationfieldCoding {
         combinableVIFEs.add(addValueInformationfieldCoding(0x7D,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Multiplicative correction factor for value (not unit): 103",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x7E,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Future value",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x7F,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Next VIFE's and data of this block are maufacturer specific",null));
-
     }
 
     private int id;
@@ -300,7 +296,7 @@ public class ValueInformationfieldCoding {
     private int type;
     private String description;
     private RangeCoder rangeCoder;
-    int coding=-1;
+    private int coding=-1;
     private int difDataField=-1;
     private ObisCodeCreator obisCodeCreator;
 
@@ -336,182 +332,155 @@ public class ValueInformationfieldCoding {
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("ValueInformationfieldCoding:\n");
-        strBuff.append("   description="+getDescription()+"\n");
-        strBuff.append("   difDataField="+getDifDataField()+"\n");
-        strBuff.append("   id="+getId()+"\n");
-        strBuff.append("   mask="+getMask()+"\n");
-        strBuff.append("   multiplier="+getMultiplier()+"\n");
-        //strBuff.append("   rangeCoder="+getRangeCoder()+"\n");
-        strBuff.append("   type="+getType()+"\n");
-        strBuff.append("   unit="+getUnit()+"\n");
-        return strBuff.toString();
+        return "ValueInformationfieldCoding:\n" +
+                "   description=" + getDescription() + "\n" +
+                "   difDataField=" + getDifDataField() + "\n" +
+                "   id=" + getId() + "\n" +
+                "   mask=" + getMask() + "\n" +
+                "   multiplier=" + getMultiplier() + "\n" +
+                "   type=" + getType() + "\n" +
+                "   unit=" + getUnit() + "\n";
     }
 
     public boolean isCodingExtended() {
         return (coding & 0x80) == 0x80;
     }
 
-    static private ValueInformationfieldCoding addValueInformationfieldCoding(int id, int mask, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
-        ValueInformationfieldCoding v = new ValueInformationfieldCoding(id,mask,unit,type,description,obisCodeCreator);
-        return v;
+    private static ValueInformationfieldCoding addValueInformationfieldCoding(int id, int mask, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
+        return new ValueInformationfieldCoding(id,mask,unit,type,description,obisCodeCreator);
     }
-    static private ValueInformationfieldCoding addValueInformationfieldCoding(int id, int mask, int difDatafield, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
-        ValueInformationfieldCoding v = new ValueInformationfieldCoding(id,mask,difDatafield,unit,type,description,obisCodeCreator);
-        return v;
+    private static ValueInformationfieldCoding addValueInformationfieldCoding(int id, int mask, int difDatafield, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
+        return new ValueInformationfieldCoding(id,mask,difDatafield,unit,type,description,obisCodeCreator);
     }
 
-    static private ValueInformationfieldCoding addPower10Mul3600ValueInformationfieldCoding(int id, int mask, int multiplier, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
+    private static ValueInformationfieldCoding addPower10Mul3600ValueInformationfieldCoding(int id, int mask, int multiplier, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
         ValueInformationfieldCoding v = new ValueInformationfieldCoding(id,mask,unit,type,description,obisCodeCreator);
         v.setRangeCoder(v.createPower10Mul3600RangeCoder(multiplier));
         return v;
     }
 
-    static private ValueInformationfieldCoding addPower10Mul60ValueInformationfieldCoding(int id, int mask, int multiplier, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
+    private static ValueInformationfieldCoding addPower10Mul60ValueInformationfieldCoding(int id, int mask, int multiplier, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
         ValueInformationfieldCoding v = new ValueInformationfieldCoding(id,mask,unit,type,description,obisCodeCreator);
         v.setRangeCoder(v.createPower10Mul60RangeCoder(multiplier));
         return v;
     }
 
-    static private ValueInformationfieldCoding addPower10ValueInformationfieldCoding(int id, int mask, int multiplier, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
+    private static ValueInformationfieldCoding addPower10ValueInformationfieldCoding(int id, int mask, int multiplier, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
         ValueInformationfieldCoding v = new ValueInformationfieldCoding(id,mask,unit,type,description,obisCodeCreator);
         v.setRangeCoder(v.createPower10RangeCoder(multiplier));
         return v;
     }
 
-    static private ValueInformationfieldCoding addDurationValueInformationfieldCoding(int id, int mask, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
+    private static ValueInformationfieldCoding addDurationValueInformationfieldCoding(int id, int mask, Unit unit,  int type, String description, ObisCodeCreator obisCodeCreator) {
         ValueInformationfieldCoding v = new ValueInformationfieldCoding(id,mask,unit,type,description,obisCodeCreator);
         v.setRangeCoder(v.createDurationRangeCoder());
         return v;
     }
 
     private RangeCoder createPower10RangeCoder(final int multiplier) {
-        return new RangeCoder() {
-            public BigDecimal calcMultiplier(int coding) {
-                double d = Math.pow(10, (coding&((getMask()|0x80)^0xff))+multiplier);
-                BigDecimal bd = new BigDecimal(""+d);
-                return bd;
-            }
+        return coding1 -> {
+            double d = Math.pow(10, (coding1 &((getMask()|0x80)^0xff))+multiplier);
+            return new BigDecimal(""+d);
         };
     }
 
     private RangeCoder createPower10Mul60RangeCoder(final int multiplier) {
-        return new RangeCoder() {
-            public BigDecimal calcMultiplier(int coding) {
-                double d = Math.pow(10, (coding&((getMask()|0x80)^0xff))+multiplier);
-                BigDecimal bd = new BigDecimal(""+d);
-                bd = bd.multiply(new BigDecimal(60));
-                return bd;
-            }
+        return coding1 -> {
+            double d = Math.pow(10, (coding1 &((getMask()|0x80)^0xff))+multiplier);
+            BigDecimal bd = new BigDecimal(""+d);
+            bd = bd.multiply(new BigDecimal(60));
+            return bd;
         };
     }
 
     private RangeCoder createPower10Mul3600RangeCoder(final int multiplier) {
-        return new RangeCoder() {
-            public BigDecimal calcMultiplier(int coding) {
-                double d = Math.pow(10, (coding&((getMask()|0x80)^0xff))+multiplier);
-                BigDecimal bd = new BigDecimal(""+d);
-                bd = bd.multiply(new BigDecimal(3600));
-                return bd;
-            }
+        return coding1 -> {
+            double d = Math.pow(10, (coding1 &((getMask()|0x80)^0xff))+multiplier);
+            BigDecimal bd = new BigDecimal(""+d);
+            bd = bd.multiply(new BigDecimal(3600));
+            return bd;
         };
     }
 
     private RangeCoder createDurationRangeCoder() {
-        return new RangeCoder() {
-            public BigDecimal calcMultiplier(int coding) {
-                int range = (coding&((getMask()|0x80)^0xff));
-                BigDecimal bd = new BigDecimal(1);
-                if (range==1) {
-                    //bd = new BigDecimal(60);
-                    setUnit(Unit.get(BaseUnit.MINUTE));
-                }
-                else if (range==2) {
-                    //bd = new BigDecimal(60*60);
-                    setUnit(Unit.get(BaseUnit.HOUR));
-                }
-                else if (range==3) {
-                    //bd = new BigDecimal(60*60*24);
-                    setUnit(Unit.get(BaseUnit.DAY));
-                }
-                return bd;
+        return coding1 -> {
+            int range = (coding1 &((getMask()|0x80)^0xff));
+            BigDecimal bd = new BigDecimal(1);
+            if (range==1) {
+                //bd = new BigDecimal(60);
+                setUnit(Unit.get(BaseUnit.MINUTE));
             }
+            else if (range==2) {
+                //bd = new BigDecimal(60*60);
+                setUnit(Unit.get(BaseUnit.HOUR));
+            }
+            else if (range==3) {
+                //bd = new BigDecimal(60*60*24);
+                setUnit(Unit.get(BaseUnit.DAY));
+            }
+            return bd;
         };
     }
 
     public BigDecimal getMultiplier() {
-        if (rangeCoder != null)
+        if (rangeCoder != null) {
             return rangeCoder.calcMultiplier(coding);
-        else
+        } else {
             return new BigDecimal(1);
+        }
     }
 
-    static public ValueInformationfieldCoding findPrimaryValueInformationfieldCoding(int coding, int dataField) throws IOException {
-        Iterator it = primaryVIFs.iterator();
-        while(it.hasNext()) {
-            ValueInformationfieldCoding v =(ValueInformationfieldCoding)it.next();
-            if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==-1)) {
-                v.coding=coding;
+    public static ValueInformationfieldCoding findPrimaryValueInformationfieldCoding(int coding, int dataField) throws IOException {
+        for (ValueInformationfieldCoding v : primaryVIFs) {
+            if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == -1)) {
+                v.coding = coding;
                 return v;
-            }
-            else if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==dataField)) {
-                v.coding=coding;
+            } else if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == dataField)) {
+                v.coding = coding;
                 return v;
             }
         }
         throw new ProtocolException("ValueInformationfieldCoding, findPrimaryValueInformationfieldCoding, invalid coding + "+coding);
     }
 
-    static public ValueInformationfieldCoding findFDExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
-        Iterator it = fdVIFEs.iterator();
-        while(it.hasNext()) {
-            ValueInformationfieldCoding v =(ValueInformationfieldCoding)it.next();
-            if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==-1)) {
-                v.coding=coding;
+    static ValueInformationfieldCoding findFDExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
+        for (ValueInformationfieldCoding v : fdVIFEs) {
+            if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == -1)) {
+                v.coding = coding;
                 return v;
-            }
-            else if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==dataField)) {
-                v.coding=coding;
+            } else if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == dataField)) {
+                v.coding = coding;
                 return v;
             }
         }
         throw new ProtocolException("ValueInformationfieldCoding, findFDExtensionValueInformationfieldCoding, invalid coding + "+coding);
     }
 
-    static public ValueInformationfieldCoding findFBExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
-        Iterator it = fbVIFEs.iterator();
-        while(it.hasNext()) {
-            ValueInformationfieldCoding v =(ValueInformationfieldCoding)it.next();
-            if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==-1)) {
-                v.coding=coding;
+    static ValueInformationfieldCoding findFBExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
+        for (ValueInformationfieldCoding v : fbVIFEs) {
+            if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == -1)) {
+                v.coding = coding;
                 return v;
-            }
-            else if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==dataField)) {
-                v.coding=coding;
+            } else if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == dataField)) {
+                v.coding = coding;
                 return v;
             }
         }
         throw new ProtocolException("ValueInformationfieldCoding, findFBExtensionValueInformationfieldCoding, invalid coding + "+coding);
     }
 
-    static public ValueInformationfieldCoding findCombinableExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
-        Iterator it = combinableVIFEs.iterator();
-        while(it.hasNext()) {
-            ValueInformationfieldCoding v =(ValueInformationfieldCoding)it.next();
-            if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==-1)) {
-                v.coding=coding;
+    static ValueInformationfieldCoding findCombinableExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
+        for (ValueInformationfieldCoding v : combinableVIFEs) {
+            if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == -1)) {
+                v.coding = coding;
                 return v;
-            }
-            else if (((v.getId()) == (coding&v.getMask())) &&  (v.getDifDataField()==dataField)) {
-                v.coding=coding;
+            } else if (((v.getId()) == (coding & v.getMask())) && (v.getDifDataField() == dataField)) {
+                v.coding = coding;
                 return v;
             }
         }
         throw new ProtocolException("ValueInformationfieldCoding, findCombinableExtensionValueInformationfieldCoding, invalid coding + "+coding);
     }
-
 
     public Unit getUnit() {
         return unit;
@@ -520,7 +489,6 @@ public class ValueInformationfieldCoding {
     public void setUnit(Unit unit) {
         this.unit = unit;
     }
-
 
     public int getType() {
         return type;
@@ -562,16 +530,6 @@ public class ValueInformationfieldCoding {
         this.difDataField = difDataField;
     }
 
-    static public void main(String[] args) {
-        try {
-            System.out.println(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(255, 2));
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public ObisCodeCreator getObisCodeCreator() {
         return obisCodeCreator;
     }
@@ -587,4 +545,5 @@ public class ValueInformationfieldCoding {
     public void setDescription(String description) {
         this.description = description;
     }
+
 }

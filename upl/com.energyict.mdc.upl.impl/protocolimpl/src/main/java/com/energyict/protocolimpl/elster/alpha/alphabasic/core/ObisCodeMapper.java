@@ -15,45 +15,45 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.BillingDataRegister;
+import com.energyict.protocolimpl.elster.alpha.BillingDataRegister;
 import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.BillingDataRegisterFactoryImpl;
 import com.energyict.protocolimpl.elster.alpha.core.Alpha;
 
 import java.io.IOException;
-import java.util.Iterator;
 /**
  *
  * @author koen
  */
 public class ObisCodeMapper {
 
-    Alpha alpha;
+    private Alpha alpha;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(Alpha alpha) {
         this.alpha=alpha;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
+        int set;
+        if (obisCode.getF() == 255) {
+            set = BillingDataRegisterFactoryImpl.CURRENT_BILLING_REGISTERS;
+        } else if (obisCode.getF() == 0) {
+            set = BillingDataRegisterFactoryImpl.PREVIOUS_MONTH_BILLING_REGISTERS;
+        } else if (obisCode.getF() == 1) {
+            set = BillingDataRegisterFactoryImpl.PREVIOUS_SEASON_BILLING_REGISTERS;
+        } else {
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+        }
 
-        int set=0;
-
-        if (obisCode.getF() == 255) set = BillingDataRegisterFactoryImpl.CURRENT_BILLING_REGISTERS;
-        else if (obisCode.getF() == 0) set = BillingDataRegisterFactoryImpl.PREVIOUS_MONTH_BILLING_REGISTERS;
-        else if (obisCode.getF() == 1) set = BillingDataRegisterFactoryImpl.PREVIOUS_SEASON_BILLING_REGISTERS;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-
-        Iterator it = alpha.getBillingDataRegisterFactory().getBillingDataRegisters(set).iterator();
-        while(it.hasNext()) {
-            BillingDataRegister bdr = (BillingDataRegister)it.next();
+        for (BillingDataRegister bdr : alpha.getBillingDataRegisterFactory().getBillingDataRegisters(set)) {
             if (bdr.getObisCode().equals(obisCode)) {
                 return bdr.getRegisterValue();
             }
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
+
 }

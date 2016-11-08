@@ -179,8 +179,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
                 UPLPropertySpecFactory.string(PK_DATA_RECORDER_NAME, false),
                 UPLPropertySpecFactory.string(PK_DTR_BEHAVIOUR, false),
                 UPLPropertySpecFactory.string(PK_FORCE_DELAY, false),
-                ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false),
-                );
+                ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false));
     }
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -402,7 +401,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         Command c = toCmd(IonHandle.CLK_1_UNIVERSAL_TIME_NVR, IonMethod.READ_REGISTER_VALUE);
         applicationLayer.read(c);
         int secs = ((Integer) c.getResponse().getValue()).intValue();
-        return new Date(secs * 1000l);    // must be cast to long
+        return new Date(secs * 1000L);
     }
 
     @Override

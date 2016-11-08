@@ -221,7 +221,7 @@ public abstract class EnermetBase extends AbstractProtocol{
 
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        ObisCodeMapper ocm = new ObisCodeMapper(getDataReadingCommandFactory(),getTimeZone(),getRegs());
+        ObisCodeMapper ocm = new ObisCodeMapper(getDataReadingCommandFactory(), getRegs());
         return ocm.getRegisterValue(obisCode);
     }
 

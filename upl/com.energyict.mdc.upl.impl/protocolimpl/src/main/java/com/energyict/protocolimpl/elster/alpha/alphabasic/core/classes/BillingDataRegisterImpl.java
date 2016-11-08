@@ -12,35 +12,36 @@ package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-
-
+import com.energyict.protocolimpl.elster.alpha.BillingDataRegister;
 
 /**
  *
  * @author koen
  */
-public class BillingDataRegister {
+public class BillingDataRegisterImpl implements BillingDataRegister {
 
 	private String description;
 	private ObisCode obisCode;
 	private RegisterValue registerValue;
 
-	/** Creates a new instance of BillingDataRegister */
-	public BillingDataRegister(ObisCode obisCode,String description,RegisterValue registerValue) {
+	BillingDataRegisterImpl(ObisCode obisCode, String description, RegisterValue registerValue) {
 		this.obisCode=obisCode;
 		this.description=description;
 		this.registerValue=registerValue;
 	}
 
-	public String getDescription() {
+	@Override
+    public String getDescription() {
 		return this.description;
 	}
 
-	public ObisCode getObisCode() {
+	@Override
+    public ObisCode getObisCode() {
 		return this.obisCode;
 	}
 
-	public RegisterValue getRegisterValue() {
+	@Override
+    public RegisterValue getRegisterValue() {
 		return this.registerValue;
 	}
 

@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
@@ -231,4 +232,15 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
         statusAndEvents.add(alarmFrame.getMeterEvents());
         return statusAndEvents;
     }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public int getInfoTypeProtocolRetriesProperty() {
+        return super.getInfoTypeProtocolRetriesProperty();
+    }
+
 }

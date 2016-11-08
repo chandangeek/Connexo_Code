@@ -47,6 +47,10 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-impl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolcommon</artifactId>
             <version>${project.version}</version>

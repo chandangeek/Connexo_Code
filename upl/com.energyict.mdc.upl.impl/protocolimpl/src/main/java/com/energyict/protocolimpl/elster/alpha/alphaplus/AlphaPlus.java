@@ -25,11 +25,13 @@ import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.elster.alpha.BillingDataRegister;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.AlphaPlusProfile;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.ObisCodeMapper;
-import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.BillingDataRegister;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.BillingDataRegisterFactoryImpl;
+import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.BillingDataRegisterImpl;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class31ModemBillingCallConfiguration;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class32ModemAlarmCallConfiguration;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.ClassFactory;
@@ -49,6 +51,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  *
@@ -277,21 +280,21 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         builder.append("************************ CLASS11 Current billing registers ************************\n");
         Iterator it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.CURRENT_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
-            BillingDataRegister bdr = (BillingDataRegister)it.next();
+            BillingDataRegister bdr = (BillingDataRegisterImpl)it.next();
             String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
             builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
         builder.append("************************ CLASS12 Previous month billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_MONTH_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
-            BillingDataRegister bdr = (BillingDataRegister)it.next();
+            BillingDataRegister bdr = (BillingDataRegisterImpl)it.next();
             String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
             builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
         builder.append("************************ CLASS13 Previous season billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_SEASON_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
-            BillingDataRegister bdr = (BillingDataRegister)it.next();
+            BillingDataRegister bdr = (BillingDataRegisterImpl)it.next();
             String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().toString();
             builder.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
@@ -367,6 +370,16 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     @Override
     public int getTotalRegisterRate() {
         return totalRegisterRate;
+    }
+
+    @Override
+    public ProtocolChannelMap getProtocolChannelMap() {
+        return super.getProtocolChannelMap();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
     }
 
 }

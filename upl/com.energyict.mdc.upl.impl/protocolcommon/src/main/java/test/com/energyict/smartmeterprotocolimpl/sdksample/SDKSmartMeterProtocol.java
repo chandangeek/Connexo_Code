@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * Date: 17-jan-2011
  * Time: 15:14:31
  */
-public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements MessageProtocol {
+public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements MessageProtocol {
 
     private static final String MeterSerialNumber = "Master";
 

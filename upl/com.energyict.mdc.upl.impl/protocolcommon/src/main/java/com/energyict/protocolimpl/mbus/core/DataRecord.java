@@ -39,16 +39,18 @@ public class DataRecord {
     private String text="";
     private Date date;
 
-    /** Creates a new instance of DataRecord */
-    public DataRecord(byte[] data, int offset, TimeZone timeZone, final Logger logger) throws IOException {
+    DataRecord(byte[] data, int offset, TimeZone timeZone, final Logger logger) throws IOException {
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> DataRecord, offset="+offset);
+        if (DEBUG>=1) {
+            System.out.println("KV_DEBUG> DataRecord, offset=" + offset);
+        }
 
         setDataRecordHeader(new DataRecordHeader(data, offset, timeZone, logger));
         offset += getDataRecordHeader().size();
 
-        if (dataRecordHeader.getValueInformationBlock()==null)
+        if (dataRecordHeader.getValueInformationBlock()==null) {
             return;
+        }
 
         if (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding() != null) {
             if (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeFormat()) {
@@ -96,7 +98,9 @@ public class DataRecord {
                         cp32.parse(ProtocolUtils.getSubArray2(data,offset,4));
                         offset+=4;
                         setDate(cp32.getCalendar().getTime());
-                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                        if (DEBUG>=1) {
+                            System.out.println("KV_DEBUG> date=" + getDate());
+                        }
                     } break; // TYPE_F
 
                     case ValueInformationfieldCoding.TYPE_G: {
@@ -104,7 +108,9 @@ public class DataRecord {
                         cp16.parse(ProtocolUtils.getSubArray2(data,offset,2));
                         offset+=4;
                         setDate(cp16.getCalendar().getTime());
-                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                        if (DEBUG>=1) {
+                            System.out.println("KV_DEBUG> date=" + getDate());
+                        }
                     } break; // TYPE_G
 
                     case ValueInformationfieldCoding.TYPE_H: {
@@ -131,7 +137,9 @@ public class DataRecord {
                         typeI.parse(ProtocolUtils.getSubArray2(data,offset,5));
                         offset+=5;
                         setDate(typeI.getCalendar().getTime());
-                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                        if (DEBUG>=1) {
+                            System.out.println("KV_DEBUG> date=" + getDate());
+                        }
                     } break; // TYPE_I
 
                     case ValueInformationfieldCoding.TYPE_J: {
@@ -139,7 +147,9 @@ public class DataRecord {
                         typeJ.parse(ProtocolUtils.getSubArray2(data,offset,3));
                         offset+=3;
                         setDate(typeJ.getCalendar().getTime());
-                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                        if (DEBUG>=1) {
+                            System.out.println("KV_DEBUG> date=" + getDate());
+                        }
                     } break; // TYPE_J
 
                     case ValueInformationfieldCoding.TYPE_K: {
@@ -234,7 +244,7 @@ public class DataRecord {
             } // type unit or type duration
         } else if (dataRecordHeader.getValueInformationBlock().getPlainTextVIF() != null) {
             String vif = dataRecordHeader.getValueInformationBlock().getPlainTextVIF();
-            if (vif.equals("cust. ID")) {
+            if ("cust. ID".equals(vif)) {
                 int length = data[offset++];
                 setText(new String(ProtocolTools.getReverseByteArray(ProtocolTools.getSubArray(data, offset, offset + length))));
                 offset += length;
@@ -243,11 +253,10 @@ public class DataRecord {
 
         }
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> DataRecord, quantity="+quantity);
-
-
-
-    } // public DataRecord(byte[] data, int offset, TimeZone timeZone) throws IOException
+        if (DEBUG>=1) {
+            System.out.println("KV_DEBUG> DataRecord, quantity=" + quantity);
+        }
+    }
 
     private int decodeVariableLength(byte[] data, int offset) throws IOException {
         int length = ProtocolUtils.getInt(data,offset++,1);
@@ -287,21 +296,19 @@ public class DataRecord {
             bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
             quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
         }
-        else throw new ProtocolException("DataRecord, invalid LVAR value ("+length+") (length byte of variable length data type)");
+        else {
+            throw new ProtocolException("DataRecord, invalid LVAR value (" + length + ") (length byte of variable length data type)");
+        }
 
         return offset;
     }
 
     public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("DataRecord:\n");
-        strBuff.append("   dataRecordHeader="+getDataRecordHeader()+"\n");
-        strBuff.append("   quantity="+getQuantity()+"\n");
-        strBuff.append("   text="+getText()+"\n");
-        strBuff.append("   date="+getDate()+"\n");
-
-        return strBuff.toString();
+        return "DataRecord:\n" +
+                "   dataRecordHeader=" + getDataRecordHeader() + "\n" +
+                "   quantity=" + getQuantity() + "\n" +
+                "   text=" + getText() + "\n" +
+                "   date=" + getDate() + "\n";
     }
 
     public int size() {
@@ -347,11 +354,8 @@ public class DataRecord {
      * @param nrOfBytesToRead	The number of bytes to read from the buffer
      * @return					true if the buffer to read from has enough bytes left to read "nrOfBytesToRead", starting at position "offset"; False otherwise
      */
-    private final boolean hasSufficientData(final byte[] buffer, final int offset, final int nrOfBytesToRead) {
-        if ((buffer.length - offset) < nrOfBytesToRead) {
-            return false;
-        } else {
-            return true;
-        }
+    private boolean hasSufficientData(final byte[] buffer, final int offset, final int nrOfBytesToRead) {
+        return (buffer.length - offset) >= nrOfBytesToRead;
     }
+
 }

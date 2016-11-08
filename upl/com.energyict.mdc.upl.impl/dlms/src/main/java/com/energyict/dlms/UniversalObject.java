@@ -1,6 +1,5 @@
 package com.energyict.dlms;
 
-
 import com.energyict.mdc.upl.ProtocolException;
 
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -22,11 +21,7 @@ import java.util.StringTokenizer;
  */
 public class UniversalObject implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -5227477714920108186L;
-
 
     // Captured Object List
     private static final byte COL_CLASSID = 0;
@@ -36,7 +31,6 @@ public class UniversalObject implements Serializable {
     private static final byte COL_LN_D = 4;
     private static final byte COL_LN_E = 5;
     private static final byte COL_LN_F = 6;
-
 
     // Instantiated Object List
     private static final byte IOL_BASENAME = 0;
@@ -48,7 +42,6 @@ public class UniversalObject implements Serializable {
     private static final byte IOL_LN_D = 6;
     private static final byte IOL_LN_E = 7;
     private static final byte IOL_LN_F = 8;
-
 
     private long[] fields;
 
@@ -128,7 +121,7 @@ public class UniversalObject implements Serializable {
         this.fields = new long[iNROfItems];
     }
 
-    public void setField(int iIndex, long val) {
+    private void setField(int iIndex, long val) {
         this.fields[iIndex] = val;
     }
 
@@ -150,15 +143,12 @@ public class UniversalObject implements Serializable {
         ln[4] = (byte) getLNE();
         ln[5] = (byte) getLNF();
 
-        String strLN =
-                String.valueOf(ln[0] & 0xff) + "." +
-                        String.valueOf(ln[1] & 0xff) + "." +
-                        String.valueOf(ln[2] & 0xff) + "." +
-                        String.valueOf(ln[3] & 0xff) + "." +
-                        String.valueOf(ln[4] & 0xff) + "." +
-                        String.valueOf(ln[5] & 0xff);
-
-        return strLN;
+        return String.valueOf(ln[0] & 0xff) + "." +
+                String.valueOf(ln[1] & 0xff) + "." +
+                String.valueOf(ln[2] & 0xff) + "." +
+                String.valueOf(ln[3] & 0xff) + "." +
+                String.valueOf(ln[4] & 0xff) + "." +
+                String.valueOf(ln[5] & 0xff);
     }
 
     public byte[] getLNArray() {
@@ -453,14 +443,14 @@ public class UniversalObject implements Serializable {
     }
 
     public String getDescription() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         if (getBaseName() != -1) {
-            sb.append("[").append(getBaseName()).append("], ");
+            builder.append("[").append(getBaseName()).append("], ");
         }
-        sb.append(getObisCode()).append(", ");
-        sb.append(getDLMSClassId()).append(", ");
-        sb.append(getObisCode().getDescription());
-        return sb.toString();
+        builder.append(getObisCode()).append(", ");
+        builder.append(getDLMSClassId()).append(", ");
+        builder.append(getObisCode().toString());
+        return builder.toString();
     }
 
     @Override

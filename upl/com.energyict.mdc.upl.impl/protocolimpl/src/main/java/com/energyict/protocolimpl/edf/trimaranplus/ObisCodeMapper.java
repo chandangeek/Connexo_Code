@@ -32,14 +32,13 @@ import java.io.IOException;
  */
 public class ObisCodeMapper {
 
-    TrimaranPlus trimaranPlus;
+    private final TrimaranPlus trimaranPlus;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(TrimaranPlus trimaranPlus) {
         this.trimaranPlus=trimaranPlus;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
         return new RegisterInfo(RegisterNameFactory.findObisCode(obisCode));
     }
 
@@ -134,10 +133,7 @@ public class ObisCodeMapper {
 
             }
         }
-
-
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-
-    } // private Object getRegisterValue(ObisCode obisCode, boolean read)
+    }
 
 }

@@ -97,18 +97,18 @@ public class ObisCodeMapper {
 	//private int registerIndex;// KV22072005 unused code
 	private int billingPoint;
 
-	/** Manufacturer specific codes */
-	public static final int CODE_E_REGISTER_1=128;
-	public static final int CODE_E_REGISTER_2=129;
-	public static final int CODE_E_REGISTER_3=130;
-	public static final int CODE_E_REGISTER_4=131;
+	/* Manufacturer specific codes */
+	private static final int CODE_E_REGISTER_1=128;
+	private static final int CODE_E_REGISTER_2=129;
+	private static final int CODE_E_REGISTER_3=130;
+	private static final int CODE_E_REGISTER_4=131;
 
 	private static final long	MS_PER_SECOND	= 1000;
 
 	private ObisCodeMapper( ){
 	}
 
-	public ObisCodeMapper(RegisterInformation ri) throws IOException {
+	public ObisCodeMapper(RegisterInformation ri) {
 		this.ri = ri;
 	}
 

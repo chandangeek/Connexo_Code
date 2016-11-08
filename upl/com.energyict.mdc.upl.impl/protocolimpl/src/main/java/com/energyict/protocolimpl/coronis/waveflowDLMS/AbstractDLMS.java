@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
@@ -540,6 +541,16 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public int getInfoTypeProtocolRetriesProperty() {
+        return super.getInfoTypeProtocolRetriesProperty();
     }
 
 }
