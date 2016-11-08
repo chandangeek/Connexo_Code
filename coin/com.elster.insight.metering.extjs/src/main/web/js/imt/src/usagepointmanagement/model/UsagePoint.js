@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
     requires: [
         'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
     ],
-    idProperty: 'mRID',
+    idProperty: 'name',
     fields: [
         {name: 'id', type: 'int'},
         {name: 'mRID', type: 'string'},
@@ -121,13 +121,14 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
 
     activateMeters: function (callback, failure) {
         var me = this;
+
         Ext.Ajax.request({
-            url: '../../api/udr/usagepoints/' + encodeURIComponent(me.get('mRID')) + '/activatemeters',
+            url: '../../api/udr/usagepoints/' + encodeURIComponent(me.get('name')) + '/activatemeters',
             method: 'PUT',
             jsonData: Ext.JSON.encode(me.getProxy().getWriter().getRecordData(me)),
             success: callback,
             failure: failure
-        })
+        });
     },
 
     proxy: {

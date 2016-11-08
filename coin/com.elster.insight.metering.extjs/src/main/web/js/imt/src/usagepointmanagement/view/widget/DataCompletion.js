@@ -93,7 +93,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                             change: function (combo, newvalue) {
                                 me.setPurpose(purposesStore.getById(newvalue));
                                 me.loadPeriodsStore({
-                                    mRID: me.usagePoint.get('mRID'),
+                                    usagePointId: me.usagePoint.get('name'),
                                     purposeId: newvalue
                                 });
                             }
@@ -117,7 +117,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                         listeners: {
                             change: function (combo, newvalue) {
                                 store.getProxy().extraParams = {
-                                    usagePointMRID: me.usagePoint.get('mRID'),
+                                    usagePointId: me.usagePoint.get('name'),
                                     purposeId: me.down('#purposes-combo').getValue(),
                                     periodId: newvalue
                                 };
@@ -131,7 +131,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         me.callParent(arguments);
 
         me.loadPeriodsStore({
-            mRID: me.usagePoint.get('mRID'),
+            usagePointId: me.usagePoint.get('name'),
             purposeId: defaultPurposeId
         });
 

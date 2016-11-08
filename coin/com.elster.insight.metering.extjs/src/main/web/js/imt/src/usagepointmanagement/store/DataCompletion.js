@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointmanagement.store.DataCompletion', {
     model: 'Imt.usagepointmanagement.model.DataCompletion',
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{usagePointMRID}/validationSummary',
+        url: '/api/udr/usagepoints/{usagePointId}/validationSummary',
         timeout: 240000,
         reader: {
             type: 'json',
