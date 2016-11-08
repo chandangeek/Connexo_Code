@@ -14,9 +14,11 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
@@ -38,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component(name = "UsagePointLifeCycleServiceImpl",
-        service = {UsagePointLifeCycleService.class, UsagePointLifeCycleBuilder.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {UsagePointLifeCycleService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true)
 public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleService, MessageSeedProvider, TranslationKeyProvider, UsagePointLifeCycleBuilder {
     private DataModel dataModel;
@@ -74,7 +76,8 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -85,6 +88,7 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
+        this.usagePointLifeCycleConfigurationService.addUsagePointLifeCycleBuilder(this);
         this.upgradeService.register(InstallIdentifier.identifier("Pulse", UsagePointLifeCycleService.COMPONENT_NAME), this.dataModel, Installer.class, Collections.emptyMap());
     }
 
@@ -149,6 +153,22 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
 
     @Override
     public void accept(UsagePointLifeCycle usagePointLifeCycle) {
-        // TODO OOTB life cycle
+        UsagePointState underConstruction = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.UNDER_CONSTRUCTION)).findFirst().get();
+        UsagePointState active = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.ACTIVE)).findFirst().get();
+        UsagePointState inactive = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.INACTIVE)).findFirst().get();
+        UsagePointState demolished = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.DEMOLISHED)).findFirst().get();
+
+        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_ACTIVE).format(), underConstruction, active)
+                .complete();
+        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_INACTIVE).format(), underConstruction, inactive)
+                .complete();
+        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEACTIVATE).format(), active, inactive)
+                .complete();
+        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_ACTIVATE).format(), inactive, active)
+                .complete();
+        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE).format(), active, demolished)
+                .complete();
+        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE).format(), inactive, demolished)
+                .complete();
     }
 }
