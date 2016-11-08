@@ -1,16 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Place holder class for the MBus device.
@@ -45,24 +45,12 @@ public class MBusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-    }
-
-    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
-    }
-
-    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
+    public void setProperties(Properties properties) throws PropertyValidationException {
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>();
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -60,7 +61,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 

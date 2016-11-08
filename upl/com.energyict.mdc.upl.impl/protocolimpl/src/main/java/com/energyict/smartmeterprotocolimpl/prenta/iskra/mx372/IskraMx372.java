@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
@@ -516,5 +518,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     @Override
     public String getSerialNumber() {
         return getMeterSerialNumber();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
     }
 }
