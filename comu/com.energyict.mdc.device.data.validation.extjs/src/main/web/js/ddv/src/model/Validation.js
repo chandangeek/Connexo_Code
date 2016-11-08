@@ -9,6 +9,7 @@ Ext.define('Ddv.model.Validation', {
     extend:'Ext.data.Model',
     fields: [
         'mrid',
+        'name',
         'serialNumber',
         'deviceType',
         'deviceConfig',

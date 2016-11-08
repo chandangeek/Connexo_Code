@@ -52,7 +52,7 @@ Ext.define('Ddv.controller.Validations', {
             typeOfSuspects = '';
 
         Ext.suspendLayouts();
-        previewContainer.setTitle(Uni.I18n.translate('validations.preview.title', 'DDV', '{0} validations', Ext.String.htmlEncode(record.get('mrid'))));
+        previewContainer.setTitle(Uni.I18n.translate('validations.preview.title', 'DDV', '{0} validations', Ext.String.htmlEncode(record.get('name'))));
         previewForm.loadRecord(record);
 
         record.typeOfSuspects().each(function (rec) {
