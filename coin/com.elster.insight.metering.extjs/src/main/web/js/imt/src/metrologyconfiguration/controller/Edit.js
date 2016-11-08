@@ -7,8 +7,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         'Imt.metrologyconfiguration.view.DefineMetrologyConfiguration'
     ],
     models: [
-             'Imt.metrologyconfiguration.model.MetrologyConfiguration',
-             'Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'
+        'Imt.metrologyconfiguration.model.MetrologyConfiguration',
+        'Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'
     ],
     stores: [
              'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'
@@ -338,6 +338,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             navigation = me.getNavigationMenu(),
             currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
+            purposesField = wizard.down('#purposes-field'),
             stepNumber = 1,
             stepsToAdd = [],
             navigationItemsToAdd = [];
@@ -382,6 +383,16 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         wizard.add(stepsToAdd);
         wizard.updateRecord(configuration);
         Ext.resumeLayouts(true);
+
+        purposesField.setLoading();
+        me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue, {
+            success: function (record) {
+                purposesField.setStore(record.metrologyContracts())
+            },
+            callback: function () {
+                purposesField.setLoading(false);
+            }
+        });
     },
 
     linkUsagePointToMetrologyConfiguration: function () {

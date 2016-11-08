@@ -5,7 +5,8 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.util.FormEmptyMessage',
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Imt.metrologyconfiguration.view.PurposesField'
     ],
 
     layout: {
@@ -29,8 +30,8 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 navigationIndex: 1,
                 ui: 'large',
                 defaults: {
-                    labelWidth: 260,
-                    width: 680
+                    labelWidth: 230,
+                    width: 567
                 },
                 items: [
                     me.isPossibleAdd ?
@@ -81,6 +82,10 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         + Uni.I18n.translate('metrologyConfiguration.wizard.noAvailable', 'IMT', 'No available metrology configurations')
                         + '</span>'
                     },
+                    {
+                        xtype: 'purposes-field',
+                        itemId: 'purposes-field'
+                    }
                 ]
             }
         ];
