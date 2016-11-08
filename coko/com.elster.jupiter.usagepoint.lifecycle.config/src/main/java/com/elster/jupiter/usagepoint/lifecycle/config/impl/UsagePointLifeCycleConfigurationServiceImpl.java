@@ -230,7 +230,12 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     @Override
     public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
         FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
-        FiniteStateMachine stateMachine = stateMachineBuilder.complete(stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete());
+        State underConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete();
+        stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete();
+        stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete();
+        stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
+
+        FiniteStateMachine stateMachine = stateMachineBuilder.complete(underConstruction);
         UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
         lifeCycle.setName(name);
         lifeCycle.setStateMachine(stateMachine);

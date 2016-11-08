@@ -3,11 +3,10 @@ package com.elster.jupiter.usagepoint.lifecycle.config;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum DefaultState {
-    CONNECTED(Translation.CONNECTED),
+    ACTIVE(Translation.ACTIVE),
     DEMOLISHED(Translation.DEMOLISHED),
-    LOGICALLY_DISCONNECTED(Translation.LOGICALLY_DISCONNECTED),
-    PHYSICALLY_DISCONNECTED(Translation.PHYSICALLY_DISCONNECTED),
-    UNDER_CONSTRUCTION(Translation.UNDER_CONSTRUCTION),;
+    INACTIVE(Translation.INACTIVE),
+    UNDER_CONSTRUCTION(Translation.UNDER_CONSTRUCTION);
 
     private final TranslationKey translation;
 
@@ -24,11 +23,10 @@ public enum DefaultState {
     }
 
     private enum Translation implements TranslationKey {
-        CONNECTED("usage.point.state.connected", "Connected"),
+        ACTIVE("usage.point.state.active", "Connected"),
         DEMOLISHED("usage.point.state.demolished", "Demolished"),
-        LOGICALLY_DISCONNECTED("usage.point.state.logically.disconnected", "Logically disconnected"),
-        PHYSICALLY_DISCONNECTED("usage.point.state.physically.disconnected", "Physically disconnected"),
-        UNDER_CONSTRUCTION("usage.point.state.under.construction", "Under construction"),;
+        INACTIVE("usage.point.state.inactive", "Logically disconnected"),
+        UNDER_CONSTRUCTION("usage.point.state.under.construction", "Under construction");
 
         private String key;
         private String defaultFormat;
