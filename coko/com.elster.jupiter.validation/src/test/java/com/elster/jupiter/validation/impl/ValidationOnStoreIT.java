@@ -202,7 +202,7 @@ public class ValidationOnStoreIT {
                 deltaReadingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 bulkReadingType = meteringService.getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                meter = amrSystem.newMeter("2331").create();
+                meter = amrSystem.newMeter("2331", "myName").create();
                 meterActivation = meter.activate(date1);
                 meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
