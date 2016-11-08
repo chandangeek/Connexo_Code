@@ -64,6 +64,7 @@ public class DeviceSchedulesInfo {
         DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
         deviceSchedulesInfo.id = comTaskEnablement.getComTask().getId();
         deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
+        deviceSchedulesInfo.active = !comTaskEnablement.isSuspended();
         deviceSchedulesInfo.type = ScheduleType.ONREQUEST;
         return deviceSchedulesInfo;
     }

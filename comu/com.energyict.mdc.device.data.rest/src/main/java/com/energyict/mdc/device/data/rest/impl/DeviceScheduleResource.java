@@ -88,11 +88,11 @@ public class DeviceScheduleResource {
                 info = DeviceSchedulesInfo.fromAdHoc(comTaskExecution);
             }
         } else {
-            Optional<ComTaskEnablement> cteb = comTaskEnablements.stream()
-                    .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTaskId)
+            Optional<ComTaskEnablement> comTaskEnablement = comTaskEnablements.stream()
+                    .filter(c -> c.getComTask().getId() == comTaskId)
                     .findFirst();
-            if(cteb.isPresent()) {
-                info = DeviceSchedulesInfo.fromEnablement(cteb.get());
+            if(comTaskEnablement.isPresent()) {
+                info = DeviceSchedulesInfo.fromEnablement(comTaskEnablement.get());
             }
         }
         if(info != null) {
