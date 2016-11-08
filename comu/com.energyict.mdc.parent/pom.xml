@@ -150,8 +150,14 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.cps.examples</artifactId>
+                <version>2.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data</artifactId>
-                <version>4.1.0${revision}</version>
+                <version>5.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -169,7 +175,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.validation</artifactId>
-                <version>2.1.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -645,7 +651,7 @@
             <id>test-mdc-bundles</id>
             <modules>
                 <module>../com.elster.jupiter.demo</module>
-		<module>../com.energyict.mdc.device.cps.examples</module>
+                <module>../com.energyict.mdc.device.cps.examples</module>
                 <module>../com.energyict.mdc.protocols.test</module>
                 <module>../com.energyict.mdc.test.api.rest</module>
             </modules>
