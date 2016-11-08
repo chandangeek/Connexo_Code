@@ -39,6 +39,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,7 @@ public class ComPortPoolResource {
             comPortPools.addAll(engineConfigurationService.findAllComPortPools());
         }
 
-        comPortPools = ListPager.of(comPortPools, (cpp1, cpp2) -> cpp1.getName().compareToIgnoreCase(cpp2.getName())).from(queryParameters).find();
+        comPortPools = ListPager.of(comPortPools, Comparator.comparing(ComPortPool::getName, String.CASE_INSENSITIVE_ORDER)).from(queryParameters).find();
 
         for (ComPortPool comPortPool : comPortPools) {
             comPortPoolInfos.add(comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService));

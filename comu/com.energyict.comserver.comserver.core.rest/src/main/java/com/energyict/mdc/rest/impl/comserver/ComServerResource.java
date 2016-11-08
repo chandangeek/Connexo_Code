@@ -25,9 +25,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/comservers")
 public class ComServerResource {
@@ -52,20 +54,16 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComServers(@BeanParam JsonQueryParameters queryParameters) {
-        List<ComServerInfo<?,?>> comServers = new ArrayList<>();
-        List<ComServer> allComServers = this.getSortedComServers(queryParameters);
-
-        for (ComServer comServer : allComServers) {
-            comServers.add(comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService));
-        }
+        List<ComServerInfo<?,?>> comServers = this.getSortedComServers(queryParameters)
+                .map(comServer -> comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService))
+                .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("data", comServers, queryParameters);
     }
 
-    private List<ComServer> getSortedComServers(JsonQueryParameters queryParameters) {
-        List<ComServer> comServers = engineConfigurationService.findAllComServers().from(queryParameters).find();
-        Collections.sort(comServers, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
-        return comServers;
+    private Stream<ComServer> getSortedComServers(JsonQueryParameters queryParameters) {
+        return engineConfigurationService.findAllComServers().from(queryParameters).stream()
+                .sorted(Comparator.comparing(ComServer::getName, String.CASE_INSENSITIVE_ORDER));
     }
 
     @GET @Transactional
@@ -126,18 +124,6 @@ public class ComServerResource {
     public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer.ComServerBuilder, ComServer> comServerInfo) {
         comServerInfo.id = id;
         ComServer comServer = resourceHelper.lockComServerOrThrowException(comServerInfo);
-
-        Optional<List<InboundComPortInfo>> inboundComPorts = Optional.ofNullable(comServerInfo.inboundComPorts);
-        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.ofNullable(comServerInfo.outboundComPorts);
-        List<ComPortInfo> allComPortInfos = new ArrayList<>();
-        if (inboundComPorts.isPresent()) {
-            allComPortInfos.addAll(inboundComPorts.get());
-        }
-
-        if (outboundComPorts.isPresent()) {
-            allComPortInfos.addAll(outboundComPorts.get());
-        }
-
         comServerInfo.updateTo(comServer, engineConfigurationService);
         return comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
     }
