@@ -287,37 +287,6 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         verify(scheduledComTaskExecutionUpdater, times(1)).removeSchedule();
     }
 
-    @Test
-    public void testRunAdHocComTaskFromEnablement() throws Exception {
-        DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
-        long comTaskId = 111L;
-        schedulingInfo.id = comTaskId;
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-
-        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
-
-        ComTask comTask = mockComTask(comTaskEnablement, comTaskId);
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-        ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
-        when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
-        when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
-        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
-        when(communicationTaskService.findComTaskExecution(112L)).thenReturn(Optional.of(comTaskExecution));
-        when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
-
-        Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(comTaskExecutionBuilder, times(1)).add();
-        verify(comTaskExecutionBuilder, times(1)).scheduleNow();
-    }
-
     private DeviceSchedulesInfo mockDataForFirmwareComTaskTests() {
         DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         schedulingInfo.id = firmwareComTaskId;

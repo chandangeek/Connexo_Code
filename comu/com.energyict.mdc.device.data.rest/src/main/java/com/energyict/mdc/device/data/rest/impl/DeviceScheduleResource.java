@@ -131,6 +131,8 @@ public class DeviceScheduleResource {
                         if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
                             ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
                             comTaskExecutionExists = true;
+                        } else if(comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
+                            return Response.status(Response.Status.BAD_REQUEST).build();
                         }
                     }
                     if (!comTaskExecutionExists) {
@@ -142,17 +144,6 @@ public class DeviceScheduleResource {
                                     .forEach(builder::connectionTask);
                         }
                         builder.add();
-                    }
-                } else {
-                    boolean comTaskExecutionExists = false;
-                    for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
-                            comTaskExecution.scheduleNow();
-                            comTaskExecutionExists = true;
-                        }
-                    }
-                    if (!comTaskExecutionExists) {
-                        device.newAdHocComTaskExecution(comTaskEnablement).scheduleNow().add();
                     }
                 }
             }
@@ -169,17 +160,11 @@ public class DeviceScheduleResource {
         // In this method, id == id of comtaskexec
         checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
-        Device device = comTaskExecution.getDevice();
+        if(!(comTaskExecution instanceof ManuallyScheduledComTaskExecution)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         if (info.schedule == null) {
-            if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
-                ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().removeSchedule().update();
-            } else {
-                device.removeComTaskExecution(comTaskExecution);
-                // If the ComTaskExecution was not a ManuallyScheduledComTaskExecution, it was one related to a shared communication schedule.
-                // Note that in this case, as side effect of removal of the ComTaskExecution:
-                // - the still outstanding ComTaskExecutionTriggers for the shared schedule are no longer taken into account
-                // - the communication logging of the shared ComTaskExecution is no longer shown in the communication task history
-            }
+            ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().removeSchedule().update();
         } else {
             ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(info.schedule.asTemporalExpression()).update();
         }
