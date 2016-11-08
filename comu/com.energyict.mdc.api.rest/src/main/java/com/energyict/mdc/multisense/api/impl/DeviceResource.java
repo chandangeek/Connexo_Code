@@ -87,7 +87,7 @@ public class DeviceResource {
     @Path("/{mrid}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public DeviceInfo getDevice(@PathParam("mrid") String mRID, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
-        return deviceService.findByUniqueMrid(mRID)
+        return deviceService.findDeviceByMrid(mRID)
                 .map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
     }
@@ -135,9 +135,9 @@ public class DeviceResource {
 
         Device newDevice;
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch, Instant.now(clock));
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.name, info.batch, Instant.now(clock));
         } else {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, Instant.now(clock));
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.name, Instant.now(clock));
         }
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(info.yearOfCertification);
@@ -172,13 +172,13 @@ public class DeviceResource {
         }
         Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
-        if (info.masterDevice!=null && info.masterDevice.mRID != null) {
+        if (info.masterDevice != null && info.masterDevice.mRID != null) {
             if (device.getDeviceConfiguration().isDirectlyAddressable()) {
                 throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
             }
             Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
             if (!currentGateway.isPresent() || !currentGateway.get().getmRID().equals(info.masterDevice.mRID)) {
-                Device newGateway = deviceService.findByUniqueMrid(info.masterDevice.mRID)
+                Device newGateway = deviceService.findDeviceByMrid(info.masterDevice.mRID)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GATEWAY));
                 topologyService.setPhysicalGateway(device, newGateway);
             }

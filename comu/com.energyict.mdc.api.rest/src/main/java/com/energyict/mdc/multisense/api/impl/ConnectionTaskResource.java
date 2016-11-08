@@ -35,6 +35,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -83,7 +84,7 @@ public class ConnectionTaskResource {
                                               @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ConnectionTaskInfo> infos = ListPager.
-                of(device.getConnectionTasks(), (a, b) -> a.getName().compareTo(b.getName())).
+                of(device.getConnectionTasks(), Comparator.comparing(ConnectionTask::getName)).
                 from(queryParameters).stream().
                 map(ct -> connectionTaskInfoFactory.from(ct, uriInfo, fieldSelection.getFields())).
                 collect(toList());

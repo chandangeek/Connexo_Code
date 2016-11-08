@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -69,7 +70,7 @@ public class ConfigurationSecurityPropertySetResource {
                                                  @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         DeviceConfiguration deviceConfiguration = findDeviceConfigurationOrThrowException(deviceTypeId, deviceConfigurationId);
         List<ConfigurationSecurityPropertySetInfo> securityPropertySetInfos =
-                ListPager.of(deviceConfiguration.getSecurityPropertySets(), (ss1, ss2) -> ss1.getName().compareToIgnoreCase(ss2.getName()))
+                ListPager.of(deviceConfiguration.getSecurityPropertySets(), Comparator.comparing(SecurityPropertySet::getName, String.CASE_INSENSITIVE_ORDER))
                          .from(queryParameters)
                          .stream()
                          .map(ss -> securityPropertySetInfoFactory.from(ss, uriInfo, fieldSelection.getFields()))
