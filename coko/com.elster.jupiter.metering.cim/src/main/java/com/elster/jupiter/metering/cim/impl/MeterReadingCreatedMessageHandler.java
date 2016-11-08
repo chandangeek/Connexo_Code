@@ -1,10 +1,11 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings.ObjectFactory;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.json.JsonService;
+
+import ch.iec.tc57._2011.meterreadings.ObjectFactory;
 import com.google.common.collect.Range;
 import org.osgi.service.event.EventConstants;
 
@@ -38,7 +39,7 @@ public class MeterReadingCreatedMessageHandler implements MessageHandler {
         Long end = getLong(map, "end");
         Long meterId = getLong(map, "meterId");
         Range<Instant> range = Range.closed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end));
-        messageGenerator.generateMessage(meteringService.findMeter(meterId).get(), range);
+        messageGenerator.generateMessage(meteringService.findMeterById(meterId).get(), range);
     }
 
     private Long getLong(Map<?, ?> map, String key) {

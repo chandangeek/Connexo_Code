@@ -142,7 +142,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
 
     private void addForRequestedEndDevices(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Range<Instant> range) {
         for (String endDeviceMrid : requestedEndDevices(request)) {
-            Optional<com.elster.jupiter.metering.EndDevice> found = meteringService.findEndDevice(endDeviceMrid);
+            Optional<com.elster.jupiter.metering.EndDevice> found = meteringService.findEndDeviceByMRID(endDeviceMrid);
             if (found.isPresent() && found.get() instanceof Meter) {
                 addForMeter(meterReadingsPayloadType, (Meter) found.get(), range);
             }
@@ -161,7 +161,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     private void addForRequestedUsagePoints(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Range<Instant> range) {
         List<String> usagePointMrids = requestedUsagePoints(request);
         for (String usagePointMrid : usagePointMrids) {
-            Optional<com.elster.jupiter.metering.UsagePoint> found = meteringService.findUsagePoint(usagePointMrid);
+            Optional<com.elster.jupiter.metering.UsagePoint> found = meteringService.findUsagePointByMRID(usagePointMrid);
             if (found.isPresent()) {
                 addForUsagePoint(meterReadingsPayloadType, found.get(), range);
             }
