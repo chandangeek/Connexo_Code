@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -28,6 +29,7 @@ public class DeviceSchedulesInfo {
     public VersionInfo<String> parent;
     public boolean active;
     public boolean hasConnectionWindow;
+    public boolean isASAP;
 
     public DeviceSchedulesInfo() {
     }
@@ -84,6 +86,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
+        deviceSchedulesInfo.isASAP = isASAP(comTaskExecution);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -100,6 +103,23 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
+        deviceSchedulesInfo.isASAP = isASAP(comTaskExecution);
+        Device device = comTaskExecution.getDevice();
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        return deviceSchedulesInfo;
+    }
+
+    public static DeviceSchedulesInfo fromAdHoc(ComTaskExecution comTaskExecution) {
+        DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
+        deviceSchedulesInfo.id = comTaskExecution.getId();
+        deviceSchedulesInfo.type = ScheduleType.ADHOC;
+        deviceSchedulesInfo.plannedDate = comTaskExecution.getNextExecutionTimestamp();
+        deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
+        deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
+        deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
+        deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
+        deviceSchedulesInfo.isASAP = isASAP(comTaskExecution);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -115,20 +135,16 @@ public class DeviceSchedulesInfo {
         return false;
     }
 
-    public static DeviceSchedulesInfo fromAdHoc(ComTaskExecution comTaskExecution) {
-        DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
-        deviceSchedulesInfo.id = comTaskExecution.getId();
-        deviceSchedulesInfo.type = ScheduleType.ADHOC;
-        deviceSchedulesInfo.plannedDate = comTaskExecution.getNextExecutionTimestamp();
-        deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
-        deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
-        deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        deviceSchedulesInfo.version = comTaskExecution.getVersion();
-        deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
-        Device device = comTaskExecution.getDevice();
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
-        return deviceSchedulesInfo;
+    private static boolean isASAP(ComTaskExecution comTaskExecution) {
+        if(comTaskExecution.getConnectionTask().isPresent()) {
+            if(comTaskExecution.getConnectionTask().get() instanceof ScheduledConnectionTask) {
+                ScheduledConnectionTask task = (ScheduledConnectionTask) comTaskExecution.getConnectionTask().get();
+                return task.getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+            }
+        }
+        return false;
     }
+
 
     private enum ScheduleType {
         ONREQUEST,SCHEDULED,INDIVIDUAL,ADHOC;
