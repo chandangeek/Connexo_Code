@@ -65,7 +65,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
         this.version = connectionTask.getVersion();
         Device device = connectionTask.getDevice();
-        this.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        this.parent = new VersionInfo<>(device.getName(), device.getVersion());
     }
 
 

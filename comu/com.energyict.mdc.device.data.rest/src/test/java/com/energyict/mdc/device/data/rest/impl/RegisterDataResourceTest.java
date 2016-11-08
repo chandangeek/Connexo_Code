@@ -198,7 +198,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testGetRegisterData() throws Exception {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -262,7 +262,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testGetRegisterDataSuspectsOnly() throws Exception {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -285,7 +285,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testPutRegisterData() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
         when(readingType.getMRID()).thenReturn("mRID");
@@ -306,7 +306,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testPutRegisterDataExceedsOverflow() throws IOException {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getOverflowValue()).thenReturn(Optional.of(BigDecimal.ONE));
         when(device.getId()).thenReturn(1L);
@@ -324,7 +324,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testPutConfirmRegisterData() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
         when(readingType.getMRID()).thenReturn("mRID");

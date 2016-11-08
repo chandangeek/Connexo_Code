@@ -39,8 +39,8 @@ public class DeviceHistoryResource {
     @Path("/devicelifecyclechanges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getDeviceLifeCycleStatesHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getDeviceLifeCycleStatesHistory(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return Response.ok(deviceLifeCycleHistoryInfoFactory.createDeviceLifeCycleChangeInfos(device)).build();
     }
 
@@ -49,8 +49,8 @@ public class DeviceHistoryResource {
     @Path("/firmwarechanges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getFirmwareHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getFirmwareHistory(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return Response.ok(deviceFirmwareHistoryInfoFactory.createDeviceFirmwareHistoryInfos(device)).build();
     }
 
@@ -59,8 +59,8 @@ public class DeviceHistoryResource {
     @Path("/meteractivations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public PagedInfoList getMeterActivationsHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getMeterActivationsHistory(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<MeterActivationInfo> meterActivationInfoList = device.getMeterActivationsMostRecentFirst().stream()
                 .map(meterActivation -> meterActivationInfoFactory.asInfo(meterActivation, device))
                 .collect(Collectors.toList());

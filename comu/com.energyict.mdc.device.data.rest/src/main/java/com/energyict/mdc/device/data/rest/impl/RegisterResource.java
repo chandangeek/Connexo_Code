@@ -65,8 +65,8 @@ public class RegisterResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getRegisters(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
@@ -83,8 +83,8 @@ public class RegisterResource {
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public RegisterInfo getRegister(@PathParam("name") String name, @PathParam("registerId") long registerId) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         return deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register), topologyService);
     }
 
@@ -94,9 +94,9 @@ public class RegisterResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
-    public Response updateRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterInfo registerInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public Response updateRegister(@PathParam("name") String name, @PathParam("registerId") long registerId, RegisterInfo registerInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        Register<?, ?> register = doGetRegister(name, registerId);
         Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) {
             NumericalRegisterInfo numericalRegisterInfo = ((NumericalRegisterInfo) registerInfo);
@@ -113,8 +113,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public PagedInfoList getDeviceCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public PagedInfoList getDeviceCustomProperties(@PathParam("name") String name, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, this.clock.instant());
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Collections.singletonList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
@@ -124,8 +124,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public CustomPropertySetInfo getDeviceCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public CustomPropertySetInfo getDeviceCustomProperties(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, this.clock.instant());
         if (customPropertySetInfo.id != cpsId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
@@ -138,8 +138,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public CustomPropertySetInfo getRegisterCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public CustomPropertySetInfo getRegisterCustomProperties(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, Instant.ofEpochMilli(timeStamp));
         if (customPropertySetInfo.id != cpsId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
@@ -152,8 +152,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getRegisterCustomPropertiesHistory(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public PagedInfoList getRegisterCustomPropertiesHistory(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         return PagedInfoList.fromCompleteList("versions", resourceHelper.getVersionedCustomPropertySetHistoryInfos(register, cpsId), queryParameters);
     }
 
@@ -162,8 +162,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public IntervalInfo getCurrentTimeInterval(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(register, cpsId));
 
         return IntervalInfo.from(interval.toClosedOpenRange());
@@ -174,8 +174,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public PagedInfoList getOverlaps(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(register, cpsId, resourceHelper.getTimeRange(startTime, endTime));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
@@ -186,8 +186,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public PagedInfoList getOverlaps(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(register, cpsId, resourceHelper.getTimeRange(startTime, endTime), Instant.ofEpochMilli(timeStamp));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
@@ -199,8 +199,8 @@ public class RegisterResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public Response changeRegisterCustomProperty(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         resourceHelper.lockRegisterTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
         resourceHelper.setRegisterCustomPropertySet(register, customPropertySetInfo);
@@ -212,8 +212,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response addRegisterCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public Response addRegisterCustomAttributeVersioned(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         resourceHelper.lockRegisterTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
@@ -240,8 +240,8 @@ public class RegisterResource {
     @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response editRegisterCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+    public Response editRegisterCustomAttributeVersioned(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         resourceHelper.lockRegisterTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
@@ -269,9 +269,9 @@ public class RegisterResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterTriggerValidationInfo validationInfo) {
+    public Response validateNow(@PathParam("name") String name, @PathParam("registerId") long registerId, RegisterTriggerValidationInfo validationInfo) {
         Device device = resourceHelper.lockDeviceOrThrowException(validationInfo);
-        Register<?, ?> register = doGetRegister(mRID, registerId);
+        Register<?, ?> register = doGetRegister(name, registerId);
         if (validationInfo.lastChecked == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
         }
@@ -292,8 +292,8 @@ public class RegisterResource {
         register.getDevice().forValidation().validateRegister(register);
     }
 
-    private Register<?, ?> doGetRegister(String mRID, long registerId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    private Register<?, ?> doGetRegister(String deviceName, long registerId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         return resourceHelper.findRegisterOrThrowException(device, registerId);
     }
 
@@ -307,8 +307,8 @@ public class RegisterResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
-        Register<?, ?> register = doGetRegister(mrid, registerId);
+    public Response getValidationFeatureStatus(@PathParam("name") String name, @PathParam("registerId") long registerId) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         ValidationStatusInfo validationStatusInfo = determineStatus(register);
         return Response.status(Response.Status.OK).entity(validationStatusInfo).build();
     }
@@ -318,8 +318,8 @@ public class RegisterResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationStatusPreview(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
-        Register<?, ?> register = doGetRegister(mrid, registerId);
+    public Response getValidationStatusPreview(@PathParam("name") String name, @PathParam("registerId") long registerId) {
+        Register<?, ?> register = doGetRegister(name, registerId);
         DetailedValidationInfo detailedValidationInfo = validationInfoHelper.getRegisterValidationInfo(register);
         return Response.status(Response.Status.OK).entity(detailedValidationInfo).build();
     }
@@ -341,8 +341,8 @@ public class RegisterResource {
     @Path("/{registerId}/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public RegisterHistoryInfos getDataLoggerSlaveRegisterHistory(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
-        Register register = resourceHelper.findRegisterOnDeviceOrThrowException(mRID, registerId);
+    public RegisterHistoryInfos getDataLoggerSlaveRegisterHistory(@PathParam("name") String name, @PathParam("registerId") long registerId) {
+        Register register = resourceHelper.findRegisterOnDeviceOrThrowException(name, registerId);
         return RegisterHistoryInfos.from(topologyService.findDataLoggerChannelUsagesForRegisters(register, Range.atMost(clock.instant())));
     }
 }
