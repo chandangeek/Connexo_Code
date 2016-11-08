@@ -21,11 +21,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -36,6 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.FILTER;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
@@ -116,7 +116,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         List<IssueComment> comments = Arrays.asList(mockComment(1L, "My comment", getDefaultUser()));
 
         Query<IssueComment> commentsQuery = mock(Query.class);
-        when(commentsQuery.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
+        when(commentsQuery.select(Matchers.anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
 
         when(issueService.query(IssueComment.class, User.class)).thenReturn(commentsQuery);
         Map<?, ?> map = target("/issues/1/comments").request().get(Map.class);
@@ -272,7 +272,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
         assertThat(deviceMap.get("id")).isEqualTo(1);
         assertThat(deviceMap.get("serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
-        assertThat(deviceMap.get("name")).isEqualTo(null);
+        assertThat(deviceMap.get("name")).isEqualTo("DefaultDevice");
         assertThat(deviceMap.get("usagePoint")).isEqualTo(null);
         assertThat(deviceMap.get("serviceLocation")).isEqualTo(null);
         assertThat(deviceMap.get("serviceCategory")).isEqualTo(null);
