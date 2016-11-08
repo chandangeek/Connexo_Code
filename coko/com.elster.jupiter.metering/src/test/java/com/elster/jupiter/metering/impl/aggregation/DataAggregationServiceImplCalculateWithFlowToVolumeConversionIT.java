@@ -636,12 +636,12 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = mdc.newMeter(amrIdBase).create();
+        this.meter = mdc.newMeter(amrIdBase, amrIdBase).create();
     }
 
-    private void setupUsagePoint(String mRID) {
+    private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName("DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT").create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
     }
 
     private void activateMeterWithAll15MinChannels() {

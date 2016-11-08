@@ -30,9 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -112,15 +110,13 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, meteringService, metrologyConfigurationService, dataAggregationService));
-        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointConnectionStateImpl();
-            }
-        });
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus,
+                () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService));
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocationOnMock -> new UsagePointConnectionStateImpl());
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
+        assertThat(usagePoint.getName()).isEqualTo("name");
+        assertThat(usagePoint.getInstallationTime()).isEqualTo(Instant.EPOCH);
     }
 
     @Test

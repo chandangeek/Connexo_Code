@@ -57,8 +57,6 @@ public interface EndDevice extends HasId, IdentifiedObject {
 
     void setSerialNumber(String serialNumber);
 
-    void setMRID(String mrid);
-
     void setLocation(Location location);
 
     Optional<Location> getLocation();
@@ -119,8 +117,7 @@ public interface EndDevice extends HasId, IdentifiedObject {
     /**
      * The Instant in time when this EndDevice was made obsolete.
      *
-     * @return The instant in time or <code>Optional.empty()</code> if this EndDevice is not obsolete
+     * @return The instant in time or {@code Optional.empty()} if this EndDevice is not obsolete
      */
     Optional<Instant> getObsoleteTime();
-
 }

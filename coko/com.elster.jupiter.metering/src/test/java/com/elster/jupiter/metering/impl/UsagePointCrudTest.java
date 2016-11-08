@@ -143,7 +143,7 @@ public class UsagePointCrudTest {
     private void doTest(ServerMeteringService meteringService) {
         DataModel dataModel = meteringService.getDataModel();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
         long id = usagePoint.getId();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
         usagePoint.update();

@@ -39,19 +39,19 @@ class ServiceCategoryImpl implements ServiceCategory {
         }
     }
 
-	//persistent fields
-	private ServiceKind kind;
-	private String aliasName;
-	private String description;
+    //persistent fields
+    private ServiceKind kind;
+    private String aliasName;
+    private String description;
     private boolean active;
-	@SuppressWarnings("unused")
-	private long version;
-	@SuppressWarnings("unused")
-	private Instant createTime;
-	@SuppressWarnings("unused")
-	private Instant modTime;
-	@SuppressWarnings("unused")
-	private String userName;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     private final DataModel dataModel;
     private final Clock clock;
@@ -67,62 +67,62 @@ class ServiceCategoryImpl implements ServiceCategory {
         this.thesaurus = thesaurus;
     }
 
-	ServiceCategoryImpl init(ServiceKind kind) {
-		this.kind = kind;
+    ServiceCategoryImpl init(ServiceKind kind) {
+        this.kind = kind;
         return this;
-	}
+    }
 
-	public ServiceKind getKind() {
-		return kind;
-	}
+    public ServiceKind getKind() {
+        return kind;
+    }
 
-	public long getId() {
-		return kind.ordinal() + 1;
-	}
+    public long getId() {
+        return kind.ordinal() + 1;
+    }
 
-	@Override
-	public String getName() {
-		return kind.getDisplayName(thesaurus);
-	}
+    @Override
+    public String getName() {
+        return kind.getDisplayName(thesaurus);
+    }
 
-	@Override
-	public String getAliasName() {
-		return aliasName;
-	}
+    @Override
+    public String getAliasName() {
+        return aliasName;
+    }
 
     public void setAliasName(String aliasName) {
         this.aliasName = aliasName;
     }
 
     @Override
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
     public void persist() {
-		dataModel.persist(this);
-	}
+        dataModel.persist(this);
+    }
 
     public void update() {
         dataModel.update(this);
     }
 
-    public UsagePointBuilder newUsagePoint(String mRID) {
-		return this.newUsagePoint(mRID, this.clock.instant());
-	}
+    public UsagePointBuilder newUsagePoint(String name) {
+        return this.newUsagePoint(name, this.clock.instant());
+    }
 
     @Override
-    public UsagePointBuilder newUsagePoint(String mRID, Instant installationTime) {
-        return new UsagePointBuilderImpl(dataModel, mRID, installationTime, this);
+    public UsagePointBuilder newUsagePoint(String name, Instant installationTime) {
+        return new UsagePointBuilderImpl(dataModel, name, installationTime, this);
     }
 
     @Override
     public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Instant start) {
-    	Interval interval = Interval.of(Range.atLeast(start));
+        Interval interval = Interval.of(Range.atLeast(start));
         if (kind.equals(ServiceKind.ELECTRICITY)) {
             return ElectricityDetailImpl.from(dataModel, usagePoint, interval);
         } else if (kind.equals(ServiceKind.GAS)) {
@@ -147,7 +147,8 @@ class ServiceCategoryImpl implements ServiceCategory {
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         if (serviceCategoryCustomPropertySetUsages.stream().noneMatch(e -> e.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())) {
-            ServiceCategoryCustomPropertySetUsage serviceCategoryCustomPropertySetUsage = this.dataModel.getInstance(ServiceCategoryCustomPropertySetUsage.class).initialize(this, registeredCustomPropertySet);
+            ServiceCategoryCustomPropertySetUsage serviceCategoryCustomPropertySetUsage = this.dataModel.getInstance(ServiceCategoryCustomPropertySetUsage.class)
+                    .initialize(this, registeredCustomPropertySet);
             this.serviceCategoryCustomPropertySetUsages.add(serviceCategoryCustomPropertySetUsage);
         }
     }
