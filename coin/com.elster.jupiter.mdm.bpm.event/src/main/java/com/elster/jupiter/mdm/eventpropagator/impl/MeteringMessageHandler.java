@@ -42,7 +42,6 @@ public class MeteringMessageHandler implements MessageHandler {
 
         Stream.of(EventType.METER_UPDATED,
                 EventType.USAGEPOINT_UPDATED,
-                EventType.METER_ACTIVATED,
                 EventType.METERREADING_CREATED)
                 .filter(et -> (messageProperties.containsKey("id")
                         || messageProperties.containsKey("meterId"))
@@ -52,35 +51,34 @@ public class MeteringMessageHandler implements MessageHandler {
                 .ifPresent(eventType -> {
                     switch (eventType) {
                         case USAGEPOINT_UPDATED:
-                        case METER_ACTIVATED:
-                            sendSignalToActiveProsesses(Long.valueOf(messageProperties.get("id")
-                                    .toString()), eventType.name());
+                            meteringService.findUsagePointById(Long.valueOf(messageProperties.get("id").toString()))
+                                    .ifPresent(usagePoint -> sendSignalToActiveProcesses(usagePoint.getMRID(), eventType.name()));
                             break;
                         case METER_UPDATED:
-                            meteringService.findMeter(Long.valueOf(messageProperties.get("id").toString()))
+                            meteringService.findMeterById(Long.valueOf(messageProperties.get("id").toString()))
                                     .map(meter -> meter.getUsagePoint(clock.instant()))
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .ifPresent(usagePoint -> sendSignalToActiveProsesses(usagePoint.getId(), eventType.name()));
+                                    .ifPresent(usagePoint -> sendSignalToActiveProcesses(usagePoint.getMRID(), eventType.name()));
                             break;
                         case METERREADING_CREATED:
-                            meteringService.findMeter(Long.valueOf(messageProperties.get("meterId").toString()))
+                            meteringService.findMeterById(Long.valueOf(messageProperties.get("meterId").toString()))
                                     .map(meter -> meter.getUsagePoint(clock.instant()))
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .ifPresent(usagePoint -> sendSignalToActiveProsesses(usagePoint.getId(), eventType.name()));
+                                    .ifPresent(usagePoint -> sendSignalToActiveProcesses(usagePoint.getMRID(), eventType.name()));
                     }
                 });
     }
 
-    private void sendSignalToActiveProsesses(long usagePointId, String signal) {
-        getUsagePointProcessSignalUrls(usagePointId).stream()
+    private void sendSignalToActiveProcesses(String usagePointMrid, String signal) {
+        getUsagePointProcessSignalUrls(usagePointMrid).stream()
                 .map(url -> url.concat(signal))
                 .forEach(url -> bpmService.getBpmServer().doPost(url, null));
     }
 
-    private List<String> getUsagePointProcessSignalUrls(long usagePointId) {
-        ProcessInstanceInfos activeProcesses = bpmService.getRunningProcesses(null, "?variableid=usagePointId&variablevalue=" + usagePointId);
+    private List<String> getUsagePointProcessSignalUrls(String usagePointMrid) {
+        ProcessInstanceInfos activeProcesses = bpmService.getRunningProcesses(null, "?variableid=usagePointId&variablevalue=" + usagePointMrid);
 
         List<ProcessDefinitionInfo> processes = getDeployments().map(processDefinitionInfos -> processDefinitionInfos.processDefinitionList)
                 .orElse(Collections.emptyList());
