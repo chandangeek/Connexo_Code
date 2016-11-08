@@ -31,7 +31,7 @@ Ext.define('Idc.view.InboundIssueDetailsForm', {
                             {
                                 itemId: 'inbound-issue-device',
                                 fieldLabel: Uni.I18n.translate('general.title.device', 'IDC', 'Device'),
-                                name: 'deviceMRID',
+                                name: 'deviceName',
                                 renderer: function (value) {
                                     return value ? Ext.String.htmlEncode(value) : '';
                                 }
