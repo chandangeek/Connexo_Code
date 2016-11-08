@@ -47,7 +47,7 @@ public class GasDetailInfoFactory extends SelectableFieldFactory<GasDetailInfo, 
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Gas details")
-                .build(gasDetail.getUsagePoint().getId(), gasDetail.getRange().lowerEndpoint().toEpochMilli());
+                .build(gasDetail.getUsagePoint().getMRID(), gasDetail.getRange().lowerEndpoint().toEpochMilli());
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {

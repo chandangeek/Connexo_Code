@@ -32,7 +32,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/usagepoints/{usagePointId}/meteractivations")
+@Path("/usagepoints/{mRID}/meteractivations")
 public class MeterActivationResource {
 
     private final MeterActivationInfoFactory meterActivationInfoFactory;
@@ -49,7 +49,7 @@ public class MeterActivationResource {
     /**
      * The meter activation records which meter was associated with a usage point during which time frame.
      *
-     * @param usagePointId Unique identifier of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param meterActivationId Unique identifier of the meter activation
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
@@ -60,8 +60,8 @@ public class MeterActivationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{meterActivationId}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public MeterActivationInfo getMeterActivation(@PathParam("usagePointId") long usagePointId, @PathParam("meterActivationId") long meterActivationId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        MeterActivation meterActivation = meteringService.findUsagePoint(usagePointId)
+    public MeterActivationInfo getMeterActivation(@PathParam("mRID") String mRID, @PathParam("meterActivationId") long meterActivationId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        MeterActivation meterActivation = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getMeterActivations().stream()
                 .filter(ma -> ma.getId() == meterActivationId)
@@ -73,7 +73,7 @@ public class MeterActivationResource {
     /**
      * The meter activation records which meter was associated with a usage point during which time frame.
      *
-     * @param usagePointId Unique identifier of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @param queryParameters query parameters
@@ -83,8 +83,8 @@ public class MeterActivationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<MeterActivationInfo> getMeterActivations(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+    public PagedInfoList<MeterActivationInfo> getMeterActivations(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         List<MeterActivationInfo> meterActivationInfos = usagePoint
                 .getMeterActivations().stream()
@@ -92,7 +92,7 @@ public class MeterActivationResource {
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(MeterActivationResource.class)
-                .resolveTemplate("usagePointId", usagePoint.getId());
+                .resolveTemplate("mRID", mRID);
 
         return PagedInfoList.from(meterActivationInfos, queryParameters, uriBuilder, uriInfo);
     }
@@ -101,8 +101,8 @@ public class MeterActivationResource {
      * The meter activation records which meter was associated with a usage point during which time frame.
      * When creating a meter activation, the start time must be provided. Meter is optional.
      *
+     * @param mRID Unique identifier of the usage point
      * @param meterActivationInfo Description of the to be created meter activation
-     * @param usagePointId Unique identifier of the usage point
      * @param uriInfo uriInfo
      * @return The created meter activation
      * @summary Create a new activation for a meter
@@ -112,11 +112,11 @@ public class MeterActivationResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
-    public MeterActivationInfo createMeterActivation(@PathParam("usagePointId") long usagePointId, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
+    public MeterActivationInfo createMeterActivation(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
         if (meterActivationInfo == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EMPTY_REQUEST);
         }
-        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
         if (meterActivationInfo.interval == null || meterActivationInfo.interval.start == null) {
@@ -134,7 +134,7 @@ public class MeterActivationResource {
         if (meterActivationInfo.meter == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
         }
-        Meter meter = meteringService.findMeter(meterActivationInfo.meter)
+        Meter meter = meteringService.findMeterById(meterActivationInfo.meter)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
         activation = usagePoint.activate(meter, start);
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
@@ -163,6 +163,4 @@ public class MeterActivationResource {
     public List<String> getFields() {
         return meterActivationInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
 }

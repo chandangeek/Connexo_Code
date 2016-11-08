@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +43,6 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
 
-    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -60,37 +58,45 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetSingleUsagePointWithFields() throws Exception {
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY);
-        Response response = target("/usagepoints/31").queryParam("fields", "id,name").request().get();
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
+        when(usagePoint.getId()).thenReturn(31L);
+        when(usagePoint.getName()).thenReturn("usage point");
 
+        // Business method
+        Response response = target("/usagepoints/" + MRID).queryParam("fields", "id,name,mrid").request().get();
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<Integer>get("$.id")).isEqualTo(31);
-        Assertions.assertThat(model.<Integer>get("$.version")).isNull();
-        Assertions.assertThat(model.<String>get("$.name")).isEqualTo("usage point");
-        Assertions.assertThat(model.<String>get("$.link")).isNull();
-        Assertions.assertThat(model.<String>get("$.readRoute")).isNull();
+        assertThat(model.<Integer>get("$.id")).isEqualTo(31);
+        assertThat(model.<String>get("$.name")).isEqualTo("usage point");
+        assertThat(model.<String>get("$.mrid")).isEqualTo(MRID);
+        assertThat(model.<Integer>get("$.version")).isNull();
+        assertThat(model.<String>get("$.link")).isNull();
+        assertThat(model.<String>get("$.readRoute")).isNull();
     }
 
     @Test
     public void testGetSingleUsagePointDetails() throws Exception {
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY);
-        Response response = target("/usagepoints/31").queryParam("fields", "detail").request().get();
+        mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
 
+        // Business method
+        Response response = target("/usagepoints/" + MRID).queryParam("fields", "detail").request().get();
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<Integer>get("$.id")).isNull();
-        Assertions.assertThat(model.<Integer>get("$.version")).isNull();
-        Assertions.assertThat(model.<String>get("$.name")).isNull();
-        Assertions.assertThat(model.<String>get("$.link")).isNull();
-        Assertions.assertThat(model.<String>get("$.readRoute")).isNull();
-        Assertions.assertThat(model.<String>get("$.detail.link.href"))
-                .isEqualTo("http://localhost:9998/usagepoints/31/details/" + clock.millis());
+        assertThat(model.<Integer>get("$.id")).isNull();
+        assertThat(model.<String>get("$.name")).isNull();
+        assertThat(model.<Integer>get("$.version")).isNull();
+        assertThat(model.<String>get("$.link")).isNull();
+        assertThat(model.<String>get("$.readRoute")).isNull();
+        assertThat(model.<String>get("$.detail.link.href")).isEqualTo("http://localhost:9998/usagepoints/" + MRID + "/details/" + clock.millis());
     }
 
     @Test
     public void testGetSingleUsagePointWithLocation() throws Exception {
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
         LocationMember locationMember = mock(LocationMember.class);
         when(locationMember.getAddressDetail()).thenReturn("address detail");
         when(locationMember.getAdministrativeArea()).thenReturn("administrative area");
@@ -111,40 +117,45 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         Location location = mock(Location.class);
         doReturn(Collections.singletonList(locationMember)).when(location).getMembers();
         when(usagePoint.getLocation()).thenReturn(Optional.of(location));
-        Response response = target("/usagepoints/31").request().get();
 
+        // Business method
+        Response response = target("/usagepoints/" + MRID).request().get();
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<String>get("$.locations[0].addressDetail")).isEqualTo("address detail");
-        Assertions.assertThat(model.<String>get("$.locations[0].administrativeArea")).isEqualTo("administrative area");
-        Assertions.assertThat(model.<String>get("$.locations[0].countryCode")).isEqualTo("country code");
-        Assertions.assertThat(model.<String>get("$.locations[0].countryName")).isEqualTo("country name");
-        Assertions.assertThat(model.<String>get("$.locations[0].establishmentName")).isEqualTo("establishment name");
-        Assertions.assertThat(model.<String>get("$.locations[0].establishmentNumber"))
-                .isEqualTo("establishment number");
-        Assertions.assertThat(model.<String>get("$.locations[0].establishmentType")).isEqualTo("establishment type");
-        Assertions.assertThat(model.<String>get("$.locations[0].locale")).isEqualTo("locale");
-        Assertions.assertThat(model.<String>get("$.locations[0].locality")).isEqualTo("locality");
-        Assertions.assertThat(model.<Integer>get("$.locations[0].locationId")).isEqualTo(111);
-        Assertions.assertThat(model.<String>get("$.locations[0].streetName")).isEqualTo("street name");
-        Assertions.assertThat(model.<String>get("$.locations[0].streetType")).isEqualTo("street type");
-        Assertions.assertThat(model.<String>get("$.locations[0].streetNumber")).isEqualTo("321");
-        Assertions.assertThat(model.<String>get("$.locations[0].subLocality")).isEqualTo("sub locality");
-        Assertions.assertThat(model.<String>get("$.locations[0].zipCode")).isEqualTo("zip code");
+        assertThat(model.<String>get("$.locations[0].addressDetail")).isEqualTo("address detail");
+        assertThat(model.<String>get("$.locations[0].administrativeArea")).isEqualTo("administrative area");
+        assertThat(model.<String>get("$.locations[0].countryCode")).isEqualTo("country code");
+        assertThat(model.<String>get("$.locations[0].countryName")).isEqualTo("country name");
+        assertThat(model.<String>get("$.locations[0].establishmentName")).isEqualTo("establishment name");
+        assertThat(model.<String>get("$.locations[0].establishmentNumber")).isEqualTo("establishment number");
+        assertThat(model.<String>get("$.locations[0].establishmentType")).isEqualTo("establishment type");
+        assertThat(model.<String>get("$.locations[0].locale")).isEqualTo("locale");
+        assertThat(model.<String>get("$.locations[0].locality")).isEqualTo("locality");
+        assertThat(model.<Integer>get("$.locations[0].locationId")).isEqualTo(111);
+        assertThat(model.<String>get("$.locations[0].streetName")).isEqualTo("street name");
+        assertThat(model.<String>get("$.locations[0].streetType")).isEqualTo("street type");
+        assertThat(model.<String>get("$.locations[0].streetNumber")).isEqualTo("321");
+        assertThat(model.<String>get("$.locations[0].subLocality")).isEqualTo("sub locality");
+        assertThat(model.<String>get("$.locations[0].zipCode")).isEqualTo("zip code");
     }
 
     @Test
     public void testUpdateUsagePoint() throws Exception {
-        Instant now = Instant.now(clock);
         UsagePointInfo info = new UsagePointInfo();
         info.serviceKind = ServiceKind.ELECTRICITY;
         info.aliasName = "alias";
         info.version = 2L;
         info.description = "description";
 
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
-        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID).request().put(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -158,7 +169,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.serviceKind = ServiceKind.ELECTRICITY;
 
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
@@ -172,7 +183,10 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
         when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
 
-        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+        // Business method
+        Response response = target("/usagepoints/" + MRID).request().put(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(usagePoint, never()).removeMetrologyConfiguration(clock.instant());
         verify(usagePoint, never()).apply(metrologyConfiguration, clock.instant());
@@ -186,7 +200,6 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.description = "desc";
         info.installationTime = now;
         info.serviceLocation = "here";
-        info.mrid = "mmmmm";
         info.name = "naam";
         info.outageRegion = "outage";
         info.serviceDeliveryRemark = "remark";
@@ -196,15 +209,19 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
 
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getId()).thenReturn(6L);
+        when(usagePoint.getMRID()).thenReturn(MRID);
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         UsagePointBuilder usagePointBuilder = FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class);
         when(serviceCategory.newUsagePoint(any(), any())).thenReturn(usagePointBuilder);
         when(meteringService.getServiceCategory(ServiceKind.GAS)).thenReturn(Optional.of(serviceCategory));
 
+        // Business method
         Response response = target("/usagepoints").request().post(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        assertThat(response.getLocation()).isEqualTo(new URI("http://localhost:9998/usagepoints/6"));
-        verify(usagePointBuilder).withName("naam");
+        assertThat(response.getLocation()).isEqualTo(new URI("http://localhost:9998/usagepoints/" + MRID));
+        verify(serviceCategory).newUsagePoint("naam", now);
         verify(usagePointBuilder).withAliasName("alias");
         verify(usagePointBuilder).withDescription("desc");
         verify(usagePointBuilder).withOutageRegion("outage");
@@ -219,8 +236,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(20);
-        Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
+        assertThat(model.<List>get("$")).hasSize(20);
+        assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "description",
                 "id",
@@ -246,7 +263,6 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     @Test
     public void testUsagePointCommand() throws Exception {
         mockCommands();
-        Instant now = Instant.now(clock);
         UsagePointCommandInfo info = new UsagePointCommandInfo();
         info.command = UsagePointCommand.CONNECT;
         info.httpCallBack = new UsagePointCommandCallbackInfo();
@@ -255,11 +271,15 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.httpCallBack.partialSuccessURL = "http://successPartial";
         info.httpCallBack.failureURL = "http://fail";
 
-        UsagePoint usagePoint = mockUsagePoint(33L, "usage point", 2L, ServiceKind.ELECTRICITY);
-        Response response = target("/usagepoints/33/command").request().put(Entity.json(info));
+        mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/commands").request().put(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<String>get("status")).isEqualTo("FAILED");
-        Assertions.assertThat(model.<String>get("id")).isEqualTo("MRID");
+        assertThat(model.<String>get("status")).isEqualTo("FAILED");
+        assertThat(model.<String>get("id")).isEqualTo(MRID);
     }
 }

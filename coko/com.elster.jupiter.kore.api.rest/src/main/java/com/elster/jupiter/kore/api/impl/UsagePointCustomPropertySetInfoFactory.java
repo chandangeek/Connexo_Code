@@ -50,7 +50,7 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Custom property set")
-                .build(usagePointCustomPropertySet.getUsagePoint().getId(), usagePointCustomPropertySet.getId());
+                .build(usagePointCustomPropertySet.getUsagePoint().getMRID(), usagePointCustomPropertySet.getId());
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -150,5 +150,4 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
         return customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet()
                 .getPropertySpecs());
     }
-
 }

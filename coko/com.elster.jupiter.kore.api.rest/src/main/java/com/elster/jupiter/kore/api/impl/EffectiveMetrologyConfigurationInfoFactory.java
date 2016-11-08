@@ -47,8 +47,7 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Metrology configuration")
-                .build(metrology.getUsagePoint().getId(), metrology.getRange().hasLowerBound() ? metrology.getRange()
-                        .lowerEndpoint().toEpochMilli() : 0);
+                .build(metrology.getUsagePoint().getMRID(), metrology.getRange().hasLowerBound() ? metrology.getRange().lowerEndpoint().toEpochMilli() : 0);
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -75,10 +74,10 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
                 .asLink(metrology.getMetrologyConfiguration(), Relation.REF_RELATION, uriInfo));
         map.put("purposes", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.purposes = metrology.getMetrologyConfiguration()
                 .getContracts().stream().map(c -> metrologyConfigurationPurposeInfoFactory.get().asInfo(
-                        c.getId()
-                        , c.getMetrologyPurpose().getName()
-                        , c.isMandatory()
-                        , c.getStatus(metrology.getUsagePoint()).getKey())).collect(Collectors.toList()));
+                        c.getId(),
+                        c.getMetrologyPurpose().getName(),
+                        c.isMandatory(),
+                        c.getStatus(metrology.getUsagePoint()).getKey())).collect(Collectors.toList()));
         return map;
     }
 }
