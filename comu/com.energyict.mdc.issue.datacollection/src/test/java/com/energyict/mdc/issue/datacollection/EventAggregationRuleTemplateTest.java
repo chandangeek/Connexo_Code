@@ -8,8 +8,8 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
-import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class EventAggregationRuleTemplateTest extends BaseTest {
     @Transactional
     public void testCanCreateIssue() {
         CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_POWER_OUTAGE);
-        Meter meter = createMeter("1", "mrid");
+        Meter meter = createMeter("1", "Name");
         OpenIssue baseIssue = getBaseIssue(rule, meter);
 
         EventAggregationRuleTemplate template = getInjector().getInstance(EventAggregationRuleTemplate.class);
@@ -31,9 +31,9 @@ public class EventAggregationRuleTemplateTest extends BaseTest {
         assertThat(template.createIssue(baseIssue, event)).isNotNull();
     }
     
-    private Meter createMeter(String amrId, String mrid) {
+    private Meter createMeter(String amrId, String name) {
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-        return amrSystem.newMeter(amrId).setMRID(mrid).create();
+        return amrSystem.newMeter(amrId, name).create();
     }
 
     private OpenIssue getBaseIssue(CreationRule rule, Meter meter) {

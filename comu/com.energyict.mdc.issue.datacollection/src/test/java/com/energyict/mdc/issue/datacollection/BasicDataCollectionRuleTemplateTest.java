@@ -45,7 +45,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Transactional
     public void testCanCreateIssue() {
         CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_CONNECTION_FAILED);
-        Meter meter = createMeter("1", "mrid");
+        Meter meter = createMeter("1", "Name");
         OpenIssue baseIssue = createBaseIssue(rule, meter);
 
         BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
@@ -60,14 +60,14 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Transactional
     public void testCanCreateIssueOnAnotherDevice() {
         CreationRule rule = getCreationRule("testCanCreateIssueOnAnotherDevice", ModuleConstants.REASON_CONNECTION_FAILED);
-        Meter meter = createMeter("1", "mrid1");
+        Meter meter = createMeter("1", "Name1");
         OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
         idcIssue.setIssue(baseIssue);
         idcIssue.setDeviceMRID("001234");
         idcIssue.save();
 
-        meter = createMeter("2", "mrid2");
+        meter = createMeter("2", "Name2");
         baseIssue = createBaseIssue(rule, meter);
 
         BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
@@ -82,7 +82,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Transactional
     public void testInProgressToOpenTransition() {
         CreationRule rule = getCreationRule("testInProgressToOpenTransition", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-        Meter meter = createMeter("1", "mrid");
+        Meter meter = createMeter("1", "Name");
         OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
         idcIssue.setIssue(baseIssue);
@@ -104,7 +104,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     public void testResolveIssue() {
         // Create base issue
         CreationRule rule = getCreationRule("testResolveIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-        Meter meter = createMeter("1", "mrid");
+        Meter meter = createMeter("1", "Name");
         Issue baseIssue = createBaseIssue(rule, meter);
         // Create data-collection issue
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
@@ -126,7 +126,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         ((IssueServiceImpl)getIssueService()).addIssueProvider((IssueProvider) getIssueDataCollectionService());
 
         CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_CONNECTION_FAILED);
-        Meter meter = createMeter("1", "mrid");
+        Meter meter = createMeter("1", "Name");
         BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
         OpenIssue issue = template.createIssue(createBaseIssue(rule, meter), event);
@@ -138,9 +138,9 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
     }
 
-    private Meter createMeter(String amrId, String mrid) {
+    private Meter createMeter(String amrId, String name) {
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-        return amrSystem.newMeter(amrId).setMRID(mrid).create();
+        return amrSystem.newMeter(amrId, name).create();
     }
 
     private OpenIssue createBaseIssue(CreationRule rule, Meter meter) {
