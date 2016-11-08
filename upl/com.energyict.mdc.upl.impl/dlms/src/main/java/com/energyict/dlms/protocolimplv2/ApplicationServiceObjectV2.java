@@ -288,7 +288,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         return (GeneralCipheringSecurityProvider) this.securityContext.getSecurityProvider();
     }
 
-    private byte[] associationEncryption(byte[] plainText) {
+    protected byte[] associationEncryption(byte[] plainText) {
         try {
             return this.securityContext.associationEncryption(plainText);
         } catch (NoSuchAlgorithmException e) {
@@ -440,7 +440,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         }
     }
 
-    private void silentDisconnect() {
+    protected void silentDisconnect() {
         try {
             releaseAssociation();
             getDlmsV2Connection().disconnectMAC();

@@ -65,6 +65,47 @@
 	public *;
 	protected *;
 }
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties
+-keep public class com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider
+-keep public class com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging
+-keep public class com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging
+-keep public class com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor
+-keep public class com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100SecurityProvider
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100SecurityProvider {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor
+-keep public class com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor {
+	public *;
+	protected *;
+}
 -keep public class com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper {
 	public *;
 	protected *;

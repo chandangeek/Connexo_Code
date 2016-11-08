@@ -56,6 +56,10 @@ public class DlmsSession implements ProtocolLink {
     protected void init(HHUSignOnV2 hhuSignOn, String deviceId, String calledSystemTitle) {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.dlmsMeterConfig = DLMSMeterConfig.getInstance(getProperties().getManufacturer());
+
+        if (calledSystemTitle == null && getProperties().isNtaSimulationTool()) {
+            calledSystemTitle = getProperties().getSerialNumber();
+        }
         this.aso = buildAso(calledSystemTitle);
         this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
         this.dlmsConnection.setInvokeIdAndPriorityHandler(getProperties().getInvokeIdAndPriorityHandler());
@@ -144,10 +148,6 @@ public class DlmsSession implements ProtocolLink {
      * Build a new ApplicationServiceObject
      */
     protected ApplicationServiceObjectV2 buildAso(String calledSystemTitleString) {
-        if (calledSystemTitleString == null && getProperties().isNtaSimulationTool()) {
-            calledSystemTitleString = getProperties().getSerialNumber();
-        }
-
         return new ApplicationServiceObjectV2(
                 buildXDlmsAse(),
                 this,
