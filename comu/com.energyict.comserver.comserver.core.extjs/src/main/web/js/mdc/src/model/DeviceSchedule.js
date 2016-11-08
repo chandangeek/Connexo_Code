@@ -26,5 +26,17 @@ Ext.define('Mdc.model.DeviceSchedule', {
                 return 'Mdc.model.ComTask';
             }
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        urlTpl: '/api/ddr/devices/{mRID}/schedules/',
+        reader: {
+            type: 'json'
+        },
+        setUrl: function (deviceMRID) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(deviceMRID));
+        }
+    }
+
 });
