@@ -206,18 +206,15 @@ public class DataExportTaskResource {
 
         List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
 
-        propertiesSpecsForProcessor
-                .forEach(spec -> {
-                    Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
-                    builder.addProperty(spec.getName()).withValue(value);
-                });
+        propertiesSpecsForProcessor.forEach(spec -> {
+            Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
+            builder.addProperty(spec.getName()).withValue(value);
+        });
 
         ExportTask dataExportTask;
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask = builder.create();
-            ExportTask exportTask = dataExportTask;
-            info.destinations
-                    .forEach(destinationInfo -> destinationInfo.type.create(exportTask, destinationInfo));
+            info.destinations.forEach(destinationInfo -> destinationInfo.type.create(dataExportTask, destinationInfo));
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(dataExportTaskInfoFactory.asInfo(dataExportTask)).build();
@@ -414,7 +411,7 @@ public class DataExportTaskResource {
     private void updateReadingTypes(DataExportTaskInfo info, ExportTask task) {
         StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         selector.getReadingTypes().stream()
-                .filter(t -> info.standardDataSelector.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> t.getMRID().equals(m)))
+                .filter(rt -> info.standardDataSelector.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> rt.getMRID().equals(m)))
                 .forEach(selector::removeReadingType);
         info.standardDataSelector.readingTypes.stream()
                 .map(r -> r.mRID)

@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.rest.impl;
 
-
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
@@ -41,7 +40,7 @@ public class DataSourceInfoFactory {
 
     private DataSourceInfo.MeterDataSource asDataSource(Meter meter) {
         DataSourceInfo.MeterDataSource meterDataSource = new DataSourceInfo.MeterDataSource();
-        meterDataSource.mRID = meter.getMRID();
+        meterDataSource.name = meter.getName();
         meterDataSource.serialNumber = meter.getSerialNumber();
         return meterDataSource;
     }

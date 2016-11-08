@@ -20,7 +20,7 @@ public class DataSourceInfo {
 
     public static class MeterDataSource extends DataSource {
 
-        public String mRID;
+        public String name;
         public String serialNumber;
 
     }
