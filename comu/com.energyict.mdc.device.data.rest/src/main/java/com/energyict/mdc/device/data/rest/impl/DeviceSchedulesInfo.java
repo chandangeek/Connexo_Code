@@ -29,7 +29,7 @@ public class DeviceSchedulesInfo {
     public VersionInfo<String> parent;
     public boolean active;
     public boolean hasConnectionWindow;
-    public boolean isASAP;
+    public String connectionStrategyKey;
 
     public DeviceSchedulesInfo() {
     }
@@ -86,7 +86,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        deviceSchedulesInfo.isASAP = isASAP(comTaskExecution);
+        deviceSchedulesInfo.connectionStrategyKey = getConnectionStrategyKey(comTaskExecution);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -103,7 +103,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        deviceSchedulesInfo.isASAP = isASAP(comTaskExecution);
+        deviceSchedulesInfo.connectionStrategyKey = getConnectionStrategyKey(comTaskExecution);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -119,7 +119,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
-        deviceSchedulesInfo.isASAP = isASAP(comTaskExecution);
+        deviceSchedulesInfo.connectionStrategyKey = getConnectionStrategyKey(comTaskExecution);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -135,14 +135,14 @@ public class DeviceSchedulesInfo {
         return false;
     }
 
-    private static boolean isASAP(ComTaskExecution comTaskExecution) {
+    private static String getConnectionStrategyKey(ComTaskExecution comTaskExecution) {
         if(comTaskExecution.getConnectionTask().isPresent()) {
             if(comTaskExecution.getConnectionTask().get() instanceof ScheduledConnectionTask) {
                 ScheduledConnectionTask task = (ScheduledConnectionTask) comTaskExecution.getConnectionTask().get();
-                return task.getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+                return task.getConnectionStrategy().name();
             }
         }
-        return false;
+        return null;
     }
 
 
