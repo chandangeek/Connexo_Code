@@ -38,6 +38,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -49,14 +50,20 @@ import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.G3GatewayRegisters;
-import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
@@ -101,7 +108,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
-    private G3Topology g3Topology;
+    private AbstractMeterTopology g3Topology;
     private final Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider;
 
     @Inject
@@ -264,14 +271,80 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return getG3Topology().collectTopology();
+        CollectedTopology deviceTopology = collectedDataFactory.createCollectedTopology(offlineDevice.getDeviceIdentifier());
+
+        List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
+        final Array nodeList;
+        try {
+            sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
+            nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
+        }
+
+        final List<com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology.G3Node> g3Nodes = com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology.convertNodeList(nodeList, this.getDlmsSession()
+                .getTimeZone());
+
+        for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {     //Using callHomeId as a general property
+            if (!isGatewayNode(sapAssignmentItem)) {      //Don't include the gateway itself
+
+                final com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology.G3Node g3Node = findG3Node(sapAssignmentItem.getLogicalDeviceName(), g3Nodes);
+
+                if (g3Node != null) {
+                    //Always include the slave information if it is present in the SAP assignment list and the G3 node list.
+                    //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
+
+                    //getLogger().log(Level.FINEST, "hasNewerLastSeenDate returns true");
+                    //getLogger().log(Level.FINEST, "g3node macAddress = "+g3Node.getMacAddressString() +" g3node lastSeenDate = "+ g3Node.getLastSeenDate().toString() +" configuredLastSeenDate = "+configuredLastSeenDate);
+                    DeviceIdentifier slaveDeviceIdentifier = identificationService.createDeviceIdentifierByProperty(DlmsProperties.CALL_HOME_ID_PROPERTY_NAME, sapAssignmentItem.getLogicalDeviceName());
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            collectedDataFactory.createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    getPropertySpecForName(MeterProtocol.NODEID),
+                                    sapAssignmentItem.getSap()
+                            )
+                    );
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            collectedDataFactory.createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    getPropertySpecForName(G3Properties.PROP_LASTSEENDATE),
+                                    BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
+                            )
+                    );
+                    //getLogger().log(Level.FINEST, "g3node with macAddress = "+g3Node.getMacAddressString() + " was added");
+                }
+            }
+        }
+        return deviceTopology;
     }
 
-    public G3Topology getG3Topology() {
-        if (g3Topology == null) {
-            g3Topology = new RtuPlusServerTopology(this.offlineDevice.getDeviceIdentifier(), identificationService, issueService, propertySpecService, getDlmsSession(), getDynamicProperties(), collectedDataFactory);
+
+    private PropertySpec getPropertySpecForName(String propertySpecName) {
+        Optional<PropertySpec> propertySpec = getPropertySpec(propertySpecName);
+        if (propertySpec.isPresent()) {
+            return propertySpec.get();
+        } else {
+            return null;
         }
-        return g3Topology;
+    }
+
+    private com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology.G3Node findG3Node(final String macAddress, final List<com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology.G3Node> g3Nodes) {
+        if (macAddress != null && g3Nodes != null && !g3Nodes.isEmpty()) {
+            for (final com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology.G3Node g3Node : g3Nodes) {
+                if (g3Node != null) {
+                    final String nodeMac = ProtocolTools.getHexStringFromBytes(g3Node.getMacAddress(), "");
+                    if (nodeMac.equalsIgnoreCase(macAddress)) {
+                        return g3Node;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean isGatewayNode(SAPAssignmentItem sapAssignmentItem) {
+        return sapAssignmentItem.getSap() == 1;
     }
 
     @Override
@@ -447,7 +520,8 @@ public class RtuPlusServer implements DeviceProtocol {
             firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion(getG3GatewayRegisters().getFirmwareVersionString(G3GatewayRegisters.FW_UPPER_MAC));
         } catch (IOException e) {
             Issue issue = issueService.newIssueCollector().addWarning(deviceIdentifier, "Could not read the active upper mac communication firmware version", e.getMessage());
-            firmwareVersionsCollectedData.setFailureInformation(ResultType.DataIncomplete, issue);        }
+            firmwareVersionsCollectedData.setFailureInformation(ResultType.DataIncomplete, issue);
+        }
 
         return firmwareVersionsCollectedData;
     }

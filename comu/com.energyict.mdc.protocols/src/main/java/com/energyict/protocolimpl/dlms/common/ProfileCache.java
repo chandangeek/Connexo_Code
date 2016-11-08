@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+
+import com.energyict.dlms.cosem.CapturedObject;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -19,6 +20,9 @@ public class ProfileCache implements Serializable {
 
     private Map<ObisCodeAndAttribute, Unit> units = new HashMap<ObisCodeAndAttribute, Unit>();
     private Map<ObisCode, List<ChannelInfo>> channelInfos = new HashMap<ObisCode, List<ChannelInfo>>();
+
+    public ProfileCache() {
+    }
 
     public void cache(final ObisCodeAndAttribute obisCodeAndAttribute, final Unit unit) {
         this.units.put(obisCodeAndAttribute, unit);

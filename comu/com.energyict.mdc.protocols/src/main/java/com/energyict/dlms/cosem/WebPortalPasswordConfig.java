@@ -1,12 +1,12 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.WebPortalPasswordAttributes;
 import com.energyict.dlms.cosem.methods.WebPortalPasswordMethods;
-import com.energyict.mdc.common.ObisCode;
-
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class WebPortalPasswordConfig extends AbstractCosemObject {
 
     @Override
     protected int getClassId() {
-        return DLMSClassId.WEB_PORTAL_PASSWORDS.getClassId();
+        return DLMSClassId.WEB_PORTAL_CONFIGURATION.getClassId();
     }
 
     public void changeUser1Password(String newPassword) throws IOException {

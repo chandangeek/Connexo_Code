@@ -35,6 +35,10 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
     private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
+    private static final String HLS_SECRET_LEGACY_PROPERTY_NAME = "HlsSecret";
+    private static final String HEX_PASSWORD_LEGACY_PROPERTY_NAME = "HexPassword";
+    private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
+    private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -87,6 +91,10 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         int getAccessLevel() {
             return this.accessLevel;
         }
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     @Override
@@ -208,6 +216,10 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
     protected String getDataTransportAuthenticationKeyLegacyPropertyname() {
    	    return DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME;
+   	    }
+
+    protected PropertySpec getClientMacAddressPropertySpec() {
+        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus);
    	}
 
     protected String getDataTransportEncryptionKeyLegacyPropertyName() {

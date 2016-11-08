@@ -21,6 +21,6 @@ public interface SecurityProvider extends com.energyict.dlms.protocolimplv2.Secu
      *
      * @throws IOException
      */
-    byte[] getMasterKey() throws IOException;
+    byte[] getMasterKey();
 
 }
