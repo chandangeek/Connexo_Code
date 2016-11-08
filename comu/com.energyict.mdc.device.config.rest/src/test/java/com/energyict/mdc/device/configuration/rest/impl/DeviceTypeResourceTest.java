@@ -1496,7 +1496,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("updater", 31);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(32, deviceType);
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("Z666")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceById(13L)).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask1 = mockConnectionTask(101L);
         ConnectionTask<?, ?> connectionTask2 = mockConnectionTask(102L);
         ConnectionTask<?, ?> connectionTask3 = mockConnectionTask(103L);
@@ -1509,7 +1509,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         PropertyInfo propertyInfo = new PropertyInfo("key", "key", new PropertyValueInfo<>("value", null, null, true), new PropertyTypeInfo(), false);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Map<String, Object> response = target("/devicetypes/31/deviceconfigurations/32/connectionmethods/").queryParam("available", "true")
-                .queryParam("mrId", "Z666")
+                .queryParam("deviceId", "13")
                 .request()
                 .get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
