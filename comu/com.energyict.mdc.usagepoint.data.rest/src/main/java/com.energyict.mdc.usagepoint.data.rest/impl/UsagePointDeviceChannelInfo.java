@@ -5,6 +5,6 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 public class UsagePointDeviceChannelInfo {
     public Long from;
     public Long until;
-    public String mRID;
+    public String device;
     public IdWithNameInfo channel;
 }

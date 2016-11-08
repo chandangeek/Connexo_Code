@@ -43,6 +43,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,7 +59,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     private static final Range<Instant> interval_4 = Range.openClosed(timeStamp.plus(MIN15.multipliedBy(3)), timeStamp.plus(MIN15.multipliedBy(4)));
     private static final Range<Instant> interval_5 = Range.openClosed(timeStamp.plus(MIN15.multipliedBy(4)), timeStamp.plus(MIN15.multipliedBy(5)));
 
-    private static final String UP_MRID = "UP0001";
+    private static final String UP_NAME = "UP0001";
     private static final long CHANNEL_ID = 13L;
 
     @Mock
@@ -95,13 +96,13 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     @Before
     public void before() {
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
-        when(meteringService.findUsagePoint(any())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint(UP_MRID)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(UP_NAME)).thenReturn(Optional.of(usagePoint));
         when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
         when(validationService.getEvaluator(meter_2)).thenReturn(validationEvaluator);
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.empty());
 
-        when(usagePoint.getMRID()).thenReturn(UP_MRID);
+        when(usagePoint.getName()).thenReturn(UP_NAME);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
 
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
@@ -160,7 +161,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with MRID xxx.");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with name xxx.");
     }
 
     @Test
@@ -199,7 +200,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Usage point with MRID UP0001 doesn't have a link to metrology configuration.");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Usage point UP0001 doesn't have a link to metrology configuration.");
     }
 
     @Test
@@ -210,7 +211,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Usage point with MRID UP0001 doesn't have channel with 100.");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Usage point UP0001 doesn't have channel with id 100.");
     }
 
     @Test
