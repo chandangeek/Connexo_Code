@@ -67,7 +67,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicDeviceGroupImplIT {
 
-    private static final String ED_MRID = "DYNAMIC_GROUP_MRID";
+    private static final String ED_NAME = "DYNAMIC_GROUP_NAME";
 
     private Injector injector;
 
@@ -145,7 +145,7 @@ public class DynamicDeviceGroupImplIT {
         EndDevice endDevice;
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_NAME).create();
             ctx.commit();
         }
 
@@ -153,14 +153,14 @@ public class DynamicDeviceGroupImplIT {
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             SearchDomain searchDomain = mockSearchDomain(EndDevice.class);
-            SearchableProperty mrid = mockSearchableProperty("mRID");
-            when(searchDomain.getProperties()).thenReturn(Collections.singletonList(mrid));
+            SearchableProperty name = mockSearchableProperty("name");
+            when(searchDomain.getProperties()).thenReturn(Collections.singletonList(name));
             queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
                     .setMRID("mine")
                     .setName("mine")
                     .setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_END_DEVICE_QUERY_PROVIDER)
                     .setSearchDomain(searchDomain)
-                    .withConditions(mockSearchablePropertyValue(mrid, SearchablePropertyOperator.EQUAL, Collections.singletonList(ED_MRID)))
+                    .withConditions(mockSearchablePropertyValue(name, SearchablePropertyOperator.EQUAL, Collections.singletonList(ED_NAME)))
                     .create();
             ctx.commit();
         }
