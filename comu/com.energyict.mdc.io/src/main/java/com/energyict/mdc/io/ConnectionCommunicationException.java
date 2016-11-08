@@ -1,8 +1,7 @@
 package com.energyict.mdc.io;
 
-import com.energyict.mdc.io.impl.MessageSeeds;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.io.impl.MessageSeeds;
 
 import java.io.IOException;
 

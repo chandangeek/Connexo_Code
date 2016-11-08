@@ -98,4 +98,5 @@ public abstract class AbstractComChannel implements ComChannel {
     public void addProperties(TypedProperties typedProperties) {
         this.connectionTaskProperties.setAllProperties(typedProperties);
     }
+
 }
