@@ -4,6 +4,7 @@ import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Models the behavior of a component that has dynamic configuration.
@@ -19,7 +20,7 @@ public interface HasDynamicProperties {
      *
      * @return The List of PropertySpec
      */
-    List<PropertySpec> getPropertySpecs ();
+    List<PropertySpec> getPropertySpecs();
 
     /**
      * Returns the {@link PropertySpec} with the specified name
@@ -27,13 +28,28 @@ public interface HasDynamicProperties {
      *
      * @param name The name of the property specification
      * @return The PropertySpec or <code>Optional.empty()</code>
-     *         if no such PropertySpec exists
+     * if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getPropertySpec (String name) {
+    default Optional<PropertySpec> getPropertySpec(String name) {
         return getPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
                 .findAny();
     }
+
+    /**
+     * <p>
+     * Sets the protocol specific properties, validating the values against
+     * the appropriate {@link com.energyict.mdc.upl.properties.PropertySpec}.
+     * Note that a property value that does not relate to a PropertySpec is ignored.
+     * </p>
+     * <p>
+     * This method can also be called at device configuration time
+     * to check the validity of the configured values.</p>
+     *
+     * @param properties contains a set of protocol specific key value pairs
+     * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
+     */
+    void setProperties(Properties properties) throws PropertyValidationException;
 
 }
