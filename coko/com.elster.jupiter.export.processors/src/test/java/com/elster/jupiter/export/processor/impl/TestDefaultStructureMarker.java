@@ -2,6 +2,7 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.util.UpdatableHolder;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -12,15 +13,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-final class DefaultStructureMarker implements StructureMarker {
+final class TestDefaultStructureMarker implements StructureMarker {
 
-    private final DefaultStructureMarker parent;
+    private final TestDefaultStructureMarker parent;
     private final String structure;
     private final List<String> path;
     private final Range<Instant> period;
     private final Clock clock;
 
-    private DefaultStructureMarker(Clock clock, DefaultStructureMarker parent, String structure, Range<Instant> period) {
+    private TestDefaultStructureMarker(Clock clock, TestDefaultStructureMarker parent, String structure, Range<Instant> period) {
         this.parent = parent;
         this.structure = structure;
         this.clock = clock;
@@ -28,13 +29,13 @@ final class DefaultStructureMarker implements StructureMarker {
         this.period = period;
     }
 
-    public static DefaultStructureMarker createRoot(Clock clock, String root) {
-        return new DefaultStructureMarker(clock, null, root, null);
+    static TestDefaultStructureMarker createRoot(Clock clock, String root) {
+        return new TestDefaultStructureMarker(clock, null, root, null);
     }
 
     @Override
     public StructureMarker withPeriod(Range<Instant> period) {
-        return new DefaultStructureMarker(clock, parent, structure, period);
+        return new TestDefaultStructureMarker(clock, parent, structure, period);
     }
 
     @Override
@@ -53,14 +54,14 @@ final class DefaultStructureMarker implements StructureMarker {
     }
 
     @Override
-    public DefaultStructureMarker child(String structure) {
-        return new DefaultStructureMarker(clock, this, structure, period);
+    public TestDefaultStructureMarker child(String structure) {
+        return new TestDefaultStructureMarker(clock, this, structure, period);
     }
 
-    public DefaultStructureMarker adopt(StructureMarker structureMarker) {
-        UpdatableHolder<DefaultStructureMarker> holder = new UpdatableHolder<>(this);
-        structureMarker.getStructurePath().stream()
-                .forEach(element -> holder.update(DefaultStructureMarker::child, element));
+    public TestDefaultStructureMarker adopt(StructureMarker structureMarker) {
+        UpdatableHolder<TestDefaultStructureMarker> holder = new UpdatableHolder<>(this);
+        structureMarker.getStructurePath()
+                .forEach(element -> holder.update(TestDefaultStructureMarker::child, element));
         return holder.get();
     }
 
@@ -72,7 +73,7 @@ final class DefaultStructureMarker implements StructureMarker {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DefaultStructureMarker that = (DefaultStructureMarker) o;
+        TestDefaultStructureMarker that = (TestDefaultStructureMarker) o;
         return Objects.equals(path, that.path);
     }
 
