@@ -17,7 +17,7 @@ public enum MessageSeeds implements MessageSeed {
             "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}."),
     DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT(3, Keys.DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT,
             "Same reading type deliverable appear several times on metrology contract with id {0}."),
-    METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT(4, "MetrologyPurposeNotLinkedToUsagePoint", "Metrology purpose with id {0} is not found on usage point with MRID {1}.");
+    METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT(4, "MetrologyPurposeNotLinkedToUsagePoint", "Metrology contract with id {0} is not found on usage point {1}.");
 
     private final int number;
     private final String key;
