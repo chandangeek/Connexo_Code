@@ -82,6 +82,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.isAdHoc()).thenReturn(true);
         when(comTaskExecution.getDevice()).thenReturn(device);
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.empty());
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
@@ -111,6 +112,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
         when(comTaskExecution.getDevice()).thenReturn(device);
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.empty());
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
@@ -145,6 +147,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskExecution.getPlannedNextExecutionTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution.getDevice()).thenReturn(device);
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.empty());
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");

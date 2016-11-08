@@ -5,6 +5,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
@@ -26,6 +27,7 @@ public class DeviceSchedulesInfo {
     public long version;
     public VersionInfo<String> parent;
     public boolean active;
+    public boolean hasConnectionWindow;
 
     public DeviceSchedulesInfo() {
     }
@@ -81,6 +83,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.type = ScheduleType.SCHEDULED;
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
+        deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
@@ -96,9 +99,20 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
+        deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
+    }
+
+    private static boolean hasCommunicationWindow(ComTaskExecution comTaskExecution) {
+        if(comTaskExecution.getConnectionTask().isPresent()) {
+            if(comTaskExecution.getConnectionTask().get() instanceof ScheduledConnectionTask) {
+                ScheduledConnectionTask task = (ScheduledConnectionTask) comTaskExecution.getConnectionTask().get();
+                return task.getCommunicationWindow() != null;
+            }
+        }
+        return false;
     }
 
     public static DeviceSchedulesInfo fromAdHoc(ComTaskExecution comTaskExecution) {
@@ -108,6 +122,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.plannedDate = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
+        deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         Device device = comTaskExecution.getDevice();
