@@ -79,13 +79,13 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                             "MDC", "Connection method has a connection window.")
                                         + '&lt;br/&gt;'
                                         + Uni.I18n.translate('deviceCommunicationPlanning.tooltip.nextCommunication',
-                                            'MDC', 'The next communication is on {0}.', Uni.DateTime.formatDateTimeShort(nextCommunication));
+                                            'MDC', 'The next communication is on {0}.', Uni.DateTime.formatDateTimeShort(new Date(nextCommunication)));
                                 } else {
                                     toolTip = Uni.I18n.translate("deviceCommunicationPlanning.tooltip.minimiseConnections",
                                             "MDC", "Connection method has the strategy 'Minimise connections'.")
                                         + '&lt;br/&gt;'
                                         + Uni.I18n.translate('deviceCommunicationPlanning.tooltip.nextCommunication',
-                                            'MDC', 'The next communication is on {0}.', Uni.DateTime.formatDateTimeShort(nextCommunication));
+                                            'MDC', 'The next communication is on {0}.', Uni.DateTime.formatDateTimeShort(new Date(nextCommunication)));
                                 }
 
                                 return '<span style="display:inline-block; float:left; margin-right:7px;" >' + Uni.DateTime.formatDateTimeShort(new Date(value)) + '</span>' +
