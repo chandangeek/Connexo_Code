@@ -215,11 +215,10 @@ public class DeviceDeleteTest {
         when(defaultMultiplierType.getName()).thenReturn(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
 
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
-        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
 
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
-        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
@@ -349,7 +348,7 @@ public class DeviceDeleteTest {
 
     private DeviceImpl getNewDeviceWithMockedServices() {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
-        device.initialize(this.deviceConfiguration, "For testing purposes", "mRID", Instant.now());
+        device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;
     }

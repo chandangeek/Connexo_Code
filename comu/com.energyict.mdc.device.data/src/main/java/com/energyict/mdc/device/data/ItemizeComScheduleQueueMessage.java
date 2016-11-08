@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
-import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.scheduling.ScheduleAction;
 
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.List;
  */
 public class ItemizeComScheduleQueueMessage implements QueueMessage {
     public ComScheduleOnDevicesFilterSpecification filter;
-    public List<String> deviceMRIDs;
+    public List<Long> deviceIds;
     public List<Long> scheduleIds;
     public ScheduleAction action;
 

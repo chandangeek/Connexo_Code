@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data.exceptions;
 
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 import java.util.Date;
@@ -60,7 +59,7 @@ public class InvalidLastCheckedException extends RuntimeException {
 
     @Override
     public String getLocalizedMessage() {
-        return this.thesaurus.getFormat(this.messageSeed).format(this.device.getmRID(), this.oldLastChecked, this.newLastChecked);
+        return this.thesaurus.getFormat(this.messageSeed).format(this.device.getName(), this.oldLastChecked, this.newLastChecked);
     }
 
 }

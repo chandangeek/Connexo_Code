@@ -69,7 +69,7 @@ public class DeviceEndDeviceQueryProvider implements QueryProvider<EndDevice> {
         SearchDomain deviceSearchDomain = searchService.findDomain(Device.class.getName()).get();
         Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
         Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
-        Order order = Order.ascending("mRID");
+        Order order = Order.ascending("name");
         if (start > -1) {
             return basicQuerySupplier.get().select(amrCondition, start + 1, start + limit + 1, order);
         } else {

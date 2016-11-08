@@ -69,7 +69,6 @@ import static org.mockito.Mockito.when;
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
-    private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
 
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID;
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID;
@@ -384,8 +383,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice(String mRID) {
-        Device simpleDevice = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "SimpleDevice", mRID, Instant.now());
+        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, mRID, Instant.now());
         simpleDevice.save();
         return simpleDevice;
     }
