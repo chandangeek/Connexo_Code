@@ -28,7 +28,7 @@ public class UsagePointPropertyValueConverter implements PropertyValueConverter 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         UsagePoint usagePoint = (UsagePoint) domainValue;
-        return new IdWithNameInfo(usagePoint.getId(), usagePoint.getMRID());
+        return new IdWithNameInfo(usagePoint.getId(), usagePoint.getName());
     }
 
 }
