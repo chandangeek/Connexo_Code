@@ -65,7 +65,7 @@ public class DemoUsagePointMeterActivationValidator implements CustomUsagePointM
     }
 
     private boolean checkMeterConditions(Meter meter) {
-        Device device = deviceService.findByUniqueMrid(meter.getMRID()).get();
+        Device device = deviceService.findDeviceById(Long.parseLong(meter.getAmrId())).get();
         return device.getDeviceType()
                 .getCustomPropertySets()
                 .stream()
