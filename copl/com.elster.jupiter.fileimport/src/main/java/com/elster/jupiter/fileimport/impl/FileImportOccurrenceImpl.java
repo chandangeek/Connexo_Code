@@ -78,7 +78,7 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         this.status = Status.PROCESSING;
 
         MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(),thesaurus);
-
+        this.setStartDate(clock.instant());
         moveFile();
         save();
     }
