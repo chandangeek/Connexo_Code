@@ -19,6 +19,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -135,7 +136,7 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(MicroCategoryTranslationKeys.values()));
+        keys.addAll(Arrays.asList(MicroCheckTranslationKeys.values()));
         keys.addAll(Arrays.asList(MicroActionTranslationKeys.values()));
         keys.addAll(Arrays.asList(MicroCategoryTranslationKeys.values()));
         return keys;

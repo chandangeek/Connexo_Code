@@ -1,4 +1,4 @@
-package com.elster.jupiter.usagepoint.lifecycle.impl.execution.impl;
+package com.elster.jupiter.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
