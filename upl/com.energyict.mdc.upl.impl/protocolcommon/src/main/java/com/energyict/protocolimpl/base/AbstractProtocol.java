@@ -431,7 +431,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         return protocolChannelMap;
     }
 
-    protected TimeZone getTimeZone() {
+    public TimeZone getTimeZone() {
         return timeZone;
     }
 
