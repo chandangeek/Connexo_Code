@@ -190,7 +190,7 @@ public class BpmServerImpl implements BpmServer {
         JSONArray processes = null;
         try {
             String rest = "/rest/tasks/runningprocesses";
-            if (!filter.equals("")) {
+            if (!filter.isEmpty()) {
                 rest += filter.startsWith("?") ? filter : "?" + filter;
             }
             jsonContent = this.doGet(rest, authorization);
@@ -199,9 +199,7 @@ public class BpmServerImpl implements BpmServer {
                 processes = obj.getJSONArray("processInstances");
             }
 
-        } catch (JSONException e) {
-            //throw new ;
-        } catch (RuntimeException e) {
+        } catch (JSONException | RuntimeException e) {
             //throw new ;
         }
 
