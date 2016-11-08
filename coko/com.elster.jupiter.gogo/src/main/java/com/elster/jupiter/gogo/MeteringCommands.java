@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -93,19 +92,15 @@ public class MeteringCommands {
         this.clock = clock;
     }
 
-    public void createMeter(final Long amrId, final String mrId) {
-        Meter meter = executeTransaction(new Transaction<Meter>() {
-            @Override
-            public Meter perform() {
-                AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                Meter meter = amrSystem.newMeter(String.valueOf(amrId))
-                        .setMRID(mrId)
-                        .create();
-                return meter;
-            }
+    public void createMeter(final Long amrId, final String name) {
+        Meter meter = executeTransaction(() -> {
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            return amrSystem.newMeter(String.valueOf(amrId), name)
+                    .create();
         });
         System.out.println("meter = " + meter);
         System.out.println(" id = " + meter.getId());
+        System.out.println(" MRID = " + meter.getMRID());
     }
 
     private Instant parseEffectiveTimestamp(String effectiveTimestamp) {
@@ -125,24 +120,21 @@ public class MeteringCommands {
     }
 
     public void createActivation(long id, String date, final String... readingTypes) {
-        final Optional<Meter> endDevice = meteringService.findMeter(id);
+        final Optional<Meter> endDevice = meteringService.findMeterById(id);
         if (endDevice.isPresent()) {
             try {
                 final Instant activationDate = LocalDate.from(dateFormat.parse(date)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-                MeterActivation activation = executeTransaction(new Transaction<MeterActivation>() {
-                    @Override
-                    public MeterActivation perform() {
-                        MeterActivation activate = endDevice.get().activate(activationDate);
-                        for (String readingType : readingTypes) {
-                            Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
-                            if (readingTypeOptional.isPresent()) {
-                                activate.getChannelsContainer().createChannel(readingTypeOptional.get());
-                            } else {
-                                System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
-                            }
+                MeterActivation activation = executeTransaction(() -> {
+                    MeterActivation activate = endDevice.get().activate(activationDate);
+                    for (String readingType : readingTypes) {
+                        Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
+                        if (readingTypeOptional.isPresent()) {
+                            activate.getChannelsContainer().createChannel(readingTypeOptional.get());
+                        } else {
+                            System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
                         }
-                        return activate;
                     }
+                    return activate;
                 });
                 System.out.println("activation = " + activation);
                 System.out.println(" id = " + activation.getId());
@@ -157,8 +149,8 @@ public class MeteringCommands {
         }
     }
 
-    public void storeRegisterData(String mRID, String readingType, String startDateTime, int intervalInSeconds, int numberOfInterval, double minValue, double maxValue) {
-        final Optional<Meter> endDevice = meteringService.findMeter(mRID);
+    public void storeRegisterData(String deviceName, String readingType, String startDateTime, int intervalInSeconds, int numberOfInterval, double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -188,13 +180,12 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with mRID: " + mRID);
+            System.out.println("No meter found with name: " + deviceName);
         }
     }
 
-
-    public void storeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
-        final Optional<Meter> endDevice = meteringService.findMeter(mRID);
+    public void storeIntervalData(String deviceName, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -228,16 +219,16 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with mRID: " + mRID);
+            System.out.println("No meter found with name: " + deviceName);
         }
     }
 
-    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue) {
-        storeCumulativeIntervalData(mRID, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
+    public void storeCumulativeIntervalData(String deviceName, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue) {
+        storeCumulativeIntervalData(deviceName, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
     }
 
-    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue, String readingQualityCIMCode) {
-        final Optional<Meter> endDevice = meteringService.findMeter(mRID);
+    public void storeCumulativeIntervalData(String deviceName, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue, String readingQualityCIMCode) {
+        final Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -276,7 +267,7 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with id " + mRID);
+            System.out.println("No meter found with name " + deviceName);
         }
     }
 
@@ -310,12 +301,7 @@ public class MeteringCommands {
     public void listReadingTypes(int... timeAttribute) {
         try {
             List<ReadingType> availableReadingTypes = meteringService.getAvailableReadingTypes();
-            Collections.sort(availableReadingTypes, new Comparator<ReadingType>() {
-                @Override
-                public int compare(ReadingType type1, ReadingType type2) {
-                    return type1.getName().compareTo(type2.getName());
-                }
-            });
+            Collections.sort(availableReadingTypes, Comparator.comparing(ReadingType::getName));
             Set<TimeAttribute> timeAttributeFilter = new HashSet<>();
             if (timeAttribute.length == 0) {
                 timeAttributeFilter.addAll(Arrays.asList(TimeAttribute.values()));
@@ -339,12 +325,7 @@ public class MeteringCommands {
     public void listEndDeviceEventTypes(String... filter) {
         try {
             List<EndDeviceEventType> availableReadingTypes = meteringService.getAvailableEndDeviceEventTypes();
-            Collections.sort(availableReadingTypes, new Comparator<EndDeviceEventType>() {
-                @Override
-                public int compare(EndDeviceEventType type1, EndDeviceEventType type2) {
-                    return type1.getName().compareTo(type2.getName());
-                }
-            });
+            Collections.sort(availableReadingTypes, Comparator.comparing(EndDeviceEventType::getName));
 
             EndDeviceEventTypeFilter endDeviceEventTypeFilter = new EndDeviceEventTypeFilter(filter);
             System.out.println("|\t" + String.format("%-80s", "Name") + "\t|\t" + String.format("%-13s", "mRID") + "\t|\tDescription\t|");
@@ -359,7 +340,7 @@ public class MeteringCommands {
     }
 
     public void addDeviceEvent(long meterId, String mRID, final String dateTime) {
-        final Optional<Meter> endDevice = meteringService.findMeter(meterId);
+        final Optional<Meter> endDevice = meteringService.findMeterById(meterId);
         if (endDevice.isPresent()) {
             final Meter meter = endDevice.get();
             final Optional<EndDeviceEventType> type = meteringService.getEndDeviceEventType(mRID);
@@ -367,9 +348,8 @@ public class MeteringCommands {
                 executeTransaction(new VoidTransaction() {
                     @Override
                     protected void doPerform() {
-                        EndDeviceEventRecord endDeviceEventRecord = null;
                         try {
-                            endDeviceEventRecord = meter.addEventRecord(type.get(), LocalDateTime.from(dateTimeFormat.parse(dateTime)).atZone(ZoneId.systemDefault()).toInstant()).create();
+                            meter.addEventRecord(type.get(), LocalDateTime.from(dateTimeFormat.parse(dateTime)).atZone(ZoneId.systemDefault()).toInstant()).create();
                         } catch (RuntimeException e) {
                             e.printStackTrace();
                         }
@@ -399,11 +379,11 @@ public class MeteringCommands {
         .forEach(pair -> System.out.println("|\t" + String.format("%-80s", pair.getFirst()) + "\t|\t" + String.format("%-13s", pair.getLast())));
     }
 
-    public void addReadingQuality(String mRID, String readingTypeMRID, String time, String readingQualityCode) {
+    public void addReadingQuality(String deviceName, String readingTypeMRID, String time, String readingQualityCode) {
         //find meter
-        Optional<Meter> endDevice = meteringService.findMeter(mRID);
+        Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (!endDevice.isPresent()) {
-            System.out.println("No meter found with id " + mRID);
+            System.out.println("No meter found with name " + deviceName);
             return;
         }
         //find reading type
@@ -471,13 +451,7 @@ public class MeteringCommands {
     }
 
     private Principal getPrincipal() {
-        return new Principal() {
-
-            @Override
-            public String getName() {
-                return "console";
-            }
-        };
+        return () -> "console";
     }
 
 }
