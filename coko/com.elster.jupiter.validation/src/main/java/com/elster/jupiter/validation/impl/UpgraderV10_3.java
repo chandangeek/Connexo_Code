@@ -36,7 +36,7 @@ import static com.elster.jupiter.orm.Version.version;
 public class UpgraderV10_3 implements Upgrader {
 
     private static final Version VERSION = version(10, 3);
-    private static final String MEROLOGY_CONFIGURATION_PROPERTY = "metrologyConfigurations.metrologyConfiguration";
+    private static final String METROLOGY_CONFIGURATION_PROPERTY = "metrologyConfigurations.metrologyConfiguration";
     private final DataModel dataModel;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringGroupsService meteringGroupsService;
@@ -81,7 +81,7 @@ public class UpgraderV10_3 implements Upgrader {
         for (Map.Entry<MetrologyConfiguration, List<DataValidationTask>> entry : validationTasks.entrySet()) {
             String name = "All with " + entry.getKey().getName();
             SearchDomain usagePointSearchDomain = searchService.findDomain(UsagePoint.class.getName()).get();
-            UsagePointGroup usagePointGroup = meteringGroupsService.createQueryUsagePointGroup(createSearchablePropertyValue(MEROLOGY_CONFIGURATION_PROPERTY, Collections
+            UsagePointGroup usagePointGroup = meteringGroupsService.createQueryUsagePointGroup(createSearchablePropertyValue(METROLOGY_CONFIGURATION_PROPERTY, Collections
                     .singletonList(String.valueOf(entry.getKey().getId()))))
                     .setName(name)
                     .setSearchDomain(usagePointSearchDomain)
