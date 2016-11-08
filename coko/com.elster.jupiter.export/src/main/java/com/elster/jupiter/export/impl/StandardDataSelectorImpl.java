@@ -128,7 +128,7 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
         return decorate(getEndDeviceGroup()
                 .getMembers(occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
-                        .orElse(Range.<Instant>all()))
+                        .orElse(Range.all()))
                 .stream())
                 .map(Membership::getMember)
                 .filterSubType(Meter.class)

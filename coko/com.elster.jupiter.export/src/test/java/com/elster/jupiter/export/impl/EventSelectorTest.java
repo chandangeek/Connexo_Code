@@ -12,18 +12,15 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.Range;
 
-import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -34,18 +31,15 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -78,8 +72,7 @@ public class EventSelectorTest {
     private DefaultSelectorOccurrence defaultSelectorOccurrence;
     @Mock
     private Clock clock;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
     @Before
     public void setUp() {
@@ -105,28 +98,14 @@ public class EventSelectorTest {
         when(event6.getCreatedDateTime()).thenReturn(eventTime.plusMinutes(6).toInstant());
         when(endDevice1.getMRID()).thenReturn("MRID1");
         when(endDevice2.getMRID()).thenReturn("MRID2");
+        when(endDevice1.getName()).thenReturn("Device1");
+        when(endDevice2.getName()).thenReturn("Device2");
         when(selector.getEventStrategy()).thenReturn(eventStrategy);
         when(eventStrategy.isExportContinuousData()).thenReturn(false);
         when(selector.getFilterPredicate()).thenReturn(event -> true);
         when(occurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of(defaultSelectorOccurrence));
-        Answer<NlsMessageFormat> formatAnswer = invocation -> {
-            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-            when(messageFormat.format(anyVararg())).thenAnswer(invocation1 -> {
-                String defaultFormat = invocation.getArguments()[0] instanceof MessageSeed ? ((MessageSeed) invocation.getArguments()[0]).getDefaultFormat()
-                        : ((TranslationKey) invocation.getArguments()[0]).getDefaultFormat();
-                return MessageFormat.format(defaultFormat, invocation1.getArguments());
-            });
-            return messageFormat;
-        };
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(formatAnswer);
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(formatAnswer);
         RelativePeriod exportPeriod = mock(RelativePeriod.class);
         when(selector.getExportPeriod()).thenReturn(exportPeriod);
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     @Test
@@ -139,7 +118,7 @@ public class EventSelectorTest {
 
         assertThat(exportDatas).hasSize(2);
 
-        assertThat(exportDatas.get(0).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID1"));
+        assertThat(exportDatas.get(0).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID1").child("Device1"));
         assertThat(exportDatas.get(0)).isInstanceOf(MeterEventData.class);
 
         {
@@ -155,7 +134,7 @@ public class EventSelectorTest {
             assertThat(events.get(2).getCreatedDateTime()).isEqualTo(eventTime.plusMinutes(3).toInstant());
         }
 
-        assertThat(exportDatas.get(1).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID2"));
+        assertThat(exportDatas.get(1).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID2").child("Device2"));
         assertThat(exportDatas.get(1)).isInstanceOf(MeterEventData.class);
         {
             MeterEventData meterEventData = (MeterEventData) exportDatas.get(1);
@@ -183,7 +162,7 @@ public class EventSelectorTest {
 
         assertThat(exportDatas).hasSize(2);
 
-        assertThat(exportDatas.get(0).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID1"));
+        assertThat(exportDatas.get(0).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID1").child("Device1"));
         assertThat(exportDatas.get(0)).isInstanceOf(MeterEventData.class);
 
         {
@@ -197,7 +176,7 @@ public class EventSelectorTest {
             assertThat(events.get(1).getCreatedDateTime()).isEqualTo(eventTime.plusMinutes(3).toInstant());
         }
 
-        assertThat(exportDatas.get(1).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID2"));
+        assertThat(exportDatas.get(1).getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "MRID2").child("Device2"));
         assertThat(exportDatas.get(1)).isInstanceOf(MeterEventData.class);
         {
             MeterEventData meterEventData = (MeterEventData) exportDatas.get(1);
@@ -208,6 +187,4 @@ public class EventSelectorTest {
             assertThat(events.get(0).getCreatedDateTime()).isEqualTo(eventTime.plusMinutes(5).toInstant());
         }
     }
-
-
 }

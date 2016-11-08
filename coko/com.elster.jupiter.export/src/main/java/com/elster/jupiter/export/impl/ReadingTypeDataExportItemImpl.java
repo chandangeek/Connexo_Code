@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -35,7 +36,6 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
 
     private transient DataModel dataModel;
     private transient ReadingType readingType;
-
 
     @Inject
     public ReadingTypeDataExportItemImpl(MeteringService meteringService, IDataExportService dataExportService, DataModel model) {
