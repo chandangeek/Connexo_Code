@@ -23,6 +23,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -86,7 +87,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
             case ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE:
                 UnknownInboundDeviceIssueInfo<?> unknownInboundDeviceIssueInfo = new UnknownInboundDeviceIssueInfo<>(issue, deviceInfoClass);
                 addConnectionAttempts(unknownInboundDeviceIssueInfo, issue);
-                unknownInboundDeviceIssueInfo.deviceMRID = issue.getDeviceMRID();
+                unknownInboundDeviceIssueInfo.deviceName = issue.getDeviceMRID();
                 info = unknownInboundDeviceIssueInfo;
                 break;
             case ModuleConstants.REASON_UNKNOWN_OUTBOUND_DEVICE:
@@ -147,7 +148,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         Optional<Device> deviceRef = deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()));
         if (deviceRef.isPresent()) {
             Device device = deviceRef.get();
-            info.deviceMRID = device.getmRID();
+            info.deviceName = device.getName();
             info.deviceType = new IdWithNameInfo(device.getDeviceType());
             info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
             info.deviceState = new IdWithNameInfo(device.getState().getId(), getStateName(device.getState()));
