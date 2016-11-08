@@ -45,4 +45,8 @@ public enum CreationRuleTpl implements Template<CreationRule, IssueRuleBuilder> 
                 withDueInType(this.dueInType).
                 withRuleTemplate(this.ruleTemplateName);
     }
+
+    public String getName() {
+        return this.name;
+    }
 }

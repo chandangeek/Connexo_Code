@@ -7,6 +7,7 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -81,6 +82,12 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
             properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
             return properties;
+        }
+    },
+    CALENDAR_IMPORTER("Calendar", "CalendarImporterFactory", "Calendar") {
+        @Override
+        protected Map<String, Object> getImporterProperties() {
+            return Collections.emptyMap();
         }
     };
 

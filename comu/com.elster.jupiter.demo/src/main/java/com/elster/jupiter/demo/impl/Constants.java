@@ -8,10 +8,8 @@ public final class Constants {
         public static final String STANDARD_PREFIX = "SPE";
 
         public static final String MOCKED_VALIDATION_DEVICE = "VPB";
-        public static final String MOCKED_VALIDATION_SERIAL_NUMBER = "085600010352";
 
         public static final String MOCKED_REALISTIC_DEVICE = "DME";
-        public static final String MOCKED_REALISTIC_SERIAL_NUMBER = "093000020359";
 
         public static final String A3_DEVICE = "DTech-A3-";
         public static final String A3_SERIAL_NUMBER = "18358577";

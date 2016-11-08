@@ -3,7 +3,6 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
  */
 public class CreateDefaultDeviceLifeCycleCommand {
 
-    private final ThreadPrincipalService threadPrincipalService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleService deviceLifeCycleService;
@@ -45,17 +43,15 @@ public class CreateDefaultDeviceLifeCycleCommand {
     private Instant lastCheckedDate;
 
     @Inject
-    public CreateDefaultDeviceLifeCycleCommand(DeviceLifeCycleConfigurationService DLCconfigurationService,
+    public CreateDefaultDeviceLifeCycleCommand(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                                DeviceConfigurationService deviceConfigurationService,
                                                DeviceLifeCycleService deviceLifeCycleService,
                                                DeviceService deviceService,
-                                               ThreadPrincipalService threadPrincipalService,
                                                Clock clock) {
-        this.deviceLifeCycleConfigurationService = DLCconfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.deviceService = deviceService;
-        this.threadPrincipalService = threadPrincipalService;
         this.clock = clock;
     }
 
@@ -90,7 +86,6 @@ public class CreateDefaultDeviceLifeCycleCommand {
                         .filter(action -> action.getStateTransition().getTo().getName().equals(DefaultState.ACTIVE.getKey()))
                         .collect(Collectors.toList());
         if (!authorizedActions.isEmpty()) {
-            now = Clock.systemDefaultZone().millis();
             AuthorizedTransitionAction authorizedActionToExecute = authorizedActions.get(0);
             List<ExecutableActionProperty> properties =
                     DecoratedStream
@@ -99,17 +94,13 @@ public class CreateDefaultDeviceLifeCycleCommand {
                             .distinct(PropertySpec::getName)
                             .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
                             .collect(Collectors.toList());
-
-            System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
-            devices.stream().forEach(x -> executeAuthorizedAction(authorizedActionToExecute, x, properties));
+            devices.forEach(x -> executeAuthorizedAction(authorizedActionToExecute, x, properties));
         }
     }
 
     private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
-        long now = Clock.systemDefaultZone().millis();
         try {
             deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant(), properties);
-            System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();
         }

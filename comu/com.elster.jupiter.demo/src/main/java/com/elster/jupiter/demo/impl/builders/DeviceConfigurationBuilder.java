@@ -2,10 +2,12 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -147,23 +149,35 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     private void addComTasks(DeviceConfiguration configuration) {
         if (comTasks != null) {
-            if (configuration.getSecurityPropertySets().isEmpty()) {
-                throw new UnableToCreate("Please specify at least one security set");
-            }
             for (ComTask comTask : comTasks) {
-                configuration.enableComTask(comTask, configuration.getSecurityPropertySets().get(0), getProtocolDialectConfigurationProperties(configuration))
-                        .setIgnoreNextExecutionSpecsForInbound(false)
-                        .setPriority(100).add().save();
+                addComTask(configuration, comTask);
             }
         }
     }
 
-    private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(DeviceConfiguration configuration) {
+    public static void addComTask(DeviceConfiguration deviceConfiguration, ComTask comTask) {
+        if (comTask != null && deviceConfiguration != null) {
+            List<SecurityPropertySet> securityPropertySets = deviceConfiguration.getSecurityPropertySets();
+            if (securityPropertySets.isEmpty()) {
+                throw new UnableToCreate("Please specify at least one security set");
+            }
+            SecurityPropertySet securityPropertySet = securityPropertySets
+                    .stream()
+                    .filter(sps -> SecurityPropertySetTpl.NO_SECURITY.getName().equals(sps.getName()))
+                    .findFirst()
+                    .orElse(securityPropertySets.get(0));
+            deviceConfiguration.enableComTask(comTask, securityPropertySet, getProtocolDialectConfigurationProperties(deviceConfiguration))
+                    .setIgnoreNextExecutionSpecsForInbound(false)
+                    .setPriority(100).add().save();
+        }
+    }
+
+    private static ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(DeviceConfiguration configuration) {
         Optional<ProtocolDialectConfigurationProperties> tcpDialect = findTheTCPDialect(configuration);
         return tcpDialect.orElse(configuration.getProtocolDialectConfigurationPropertiesList().get(0));
     }
 
-    private Optional<ProtocolDialectConfigurationProperties> findTheTCPDialect(DeviceConfiguration configuration) {
+    private static Optional<ProtocolDialectConfigurationProperties> findTheTCPDialect(DeviceConfiguration configuration) {
         return configuration.getProtocolDialectConfigurationPropertiesList()
                 .stream()
                 .filter(protocolDialectConfigurationProperties ->

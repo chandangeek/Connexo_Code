@@ -9,7 +9,6 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,14 +106,9 @@ public class ImportScheduleBuilder extends NamedBuilder<ImportSchedule, ImportSc
                 .setProcessingDirectory(inProcessDirectory)
                 .setPathMatcher(pathMatcher);
 
-        importProperties.keySet().stream().forEach(propname -> builder.addProperty(propname).withValue(importProperties.get(propname)));
-
+        importProperties.keySet().stream().forEach(propName -> builder.addProperty(propName).withValue(importProperties.get(propName)));
         ImportSchedule importSchedule = builder.create();
-        importSchedule.setActive(true);
-        importSchedule.update();
-
         applyPostBuilders(importSchedule);
-
         return importSchedule;
     }
 }
