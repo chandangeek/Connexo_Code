@@ -37,7 +37,15 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
 
                 //Import services
-                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                // Usage point life cycle
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_1,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_2,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_3,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_4
         };
     }
 
@@ -48,7 +56,14 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
 
                 //Import services
-                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                // Usage point life cycle
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_1,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_2,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_3,
+                com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_4
         };
     }
 }
