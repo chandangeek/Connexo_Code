@@ -154,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-08 09:57:34 +0100 (Tue, 08 Nov 2016)$";
+        return "$Date: 2016-11-08 13:17:25 +0100 (Tue, 08 Nov 2016)$";
     }
 
     /**
