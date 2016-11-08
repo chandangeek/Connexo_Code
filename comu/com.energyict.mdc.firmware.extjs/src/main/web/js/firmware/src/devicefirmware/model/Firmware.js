@@ -132,10 +132,7 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/fwc/device/{deviceId}/firmwares',
-        reader: 'json',
-        setUrl: function (deviceId) {
-            this.url = this.urlTpl.replace('{deviceId}', deviceId);
-        }
+        url: '/api/fwc/devices/{deviceId}/firmwares',
+        reader: 'json'
     }
 });

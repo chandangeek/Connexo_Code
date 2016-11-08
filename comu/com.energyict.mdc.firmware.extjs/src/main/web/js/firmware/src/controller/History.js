@@ -50,7 +50,7 @@ Ext.define('Fwc.controller.History', {
         },
         "devices/device/firmware": {
             title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
-            route: 'devices/{mRID}/firmware',
+            route: 'devices/{deviceId}/firmware',
             controller: 'Fwc.devicefirmware.controller.DeviceFirmware',
             action: 'showDeviceFirmware',
             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,

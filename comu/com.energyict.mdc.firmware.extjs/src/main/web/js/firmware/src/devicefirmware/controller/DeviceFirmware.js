@@ -97,7 +97,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         errorMsg.hide();
         propertyForm.clearInvalid();
 
-        model.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
+        model.getProxy().setExtraParam('deviceId', router.arguments.deviceId);
 
         record = Ext.create(model, {
             uploadOption: messageSpec.get('id'),
@@ -156,9 +156,9 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         Ext.Ajax.request({
             isNotEdit: true,
             method: 'PUT',
-            url: '/api/fwc/device/{mrid}/status/{action}'
+            url: '/api/fwc/devices/{deviceId}/status/{action}'
                 .replace('{action}', action)
-                .replace('{mrid}', encodeURIComponent(router.arguments.mRID))
+                .replace('{deviceId}', encodeURIComponent(router.arguments.deviceId))
                 .replace('{id}', record.get('comTaskId')),
             jsonData: _.pick(container.device.getData(), 'version'),
             success: function () {
@@ -179,7 +179,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             router = me.getController('Uni.controller.history.Router');
 
         form.setLoading();
-        record.retry(encodeURIComponent(router.arguments.mRID), {
+        record.retry(encodeURIComponent(router.arguments.deviceId), {
             isNotEdit: true,
             jsonData: _.pick(container.device.getData(), 'version'),
             success: function () {
@@ -203,7 +203,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             message = new Model();
 
         form.setLoading();
-        message.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
+        message.getProxy().setExtraParam('deviceId', router.arguments.deviceId);
         message.setId(devicemessageId);
         message.set('version', container.device.get('version'));
         message.destroy({
@@ -241,14 +241,14 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         });
     },
 
-    showDeviceFirmware: function (mRID) {
+    showDeviceFirmware: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Fwc.devicefirmware.store.Firmwares'),
             actionsStore = me.getStore('Fwc.devicefirmware.store.FirmwareActions'),
             widget;
 
-        me.loadDevice(mRID, function (device) {
+        me.loadDevice(deviceId, function (device) {
             me.getApplication().fireEvent('loadDevice', device);
             me.getApplication().fireEvent('changecontentevent', 'device-firmware-setup', {
                 router: router,
@@ -257,8 +257,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
             widget = me.getSetupPage();
             widget.setLoading();
-            store.getProxy().setUrl(device.get('mRID'));
-            actionsStore.getProxy().setUrl(device.get('mRID'));
+            store.getProxy().setExtraParam('deviceId', device.get('name'));
+            actionsStore.getProxy().setExtraParam('deviceId', device.get('name'));
 
             var container = widget.down('#device-firmwares');
             store.load({
@@ -280,7 +280,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         });
     },
 
-    showDeviceFirmwareUpload: function (mRID) {
+    showDeviceFirmwareUpload: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             device = Ext.ModelManager.getModel('Mdc.model.Device'),
@@ -289,11 +289,11 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             container = me.getContainer();
 
         container.setLoading();
-        device.load(mRID, {
+        device.load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                messageSpecModel.getProxy().setUrl(encodeURIComponent(mRID));
-                messageSpecModel.getProxy().extraParams.firmwareType = router.queryParams.firmwareType;
+                messageSpecModel.getProxy().setExtraParam('deviceId', deviceId);
+                messageSpecModel.getProxy().setExtraParam('firmwareType', router.queryParams.firmwareType);
                 messageSpecModel.load(action, {
                     success: function (record) {
                         var widget = Ext.widget('device-firmware-upload', {
@@ -328,7 +328,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     var releaseDate = confirmationMessage.down('upload-field-container').getValue();
 
                     form.setLoading();
-                    message.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
+                    message.getProxy().setExtraParam('deviceId', router.arguments.deviceId);
                     message.beginEdit();
                     message.setId(devicemessageId);
                     message.set('releaseDate', releaseDate ? releaseDate.getTime() : new Date().getTime());
