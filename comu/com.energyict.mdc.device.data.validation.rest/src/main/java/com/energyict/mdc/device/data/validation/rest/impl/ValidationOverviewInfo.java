@@ -15,7 +15,7 @@ import java.time.Instant;
  * @since 2016-09-09 (15:53)
  */
 public final class ValidationOverviewInfo {
-    public String mrid;
+    public String name;
     public String serialNumber;
     public String deviceType;
     public String deviceConfig;
@@ -32,7 +32,7 @@ public final class ValidationOverviewInfo {
 
     public static ValidationOverviewInfo from(ValidationOverview overview) {
         ValidationOverviewInfo info = new ValidationOverviewInfo();
-        info.mrid = overview.getDevice_mRID();
+        info.name = overview.getDeviceName();
         info.serialNumber = overview.getDeviceSerialNumber();
         info.deviceType = overview.getDeviceTypeName();
         info.deviceConfig = overview.getDeviceConfigurationName();
@@ -47,5 +47,4 @@ public final class ValidationOverviewInfo {
         info.registerIncreaseValidator = overview.getDeviceValidationKpiResults().isRegisterIncreaseValidator();
         return info;
     }
-
 }

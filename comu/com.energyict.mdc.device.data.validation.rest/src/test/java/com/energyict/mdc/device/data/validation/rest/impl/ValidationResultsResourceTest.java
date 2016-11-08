@@ -69,7 +69,7 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
                 .queryParam("limit", 2).request().get(String.class));
 
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<String>get("$.summary[0].mrid")).isEqualTo("ABC123451");
+        assertThat(jsonModel.<String>get("$.summary[0].name")).isEqualTo("ABC123451");
         assertThat(jsonModel.<String>get("$.summary[0].serialNumber")).isEqualTo("123451");
         assertThat(jsonModel.<String>get("$.summary[0].deviceType")).isEqualTo("DT1");
         assertThat(jsonModel.<String>get("$.summary[0].deviceConfig")).isEqualTo("DC1");
@@ -79,7 +79,7 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
         assertThat(jsonModel.<Integer>get("$.summary[0].amountOfSuspects")).isEqualTo(2);
         assertThat(jsonModel.<Boolean>get("$.summary[0].thresholdValidator")).isEqualTo(true);
 
-        assertThat(jsonModel.<String>get("$.summary[1].mrid")).isEqualTo("ABC123452");
+        assertThat(jsonModel.<String>get("$.summary[1].name")).isEqualTo("ABC123452");
         assertThat(jsonModel.<String>get("$.summary[1].serialNumber")).isEqualTo("123452");
         assertThat(jsonModel.<String>get("$.summary[1].deviceType")).isEqualTo("DT2");
         assertThat(jsonModel.<String>get("$.summary[1].deviceConfig")).isEqualTo("DC2");
@@ -90,9 +90,9 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
         assertThat(jsonModel.<Boolean>get("$.summary[0].thresholdValidator")).isEqualTo(true);
     }
 
-    private ValidationOverview mockValidationOverview(String mRID, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResults kpiResults) {
+    private ValidationOverview mockValidationOverview(String deviceName, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResults kpiResults) {
         ValidationOverview validationOverview = mock(ValidationOverview.class);
-        when(validationOverview.getDevice_mRID()).thenReturn(mRID);
+        when(validationOverview.getDeviceName()).thenReturn(deviceName);
         when(validationOverview.getDeviceSerialNumber()).thenReturn(serialNumber);
         when(validationOverview.getDeviceTypeName()).thenReturn(deviceTypeName);
         when(validationOverview.getDeviceConfigurationName()).thenReturn(deviceConfigurationName);

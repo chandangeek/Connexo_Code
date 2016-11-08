@@ -9,7 +9,7 @@ import java.time.Instant;
  */
 public class ValidationSummaryInfo {
 
-    public String mrid;
+    public String name;
     public String serialNumber;
     public String deviceType;
     public String deviceConfig;
@@ -24,7 +24,7 @@ public class ValidationSummaryInfo {
     public boolean registerIncreaseValidator;
 
     public ValidationSummaryInfo(ValidationOverview validationOverview) {
-        this.mrid = validationOverview.getDevice_mRID();
+        this.name = validationOverview.getDeviceName();
         this.serialNumber = validationOverview.getDeviceSerialNumber();
         this.deviceType = validationOverview.getDeviceTypeName();
         this.deviceConfig = validationOverview.getDeviceConfigurationName();
