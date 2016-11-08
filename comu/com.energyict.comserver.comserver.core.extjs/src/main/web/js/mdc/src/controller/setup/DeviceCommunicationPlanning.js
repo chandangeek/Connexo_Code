@@ -17,15 +17,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
     ],
 
     requires: [
-        'Mdc.store.DeviceSchedules',
-        'Mdc.model.CommunicationTaskSimple'
+        'Mdc.store.DeviceSchedules'
     ],
 
     refs: [
         {ref: 'addSharedCommunicationScheduleGrid', selector: '#sharedCommunicationScheduleSelectionGrid'},
         {ref: 'addSharedCommunicationSchedulePage', selector: 'addSharedCommunicationSchedule'},
-        {ref: 'uniFormErrorMessage', selector: 'addSharedCommunicationSchedule #form-errors'},
-        {ref: 'warningMessage', selector: 'addSharedCommunicationSchedule #warningMessage'},
         {ref: 'deviceCommunicationPlanningGrid', selector: 'DeviceCommunicationPlanningGrid grid'},
         {ref: 'scheduleField', selector: 'device-schedule-add #device-schedule-add-scheduleField'},
         {ref: 'addScheduleView', selector: 'device-schedule-add'},
@@ -347,7 +344,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
 
     showAddSchedule: function (deviceMRID, comTaskId) {
         var me = this,
-            comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTaskSimple'),
+            comTaskModel = Ext.ModelManager.getModel('Mdc.model.DeviceSchedule'),
             comTaskName = undefined;
 
         comTaskModel.getProxy().setUrl(deviceMRID);
@@ -426,14 +423,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
 
     showEditSchedule: function (deviceMRID, comTaskId) {
         var me = this,
-            comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTaskSimple'),
+            comTaskModel = Ext.ModelManager.getModel('Mdc.model.DeviceSchedule'),
             comTaskName = undefined;
 
         comTaskModel.getProxy().setUrl(deviceMRID);
         comTaskModel.load(comTaskId, {
             success: function (comTask) {
                 comTaskName = comTask.get('comTask').name;
-                debugger;
 
                 Ext.ModelManager.getModel('Mdc.model.Device').load(deviceMRID, {
                     success: function (device) {

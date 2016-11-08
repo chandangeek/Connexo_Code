@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.ScheduleAdd', {
                         },
                         items: [
                             {
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                text: me.editMode ? Uni.I18n.translate('general.save', 'MDC', 'Save') : Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                 xtype: 'button',
                                 ui: 'action',
                                 action: me.editMode ? 'editScheduleAction' :'addScheduleAction',
