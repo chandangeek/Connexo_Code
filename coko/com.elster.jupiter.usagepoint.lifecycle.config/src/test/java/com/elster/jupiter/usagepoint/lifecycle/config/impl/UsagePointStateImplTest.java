@@ -1,5 +1,6 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
@@ -28,6 +29,8 @@ public class UsagePointStateImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private EventService eventService;
+    @Mock
     private UsagePointLifeCycle lifeCycle;
     @Mock
     private State fsmState;
@@ -35,7 +38,7 @@ public class UsagePointStateImplTest {
     private ProcessReference process;
 
     private UsagePointState getTestInstance() {
-        return new UsagePointStateImpl(this.thesaurus).init(this.lifeCycle, this.fsmState);
+        return new UsagePointStateImpl(this.thesaurus, this.eventService).init(this.lifeCycle, this.fsmState);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,12 +17,15 @@ import java.util.stream.Stream;
 
 public class UsagePointStateImpl implements UsagePointState {
     private final Thesaurus thesaurus;
+    private final EventService eventService;
+
     private State fsmState;
     private UsagePointLifeCycle lifeCycle;
 
     @Inject
-    public UsagePointStateImpl(Thesaurus thesaurus) {
+    public UsagePointStateImpl(Thesaurus thesaurus, EventService eventService) {
         this.thesaurus = thesaurus;
+        this.eventService = eventService;
     }
 
     public UsagePointState init(UsagePointLifeCycle lifeCycle, State fsmState) {
@@ -84,6 +88,7 @@ public class UsagePointStateImpl implements UsagePointState {
 
     @Override
     public void remove() {
+        this.eventService.postEvent(EventType.LIFE_CYCLE_STATE_BEFORE_DELETE.topic(), this);
         List<UsagePointTransition> linkedTransitions = this.lifeCycle.getTransitions()
                 .stream()
                 .filter(transition -> transition.getFrom().getId() == getId()
@@ -100,6 +105,7 @@ public class UsagePointStateImpl implements UsagePointState {
             throw UsagePointStateRemoveException.stateIsInitial(this.thesaurus);
         }
         this.fsmState.getFiniteStateMachine().startUpdate().removeState(this.fsmState).complete();
+        this.eventService.postEvent(EventType.LIFE_CYCLE_STATE_DELETED.topic(), this);
     }
 
     @Override

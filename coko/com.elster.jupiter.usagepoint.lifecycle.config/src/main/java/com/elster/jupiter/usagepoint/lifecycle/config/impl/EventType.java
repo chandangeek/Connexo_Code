@@ -10,7 +10,9 @@ public enum EventType {
     LIFE_CYCLE_CREATED("CREATED"),
     LIFE_CYCLE_UPDATED("UPDATED"),
     LIFE_CYCLE_BEFORE_DELETE("BEFORE_DELETE"),
-    LIFE_CYCLE_DELETED("DELETED"),;
+    LIFE_CYCLE_DELETED("DELETED"),
+    LIFE_CYCLE_STATE_BEFORE_DELETE("state/BEFORE_DELETE"),
+    LIFE_CYCLE_STATE_DELETED("state/DELETED"),;
 
     private static final String NAMESPACE = "com/elster/jupiter/usagepoint/lifecycle/";
     private final String topic;
