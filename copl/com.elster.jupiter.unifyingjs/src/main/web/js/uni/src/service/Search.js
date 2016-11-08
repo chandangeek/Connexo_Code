@@ -404,7 +404,7 @@ Ext.define('Uni.service.Search', {
             isDefault: defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0,
             dataIndex: propertyName,
             header: displayValue,
-            disabled: propertyName === 'mRID',
+            disabled: propertyName === 'name',
             xtype: type
         };
     },
@@ -591,6 +591,7 @@ Ext.define('Uni.service.Search', {
                 }
                 criteria.endEdit(true);
 
+                criteria.isCached = false;
                 criteria.values().clearFilter(true);
                 criteria.values().addFilter(me.getFilters(), false);
 
@@ -605,8 +606,11 @@ Ext.define('Uni.service.Search', {
                         me.fireEvent('change', me.filters, f);
                         me.fireEvent('criteriaChange', me.criteria, criteria);
                     });
+                } else {
+                    criteria.refresh(function () {
+                        me.fireEvent('criteriaChange', me.criteria, criteria);
+                    });
                 }
-
                 me.fireEvent('criteriaChange', me.criteria, criteria);
             });
         }
