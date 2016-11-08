@@ -4,8 +4,6 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
@@ -97,18 +95,8 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
 
     @Override
     public void setProperties(Properties properties) throws PropertyValidationException {
-        getEdpProperties().addProperties(properties);
-        this.doValidateProperties(properties);
         super.setProperties(properties);
-    }
-
-    private void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        clientMacAddress = getEdpProperties().getClientMacAddress();
-        serverUpperMacAddress = getEdpProperties().getServerUpperMacAddress();
-        serverLowerMacAddress = getEdpProperties().getServerLowerMacAddress();
-        if (connectionMode == 1) {     //Swap the fields for GPRS: TCPIPConnection uses the serverLowerMacAddress as destination-port
-            serverLowerMacAddress = serverUpperMacAddress;
-        }
+        getEdpProperties().addProperties(properties);
     }
 
     @Override
@@ -118,7 +106,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
         return propertySpecs;
     }
 
-    public EDPProperties getEdpProperties() {
+    private EDPProperties getEdpProperties() {
         if (edpProperties == null) {
             edpProperties = new EDPProperties(new Properties());
         }

@@ -103,14 +103,11 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
-
                     </execution>
                 </executions>
-
             </plugin>
         </plugins>
     </build>
-
 
     <!--
 The two profiles define two different repositories.

@@ -32,6 +32,7 @@ import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.ge.kv2.procedures.ManufacturerProcedureFactory;
@@ -48,6 +49,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
@@ -66,12 +68,12 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
     private ManufacturerTableFactory manufacturerTableFactory;
     private StandardProcedureFactory standardProcedureFactory;
     private ManufacturerProcedureFactory manufacturerProcedureFactory;
-    KV2 kv2=new KV2();
-    GEKV2LoadProfile gekv2LoadProfile;
+    private KV2 kv2=new KV2();
+    private GEKV2LoadProfile gekv2LoadProfile;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
 
-    String c12User;
-    int c12UserId;
+    private String c12User;
+    private int c12UserId;
     private int useSnapshotProcedure;
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     private SerialCommunicationChannel commChannel;
@@ -343,7 +345,8 @@ if (skip<=29) { skip+=2;builder.append("----------------------------------------
         return getInfoTypeProfileInterval();
     }
 
-    public TimeZone gettimeZone() {
+    @Override
+    public TimeZone getTimeZone() {
         return super.getTimeZone();
     }
 
@@ -361,17 +364,18 @@ if (skip<=29) { skip+=2;builder.append("----------------------------------------
         return standardTableFactory;
     }
 
-    public StandardProcedureFactory getStandardProcedureFactory() {
+    private StandardProcedureFactory getStandardProcedureFactory() {
         return standardProcedureFactory;
     }
 
-    public ManufacturerProcedureFactory getManufacturerProcedureFactory() {
+    private ManufacturerProcedureFactory getManufacturerProcedureFactory() {
         return manufacturerProcedureFactory;
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
-        if (obisCodeInfoFactory == null)
-            obisCodeInfoFactory=new ObisCodeInfoFactory(this);
+        if (obisCodeInfoFactory == null) {
+            obisCodeInfoFactory = new ObisCodeInfoFactory(this);
+        }
         return obisCodeInfoFactory;
     }
     @Override
@@ -379,12 +383,31 @@ if (skip<=29) { skip+=2;builder.append("----------------------------------------
         return getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
     }
 
-    public int getUseSnapshotProcedure() {
+    private int getUseSnapshotProcedure() {
         return useSnapshotProcedure;
     }
 
-    public void setUseSnapshotProcedure(int useSnapshotProcedure) {
+    private void setUseSnapshotProcedure(int useSnapshotProcedure) {
         this.useSnapshotProcedure = useSnapshotProcedure;
     }
 
+    @Override
+    public ProtocolChannelMap getProtocolChannelMap() {
+        return super.getProtocolChannelMap();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
+    @Override
+    public int getInfoTypeRoundtripCorrection() {
+        return super.getInfoTypeRoundtripCorrection();
+    }
+
+    @Override
+    public int getInfoTypeProtocolRetriesProperty() {
+        return super.getInfoTypeProtocolRetriesProperty();
+    }
 }

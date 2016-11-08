@@ -12,8 +12,8 @@ package com.energyict.protocolimpl.itron.sentinel;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -155,15 +155,20 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0"));
-        c12User = properties.getProperty("C12User","");
-        c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
-        maxNrPackets = Integer.parseInt(properties.getProperty("MaxNrPackets", "1"), 16);
-        readLoadProfilesChunked = Boolean.parseBoolean(properties.getProperty("ReadLoadProfilesChunked", "false"));
-        chunkSize = Integer.parseInt(properties.getProperty("ChunkSize", "19"));
-        convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getProperty("ConvertRegisterReadsToKiloUnits", "false"));
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        try {
+            setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
+            setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0"));
+            c12User = properties.getProperty("C12User","");
+            c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
+            maxNrPackets = Integer.parseInt(properties.getProperty("MaxNrPackets", "1"), 16);
+            readLoadProfilesChunked = Boolean.parseBoolean(properties.getProperty("ReadLoadProfilesChunked", "false"));
+            chunkSize = Integer.parseInt(properties.getProperty("ChunkSize", "19"));
+            convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getProperty("ConvertRegisterReadsToKiloUnits", "false"));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
     @Override

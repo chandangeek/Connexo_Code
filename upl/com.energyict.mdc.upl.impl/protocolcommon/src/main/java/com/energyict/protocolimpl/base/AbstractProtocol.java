@@ -9,7 +9,6 @@ package com.energyict.protocolimpl.base;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
@@ -39,7 +38,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -67,13 +65,13 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     protected static final String PROP_TIMEOUT = TIMEOUT.getName();
     protected static final String PROP_RETRIES = RETRIES.getName();
-    protected static final String PROP_ECHO_CANCELING = "EchoCancelling";
     protected static final String PROP_FORCED_DELAY = "ForcedDelay";
+    protected static final String PROP_EXTENDED_LOGGING = "ExtendedLogging";
     protected static final String PROP_HALF_DUPLEX = "HalfDuplex";
 
+    private static final String PROP_ECHO_CANCELING = "EchoCancelling";
     private static final String PROP_SECURITY_LEVEL = SECURITYLEVEL.getName();
     private static final String PROP_PROTOCOL_COMPATIBLE = "ProtocolCompatible";
-    public static final String PROP_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PROP_CHANNEL_MAP = "ChannelMap";
     private static final String PROP_DTR_BEHAVIOUR = "DTRBehaviour";
     private static final String PROP_ADJUST_CHANNEL_MULTIPLIER = "AdjustChannelMultiplier";
@@ -94,22 +92,6 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws IOException thrown when the logoff fails
      */
     protected abstract void doDisconnect() throws IOException;
-
-    /**
-     * Abstract method to add custom properties
-     *
-     * @param properties The properties map to get properties from.
-     * @throws MissingPropertyException Thrown when a particular proiperty is mandatory.
-     * @throws InvalidPropertyException Thrown when a particular property has an invalid value.
-     */
-    protected abstract void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-
-    /**
-     * Abstract method to add the optional custom properties to as string.
-     *
-     * @return List the optional custom properties list of Strings
-     */
-    protected abstract List<String> doGetOptionalKeys();
 
     /**
      * Abstract method that implements the construction of all objects needed during the meter protocol session. Last construction is a ProtocolConnection.
@@ -161,35 +143,34 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public abstract String getFirmwareVersion() throws IOException;
     //abstract public String getSerialNumber() throws IOException;
 
-    TimeZone timeZone;
-    Logger logger;
+    private TimeZone timeZone;
+    private Logger logger;
 
-
-    String channelMap; // ChannelMap property (default=null)
-    String strID; // device id (default=null)
-    String strPassword; // password (default=null)
+    private String channelMap; // ChannelMap property (default=null)
+    private String strID; // device id (default=null)
+    private String strPassword; // password (default=null)
     private int timeoutProperty; // protocol timeout in ms (default=10000)
     private int protocolRetriesProperty; // nr of retries for the protocol (default=5)
-    int roundtripCorrection; // roundtrip correction for the set/get time methods in ms (default=0)
-    int securityLevel; // 0=public level, 1=non encrypted password, 2=encrypted password (default=0)
-    String nodeId; // multidrop and iec1107 flag id (default=empty)
-    int echoCancelling; // 0=disabled, 1=enabled (default=0)
-    int extendedLogging; // 0=disabled, 1=enabled (e.g. to get a list of all possible registers that can be read in the meter) (default=0)
-    String serialNumber; // meter's serial number (used for handheld connection to identify the meter) (default=null)
-    ProtocolChannelMap protocolChannelMap; // null=unused configuration info of the meter's channels (default=null)
-    int profileInterval; // meter's profile interval in seconds (default=900)
-    int protocolCompatible; // 0=protocol has specific incompatible features (e.g. the A1700 has data streaming mode but is a member of the IEC1107 family), 1=protocol is fully compatible with IEC1107 (default=1)
-    ProtocolConnection protocolConnection; // lower layer protocol communication
-    MeterType meterType; // signon information of the meter
-    int requestHeader; // Request Meter's profile header info (typycal VDEW)
-    int scaler; // Scaler to use when retrieving data from the meter
-    int forcedDelay; // Delay before data send
-    int halfDuplex; // halfduplex enable/disable & delay in ms. (0=disabled, >0 enabled and delay in ms.)
+    private int roundtripCorrection; // roundtrip correction for the set/get time methods in ms (default=0)
+    private int securityLevel; // 0=public level, 1=non encrypted password, 2=encrypted password (default=0)
+    private String nodeId; // multidrop and iec1107 flag id (default=empty)
+    private int echoCancelling; // 0=disabled, 1=enabled (default=0)
+    private int extendedLogging; // 0=disabled, 1=enabled (e.g. to get a list of all possible registers that can be read in the meter) (default=0)
+    private String serialNumber; // meter's serial number (used for handheld connection to identify the meter) (default=null)
+    private ProtocolChannelMap protocolChannelMap; // null=unused configuration info of the meter's channels (default=null)
+    private int profileInterval; // meter's profile interval in seconds (default=900)
+    private int protocolCompatible; // 0=protocol has specific incompatible features (e.g. the A1700 has data streaming mode but is a member of the IEC1107 family), 1=protocol is fully compatible with IEC1107 (default=1)
+    private ProtocolConnection protocolConnection; // lower layer protocol communication
+    private MeterType meterType; // signon information of the meter
+    private int requestHeader; // Request Meter's profile header info (typycal VDEW)
+    private int scaler; // Scaler to use when retrieving data from the meter
+    private int forcedDelay; // Delay before data send
+    private int halfDuplex; // halfduplex enable/disable & delay in ms. (0=disabled, >0 enabled and delay in ms.)
 
-    byte[] dataReadout;
-    boolean requestDataReadout;
-    Encryptor encryptor;
-    HalfDuplexController halfDuplexController = null;
+    private byte[] dataReadout;
+    private boolean requestDataReadout;
+    private Encryptor encryptor;
+    private HalfDuplexController halfDuplexController = null;
 
     private BigDecimal adjustChannelMultiplier;
     private BigDecimal adjustRegisterMultiplier;
@@ -309,8 +290,6 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
             adjustChannelMultiplier = new BigDecimal(properties.getProperty(PROP_ADJUST_CHANNEL_MULTIPLIER, "1").trim());
             adjustRegisterMultiplier = new BigDecimal(properties.getProperty(PROP_ADJUST_REGISTER_MULTIPLIER, "1").trim());
-
-            doValidateProperties(properties);
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -318,25 +297,6 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     protected String defaultForcedDelayPropertyValue() {
         return "300";
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        List<String> result = new ArrayList<>();
-        result.add(PROP_TIMEOUT);
-        result.add(PROP_RETRIES);
-        result.add(PROP_SECURITY_LEVEL);
-        result.add(PROP_ECHO_CANCELING);
-        result.add(PROP_PROTOCOL_COMPATIBLE);
-        result.add(PROP_EXTENDED_LOGGING);
-        result.add(PROP_CHANNEL_MAP);
-        result.add(PROP_FORCED_DELAY);
-        result.add(PROP_HALF_DUPLEX);
-        result.add(PROP_DTR_BEHAVIOUR);
-        result.add(PROP_ADJUST_CHANNEL_MULTIPLIER);
-        result.add(PROP_ADJUST_REGISTER_MULTIPLIER);
-        result.addAll(doGetOptionalKeys());
-        return result;
     }
 
     @Override
@@ -365,7 +325,6 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
             logger.info(getRegistersInfo(extendedLogging));
         }
     }
-
 
     @Override
     public void disconnect() throws IOException {
@@ -464,154 +423,71 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         throw new IOException("Not implemented!");
     }
 
-    /**
-     * Getter for property meterType.
-     *
-     * @return Value of property meterType.
-     */
     public MeterType getMeterType() {
         return meterType;
     }
 
-    /**
-     * Getter for property "ChannelMap"
-     *
-     * @return ChannelMap object
-     */
-    @Override
-    public ProtocolChannelMap getProtocolChannelMap() {
+    protected ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
     }
 
-    @Override
-    public TimeZone getTimeZone() {
+    protected TimeZone getTimeZone() {
         return timeZone;
     }
 
-    /**
-     * Getter for the ProtocolConnection
-     *
-     * @return ProtocolConnection
-     */
-    public ProtocolConnection getProtocolConnection() {
+    protected ProtocolConnection getProtocolConnection() {
         return protocolConnection;
     }
 
-    /**
-     * Getter for the data readout
-     *
-     * @return byte[] data readout
-     */
     public byte[] getDataReadout() {
         return dataReadout;
     }
 
-    @Override
-    public Logger getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
 
-    @Override
-    public int getInfoTypeRoundtripCorrection() {
+    protected int getInfoTypeRoundtripCorrection() {
         return roundtripCorrection;
     }
 
-    /**
-     * Getter for the custom property "Retries"
-     *
-     * @return retries
-     */
     protected int getInfoTypeRetries() {
         return getInfoTypeProtocolRetriesProperty();
     }
 
-    /**
-     * Getter for the custom property "ForcedDelay"
-     *
-     * @return forced delay in ms
-     */
     public int getInfoTypeForcedDelay() {
         return forcedDelay;
     }
 
-    /**
-     * Getter for the custom property "Scaler"
-     *
-     * @return int scaler
-     */
     protected int getInfoTypeScaler() {
         return scaler;
     }
 
-    /**
-     * Getter for the custom property "SerialNumber"
-     *
-     * @return String serial number
-     */
     protected String getInfoTypeSerialNumber() {
         return serialNumber;
     }
 
-    /**
-     * Getter for property strID. strID is the infotype property value MeterProtocol.ADDRESS
-     *
-     * @return Value of property strID.
-     */
     public String getInfoTypeDeviceID() {
         return strID;
     }
 
-    public void setInfoTypeDeviceID(String strID) {
+    protected void setInfoTypeDeviceID(String strID) {
         this.strID = strID;
     }
 
-    /**
-
-     * Getter for property strPassword. strPassword is the infotype property value MeterProtocol.PASSWORD
-    * @return Value of property strPassword (infoType).
-    */
-
-    /**
-     * Getter for the property "Password". Password is the infotype property value MeterProtocol.PASSWORD
-     *
-     * @return String password
-     */
     public String getInfoTypePassword() {
         return strPassword;
     }
 
-    /**
-     * Setter for the property "Password". Password is the infotype property value MeterProtocol.PASSWORD
-     * This setter is used when a protocol wants to implement another default.
-     *
-     * @param strPassword password String
-     */
-    public void setInfoTypePassword(String strPassword) {
+    protected void setInfoTypePassword(String strPassword) {
         this.strPassword = strPassword;
     }
 
-    /*
-    * Getter for property nodeId. nodeId is the infotype property value MeterProtocol.NODEID
-    * In the ProtocolTester/Eiserver application, NODEID is the property NodeAddress
-    * @return Value of property nodeId (infoType).
-    */
-
-    /**
-     * Getter for the property "NodeAddress". Password is the infotype property value MeterProtocol.NODEID
-     *
-     * @return string node address
-     */
     public String getInfoTypeNodeAddress() {
         return nodeId;
     }
 
-    /**
-     * Getter for the property "NodeAddress". Password is the infotype property value MeterProtocol.NODEID
-     * This parses the node address to a numeric value radix 10.
-     *
-     * @return int nodeAddress
-     */
-    public int getInfoTypeNodeAddressNumber() {
+    protected int getInfoTypeNodeAddressNumber() {
         if ((nodeId != null) && ("".compareTo(nodeId) != 0)) {
             return Integer.parseInt(nodeId);
         } else {
@@ -619,22 +495,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         }
     }
 
-    /**
-     * Setter for the property "NodeAddress". NodeAddress is the infotype property value MeterProtocol.NODEID
-     * This setter is used when a protocol wants to implement another default.
-     *
-     * @param nodeId String nodeAddress
-     */
     public void setInfoTypeNodeAddress(String nodeId) {
         this.nodeId = nodeId;
     }
 
-    /**
-     * Getter for the property "NodeAddress". Password is the infotype property value MeterProtocol.NODEID
-     * This parses the node address to a numeric value radix 16.
-     *
-     * @return int nodeAddress
-     */
     public int getInfoTypeNodeAddressNumberHex() {
         if ((nodeId != null) && ("".compareTo(nodeId) != 0)) {
             return Integer.parseInt(nodeId, 16);
@@ -643,66 +507,30 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         }
     }
 
-    /**
-     * Getter for the custom property "ProtocolCompatible"
-     *
-     * @return int enable (1) or disable (0) protocol compatibility
-     */
     public int getInfoTypeProtocolCompatible() {
         return protocolCompatible;
     }
 
-    /**
-     * Getter for the custom property "EchoCancelling"
-     *
-     * @return int enable (1) or disable (0) echo cancelling
-     */
-    public int getInfoTypeEchoCancelling() {
+    protected int getInfoTypeEchoCancelling() {
         return echoCancelling;
     }
 
-
-    /**
-     * Getter for the custom property "SecurityLevel"
-     *
-     * @return int securitylevel starting from 0
-     */
     public int getInfoTypeSecurityLevel() {
         return securityLevel;
     }
 
-    /**
-     * Getter for the property "Timeout"
-     *
-     * @return int timeout in milliseconds
-     */
     public int getInfoTypeTimeout() {
         return timeoutProperty;
     }
 
-    /**
-     * Getter for the custom property "ChannelMap"
-     *
-     * @return String ChannelMap
-     */
-    public String getInfoTypeChannelMap() {
+    protected String getInfoTypeChannelMap() {
         return channelMap;
     }
 
-    /**
-     * Getter for property "ProfileInterval"
-     *
-     * @return int profile interval in seconds
-     */
-    public int getInfoTypeProfileInterval() {
+    protected int getInfoTypeProfileInterval() {
         return profileInterval;
     }
 
-    /**
-     * Getter for the custom property "ExtendedLogging"
-     *
-     * @return int enable(1) or disable(0) extended logging
-     */
     public int getInfoTypeExtendedLogging() {
         return extendedLogging;
     }
@@ -726,25 +554,18 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws IOException Thrown when device id's do not match
      */
     protected void validateDeviceId() throws IOException {
-
     }
 
-    /**
-     * Getter for the custom property "RequestHeader"
-     *
-     * @return boolean
-     */
     public boolean isRequestHeader() {
         return (requestHeader == 1);
     }
 
-    /**
-     * Getter for property forcedDelay.
-     *
-     * @return Value of property forcedDelay.
-     */
     public int getForcedDelay() {
         return forcedDelay;
+    }
+
+    public void setForcedDelay(int forcedDelay) {
+        this.forcedDelay = forcedDelay;
     }
 
     @Override
@@ -757,95 +578,43 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         }
     }
 
-    /**
-     * Setter for the custom property "ForcedDelay"
-     *
-     * @param forcedDelay int forceddelay in ms
-     */
-    public void setForcedDelay(int forcedDelay) {
-        this.forcedDelay = forcedDelay;
-    }
-
-    /**
-     * Setter for the custom property "SecurityLevel"
-     *
-     * @param securityLevel int starting from 0
-     */
-    public void setInfoTypeSecurityLevel(int securityLevel) {
-        this.securityLevel = securityLevel;
-    }
-
-    /**
-     * Getter for the custom property "DTRBehaviour"
-     *
-     * @return int DTR false (0), DTR true (1), DTR auto (2)
-     */
-    public int getDtrBehaviour() {
-        return dtrBehaviour;
-    }
-
-    /**
-     * Setter for the custom property "DTRBehaviour"
-     *
-     * @param dtrBehaviour int DTR false (0), DTR true (1), DTR auto (2)
-     */
-    public void setDtrBehaviour(int dtrBehaviour) {
-        this.dtrBehaviour = dtrBehaviour;
-    }
-
-    /**
-     * Setter for the custom property "HalfDuplex"
-     *
-     * @param halfDuplex int disabled(0) enabled (>0, in ms)
-     */
-    public void setInfoTypeHalfDuplex(int halfDuplex) {
-        this.halfDuplex = halfDuplex;
-    }
-
-    /**
-     * Getter for the custom property "HalfDuplex"
-     *
-     * @return int disabled(0) enabled (>0, in ms)
-     */
     public int getInfoTypeHalfDuplex() {
         return halfDuplex;
     }
 
+    protected void setInfoTypeHalfDuplex(int halfDuplex) {
+        this.halfDuplex = halfDuplex;
+    }
 
-    /**
-     * Setter for the custom property "Timeout"
-     *
-     * @param timeoutProperty int in ms
-     */
+    protected void setInfoTypeSecurityLevel(int securityLevel) {
+        this.securityLevel = securityLevel;
+    }
+
+    public int getDtrBehaviour() {
+        return dtrBehaviour;
+    }
+
+    private void setDtrBehaviour(int dtrBehaviour) {
+        this.dtrBehaviour = dtrBehaviour;
+    }
+
     public void setInfoTypeTimeoutProperty(int timeoutProperty) {
         this.timeoutProperty = timeoutProperty;
     }
 
-
-    /**
-     * Getter for the custom property "AdjustChannelMultiplier"
-     *
-     * @return BigDecimal translated from a string
-     */
     public BigDecimal getAdjustChannelMultiplier() {
         return adjustChannelMultiplier;
     }
 
-    /**
-     * Getter for the custom property "AdjustRegisterMultiplier"
-     *
-     * @return BigDecimal translated from a string
-     */
     public BigDecimal getAdjustRegisterMultiplier() {
         return adjustRegisterMultiplier;
     }
 
-    @Override
-    public int getInfoTypeProtocolRetriesProperty() {
+    protected int getInfoTypeProtocolRetriesProperty() {
         return protocolRetriesProperty;
     }
 
-    public void setInfoTypeProtocolRetriesProperty(int protocolRetriesProperty) {
+    protected void setInfoTypeProtocolRetriesProperty(int protocolRetriesProperty) {
         this.protocolRetriesProperty = protocolRetriesProperty;
     }
 

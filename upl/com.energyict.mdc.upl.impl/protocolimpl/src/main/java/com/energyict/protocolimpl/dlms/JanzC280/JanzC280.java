@@ -5,8 +5,8 @@ import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -100,17 +100,6 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     private JanzStoredValues storedValues;
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        this.forcedToReadCache = !properties.getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase(Integer.toString(DEFAULT_FORCED_TO_READ_CACHE));
-        this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(DEFAULT_MAX_PDU_SIZE)));
-        this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_LOWER_MAC_ADDRESS)));
-        this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_UPPER_MAC_ADDRESS)));
-        this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, Integer.toString(DEFAULT_CLIENT_MAC_ADDRESS)));
-        this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, Integer.toString(DEFAULT_INFORMATION_FIELD_SIZE)));
-        this.connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, Integer.toString(DEFAULT_CONNECTION_MODE)));
-    }
-
-    @Override
     protected InvokeIdAndPriorityHandler buildInvokeIdAndPriorityHandler() throws IOException {
         try {
             InvokeIdAndPriority iiap = new InvokeIdAndPriority();
@@ -147,8 +136,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
 
     @Override
     public Date getTime() throws IOException {
-        Date dateTime = getCosemObjectFactory().getClock().getDateTime();
-        return dateTime;
+        return getCosemObjectFactory().getClock().getDateTime();
     }
 
     @Override
@@ -256,8 +244,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
 
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn =
-                new JanzC280HHUConnection(commChannel, this.timeOut, this.retries, 300, getInfoTypeEchoCancelling());
+        HHUSignOn hhuSignOn = new JanzC280HHUConnection(commChannel, this.timeOut, this.retries, 300, getInfoTypeEchoCancelling());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -267,7 +254,6 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     @Override
     public int getProfileInterval() throws IOException {
         Quantity interval = readRegister(ObisCode.fromString("1.0.0.8.4.255")).getQuantity();
-
         return interval.intValue() * 60;   //The profile interval can be 1,2,3,4,5,6,10,12,15,20,30 or 60 minutes.
     }
 
@@ -314,7 +300,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         return profileDataReader;
     }
 
-    public ObisCode[] getLoadProfileObisCodes() throws IOException {
+    ObisCode[] getLoadProfileObisCodes() throws IOException {
         if (loadProfileObisCodes == null) {
             loadProfileObisCodes = new ObisCode[getEnabledChannelNumbers().size()];
             for (int i = 0; i < getEnabledChannelNumbers().size(); i++) {
@@ -324,7 +310,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         return loadProfileObisCodes;
     }
 
-    public List<Integer> getEnabledChannelNumbers() throws IOException {
+    List<Integer> getEnabledChannelNumbers() throws IOException {
         if (enabledChannelNumbers == null) {
             getNumberOfChannels();
         }
@@ -344,6 +330,22 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_RETRIES, false));
         propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.SECURITY_LEVEL, false));
         return propertySpecs;
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        try {
+            this.forcedToReadCache = !properties.getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase(Integer.toString(DEFAULT_FORCED_TO_READ_CACHE));
+            this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(DEFAULT_MAX_PDU_SIZE)));
+            this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_LOWER_MAC_ADDRESS)));
+            this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_UPPER_MAC_ADDRESS)));
+            this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, Integer.toString(DEFAULT_CLIENT_MAC_ADDRESS)));
+            this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, Integer.toString(DEFAULT_INFORMATION_FIELD_SIZE)));
+            this.connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, Integer.toString(DEFAULT_CONNECTION_MODE)));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
     @Override
@@ -399,4 +401,5 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         final Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_JanzC280.cache";
     }
+
 }

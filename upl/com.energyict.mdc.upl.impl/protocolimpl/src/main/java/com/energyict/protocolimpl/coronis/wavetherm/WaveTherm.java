@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.coronis.wavetherm;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -116,11 +116,16 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     }
 
     @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "40000").trim()));
-        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
-        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
-        verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        super.setProperties(properties);
+        try {
+            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "40000").trim()));
+            setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
+            correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
+            verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        }
     }
 
     @Override
