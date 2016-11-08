@@ -1,22 +1,24 @@
 package com.elster.jupiter.devtools;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TimeZoneNeutralTestWithGivenTimeZone {
 
     @ClassRule
-    public static TestRule rule = Using.timZone("Europe/Moscow");
+    public static TestRule rule = Using.timeZone("Europe/Moscow");
 
     @Test
     public void testJodaWinterTime() {

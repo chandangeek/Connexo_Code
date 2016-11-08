@@ -28,15 +28,15 @@ public enum Using {
         return TimeZoneNeutral.DEFAULT_TIMEZONE_NEUTRAL;
     }
 
-    public static TimeZoneNeutral timZone(TimeZone timeZone) {
+    public static TimeZoneNeutral timeZone(TimeZone timeZone) {
         return new TimeZoneNeutral(timeZone);
     }
 
-    public static TimeZoneNeutral timZone(DateTimeZone timeZone) {
+    public static TimeZoneNeutral timeZone(DateTimeZone timeZone) {
         return new TimeZoneNeutral(timeZone);
     }
 
-    public static TimeZoneNeutral timZone(String timeZone) {
+    public static TimeZoneNeutral timeZone(String timeZone) {
         return new TimeZoneNeutral(timeZone);
     }
 }
