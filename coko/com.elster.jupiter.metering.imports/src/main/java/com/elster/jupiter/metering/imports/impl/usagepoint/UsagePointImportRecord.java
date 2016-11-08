@@ -18,9 +18,8 @@ import java.util.Optional;
 
 public class UsagePointImportRecord extends FileImportRecord {
     //General
-    private String mRID;
+    private String usagePointIdentifier;
     private String serviceKind;
-    private String name;
     private boolean isSdp;
     private boolean isVirtual;
     private Instant installationTime;
@@ -65,12 +64,12 @@ public class UsagePointImportRecord extends FileImportRecord {
         super(lineNumber);
     }
 
-    public Optional<String> getmRID() {
-        return Optional.ofNullable(mRID);
+    public Optional<String> getUsagePointIdentifier() {
+        return Optional.ofNullable(usagePointIdentifier);
     }
 
-    public void setmRID(String mRID) {
-        this.mRID = mRID;
+    public void setUsagePointIdentifier(String usagePointIdentifier) {
+        this.usagePointIdentifier = usagePointIdentifier;
     }
 
     public Optional<String> getServiceKind() {
@@ -103,14 +102,6 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     public void setElevation(String elevation) {
         this.elevation = elevation;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getOutageRegion() {

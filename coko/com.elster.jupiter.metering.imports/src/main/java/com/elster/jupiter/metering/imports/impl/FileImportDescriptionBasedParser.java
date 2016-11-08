@@ -59,8 +59,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             if (field.getValue().isMandatory() && (csvRecord.toMap().entrySet().stream()
                     .allMatch(e -> !e.getKey().equalsIgnoreCase(field.getKey()) || Checks.is(csvRecord.get(e.getKey()))
                             .emptyOrOnlyWhiteSpace()))) {
-                throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
-                        .getKey());
+                throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field.getKey());
             }
         }
 
@@ -72,8 +71,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                     .findFirst().ifPresent(field -> {
                 if (field.isMandatory() && csvRecord.isMapped(entry.getKey()) && Checks.is(csvRecord.get(entry.getKey()))
                         .emptyOrOnlyWhiteSpace()) {
-                    throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
-                            .getFieldName());
+                    throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field.getFieldName());
                 }
                 if (context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                         .map(LocationTemplate.TemplateField::getName)
@@ -92,9 +90,9 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         }
 
         context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
+                .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
                 .map(LocationTemplate.TemplateField::getName)
-                .forEach(s-> {
+                .forEach(s -> {
                     fields.entrySet().stream()
                             .filter(e -> e.getKey().equalsIgnoreCase(s))
                             .map(Map.Entry::getValue)
