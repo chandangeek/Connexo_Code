@@ -25,11 +25,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.osgi.BundleWaiter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -51,10 +53,11 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 4/29/16.
  */
-@Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesService.class}, immediate = true)
-public class WebServicesServiceImpl implements WebServicesService {
+@Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {}, immediate = true)
+public class WebServicesServiceImpl implements WebServicesService , BundleWaiter.Startable{
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
+    private volatile ServiceRegistration<WebServicesService> registration;
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
@@ -84,7 +87,7 @@ public class WebServicesServiceImpl implements WebServicesService {
         setUserService(userService);
         setTransactionService(transactionService);
         setHttpService(httpService);
-        start(bundleContext);
+        activate(bundleContext);
     }
 
     @Reference
@@ -280,7 +283,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Activate
-    public void start(BundleContext bundleContext) {
+    public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
         if (logDirectory == null) {
@@ -292,12 +295,23 @@ public class WebServicesServiceImpl implements WebServicesService {
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME), dataModel,
                 Installer.class, Collections.emptyMap());
+        Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
+        clazz.getAnnotations();
+        BundleWaiter.wait(this,bundleContext,"org.glassfish.hk2.osgi-resource-locator");
+    }
+
+    @Override
+    public void start(BundleContext context) {
+        registration = bundleContext.registerService(WebServicesService.class, this, null);
     }
 
     @Deactivate
     public void stop(BundleContext bundleContext) {
         endpoints.values().stream().forEach(ManagedEndpoint::stop);
         endpoints.clear();
+        if (registration != null) {
+            registration.unregister();
+        }
     }
 
     private Module getModule(String logDirectory) {
