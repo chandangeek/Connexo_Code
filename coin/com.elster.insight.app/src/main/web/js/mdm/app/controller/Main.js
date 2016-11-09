@@ -20,6 +20,7 @@ Ext.define('MdmApp.controller.Main', {
         'Dbp.privileges.DeviceProcesses',
         'Fim.controller.Main',
         'Fim.privileges.DataImport',
+        'Dxp.privileges.DataExport',
         'Est.main.controller.Main',
         'Est.privileges.EstimationConfiguration'
     ],
@@ -40,7 +41,8 @@ Ext.define('MdmApp.controller.Main', {
         Bpm.privileges.BpmManagement.all(),
         Dbp.privileges.DeviceProcesses.all(),
         Fim.privileges.DataImport.all(),
-        Est.privileges.EstimationConfiguration.all()
+        Est.privileges.EstimationConfiguration.all(),
+        Dxp.privileges.DataExport.all()
     ),
 
     controllers: [
@@ -51,6 +53,7 @@ Ext.define('MdmApp.controller.Main', {
         'Bpm.controller.Main',
         'Dbp.controller.Main',
         'Fim.controller.Main',
+        'Dxp.controller.Main',
         'Est.main.controller.Main'
     ],
     init: function () {
