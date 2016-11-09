@@ -24,6 +24,8 @@ public class RtuPlusServerTest {
 
     Logger logger = Logger.getAnonymousLogger();
 
+    LastSeenDateInfo    lsdOld = new LastSeenDateInfo("LastSeenDate", new Date(100,0,1)); // 2000 Jan 01
+
     @Test
     public void testDuplicatedLSDRemoveOnlyLSD(){
         DeviceIdentifier    gateway = new DeviceIdentifierBySerialNumber("12345678");
@@ -33,7 +35,8 @@ public class RtuPlusServerTest {
         DeviceIdentifier    meter2 = new DeviceIdentifierBySerialNumber("METER2");
         DeviceIdentifier    meter3 = new DeviceIdentifierBySerialNumber("METER3");
 
-        LastSeenDateInfo    lsd1 = new LastSeenDateInfo("lastSeendDate", new Date());
+        LastSeenDateInfo    lsd1 = new LastSeenDateInfo("LastSeenDate", new Date());
+
         topology.addSlaveDevice(meter1, lsd1);
         topology.addSlaveDevice(meter2, lsd1);
         topology.addSlaveDevice(meter3, lsd1);
@@ -43,10 +46,10 @@ public class RtuPlusServerTest {
 
         rtuPlusServer.cleanupDuplicatesLastSeenDate(topology);
 
-        assertEquals(0, topology.getSlaveDeviceIdentifiers().size());
-        assertNull(topology.getSlaveDeviceIdentifiers().get(meter1));
-        assertNull(topology.getSlaveDeviceIdentifiers().get(meter2));
-        assertNull(topology.getSlaveDeviceIdentifiers().get(meter3));
+        assertEquals(3, topology.getSlaveDeviceIdentifiers().size());
+        assertEquals(lsdOld.toString(), topology.getSlaveDeviceIdentifiers().get(meter1).toString());
+        assertEquals(lsdOld.toString(), topology.getSlaveDeviceIdentifiers().get(meter2).toString());
+        assertEquals(lsdOld.toString(), topology.getSlaveDeviceIdentifiers().get(meter3).toString());
     }
 
     @Test
@@ -58,8 +61,8 @@ public class RtuPlusServerTest {
         DeviceIdentifier    meter2 = new DeviceIdentifierBySerialNumber("METER2");
         DeviceIdentifier    meter3 = new DeviceIdentifierBySerialNumber("METER3");
 
-        LastSeenDateInfo    lsd1 = new LastSeenDateInfo("lastSeendDate", new Date());
-        LastSeenDateInfo    lsd2 = new LastSeenDateInfo("lastSeendDate", new Date().getTime()-1000000);
+        LastSeenDateInfo    lsd1 = new LastSeenDateInfo("LastSeenDate", new Date());
+        LastSeenDateInfo    lsd2 = new LastSeenDateInfo("LastSeenDate", new Date().getTime()-1000000);
 
         topology.addSlaveDevice(meter1, lsd1);
         topology.addSlaveDevice(meter2, lsd2);
@@ -70,10 +73,10 @@ public class RtuPlusServerTest {
 
         rtuPlusServer.cleanupDuplicatesLastSeenDate(topology);
 
-        assertEquals(1, topology.getSlaveDeviceIdentifiers().size());
-        assertNull(topology.getSlaveDeviceIdentifiers().get(meter1));
+        assertEquals(3, topology.getSlaveDeviceIdentifiers().size());
+        assertEquals(lsdOld.toString(), topology.getSlaveDeviceIdentifiers().get(meter1).toString());
         assertNotNull(topology.getSlaveDeviceIdentifiers().get(meter2));
-        assertNull(topology.getSlaveDeviceIdentifiers().get(meter3));
+        assertEquals(lsdOld.toString(), topology.getSlaveDeviceIdentifiers().get(meter3).toString());
     }
 
     @Test
@@ -85,9 +88,9 @@ public class RtuPlusServerTest {
         DeviceIdentifier    meter2 = new DeviceIdentifierBySerialNumber("METER2");
         DeviceIdentifier    meter3 = new DeviceIdentifierBySerialNumber("METER3");
 
-        LastSeenDateInfo    lsd1 = new LastSeenDateInfo("lastSeendDate", new Date());
-        LastSeenDateInfo    lsd2 = new LastSeenDateInfo("lastSeendDate", new Date().getTime()-1000000);
-        LastSeenDateInfo    lsd3 = new LastSeenDateInfo("lastSeendDate", new Date().getTime()-2000000);
+        LastSeenDateInfo    lsd1 = new LastSeenDateInfo("LastSeenDate", new Date());
+        LastSeenDateInfo    lsd2 = new LastSeenDateInfo("LastSeenDate", new Date().getTime()-1000000);
+        LastSeenDateInfo    lsd3 = new LastSeenDateInfo("LastSeenDate", new Date().getTime()-2000000);
 
         topology.addSlaveDevice(meter1, lsd1);
         topology.addSlaveDevice(meter2, lsd2);
