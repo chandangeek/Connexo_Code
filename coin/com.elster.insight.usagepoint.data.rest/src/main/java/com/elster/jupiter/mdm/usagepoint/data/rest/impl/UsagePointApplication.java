@@ -1,5 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -11,6 +13,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -27,6 +30,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
@@ -35,6 +39,7 @@ import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -89,6 +94,10 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     private volatile UsagePointCalendarService usagePointCalendarService;
     private volatile CalendarService calendarService;
+    private volatile AppService appService;
+    private volatile JsonService jsonService;
+    private volatile SearchService searchService;
+    private volatile MessageService messageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -100,7 +109,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 GoingOnResource.class,
                 RestValidationExceptionMapper.class,
                 UsagePointCalendarResource.class,
-                UsagePointCalendarHistoryResource.class
+                UsagePointCalendarHistoryResource.class,
+                BulkScheduleResource.class
         );
     }
 
@@ -278,6 +288,26 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.calendarService = calendarService;
     }
 
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -324,6 +354,11 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(calendarOnUsagePointInfoFactory).to(CalendarOnUsagePointInfoFactory.class);
             bind(usagePointCalendarService).to(UsagePointCalendarService.class);
             bind(calendarService).to(CalendarService.class);
+            bind(appService).to(AppService.class);
+            bind(AppServerHelper.class).to(AppServerHelper.class);
+            bind(jsonService).to(JsonService.class);
+            bind(searchService).to(SearchService.class);
+            bind(messageService).to(MessageService.class);
         }
     }
 

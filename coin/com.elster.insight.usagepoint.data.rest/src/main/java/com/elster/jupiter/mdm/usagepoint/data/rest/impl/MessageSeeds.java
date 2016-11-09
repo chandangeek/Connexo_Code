@@ -36,7 +36,10 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_COMPLETED(35, Keys.PROCESS_STATUS_COMPLETED, "Completed"),
     PROCESS_STATUS_ABORTED(36, Keys.PROCESS_STATUS_ABORDED, "Aborted"),
     PROCESS_STATUS_SUSPENDED(37, Keys.PROCESS_STATUS_SUSPENDED, "Suspended"),
-    NO_SUCH_CALENDAR(38, "NoSuchCalendar", "No such calenDar.");
+    NO_SUCH_CALENDAR(38, "NoSuchCalendar", "No such calendar."),
+    NO_APPSERVER(39, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
+    NO_SUCH_MESSAGE_QUEUE(40, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    BAD_ACTION(41, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}");
 
     private final int number;
     private final String key;

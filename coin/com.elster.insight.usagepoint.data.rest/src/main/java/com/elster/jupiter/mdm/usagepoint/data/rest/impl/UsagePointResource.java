@@ -125,6 +125,7 @@ public class UsagePointResource {
     private final Provider<UsagePointOutputResource> usagePointOutputResourceProvider;
     private final Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider;
     private final Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider;
+    private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
@@ -143,7 +144,7 @@ public class UsagePointResource {
                               CustomPropertySetService customPropertySetService,
                               Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider, UsagePointInfoFactory usagePointInfoFactory,
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider, ExceptionFactory exceptionFactory,
+                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider, Provider<BulkScheduleResource> bulkScheduleResourceProvider, ExceptionFactory exceptionFactory,
                               LocationInfoFactory locationInfoFactory,
                               ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
                               Thesaurus thesaurus,
@@ -164,6 +165,7 @@ public class UsagePointResource {
         this.usagePointCalendarResourceProvider = usagePointCalendarResourceProvider;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.usagePointCalendarHistoryResourceProvider = usagePointCalendarHistoryResourceProvider;
+        this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.locationInfoFactory = locationInfoFactory;
         this.validationSummaryInfoFactory = validationSummaryInfoFactory;
         this.thesaurus = thesaurus;
@@ -537,6 +539,11 @@ public class UsagePointResource {
     @Path("/{mRID}/whatsgoingon")
     public GoingOnResource getGoingOnResource() {
         return goingOnResourceProvider.get();
+    }
+
+    @Path("/calendars")
+    public BulkScheduleResource getBulkScheduleResource() {
+        return bulkScheduleResourceProvider.get();
     }
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
