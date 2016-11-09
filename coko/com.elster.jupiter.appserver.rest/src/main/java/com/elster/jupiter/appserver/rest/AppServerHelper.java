@@ -2,9 +2,15 @@ package com.elster.jupiter.appserver.rest;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 
 import javax.inject.Inject;
+import java.util.List;
+
+import static com.elster.jupiter.util.streams.Functions.map;
+import static com.elster.jupiter.util.streams.Predicates.on;
 
 /**
  * Created by bvn on 8/5/15.
@@ -18,13 +24,17 @@ public class AppServerHelper {
     }
 
     public boolean verifyActiveAppServerExists(String destinationName) {
-        return appService.findAppServers().stream().
-                filter(AppServer::isActive).
-                flatMap(server->server.getSubscriberExecutionSpecs().stream()).
-                map(execSpec->execSpec.getSubscriberSpec().getDestination()).
-                filter(DestinationSpec::isActive).
-                filter(spec -> !spec.getSubscribers().isEmpty()).
-                anyMatch(spec -> destinationName.equals(spec.getName()));
+
+        return appService.findAppServers()
+                .stream()
+                .filter(AppServer::isActive)
+                .map(AppServer::getSubscriberExecutionSpecs)
+                .flatMap(List::stream)
+                .filter(on(map(SubscriberExecutionSpec::getSubscriberSpec)
+                        .andThen(SubscriberSpec::getDestination)
+                        .andThen(DestinationSpec::getName))
+                        .test(destinationName::equals))
+                .anyMatch(SubscriberExecutionSpec::isActive);
     }
 
 
