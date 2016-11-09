@@ -19,7 +19,8 @@ public class InsightCheckList implements UpgradeCheckList {
     public Set<InstallIdentifier> componentsToInstall() {
         return ImmutableSet.of(
                 InstallIdentifier.identifier(application(), "UPC"),
-                InstallIdentifier.identifier(application(), "DMA")
+                InstallIdentifier.identifier(application(), "DMA"),
+                InstallIdentifier.identifier(application(), "UDC")
         );
     }
 }
