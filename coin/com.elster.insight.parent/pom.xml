@@ -85,7 +85,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>mdm.usagepoint.config.rest</artifactId>
-                <version>2.0.0</version>
+                <version>2.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
