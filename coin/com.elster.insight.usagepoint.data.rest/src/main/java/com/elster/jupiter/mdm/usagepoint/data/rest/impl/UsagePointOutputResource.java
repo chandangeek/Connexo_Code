@@ -239,13 +239,27 @@ public class UsagePointOutputResource {
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
                 Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-                outputRegisterData = channel.getRegisterReadings(effectiveInterval).stream()
+                ValidationEvaluator evaluator = validationService.getEvaluator();
+
+                List<ReadingRecord> readings = channel.getRegisterReadings(effectiveInterval).stream()
                         .sorted(Comparator.comparing(ReadingRecord::getTimeStamp).reversed())
-                        .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
                         .collect(Collectors.toList());
+
+                List<DataValidationStatus> dataValidationStatuses = evaluator
+                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, readings, requestedInterval);
+
+                outputRegisterData = readings.stream()
+                        .map((readingRecord) -> outputRegisterDataInfoFactory
+                                .createRegisterDataInfo(readingRecord, dataValidationStatuses.stream()
+                                        .filter(dataValidationStatus -> dataValidationStatus.getReadingTimestamp()
+                                                .equals(readingRecord.getTimeStamp()))
+                                        .findFirst()))
+                        .collect(Collectors.toList());
+
                 outputRegisterData = ListPager.of(outputRegisterData).from(queryParameters).find();
             }
         }
+
         return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
     }
 
