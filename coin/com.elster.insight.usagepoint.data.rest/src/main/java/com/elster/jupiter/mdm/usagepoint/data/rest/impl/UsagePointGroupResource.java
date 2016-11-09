@@ -250,7 +250,7 @@ public class UsagePointGroupResource {
         } else {
             usagePointIds = usagePointGroupInfo.usagePoints.stream();
         }
-        return usagePointIds.map(meteringService::findUsagePoint)
+        return usagePointIds.map(meteringService::findUsagePointById)
                 .flatMap(asStream())
                 .toArray(UsagePoint[]::new);
     }
