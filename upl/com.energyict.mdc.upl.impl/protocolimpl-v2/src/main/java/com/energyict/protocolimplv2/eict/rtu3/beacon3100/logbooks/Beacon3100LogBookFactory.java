@@ -61,8 +61,7 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
                     fromDate.setTime(logBookReader.getLastLogBook());
 
                     try {
-                        /*DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());*/
-                        DataContainer dataContainer = profileGeneric.getBuffer();
+                        DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
                         collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                     } catch (IOException e) {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
@@ -79,7 +78,7 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
 
     }
 
-    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException,IOException {
+    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws IOException {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(MAIN_LOGBOOK)) {
             meterEvents = new Beacon3100StandardEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();

@@ -396,7 +396,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
         encryptionKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
@@ -420,7 +420,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
         authenticationKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(authenticationKeyArray);
 

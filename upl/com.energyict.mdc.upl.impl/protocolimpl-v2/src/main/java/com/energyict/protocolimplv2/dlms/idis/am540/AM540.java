@@ -89,13 +89,13 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: " + getVersion());
+        setMeterToTransparentMode(comChannel);
+        handleFC(comChannel);
         initDlmsSession(comChannel);
         getLogger().info("Protocol initialization phase ended, executing tasks ...");
     }
 
-    private void initDlmsSession(ComChannel comChannel) {
-        setMeterToTransparentMode(comChannel);
-        handleFC(comChannel);
+    protected void initDlmsSession(ComChannel comChannel) {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
@@ -154,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-19 13:39:27 +0200 (Wed, 19 Oct 2016)$";
+        return "$Date: 2016-11-08 13:17:25 +0100 (Tue, 08 Nov 2016)$";
     }
 
     /**
@@ -335,7 +335,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     /**
      * Read frame counter by calling a custom method in the Beacon
      */
-    private void readFrameCounterSecure(ComChannel comChannel) {
+    protected void readFrameCounterSecure(ComChannel comChannel) {
         getLogger().info("Reading frame counter using secure method");
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
@@ -541,7 +541,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     /**
      * Set the initial frame counter to be used when starting this DLMS session.
      */
-    private void setTXFrameCounter(long frameCounter) {
+    protected void setTXFrameCounter(long frameCounter) {
         this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
     }
 

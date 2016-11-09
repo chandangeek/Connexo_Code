@@ -151,7 +151,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private static final String UTF_8 = "UTF-8";
     private static final int MAC_ADDRESS_LENGTH = 8;    //In bytes
 
-    private Beacon3100Messaging beacon3100Messaging;
+    protected Beacon3100Messaging beacon3100Messaging;
     private RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
 
@@ -162,6 +162,10 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: " + getVersion());
         readFrameCounter(comChannel);
+        initDlmsSession(comChannel);
+    }
+
+    protected void initDlmsSession(ComChannel comChannel) {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
@@ -349,7 +353,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         return getBeacon3100Messaging().getSupportedMessages();
     }
 
-    private Beacon3100Messaging getBeacon3100Messaging() {
+    protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
             beacon3100Messaging = new Beacon3100Messaging(this);
         }
@@ -526,7 +530,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-09-02 14:48:00 +0200 (Mon, 11 Jul 2016)$";
+        return "$Date: 2016-11-08 13:17:25 +0100 (Tue, 08 Nov 2016)$";
     }
 
     @Override
