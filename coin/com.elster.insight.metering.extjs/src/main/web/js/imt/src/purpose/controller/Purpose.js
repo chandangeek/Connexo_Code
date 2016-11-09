@@ -46,6 +46,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     this.getReadingPreviewPanel().updateForm(record);
                 }
             },
+            'output-channel-main register-data-grid': {
+                select: function (selectionModel, record) {
+                    this.getReadingPreviewPanel().updateForm(record);
+                }
+            },
             'output-channel-main #readings-graph': {
                 resize: this.onGraphResize
             },

@@ -1,6 +1,6 @@
 Ext.define('Imt.purpose.store.RegisterReadings', {
     extend: 'Ext.data.Store',
-    model: 'Imt.purpose.model.RegisterReading',
+    model: 'Imt.purpose.model.Reading',
     proxy: {
         type: 'rest',
         url: '/api/udr/usagepoints/{mRID}/purposes/{purposeId}/outputs/{outputId}/registerData',

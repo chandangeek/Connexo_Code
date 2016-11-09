@@ -4,6 +4,7 @@ Ext.define('Imt.purpose.model.Reading', {
     fields: [
         {name: 'value', type: 'auto', useNull: true},
         {name: 'interval', type: 'auto', useNull: true},
+        {name: 'timeStamp', type: 'auto', useNull: true},
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'action', type: 'auto'},

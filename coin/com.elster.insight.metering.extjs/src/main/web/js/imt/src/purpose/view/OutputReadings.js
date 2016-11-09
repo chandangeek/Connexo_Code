@@ -81,19 +81,29 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                             itemId: 'reading-preview',
                             output: me.output,
                             router: me.router,
-                            hidden: true
+                            hidden: true,
+                            outputType: output.get('outputType')
                         }
                     }
                 );
                 break;
             case 'register':
                 me.items.push({
-                    xtype: 'emptygridcontainer',
+                    xtype: 'preview-container',
                     grid: {
                         xtype: 'register-data-grid',
                         output: me.output
                     },
-                    emptyComponent: emptyComponent
+                    emptyComponent: emptyComponent,
+                    previewComponent: {
+                        xtype: 'reading-preview',
+                        itemId: 'reading-preview',
+                        output: me.output,
+                        router: me.router,
+                        hidden: true,
+                        withOutAppName: true,
+                        outputType: output.get('outputType')
+                    }
                 });
                 break;
         }

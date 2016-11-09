@@ -26,7 +26,25 @@ Ext.define('Imt.purpose.view.RegisterDataGrid', {
             {
                 header: Uni.I18n.translate('general.value', 'IMT', 'Value') + ' (' + unit + ')',
                 dataIndex: 'value',
+                align: 'right',
                 flex: 1
+            },
+            {
+                flex: 1,
+                header: ' ',
+                renderer: function (v, metaData, record) {
+                    var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
+                        icon = '';
+
+                    if (status === 'notValidated') {
+                        icon = '<span class="icon-flag6" style="margin-left:-15px;" data-qtip="'
+                            + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
+                    } else if (status === 'suspect') {
+                        icon = '<span class="icon-flag5" style="margin-left:-15px; color:red;" data-qtip="'
+                            + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
+                    }
+                    return icon;
+                }
             }
         ];
         me.dockedItems = [
