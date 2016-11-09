@@ -9,6 +9,7 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
@@ -28,6 +29,8 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -45,7 +48,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -56,6 +58,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 
@@ -73,6 +76,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
+    private volatile UpgradeService upgradeService;
+    private volatile MessageService messageService;
 
     @SuppressWarnings("unused")
     public UsagePointDataServiceImpl() {
@@ -110,6 +115,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }
@@ -117,6 +123,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     @Activate
     public void activate() {
         dataModel.register(getModule());
+        upgradeService.register(InstallIdentifier.identifier("Insight", COMPONENT_NAME), dataModel, Installer.class, Collections
+                .emptyMap());
     }
 
     @Reference
@@ -154,6 +162,16 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Override
     public String getComponentName() {
         return UsagePointDataService.COMPONENT_NAME;
@@ -166,9 +184,11 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        Collections.addAll(keys, ChannelDataValidationSummaryFlag.values());
-        return keys;
+        return Stream.of(
+                Arrays.stream(ChannelDataValidationSummaryFlag.values()),
+                Arrays.stream(Subscribers.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -184,6 +204,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
      * Gathers validation statistics by {@link ChannelDataValidationSummaryFlag ChannelDataValidationSummaryFlags}
      * on a given {@code channel} within a given {@code interval}. Please note, there's no guarantee what happens
      * if the interval starts before channel creation.
+     *
      * @param channel {@link Channel} to gather statistics for.
      * @param interval The time interval to gather statistics for.
      * @return {@link ChannelDataValidationSummary}.
@@ -192,14 +213,16 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     public ChannelDataValidationSummary getValidationSummary(Channel channel, Range<Instant> interval) {
         ReadingQualityType valid = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.DATAVALID);
         TreeMap<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings =
-                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval).stream().map(BaseReading::getTimeStamp))
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        time -> Sets.newHashSet(valid), // this quality is to be checked after readings with all other qualities are gone,
-                                                        // so now should be added per all timestamps
-                        (hashSet1, hashSet2) -> hashSet1, // merge is not needed, everything should be distinct already
-                        TreeMap::new
-                ));
+                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval)
+                        .stream()
+                        .map(BaseReading::getTimeStamp))
+                        .collect(Collectors.toMap(
+                                Function.identity(),
+                                time -> Sets.newHashSet(valid), // this quality is to be checked after readings with all other qualities are gone,
+                                // so now should be added per all timestamps
+                                (hashSet1, hashSet2) -> hashSet1, // merge is not needed, everything should be distinct already
+                                TreeMap::new
+                        ));
         Optional<Instant> lastCheckedOptional = validationService.getLastChecked(channel);
         int uncheckedTimingsCount;
         ChannelDataValidationSummaryImpl summary = new ChannelDataValidationSummaryImpl(interval);
@@ -262,7 +285,9 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                                                                                           MetrologyContract contract, Range<Instant> interval) {
         ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(contract)
                 .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT,
-                        contract.getMetrologyPurpose().getId(), effectiveMetrologyConfiguration.getUsagePoint().getMRID()) {});
+                        contract.getMetrologyPurpose().getId(), effectiveMetrologyConfiguration.getUsagePoint()
+                        .getMRID()) {
+                });
         Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
                 .map(Effectivity::getInterval)
                 .map(Interval::toOpenClosedRange)
@@ -280,7 +305,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 (summary1, summary2) -> { // merge should not appear since no ReadingTypeDeliverable duplication allowed
                     throw new LocalizedException(thesaurus,
                             MessageSeeds.DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT,
-                            contract.getId()) {};
+                            contract.getId()) {
+                    };
                 },
                 LinkedHashMap::new
         ));

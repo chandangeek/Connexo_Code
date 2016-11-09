@@ -15,6 +15,10 @@ import java.util.Map;
 @ProviderType
 public interface UsagePointDataService {
     String COMPONENT_NAME = "UDC";
+    String BULK_ITEMIZER_QUEUE_DESTINATION = "ItemizeBulkUsagePoint";
+    String BULK_HANDLING_QUEUE_DESTINATION = "HandleBulkUsagePoint";
+    String BULK_ITEMIZER_QUEUE_SUBSCRIBER = "usagepoint.bulk.itemizer";
+    String BULK_HANDLING_QUEUE_SUBSCRIBER = "usagepoint.bulk.handler";
 
     ChannelDataValidationSummary getValidationSummary(Channel channel, Range<Instant> interval);
 
