@@ -156,7 +156,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     }
 
     @Test
-    public void geTask() {
+    public void getTask() {
         // Business method
         String response = target("/dataexporttask/" + TASK_ID).request().header(X_CONNEXO_APPLICATION_NAME, "MDC").get(String.class);
 
@@ -413,7 +413,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
         assertThat(jsonModel.<List<?>>get("$.dataSources")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.dataSources[0].mRID")).isEqualTo("SPE002");
+        assertThat(jsonModel.<String>get("$.dataSources[0].name")).isEqualTo("SPE002");
         assertThat(jsonModel.<String>get("$.dataSources[0].serialNumber")).isEqualTo("002");
         assertThat(jsonModel.<String>get("$.dataSources[0].readingType.mRID")).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         assertThat(jsonModel.<Number>get("$.dataSources[0].occurrenceId")).isEqualTo(13);
@@ -434,7 +434,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private ReadingContainer mockMeterReadingContainer(String name, String serialNumber, Instant instant) {
         Meter meter = mock(Meter.class);
         when(meter.getMeter(instant)).thenReturn(Optional.of(meter));
-        when(meter.getMRID()).thenReturn(name);
+        when(meter.getName()).thenReturn(name);
         when(meter.getSerialNumber()).thenReturn(serialNumber);
         return meter;
     }

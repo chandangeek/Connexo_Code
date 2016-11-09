@@ -15,20 +15,14 @@ public class DataSourceInfo {
     public Long occurrenceId;
 
     public static class DataSource {
-
+        public String name;
     }
 
     public static class MeterDataSource extends DataSource {
-
-        public String name;
         public String serialNumber;
-
     }
 
     public static class UsagePointDataSource extends DataSource {
-
-        public String name;
         public String connectionState;
-
     }
 }
