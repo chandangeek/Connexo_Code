@@ -597,6 +597,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.resetLogbook(Beacon3100LogBookFactory.COMMUNICATION_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetVoltageCutLogbook)) {
                         this.resetLogbook(Beacon3100LogBookFactory.VOLTAGE_LOGBOOK);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
+                        this.changeHLSSecretUsingServiceKey(pendingMessage, collectedMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -619,6 +621,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return result;
+    }
+
+    //Sub classes can override this implementation
+    protected CollectedMessage changeHLSSecretUsingServiceKey(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        throw new ProtocolException("Service keys can only be injected by the HSM crypto-protocol");
     }
 
     private void generateKeyPair(OfflineDeviceMessage pendingMessage) throws IOException {

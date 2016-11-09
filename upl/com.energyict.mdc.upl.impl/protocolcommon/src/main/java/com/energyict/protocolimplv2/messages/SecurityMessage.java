@@ -195,6 +195,18 @@ public enum SecurityMessage implements DeviceMessageSpec {
     IMPORT_SERVER_END_DEVICE_CERTIFICATE(47,
             //Referring to a certificateWrapper
             PropertySpecFactory.positiveDecimalPropertySpec(DeviceMessageConstants.certificateWrapperIdAttributeName)
+    ),
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(48,
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)
+    ),
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(49,
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)
     );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
