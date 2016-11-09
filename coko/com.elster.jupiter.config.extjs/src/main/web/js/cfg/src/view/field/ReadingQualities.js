@@ -4,6 +4,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
     fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'CFG', 'Reading qualities'),
     htmlEncode: false,
     usedInInsight: false,
+    withOutAppName: false,
 
     renderer : function(value, field) {
         var validationRules = Ext.isArray(value) ? value : value.validationRules;
@@ -123,7 +124,8 @@ Ext.define('Cfg.view.field.ReadingQualities', {
                 } else {
                     str += rule.name;
                 }
-                str += prop + '&nbsp;' + application + '</span><br>';
+                str += me.withOutAppName ? prop + '</span><br>'
+                    : prop + '&nbsp;' + application + '</span><br>'
             }
         });
 
