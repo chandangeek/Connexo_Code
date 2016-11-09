@@ -59,6 +59,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private static final String MIN15_A_PLUS_WH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static final String ACTIVE_ENERGY_TOU1 = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
     private static final String ACTIVE_ENERGY_TOU2 = "13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
+    private static final String BULK_A_PLUS_WH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
 
     @Inject
     Installer(DataModel dataModel, UserService userService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
@@ -305,6 +306,10 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(MIN15_A_PLUS_WH, "A+"));
+        ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(BULK_A_PLUS_WH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(BULK_A_PLUS_WH, "A+"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
@@ -318,9 +323,14 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
+        ReadingTypeRequirement requirementAplusRegister = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation()
+                .getDefaultFormat(), meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS));
+
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh, requirementAplus, "Monthly A+ kWh"));
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus, "15-min A+ kWh"));
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAplusWh, requirementAplusRegister, "A+ kWh"));
     }
 
     private void threePhasedConsumerWith2ToU() {
