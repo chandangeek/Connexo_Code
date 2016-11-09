@@ -8,7 +8,6 @@ import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
-import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -70,7 +69,8 @@ public class UsagePointGroupDeletionVetoEventHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
+        return "com/elster/jupiter/metering/groups/usagepointgroup/VALIDATE_DELETE";
+        //return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
     }
 
     private static class UsagePointGroupGetter implements DataSelectorConfig.DataSelectorConfigVisitor {
