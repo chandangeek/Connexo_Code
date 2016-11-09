@@ -294,8 +294,11 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
 
             Integer count = counters.get(currentValue);
             if (count > 1) {
-                getLogger().finest(" - removing LSD from " + deviceIdentifier.toString() + ", appears "+count+ " times. (" + getDateString(currentValue)+")");
-                iterator.remove();
+                getLogger().finest(" - setting LSD from " + deviceIdentifier.toString() + ", to 01/01/2000 because the LSD appears "+count+ " times. (" + getDateString(currentValue)+")");
+                //iterator.remove(); // -> this will remove this device from gateway, we don't want this
+                // instead put an old date, to keep it attached to current gateway, or move it to a different gateway with a newer LSD
+                LastSeenDateInfo oldLastSeenDate = new LastSeenDateInfo("LastSeenDate", new Date(100,0, 1)); // 2000 Jan 01
+                deviceTopology.getSlaveDeviceIdentifiers().put(deviceIdentifier, oldLastSeenDate);
             }
         }
         getLogger().finest("-done checking duplicates.");
