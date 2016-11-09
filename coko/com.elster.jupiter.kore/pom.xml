@@ -62,7 +62,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>data.lifecycle</artifactId>
-                <version>2.1.0</version>
+                <version>2.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -80,7 +80,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>estimation.rest</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -224,7 +224,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin.rest</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -242,13 +242,13 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>validation.rest</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservices.outbound.rest.demo</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
 
