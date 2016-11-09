@@ -123,7 +123,7 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
                             filters: isDynamic
                                 ? Ext.decode(record.get('filter'), true)
                                 : [{
-                                property: 'mRID',
+                                property: 'name',
                                 value: [{
                                     criteria: '*',
                                     operator: '=='
