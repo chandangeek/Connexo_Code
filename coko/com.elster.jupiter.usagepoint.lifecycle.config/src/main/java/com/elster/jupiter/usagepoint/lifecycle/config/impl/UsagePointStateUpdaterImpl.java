@@ -43,7 +43,7 @@ public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointSta
 
     @Override
     public UsagePointState.UsagePointStateUpdater onExit(StateChangeBusinessProcess process) {
-        this.stateUpdater.removeOnExit(process);
+        this.stateUpdater.onExit(process);
         return this;
     }
 

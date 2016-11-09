@@ -113,6 +113,11 @@ public class UsagePointStateImpl implements UsagePointState {
         return new UsagePointStateUpdaterImpl(this);
     }
 
+    @Override
+    public UsagePointLifeCycle getLifeCycle() {
+        return this.lifeCycle;
+    }
+
     State getState() {
         return this.fsmState;
     }

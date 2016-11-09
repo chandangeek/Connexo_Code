@@ -29,6 +29,8 @@ public interface UsagePointState extends HasId, HasName {
 
     UsagePointStateUpdater startUpdate();
 
+    UsagePointLifeCycle getLifeCycle();
+
     @ProviderType
     interface UsagePointStateCreator<T extends UsagePointStateCreator> {
 
