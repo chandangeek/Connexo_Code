@@ -1,6 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -18,6 +19,8 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
     protected UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     @Mock
     protected UsagePointLifeCycleService usagePointLifeCycleService;
+    @Mock
+    protected FiniteStateMachineService finiteStateMachineService;
 
     @Override
     public void setupMocks() {
@@ -31,6 +34,7 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
         app.setPropertyValueInfoService(this.propertyValueInfoService);
         app.setUsagePointLifeCycleConfigurationService(this.usagePointLifeCycleConfigurationService);
         app.setUsagePointLifeCycleService(this.usagePointLifeCycleService);
+        app.setFiniteStateMachineService(this.finiteStateMachineService);
         return app;
     }
 }

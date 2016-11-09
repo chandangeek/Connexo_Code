@@ -3,6 +3,7 @@ package com.elster.jupiter.usagepoint.lifecycle.rest;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -60,15 +61,27 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
     @Test
     public void testGetLifeCycleById() {
         when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(lifeCycle));
+        UsagePointState state = mock(UsagePointState.class);
+        when(state.getId()).thenReturn(4L);
+        when(state.getName()).thenReturn("State");
+        when(state.isInitial()).thenReturn(true);
+        when(state.getLifeCycle()).thenReturn(lifeCycle);
+        when(state.getVersion()).thenReturn(3L);
         when(lifeCycle.getId()).thenReturn(12L);
         when(lifeCycle.getName()).thenReturn("Life cycle");
         when(lifeCycle.getVersion()).thenReturn(4L);
+        when(lifeCycle.getStates()).thenReturn(Collections.singletonList(state));
 
         String response = target("/lifecycle/12").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.id")).isEqualTo(12);
         assertThat(model.<Number>get("$.version")).isEqualTo(4);
         assertThat(model.<String>get("$.name")).isEqualTo("Life cycle");
+        assertThat(model.<Number>get("$.states[0].id")).isEqualTo(4);
+        assertThat(model.<String>get("$.states[0].name")).isEqualTo("State");
+        assertThat(model.<Number>get("$.states[0].version")).isEqualTo(3);
+        assertThat(model.<Number>get("$.states[0].parent.id")).isEqualTo(12);
+        assertThat(model.<Number>get("$.states[0].parent.version")).isEqualTo(4);
     }
 
     @Test

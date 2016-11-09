@@ -6,6 +6,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_LIFE_CYCLE(1, "no.such.life.cycle", "No life cycle with id {0}"),
+    NO_SUCH_LIFE_CYCLE_STATE(2, "no.such.life.cycle.state", "No usage point state with id {0}"),
+    NO_SUCH_BUSINESS_PROCESS(3, "no.such.state.process", "No business process with id {0}"),
     ;
 
     private final int number;

@@ -1,5 +1,6 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -10,7 +11,9 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
@@ -36,6 +39,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
     private PropertyValueInfoService propertyValueInfoService;
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private UsagePointLifeCycleService usagePointLifeCycleService;
+    private FiniteStateMachineService finiteStateMachineService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -72,16 +76,24 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
         this.usagePointLifeCycleService = usagePointLifeCycleService;
     }
 
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
             bind(UsagePointLifeCycleInfoFactory.class).to(UsagePointLifeCycleInfoFactory.class);
+            bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
+            bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
             bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
+            bind(finiteStateMachineService).to(FiniteStateMachineService.class);
         }
     }
 
