@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -19,11 +18,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class QueryEndDeviceGroupCondition {
+abstract class QueryGroupCondition {
 
     enum Fields {
-        GROUP("endDeviceGroup"),
-        SEARCHABLE_PROPERTY("searchableProperty"),
+        GROUP("group"),
+        PROPERTY("searchableProperty"),
         OPERATOR("operator"),
         CONDITION_VALUES("conditionValues");
 
@@ -41,14 +40,14 @@ class QueryEndDeviceGroupCondition {
     private final DataModel dataModel;
 
     @IsPresent
-    private Reference<QueryEndDeviceGroup> endDeviceGroup = ValueReference.absent();
+    private Reference<QueryGroup<?>> group = ValueReference.absent();
     @NotNull
     @Size(min = 1, max = Table.SHORT_DESCRIPTION_LENGTH)
     private String searchableProperty;
     @NotNull
     private SearchablePropertyOperator operator;
     @Valid
-    private List<QueryEndDeviceGroupConditionValue> conditionValues = new ArrayList<>();
+    private List<QueryGroupConditionValue> conditionValues = new ArrayList<>();
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
     @SuppressWarnings("unused") // Managed by ORM
@@ -58,13 +57,13 @@ class QueryEndDeviceGroupCondition {
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
-    @Inject
-    QueryEndDeviceGroupCondition(DataModel dataModel) {
+    QueryGroupCondition(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    QueryEndDeviceGroupCondition init(QueryEndDeviceGroup queryEndDeviceGroup, String searchableProperty, SearchablePropertyOperator searchablePropertyOperator, List<String> values) {
-        this.endDeviceGroup.set(queryEndDeviceGroup);
+    QueryGroupCondition init(QueryGroup<?> queryGroup, String searchableProperty,
+                             SearchablePropertyOperator searchablePropertyOperator, List<String> values) {
+        this.group.set(queryGroup);
         this.searchableProperty = searchableProperty;
         this.operator = searchablePropertyOperator;
         this.initConditionValues(values);
@@ -72,8 +71,8 @@ class QueryEndDeviceGroupCondition {
     }
 
     private void initConditionValues(List<String> conditionValues) {
-        List<QueryEndDeviceGroupConditionValue> values = conditionValues.stream()
-                .map(v -> new QueryEndDeviceGroupConditionValue().init(this, v))
+        List<QueryGroupConditionValue> values = conditionValues.stream()
+                .map(v -> dataModel.getInstance(getConditionValueApiClass()).init(this, v))
                 .collect(Collectors.toList());
         this.conditionValues.addAll(values);
     }
@@ -82,7 +81,7 @@ class QueryEndDeviceGroupCondition {
         SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
         valueBean.propertyName = searchableProperty;
         valueBean.operator = operator;
-        valueBean.values = conditionValues.stream().map(QueryEndDeviceGroupConditionValue::getValue).collect(Collectors.toList());
+        valueBean.values = conditionValues.stream().map(QueryGroupConditionValue::getValue).collect(Collectors.toList());
         return valueBean;
     }
 
@@ -94,7 +93,7 @@ class QueryEndDeviceGroupCondition {
         return operator;
     }
 
-    List<QueryEndDeviceGroupConditionValue> getConditionValues() {
+    List<QueryGroupConditionValue> getConditionValues() {
         return Collections.unmodifiableList(conditionValues);
     }
 
@@ -103,4 +102,5 @@ class QueryEndDeviceGroupCondition {
         this.dataModel.remove(this);
     }
 
+    abstract Class<? extends QueryGroupConditionValue> getConditionValueApiClass();
 }

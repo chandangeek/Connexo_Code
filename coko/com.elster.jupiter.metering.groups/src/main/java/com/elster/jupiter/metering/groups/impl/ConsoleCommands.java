@@ -5,8 +5,8 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -53,16 +53,14 @@ public class ConsoleCommands {
     public void createEnumeratedEndDeviceGroup(String name, long... ids) {
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(() -> {
-                EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder builder = meteringGroupsService.createEnumeratedEndDeviceGroup();
-                builder.setName(name)
-                        .at(clock.instant());
-                Arrays.stream(ids)
-                        .mapToObj(meteringService::findEndDeviceById)
-                        .flatMap(asStream())
-                        .forEach(builder::containing);
-                builder.create();
-            }));
+            transactionService.execute(VoidTransaction.of(() -> meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName(name)
+                    .at(clock.instant())
+                    .containing(Arrays.stream(ids)
+                            .mapToObj(meteringService::findEndDeviceById)
+                            .flatMap(asStream())
+                            .toArray(EndDevice[]::new))
+                    .create()));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -89,13 +87,13 @@ public class ConsoleCommands {
     public void updateEnumeratedEndDeviceGroup(String name, long... ids) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(name).orElseThrow(() -> new IllegalArgumentException("group not found"));
         final EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = (EnumeratedEndDeviceGroup) endDeviceGroup;
-        final List<EnumeratedEndDeviceGroup.Entry> entries = new ArrayList<>();
+        final List<EnumeratedGroup.Entry<EndDevice>> entries = new ArrayList<>();
         LongStream deviceIds = Arrays.stream(ids);
         List<EndDevice> endDevices = deviceIds.mapToObj(meteringService::findEndDeviceById)
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 
-        Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
+        Map<Long, EnumeratedGroup.Entry<EndDevice>> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
                 .collect(endDeviceMapper());
 
         // remove those no longer mapped
@@ -125,7 +123,7 @@ public class ConsoleCommands {
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 
-        Map<Long, EnumeratedUsagePointGroup.Entry> currentEntries = enumeratedUsagePointGroup.getEntries().stream()
+        Map<Long, EnumeratedGroup.Entry<UsagePoint>> currentEntries = enumeratedUsagePointGroup.getEntries().stream()
                 .collect(usagePointMapper());
 
         // remove those no longer mapped
@@ -139,7 +137,7 @@ public class ConsoleCommands {
                 .forEach(usagePoint -> enumeratedUsagePointGroup.add(usagePoint, Interval.sinceEpoch().toClosedRange()));
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(enumeratedUsagePointGroup::save));
+            transactionService.execute(VoidTransaction.of(enumeratedUsagePointGroup::update));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -147,12 +145,12 @@ public class ConsoleCommands {
         }
     }
 
-    private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> endDeviceMapper() {
-        return Collectors.toMap(entry -> entry.getEndDevice().getId(), Function.identity());
+    private Collector<EnumeratedGroup.Entry<EndDevice>, ?, Map<Long, EnumeratedGroup.Entry<EndDevice>>> endDeviceMapper() {
+        return Collectors.toMap(entry -> entry.getMember().getId(), Function.identity());
     }
 
-    private Collector<EnumeratedUsagePointGroup.Entry, ?, Map<Long, EnumeratedUsagePointGroup.Entry>> usagePointMapper() {
-        return Collectors.toMap(entry -> entry.getUsagePoint().getId(), Function.identity());
+    private Collector<EnumeratedGroup.Entry<UsagePoint>, ?, Map<Long, EnumeratedGroup.Entry<UsagePoint>>> usagePointMapper() {
+        return Collectors.toMap(entry -> entry.getMember().getId(), Function.identity());
     }
 
     public void endDeviceGroups() {

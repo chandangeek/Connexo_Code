@@ -13,6 +13,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DUPLICATE_END_DEVICE_GROUP(3, Constants.DUPLICATE_NAME, "Name must be unique", Level.SEVERE),
     SEARCH_DOMAIN_NOT_FOUND(1001, "searchDomainNotFound", "Search domain with id = ''{0}'' not found", Level.SEVERE),
     INVALID_SEARCH_CRITERIA(1002, "invalidSearchCriteria", "Invalid search criteria", Level.SEVERE),
+    NO_QUERY_PROVIDER_FOUND(1003, "noQueryProviderFound", "No query provider with name ", Level.SEVERE),
     ;
 
     private final int number;
