@@ -51,7 +51,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.ConnectionSetupException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -82,38 +81,46 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 	 * 
 	 * @author alex
 	 */
-	private enum ClientConfiguration {
+	public enum ClientConfiguration {
 		
 		/** Management client. */
-		MANAGEMENT(1, ObisCode.fromString("0.0.43.1.1.255")),
+		MANAGEMENT(1, ObisCode.fromString("0.0.43.1.1.255"), ObisCode.fromString("0.0.43.0.2.255"), ObisCode.fromString("0.0.40.0.2.255")),
 		
 		/** Public client. */
-		PUBLIC(16, null),
+		PUBLIC(16, null, ObisCode.fromString("0.0.40.0.1.255"), ObisCode.fromString("0.0.40.0.1.255")),
 		
 		/** Read-write client. */
-		READ_WRITE(32,  ObisCode.fromString("0.0.43.1.2.255")),
+		READ_WRITE(32,  ObisCode.fromString("0.0.43.1.2.255"), ObisCode.fromString("0.0.43.0.3.255"), ObisCode.fromString("0.0.40.0.3.255")),
 		
 		/** Firmware upgrade client. */
-		FIRMWARE(64, ObisCode.fromString("0.0.43.1.3.255")),
+		FIRMWARE(64, ObisCode.fromString("0.0.43.1.3.255"), ObisCode.fromString("0.0.43.0.4.255"), ObisCode.fromString("0.0.40.0.4.255")),
 		
 		/** Read only client. */
-		READ_ONLY(127, ObisCode.fromString("0.0.43.1.4.255"));
+		READ_ONLY(127, ObisCode.fromString("0.0.43.1.4.255"), ObisCode.fromString("0.0.43.0.5.255"), ObisCode.fromString("0.0.40.0.5.255"));
 		
 		/** Client ID to be used. */
 		private final int clientId;
 		
 		/** OBIS code of the frame counter. */
 		private final ObisCode frameCounterOBIS;
-		
-		/**
+
+        /** OBIS code of the Security Setup */
+        private final ObisCode securitySetupOBIS;
+
+        /** OBIS code of the Association LN setup */
+        private final ObisCode associationLnOBIS;
+
+        /**
 		 * Create a new instance.
 		 * 
 		 * @param 	id						Client ID.
 		 * @param 	frameCounterOBIS		Frame counter OBIS code.
 		 */
-		private ClientConfiguration(final int id, final ObisCode frameCounterOBIS) {
+		private ClientConfiguration(final int id, final ObisCode frameCounterOBIS, final ObisCode securitySetupOBIS, final ObisCode associationLNOBIS) {
 			this.clientId = id;
 			this.frameCounterOBIS = frameCounterOBIS;
+            this.securitySetupOBIS = securitySetupOBIS;
+            this.associationLnOBIS = associationLNOBIS;
 		}
 		
 		/**
@@ -121,10 +128,20 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 		 * 
 		 * @return	The OBIS of the FC.
 		 */
-		private final ObisCode getFrameCounterOBIS() {
+		public final ObisCode getFrameCounterOBIS() {
 			return frameCounterOBIS;
 		}
-		
+
+
+        /**
+         * Returns the OBIS of the SecuritySetup.
+         *
+         * @return	The OBIS of the SecuritySetup.
+         */
+        public final ObisCode getSecuritySetupOBIS() {
+            return securitySetupOBIS;
+        }
+
 		/**
 		 * Returns the client with the given ID.
 		 * 
@@ -132,7 +149,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 		 * 
 		 * @return	The matching client, <code>null</code> if not known.
 		 */
-		private static final ClientConfiguration getByID(final int clientId) {
+		public static final ClientConfiguration getByID(final int clientId) {
 			for (final ClientConfiguration client : ClientConfiguration.values()) {
 				if (client.clientId == clientId) {
 					return client;
@@ -141,7 +158,15 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 			
 			return null;
 		}
-	}
+
+        /**
+         * Return the Association LN ObisCode
+         * @return
+         */
+        public ObisCode getAssociationLN() {
+            return associationLnOBIS;
+        }
+    }
 
     // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
     // https://jira.eict.vpdc/browse/COMMUNICATION-1552
@@ -171,10 +196,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     /**
      * Will return the correct frame counter obis code, for each client ID.
-     * Management Client (1): 0 0 43 1 1 255 -> With a pre-established framecounter association.
-     * R/W Client (32): 0 0 43 1 2 255 -> With a pre-established framecounter association.
-     * Firmware Client (64): 0 0 43 1 3 255 255 -> With a pre-established framecounter association.
-     * https://jira.eict.vpdc/browse/COMMUNICATION-1552
      *
      * @param clientId - DLMS Client ID used in association
      * @return - the correct obis code for this client

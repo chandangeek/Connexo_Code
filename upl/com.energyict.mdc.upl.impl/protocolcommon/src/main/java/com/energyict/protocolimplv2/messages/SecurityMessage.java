@@ -207,6 +207,20 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)
+    ),
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT(50,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress, BigDecimal.valueOf(1)),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
+    ),
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT(51,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress, BigDecimal.valueOf(1)),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName)
+    ),
+    CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT(52,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress, BigDecimal.valueOf(1)),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)
     );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
