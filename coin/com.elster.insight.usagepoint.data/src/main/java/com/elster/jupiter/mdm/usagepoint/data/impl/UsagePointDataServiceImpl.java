@@ -91,7 +91,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                                      ValidationService validationService,
                                      NlsService nlsService,
                                      CustomPropertySetService customPropertySetService,
-                                     UsagePointConfigurationService usagePointConfigurationService) {
+                                     UsagePointConfigurationService usagePointConfigurationService,
+                                     UpgradeService upgradeService) {
         setClock(clock);
         setOrmService(ormService);
         setMeteringService(meteringService);
@@ -99,6 +100,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         setNlsService(nlsService);
         setCustomPropertySetService(customPropertySetService);
         setUsagePointConfigurationService(usagePointConfigurationService);
+        setUpgradeService(upgradeService);
         activate();
     }
 

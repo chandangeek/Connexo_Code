@@ -25,6 +25,8 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -120,6 +122,8 @@ public class UsagePointDataServiceImplTest {
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
     private ReadingQualityRecord error, suspect, missing, added, edited, removed, estimated;
+    @Mock
+    private FullInstaller installer;
 
     @Captor
     ArgumentCaptor<Range<Instant>> captor;
@@ -130,6 +134,7 @@ public class UsagePointDataServiceImplTest {
 
     @Before
     public void setUp() {
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> installer);
         when(ormService.newDataModel(eq(UsagePointDataService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
         when(clock.instant()).thenReturn(NOW);
         when(usagePoint.getMRID()).thenReturn("Mrmrmrrr");
@@ -145,7 +150,7 @@ public class UsagePointDataServiceImplTest {
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
         usagePointDataService = new UsagePointDataServiceImpl(clock, ormService, meteringService, validationService,
-                nlsService, customPropertySetService, usagePointConfigurationService);
+                nlsService, customPropertySetService, usagePointConfigurationService, UpgradeModule.FakeUpgradeService.getInstance());
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);
