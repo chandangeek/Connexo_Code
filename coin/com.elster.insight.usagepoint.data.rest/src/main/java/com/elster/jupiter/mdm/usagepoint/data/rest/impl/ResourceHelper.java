@@ -10,26 +10,33 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 public class ResourceHelper {
 
     private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupsService;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService,
+                          MeteringGroupsService meteringGroupsService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           MetrologyConfigurationService metrologyConfigurationService) {
         super();
         this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
@@ -108,5 +115,18 @@ public class ResourceHelper {
                 .filter(deliverable -> deliverable.getId() == outputId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, usagePointName, outputId));
+    }
+
+    public UsagePointGroup findUsagePointGroupOrThrowException(long id) {
+        return meteringGroupsService.findUsagePointGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    public UsagePointGroup lockUsagePointGroupOrThrowException(UsagePointGroupInfo info) {
+        return meteringGroupsService.findAndLockUsagePointGroupByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> meteringGroupsService.findUsagePointGroup(info.id)
+                                .map(UsagePointGroup::getVersion)
+                                .orElse(null))
+                        .supplier());
     }
 }
