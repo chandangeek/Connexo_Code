@@ -4,6 +4,7 @@ import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_ID;
 import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_DATE;
 import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_TIME;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import com.elster.us.protocolimplv2.mercury.minimax.Consts;
 import com.elster.us.protocolimplv2.sel.utility.DateFormatHelper;
 import com.elster.us.protocolimplv2.sel.utility.DateFormatHelper.*;
 
@@ -60,43 +62,43 @@ import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 import com.elster.us.protocolimplv2.sel.Consts.*;
 
 public class SEL implements DeviceProtocol {
-  
+
   private SELConnection connection;
   private SELProperties properties = new SELProperties();
   private OfflineDevice offlineDevice;
   private SerialPortComChannel comChannel;
   Logger logger = Logger.getLogger(this.getClass().getName());
   private LoadProfileBuilder loadProfileBuilder;
-  
+
   public SELConnection getConnection() {
     return connection;
   }
-  
+
   public SELProperties getProperties() {
     return properties;
   }
-  
+
   public OfflineDevice getOfflineDevice() { return offlineDevice; }
-  
+
   private TimeZone getTimeZone() {
     if(properties.getTimezone() != null)
       return TimeZone.getTimeZone(properties.getTimezone());
     else
       return null;
   }
-  
+
   @Override
   public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
     this.offlineDevice = offlineDevice;
     this.comChannel = (SerialPortComChannel) comChannel;
     connection = new SELConnection((SerialPortComChannel) comChannel, properties, logger);
-    
+
   }
-  
+
   @Override
   public void terminate() {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
@@ -128,12 +130,12 @@ public class SEL implements DeviceProtocol {
   @Override
   public void daisyChainedLogOn() {
     // Not Implemented
-    
+
   }
 
   @Override
   public void logOff() {
-    // no logoff just let commserver send ATH
+    getConnection().doDisconnect();
   }
 
   @Override
@@ -142,9 +144,16 @@ public class SEL implements DeviceProtocol {
   }
 
   @Override
-  public void setTime(Date arg0) {
-    // Not Implemented
-    
+  public void setTime(Date date) {
+    boolean success = getConnection().setTime(date);
+    try {
+      if (!success) {
+        throw new IOException("Failed to set the device time");
+      }
+    } catch (IOException ioe) {
+      getLogger().warning("Failed to set device time for SEL");
+    }
+
   }
 
   @Override
@@ -152,18 +161,18 @@ public class SEL implements DeviceProtocol {
     ResponseFrame dateResponse = getConnection().readSingleRegisterValue(COMMAND_DATE);
     SingleReadResponseData data = (SingleReadResponseData)dateResponse.getData();
     String dateStr = data.getValue().trim();
-    
+
     ResponseFrame timeResponse = getConnection().readSingleRegisterValue(COMMAND_TIME);
     TimeReadResponseData timData = (TimeReadResponseData)timeResponse.getData();
     String timeStr = timData.getValue().trim();
-    
+
     Date d = null;
     try {
       d = new SimpleDateFormat("MM/dd/yyHH:mm:ss").parse(dateStr+timeStr);
     } catch (ParseException e1) {
       getLogger().warning("Failed to parse the date from the device: " + dateStr);
     }
-    
+
     SimpleDateFormat format = new SimpleDateFormat("ddMMyyyyHHmmss");
     String str = format.format(d);
 
@@ -171,11 +180,11 @@ public class SEL implements DeviceProtocol {
 
     Date d1 = null;
     try {
-        d1 = format.parse(str);
+      d1 = format.parse(str);
     } catch (ParseException e) {
-        e.printStackTrace();
+      e.printStackTrace();
     }
-    
+
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(properties.getDeviceTimezone()));
     cal.setTime(d1);
     TimeZone tz = getTimeZone(); //Get the timezone that we are running in
@@ -184,19 +193,20 @@ public class SEL implements DeviceProtocol {
     else
       cal.setTimeZone(TimeZone.getDefault());
 
+    Date meterTime = cal.getTime();
     return cal.getTime();
   }
 
   @Override
   public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
     properties.setAllProperties(dialectProperties);
-    
+
   }
 
   @Override
   public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
     return Arrays.<DeviceProtocolDialect>asList(
-        new NoParamsDeviceProtocolDialect());
+            new NoParamsDeviceProtocolDialect());
   }
 
   @Override
@@ -271,13 +281,13 @@ public class SEL implements DeviceProtocol {
   @Override
   public void setDeviceCache(DeviceProtocolCache arg0) {
     // Not implemented
-    
+
   }
 
   @Override
   public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
     properties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-    
+
   }
 
   @Override
@@ -321,16 +331,16 @@ public class SEL implements DeviceProtocol {
   public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
     return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
   }
-  
+
   public Logger getLogger() {
     return logger;
   }
-  
+
   private LoadProfileBuilder getLoadProfileBuilder() {
     if (loadProfileBuilder == null) {
-        this.loadProfileBuilder = new LoadProfileBuilder(this);
+      this.loadProfileBuilder = new LoadProfileBuilder(this);
     }
     return loadProfileBuilder;
-}
+  }
 
 }

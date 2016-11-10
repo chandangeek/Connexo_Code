@@ -358,7 +358,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     DISABLE_PUSH_ON_INSTALLATION(84),
     ENABLE_PUSH_ON_INTERVAL_OBJECTS(85,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionMinutesForEachHour));
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionMinutesForEachHour)),
+    SET_DEVICE_LOG_LEVEL(86,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.deviceLogLevel, DeviceLogLevel.getLogLevels()));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
@@ -434,6 +436,32 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             String[] result = new String[allTypes.length];
             for (int index = 0; index < allTypes.length; index++) {
                 result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum DeviceLogLevel {
+        LOGGING_OFF(0),
+        WARNING(1),
+        INFO(2),
+        DEBUG(3);
+
+        private final int id;
+
+        private DeviceLogLevel(int id) {
+            this.id = id;
+        }
+
+        public static String[] getLogLevels() {
+            DeviceLogLevel[] logLevels = values();
+            String[] result = new String[logLevels.length];
+            for (int index = 0; index < logLevels.length; index++) {
+                result[index] = logLevels[index].name();
             }
             return result;
         }

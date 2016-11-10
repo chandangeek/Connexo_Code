@@ -10,10 +10,10 @@ import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -28,11 +28,13 @@ public class ObjectFactoryTest {
 
     @Test
     public void testProfileData() {
-        ACE4000Outbound ace4000 = new ACE4000Outbound();
+        ACE4000Outbound ace4000 = spy(new ACE4000Outbound());
+        doReturn(TimeZone.getTimeZone("Europe/Athens")).when(ace4000).getTimeZone();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getSerialNumber()).thenReturn(SERIAL_NUMBER);
         when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
         ace4000.init(offlineDevice, new DummyComChannel());
+
         ObjectFactory objectFactory = new ObjectFactory(ace4000);
 
         objectFactory.parseXML(LOAD_PROFILE_DATA);
@@ -42,7 +44,7 @@ public class ObjectFactoryTest {
         assertEquals(profileData.getIntervalDatas().size(), 39);
         assertEquals(profileData.getMeterEvents().size(), 0);
         IntervalData firstInterval = profileData.getIntervalDatas().get(0);
-        assertEquals(firstInterval.getEndTime().getTime(), 1467154800000L);
+        assertEquals(firstInterval.getEndTime().getTime(), 1467147600000L);
         assertEquals(firstInterval.getEiStatus(), IntervalStateBits.REVERSERUN);
         assertEquals(firstInterval.getProtocolStatus(), 49152);
         assertEquals(firstInterval.getTariffCode(), 1);
@@ -62,7 +64,7 @@ public class ObjectFactoryTest {
         assertEquals(profileData.getIntervalDatas().size(), 39);
         assertEquals(profileData.getMeterEvents().size(), 0);
         IntervalData lastInterval = profileData.getIntervalDatas().get(38);
-        assertEquals(lastInterval.getEndTime().getTime(), 1467189000000L);
+        assertEquals(lastInterval.getEndTime().getTime(), 1467181800000L);
         assertEquals(lastInterval.getEiStatus(), IntervalStateBits.REVERSERUN);
         assertEquals(lastInterval.getProtocolStatus(), 49152);
         assertEquals(lastInterval.getTariffCode(), 2);

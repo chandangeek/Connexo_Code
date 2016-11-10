@@ -22,7 +22,6 @@ import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.support.FrameCounterCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -361,9 +360,6 @@ public class SecurityContext {
         ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         byte[] generalCipheringHeader = createGeneralCipheringHeader();
         PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-        if (clientPrivateSigningKey == null) {
-            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-        }
 
         byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), clientPrivateSigningKey);
 
@@ -401,7 +397,7 @@ public class SecurityContext {
         PublicKey publicKey = getGeneralCipheringSecurityProvider().getServerSignatureCertificate().getPublicKey();
         boolean verify = ecdsaSignature.verify(input, signature, publicKey);
         if (!verify) {
-            /*throw ConnectionCommunicationException.signatureVerificationError();*/
+            throw ConnectionCommunicationException.signatureVerificationError();
         }
         lastResponseWasSigned = true;
         return content;
@@ -489,9 +485,6 @@ public class SecurityContext {
 
                     ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
                     PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-                    if (clientPrivateSigningKey == null) {
-                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-                    }
 
                     byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
 
@@ -633,14 +626,10 @@ public class SecurityContext {
                     }
 
                     if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
-                        /*throw ConnectionCommunicationException.signatureVerificationError();*/
+                        throw ConnectionCommunicationException.signatureVerificationError();
                     }
 
                     PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
-                    if (clientPrivateKeyAgreementKey == null) {
-                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
-                    }
-
                     KeyPair keyAgreementKeyPair = new KeyPair(null, clientPrivateKeyAgreementKey);
                     KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve(), keyAgreementKeyPair);
 
@@ -919,6 +908,10 @@ public class SecurityContext {
         }
 
         if (!authenticatedResponse && !encryptedResponse) {
+            if (XdlmsApduTags.isGlobalCipheringTag(cipherFrame[0]) || XdlmsApduTags.isDedicatedCipheringTag(cipherFrame[0])) {
+                //An unsecured global-ciphering or dedicated-ciphering APDU. Unwrap it by stripping of the header.
+                cipherFrame = ProtocolTools.getSubArray(cipherFrame, 7);
+            }
             return optionallyUnwrapSignedAPDU(cipherFrame);
         } else if (authenticatedResponse && !encryptedResponse) {
 
@@ -1169,14 +1162,14 @@ public class SecurityContext {
      * Add 1 to the existing frameCounter
      */
     public void incFrameCounter() {
-        setFrameCounter(this.frameCounter+1);
+        setFrameCounter(this.frameCounter + 1);
     }
 
     /**
      * Decrements the existing frameCounter
      */
     public void decrementFrameCounter() {
-        setFrameCounter(this.frameCounter-1);
+        setFrameCounter(this.frameCounter - 1);
     }
 
     /**

@@ -78,7 +78,6 @@ public class DeviceMessageConstants {
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
-    public static final String clientCertificateAttributeName = "SecurityMessage.new.clientcertificate";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newhexpassword";
     public static final String preparedDataAttributeName = "SecurityMessage.prepareddata";
@@ -108,7 +107,8 @@ public class DeviceMessageConstants {
     public static final String signedResponsesAttributeName = "SecurityMessage.signedResponses";
     public static final String securitySuiteAttributeName = "SecurityMessage.securitySuite";
     public static final String certificateEntityAttributeName = "SecurityMessage.certificateEntity";
-    public static final String certificateAliasAttributeName = "SecurityMessage.certificateAlias";
+    public static final String CACertificateAliasAttributeName = "SecurityMessage.CACertificateAlias";
+    public static final String clientCertificateAliasAttributeName = "SecurityMessage.clientCertificateAlias";
     public static final String certificateWrapperIdAttributeName = "SecurityMessage.certificateWrapperId";
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateIssuerAttributeName = "SecurityMessage.certificateIssuer";
@@ -191,6 +191,7 @@ public class DeviceMessageConstants {
     public static final String emergencyProfileDurationAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileDuration";
     public static final String emergencyProfileGroupIdListAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyprofilegroupidlist";
     public static final String actionWhenUnderThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionwhenunderthreshold";
+    public static final String actionWhenOverThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionwhenoverthreshold";
     public static final String invertDigitalOutput1AttributeName = "LoadBalanceDeviceMessage.invertdigitaloutput1";
     public static final String invertDigitalOutput2AttributeName = "LoadBalanceDeviceMessage.invertdigitaloutput2";
     public static final String activateNowAttributeName = "LoadBalanceDeviceMessage.activatenow";
@@ -751,4 +752,7 @@ public class DeviceMessageConstants {
     public static final String SET_MAX_LOGIN_ATTEMPTS = "ConfigurationChangeDeviceMessage.SET_MAX_LOGIN_ATTEMPTS";
     public static final String SET_LOCKOUT_DURATION = "ConfigurationChangeDeviceMessage.SET_LOCKOUT_DURATION";
     public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
+    public static final String securityGroupEventCounters = "LogBookDeviceMessage.securityGroupEventCounters";
+    public static final String deviceLogLevel = "ConfigurationChangeDeviceMessage.deviceLogLevel";
+
 }

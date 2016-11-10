@@ -36,7 +36,9 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
+import com.energyict.protocolimplv2.dlms.idis.am540.events.AM540LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
@@ -87,13 +89,13 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: " + getVersion());
+        setMeterToTransparentMode(comChannel);
+        handleFC(comChannel);
         initDlmsSession(comChannel);
         getLogger().info("Protocol initialization phase ended, executing tasks ...");
     }
 
-    private void initDlmsSession(ComChannel comChannel) {
-        setMeterToTransparentMode(comChannel);
-        handleFC(comChannel);
+    protected void initDlmsSession(ComChannel comChannel) {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
@@ -152,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-19 13:39:27 +0200 (Wed, 19 Oct 2016)$";
+        return "$Date: 2016-11-08 13:17:25 +0100 (Tue, 08 Nov 2016)$";
     }
 
     /**
@@ -259,7 +261,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
-        if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1)
+        if ((initialFrameCounter > cachedFrameCounter) && clientId == EVN_CLIENT_MANAGEMENT) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1). Use initialFC only for client 1, for others read it out
             getLogger().info("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(initialFrameCounter);
             weHaveAFrameCounter = true;
@@ -333,7 +335,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     /**
      * Read frame counter by calling a custom method in the Beacon
      */
-    private void readFrameCounterSecure(ComChannel comChannel) {
+    protected void readFrameCounterSecure(ComChannel comChannel) {
         getLogger().info("Reading frame counter using secure method");
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
@@ -520,6 +522,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         return meterTopology;
     }
 
+    @Override
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
             idisMessaging = new AM540Messaging(this);
@@ -527,10 +530,18 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         return idisMessaging;
     }
 
+    @Override
+    protected IDISLogBookFactory getIDISLogBookFactory() {
+        if (idisLogBookFactory == null) {
+            idisLogBookFactory = new AM540LogBookFactory(this);
+        }
+        return idisLogBookFactory;
+    }
+
     /**
      * Set the initial frame counter to be used when starting this DLMS session.
      */
-    private void setTXFrameCounter(long frameCounter) {
+    protected void setTXFrameCounter(long frameCounter) {
         this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
     }
 

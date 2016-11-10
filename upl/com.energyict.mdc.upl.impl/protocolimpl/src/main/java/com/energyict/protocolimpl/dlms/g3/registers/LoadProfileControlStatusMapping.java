@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
@@ -20,24 +19,20 @@ import java.util.Date;
  */
 public class LoadProfileControlStatusMapping extends G3Mapping {
 
-        public LoadProfileControlStatusMapping(ObisCode obisCode) {
-            super(obisCode);
-        }
+    public LoadProfileControlStatusMapping(ObisCode obisCode) {
+        super(obisCode);
+    }
 
-        @Override
-        public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
-            final Data data = cosemObjectFactory.getData(getObisCode());
-            return parse(data.getValueAttr());
-        }
+    @Override
+    public RegisterValue readRegister(CosemObjectFactory cosemObjectFactory) throws IOException {
+        final Data data = cosemObjectFactory.getData(getObisCode());
+        return parse(data.getValueAttr());
+    }
 
     @Override
     public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
-        return null;
+        return new RegisterValue(getObisCode(), getStatusString(abstractDataType));
     }
-
-    public RegisterValue parse(AbstractDataType abstractDataType) throws IOException {
-            return new RegisterValue(getObisCode(), getStatusString(abstractDataType));
-        }
 
     public String getStatusString(AbstractDataType InOutStatusAttribute) throws IOException {
         StringBuffer builder = new StringBuffer();
@@ -59,7 +54,7 @@ public class LoadProfileControlStatusMapping extends G3Mapping {
                     builder.append("Deactivated capturing in load profiles 1 and 2.");
                     break;
                 default:
-                    builder.append("Not supported value for LoadProfile In/Out Status: "+ status);
+                    builder.append("Not supported value for LoadProfile In/Out Status: " + status);
             }
             return builder.toString();
         } else {
@@ -67,9 +62,9 @@ public class LoadProfileControlStatusMapping extends G3Mapping {
         }
     }
 
-        @Override
-        public int getDLMSClassId() {
-            return DLMSClassId.DATA.getClassId();
-        }
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
     }
+}
 

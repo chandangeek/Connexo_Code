@@ -223,55 +223,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         } else {
             try {
                 if (composedObject instanceof ComposedRegister) {
-                    ComposedRegister composedRegister = ((ComposedRegister) composedObject);
-
-                    Unit unit = Unit.get(BaseUnit.UNITLESS);
-                    if (composedRegister.getRegisterUnitAttribute() != null &&
-                            composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()).getStructure().getDataType(1) != null) {
-                        unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
-                    }
-                    Date captureTime = null;
-                    Issue timeZoneIssue = null;
-                    if (composedRegister.getRegisterCaptureTime() != null) {
-                        AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
-                        TimeZone configuredTimeZone = getMeterProtocol().getDlmsSession().getTimeZone();
-                        DateTime dlmsDateTime = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
-                        int configuredTimeZoneOffset = configuredTimeZone.getRawOffset()/(-1*60*1000);
-                        if (dlmsDateTime.getDeviation() != configuredTimeZoneOffset){
-                            timeZoneIssue = MdcManager.getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
-                                    "Capture time zone offset ["+dlmsDateTime.getDeviation()+"] differs from the configured time zone ["+configuredTimeZone.getDisplayName()+"] = ["+configuredTimeZoneOffset+"]");
-                        }
-                        captureTime = dlmsDateTime.getValue().getTime();
-                    }
-
-                    AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-                    RegisterValue registerValue;
-                    if (attributeValue.getOctetString() != null) {
-                        registerValue = new RegisterValue(offlineRegister, attributeValue.getOctetString().stringValue());
-                    } else {
-
-                        if (captureTime!=null) {
-                            // for composed registers:
-                            // - readTime is the value stored in attribute#5=captureTime = the metrological date
-                            // - eventTime is the communication time -> not used in metrology
-                            registerValue = new RegisterValue(offlineRegister, new Quantity(attributeValue.toBigDecimal(), unit),
-                                                        new Date(), // eventTime = read-out time
-                                                        null,       // fromTime
-                                                        null,       // toTime
-                                                        captureTime); // readTime
-                        } else {
-                            registerValue = new RegisterValue(offlineRegister,
-                                    new Quantity(attributeValue.toBigDecimal(), unit),
-                                    captureTime //eventTime
-                            );
-                        }
-
-                    }
-                    CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
-                    if (timeZoneIssue!=null) {
-                        collectedRegister.setFailureInformation(ResultType.ConfigurationError, timeZoneIssue);
-                    }
-                    return collectedRegister;
+                    return getCollectedRegisterForComposedObject(composedObject, offlineRegister, composedCosemObject);
                 } else if (composedObject instanceof ComposedData) {
                     ComposedData composedData = (ComposedData) composedObject;
                     AbstractDataType dataValue = composedCosemObject.getAttribute(composedData.getDataValueAttribute());
@@ -323,6 +275,59 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 return null;
             }
         }
+    }
+
+    protected CollectedRegister getCollectedRegisterForComposedObject(ComposedObject composedObject, OfflineRegister offlineRegister, ComposedCosemObject composedCosemObject) throws IOException {
+        ComposedRegister composedRegister = ((ComposedRegister) composedObject);
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
+        if (composedRegister.getRegisterUnitAttribute() != null &&
+                composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()).getStructure().getDataType(1) != null) {
+            unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
+        }
+        Date captureTime = null;
+        Issue timeZoneIssue = null;
+        if (composedRegister.getRegisterCaptureTime() != null) {
+            AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
+            TimeZone configuredTimeZone = getMeterProtocol().getDlmsSession().getTimeZone();
+            DateTime dlmsDateTime = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
+            int configuredTimeZoneOffset = configuredTimeZone.getRawOffset()/(-1*60*1000);
+            if (dlmsDateTime.getDeviation() != configuredTimeZoneOffset){
+                timeZoneIssue = MdcManager.getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
+                        "Capture time zone offset ["+dlmsDateTime.getDeviation()+"] differs from the configured time zone ["+configuredTimeZone.getDisplayName()+"] = ["+configuredTimeZoneOffset+"]");
+            }
+            captureTime = dlmsDateTime.getValue().getTime();
+        }
+
+        AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+        RegisterValue registerValue;
+        if (attributeValue.getOctetString() != null) {
+            registerValue = new RegisterValue(offlineRegister, attributeValue.getOctetString().stringValue());
+        } else {
+            // let each sub-protocol to create it's own flavour of time-stamp combination
+            // AM540 when reading mirror will change this
+            registerValue = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit );
+        }
+
+        CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
+        if (timeZoneIssue!=null) {
+            collectedRegister.setFailureInformation(ResultType.ConfigurationError, timeZoneIssue);
+        }
+
+        return collectedRegister;
+    }
+
+    /**
+     * Will create a register value for a composed register which provides the capture time
+     * By default will set readTime = collection time eventTime=captureTime
+     *
+     * This is overridden in AM540 to handle mirror devices!
+     *
+     */
+    protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        return  new RegisterValue(offlineRegister,
+                new Quantity(attributeValue.toBigDecimal(), unit),
+                captureTime // eventTime
+        );
     }
 
     protected RegisterValue getRegisterValueForAlarms(OfflineRegister offlineRegister, AbstractDataType dataValue) {

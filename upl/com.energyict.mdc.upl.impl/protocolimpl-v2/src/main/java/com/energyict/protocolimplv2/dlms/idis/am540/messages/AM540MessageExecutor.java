@@ -1,42 +1,30 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
+import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
 
 /**
  * @author sva
@@ -47,9 +35,9 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     private static final int MAX_MBUS_SLAVES = 4;
     private static final ObisCode LOAD_PROFILE_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.5.255");
     private static final ObisCode LOAD_PROFILE_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.109.255");
-
     private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.9.255");
     private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.113.255");
+    private static final ObisCode MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS = ObisCode.fromString("1.0.0.8.2.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -77,6 +65,14 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 loadProfileOptInOUT(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.SET_DISPLAY_ON_OFF)) {
                 setDiplayOnOff(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES)) {
+                collectedMessage = writeMeasurementPeriod3ForInstantaneousValues(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects)) {
+                collectedMessage = resetSecurityEventCounterObjects(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetAllSecurityGroupEventCounters)) {
+                collectedMessage = resetAllSecurityEventCounters(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_EXCEPT_EMERGENCY_ONES)) {
+                collectedMessage = configureLoadLimitParamteresExceptEmergencyOnes(collectedMessage, pendingMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -127,9 +123,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             String errorMsg = "The ImageTransfer is in an invalid state: expected state '1' (Image transfer initiated), but was '" +
                     imageTransferStatus.getValue() + "' (" + imageTransferStatus.getInfo() + "). " +
                     "The verification and activation will not be executed.";
-            collectedMessage.setDeviceProtocolInformation(errorMsg);
-            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
         }
 
         return collectedMessage;
@@ -148,14 +142,14 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     }
 
     protected boolean isTemporaryFailure(Throwable e) {
-         if (e == null) {
-             return false;
-         } else if (e instanceof DataAccessResultException) {
-             return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
-         } else {
-             return false;
-         }
-     }
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+        } else {
+            return false;
+        }
+    }
 
     private CollectedMessage updateSupervisionMonitor(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getDeviceMessageAttributeValue()).intValue();
@@ -186,5 +180,112 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE);
         sas.writeExecutedScript(scriptStruct);
+    }
+
+    private CollectedMessage resetSecurityEventCounterObjects(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        String securityGroupEventCounter = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.securityGroupEventCounters).getDeviceMessageAttributeValue();
+        LogBookDeviceMessage.SecurityEventCounter[] counters = new LogBookDeviceMessage.SecurityEventCounter[]{LogBookDeviceMessage.SecurityEventCounter.valueOf(securityGroupEventCounter)};
+        return resetSecurityEventCounterValue(collectedMessage, pendingMessage, counters);
+    }
+
+    private CollectedMessage resetAllSecurityEventCounters(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        return resetSecurityEventCounterValue(collectedMessage, pendingMessage, LogBookDeviceMessage.SecurityEventCounter.values());
+    }
+
+    private CollectedMessage resetSecurityEventCounterValue(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, LogBookDeviceMessage.SecurityEventCounter[] securityGroupEventCounters) {
+        for (LogBookDeviceMessage.SecurityEventCounter securityGroupEventCounter : securityGroupEventCounters) {
+            ObisCode securityGroupEventObis = ObisCode.fromString(securityGroupEventCounter.getObis());
+            try {
+                Data data = getCosemObjectFactory().getData(securityGroupEventObis);
+                data.setValueAttr(new Unsigned16(0));
+            } catch (NotInObjectListException e) {
+                setNotInObjectListMessage(collectedMessage, securityGroupEventObis.getValue(), pendingMessage, e);
+                break;
+            } catch (IOException e) {
+                String errorMsg = "Resetting " + securityGroupEventCounter + " with obisCode = " + securityGroupEventObis + " back to 0, failed. " + e.getMessage();
+                setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+                break;
+            }
+        }
+        return collectedMessage;
+    }
+
+    private CollectedMessage writeMeasurementPeriod3ForInstantaneousValues(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        try {
+            Data data = getCosemObjectFactory().getData(MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS);
+            long value = data.getValue();
+            data.setValueAttr(new Unsigned32(value));
+        } catch (NotInObjectListException e) {
+            setNotInObjectListMessage(collectedMessage, MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS.getValue(), pendingMessage, e);
+        } catch (IOException e) {
+            String errorMsg = "Exception occurred while trying to write a new value for object with obisCode: " + MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS + ". " + e.getMessage();
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+        }
+        return collectedMessage;
+    }
+
+    private CollectedMessage configureLoadLimitParamteresExceptEmergencyOnes(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+
+        String monitoredValueObis_Attribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, monitoredValueAttributeName).getDeviceMessageAttributeValue();
+        long normalThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, normalThresholdAttributeName).getDeviceMessageAttributeValue()).longValue();
+        int overThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, overThresholdDurationAttributeName).getDeviceMessageAttributeValue());
+        int underThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, underThresholdDurationAttributeName).getDeviceMessageAttributeValue());
+        int actionWhenUnderThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, actionWhenUnderThresholdAttributeName).getDeviceMessageAttributeValue());
+        int actionWhenOverThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, actionWhenOverThresholdAttributeName).getDeviceMessageAttributeValue());
+
+        try {
+            Limiter limiter = getCosemObjectFactory().getLimiter();
+            setMonitoredValue(limiter, monitoredValueObis_Attribute);
+            writeNormalThreshold(normalThreshold, limiter);
+            limiter.writeMinOverThresholdDuration(new Unsigned32(overThresholdDuration));
+            limiter.writeMinUnderThresholdDuration(new Unsigned32(underThresholdDuration));
+            writeActions(actionWhenOverThreshold, actionWhenUnderThreshold, limiter);
+        } catch (NotInObjectListException e) {
+            setNotInObjectListMessage(collectedMessage, Limiter.getDefaultObisCode().getValue(), pendingMessage, e);
+        } catch (IOException e) {
+            String errorMsg = "Exception occurred while trying to write the action scripts for object with obisCode: " + Limiter.getDefaultObisCode() + ". " + e.getMessage();
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+        }
+
+        return collectedMessage;
+    }
+
+    private void writeActions(int actionOverThreshold, int actionUnderThreshold, Limiter limiter) throws IOException {
+        Limiter.ActionItem overThresholdAction = limiter.new ActionItem(OctetString.fromByteArray(DISCONNECTOR_SCRIPT_OBISCODE.getLN(), 6), new Unsigned16(actionOverThreshold));
+        Limiter.ActionItem underThresholdAction = limiter.new ActionItem(OctetString.fromByteArray(DISCONNECTOR_SCRIPT_OBISCODE.getLN(), 6), new Unsigned16(actionUnderThreshold));
+
+        Limiter.ActionType actions = limiter.new ActionType(overThresholdAction, underThresholdAction);
+        limiter.writeActions(actions);
+    }
+
+    protected void setMonitoredValue(Limiter limiter, String monitoredValueObisAndAttribute) throws IOException {
+        String[] obis_attribute = monitoredValueObisAndAttribute.split(",");
+        ObisCode obisCode = ObisCode.fromString(obis_attribute[0].trim());
+        int attribute = Integer.parseInt(obis_attribute[1].trim());
+        int classId = getCosemObjectFactory().getProtocolLink().getMeterConfig().getClassId(obisCode);
+
+        Limiter.ValueDefinitionType vdt = limiter.new ValueDefinitionType();
+        vdt.setAttribute(attribute);
+        vdt.addDataType(new Unsigned16(classId));
+        vdt.addDataType(OctetString.fromObisCode(obisCode));
+        vdt.addDataType(new Integer8(attribute));
+        limiter.writeMonitoredValue(vdt);
+    }
+
+    protected void writeNormalThreshold(long activeThreshold, Limiter limiter) throws IOException {
+        limiter.writeThresholdNormal(new Unsigned32(activeThreshold)); //TODO check if this type will be always accepted or the register value type should be used
+    }
+
+    private void setNotInObjectListMessage(CollectedMessage collectedMessage, String obiscode, OfflineDeviceMessage pendingMessage, NotInObjectListException e) {
+        String errorMsg = "Object identified by obisCode: " + obiscode + " is not present in device object list. " + e.getMessage();
+        collectedMessage.setDeviceProtocolInformation(errorMsg);
+        collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMsg));
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+    }
+
+    private void setIncompatibleFailedMessage(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMsg) {
+        collectedMessage.setDeviceProtocolInformation(errorMsg);
+        collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
     }
 }

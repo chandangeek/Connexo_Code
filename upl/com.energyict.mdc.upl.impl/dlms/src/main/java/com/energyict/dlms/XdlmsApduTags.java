@@ -5,15 +5,16 @@ import java.util.Map;
 
 /**
  * Enumerates the specific APDU tags. Depending on the used ciphering, a different tag is applied.
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 26-apr-2010
  * Time: 11:53:49
- *
  */
 public enum XdlmsApduTags {
 
-    /** Different values */
+    /**
+     * Different values
+     */
 
     /* LongName requests */
     GET_REQUEST(DLMSCOSEMGlobals.COSEM_GETREQUEST, DLMSCOSEMGlobals.GLO_GETREQUEST, DLMSCOSEMGlobals.DED_GETREQUEST),
@@ -35,15 +36,19 @@ public enum XdlmsApduTags {
     WRITE_RESPONSE(DLMSCOSEMGlobals.COSEM_WRITERESPONSE, DLMSCOSEMGlobals.GLO_WRITERESPONSE, DLMSCOSEMGlobals.DED_WRITERESPONSE),
 
     /* Service errors */
-    CONFIRMED_SERVICE_ERROR(DLMSCOSEMGlobals.COSEM_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.GLO_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.DED_CONFIRMEDSERVICEERROR),
+    CONFIRMED_SERVICE_ERROR(DLMSCOSEMGlobals.COSEM_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.GLO_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.DED_CONFIRMEDSERVICEERROR),;
 
-    ;
-
-    /** Contains a list of possible {@link XdlmsApduTags} */
-	private static Map<Byte, XdlmsApduTags> instances;
-    /** Contains a list of possible global ciphered {@link com.energyict.dlms.XdlmsApduTags}*/
+    /**
+     * Contains a list of possible {@link XdlmsApduTags}
+     */
+    private static Map<Byte, XdlmsApduTags> instances;
+    /**
+     * Contains a list of possible global ciphered {@link com.energyict.dlms.XdlmsApduTags}
+     */
     private static Map<Byte, XdlmsApduTags> globalInstances;
-    /** Contains a list of possible dedicated ciphered {@link com.energyict.dlms.XdlmsApduTags}*/
+    /**
+     * Contains a list of possible dedicated ciphered {@link com.energyict.dlms.XdlmsApduTags}
+     */
     private static Map<Byte, XdlmsApduTags> dedicatedInstances;
     private byte unciphered;
     private byte globalCiphered;
@@ -52,12 +57,9 @@ public enum XdlmsApduTags {
     /**
      * private constructor initializing the different tags
      *
-     * @param unciphered
-     *              - The Unciphered tag
-     * @param globalCiphered
-     *              - The global ciphered tag
-     * @param dedicatedCiphered
-     *              - The dedicated ciphering tag
+     * @param unciphered        - The Unciphered tag
+     * @param globalCiphered    - The global ciphered tag
+     * @param dedicatedCiphered - The dedicated ciphering tag
      */
     XdlmsApduTags(byte unciphered, byte globalCiphered, byte dedicatedCiphered) {
         this.unciphered = unciphered;
@@ -70,6 +72,7 @@ public enum XdlmsApduTags {
 
     /**
      * Create for each uncipheredTag an entry in the instanceMap
+     *
      * @return an instance map
      */
     private static Map<Byte, XdlmsApduTags> getInstances() {
@@ -81,6 +84,7 @@ public enum XdlmsApduTags {
 
     /**
      * Create for each global cipheredTag an entry in the instanceMap
+     *
      * @return a global ciphered instance map
      */
     private static Map<Byte, XdlmsApduTags> getGlobalInstances() {
@@ -92,6 +96,7 @@ public enum XdlmsApduTags {
 
     /**
      * Create for each dedicated cipheredTag an entry in the instanceMap
+     *
      * @return a dedicated ciphered instance map
      */
     private static Map<Byte, XdlmsApduTags> getDedicatedInstances() {
@@ -104,14 +109,12 @@ public enum XdlmsApduTags {
     /**
      * Return the encrypted tag depending on whether it is a global or a dedicated session
      *
-     * @param global
-     *          - true if it is a global session
-     *
+     * @param global - true if it is a global session
      * @return the corresponding encrypted tag
      */
-    public static byte getEncryptedTag(byte unencrypted, boolean global){
+    public static byte getEncryptedTag(byte unencrypted, boolean global) {
         XdlmsApduTags tag = getInstances().get(unencrypted);
-        if(global){
+        if (global) {
             return tag.getGlobalCipheredTag();
         } else {
             return tag.getDedicatedCipheredTag();
@@ -121,9 +124,7 @@ public enum XdlmsApduTags {
     /**
      * Checks whether the given tag is known to our implementation
      *
-     * @param cipheredTag
-     *          - the given ciphered tag
-     *
+     * @param cipheredTag - the given ciphered tag
      * @return true if we know which ciphered tag it is, otherwise false
      */
     public static boolean contains(byte cipheredTag) {
@@ -140,6 +141,20 @@ public enum XdlmsApduTags {
      */
     public static boolean isPlainTag(byte tag) {
         return getInstances().containsKey(tag);
+    }
+
+    /**
+     * Returns true if the given tag represents a service-specific global-ciphering APDU.
+     */
+    public static boolean isGlobalCipheringTag(byte tag) {
+        return getGlobalInstances().containsKey(tag);
+    }
+
+    /**
+     * Returns true if the given tag represents a service-specific dedicated-ciphering APDU.
+     */
+    public static boolean isDedicatedCipheringTag(byte tag) {
+        return getDedicatedInstances().containsKey(tag);
     }
 
     /**
