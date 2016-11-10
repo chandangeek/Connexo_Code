@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -47,8 +48,11 @@ public class PassiveCalendarImplTest extends PersistenceIntegrationTest {
     }
 
     private Calendar createCalendar() {
+        Category category = inMemoryPersistence.
+                getCalendarService().findCategoryByName("TOU").orElseThrow(IllegalStateException::new);
         return inMemoryPersistence.
                 getCalendarService().newCalendar(CALENDAR_NAME, Year.of(2010))
+                .category(category)
                 .endYear(Year.of(2020))
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
