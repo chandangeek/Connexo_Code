@@ -68,6 +68,7 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -86,10 +87,13 @@ public class CustomPropertySetServiceImplTest {
     private static final String CUSTOM_PROPERTY_SET_ID = "TEST";
     private static final String TABLE_NAME = "TST_TEST";
     private static final String DOMAIN_COLUMN_NAME = "testDomain";
+    private static final String ADDITIONAL_COLUMN_NAME = "adiitionalColumn";
     private static final String DOMAIN_FK_NAME = "FK_EXT_TESTDOMAIN";
     private static final String VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID = "T02";
+    private static final String VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID = "T03";
     private static final String VERSIONED_CUSTOM_PROPERTY_SET_ID = CUSTOM_PROPERTY_SET_ID + "_VERSIONED";
     private static final String VERSIONED_TABLE_NAME = TABLE_NAME + "_VERSIONED";
+    private static final String VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME = TABLE_NAME + "_ADD_VERSIONED";
 
     @Mock
     private TransactionService transactionService;
@@ -108,6 +112,8 @@ public class CustomPropertySetServiceImplTest {
     @Mock
     private DataModel versionedCustomPropertySetDataModel;
     @Mock
+    private DataModel versionedCustomPropertySetWithAdditionalKeyDataModel;
+    @Mock
     private NlsService nlsService;
     @Mock
     private UserService userService;
@@ -124,11 +130,19 @@ public class CustomPropertySetServiceImplTest {
     @Mock
     private PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> versionedPersistenceSupport;
     @Mock
+    private CustomPropertySet<TestDomain, VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> versionedCustomPropertySetWithAdditionalPrimaryKey;
+    @Mock
+    private PersistenceSupport<TestDomain, VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> versionedPersistenceSupportWithAdditionalPrimaryKey;
+    @Mock
     private Table<VersionedDomainExtensionForTestingPurposes> versionedTable;
+    @Mock
+    private Table<VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> versionedWithAdditionalPrimaryKeyTable;
     @Mock
     private Column.Builder domainColumnBuilder;
     @Mock
     private Column domainColumn;
+    @Mock
+    private Column additionalPrimaryKeyColumn;
     @Mock
     private ForeignKeyConstraint.Builder domainForeignKeyConstraintBuilder;
     @Mock
@@ -156,6 +170,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.ormService.newDataModel(eq(CustomPropertySetService.COMPONENT_NAME), anyString())).thenReturn(this.serviceDataModel);
         when(this.ormService.newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString())).thenReturn(this.customPropertySetDataModel);
         when(this.ormService.newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString())).thenReturn(this.versionedCustomPropertySetDataModel);
+        when(this.ormService.newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID), anyString())).thenReturn(this.versionedCustomPropertySetWithAdditionalKeyDataModel);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
@@ -184,15 +199,31 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedCustomPropertySet.getName()).thenReturn(null);   // Will be ackward for UI but backend should not worry about that
         when(this.versionedCustomPropertySet.getDomainClass()).thenReturn(TestDomain.class);
         when(this.versionedCustomPropertySet.getPersistenceSupport()).thenReturn(this.versionedPersistenceSupport);
+        when(this.versionedCustomPropertySetWithAdditionalPrimaryKey.isVersioned()).thenReturn(true);
+        when(this.versionedCustomPropertySetWithAdditionalPrimaryKey.getId()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_ID);
+        when(this.versionedCustomPropertySetWithAdditionalPrimaryKey.getName()).thenReturn(null);   // Will be ackward for UI but backend should not worry about that
+        when(this.versionedCustomPropertySetWithAdditionalPrimaryKey.getDomainClass()).thenReturn(TestDomain.class);
+        when(this.versionedCustomPropertySetWithAdditionalPrimaryKey.getPersistenceSupport()).thenReturn(this.versionedPersistenceSupportWithAdditionalPrimaryKey);
         when(this.versionedCustomPropertySetDataModel.addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class)).thenReturn(this.versionedTable);
         when(this.versionedTable.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
         when(this.versionedPersistenceSupport.application()).thenReturn("Example");
         when(this.versionedPersistenceSupport.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID);
         when(this.versionedPersistenceSupport.tableName()).thenReturn(VERSIONED_TABLE_NAME);
         when(this.versionedPersistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
         when(this.versionedPersistenceSupport.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
         when(this.versionedPersistenceSupport.persistenceClass()).thenReturn(VersionedDomainExtensionForTestingPurposes.class);
         when(this.versionedPersistenceSupport.module()).thenReturn(Optional.empty());
+        when(this.versionedCustomPropertySetWithAdditionalKeyDataModel.addTable(VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME, VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes.class)).thenReturn(this.versionedWithAdditionalPrimaryKeyTable);
+        doReturn(this.versionedWithAdditionalPrimaryKeyTable).when(this.versionedCustomPropertySetWithAdditionalKeyDataModel).getTable(VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.application()).thenReturn("Example");
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.tableName()).thenReturn(VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.addCustomPropertyPrimaryKeyColumnsTo(versionedWithAdditionalPrimaryKeyTable)).thenReturn(Collections.singletonList(additionalPrimaryKeyColumn));
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.persistenceClass()).thenReturn(VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes.class);
+        when(this.versionedPersistenceSupportWithAdditionalPrimaryKey.module()).thenReturn(Optional.empty());
         when(this.versionedTable.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
         when(this.versionedTable.foreignKey(DOMAIN_FK_NAME)).thenReturn(this.domainForeignKeyConstraintBuilder);
         when(this.versionedTable.column(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())).thenReturn(this.customPropertySetColumnBuilder);
@@ -200,7 +231,18 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedTable.primaryKey(startsWith("PK_CPS_"))).thenReturn(this.primaryKeyConstraintBuilder);
         Column intervalStartColumn = mock(Column.class);
         Column intervalEndColumn = mock(Column.class);
+        when(domainColumn.getFieldName()).thenReturn(DOMAIN_COLUMN_NAME);
+        when(domainColumn.getName()).thenReturn(DOMAIN_COLUMN_NAME);
+        when(additionalPrimaryKeyColumn.getFieldName()).thenReturn(ADDITIONAL_COLUMN_NAME);
+        when(additionalPrimaryKeyColumn.getName()).thenReturn(ADDITIONAL_COLUMN_NAME);
         when(this.versionedTable.addIntervalColumns(anyString())).thenReturn(Arrays.asList(intervalStartColumn, intervalEndColumn));
+        when(this.versionedWithAdditionalPrimaryKeyTable.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
+        when(this.versionedWithAdditionalPrimaryKeyTable.foreignKey(DOMAIN_FK_NAME)).thenReturn(this.domainForeignKeyConstraintBuilder);
+        when(this.versionedWithAdditionalPrimaryKeyTable.column(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())).thenReturn(this.customPropertySetColumnBuilder);
+        when(this.versionedWithAdditionalPrimaryKeyTable.foreignKey(startsWith("FK_CPS_"))).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
+        when(this.versionedWithAdditionalPrimaryKeyTable.primaryKey(startsWith("PK_CPS_"))).thenReturn(this.primaryKeyConstraintBuilder);
+        when(this.versionedWithAdditionalPrimaryKeyTable.addIntervalColumns(anyString())).thenReturn(Arrays.asList(intervalStartColumn, intervalEndColumn));
+        doReturn(Arrays.asList(domainColumn, additionalPrimaryKeyColumn)).when(this.versionedWithAdditionalPrimaryKeyTable).getPrimaryKeyColumns();
         when(this.domainColumnBuilder.notNull()).thenReturn(this.domainColumnBuilder);
         when(this.domainColumnBuilder.map(anyString())).thenReturn(this.domainColumnBuilder);
         when(this.domainColumnBuilder.number()).thenReturn(this.domainColumnBuilder);
@@ -449,6 +491,39 @@ public class CustomPropertySetServiceImplTest {
 
         // Asserts
         verify(this.ormService, never()).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ID), anyString());
+    }
+
+    @Test
+    public void addVersionedCustomPropertySetWithAdditionalPrimartKeyAfterInstallation() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySetWithAdditionalPrimaryKey.getId()).thenReturn("addVersionedCustomPropertySetAfterInstallation");
+
+        // Business method
+        service.addCustomPropertySet(this.versionedCustomPropertySetWithAdditionalPrimaryKey);
+
+        // Asserts
+        verify(this.versionedCustomPropertySetWithAdditionalPrimaryKey, atLeastOnce()).getId();
+        verify(this.versionedCustomPropertySetWithAdditionalPrimaryKey).isVersioned();
+        verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID), anyString());
+        verify(this.versionedPersistenceSupportWithAdditionalPrimaryKey, atLeastOnce()).tableName();
+        verify(this.versionedCustomPropertySetWithAdditionalKeyDataModel).addTable(VERSIONED_WITH_ADDITIONAL_KEY__TABLE_NAME, VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes.class);
+        verify(this.versionedPersistenceSupportWithAdditionalPrimaryKey).domainColumnName();
+        verify(this.versionedWithAdditionalPrimaryKeyTable).setJournalTableName(anyString());
+        verify(this.versionedWithAdditionalPrimaryKeyTable).column(DOMAIN_COLUMN_NAME);
+        verify(this.domainColumnBuilder).add();
+        verify(this.versionedPersistenceSupportWithAdditionalPrimaryKey).domainForeignKeyName();
+        verify(this.versionedWithAdditionalPrimaryKeyTable).foreignKey(DOMAIN_FK_NAME);
+        verify(this.domainForeignKeyConstraintBuilder).add();
+        verify(this.customPropertySetColumnBuilder).add();
+        verify(this.versionedWithAdditionalPrimaryKeyTable).foreignKey(startsWith("FK_CPS_"));
+        verify(this.customPropertySetForeignKeyConstraintBuilder).add();
+        verify(this.versionedPersistenceSupportWithAdditionalPrimaryKey).addCustomPropertyColumnsTo(eq(this.versionedWithAdditionalPrimaryKeyTable), eq(Arrays.asList(additionalPrimaryKeyColumn)));
+        verify(this.primaryKeyConstraintBuilder).add();
+        verify(this.versionedWithAdditionalPrimaryKeyTable).addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
+        verify(this.versionedCustomPropertySetWithAdditionalKeyDataModel).register(anyVararg());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID)), eq(versionedCustomPropertySetWithAdditionalKeyDataModel), any(), any());
     }
 
     @Test(timeout = 5000)
@@ -771,6 +846,38 @@ public class CustomPropertySetServiceImplTest {
         assertThat(values.get(0).propertyNames().contains("serviceCategory")).isTrue();
         assertThat(values.get(1)).isNotNull();
         assertThat(values.get(1).getEffectiveRange()).isEqualTo(secondInterval.toClosedOpenRange());
+    }
+
+    @Test
+    public void getAllVersionedValuesWithAdditionalPrimaryKey() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySetWithAdditionalPrimaryKey.getId()).thenReturn("getVersionedCustomPropertiesWithAdditionalPrimaryKey");
+        service.addCustomPropertySet(this.versionedCustomPropertySetWithAdditionalPrimaryKey);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval firstInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(1L), Instant.ofEpochSecond(3L)));
+        Interval secondInterval = Interval.of(Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L)));
+        VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes extensionFirst = new VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes(testDomain, this.registeredCustomPropertySet, firstInterval);
+        VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes extensionSecond = new VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes(testDomain, this.registeredCustomPropertySet, secondInterval);
+        DataMapper<VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond));
+        when(this.versionedCustomPropertySetWithAdditionalKeyDataModel.mapper(VersionedDomainExtensionWithAdditionalPrimaryKeyForTestingPurposes.class)).thenReturn(dataMapper);
+
+        // Business method
+        List<CustomPropertySetValues> values = service.getAllVersionedValuesFor(this.versionedCustomPropertySetWithAdditionalPrimaryKey, testDomain, ServiceCategoryForTestingPurposes.ELECTRICITY);
+
+        // Asserts
+        assertThat(values).isNotNull();
+        assertThat(values).isNotEmpty();
+        assertThat(values.get(0)).isNotNull();
+        assertThat(values.get(0).getEffectiveRange()).isEqualTo(firstInterval.toClosedOpenRange());
+        assertThat(values.get(0).propertyNames().contains("billingCycle")).isTrue();
+        assertThat(values.get(0).propertyNames().contains("serviceCategory")).isTrue();
+        assertThat(values.get(1)).isNotNull();
+        assertThat(values.get(1).getEffectiveRange()).isEqualTo(secondInterval.toClosedOpenRange());
+        assertThat(extensionFirst.getServiceCategory()).isEqualTo(ServiceCategoryForTestingPurposes.ELECTRICITY);
+        assertThat(extensionSecond.getServiceCategory()).isEqualTo(ServiceCategoryForTestingPurposes.ELECTRICITY);
     }
 
     @Test
