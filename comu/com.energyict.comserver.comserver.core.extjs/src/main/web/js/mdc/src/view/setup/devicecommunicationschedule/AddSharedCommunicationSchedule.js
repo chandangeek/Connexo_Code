@@ -23,8 +23,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                 items: [
                     {
                         xtype: 'uni-form-info-message',
-                        text: Uni.I18n.translate('deviceCommunicationSchedule.infoMessage', 'MDC', 'A communication task on device level can only be schedule in maximum one shared communication schedule. ' +
-                            'This list only contains shared communication schedules without communications tasks that are already scheduled with another shared communication schedule'),
+                        text: Uni.I18n.translate("deviceCommunicationSchedule.infoMessage", "MDC",
+                            "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list."),
                         hidden: false
                     },
                     {
