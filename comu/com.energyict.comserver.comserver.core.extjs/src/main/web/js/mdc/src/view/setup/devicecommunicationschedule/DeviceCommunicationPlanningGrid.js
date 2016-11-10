@@ -195,6 +195,16 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                     }
                                 }
                             }
+                        },
+                        isDisabled: function(view, rowIndex, callIndex, item){
+                            var menuHasItems = item.menu.items.items
+                                .map( function(menuItem) {
+                                    return menuItem.isVisible()
+                                })
+                                .filter( function(menuItem){
+                                    return !!menuItem
+                                }).length;
+                            return !menuHasItems;
                         }
                     }
                 ],

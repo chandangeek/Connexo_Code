@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
         {
             text: Uni.I18n.translate('general.run', 'MDC', 'Run'),
             action: 'run',
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
             visible: function() {
                 return this.record.get('connectionDefinedOnDevice') &&
                     this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' &&
@@ -15,6 +16,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
         {
             text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
             action: 'runNow',
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
             visible: function() {
                 return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold');
             }
@@ -22,12 +24,14 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
         {
             text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
             action: 'toggleActivation',
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             visible: function() {
                 return !!this.record.get('isOnHold')
             }
         },
         {
             text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             action: 'toggleActivation',
             visible: function() {
                 return !this.record.get('isOnHold')

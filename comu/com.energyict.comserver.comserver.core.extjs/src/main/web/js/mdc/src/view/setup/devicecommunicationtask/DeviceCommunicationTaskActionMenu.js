@@ -43,14 +43,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
         },
         {
             text: Uni.I18n.translate('deviceCommunicationTask.activateComTask', 'MDC', 'Activate'),
-            privileges: Mdc.privileges.Device.operateDeviceCommunication,
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'activateDeviceComTask',
             action: 'activateDeviceComTask',
             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
         },
         {
             text: Uni.I18n.translate('deviceCommunicationTask.deactivateComTask', 'MDC', 'Deactivate'),
-            privileges: Mdc.privileges.Device.operateDeviceCommunication,
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'deactivateDeviceComTask',
             action: 'deactivateDeviceComTask',
             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
