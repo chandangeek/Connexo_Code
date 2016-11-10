@@ -4,8 +4,8 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DeviceGroupInfoFactory {
     
@@ -24,10 +24,8 @@ public class DeviceGroupInfoFactory {
     }
 
     public List<DeviceGroupInfo> from(List<EndDeviceGroup> endDeviceGroups) {
-        List<DeviceGroupInfo> deviceGroupsInfos = new ArrayList<>();
-        for (EndDeviceGroup endDeviceGroup : endDeviceGroups) {
-            deviceGroupsInfos.add(from(endDeviceGroup));
-        }
-        return deviceGroupsInfos;
+        return endDeviceGroups.stream()
+                .map(this::from)
+                .collect(Collectors.toList());
     }
 }

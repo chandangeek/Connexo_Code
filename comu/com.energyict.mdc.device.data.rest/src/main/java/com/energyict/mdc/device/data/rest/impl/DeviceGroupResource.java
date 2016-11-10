@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -82,7 +83,8 @@ public class DeviceGroupResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     // not protected by privileges yet because a combo-box containing all the groups needs to be shown when creating an export task
@@ -118,7 +120,8 @@ public class DeviceGroupResource {
         return condition;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
@@ -126,7 +129,8 @@ public class DeviceGroupResource {
         return deviceGroupInfoFactory.from(resourceHelper.findEndDeviceGroupOrThrowException(id));
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
@@ -163,7 +167,8 @@ public class DeviceGroupResource {
                 .create();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
@@ -183,7 +188,8 @@ public class DeviceGroupResource {
         return Response.ok().entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
@@ -195,7 +201,8 @@ public class DeviceGroupResource {
         return Response.ok().build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -211,8 +218,8 @@ public class DeviceGroupResource {
         return PagedInfoList.fromPagedList("devices", DeviceGroupMemberInfo.from(devices), queryParameters);
     }
 
-
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/devices/count")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -278,7 +285,7 @@ public class DeviceGroupResource {
 
     private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {
         EndDevice[] endDevices = buildListOfEndDevices(deviceGroupInfo);
-        Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream().collect(toMap());
+        Map<Long, EnumeratedGroup.Entry<EndDevice>> currentEntries = enumeratedEndDeviceGroup.getEntries().stream().collect(indexedById());
         // remove those no longer mapped
         currentEntries.entrySet().stream()
                 .filter(entry -> Stream.of(endDevices).mapToLong(EndDevice::getId).noneMatch(id -> id == entry.getKey()))
@@ -289,8 +296,8 @@ public class DeviceGroupResource {
                 .forEach(device -> enumeratedEndDeviceGroup.add(device, Range.atLeast(Instant.EPOCH)));
     }
 
-    private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> toMap() {
-        return Collectors.toMap(entry -> entry.getEndDevice().getId(), Function.identity());
+    private Collector<EnumeratedGroup.Entry<EndDevice>, ?, Map<Long, EnumeratedGroup.Entry<EndDevice>>> indexedById() {
+        return Collectors.toMap(entry -> entry.getMember().getId(), Function.identity());
     }
 
     private SearchDomain findDeviceSearchDomainOrThrowException() {
