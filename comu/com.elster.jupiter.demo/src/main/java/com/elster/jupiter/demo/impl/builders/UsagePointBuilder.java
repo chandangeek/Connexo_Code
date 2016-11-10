@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
     private Location location;
     private SpatialCoordinates geoCoordinates;
 
+    @Inject
     public UsagePointBuilder(MeteringService meteringService){
         super(UsagePointBuilder.class);
         this.meteringService = meteringService;

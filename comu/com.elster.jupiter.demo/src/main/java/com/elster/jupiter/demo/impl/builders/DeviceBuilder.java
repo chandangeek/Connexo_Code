@@ -1,8 +1,6 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
-import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -12,7 +10,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private final DeviceService deviceService;
@@ -22,10 +19,6 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private DeviceConfiguration deviceConfiguration;
     private List<ComSchedule> comSchedules;
     private int yearOfCertification;
-    private Location location;
-    private SpatialCoordinates spatialCoordinates;
-
-    private List<Consumer<Device>> postBuilders;
 
     @Inject
     public DeviceBuilder(DeviceService deviceService, Clock clock) {
@@ -35,32 +28,22 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         this.yearOfCertification = 2013;
     }
 
-    public DeviceBuilder withLocation(Location location){
-        this.location = location;
-        return this;
-    }
-
-    public DeviceBuilder withSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
-        this.spatialCoordinates = spatialCoordinates;
-        return this;
-    }
-
-    public DeviceBuilder withSerialNumber(String serialNumber){
+    public DeviceBuilder withSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
         return this;
     }
 
-    public DeviceBuilder withDeviceConfiguration(DeviceConfiguration deviceConfiguration){
+    public DeviceBuilder withDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration = deviceConfiguration;
         return this;
     }
 
-    public DeviceBuilder withComSchedules(List<ComSchedule> comSchedules){
+    public DeviceBuilder withComSchedules(List<ComSchedule> comSchedules) {
         this.comSchedules = comSchedules;
         return this;
     }
 
-    public DeviceBuilder withYearOfCertification(int year){
+    public DeviceBuilder withYearOfCertification(int year) {
         this.yearOfCertification = year;
         return this;
     }
@@ -81,8 +64,6 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
                 device.newScheduledComTaskExecution(comSchedule).add();
             }
         }
-        device.setLocation(location);
-        device.setSpatialCoordinates(spatialCoordinates);
         device.save();
         applyPostBuilders(device);
         return device;

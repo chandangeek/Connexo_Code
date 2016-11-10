@@ -35,7 +35,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
         this.timeService = timeService;
     }
 
-    public DataExportTaskBuilder withGroup(String group){
+    public DataExportTaskBuilder withGroup(String group) {
         this.group = group;
         return this;
     }
@@ -50,11 +50,11 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
     public ExportTask create() {
         Log.write(this);
         Optional<RelativePeriod> yesterday = timeService.findRelativePeriodByName("Yesterday");
-        if (!yesterday.isPresent()){
+        if (!yesterday.isPresent()) {
             throw new UnableToCreate("Unable to find the relative yesterday period");
         }
         Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(group);
-        if (!endDeviceGroup.isPresent()){
+        if (!endDeviceGroup.isPresent()) {
             throw new UnableToCreate("Unable to find the device group with name " + group);
         }
         LocalDateTime startOn = LocalDateTime.now();
@@ -80,7 +80,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
         builder.addProperty("formatterProperties.tag").withValue("new");
         builder.addProperty("formatterProperties.update.tag").withValue("update");
         ExportTask dataExportTask = builder.create();
-        dataExportTask.addFileDestination("readings",String.format("%s-<identifier>-<date>-<time>",group.substring(0,group.indexOf(" "))),"csv");
+        dataExportTask.addFileDestination("readings", String.format("%s-<identifier>-<date>-<time>", group.substring(0, group.indexOf(" "))), "csv");
         return dataExportTask;
     }
 }
