@@ -43,7 +43,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointsetup.controller.MetrologyConfig',
         'Imt.purpose.controller.Purpose',
         'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails',
-        'Imt.metrologyconfiguration.controller.ValidationConfiguration'
+        'Imt.metrologyconfiguration.controller.ValidationConfiguration',
+        'Imt.usagepointlifecycle.controller.UsagePointLifeCycles'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
@@ -119,6 +120,21 @@ Ext.define('Imt.controller.Main', {
                         text: Uni.I18n.translate('general.serviceCategories', 'IMT', 'Service categories'),
                         href: '#/administration/servicecategories',
                         itemId: 'overview-servicecategories'
+                    }
+                ]
+            }));
+        }
+
+        if (Imt.privileges.UsagePointLifeCycle.canView()) {
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.usagePointLifeCycleManagement', 'IMT', 'Usage point life cycle management'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.usagePointLifeCycles', 'IMT', 'Usage point life cycles'),
+                        href: '#/administration/usagepointlifecycles',
+                        itemId: 'usagepointlifecycles-portal-item',
+                        route: 'usagepointlifecycles'
                     }
                 ]
             }));

@@ -326,6 +326,65 @@ Ext.define('Imt.controller.History', {
                     controller: 'Imt.servicecategories.controller.ServiceCategories',
                     action: 'showOverview',
                     privileges: Imt.privileges.ServiceCategory.view
+                },
+                usagepointlifecycles: {
+                    title: Uni.I18n.translate('general.usagePointLifeCycles', 'IMT', 'Usage point life cycles'),
+                    route: 'usagepointlifecycles',
+                    controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                    privileges: Imt.privileges.UsagePointLifeCycle.view,
+                    action: 'showUsagePointLifeCycles',
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addUsagePointLifeCycle', 'IMT', 'Add usage point life cycle'),
+                            route: 'add',
+                            controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                            privileges: Imt.privileges.UsagePointLifeCycle.configure,
+                            action: 'showAddUsagePointLifeCycle'
+                        },
+                        clone: {
+                            title: Uni.I18n.translate('general.cloneUsagePointLifeCycle', 'IMT', 'Clone usage point life cycle'),
+                            route: '{usagePointLifeCycleId}/clone',
+                            controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                            privileges: Imt.privileges.UsagePointLifeCycle.configure,
+                            action: 'showCloneUsagePointLifeCycle',
+                            callback: function (route) {
+                                this.getApplication().on('usagepointlifecyclecloneload', function (recordName) {
+                                    route.setTitle(Uni.I18n.translate('usagePointLifeCycles.clone.title', 'IMT', "Clone '{0}'", recordName, false));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        },
+                        usagepointlifecycle: {
+                            route: '{usagePointLifeCycleId}',
+                            controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                            privileges: Imt.privileges.UsagePointLifeCycle.view,
+                            action: 'showUsagePointLifeCycleOverview',
+                            callback: function (route) {
+                                this.getApplication().on('usagepointlifecycleload', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                    route: 'edit',
+                                    controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                                    privileges: Imt.privileges.UsagePointLifeCycle.configure,
+                                    action: 'showEditUsagePointLifeCycle',
+                                    callback: function (route) {
+                                        this.getApplication().on('usagePointLifeCycleEdit', function (record) {
+                                            route.setTitle(Uni.I18n.translate('usagePointLifeCycles.edit.title', 'IMT', "Edit '{0}'", record.get('name'), false));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
