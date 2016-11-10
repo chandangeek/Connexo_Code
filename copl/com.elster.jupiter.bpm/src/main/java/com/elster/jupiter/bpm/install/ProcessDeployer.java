@@ -83,7 +83,7 @@ public class ProcessDeployer {
 
             responseCode = httpConnection.getResponseCode();
             if (responseCode != 202 && responseCode != 404) {
-                throw new RuntimeException("Failed : HTTP error code : "
+                throw new RuntimeException("Failed POST on " + url + ": HTTP error code : "
                         + httpConnection.getResponseCode());
             }
 
@@ -145,13 +145,13 @@ public class ProcessDeployer {
             }
             result = sb.toString();
         } catch (Exception e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException("Failed reading response from Connexo REST API.", e);
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed reading response from Connexo REST API.", e);
+                    throw new RuntimeException("Failed closing the connection to Connexo REST API.", e);
                 }
             }
         }
@@ -188,10 +188,16 @@ public class ProcessDeployer {
         int maxSteps = 12;
         int timeout = 5 * 1000;
 
-        while ((maxSteps != 0) && (doGet(url, authString) == false)) {
+        boolean result = false;
+        while ((maxSteps != 0) && (result == false)) {
             try {
                 maxSteps--;
                 Thread.sleep(timeout);
+                result = doGet(url, authString);
+            } catch (RuntimeException e) {
+                if(maxSteps == 0) {
+                    throw e;
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -203,11 +209,18 @@ public class ProcessDeployer {
         int maxSteps = 12;
         int timeout = 5 * 1000;
 
-        while ((maxSteps != 0) && (doPost(url, authString, payload) == false)) {
+        boolean result = false;
+        while ((maxSteps != 0) && (result == false)) {
             try {
                 maxSteps--;
                 Thread.sleep(timeout);
-            } catch (InterruptedException e) {
+                result = doPost(url, authString, payload);
+            } catch (RuntimeException e) {
+                if(maxSteps == 0) {
+                    throw e;
+                }
+            }
+            catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
