@@ -10,13 +10,14 @@ import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -95,7 +96,7 @@ public class MeterReadingDataSelectorImplTest {
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
-    private EndDeviceMembership membership1, membership2;
+    private Membership<EndDevice> membership1, membership2;
     @Mock
     private Meter meter1, meter2;
     @Mock
@@ -149,8 +150,8 @@ public class MeterReadingDataSelectorImplTest {
 
         doReturn(EXPORTED_INTERVAL).when((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
         doReturn(Arrays.asList(membership1, membership2)).when(endDeviceGroup).getMembers(EXPORTED_INTERVAL);
-        doReturn(meter1).when(membership1).getEndDevice();
-        doReturn(meter2).when(membership2).getEndDevice();
+        doReturn(meter1).when(membership1).getMember();
+        doReturn(meter2).when(membership2).getMember();
         doReturn("meter1").when(meter1).getMRID();
         doReturn("meter2").when(meter2).getMRID();
         doReturn(Optional.of(meter1)).when(meter1).getMeter(any());

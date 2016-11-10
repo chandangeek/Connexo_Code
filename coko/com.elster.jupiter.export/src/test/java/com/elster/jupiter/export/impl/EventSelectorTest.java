@@ -10,7 +10,7 @@ import com.elster.jupiter.export.MeterEventData;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -61,7 +61,7 @@ public class EventSelectorTest {
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
-    private EndDeviceMembership membership1, membership2;
+    private Membership<EndDevice> membership1, membership2;
     @Mock
     private EndDevice endDevice1, endDevice2;
     @Mock
@@ -80,8 +80,8 @@ public class EventSelectorTest {
         when(dataExportService.forRoot(anyString())).thenAnswer(invocation -> DefaultStructureMarker.createRoot(clock, (String) invocation.getArguments()[0]));
         when(eventSelectorConfig.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(endDeviceGroup.getMembers(any(Range.class))).thenReturn(Arrays.asList(membership1, membership2));
-        when(membership1.getEndDevice()).thenReturn(endDevice1);
-        when(membership2.getEndDevice()).thenReturn(endDevice2);
+        when(membership1.getMember()).thenReturn(endDevice1);
+        when(membership2.getMember()).thenReturn(endDevice2);
         when(endDevice1.getDeviceEvents(any())).thenReturn(Arrays.asList(event1, event2, event3));
         when(endDevice2.getDeviceEvents(any())).thenReturn(Arrays.asList(event4, event5, event6));
         when(event1.getEventTypeCode()).thenReturn("4.11.15.0");

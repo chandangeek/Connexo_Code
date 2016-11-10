@@ -10,7 +10,7 @@ import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterEventData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
@@ -98,7 +98,7 @@ class EventSelector implements DataSelector {
         List<ExportData> result = selectorConfig.getEndDeviceGroup()
                 .getMembers(range)
                 .stream()
-                .map(EndDeviceMembership::getEndDevice)
+                .map(Membership::getMember)
                 .map(endDevice -> buildEventData(endDevice, range))
                 .collect(Collectors.toList());
         return result.stream();
