@@ -65,7 +65,6 @@ Ext.define('Ddv.view.validations.Filter', {
 
         Ext.suspendLayouts();
         me.down('button[action=clearAll]').setDisabled(enableClearAllBasedOnOtherThanFromTo ? false : fromToFilterIsDefault);
-        me.down('#validations-topfilter-between button[action=clear]').setDisabled(fromToFilterIsDefault);
         Ext.resumeLayouts(true);
     }
 });
