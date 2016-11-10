@@ -59,10 +59,21 @@ public class WorkGroupsResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getUsersForWorkGroup(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long id) {
-        WorkGroup workGroup = getUserService().getWorkGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<SimplifiedUserInfo> users = workGroup.getUsersInWorkGroup().stream().sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
-                .map(SimplifiedUserInfo::new)
-                .collect(Collectors.toList());
-        return PagedInfoList.fromPagedList("data", users, queryParameters);
+        if(id < 0){
+            List<SimplifiedUserInfo> users = getUserService().getUsers().stream()
+                    .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
+                    .map(SimplifiedUserInfo::new)
+                    .collect(Collectors.toList());
+            return PagedInfoList.fromPagedList("data", users, queryParameters);
+        }else {
+            WorkGroup workGroup = getUserService().getWorkGroup(id)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            List<SimplifiedUserInfo> users = workGroup.getUsersInWorkGroup()
+                    .stream()
+                    .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
+                    .map(SimplifiedUserInfo::new)
+                    .collect(Collectors.toList());
+            return PagedInfoList.fromPagedList("data", users, queryParameters);
+        }
     }
 }
