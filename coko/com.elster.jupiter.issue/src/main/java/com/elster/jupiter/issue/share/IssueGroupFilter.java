@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.share;
 
-import com.elster.jupiter.issue.share.entity.AssigneeDetails;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 
 import java.util.Collection;
@@ -37,9 +36,13 @@ public interface IssueGroupFilter {
 
     IssueGroupFilter withStatuses(Collection<String> statuses);
 
-    IssueGroupFilter withAssignee(long id, String type);
+    IssueGroupFilter withUserAssignee(long id);
 
-    List<AssigneeDetails> getAssignees();
+    IssueGroupFilter withWorkGroupAssignee(long id);
+
+    List<Long> getUserAssignees();
+
+    List<Long> getWorkGroupAssignees();
 
     List<DueDateRange> getDueDates();
 
@@ -52,4 +55,5 @@ public interface IssueGroupFilter {
     IssueGroupFilter withDueDate(long startTime, long endTime);
 
     Collection<String> getIssueTypes();
+
 }
