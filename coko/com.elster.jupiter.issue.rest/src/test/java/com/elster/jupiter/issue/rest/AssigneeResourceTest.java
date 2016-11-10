@@ -137,10 +137,11 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
 
         Map<String, Object> map = target("/assignees/users").queryParam(LIKE, "ad").request().get(Map.class);
 
-        assertThat(map.get("total")).isEqualTo(2);
+        assertThat(map.get("total")).isEqualTo(3);
         List<?> data = (List<?>) map.get("data");
-        assertThat(data).hasSize(2);
-        assertThat(((Map<?, ?>) data.get(0)).get("id")).isEqualTo(1);
+        assertThat(data).hasSize(3);
+        assertThat(((Map<?, ?>) data.get(0)).get("id")).isEqualTo(-1);
+        assertThat(((Map<?, ?>) data.get(1)).get("id")).isEqualTo(1);
     }
 
     @Test
@@ -155,10 +156,11 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
 
         Map<String, Object> map = target("/assignees/users").request().get(Map.class);
 
-        assertThat(map.get("total")).isEqualTo(2);
+        assertThat(map.get("total")).isEqualTo(3);
         List<?> data = (List<?>) map.get("data");
-        assertThat(data).hasSize(2);
-        assertThat(((Map<?, ?>) data.get(0)).get("id")).isEqualTo(1);
+        assertThat(data).hasSize(3);
+        assertThat(((Map<?, ?>) data.get(0)).get("id")).isEqualTo(-1);
+        assertThat(((Map<?, ?>) data.get(1)).get("id")).isEqualTo(1);
     }
 
 }
