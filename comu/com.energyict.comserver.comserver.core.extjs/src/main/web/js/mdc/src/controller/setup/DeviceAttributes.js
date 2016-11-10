@@ -61,15 +61,30 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     saveCustomAttributes: function () {
         var me = this,
             form = me.getEditCustomAttributePropertyForm(),
-            editView = me.getDeviceCustomAttributesEditView();
+            editView = me.getDeviceCustomAttributesEditView(),
+            errorPanel = editView.down('#device-custom-attributes-error-msg');
 
         editView.setLoading();
+        Ext.suspendLayouts();
+        errorPanel.hide();
+        form.clearInvalid();
+        Ext.resumeLayouts(true);
         form.updateRecord();
         form.getRecord().save({
             backUrl: me.getLandingUrl(),
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
                 me.goToAttributesLandingFromCas();
+            },
+            failure: function (rec, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+
+                if (json && json.errors) {
+                    Ext.suspendLayouts();
+                    form.markInvalid(json.errors);
+                    errorPanel.show();
+                    Ext.resumeLayouts(true);
+                }
             },
             callback: function () {
                 editView.setLoading(false);

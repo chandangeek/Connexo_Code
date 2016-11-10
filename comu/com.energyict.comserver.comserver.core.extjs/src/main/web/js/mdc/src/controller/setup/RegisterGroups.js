@@ -277,23 +277,11 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     showErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getRegisterGroupEditForm().down('#registerGroupEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        formErrorsPlaceHolder.show();
+        this.getRegisterGroupEditForm().down('#registerGroupEditFormErrors').show();
     },
 
     hideErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getRegisterGroupEditForm().down('#registerGroupEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        this.getRegisterGroupEditForm().down('#registerGroupEditFormErrors').hide();
     }
 
 });

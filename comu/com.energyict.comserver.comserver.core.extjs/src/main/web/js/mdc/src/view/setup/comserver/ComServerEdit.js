@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Mdc.view.setup.comserver.FieldContainerHelpMessage',
-        'Mdc.store.TimeUnitsWithoutMilliseconds'
+        'Mdc.store.TimeUnitsWithoutMilliseconds',
+        'Uni.util.FormErrorMessage'
     ],
     alias: 'widget.comServerEdit',
     itemId: 'comServerEdit',
@@ -24,7 +25,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     itemId: 'form-errors',
                     xtype: 'uni-form-error-message',
                     name: 'form-errors',
-                    hidden: true
+                    hidden: true,
+                    width: 600
                 },
                 {
                     xtype: 'hiddenfield',
