@@ -101,6 +101,11 @@
 	public *;
 	protected *;
 }
+-keepnames class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer {
+	public *;
+	protected *;
+}
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor
 -keep public class com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor {
 	public *;
