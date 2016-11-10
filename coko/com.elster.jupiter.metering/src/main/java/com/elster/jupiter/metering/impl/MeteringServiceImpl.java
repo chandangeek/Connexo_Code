@@ -53,7 +53,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Effective;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Operator;
@@ -687,4 +686,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID).orElse(null);
     }
 
+    public DayMonthTime getGasDayYearStart() {
+        GasDayOptions gasDayOptions = getGasDayOptions();
+        return gasDayOptions==null ? null : getGasDayOptions().getYearStart();
+    }
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.time.DayMonthTime;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -192,4 +193,5 @@ public interface MeteringService {
 
     Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
 
+    DayMonthTime getGasDayYearStart();
 }
