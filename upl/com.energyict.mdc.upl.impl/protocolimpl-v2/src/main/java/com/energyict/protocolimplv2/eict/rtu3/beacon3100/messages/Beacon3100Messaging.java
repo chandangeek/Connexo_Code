@@ -322,12 +322,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     @Override
     public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
-            return MasterDataSerializer.serializeMasterData(offlineDevice.getId());
+            return new MasterDataSerializer().serializeMasterData(offlineDevice.getId());
         } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
-            return MasterDataSerializer.serializeMeterDetails(offlineDevice.getId());
+            return new MasterDataSerializer().serializeMeterDetails(offlineDevice.getId());
         } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
             int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
-            return MasterDataSerializer.serializeMasterDataForOneConfig(configId);
+            return new MasterDataSerializer().serializeMasterDataForOneConfig(configId);
         } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
             return MulticastSerializer.serialize(offlineDevice, deviceMessage);
         } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
