@@ -19,6 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,10 +61,7 @@ public class WorkGroupsResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getUsersForWorkGroup(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long id) {
         if(id < 0){
-            List<SimplifiedUserInfo> users = getUserService().getUsers().stream()
-                    .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
-                    .map(SimplifiedUserInfo::new)
-                    .collect(Collectors.toList());
+            List<SimplifiedUserInfo> users = new ArrayList<>();
             users.add(0, new SimplifiedUserInfo(-1L, getThesaurus().getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format()));
             return PagedInfoList.fromPagedList("data", users, queryParameters);
         }else {
