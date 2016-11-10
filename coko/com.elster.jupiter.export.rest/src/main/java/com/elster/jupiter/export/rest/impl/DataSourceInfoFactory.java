@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.rest.impl;
 
-
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;

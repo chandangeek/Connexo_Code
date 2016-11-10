@@ -171,7 +171,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     }
 
     @Test
-    public void geTask() {
+    public void getTask() {
         // Business method
         String response = target("/dataexporttask/" + TASK_ID).request().header(X_CONNEXO_APPLICATION_NAME, "MDC").get(String.class);
 
