@@ -13,10 +13,14 @@ Ext.define('Uni.grid.filtertop.Interval', {
     dataIndexTo: null,
     defaultFromDate: undefined,
     defaultToDate: undefined,
+    originalDefaultFromDate: undefined,
+    originalDefaultToDate: undefined,
     originalTitle: null,
     initComponent: function () {
         var me = this;
 
+        me.originalDefaultFromDate = Ext.clone(me.defaultFromDate);
+        me.originalDefaultToDate = Ext.clone(me.defaultToDate);
         me.originalTitle = me.text;
         me.items = [
             {
@@ -277,6 +281,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
         me.callParent(arguments);
 
+        me.updateClearButton();
+        me.updateTitle();
         me.initActions();
     },
 
@@ -298,6 +304,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
             me.fireFilterUpdateEvent();
             me.getChooseIntervalButton().hideMenu();
             me.updateTitle();
+            me.updateClearButton();
         }
     },
 
@@ -353,7 +360,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getToMinuteField().reset();
         me.getToDateField().setMinValue(null);
 
-        me.getClearButton().setDisabled(true);
         me.updateTitle();
         me.fireEvent('filtervaluechange');
     },
@@ -412,7 +418,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
         } else if (includeUndefined) {
             params[me.dataIndexTo] = undefined;
         }
-        me.getClearButton().setDisabled(false);
+        me.updateTitle();
+        me.updateClearButton();
     },
 
     setFromDateValue: function (date) {
@@ -427,9 +434,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getFromDateValue: function () {
         var me = this,
-            date = me.getFromDateField() ? me.getFromDateField().getValue() : undefined,
-            hours = me.getFromHourField() ? me.getFromHourField().getValue() : undefined,
-            minutes = me.getFromMinuteField() ? me.getFromMinuteField().getValue() : undefined;
+            date = me.getFromDateField() ? Ext.clone(me.getFromDateField().getValue()) : undefined,
+            hours = me.getFromHourField() ? Ext.clone(me.getFromHourField().getValue()) : undefined,
+            minutes = me.getFromMinuteField() ? Ext.clone(me.getFromMinuteField().getValue()) : undefined;
 
         return me.createDateFromValues(date, hours, minutes);
     },
@@ -446,9 +453,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getToDateValue: function () {
         var me = this,
-            date = me.getToDateField() ? me.getToDateField().getValue() : undefined,
-            hours = me.getToHourField() ? me.getToHourField().getValue() : undefined,
-            minutes = me.getToMinuteField() ? me.getToMinuteField().getValue() : undefined;
+            date = me.getToDateField() ? Ext.clone(me.getToDateField().getValue()) : undefined,
+            hours = me.getToHourField() ? Ext.clone(me.getToHourField().getValue()) : undefined,
+            minutes = me.getToMinuteField() ? Ext.clone(me.getToMinuteField().getValue()) : undefined;
 
         return me.createDateFromValues(date, hours, minutes);
     },
@@ -467,6 +474,27 @@ Ext.define('Uni.grid.filtertop.Interval', {
         }
 
         return undefined;
+    },
+
+    updateClearButton: function() {
+        var me = this,
+            currentFromDate = me.getFromDateValue(),
+            currentToDate = me.getToDateValue();
+
+        if ( ( (Ext.isEmpty(me.originalDefaultFromDate) && Ext.isEmpty(currentFromDate))
+                ||
+                (!Ext.isEmpty(me.originalDefaultFromDate) && !Ext.isEmpty(currentFromDate) && me.originalDefaultFromDate.getTime() === currentFromDate)
+            )
+            &&
+            ( (Ext.isEmpty(me.originalDefaultToDate) && Ext.isEmpty(currentToDate))
+                ||
+                (!Ext.isEmpty(me.originalDefaultToDate) && !Ext.isEmpty(currentToDate) && me.originalDefaultToDate.getTime() === currentToDate)
+            )
+        ) {
+            me.getClearButton().setDisabled(true);
+        } else {
+            me.getClearButton().setDisabled(false);
+        }
     },
 
     getChooseIntervalButton: function () {

@@ -55,7 +55,6 @@ Ext.define('Uni.view.search.field.Selection', {
     xtype: 'uni-search-criteria-selection',
     store: null,
     minWidth: 300,
-    selType: 'checkboxmodel',
     setValue: function (value) {
         var me = this,
             store = me.getStore(),
@@ -266,7 +265,7 @@ Ext.define('Uni.view.search.field.Selection', {
             },
             selModel: {
                 store: me.store,
-                selType: me.selType,
+                selType: me.multiSelect ? 'checkboxmodel' : 'rowmodel',
                 mode: me.multiSelect ? 'SIMPLE' : 'SINGLE',
                 allowDeselect: true,
                 toggleUiHeader: function (isChecked) {
@@ -336,7 +335,10 @@ Ext.define('Uni.view.search.field.Selection', {
 
         model.deselectAll(true);
         model.select(me.getStoreRecords(), false, true);
-        model.updateHeaderState();
+
+        if (me.multiSelect) {
+            model.updateHeaderState();
+        }
 
         me.down('#select-all').setDisabled(!count);
 
