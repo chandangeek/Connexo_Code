@@ -34,7 +34,7 @@ Ext.define('Idc.view.TimelineList', {
                     '<p><a href="javascript:void(0);" class="clickable">{processId}</a> - {contentText} {status}</p>',
                 '<tpl else>',
                     '<p><tpl for="contentText">',
-                    '{.}</br>',
+                    '{.:htmlEncode}</br>',
                     '</tpl></p>',
                 '</tpl>',
                 '</tpl>',
