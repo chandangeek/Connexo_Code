@@ -9,6 +9,7 @@ Ext.define('MdmApp.Application', {
         'Imt.privileges.UsagePoint',
         'Imt.privileges.ServiceCategory',
         'Imt.privileges.MetrologyConfig',
+        'Imt.privileges.UsagePointLifeCycle',
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
         'Fim.privileges.DataImport',
