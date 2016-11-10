@@ -9,6 +9,7 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
+import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
@@ -28,6 +29,9 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -73,6 +77,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
+    private volatile UpgradeService upgradeService;
+    private volatile UserService userService;
 
     @SuppressWarnings("unused")
     public UsagePointDataServiceImpl() {
@@ -86,7 +92,9 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                                      ValidationService validationService,
                                      NlsService nlsService,
                                      CustomPropertySetService customPropertySetService,
-                                     UsagePointConfigurationService usagePointConfigurationService) {
+                                     UsagePointConfigurationService usagePointConfigurationService,
+                                     UpgradeService upgradeService,
+                                     UserService userService) {
         setClock(clock);
         setOrmService(ormService);
         setMeteringService(meteringService);
@@ -94,6 +102,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         setNlsService(nlsService);
         setCustomPropertySetService(customPropertySetService);
         setUsagePointConfigurationService(usagePointConfigurationService);
+        setUpgradeService(upgradeService);
+        setUserService(userService);
         activate();
     }
 
@@ -109,6 +119,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 bind(UsagePointDataService.class).toInstance(UsagePointDataServiceImpl.this);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(UserService.class).toInstance(userService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
             }
         };
@@ -117,6 +129,12 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     @Activate
     public void activate() {
         dataModel.register(getModule());
+        upgradeService.register(
+                InstallIdentifier.identifier("Insight", getComponentName()),
+                dataModel,
+                UsagePointDataInstaller.class,
+                Collections.emptyMap()
+        );
     }
 
     @Reference
@@ -154,6 +172,16 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public String getComponentName() {
         return UsagePointDataService.COMPONENT_NAME;
@@ -168,6 +196,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         Collections.addAll(keys, ChannelDataValidationSummaryFlag.values());
+        Collections.addAll(keys, Privileges.values());
         return keys;
     }
 

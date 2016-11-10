@@ -27,6 +27,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -103,6 +105,10 @@ public class UsagePointDataServiceImplTest {
     @Mock
     private UsagePointConfigurationService usagePointConfigurationService;
     @Mock
+    private UpgradeService upgradeService;
+    @Mock
+    private UserService userService;
+    @Mock
     private UsagePoint usagePoint;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
@@ -146,7 +152,7 @@ public class UsagePointDataServiceImplTest {
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
         usagePointDataService = new UsagePointDataServiceImpl(clock, ormService, meteringService, validationService,
-                nlsService, customPropertySetService, usagePointConfigurationService);
+                nlsService, customPropertySetService, usagePointConfigurationService, upgradeService, userService);
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);
