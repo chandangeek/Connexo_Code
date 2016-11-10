@@ -132,6 +132,44 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
+    String getUserAssigneeCondition() {
+        StringBuilder builder = new StringBuilder();
+        for (Long id : getFilter().getUserAssignees()) {
+            if (builder.length() != 0) {
+                builder.append(" OR ");
+            }
+            if(id < 0){
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" is ").append("null");
+            }else {
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" = '").append(id).append("'");
+            }
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
+    String getWorkGroupCondition() {
+        StringBuilder builder = new StringBuilder();
+        for (Long id : getFilter().getWorkGroupAssignees()) {
+            if (builder.length() != 0) {
+                builder.append(" OR ");
+            }
+            if(id < 0) {
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" is ").append("null");
+            }else {
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID).append(" = '").append(id).append("'");
+            }
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
     String getMeterCondition() {
         if (getFilter().getMeterMrid() != null) {
             StringBuilder builder = new StringBuilder();
