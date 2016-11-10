@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.security;
 import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
     //Resources
@@ -63,8 +62,7 @@ public enum Privileges implements TranslationKey {
     public static String[] keys() {
         return Arrays.stream(Privileges.values())
                 .map(Privileges::getKey)
-                .collect(Collectors.toList())
-                .toArray(new String[Privileges.values().length]);
+                .toArray(String[]::new);
     }
 
     public interface Constants {

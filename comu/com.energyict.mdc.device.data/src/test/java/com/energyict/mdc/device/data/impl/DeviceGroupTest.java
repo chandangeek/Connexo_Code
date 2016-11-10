@@ -5,7 +5,6 @@ import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
@@ -53,13 +52,12 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
         device2.save();
         Device device3 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME3, Instant.now());
         device3.save();
-        EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder builder = inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup();
-
-        builder.setName(QUERY_EDG_NAME);
-        builder.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
-        builder.setSearchDomain(inMemoryPersistence.getDeviceSearchDomain());
-        builder.withConditions(buildSearchablePropertyCondition("name", SearchablePropertyOperator.EQUAL, Collections.singletonList("devicename*")));
-        builder.create();
+        inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup()
+                .setName(QUERY_EDG_NAME)
+                .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_END_DEVICE_QUERY_PROVIDER)
+                .setSearchDomain(inMemoryPersistence.getDeviceSearchDomain())
+                .withConditions(buildSearchablePropertyCondition("name", SearchablePropertyOperator.EQUAL, Collections.singletonList("devicename*")))
+                .create();
 
         //Business method
         Optional<EndDeviceGroup> found = inMemoryPersistence.getMeteringGroupsService().findEndDeviceGroupByName(QUERY_EDG_NAME);
@@ -118,7 +116,7 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
                 .setMRID("mine")
                 .setName("mine")
                 .setSearchDomain(inMemoryPersistence.getDeviceSearchDomain())
-                .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_END_DEVICE_QUERY_PROVIDER)
                 .create();
 
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = kpiService.newDataCollectionKpi(queryEndDeviceGroup);
