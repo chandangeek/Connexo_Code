@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Uni.store.GasDayYearStart'
     ],
 
     views: [
@@ -180,34 +181,51 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 me.getApplication().fireEvent('loadDevice', device);
                 channel.getProxy().setUrl(mRID);
                 channel.load(channelId, {
-                    success: function (channel) {
-                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
-                        var widget = Ext.widget('tabbedDeviceChannelsView', {
-                            title: channel.get('readingType').fullAliasName,
-                            router: router,
-                            channel: channel,
-                            device: device,
-                            contentName: contentName,
-                            indexLocation: indexLocation,
-                            prevNextListLink: prevNextListLink,
-                            activeTab: activeTab,
-                            prevNextstore: prevNextstore,
-                            routerIdArgument: routerIdArgument,
-                            isFullTotalCount: isFullTotalCount,
-                            filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {},
-                            mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                            dataLoggerSlaveHistoryStore: slaveHistoryStore
-                        });
-
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        viewport.setLoading(false);
-                        if (activeTab == 1) {
-                            me.setupReadingsTab(device, channel, widget);
-                        } else if (activeTab == 0) {
-                            me.setupSpecificationsTab(device, channel, widget);
-                        }
+                    scope: me,
+                    success: function(channel) {
+                        onChannelLoad(channel, device);
                     }
                 });
+            },
+            onChannelLoad = function(channel, device) {
+                if (channel.get('readingType').isGasRelated) {
+                    var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
+                    yearStartStore.on('load',
+                        function(store, records) {
+                            onChannelLoad2(channel, device, records[0]);
+                        },
+                        me, {single: true});
+                    yearStartStore.load();
+                } else {
+                    onChannelLoad2(channel, device);
+                }
+            },
+            onChannelLoad2 = function(channel, device, gasDayYearStart) {
+                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
+                var widget = Ext.widget('tabbedDeviceChannelsView', {
+                    title: channel.get('readingType').fullAliasName,
+                    router: router,
+                    channel: channel,
+                    device: device,
+                    contentName: contentName,
+                    indexLocation: indexLocation,
+                    prevNextListLink: prevNextListLink,
+                    activeTab: activeTab,
+                    prevNextstore: prevNextstore,
+                    routerIdArgument: routerIdArgument,
+                    isFullTotalCount: isFullTotalCount,
+                    filterDefault: activeTab === 1 ? me.getDataFilter(channel, contentName, gasDayYearStart, router) : {},
+                    mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                    dataLoggerSlaveHistoryStore: slaveHistoryStore
+                });
+
+                me.getApplication().fireEvent('changecontentevent', widget);
+                viewport.setLoading(false);
+                if (activeTab == 1) {
+                    me.setupReadingsTab(device, channel, widget);
+                } else if (activeTab == 0) {
+                    me.setupSpecificationsTab(device, channel, widget);
+                }
             };
 
         viewport.setLoading(true);
@@ -271,7 +289,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     makeLinkToChannels: function (router) {
         var link = '<a href="{0}">' + Uni.I18n.translate('general.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
-            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter')
+            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter');
         return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl()+ '?'+ filter);
     },
 
@@ -280,7 +298,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         return Ext.String.format(link, router.getRoute('workspace/datavalidationissues/view').buildUrl({issueId: issueId}));
     },
 
-    setDataFilter: function (channel, contentName, router) {
+    getDataFilter: function (channel, contentName, gasDayYearStart, router) {
         var me = this,
             intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
             dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
@@ -305,7 +323,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 value: 'nonSuspect',
                 itemId: 'devicechannels-topfilter-notsuspect'
             });
-            filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date()));
+            if (Ext.isEmpty(channel.get('lastReading'))) {
+                var fromDate = moment().startOf('day');
+                if (!Ext.isEmpty(gasDayYearStart)) {
+                    fromDate.add(gasDayYearStart.get('hours'), 'hours')
+                        .add(gasDayYearStart.get('minutes'), 'minutes');
+                }
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( fromDate.toDate() );
+            } else {
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( channel.get('lastReading') );
+            }
         }
         filter.duration = all.count + all.timeUnit;
         filter.durationStore = durationsStore;
