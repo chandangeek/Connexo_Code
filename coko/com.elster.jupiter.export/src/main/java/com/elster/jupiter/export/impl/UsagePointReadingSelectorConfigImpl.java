@@ -8,9 +8,8 @@ import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
@@ -77,8 +76,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                 .map(DefaultSelectorOccurrence::getExportedDataInterval)
                 .orElse(Range.all());
         return decorate(getUsagePointGroup().getMembers(exportInterval).stream())
-                .map(UsagePointMembership::getUsagePoint)
-                .filterSubType(UsagePoint.class)
+                .map(Membership::getMember)
                 .flatMap(usagePoint -> usagePoint.getEffectiveMetrologyConfigurations(exportInterval).stream())
                 .flatMap(effectiveMetrologyConfiguration ->
                         effectiveMetrologyConfiguration.getMetrologyConfiguration().getContracts().stream()

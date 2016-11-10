@@ -8,6 +8,8 @@ import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
+import com.elster.jupiter.metering.groups.EventType;
+import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -49,10 +51,8 @@ public class UsagePointGroupDeletionVetoEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        // TODO: complete when usage point deletion event is available
-//        EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
-//        UsagePointGroup usagePointGroup = eventSource.getUsagePointGroup();
-        UsagePointGroup usagePointGroup = null;
+        GroupEventData eventSource = (GroupEventData) localEvent.getSource();
+        UsagePointGroup usagePointGroup = (UsagePointGroup) eventSource.getGroup();
         List<? extends ExportTask> tasks = dataExportService.findExportTasks().find();
 
         tasks.stream()
@@ -69,8 +69,7 @@ public class UsagePointGroupDeletionVetoEventHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return "com/elster/jupiter/metering/groups/usagepointgroup/VALIDATE_DELETE";
-        //return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
+        return EventType.USAGEPOINTGROUP_VALIDATE_DELETED.topic();
     }
 
     private static class UsagePointGroupGetter implements DataSelectorConfig.DataSelectorConfigVisitor {

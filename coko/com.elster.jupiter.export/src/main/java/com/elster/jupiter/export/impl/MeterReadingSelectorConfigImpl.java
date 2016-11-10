@@ -10,7 +10,7 @@ import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
@@ -98,7 +98,7 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
                         .orElse(Range.all()))
                 .stream())
-                .map(EndDeviceMembership::getEndDevice)
+                .map(Membership::getMember)
                 .filterSubType(Meter.class)
                 .flatMap(super::readingTypeDataExportItems)
                 .collect(Collectors.toCollection(LinkedHashSet::new));

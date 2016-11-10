@@ -2,8 +2,8 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
@@ -53,7 +53,7 @@ class UsagePointReadingSelector extends AbstractDataSelector {
         boolean hasMismatchedUsagePoints = decorate(getUsagePointGroup()
                 .getMembers(range)
                 .stream())
-                .map(UsagePointMembership::getUsagePoint)
+                .map(Membership::getMember)
                 .flatMap(usagePoint -> usagePoint.getEffectiveMetrologyConfigurations(range).stream())
                 .flatMap(effectiveMC ->
                         effectiveMC.getMetrologyConfiguration().getContracts().stream()

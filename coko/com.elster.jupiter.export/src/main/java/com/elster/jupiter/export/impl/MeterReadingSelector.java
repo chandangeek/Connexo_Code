@@ -4,7 +4,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
@@ -53,7 +53,7 @@ class MeterReadingSelector extends AbstractDataSelector {
         boolean hasMismatchedMeters = decorate(getEndDeviceGroup()
                 .getMembers(range)
                 .stream())
-                .map(EndDeviceMembership::getEndDevice)
+                .map(Membership::getMember)
                 .filterSubType(Meter.class)
                 .anyMatch(meter -> meter.getReadingTypes(range)
                         .stream()

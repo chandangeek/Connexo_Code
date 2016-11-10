@@ -18,8 +18,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -136,7 +136,7 @@ public class UsagePointReadingDataSelectorImplTest {
         when(occurrence.getTask()).thenReturn(task);
         doReturn(EXPORT_INTERVAL).when((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
 
-        List<UsagePointMembership> memberships = Arrays.asList(mockUsagePointMember(usagePoint1), mockUsagePointMember(usagePoint2));
+        List<Membership<UsagePoint>> memberships = Arrays.asList(mockUsagePointMember(usagePoint1), mockUsagePointMember(usagePoint2));
         when(usagePointGroup.getMembers(EXPORT_INTERVAL)).thenReturn(memberships);
         when(usagePointGroup.getName()).thenReturn(USAGE_POINT_GROUP_NAME);
 
@@ -159,9 +159,9 @@ public class UsagePointReadingDataSelectorImplTest {
         });
     }
 
-    private UsagePointMembership mockUsagePointMember(UsagePoint usagePoint) {
-        UsagePointMembership membership = mock(UsagePointMembership.class);
-        when(membership.getUsagePoint()).thenReturn(usagePoint);
+    private Membership<UsagePoint> mockUsagePointMember(UsagePoint usagePoint) {
+        Membership<UsagePoint> membership = mock(Membership.class);
+        when(membership.getMember()).thenReturn(usagePoint);
         return membership;
     }
 
