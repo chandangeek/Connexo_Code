@@ -18,11 +18,11 @@ public class AssigneeFilterListInfo {
     }
 
     public AssigneeFilterListInfo(List<User> userList) {
-        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo("USER", user.getId(), user.getName())).collect(Collectors.toList()));
+        data.addAll(userList.stream().sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase())).map(user -> new IssueAssigneeInfo("USER", user.getId(), user.getName())).collect(Collectors.toList()));
     }
 
     public AssigneeFilterListInfo addData(List<User> userList) {
-        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo("USER", user.getId(), user.getName())).collect(Collectors.toList()));
+        data.addAll(userList.stream().sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase())).map(user -> new IssueAssigneeInfo("USER", user.getId(), user.getName())).collect(Collectors.toList()));
         return this;
     }
 
