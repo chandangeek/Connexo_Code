@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.impl.module;
 
-import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
-import com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
@@ -26,8 +24,6 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
     ACTION_RETRY("ActionRetry", "Retry"),
-    ASSIGNACTION_PROPERTY_ASSIGNEE(AssignIssueAction.ASSIGNEE, "Assignee"),
-    ASSIGNEACTION_PROPERTY_COMMENT(AssignIssueAction.COMMENT, "Comment"),
     COMMENTACTION_PROPERTY_COMMENT(CommentIssueAction.ISSUE_COMMENT, "Comment"),
     UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned"),
     SUBSCRIBER_NAME(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME);
