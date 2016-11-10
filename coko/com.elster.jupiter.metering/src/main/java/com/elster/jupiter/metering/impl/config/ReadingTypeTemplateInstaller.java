@@ -297,16 +297,17 @@ public class ReadingTypeTemplateInstaller {
                 .done();
     }
 
-    private static class Template {
+    //for internal use
+    public static class Template {
 
         private final ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter setter;
 
-        Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate defaultTemplate) {
+        public Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate defaultTemplate) {
             this.setter = metrologyConfigurationService.createReadingTypeTemplate(defaultTemplate);
         }
 
         @SafeVarargs
-        final <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {
+        public final <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {
             if (values != null && values.length > 0) {
                 Integer[] possibleValues = new Integer[values.length];
                 for (int i = 0; i < values.length; i++) {
@@ -317,7 +318,7 @@ public class ReadingTypeTemplateInstaller {
             return this;
         }
 
-        void done() {
+        public void done() {
             this.setter.done();
         }
     }
