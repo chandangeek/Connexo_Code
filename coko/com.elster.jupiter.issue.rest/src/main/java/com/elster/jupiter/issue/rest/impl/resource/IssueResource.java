@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.impl.records.IssueImpl;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
@@ -213,6 +212,8 @@ public class IssueResource extends BaseResource {
                 .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
                 .setAscOrder(false) // Sorting (descending direction)
                 .from(params.getFrom()).to(params.getTo()); // Pagination
+        filter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(Long::valueOf).forEach(groupFilter::withUserAssignee);
+        filter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(Long::valueOf).forEach(groupFilter::withWorkGroupAssignee);
         issueResourceHelper.getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
