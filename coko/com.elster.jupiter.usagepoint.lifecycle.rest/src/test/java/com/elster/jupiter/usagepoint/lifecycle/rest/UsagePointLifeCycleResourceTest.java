@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleRemoveException;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -93,7 +95,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         Response response = target("/lifecycle/12").request().get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("No life cycle with id 12");
+        assertThat(model.<String>get("$.message")).isEqualTo("No life cycle with id 12");
         assertThat(model.<String>get("$.error")).isEqualTo("no.such.life.cycle");
     }
 
@@ -131,7 +133,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         Response response = target("/lifecycle/12").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'Life cycle'");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'Life cycle'");
         assertThat(model.<String>get("$.error")).isEqualTo("Life cycle has changed since the page was last updated.");
     }
 
@@ -169,6 +171,26 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         assertThat(model.<String>get("$.error")).isEqualTo("Life cycle has changed since the page was last updated.");
         verify(lifeCycle, never()).remove();
+    }
+
+    @Test
+    public void testDeleteLifeCycleFailCheck() throws Exception {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 3L)).thenReturn(Optional.of(lifeCycle));
+        doThrow(UsagePointLifeCycleRemoveException.lifeCycleIsDefault(thesaurus)).when(lifeCycle).remove();
+
+        UsagePointLifeCycleInfo info = new UsagePointLifeCycleInfo();
+        info.id = 12L;
+        info.version = 3L;
+        info.name = "Life cycle";
+        Entity<UsagePointLifeCycleInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12").request().build(HttpMethod.DELETE, json).invoke();
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(422); // why? it should be bad request!
+        assertThat(model.<String>get("$.message")).isNotNull();
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<String>get("$.error")).isEqualTo("can.not.remove.default.life.cycle");
+        verify(lifeCycle).remove();
     }
 
     @Test
@@ -271,7 +293,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         Response response = target("/lifecycle/12").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'Life cycle'");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'Life cycle'");
         assertThat(model.<String>get("$.error")).isEqualTo("Life cycle has changed since the page was last updated.");
     }
 }

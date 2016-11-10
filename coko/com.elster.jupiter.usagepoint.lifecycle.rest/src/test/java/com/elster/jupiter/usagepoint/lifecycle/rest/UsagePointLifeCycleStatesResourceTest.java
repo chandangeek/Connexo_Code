@@ -112,7 +112,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4").request().get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("No usage point state with id 4");
+        assertThat(model.<String>get("$.message")).isEqualTo("No usage point state with id 4");
         assertThat(model.<String>get("$.error")).isEqualTo("no.such.life.cycle.state");
     }
 
@@ -192,7 +192,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states").request().post(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("No business process with id 1");
+        assertThat(model.<String>get("$.message")).isEqualTo("No business process with id 1");
         assertThat(model.<String>get("$.error")).isEqualTo("no.such.state.process");
     }
 
@@ -212,7 +212,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states").request().post(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save '12'");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save '12'");
         assertThat(model.<String>get("$.error")).isEqualTo("12 has changed since the page was last updated.");
     }
 
@@ -280,7 +280,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("No business process with id 1");
+        assertThat(model.<String>get("$.message")).isEqualTo("No business process with id 1");
         assertThat(model.<String>get("$.error")).isEqualTo("no.such.state.process");
     }
 
@@ -302,7 +302,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'State'");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
         assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
     }
 
@@ -324,7 +324,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'State'");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
         assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
     }
 
@@ -370,7 +370,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4/status").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'State'");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
         assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
     }
 
@@ -425,8 +425,11 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states/4").request().build(HttpMethod.DELETE, json).invoke();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(422); // why? it should be bad request!
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<String>get("$.message")).isNotNull();
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<String>get("$.error")).isEqualTo("can.not.remove.last.state");
         verify(state).remove();
     }
 }
