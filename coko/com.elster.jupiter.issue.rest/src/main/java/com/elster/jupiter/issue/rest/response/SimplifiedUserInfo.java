@@ -22,4 +22,9 @@ public class SimplifiedUserInfo {
         active = user.getStatus();
         domain = user.getDomain();
     }
+
+    public SimplifiedUserInfo(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

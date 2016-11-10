@@ -64,6 +64,7 @@ public class WorkGroupsResource extends BaseResource {
                     .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
                     .map(SimplifiedUserInfo::new)
                     .collect(Collectors.toList());
+            users.add(0, new SimplifiedUserInfo(-1L, getThesaurus().getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format()));
             return PagedInfoList.fromPagedList("data", users, queryParameters);
         }else {
             WorkGroup workGroup = getUserService().getWorkGroup(id)
@@ -73,6 +74,7 @@ public class WorkGroupsResource extends BaseResource {
                     .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
                     .map(SimplifiedUserInfo::new)
                     .collect(Collectors.toList());
+            users.add(0, new SimplifiedUserInfo(-1L, getThesaurus().getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format()));
             return PagedInfoList.fromPagedList("data", users, queryParameters);
         }
     }
