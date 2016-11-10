@@ -67,7 +67,7 @@ public class UsagePointLifeCycleResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleInfo newLifeCycle(UsagePointLifeCycleInfo lifeCycleInfo) {
         UsagePointLifeCycle lifeCycle = this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(lifeCycleInfo.name);
-        return this.lifeCycleInfoFactory.fullInfo(lifeCycle);
+        return this.lifeCycleInfoFactory.from(lifeCycle);
     }
 
     @GET
@@ -75,7 +75,7 @@ public class UsagePointLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleInfo getLifeCycleById(@PathParam("lid") long lifeCycleId) {
-        return this.lifeCycleInfoFactory.fullInfo(this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId));
+        return this.lifeCycleInfoFactory.from(this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId));
     }
 
     @DELETE
@@ -100,7 +100,7 @@ public class UsagePointLifeCycleResource {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(lifeCycleInfo);
         lifeCycle.setName(lifeCycleInfo.name);
         lifeCycle.save();
-        return this.lifeCycleInfoFactory.fullInfo(lifeCycle);
+        return this.lifeCycleInfoFactory.from(lifeCycle);
     }
 
     @PUT
@@ -112,7 +112,7 @@ public class UsagePointLifeCycleResource {
     public UsagePointLifeCycleInfo setLifeCycleDefault(UsagePointLifeCycleInfo lifeCycleInfo) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(lifeCycleInfo);
         lifeCycle.markAsDefault();
-        return this.lifeCycleInfoFactory.fullInfo(lifeCycle);
+        return this.lifeCycleInfoFactory.from(lifeCycle);
     }
 
     @POST
@@ -123,7 +123,7 @@ public class UsagePointLifeCycleResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleInfo cloneLifeCycle(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleInfo lifeCycleInfo) {
         UsagePointLifeCycle source = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
-        return this.lifeCycleInfoFactory.fullInfo(this.usagePointLifeCycleConfigurationService.cloneUsagePointLifeCycle(lifeCycleInfo.name, source));
+        return this.lifeCycleInfoFactory.from(this.usagePointLifeCycleConfigurationService.cloneUsagePointLifeCycle(lifeCycleInfo.name, source));
     }
 
     @Path("{lid}/states")

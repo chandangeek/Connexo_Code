@@ -6,9 +6,11 @@ import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointStateRemoveException;
 
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -23,7 +25,10 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleApplicationTest {
@@ -250,6 +255,9 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<Number>get("$.onExit[0].id")).isEqualTo(2);
         assertThat(model.<Number>get("$.parent.id")).isEqualTo(12);
         assertThat(model.<Number>get("$.parent.version")).isEqualTo(4);
+        verify(builder).setName("State changed");
+        verify(builder).onEntry(onEntryProcess);
+        verify(builder).onExit(onExitProcess);
     }
 
     @Test
@@ -318,5 +326,107 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'State'");
         assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
+    }
+
+    @Test
+    public void testSetInitialState() throws Exception {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
+
+        UsagePointState.UsagePointStateUpdater builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateUpdater.class, UsagePointState.UsagePointStateCreator.class);
+        when(state.startUpdate()).thenReturn(builder);
+        when(state.getId()).thenReturn(4L);
+        when(state.getName()).thenReturn("State");
+        when(state.isInitial()).thenReturn(true);
+        when(state.getVersion()).thenReturn(3L);
+
+        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
+        info.id = 4L;
+        info.name = "State";
+        info.version = 3L;
+        info.parent = new VersionInfo<>(12L, 4L);
+        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12/states/4/status").request().put(json);
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.id")).isEqualTo(4);
+        assertThat(model.<Boolean>get("$.isInitial")).isEqualTo(true);
+        verify(builder).setInitial();
+    }
+
+    @Test
+    public void testSetInitialStateConcurrent() throws Exception {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 2L)).thenReturn(Optional.empty());
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
+
+        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
+        info.id = 4L;
+        info.name = "State";
+        info.version = 2L;
+        info.parent = new VersionInfo<>(12L, 4L);
+        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12/states/4/status").request().put(json);
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        assertThat(model.<Number>get("$.message")).isEqualTo("Failed to save 'State'");
+        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
+    }
+
+    @Test
+    public void testRemoveState() {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
+
+        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
+        info.id = 4L;
+        info.name = "State";
+        info.version = 3L;
+        info.parent = new VersionInfo<>(12L, 4L);
+        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12/states/4").request().build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(state).remove();
+    }
+
+    @Test
+    public void testRemoveStateConcurrent() throws Exception {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.empty());
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
+
+        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
+        info.id = 4L;
+        info.name = "State";
+        info.version = 3L;
+        info.parent = new VersionInfo<>(12L, 4L);
+        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12/states/4").request().build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
+        verify(state, never()).remove();
+    }
+
+    @Test
+    public void testRemoveStateFailCheck() throws Exception {
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
+        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
+        doThrow(UsagePointStateRemoveException.stateIsTheLastState(thesaurus)).when(state).remove();
+
+        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
+        info.id = 4L;
+        info.name = "State";
+        info.version = 3L;
+        info.parent = new VersionInfo<>(12L, 4L);
+        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
+
+        Response response = target("/lifecycle/12/states/4").request().build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        verify(state).remove();
     }
 }

@@ -1,8 +1,8 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UsagePointLifeCycleInfo {
@@ -12,4 +12,5 @@ public class UsagePointLifeCycleInfo {
     public boolean isDefault;
     public boolean obsolete;
     public List<UsagePointLifeCycleStateInfo> states;
+    public int transitionsCount;
 }

@@ -17,6 +17,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -24,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,7 +67,7 @@ public class UsagePointLifeCycleStatesResource {
     @GET
     @Path("/processes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public PagedInfoList getAllProcesses(@BeanParam JsonQueryParameters queryParams) {
         List<BusinessProcessInfo> processes = this.finiteStateMachineService.findStateChangeBusinessProcesses().stream()
                 .map(this.bpmFactory::from).collect(Collectors.toList());
@@ -77,7 +79,7 @@ public class UsagePointLifeCycleStatesResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public UsagePointLifeCycleStateInfo newState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
+    public UsagePointLifeCycleStateInfo newState(UsagePointLifeCycleStateInfo stateInfo) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(stateInfo.parent);
         UsagePointState.UsagePointStateCreator builder = lifeCycle.newState(stateInfo.name);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
@@ -91,7 +93,7 @@ public class UsagePointLifeCycleStatesResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public UsagePointLifeCycleStateInfo editState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
+    public UsagePointLifeCycleStateInfo editState(UsagePointLifeCycleStateInfo stateInfo) {
         UsagePointState state = this.resourceHelper.lockState(stateInfo);
         UsagePointState.UsagePointStateUpdater builder = state.startUpdate().setName(stateInfo.name);
         state.getOnEntryProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess).forEach(builder::removeOnEntry);
@@ -99,5 +101,28 @@ public class UsagePointLifeCycleStatesResource {
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
         stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onExit);
         return this.stateInfoFactory.fullInfo(builder.complete());
+    }
+
+    @PUT
+    @Path("/{sid}/status")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public UsagePointLifeCycleStateInfo setInitialState(UsagePointLifeCycleStateInfo stateInfo) {
+        UsagePointState state = this.resourceHelper.lockState(stateInfo);
+        state = state.startUpdate().setInitial().complete();
+        return this.stateInfoFactory.fullInfo(state);
+    }
+
+    @DELETE
+    @Path("/{sid}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public Response removeState(UsagePointLifeCycleStateInfo stateInfo) {
+        this.resourceHelper.lockState(stateInfo).remove();
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

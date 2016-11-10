@@ -23,6 +23,8 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicationTest {
@@ -145,6 +147,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
 
         Response response = target("/lifecycle/12").request().build(HttpMethod.DELETE, json).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(lifeCycle).remove();
     }
 
     @Test
@@ -165,6 +168,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         assertThat(model.<String>get("$.error")).isEqualTo("Life cycle has changed since the page was last updated.");
+        verify(lifeCycle, never()).remove();
     }
 
     @Test

@@ -20,12 +20,8 @@ public class UsagePointLifeCycleInfoFactory {
         info.version = lifeCycle.getVersion();
         info.obsolete = lifeCycle.isObsolete();
         info.isDefault = lifeCycle.isDefault();
-        return info;
-    }
-
-    public UsagePointLifeCycleInfo fullInfo(UsagePointLifeCycle lifeCycle) {
-        UsagePointLifeCycleInfo info = from(lifeCycle);
         info.states = lifeCycle.getStates().stream().map(this.stateInfoFactory::from).collect(Collectors.toList());
+        info.transitionsCount = lifeCycle.getTransitions().size();
         return info;
     }
 }
