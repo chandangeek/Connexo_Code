@@ -105,6 +105,8 @@ public class AssigneeResource extends BaseResource {
         }
         Query<User> query = getUserService().getUserQuery();
         List<User> list = query.select(condition, Order.ascending("authenticationName"));
-        return Response.ok(new AssigneeFilterListInfo(list)).build();
+        AssigneeFilterListInfo userInfo = new AssigneeFilterListInfo(list);
+        userInfo.getData().add(0, new IssueAssigneeInfo("USER", -1L, getThesaurus().getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format()));
+        return Response.ok(userInfo).build();
     }
 }
