@@ -30,6 +30,10 @@ public class AssigneeFilterListInfo {
         return Collections.unmodifiableList(data);
     }
 
+    public void addUnassign(IssueAssigneeInfo issueAssigneeInfo){
+        data.add(0, issueAssigneeInfo);
+    }
+
     public long getTotal() {
         return data.size();
     }
