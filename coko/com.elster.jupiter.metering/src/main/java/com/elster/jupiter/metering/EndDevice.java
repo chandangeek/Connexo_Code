@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public interface EndDevice extends IdentifiedObject, HasId {
+public interface EndDevice extends HasId, IdentifiedObject {
     String TYPE_IDENTIFIER = "E";
 
     String getSerialNumber();
