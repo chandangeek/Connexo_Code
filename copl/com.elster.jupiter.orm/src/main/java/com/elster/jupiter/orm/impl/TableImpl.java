@@ -396,6 +396,20 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
+    DataMapperImpl<? extends T> getDataMapper(List<Class<?>> apiFragments) {
+        if (getMapperType().getInjector() == null) {
+            throw new IllegalStateException("Datamodel not registered");
+        }
+        return getMapperType().streamImplementations(apiFragments)
+                .unordered()
+                .limit(2)
+                .reduce((imp1, imp2) -> api)
+                .map(resultApi -> new DataMapperImpl<>(resultApi, this))
+                .orElseThrow(() -> new IllegalArgumentException("Table " + getName()
+                        + " does not map any implementation extending all of the classes: "
+                        + apiFragments.stream().map(Class::toString).collect(Collectors.joining(", "))));
+    }
+
     <S extends T> QueryExecutorImpl<S> getQuery(Class<S> type) {
         List<TableImpl<?>> related = new ArrayList<>();
         addAllRelated(related);
