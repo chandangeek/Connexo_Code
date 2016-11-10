@@ -212,8 +212,8 @@ public class IssueResource extends BaseResource {
                 .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
                 .setAscOrder(false) // Sorting (descending direction)
                 .from(params.getFrom()).to(params.getTo()); // Pagination
-        filter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(Long::valueOf).forEach(groupFilter::withUserAssignee);
-        filter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(Long::valueOf).forEach(groupFilter::withWorkGroupAssignee);
+        filter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().filter(el -> el != null).forEach(groupFilter::withUserAssignee);
+        filter.getLongList(IssueRestModuleConst.WORKGROUP).stream().filter(el -> el != null).forEach(groupFilter::withWorkGroupAssignee);
         issueResourceHelper.getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
