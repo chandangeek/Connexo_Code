@@ -7,9 +7,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.cim.impl.EnumeratedReadingTypeFilter;
 import com.elster.jupiter.metering.cim.impl.MeterReadingsGenerator;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.UsagePointMembership;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
@@ -104,21 +103,24 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
         }
     }
 
-    private void addForEndDeviceGroup(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.groups.EndDeviceGroup endDeviceGroup, Range<Instant> range) {
-        for (EndDeviceMembership membership : endDeviceGroup.getMembers(range)) {
-            addForMembership(meterReadingsPayloadType, membership);
+    private void addForEndDeviceGroup(MeterReadingsPayloadType meterReadingsPayloadType,
+                                      EndDeviceGroup endDeviceGroup, Range<Instant> range) {
+        for (Membership<com.elster.jupiter.metering.EndDevice> membership : endDeviceGroup.getMembers(range)) {
+            addForEndDeviceMembership(meterReadingsPayloadType, membership);
         }
     }
 
-    private void addForMembership(MeterReadingsPayloadType meterReadingsPayloadType, UsagePointMembership membership) {
+    private void addForUsagePointMembership(MeterReadingsPayloadType meterReadingsPayloadType,
+                                            Membership<com.elster.jupiter.metering.UsagePoint> membership) {
         for (Range<Instant> subRange : membership.getRanges().asRanges()) {
-            addForUsagePoint(meterReadingsPayloadType, membership.getUsagePoint(), subRange);
+            addForUsagePoint(meterReadingsPayloadType, membership.getMember(), subRange);
         }
     }
 
-    private void addForMembership(MeterReadingsPayloadType meterReadingsPayloadType, EndDeviceMembership membership) {
+    private void addForEndDeviceMembership(MeterReadingsPayloadType meterReadingsPayloadType,
+                                           Membership<com.elster.jupiter.metering.EndDevice> membership) {
         for (Range<Instant> subRange : membership.getRanges().asRanges()) {
-            addForEndDevice(meterReadingsPayloadType, membership.getEndDevice(), subRange);
+            addForEndDevice(meterReadingsPayloadType, membership.getMember(), subRange);
         }
     }
 
@@ -174,9 +176,8 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     }
 
     private void addForUsagePointGroup(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.groups.UsagePointGroup usagePointGroup, Range<Instant> range) {
-        List<UsagePointMembership> memberships = usagePointGroup.getMembers(range);
-        for (UsagePointMembership membership : memberships) {
-            addForMembership(meterReadingsPayloadType, membership);
+        for (Membership<com.elster.jupiter.metering.UsagePoint> membership : usagePointGroup.getMembers(range)) {
+            addForUsagePointMembership(meterReadingsPayloadType, membership);
         }
     }
 
