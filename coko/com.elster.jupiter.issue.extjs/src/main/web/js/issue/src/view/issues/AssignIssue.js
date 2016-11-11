@@ -65,7 +65,7 @@ Ext.define('Isu.view.issues.AssignIssue', {
                         displayField: 'name',
                         allowBlank: false,
                         store: 'Isu.store.UserList',
-                        emptyText: Uni.I18n.translate('issues.startTypingForUsers', 'ISU', 'Start typing for user'),
+                        emptyText: Uni.I18n.translate('issues.startTypingForUsers', 'ISU', 'Start typing for users'),
                         msgTarget: 'under'
                     },
                     {
