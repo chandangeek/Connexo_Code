@@ -40,7 +40,7 @@ Ext.define('Isu.view.issues.AssignIssue', {
                         displayField: 'name',
                         allowBlank: false,
                         store: 'Isu.store.IssueWorkgroupAssignees',
-                        emptyText: Uni.I18n.translate('issues.startTypingForUsers', 'ISU', 'Start typing for workgroup'),
+                        emptyText: Uni.I18n.translate('issues.startTypingForWorkgroup', 'ISU', 'Start typing for workgroup'),
                         msgTarget: 'under',
                         listeners: {
                             render: function () {
