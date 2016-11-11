@@ -4,12 +4,12 @@ Ext.define('Imt.privileges.UsagePointGroup', {
     ],
     singleton: true,
     
-    view: ['privilege.administrate.usagePointGroup', 'privilege.administrate.usagePointEnumeratedGroup', 'privilege.view.usagePointGroupDetail'],
-    administrate: ['privilege.administrate.usagePointGroup'],
+    view: ['privilege.administer.usagePointGroup', 'privilege.administer.usagePointEnumeratedGroup', 'privilege.view.usagePointGroupDetail'],
+    administrate: ['privilege.administer.usagePointGroup'],
     viewGroupDetails : ['privilege.view.usagePointGroupDetail'],
-    administrateOrViewDetails: ['privilege.administrate.usagePointGroup', 'privilege.view.usagePointGroupDetail'],
-    administrateUsagePointOfEnumeratedGroup: ['privilege.administrate.usagePointEnumeratedGroup'],
-    administrateAnyOrStaticGroup: ['privilege.administrate.usagePointGroup', 'privilege.administrate.usagePointEnumeratedGroup'],
+    administrateOrViewDetails: ['privilege.administer.usagePointGroup', 'privilege.view.usagePointGroupDetail'],
+    administrateUsagePointOfEnumeratedGroup: ['privilege.administer.usagePointEnumeratedGroup'],
+    administrateAnyOrStaticGroup: ['privilege.administer.usagePointGroup', 'privilege.administer.usagePointEnumeratedGroup'],
 
     all: function () {
         return Ext.Array.merge(Imt.privileges.UsagePointGroup.view, Imt.privileges.UsagePointGroup.administrate);
