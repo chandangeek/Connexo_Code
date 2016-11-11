@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
+import com.elster.jupiter.metering.groups.GroupBuilder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -16,6 +17,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
@@ -34,6 +36,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -122,14 +125,21 @@ public class UsagePointGroupResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP)
-    public Response createUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo) {
+    public Response createUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo,
+                                          @QueryParam("validate") @DefaultValue("false") boolean onlyValidate) {
+        new RestValidationBuilder()
+                .notEmpty(usagePointGroupInfo.name, "name")
+                .notEmpty(usagePointGroupInfo.dynamic, "groupType")
+                .validate();
         UsagePointGroup usagePointGroup;
         if (usagePointGroupInfo.dynamic) {
-            usagePointGroup = createQueryUsagePointGroup(usagePointGroupInfo);
+            usagePointGroup = buildQueryUsagePointGroup(usagePointGroupInfo, onlyValidate);
         } else {
-            usagePointGroup = createEnumeratedUsagePointGroup(usagePointGroupInfo);
+            usagePointGroup = buildEnumeratedUsagePointGroup(usagePointGroupInfo, onlyValidate);
         }
-        return Response.status(Response.Status.CREATED).entity(usagePointGroupInfoFactory.from(usagePointGroup)).build();
+        return onlyValidate ?
+                Response.accepted().build() :
+                Response.status(Response.Status.CREATED).entity(usagePointGroupInfoFactory.from(usagePointGroup)).build();
     }
 
     @PUT
@@ -215,23 +225,31 @@ public class UsagePointGroupResource {
                 Condition.TRUE;
     }
 
-    private EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo) {
-        return meteringGroupsService.createEnumeratedUsagePointGroup(buildListOfUsagePoints(usagePointGroupInfo))
+    private EnumeratedUsagePointGroup buildEnumeratedUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo,
+                                                                     boolean onlyValidate) {
+        GroupBuilder.GroupCreator<? extends EnumeratedUsagePointGroup> creator = meteringGroupsService
+                .createEnumeratedUsagePointGroup(onlyValidate ?
+                        new UsagePoint[0] :
+                        buildListOfUsagePoints(usagePointGroupInfo))
                 .setName(usagePointGroupInfo.name)
                 .setLabel("MDM")
-                .setMRID("MDM:" + usagePointGroupInfo.name)
-                .create();
+                .setMRID("MDM:" + usagePointGroupInfo.name);
+        return onlyValidate ? creator.validate() : creator.create();
     }
 
-    private QueryUsagePointGroup createQueryUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo) {
+    private QueryUsagePointGroup buildQueryUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo,
+                                                           boolean onlyValidate) {
         SearchDomain usagePointSearchDomain = findUsagePointSearchDomainOrThrowException();
-        return meteringGroupsService.createQueryUsagePointGroup(buildSearchablePropertyConditions(usagePointGroupInfo))
+        GroupBuilder.GroupCreator<? extends QueryUsagePointGroup> creator = meteringGroupsService
+                .createQueryUsagePointGroup(onlyValidate ?
+                        new SearchablePropertyValue[0] :
+                        buildSearchablePropertyConditions(usagePointGroupInfo))
                 .setName(usagePointGroupInfo.name)
                 .setSearchDomain(usagePointSearchDomain)
                 .setQueryProviderName("com.elster.jupiter.metering.groups.impl.SimpleUsagePointQueryProvider")
                 .setLabel("MDM")
-                .setMRID("MDM:" + usagePointGroupInfo.name)
-                .create();
+                .setMRID("MDM:" + usagePointGroupInfo.name);
+        return onlyValidate ? creator.validate() : creator.create();
     }
 
     private UsagePoint[] buildListOfUsagePoints(UsagePointGroupInfo usagePointGroupInfo) {
