@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.actions;
 
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
@@ -10,7 +11,6 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -21,7 +21,6 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class AssignToMeIssueAction extends AbstractIssueAction {
@@ -48,7 +47,7 @@ public class AssignToMeIssueAction extends AbstractIssueAction {
         IssueAssignee assignee = new IssueAssigneeImpl((User)threadPrincipalService.getPrincipal(),issue.getAssignee().getWorkGroup());
         issue.assignTo(assignee);
         issue.update();
-        result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED).format());
+        result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED).format(issue.getAssignee().getUser().getName()));
         return result;
     }
 
