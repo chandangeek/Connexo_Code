@@ -33,7 +33,7 @@ public enum DefaultReadingTypeTemplate {
     WATER_VOLUME(TemplateTranslation.WATER_VOLUME),
     WATER_VOLUME_BACKFLOW(TemplateTranslation.WATER_VOLUME_BACKFLOW),
     WATER_FLOW(TemplateTranslation.WATER_FLOW),
-    BULK_A_PLUS(TemplateTranslation.BULK_A_PLUS),;
+    DELTA_A_PLUS(TemplateTranslation.DELTA_A_PLUS),;
 
     DefaultReadingTypeTemplate(TemplateTranslation nameTranslation) {
         this.nameTranslation = nameTranslation;
@@ -76,7 +76,7 @@ public enum DefaultReadingTypeTemplate {
         WATER_VOLUME("reading.type.template.water_volume", "Water volume"),
         WATER_VOLUME_BACKFLOW("reading.type.template.water_volume_backflow", "Water volume backflow"),
         WATER_FLOW("reading.type.template.water_flow", "Water flow"),
-        BULK_A_PLUS("reading.type.template.bulk_a_plus", "Bulk A+"),;
+        DELTA_A_PLUS("reading.type.template.delta_a_plus", "Delta A+"),;
 
         TemplateTranslation(String key, String defaultFormat) {
             this.key = key;

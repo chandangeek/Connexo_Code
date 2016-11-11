@@ -44,7 +44,7 @@ public class UpgraderV10_3 implements Upgrader {
     }
 
     private void installTemplates() {
-        new ReadingTypeTemplateInstaller.Template(metrologyConfigurationService, DefaultReadingTypeTemplate.BULK_A_PLUS)
+        new ReadingTypeTemplateInstaller.Template(metrologyConfigurationService, DefaultReadingTypeTemplate.DELTA_A_PLUS)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)

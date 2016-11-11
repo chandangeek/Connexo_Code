@@ -202,7 +202,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATT)
                 .done();
-        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.BULK_A_PLUS)
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.DELTA_A_PLUS)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
