@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedGroup;
+import com.elster.jupiter.metering.groups.GroupBuilder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -17,6 +18,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
@@ -37,6 +39,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -134,37 +137,46 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
-    public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+    public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo,
+                                      @QueryParam("validate") @DefaultValue("false") boolean onlyValidate) {
+        new RestValidationBuilder()
+                .notEmpty(deviceGroupInfo.name, "name")
+                .notEmpty(deviceGroupInfo.dynamic, "groupType")
+                .validate();
         EndDeviceGroup endDeviceGroup;
         if (deviceGroupInfo.dynamic) {
-            endDeviceGroup = createQueryEndDeviceGroup(deviceGroupInfo);
+            endDeviceGroup = buildQueryEndDeviceGroup(deviceGroupInfo, onlyValidate);
         } else {
-            endDeviceGroup = createEnumeratedEndDeviceGroup(deviceGroupInfo);
+            endDeviceGroup = buildEnumeratedEndDeviceGroup(deviceGroupInfo, onlyValidate);
         }
-        return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
+        return onlyValidate ?
+                Response.accepted().build() :
+                Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
     }
 
-    private EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
-        return meteringGroupsService.createEnumeratedEndDeviceGroup(buildListOfEndDevices(deviceGroupInfo))
+    private EnumeratedEndDeviceGroup buildEnumeratedEndDeviceGroup(DeviceGroupInfo deviceGroupInfo, boolean onlyValidate) {
+        GroupBuilder.GroupCreator<? extends EnumeratedEndDeviceGroup> creator = meteringGroupsService
+                .createEnumeratedEndDeviceGroup(onlyValidate ?
+                        new EndDevice[0] :
+                        buildListOfEndDevices(deviceGroupInfo))
                 .setName(deviceGroupInfo.name)
                 .setLabel("MDC")
-                .setMRID("MDC:" + deviceGroupInfo.name)
-                .create();
+                .setMRID("MDC:" + deviceGroupInfo.name);
+        return onlyValidate ? creator.validate() : creator.create();
     }
 
-    private QueryEndDeviceGroup createQueryEndDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+    private QueryEndDeviceGroup buildQueryEndDeviceGroup(DeviceGroupInfo deviceGroupInfo, boolean onlyValidate) {
         SearchDomain deviceSearchDomain = findDeviceSearchDomainOrThrowException();
-        JsonQueryFilter searchFilter = new JsonQueryFilter(deviceGroupInfo.filter);
-        if (!searchFilter.hasFilters()) {
-            throw exceptionFactory.newException(MessageSeeds.AT_LEAST_ONE_SEARCH_CRITERIA);
-        }
-        return meteringGroupsService.createQueryEndDeviceGroup(buildSearchablePropertyConditions(deviceGroupInfo))
+        GroupBuilder.GroupCreator<? extends QueryEndDeviceGroup> creator = meteringGroupsService
+                .createQueryEndDeviceGroup(onlyValidate ?
+                        new SearchablePropertyValue[0] :
+                        buildSearchablePropertyConditions(deviceGroupInfo))
                 .setName(deviceGroupInfo.name)
                 .setSearchDomain(deviceSearchDomain)
                 .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
                 .setLabel("MDC")
-                .setMRID("MDC:" + deviceGroupInfo.name)
-                .create();
+                .setMRID("MDC:" + deviceGroupInfo.name);
+        return onlyValidate ? creator.validate() : creator.create();
     }
 
     @PUT
