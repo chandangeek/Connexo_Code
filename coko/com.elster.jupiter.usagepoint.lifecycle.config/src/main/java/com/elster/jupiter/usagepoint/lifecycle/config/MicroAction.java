@@ -1,6 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ConsumerType;
 
@@ -12,11 +13,9 @@ import java.util.List;
  * usage point life cycle engine as part of an {@link UsagePointTransition}.
  */
 @ConsumerType
-public interface MicroAction {
+public interface MicroAction extends HasName {
 
     String getKey();
-
-    String getName();
 
     String getDescription();
 

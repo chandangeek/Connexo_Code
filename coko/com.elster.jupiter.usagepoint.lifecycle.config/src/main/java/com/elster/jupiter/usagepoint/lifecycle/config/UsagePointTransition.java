@@ -28,15 +28,6 @@ public interface UsagePointTransition extends HasId, HasName {
         Level(String privilege) {
             this.privilege = privilege;
         }
-
-        public static Optional<Level> forPrivilege(String privilege) {
-            for (Level level : values()) {
-                if (level.getPrivilege().equals(privilege)) {
-                    return Optional.of(level);
-                }
-            }
-            return Optional.empty();
-        }
     }
 
     UsagePointState getFrom();
