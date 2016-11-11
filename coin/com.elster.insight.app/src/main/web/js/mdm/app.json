@@ -12,7 +12,8 @@
         "com.energyict.mdc.bpm.extjs",
         "com.elster.jupiter.fileimport.extjs",
         "com.elster.jupiter.estimation.extjs",
-        "com.elster.jupiter.yellowfin.extjs"
+        "com.elster.jupiter.yellowfin.extjs",
+        "com.elster.jupiter.export.extjs"
     ],
 
     "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"

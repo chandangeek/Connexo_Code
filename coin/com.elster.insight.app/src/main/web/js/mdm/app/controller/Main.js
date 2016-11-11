@@ -20,6 +20,7 @@ Ext.define('MdmApp.controller.Main', {
         'Dbp.privileges.DeviceProcesses',
         'Fim.controller.Main',
         'Fim.privileges.DataImport',
+        'Dxp.privileges.DataExport',
         'Est.main.controller.Main',
         'Est.privileges.EstimationConfiguration',
         'Imt.privileges.UsagePointGroup',
@@ -45,6 +46,7 @@ Ext.define('MdmApp.controller.Main', {
         Dbp.privileges.DeviceProcesses.all(),
         Fim.privileges.DataImport.all(),
         Est.privileges.EstimationConfiguration.all(),
+        Dxp.privileges.DataExport.all(),
         Yfn.privileges.Yellowfin.all()
     ),
 
@@ -57,6 +59,7 @@ Ext.define('MdmApp.controller.Main', {
         'Dbp.controller.Main',
         'Fim.controller.Main',
         'Est.main.controller.Main',
+        'Dxp.controller.Main',
         'Yfn.controller.Main'
     ],
     init: function () {
