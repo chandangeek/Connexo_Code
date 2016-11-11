@@ -130,6 +130,11 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     byte[] getSystemIdentifier();
 
     /**
+     * The device system title (calledAPtitle)
+     */
+    byte[] getDeviceSystemTitle();
+
+    /**
      * Getter for the InvokeIdAndPriorityHandler that will handle the InvokeId and priority byte in the DLMS requests and responses.
      * The handler can check and verify the ID (and can reject a response if it has an invalid ID).
      */

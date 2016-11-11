@@ -74,7 +74,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.useCachedFrameCounter(),
                 this.validateCachedFrameCounter(),
                 this.frameCounterRecoveryRetries(),
-                this.frameCounterRecoveryStep()
+                this.frameCounterRecoveryStep(),
+                this.deviceSystemTitlePropertySpec()
         );
     }
     private PropertySpec frameCounterRecoveryRetries() {
@@ -154,6 +155,10 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
     private PropertySpec transparentSecurityLevel() {
         return PropertySpecFactory.stringPropertySpec(METER_SECURITY_LEVEL, "1:0");
+    }
+
+    public PropertySpec deviceSystemTitlePropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE);
     }
 
 }

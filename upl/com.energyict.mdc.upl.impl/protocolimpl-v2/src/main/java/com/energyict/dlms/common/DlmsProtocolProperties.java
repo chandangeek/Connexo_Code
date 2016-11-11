@@ -59,6 +59,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String DEVICE_ID = "DevideId";
     public static final String USE_GBT = "Use-GBT";
     public static final String GBT_WINDOW_SIZE = "GBT-windowSize";
+    public static final String DEVICE_SYSTEM_TITLE = "DeviceSystemTitle";
 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final String DEFAULT_TIMEZONE = "GMT";
