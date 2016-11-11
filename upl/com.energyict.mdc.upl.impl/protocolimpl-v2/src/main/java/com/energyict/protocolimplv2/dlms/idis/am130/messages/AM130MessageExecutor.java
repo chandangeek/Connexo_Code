@@ -16,6 +16,7 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -89,6 +90,12 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
             changeEncryptionKeyAndUseNewKey(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)) {
+            changeMasterKeyAndUseNewKey(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
+            changeAuthenticationKeyAndUseNewKey(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
+            changeEncryptionKeyAndUseNewKey(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
             changeMasterKeyAndUseNewKey(pendingMessage);
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
@@ -229,6 +236,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         String newKey = getDeviceMessageAttributeValue(pendingMessage, keyAttributeName);
         String newWrappedKey = getDeviceMessageAttributeValue(pendingMessage, wrappedKeyAttributeName);
         byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
+        ObisCode clientSecuritySetupObis = getClientSecuritySetupObis(pendingMessage);
 
         Array keyArray = new Array();
         Structure keyData = new Structure();
@@ -236,7 +244,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         keyData.addDataType(OctetString.fromByteArray(keyBytes));
         keyArray.addDataType(keyData);
 
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
+        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup(clientSecuritySetupObis);
         ss.transferGlobalKey(keyArray);
         return newKey;
     }
@@ -443,6 +451,18 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
 
         getCosemObjectFactory().getData(alarmDescriptorObisCode).setValueAttr(new Unsigned32(alarmBits.longValue()));
         return collectedMessage;
+    }
+
+    protected ObisCode getClientSecuritySetupObis(OfflineDeviceMessage pendingMessage){
+        String client = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.client).getDeviceMessageAttributeValue();
+        if (client!=null && !client.isEmpty()) {
+            try{
+                return ClientSecuritySetup.valueOf(client).getSecuritySetupOBIS();
+            } catch (Exception ex){
+                // ignore
+            }
+        }
+        return ClientSecuritySetup.Management.getSecuritySetupOBIS();
     }
 
 }

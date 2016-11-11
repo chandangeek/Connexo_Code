@@ -6,6 +6,7 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.UserNames;
@@ -230,7 +231,23 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT(54,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress, BigDecimal.valueOf(1)),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newMasterKeyAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedMasterKeyAttributeName))
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedMasterKeyAttributeName)
+    ),
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT(55,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.client, getClients()),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
+    ),
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT(56,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.client, getClients()),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName)
+    ),
+    CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT(57,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.client, getClients()),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newMasterKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedMasterKeyAttributeName)
+    )
     ;
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
@@ -471,5 +488,9 @@ public enum SecurityMessage implements DeviceMessageSpec {
         public int getId() {
             return id;
         }
+    }
+
+    public static String[] getClients(){
+        return ClientSecuritySetup.getClients();
     }
 }

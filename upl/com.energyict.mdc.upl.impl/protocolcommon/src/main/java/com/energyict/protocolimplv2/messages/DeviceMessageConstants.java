@@ -78,6 +78,7 @@ public class DeviceMessageConstants {
     public static final String newMasterKeyAttributeName = "SecurityMessage.new.masterkey";
     public static final String newWrappedMasterKeyAttributeName = "SecurityMessage.new.wrapped.masterkey";
     public static final String clientMacAddress = "ClientMacAddress";
+    public static final String client = "SecurityMessage.client";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
