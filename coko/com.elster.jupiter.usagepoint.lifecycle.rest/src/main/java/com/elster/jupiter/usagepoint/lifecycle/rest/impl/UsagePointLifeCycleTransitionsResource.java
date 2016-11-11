@@ -68,11 +68,9 @@ public class UsagePointLifeCycleTransitionsResource {
         Set<UsagePointTransition.Level> levels = transitionInfo.privileges.stream().map(privilege -> privilege.privilege)
                 .map(UsagePointTransition.Level::valueOf).collect(Collectors.toSet());
         Set<String> microChecks = transitionInfo.microChecks.stream()
-                .filter(check -> check.checked != null && check.checked)
                 .map(check -> check.key)
                 .collect(Collectors.toSet());
         Set<String> microActions = transitionInfo.microActions.stream()
-                .filter(action -> action.checked != null && action.checked)
                 .map(action -> action.key)
                 .collect(Collectors.toSet());
         UsagePointTransition transition = lifeCycle.newTransition(transitionInfo.name, fromState, toState)
@@ -93,11 +91,9 @@ public class UsagePointLifeCycleTransitionsResource {
         Set<UsagePointTransition.Level> levels = transitionInfo.privileges.stream().map(privilege -> privilege.privilege)
                 .map(UsagePointTransition.Level::valueOf).collect(Collectors.toSet());
         Set<String> microChecks = transitionInfo.microChecks.stream()
-                .filter(check -> check.checked != null && check.checked)
                 .map(check -> check.key)
                 .collect(Collectors.toSet());
         Set<String> microActions = transitionInfo.microActions.stream()
-                .filter(action -> action.checked != null && action.checked)
                 .map(action -> action.key)
                 .collect(Collectors.toSet());
         transition.startUpdate().withName(transitionInfo.name).from(fromState).to(toState)

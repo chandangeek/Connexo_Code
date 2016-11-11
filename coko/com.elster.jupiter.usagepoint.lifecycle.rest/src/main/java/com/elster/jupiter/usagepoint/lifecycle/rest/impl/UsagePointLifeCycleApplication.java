@@ -61,7 +61,8 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleApplication.COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleApplication.COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
