@@ -27,7 +27,7 @@ import java.util.Optional;
 
 class UpgraderV10_3 implements Upgrader {
 
-    private static final String BULK_A_PLUS_WH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String DELTA_A_PLUS_WH = "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private final DataModel dataModel;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
@@ -50,7 +50,7 @@ class UpgraderV10_3 implements Upgrader {
     private void upgradeMetrologyConfiguration() {
         Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)");
         Optional<MeterRole> meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey());
-        Optional<ReadingTypeTemplate> readingTypeTemplate = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS
+        Optional<ReadingTypeTemplate> readingTypeTemplate = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.DELTA_A_PLUS
                 .getNameTranslation()
                 .getDefaultFormat());
         Optional<MetrologyPurpose> purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
@@ -61,12 +61,12 @@ class UpgraderV10_3 implements Upgrader {
                 .findFirst());
 
         if (contract.isPresent() && meterRole.isPresent() && readingTypeTemplate.isPresent()) {
-            ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(BULK_A_PLUS_WH))
+            ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(DELTA_A_PLUS_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(BULK_A_PLUS_WH, "A+"));
+                    .orElseGet(() -> meteringService.createReadingType(DELTA_A_PLUS_WH, "A+"));
             ReadingTypeRequirement requirementAplusRegister = ((UsagePointMetrologyConfiguration) metrologyConfiguration
-                    .get()).newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation()
+                    .get()).newReadingTypeRequirement(DefaultReadingTypeTemplate.DELTA_A_PLUS.getNameTranslation()
                     .getDefaultFormat(), meterRole.get())
                     .withReadingTypeTemplate(readingTypeTemplate.get());
             contract.get()
