@@ -221,7 +221,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 jsonData: jsonData,
                 method: 'PUT',
                 success: function (response) {
-                    //ISU4506I Issue was assigned to
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('issue.asigneSuccessMsg', 'ISU', 'Issue was assigned.'));
                 },
                 callback: function () {

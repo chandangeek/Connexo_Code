@@ -16,7 +16,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     },
     predefinedItems: [
         {
-            text: Uni.I18n.translate('issues.actionMenu.assignIssue', 'ISU', 'Assign issue2'),
+            text: Uni.I18n.translate('issues.actionMenu.assignIssue', 'ISU', 'Assign issue'),
             privileges: Isu.privileges.Issue.Assign,
             action: 'assignIssue'
         },

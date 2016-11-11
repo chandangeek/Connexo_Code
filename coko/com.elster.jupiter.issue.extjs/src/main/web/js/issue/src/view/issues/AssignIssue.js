@@ -33,7 +33,6 @@ Ext.define('Isu.view.issues.AssignIssue', {
                         xtype: 'combobox',
                         itemId: 'cbo-workgroup-issue-assignee',
                         fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
-                        required: true,
                         queryMode: 'local',
                         name: 'workgroupId',
                         valueField: 'id',
@@ -42,6 +41,7 @@ Ext.define('Isu.view.issues.AssignIssue', {
                         store: 'Isu.store.IssueWorkgroupAssignees',
                         emptyText: Uni.I18n.translate('issues.startTypingForWorkgroup', 'ISU', 'Start typing for workgroup'),
                         msgTarget: 'under',
+                        editable: false,
                         listeners: {
                             render: function () {
                                 this.store.load();
@@ -58,12 +58,12 @@ Ext.define('Isu.view.issues.AssignIssue', {
                         xtype: 'issues-user-assignee-combo',
                         itemId: 'cbo-user-issue-assignee',
                         fieldLabel: Uni.I18n.translate('general.user', 'ISU', 'User'),
-                        required: true,
                         queryMode: 'local',
                         name: 'userId',
                         valueField: 'id',
                         displayField: 'name',
                         allowBlank: false,
+                        editable: false,
                         store: 'Isu.store.UserList',
                         emptyText: Uni.I18n.translate('issues.startTypingForUsers', 'ISU', 'Start typing for users'),
                         msgTarget: 'under'

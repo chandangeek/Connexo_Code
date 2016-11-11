@@ -2,9 +2,11 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.issues-user-assignee-combo',
     checked: false,
+
     tpl: new Ext.XTemplate(
-        '<input type="checkbox" id="cboxShowAll" class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>',
-        '<label class="x-form-cb-label">' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") + '</label><hr />',
+        '<label class="x-form-cb-label">' +
+        '<input type="checkbox" id="cboxShowAll" class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
+        '</label><hr />',
         '<tpl for=".">',
         '<div class=" x-boundlist-item">{name}</div>',
         '</tpl>'
@@ -18,8 +20,9 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
         me.checked = document.getElementById("cboxShowAll").checked;
         if (me.checked) {
             me.getPicker().tpl = new Ext.XTemplate(
-                '<input type="checkbox" id="cboxShowAll" checked class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>',
-                '<label class="x-form-cb-label">' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") + '</label><hr />',
+                '<label class="x-form-cb-label">',
+                '<input type="checkbox" id="cboxShowAll" checked class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
+                '</label><hr />',
                 '<tpl for=".">',
                 '<div class=" x-boundlist-item">{name}</div>',
                 '</tpl>'
@@ -27,15 +30,16 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
         }
         else {
             me.getPicker().tpl = new Ext.XTemplate(
-                '<input type="checkbox" id="cboxShowAll" class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>',
-                '<label class="x-form-cb-label">' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") + '</label><hr />',
+                '<label class="x-form-cb-label">',
+                '<input type="checkbox" id="cboxShowAll" class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
+                '</label><hr />',
                 '<tpl for=".">',
                 '<div class=" x-boundlist-item">{name}</div>',
                 '</tpl>'
             );
         }
         me.getPicker().refresh();
-        me.store.getProxy().url = me.checked ? '/api/isu/workgroups/' + me.workgroupID + '/users' : '/api/isu/assignees/users';
+        me.store.getProxy().url = me.checked ? '/api/isu/assignees/users' : '/api/isu/workgroups/' + me.workgroupID + '/users';
         me.store.load();
     },
 
@@ -61,7 +65,7 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
                     };
                 }
             });
-            me.store.getProxy().url = me.checked ? '/api/isu/workgroups/' + me.workgroupID + '/users' : '/api/isu/assignees/users';
+            me.store.getProxy().url = me.checked ? '/api/isu/assignees/users' : '/api/isu/workgroups/' + me.workgroupID + '/users';
             me.store.load();
         }
     },
