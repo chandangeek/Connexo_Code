@@ -2,8 +2,10 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagepointgroup-setup',
     xtype: 'usagepointgroup-setup',
+    router: null,
 
     initComponent: function () {
+        var me = this;
         this.content = [
             {
                 ui: 'large',
@@ -15,7 +17,8 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupSetup', {
                         itemId: 'usagepointgroup-setup-preview-container',
                         grid: {
                             xtype: 'usagepointgroups-grid',
-                            itemId: 'usagepointgroups-grid'
+                            itemId: 'usagepointgroups-grid',
+                            router: me.router
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -28,7 +31,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('usagepointgroup.add', 'IMT', 'Add usage point group'),
-                                    // privileges: Imt.privileges.UsagePointGroup.administrate,
+                                    privileges: Imt.privileges.UsagePointGroup.administrate,
                                     action: 'add-usage-point-group-from-empty-grid',
                                     itemId: 'add-usage-point-group-btn-from-empty-grid'
                                 }

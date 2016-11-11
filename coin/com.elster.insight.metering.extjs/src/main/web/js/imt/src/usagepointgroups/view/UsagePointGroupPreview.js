@@ -12,9 +12,10 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupPreview', {
         {
             xtype: 'uni-button-action',
             itemId: 'usagepointgroup-preview-actions-btn',
+            privileges: Imt.privileges.UsagePointGroup.administrateAnyOrStaticGroup,
             menu: {
                 xtype: 'usagepointgroup-action-menu',
-                itemId: 'usagepointgroup-action-menu'
+                itemId: 'usagepointgroup-preview-action-menu'
             }
         }
     ],

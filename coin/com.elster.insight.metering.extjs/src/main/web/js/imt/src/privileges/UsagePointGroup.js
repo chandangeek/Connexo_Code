@@ -4,11 +4,12 @@ Ext.define('Imt.privileges.UsagePointGroup', {
     ],
     singleton: true,
     
-    view: ['privilege.administer.usagePointGroup', 'privilege.administrate.usagePointOfEnumeratedGroup', 'privilege.view.usagePointGroupDetail'],
-    administrate: ['privilege.administrate.usagePointGroup'],
+    view: ['privilege.administer.usagePointGroup', 'privilege.administer.usagePointEnumeratedGroup', 'privilege.view.usagePointGroupDetail'],
+    administrate: ['privilege.administer.usagePointGroup'],
     viewGroupDetails : ['privilege.view.usagePointGroupDetail'],
-    administrateOrViewDetails: ['privilege.administrate.usagePointGroup', 'privilege.view.usagePointGroupDetail'],
-    administrateUsagePointOfEnumeratedGroup: ['privilege.administrate.usagePointOfEnumeratedGroup'],
+    administrateOrViewDetails: ['privilege.administer.usagePointGroup', 'privilege.view.usagePointGroupDetail'],
+    administrateUsagePointOfEnumeratedGroup: ['privilege.administer.usagePointEnumeratedGroup'],
+    administrateAnyOrStaticGroup: ['privilege.administer.usagePointGroup', 'privilege.administer.usagePointEnumeratedGroup'],
 
     all: function () {
         return Ext.Array.merge(Imt.privileges.UsagePointGroup.view, Imt.privileges.UsagePointGroup.administrate);
@@ -21,9 +22,6 @@ Ext.define('Imt.privileges.UsagePointGroup', {
     },
     canViewGroupDetails: function () {
         return Uni.Auth.checkPrivileges(Imt.privileges.UsagePointGroup.viewGroupDetails);
-    },
-    canAdministrateOrViewDetails:function(){
-        return Uni.Auth.checkPrivileges(Imt.privileges.UsagePointGroup.administrateOrViewDetails );
     },
     canAdministrateUsagePointOfEnumeratedGroup: function () {
         return Uni.Auth.checkPrivileges(Imt.privileges.UsagePointGroup.administrateUsagePointOfEnumeratedGroup);

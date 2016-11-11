@@ -7,6 +7,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupsGrid', {
         'Imt.usagepointgroups.view.UsagePointGroupActionMenu'
     ],    
     store: 'Imt.usagepointgroups.store.UsagePointGroups',
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -15,17 +16,8 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupsGrid', {
                 header: Uni.I18n.translate('general.name', 'IMT', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    if (Imt.privileges.UsagePointGroup.canAdministrate() || Imt.privileges.UsagePointGroup.canViewGroupDetails()) {
-                        return '<a href="' + me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: record.get('id')}) + '">' + Ext.String.htmlEncode(value) + '</a>';                        
-                    } else if (Imt.privileges.UsagePointGroup.canAdministrateUsagePointOfEnumeratedGroup()) {
-                        if (record.get('dynamic')) {
-                            return Ext.String.htmlEncode(value);
-                        } else {
-                            return '<a href="' + me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: record.get('id')}) + '">' + Ext.String.htmlEncode(value) + '</a>';                            
-                        }
-                    } else {
-                        return Ext.String.htmlEncode(value);
-                    }
+                    // return '<a href="' + me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: record.get('id')}) + '">' + Ext.String.htmlEncode(value) + '</a>';
+                    return value;
                 },
                 flex: 1
             },
@@ -43,6 +35,15 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                itemId: 'usagepointgroup-actioncolumn',
+                privileges: Imt.privileges.UsagePointGroup.administrateAnyOrStaticGroup,
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    if (Imt.privileges.UsagePointGroup.canAdministrate()) {
+                        return false;
+                    } else if (Imt.privileges.UsagePointGroup.canAdministrateUsagePointOfEnumeratedGroup()) {
+                        return record.get('dynamic');
+                    }
+                },
                 menu: {
                     xtype: 'usagepointgroup-action-menu',
                     itemId: 'usagepointgroup-action-menu'
