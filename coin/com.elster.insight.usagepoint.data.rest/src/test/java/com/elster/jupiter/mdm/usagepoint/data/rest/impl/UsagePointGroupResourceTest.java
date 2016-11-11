@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ConnectionState;
@@ -65,8 +66,6 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
     private Finder<UsagePoint> finder;
     @Mock
     private Query<UsagePointGroup> usagePointGroupQuery;
-    @Mock
-    private GroupBuilder.QueryGroupBuilder<UsagePoint, QueryUsagePointGroup> builder;
 
     @Test
     public void testGetQueryUsagePointGroup() throws Exception {
@@ -175,15 +174,8 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
 
         QueryUsagePointGroup group = mock(QueryUsagePointGroup.class);
         when(group.getId()).thenReturn(133L);
-        when(builder.setAliasName(anyString())).thenReturn(builder);
-        when(builder.setName(anyString())).thenReturn(builder);
-        when(builder.setMRID(anyString())).thenReturn(builder);
-        when(builder.setDescription(anyString())).thenReturn(builder);
-        when(builder.setLabel(anyString())).thenReturn(builder);
-        when(builder.setQueryProviderName(anyString())).thenReturn(builder);
-        when(builder.setSearchDomain(any(SearchDomain.class))).thenReturn(builder);
-        when(builder.setType(anyString())).thenReturn(builder);
-        when(builder.create()).thenReturn(group);
+        GroupBuilder.QueryGroupBuilder<UsagePoint, QueryUsagePointGroup> builder = FakeBuilder
+                .initBuilderStub(group, GroupBuilder.QueryGroupBuilder.class);
         doReturn(builder).when(meteringGroupsService).createQueryUsagePointGroup(anyVararg());
 
         UsagePointGroupInfo info = new UsagePointGroupInfo();

@@ -85,8 +85,9 @@ public class UsagePointGroupResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    // not protected by privileges yet because a combo-box containing all the groups needs to be shown
-    // when creating an export task
+    @RolesAllowed({Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
+            Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
+            Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
     public PagedInfoList getUsagePointGroups(@QueryParam("type") String typeName, @BeanParam JsonQueryFilter filter,
                                              @BeanParam JsonQueryParameters queryParameters) {
         Query<UsagePointGroup> query = getUsagePointGroupQueryByType(typeName);
@@ -109,8 +110,8 @@ public class UsagePointGroupResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
-            Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
+    @RolesAllowed({Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
+            Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
             Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
     public UsagePointGroupInfo getUsagePointGroup(@PathParam("id") long id) {
         return usagePointGroupInfoFactory.from(resourceHelper.findUsagePointGroupOrThrowException(id));
@@ -120,7 +121,7 @@ public class UsagePointGroupResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP)
+    @RolesAllowed(Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP)
     public Response createUsagePointGroup(UsagePointGroupInfo usagePointGroupInfo) {
         UsagePointGroup usagePointGroup;
         if (usagePointGroupInfo.dynamic) {
@@ -136,8 +137,8 @@ public class UsagePointGroupResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
-            Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
+    @RolesAllowed({Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
+            Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
             Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
     public Response editUsagePointGroup(UsagePointGroupInfo info, @PathParam("id") long id) {
         info.id = id;
@@ -159,7 +160,7 @@ public class UsagePointGroupResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP)
+    @RolesAllowed(Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP)
     public Response removeUsagePointGroup(@PathParam("id") long id, UsagePointGroupInfo info) {
         info.id = id;
         resourceHelper.lockUsagePointGroupOrThrowException(info)
@@ -172,8 +173,8 @@ public class UsagePointGroupResource {
     @Path("/{id}/usagepoints")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
-            Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
+    @RolesAllowed({Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
+            Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
             Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
     public PagedInfoList getUsagePointsInGroup(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         UsagePointGroup usagePointGroup = resourceHelper.findUsagePointGroupOrThrowException(id);
@@ -191,8 +192,8 @@ public class UsagePointGroupResource {
     @Path("/{id}/usagepoints/count")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USAGE_POINT_GROUP,
-            Privileges.Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP,
+    @RolesAllowed({Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
+            Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
             Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
     public Response getUsagePointsCountInGroup(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         long numberOfSearchResults = resourceHelper.findUsagePointGroupOrThrowException(id)
