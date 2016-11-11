@@ -71,14 +71,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             }
 
             var assignedFilter = {
-                assignee: assigned.get('filter').assigneeId + ':' + assigned.get('filter').assigneeType,
+                userAssignee: assigned.get('filter').assigneeId,
                 status: ['status.open', 'status.in.progress'],
                 groupingType: 'none',
                 sort: ['dueDate', 'modTime']
             };
 
             var unassignedFilter = {
-                assignee: unassigned.get('filter').assigneeId + ':' + unassigned.get('filter').assigneeType,
+                userAssignee: unassigned.get('filter').assigneeId,
                 status: 'status.open',
                 groupingType: 'none',
                 sort: ['dueDate', 'modTime']
