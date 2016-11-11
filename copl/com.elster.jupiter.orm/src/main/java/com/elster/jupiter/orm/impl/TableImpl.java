@@ -443,7 +443,7 @@ public class TableImpl<T> implements Table<T> {
 
     public ColumnImpl getColumnForField(String name) {
         return this.getRealColumns()
-                .filter(column -> column.getFieldName().equals(name))
+                .filter(column -> name.equals(column.getFieldName()))
                 .findFirst()
                 .orElse(null);
     }
