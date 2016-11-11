@@ -16,6 +16,11 @@ Ext.define('Isu.view.issues.ActionMenu', {
     },
     predefinedItems: [
         {
+            text: Uni.I18n.translate('issues.actionMenu.assignIssue', 'ISU', 'Assign issue2'),
+            privileges: Isu.privileges.Issue.Assign,
+            action: 'assignIssue'
+        },
+        {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
             privileges: Isu.privileges.Issue.comment,
             action: 'addComment'
@@ -143,6 +148,18 @@ Ext.define('Isu.view.issues.ActionMenu', {
         if (me.predefinedItems && me.predefinedItems.length) {
             Ext.Array.each(me.predefinedItems, function (menuItem) {
                 switch (menuItem.action) {
+                    case 'assignIssue':
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/assignIssue').buildUrl(
+                            {
+                                issueId: issueId
+                            },
+                            {
+                                addComment: true,
+                                issueType: issueType,
+                                fromOverview: me.router.currentRoute.match('view') != null
+                            }
+                        );
+                        break;
                     case 'addComment':
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl(
                             {

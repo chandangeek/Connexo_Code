@@ -40,6 +40,22 @@ Ext.define('Isu.model.Issue', {
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'device_name', persist: false, mapping: 'device.name'},
         {name: 'workgroup_name', persist: false, mapping: 'workGroupAssignee.name'},
+        {
+            name: 'workgroupId',
+            persist: false,
+            convert: function (value, record) {
+                var workgroupId = record.get('workGroupAssignee').id;
+                return workgroupId ? workgroupId : -1;
+            }
+        },
+        {
+            name: 'userId',
+            persist: false,
+            convert: function (value, record) {
+                var userId = record.get('userAssignee').id;
+                return userId ? userId : -1;
+            }
+        },
         {name: 'assignee_name', persist: false, mapping: 'userAssignee.name'},
         {name: 'assignee_type', persist: false, mapping: 'assignee.type'},
         {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'},

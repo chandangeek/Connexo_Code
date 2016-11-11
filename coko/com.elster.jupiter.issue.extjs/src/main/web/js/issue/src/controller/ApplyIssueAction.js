@@ -2,7 +2,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Isu.view.issues.ActionView'
+        'Isu.view.issues.ActionView',
+        'Isu.view.issues.AssignIssue'
     ],
 
     stores: [
@@ -17,6 +18,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         {
             ref: 'form',
             selector: 'issue-action-view #issue-action-view-form'
+        },
+        {
+            ref: 'assignIssuePage',
+            selector: 'assign-issue'
         }
     ],
 
@@ -24,7 +29,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         this.control({
             'issue-action-view issue-action-form #issue-action-apply': {
                 click: this.applyAction
-            }
+            },
+            'assign-issue #issue-assign-action-apply': {
+                click: this.assignAction
+            },
         });
     },
 
@@ -149,6 +157,79 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             record = form.getRecord();
             record.set('issue', _.pick(form.issue.getData(), 'title', 'version'));
             record.save(requestOptions);
+        }
+    },
+
+    showAssignIssue: function (issueId, actionId) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            fromOverview = router.queryParams.fromOverview === 'true',
+            queryParamsForBackUrl = fromOverview ? router.queryParams : null;
+
+        viewport.setLoading();
+
+        Ext.ModelManager.getModel('Idc.model.Issue').load(issueId, {
+            success: function (issue) {
+                viewport.setLoading(false);
+
+                var widget = Ext.create('Isu.view.issues.AssignIssue', {
+                    cancelLink: router.getRoute(router.currentRoute.replace(fromOverview ? '/assignIssue' : '/view/assignIssue', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl)
+                });
+                widget.down('#frm-assign-issue').loadRecord(issue);
+                widget.down('#frm-assign-issue').issue = issue;
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getApplication().fireEvent('issueLoad', issue);
+            },
+            failure: function (response) {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    assignAction: function () {
+        var me = this,
+            assignIssuePage = me.getAssignIssuePage(),
+            issueRecord = assignIssuePage.down('#frm-assign-issue').issue,
+            assignIssueForm = assignIssuePage.down('#frm-assign-issue'),
+            formErrorsPanel = assignIssueForm.down('#assign-issue-form-errors'),
+            router = me.getController('Uni.controller.history.Router'),
+            fromOverview = router.queryParams.fromOverview === 'true',
+            queryParamsForBackUrl = fromOverview ? router.queryParams : null;
+
+        if (assignIssueForm.isValid()) {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+            }
+
+            assignIssueForm.updateRecord(issueRecord);
+            var formValues = assignIssueForm.getValues(),
+                jsonData = {
+                    issue: {
+                        id: issueRecord.get('id'),
+                        version: issueRecord.get('version')
+                    },
+                    assignee: {
+                        userId: formValues.userId,
+                        workGroupId: formValues.workgroupId
+                    },
+                    comment: formValues.comment
+                };
+            assignIssuePage.setLoading();
+            Ext.Ajax.request({
+                url: '/api/isu/issues/assignissue',
+                jsonData: jsonData,
+                method: 'PUT',
+                success: function (response) {
+                    //ISU4506I Issue was assigned to
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('issue.asigneSuccessMsg', 'ISU', 'Issue was assigned.'));
+                },
+                callback: function () {
+                    assignIssuePage.setLoading(false);
+                    router.getRoute(router.currentRoute.replace(fromOverview ? '/assignIssue' : '/view/assignIssue', ''))
+                        .forward({issueId: issueRecord.get('id')});
+                }
+            });
         }
     }
 });

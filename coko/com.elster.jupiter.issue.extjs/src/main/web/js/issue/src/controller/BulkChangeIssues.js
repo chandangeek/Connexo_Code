@@ -628,7 +628,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 var activeCombo = formPanel.down('combo[name=assigneeCombo]');
                 record.set('assignee', {
                     userId: activeCombo.getValue(),
-                    workGroupId: "0",//activeCombo.getValue(),
+                    workGroupId: -1,//activeCombo.getValue(),
                     title: activeCombo.rawValue
                 });
                 if (!record.get('allIssues')) {
