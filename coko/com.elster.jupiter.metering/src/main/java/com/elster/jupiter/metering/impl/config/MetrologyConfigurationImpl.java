@@ -293,6 +293,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Override
     public void removeMetrologyContract(MetrologyContract metrologyContract) {
         ((MetrologyContractImpl) metrologyContract).prepareDelete();
+        this.eventService.postEvent(EventType.METROLOGY_CONTRACT_DELETED.topic(), metrologyContract);
         if (this.metrologyContracts.remove(metrologyContract)) {
             touch();
         }
