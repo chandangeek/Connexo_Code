@@ -68,7 +68,7 @@ Ext.define('Idc.view.DetailsContainer', {
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDC', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'IDC', 'None');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                         }
                     },
                     {
@@ -76,7 +76,7 @@ Ext.define('Idc.view.DetailsContainer', {
                         fieldLabel: Uni.I18n.translate('general.title.user', 'IDC', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'IDC', 'None');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                         }
                     },
                     {
