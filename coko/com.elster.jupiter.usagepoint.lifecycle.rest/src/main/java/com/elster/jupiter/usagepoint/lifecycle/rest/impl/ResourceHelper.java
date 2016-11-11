@@ -8,9 +8,11 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfo;
 
 import javax.inject.Inject;
 
@@ -82,6 +84,28 @@ public class ResourceHelper {
                 .orElseThrow(this.conflictFactory.contextDependentConflictOn(stateInfo.name)
                         .withActualVersion(() -> getCurrentStateVersion(stateInfo.id))
                         .withActualParent(() -> getCurrentLifeCycleVersion(stateInfo.parent.id))
+                        .supplier());
+    }
+
+    public UsagePointTransition getTransitionByIdOrThrowException(long id) {
+        return this.usagePointLifeCycleConfigurationService.findUsagePointTransition(id)
+                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_LIFE_CYCLE_TRANSITION, id));
+    }
+
+    private Long getCurrentTransitionVersion(long id) {
+        return this.usagePointLifeCycleConfigurationService.findUsagePointTransition(id).map(UsagePointTransition::getVersion).orElse(null);
+    }
+
+    public UsagePointTransition lockTransition(UsagePointLifeCycleTransitionInfo transitionInfo) {
+        this.usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(transitionInfo.parent.id, transitionInfo.parent.version)
+                .orElseThrow(this.conflictFactory.contextDependentConflictOn(transitionInfo.name)
+                        .withActualVersion(() -> getCurrentTransitionVersion(transitionInfo.id))
+                        .withActualParent(() -> getCurrentLifeCycleVersion(transitionInfo.parent.id))
+                        .supplier());
+        return this.usagePointLifeCycleConfigurationService.findAndLockUsagePointTransitionByIdAndVersion(transitionInfo.id, transitionInfo.version)
+                .orElseThrow(this.conflictFactory.contextDependentConflictOn(transitionInfo.name)
+                        .withActualVersion(() -> getCurrentTransitionVersion(transitionInfo.id))
+                        .withActualParent(() -> getCurrentLifeCycleVersion(transitionInfo.parent.id))
                         .supplier());
     }
 }
