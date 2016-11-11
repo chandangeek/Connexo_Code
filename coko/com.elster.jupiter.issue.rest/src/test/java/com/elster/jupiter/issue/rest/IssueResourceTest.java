@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
@@ -28,7 +28,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -207,11 +209,124 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
-    public void testAssignAction() {
-        Entity<AssignIssueRequest> json = Entity.json(new AssignIssueRequest());
-        Response response = target("issues/assign").request().put(json);
+    public void testAssignAction(){
+        Entity<AssignSingleIssueRequest> json = Entity.json(new AssignSingleIssueRequest());
+        Response response = target("issues/assignissue").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
+    @Test
+    public void testGetWorkGroups(){
+        List<WorkGroup> workGroups = new ArrayList<>();
+        WorkGroup firstWorkGroup = mock(WorkGroup.class);
+        when(firstWorkGroup.getName()).thenReturn("First");
+        when(firstWorkGroup.getId()).thenReturn(1L);
+        WorkGroup secondWorkGroup = mock(WorkGroup.class);
+        when(secondWorkGroup.getName()).thenReturn("Second");
+        when(secondWorkGroup.getId()).thenReturn(2L);
+        workGroups.add(firstWorkGroup);
+        workGroups.add(secondWorkGroup);
+        when(userService.getWorkGroups()).thenReturn(workGroups);
+        Map<String, Object> map = target("workgroups").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(3);
+        List<?> workGroupsResponse = (List<?>) map.get("workgroups");
+        assertThat(workGroupsResponse).hasSize(3);
+
+        Map<?,?> unassigned = (Map<?,?>) workGroupsResponse.get(0);
+        assertThat(unassigned.get("id")).isEqualTo(-1);
+
+        Map<?,?> first = (Map<?,?>) workGroupsResponse.get(1);
+        assertThat(first.get("id")).isEqualTo(1);
+        assertThat(first.get("name")).isEqualTo("First");
+
+        Map<?,?> second = (Map<?,?>) workGroupsResponse.get(2);
+        assertThat(second.get("id")).isEqualTo(2);
+        assertThat(second.get("name")).isEqualTo("Second");
+    }
+
+    @Test
+    public void testGetMyWorkGroups(){
+        List<WorkGroup> workGroups = new ArrayList<>();
+
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1L);
+        when(user.getName()).thenReturn("User name");
+        when(securityContext.getUserPrincipal()).thenReturn(user);
+
+        WorkGroup firstWorkGroup = mock(WorkGroup.class);
+        when(firstWorkGroup.getName()).thenReturn("First");
+        when(firstWorkGroup.getId()).thenReturn(1L);
+        when(firstWorkGroup.getUsersInWorkGroup()).thenReturn(Collections.emptyList());
+
+        WorkGroup secondWorkGroup = mock(WorkGroup.class);
+        when(secondWorkGroup.getName()).thenReturn("Second");
+        when(secondWorkGroup.getId()).thenReturn(2L);
+        when(secondWorkGroup.getUsersInWorkGroup()).thenReturn(Collections.singletonList(user));
+
+        workGroups.add(firstWorkGroup);
+        workGroups.add(secondWorkGroup);
+        when(userService.getWorkGroups()).thenReturn(workGroups);
+
+        Map<String, Object> map = target("workgroups").queryParam("myworkgroups", "true").request().get(Map.class);
+
+        assertThat(map.get("total")).isEqualTo(1);
+        List<?> workGroupsResponse = (List<?>) map.get("workgroups");
+        assertThat(workGroupsResponse).hasSize(1);
+
+        Map<?,?> second = (Map<?,?>) workGroupsResponse.get(0);
+        assertThat(second.get("id")).isEqualTo(2);
+        assertThat(second.get("name")).isEqualTo("Second");
+    }
+
+    @Test
+    public void testGetUsersFromWorkGroup(){
+        User firstUser = mock(User.class);
+        when(firstUser.getId()).thenReturn(1L);
+        when(firstUser.getName()).thenReturn("First user");
+
+        User secondUser = mock(User.class);
+        when(secondUser.getId()).thenReturn(2L);
+        when(secondUser.getName()).thenReturn("Second user");
+
+        List<User> users = new ArrayList<>();
+        users.add(firstUser);
+        users.add(secondUser);
+
+        WorkGroup workGroup = mock(WorkGroup.class);
+        when(workGroup.getId()).thenReturn(1L);
+        when(workGroup.getName()).thenReturn("Work group");
+        when(workGroup.getUsersInWorkGroup()).thenReturn(users);
+
+        when(userService.getWorkGroup(1L)).thenReturn(Optional.of(workGroup));
+
+        Map<String, Object> map = target("workgroups/1/users").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(3);
+        List<?> usersResponse = (List<?>) map.get("data");
+        assertThat(usersResponse).hasSize(3);
+
+        Map<?,?> unassigned = (Map<?,?>) usersResponse.get(0);
+        assertThat(unassigned.get("id")).isEqualTo(-1);
+
+        Map<?,?> first = (Map<?,?>) usersResponse.get(1);
+        assertThat(first.get("id")).isEqualTo(1);
+        assertThat(first.get("name")).isEqualTo("First user");
+
+        Map<?,?> second = (Map<?,?>) usersResponse.get(2);
+        assertThat(second.get("id")).isEqualTo(2);
+        assertThat(second.get("name")).isEqualTo("Second user");
+    }
+
+    @Test
+    public void getUnnassignedUser(){
+        Map<String, Object> map = target("workgroups/-1/users").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(1);
+        List<?> usersResponse = (List<?>) map.get("data");
+        assertThat(usersResponse).hasSize(1);
+
+        Map<?,?> unassigned = (Map<?,?>) usersResponse.get(0);
+        assertThat(unassigned.get("id")).isEqualTo(-1);
+    }
+
 
     @Test
     public void testPerformAction() {
