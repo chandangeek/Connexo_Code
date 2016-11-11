@@ -10,8 +10,8 @@ public enum Privileges implements TranslationKey {
     RESOURCE_USAGE_POINT_GROUPS_DESCRIPTION("usagePointGroup.usagePointGroups.description", "Manage usage point groups"),
 
     //Privileges
-    ADMINISTRATE_USAGE_POINT_GROUP(Constants.ADMINISTRATE_USAGE_POINT_GROUP, "Administrate"),
-    ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP(Constants.ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP, "Administrate static usage point groups"),
+    ADMINISTER_USAGE_POINT_GROUP(Constants.ADMINISTER_USAGE_POINT_GROUP, "Administer"),
+    ADMINISTER_USAGE_POINT_ENUMERATED_GROUP(Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP, "Administer static usage point groups"),
     VIEW_USAGE_POINT_GROUP_DETAIL(Constants.VIEW_USAGE_POINT_GROUP_DETAIL, "View detail"),
     ;
 
@@ -43,8 +43,8 @@ public enum Privileges implements TranslationKey {
     }
 
     public interface Constants {
-        String ADMINISTRATE_USAGE_POINT_GROUP = "privilege.administrate.usagePointGroup";
-        String ADMINISTRATE_USAGE_POINT_ENUMERATED_GROUP = "privilege.administrate.usagePointEnumeratedGroup";
+        String ADMINISTER_USAGE_POINT_GROUP = "privilege.administer.usagePointGroup";
+        String ADMINISTER_USAGE_POINT_ENUMERATED_GROUP = "privilege.administer.usagePointEnumeratedGroup";
         String VIEW_USAGE_POINT_GROUP_DETAIL = "privilege.view.usagePointGroupDetail";
     }
 }
