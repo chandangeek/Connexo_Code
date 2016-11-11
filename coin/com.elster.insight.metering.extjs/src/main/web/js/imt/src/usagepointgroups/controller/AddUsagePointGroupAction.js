@@ -181,7 +181,7 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
                 Ext.suspendLayouts();
                 me.prepareNextStep(nextStep);
                 wizardLayout.setActiveItem(nextStep - 1);
-                this.getNavigationMenu().moveToStep(nextStep);
+                me.getNavigationMenu().moveToStep(nextStep);
                 Ext.resumeLayouts(true);
             };
 
