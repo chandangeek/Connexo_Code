@@ -17,10 +17,10 @@ Ext.define('Isu.view.component.WorkgroupColumn', {
             if (value.name) {
                 result += Ext.String.htmlEncode(value.name);
             }
+            //metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(value.name) + '"';
         } else {
             result = '-'
         }
-
         return result || this.columns[colIndex].emptyText;
     }
 });

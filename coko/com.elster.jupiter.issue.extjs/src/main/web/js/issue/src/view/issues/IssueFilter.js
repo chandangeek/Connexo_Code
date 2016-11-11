@@ -44,7 +44,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 store: 'Isu.store.IssueWorkgroupAssignees',
                 displayField: 'name',
                 valueField: 'id',
-                queryMode: 'remote',
+                queryMode: 'local',
                 minChars: 1
             },
             {
@@ -63,7 +63,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 minChars: 1,
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
-                getParamValue1: me.comboGetParamValue,
+                getParamValue: me.comboGetParamValue,
                 forceSelection: false,
                 listeners: {
                     expand: {
@@ -202,7 +202,8 @@ Ext.define('Isu.view.issues.IssueFilter', {
     },
 
     comboGetParamValue: function () {
-        return this.value;
+        var me = this;
+        return Ext.isArray(me.value) && me.value.length > 0 && Ext.isObject(me.value[0]) ? me.value[0].get('id') : me.value;
     },
 
     comboLimitNotification: function (combo) {

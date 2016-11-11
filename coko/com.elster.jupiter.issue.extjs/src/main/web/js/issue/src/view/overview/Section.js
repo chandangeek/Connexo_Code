@@ -35,7 +35,7 @@ Ext.define('Isu.view.overview.Section', {
                     me.down('button').setText(Uni.I18n.translate('overview.issues.showMore', 'ISU', 'Show more'));
                 }
             }
-            if (section == 'assignee') {
+            if (section == 'userAssignee') {
                 var unassigned = store.findRecord('id', -1);
                 if (unassigned) {
                     store.remove(unassigned);
@@ -43,7 +43,7 @@ Ext.define('Isu.view.overview.Section', {
                 }
             }
             Ext.Array.each(store.getRange(), function (record) {
-                if (section == 'assignee') {
+                if (section == 'userAssignee') {
                     queryString[section] = record.get('id');
                 }
                 queryString.groupingType = 'none';

@@ -66,7 +66,7 @@ Ext.define('Isu.view.overview.Overview', {
                                 items: [
                                     {
                                         title: Uni.I18n.translate('workspace.perAssignee', 'ISU', 'Per assignee'),
-                                        itemId: 'assignee',
+                                        itemId: 'userAssignee',
                                         margin: '20 10 0 0'
                                     },
                                     {

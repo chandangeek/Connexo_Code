@@ -188,7 +188,14 @@ Ext.define('Isu.controller.IssuesOverview', {
 
         switch (button.filterBy) {
             case 'userAssignee':
-                if (button.filterValue) {
+                if (button.filterValue && button.filterValue.id) {
+                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id]);
+                } else {
+                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([-1]);
+                }
+                break;
+            case 'workGroupAssignee':
+                if (button.filterValue && button.filterValue.id) {
                     filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id]);
                 } else {
                     filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([-1]);

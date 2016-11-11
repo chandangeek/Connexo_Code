@@ -12,7 +12,7 @@ Ext.define('Isu.view.component.UserCombo', {
     queryDelay: 100,
     minChars: 0,
     disableKeyFilter: true,
-    queryCaching: false,
+    queryCaching: true,
     typeAhead: true,
     forceSelection: true,
     formBind: false,

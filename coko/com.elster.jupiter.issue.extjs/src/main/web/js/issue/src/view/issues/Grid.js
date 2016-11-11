@@ -9,8 +9,13 @@ Ext.define('Isu.view.issues.Grid', {
         'Isu.view.issues.ActionMenu',
         'Isu.view.component.AssigneeColumn',
         'Isu.view.component.WorkgroupColumn',
-        'Isu.privileges.Issue'
+        'Isu.privileges.Issue',
+        'Uni.grid.plugin.ShowConditionalToolTip'
     ],
+    plugins: [{
+        ptype: 'showConditionalToolTip',
+        pluginId: 'showConditionalToolTipId'
+    }],
     alias: 'widget.issues-grid',
     router: null,
 
@@ -61,22 +66,53 @@ Ext.define('Isu.view.issues.Grid', {
             {
                 itemId: 'issues-grid-workgroup',
                 header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
-                xtype: 'isu-workgroup-column',
+                //xtype: 'isu-workgroup-column',
                 dataIndex: 'workGroupAssignee',
-                renderer: function (value) {
-                    return (value && value.name) ? value.name : '-';
-                },
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record, rowIndex, colIndex) {
+                    var result;
+
+                    if (!Ext.isEmpty(value) && value.hasOwnProperty('id')) {
+                        result = '';
+
+                        result += '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="';
+                        result += Uni.I18n.translate('assignee.tooltip.workgroup', 'ISU', 'Workgroup');
+                        result += '"></span>';
+
+                        if (value.name) {
+                            result += Ext.String.htmlEncode(value.name);
+                        }
+                    } else {
+                        result = '-'
+                    }
+                    return result || this.columns[colIndex].emptyText;
+                }
             },
             {
                 itemId: 'issues-grid-assignee',
                 header: Uni.I18n.translate('general.user', 'ISU', 'User'),
-                xtype: 'isu-assignee-column',
+                //xtype: 'isu-assignee-column',
                 dataIndex: 'userAssignee',
-                renderer: function (value) {
-                    return (value && value.name) ? value.name : '-';
-                },
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record, rowIndex, colIndex) {
+                    var result
+
+                    if (value && value.hasOwnProperty('id')) {
+                        var result = '';
+
+                        result += '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="';
+                        result += Uni.I18n.translate('assignee.tooltip.USER', 'ISU', 'User');
+                        result += '"></span>';
+
+                        if (value.name) {
+                            result += Ext.String.htmlEncode(value.name);
+                        }
+                    } else {
+                        result = '-';
+                    }
+
+                    return result || this.columns[colIndex].emptyText;
+                }
             },
             {
                 itemId: 'action',

@@ -154,7 +154,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : '-';
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                         }
                     },
                     {
@@ -163,7 +163,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.USER', 'ISU', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : '-';
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                         }
                     },
                     {

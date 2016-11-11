@@ -26,7 +26,7 @@ Ext.define('Isu.controller.Overview', {
         }
     ],
 
-    sections: ['issueType', 'status', 'assignee', 'reason'],
+    sections: ['issueType', 'status', 'userAssignee', 'reason'],
 
     init: function () {
         this.control({

@@ -8,6 +8,7 @@ Ext.define('Isu.model.IssuesFilter', {
         'issueType',
         'status',
         'userAssignee',
+        'workGroupAssignee',
         'reason',
         'meter',
         'dueDate',
