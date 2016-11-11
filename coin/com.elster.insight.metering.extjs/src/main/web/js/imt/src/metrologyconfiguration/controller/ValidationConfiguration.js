@@ -63,7 +63,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View');
 
         if (tab != 'rules') { //only 'rules' tab is available
-            router.getRoute('administration/metrologyconfiguration/view/validation').forward({tab: 'rules'});
+            window.location.replace(router.getRoute('administration/metrologyconfiguration/view/validation').buildUrl({tab: 'rules'}));
         } else {
             pageMainContent.setLoading();
             metrologyConfigurationController.loadMetrologyConfiguration(mcid, {
