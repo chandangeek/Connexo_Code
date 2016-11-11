@@ -54,6 +54,10 @@ abstract class AbstractGroup<T extends HasId & IdentifiedObject> implements Grou
         this.dataModel = dataModel;
     }
 
+    void validate() {
+        Save.CREATE.validate(dataModel, this);
+    }
+
     @Override
     public void delete() {
         this.eventService.postEvent(onDeleteAttempt().topic(), new GroupEventData(this));

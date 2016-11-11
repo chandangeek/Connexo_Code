@@ -16,9 +16,14 @@ public interface GroupBuilder<T extends HasId & IdentifiedObject, EG extends Enu
 
     QueryGroupBuilder<T, QG> withConditions(SearchablePropertyValue... conditions);
 
-    interface EnumeratedGroupBuilder<T extends HasId & IdentifiedObject, G extends EnumeratedGroup<T>> {
+    interface GroupCreator<G extends Group<?>> {
         G create();
 
+        G validate();
+    }
+
+    interface EnumeratedGroupBuilder<T extends HasId & IdentifiedObject, G extends EnumeratedGroup<T>>
+            extends GroupCreator<G> {
         EnumeratedGroupBuilder<T, G> at(Instant at);
         EnumeratedGroupBuilder<T, G> containing(T... moreDevices);
 
@@ -30,9 +35,8 @@ public interface GroupBuilder<T extends HasId & IdentifiedObject, EG extends Enu
         EnumeratedGroupBuilder<T, G> setLabel(String label);
     }
 
-    interface QueryGroupBuilder<T extends HasId & IdentifiedObject, G extends QueryGroup<T>> {
-        G create();
-
+    interface QueryGroupBuilder<T extends HasId & IdentifiedObject, G extends QueryGroup<T>>
+            extends GroupCreator<G> {
         QueryGroupBuilder<T, G> withConditions(SearchablePropertyValue... conditions);
         QueryGroupBuilder<T, G> setQueryProviderName(String queryProviderName);
         QueryGroupBuilder<T, G> setSearchDomain(SearchDomain searchDomain);

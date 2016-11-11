@@ -58,6 +58,15 @@ class GroupBuilderImpl<T extends HasId & IdentifiedObject, EG extends AbstractEn
         }
 
         @Override
+        public EG validate() {
+            if (built) {
+                throw new IllegalStateException();
+            }
+            underConstruction.validate();
+            return underConstruction;
+        }
+
+        @Override
         public EnumeratedGroupBuilder<T, EG> at(Instant at) {
             since = at;
             return this;
@@ -127,6 +136,15 @@ class GroupBuilderImpl<T extends HasId & IdentifiedObject, EG extends AbstractEn
             } finally {
                 built = true;
             }
+        }
+
+        @Override
+        public QG validate() {
+            if (built) {
+                throw new IllegalStateException();
+            }
+            underConstruction.validate();
+            return underConstruction;
         }
 
         @Override
