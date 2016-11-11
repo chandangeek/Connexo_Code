@@ -82,6 +82,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.After;
@@ -121,12 +122,11 @@ public class DataExportServiceImplIT {
         }
     }
 
-    public static final String NAME = "NAME";
-
-    public static final String FORMATTER = "formatter";
-
+    private static final String NAME = "NAME";
+    private static final String APPLICATION = "Admin";
+    private static final String FORMATTER = "formatter";
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
-    public static final Clock CLOCK = Clock.fixed(NOW.toInstant(), ZoneId.systemDefault());
+    private static final Clock CLOCK = Clock.fixed(NOW.toInstant(), ZoneId.systemDefault());
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
@@ -271,7 +271,7 @@ public class DataExportServiceImplIT {
                     .scheduleImmediately()
                     .setDataFormatterFactoryName(FORMATTER)
                     .setName(NAME)
-                    .setApplication("Admin")
+                    .setApplication(APPLICATION)
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                     .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
                     .selectingReadingTypes()
@@ -322,16 +322,16 @@ public class DataExportServiceImplIT {
     }
 
     private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
-        return createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, NAME);
+        return createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, NAME, APPLICATION);
     }
 
-    private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
+    private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name, String application) {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setDataFormatterFactoryName(FORMATTER)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setName(name)
-                .setApplication("Admin")
+                .setApplication(application)
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
                 .selectingReadingTypes()
                 .fromExportPeriod(lastYear)
@@ -350,9 +350,9 @@ public class DataExportServiceImplIT {
     }
 
     private ExportTask createAndSaveTask(String name) {
-        ExportTask exportTask = null;
+        ExportTask exportTask;
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
+            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name, APPLICATION);
 
             exportTask.update();
             context.commit();
@@ -360,12 +360,21 @@ public class DataExportServiceImplIT {
         return exportTask;
     }
 
-    private ExportTaskImpl createDataExportTask() {
-        ExportTaskImpl exportTask;
+    @Test
+    public void testExportTaskFinder() {
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = (ExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
-            context.commit();
+            ExportTask t1 = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, "T1", "MultiSense");
+            ExportTask t2 = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, "T2", "MultiSense");
+            ExportTask t3 = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, "T3", "Insight");
+
+            List<? extends ExportTask> exportTasks;
+            exportTasks = dataExportService.findExportTasks().ofApplication("MultiSense").setStart(1).setLimit(1).find();
+            assertThat(exportTasks).hasSize(1);
+            assertThat(exportTasks.get(0).getId()).isEqualTo(t2.getId());
+
+            exportTasks = dataExportService.findExportTasks().ofApplication("Insight").find();
+            assertThat(exportTasks).hasSize(1);
+            assertThat(exportTasks.get(0).getId()).isEqualTo(t3.getId());
         }
-        return exportTask;
     }
 }
