@@ -364,7 +364,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                 Unsigned16 eventCode = eventPayload.getDataType(1).getUnsigned16();
                 Unsigned16 deviceCode = eventPayload.getDataType(2).getUnsigned16();
                 String description = parseDescriptionFromOctetString(eventPayload.getDataType(3).getOctetString());
-                createCollectedLogBook(dateTime1, deviceCode.getValue(), eventCode.getValue(), description);
+                createCollectedLogBook(dateTime1, eventCode.getValue(), deviceCode.getValue(), description);
             } else {
                 AbstractDataType dataType = eventPayload.getNextDataType();
                 if (dataType instanceof OctetString) {
