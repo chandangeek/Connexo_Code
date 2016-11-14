@@ -66,8 +66,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedUsagePointGroupImplIT {
 
-//    private static final String UP_MRID = "15-451785-45 ";
-    private static final String UP_MRID = " ( ";
+//    private static final String UP_NAME = "15-451785-45 ";
+    private static final String UP_NAME = " ( ";
     private Injector injector;
 
     @Mock
@@ -146,7 +146,7 @@ public class EnumeratedUsagePointGroupImplIT {
         UsagePoint usagePoint = null;
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_MRID, Instant.EPOCH).create();
+            usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_NAME, Instant.EPOCH).create();
             ctx.commit();
         }
 

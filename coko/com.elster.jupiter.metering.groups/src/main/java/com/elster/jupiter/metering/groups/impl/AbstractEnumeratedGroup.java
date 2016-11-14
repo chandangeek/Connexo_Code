@@ -201,7 +201,7 @@ abstract class AbstractEnumeratedGroup<T extends HasId & IdentifiedObject> exten
                 getDataModel().query(getEntryApiClass(), getApiClass(), getParameterApiClass()));
         query.setEager();
         Condition condition = where("group").isEqualTo(this).and(where("interval").isEffective(instant));
-        return query.select(condition, start + 1, start + limit + 1, Order.ascending("member.mRID").toUpperCase()).stream()
+        return query.select(condition, start + 1, start + limit + 1, Order.ascending("member.name").toUpperCase()).stream()
                 .map(Entry::getMember).collect(Collectors.toList());
     }
 

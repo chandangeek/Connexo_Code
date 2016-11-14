@@ -159,7 +159,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
 
     @Override
     public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {
-        return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
+        return dataModel.stream(UsagePointGroup.class).filter(Operator.EQUAL.compare("mRID", mRID)).findFirst();
     }
 
     private GroupBuilder<EndDevice, ? extends EnumeratedEndDeviceGroup, ? extends QueryEndDeviceGroup> getEndDeviceGroupBuilder() {
@@ -234,7 +234,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
 
     @Override
     public Optional<EndDeviceGroup> findEndDeviceGroup(String mRID) {
-        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
+        return dataModel.stream(EndDeviceGroup.class).filter(Operator.EQUAL.compare("mRID", mRID)).findFirst();
     }
 
     @Override

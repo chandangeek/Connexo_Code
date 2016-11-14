@@ -78,7 +78,7 @@ public class QueryEndDeviceGroupImplIT {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private ServiceRegistration serviceRegistration;
+    private ServiceRegistration<Object> serviceRegistration;
     @Mock
     private UserService userService;
     @Mock
@@ -156,7 +156,7 @@ public class QueryEndDeviceGroupImplIT {
                     .setMRID("MRID")
                     .setQueryProviderName("DeviceQueryProvider")
                     .setSearchDomain(searchDomain)
-                    .withConditions(mockSearchablePropertyValue("mRID", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
+                    .withConditions(mockSearchablePropertyValue("name", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
                     .withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")))
                     .create();
 
@@ -169,7 +169,7 @@ public class QueryEndDeviceGroupImplIT {
             List<QueryGroupCondition> conditions = endDeviceGroup.getConditions();
             assertThat(conditions).hasSize(2);
 
-            assertThat(conditions.get(0).getSearchableProperty()).isEqualTo("mRID");
+            assertThat(conditions.get(0).getSearchableProperty()).isEqualTo("name");
             assertThat(conditions.get(0).getOperator()).isEqualTo(SearchablePropertyOperator.EQUAL);
             assertThat(conditions.get(0).getConditionValues()).hasSize(2);
             assertThat(conditions.get(0).getConditionValues().get(0).getValue()).isEqualTo("DME*");
@@ -199,7 +199,7 @@ public class QueryEndDeviceGroupImplIT {
             Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName("group");
             assertThat(endDeviceGroup).isPresent();
 
-            //create the another group with the same name
+            //create another group with the same name
             meteringGroupsService.createQueryEndDeviceGroup()
                     .setName("group")
                     .setMRID("MRID")
@@ -218,7 +218,7 @@ public class QueryEndDeviceGroupImplIT {
                     .setMRID("MRID:V1")
                     .setQueryProviderName("DeviceQueryProvider")
                     .setSearchDomain(searchDomain)
-                    .withConditions(mockSearchablePropertyValue("mRID", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
+                    .withConditions(mockSearchablePropertyValue("name", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
                     .withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")))
                     .create();
 
@@ -253,7 +253,7 @@ public class QueryEndDeviceGroupImplIT {
                     .setMRID("MRID:V1")
                     .setQueryProviderName("DeviceQueryProvider")
                     .setSearchDomain(searchDomain)
-                    .withConditions(mockSearchablePropertyValue("mRID", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
+                    .withConditions(mockSearchablePropertyValue("name", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
                     .withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")))
                     .create();
 
