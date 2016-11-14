@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -36,6 +35,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         OBSOLETE_TIME("obsoleteTime"),
         STATE_MACHINE("stateMachine"),
         TRANSITIONS("transitions"),
+        STATES("states"),
         DEFAULT("isDefault"),;
 
         private final String javaFieldName;
@@ -60,6 +60,8 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @Valid
     private List<UsagePointTransitionImpl> transitions = new ArrayList<>();
+    @Valid
+    private List<UsagePointStateImpl> states = new ArrayList<>();
     private boolean isDefault;
 
     @SuppressWarnings("unused")
@@ -96,10 +98,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
 
     @Override
     public List<UsagePointState> getStates() {
-        return this.stateMachine.get().getStates()
-                .stream()
-                .map(state -> this.dataModel.getInstance(UsagePointStateImpl.class).init(this, state))
-                .collect(Collectors.toList());
+        return Collections.unmodifiableList(this.states);
     }
 
     @Override
@@ -183,11 +182,21 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
                 throw UsagePointLifeCycleRemoveException.lifeCycleIsDefault(this.thesaurus);
             }
             this.eventService.postEvent(EventType.LIFE_CYCLE_BEFORE_DELETE.topic(), this);
-            new ArrayList<>(this.transitions).forEach(UsagePointTransitionImpl::remove);
+            new ArrayList<>(this.transitions).forEach(UsagePointTransitionImpl::remove); // can't just clear due to event type
             this.obsoleteTime = this.clock.instant();
             this.save();
             this.eventService.postEvent(EventType.LIFE_CYCLE_DELETED.topic(), this);
         }
+    }
+
+    void addState(UsagePointStateImpl state) {
+        Save.CREATE.validate(this.dataModel, state);
+        this.states.add(state);
+    }
+
+    void removeState(UsagePointStateImpl state) {
+        this.states.remove(state);
+        touch();
     }
 
     void addTransition(UsagePointTransitionImpl transition) {

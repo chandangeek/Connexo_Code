@@ -22,6 +22,8 @@ public interface UsagePointLifeCycleConfigurationService {
 
     UsagePointLifeCycle cloneUsagePointLifeCycle(String name, UsagePointLifeCycle source);
 
+    Finder<UsagePointState> getUsagePointStates();
+
     Optional<UsagePointState> findUsagePointState(long id);
 
     Optional<UsagePointState> findAndLockUsagePointStateByIdAndVersion(long id, long version);

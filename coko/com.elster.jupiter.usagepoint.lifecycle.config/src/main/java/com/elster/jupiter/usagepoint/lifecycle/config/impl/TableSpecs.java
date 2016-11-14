@@ -1,12 +1,15 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 public enum TableSpecs {
@@ -31,7 +34,30 @@ public enum TableSpecs {
                     .add();
         }
     },
+    UPL_STATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointState> table = dataModel.addTable(this.name(), UsagePointState.class);
+            table.map(UsagePointStateImpl.class);
+            Column stateColumn = table.column("STATE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column lifeCycleColumn = table.column("LIFE_CYCLE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
 
+            table.primaryKey("PK_UPL_STATE").on(stateColumn).add();
+            table.foreignKey("FK_UPL_STATE_2_LIFE_CYCLE")
+                    .on(lifeCycleColumn)
+                    .references(UPL_LIFE_CYCLE.name())
+                    .map(UsagePointStateImpl.Fields.LIFE_CYCLE.fieldName())
+                    .reverseMap(UsagePointLifeCycleImpl.Fields.STATES.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
+                    .composition()
+                    .add();
+            table.foreignKey("FK_UPL_2_FSM_STATE")
+                    .on(stateColumn)
+                    .references(State.class)
+                    .map(UsagePointStateImpl.Fields.STATE.fieldName())
+                    .add();
+        }
+    },
     UPL_TRANSITION {
         @Override
         void addTo(DataModel dataModel) {
@@ -43,8 +69,6 @@ public enum TableSpecs {
             Column lifeCycle = table.column("LIFE_CYCLE").number().notNull().add();
             table.column("NAME").varChar().map(UsagePointTransitionImpl.Fields.NAME.fieldName()).add();
             table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.LEVELS.fieldName()).add();
-//            table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.CHECKS.fieldName()).add();
-//            table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.ACTIONS.fieldName()).add();
             Column fsmTransition = table.column("FSM_TRANSITION").number().add();
 
             table.primaryKey("PK_UPL_TRANSITION").on(id).add();

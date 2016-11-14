@@ -23,9 +23,9 @@ public enum DefaultState {
     }
 
     private enum Translation implements TranslationKey {
-        ACTIVE("usage.point.state.active", "Connected"),
+        ACTIVE("usage.point.state.active", "Active"),
         DEMOLISHED("usage.point.state.demolished", "Demolished"),
-        INACTIVE("usage.point.state.inactive", "Logically disconnected"),
+        INACTIVE("usage.point.state.inactive", "Inactive"),
         UNDER_CONSTRUCTION("usage.point.state.under.construction", "Under construction");
 
         private String key;

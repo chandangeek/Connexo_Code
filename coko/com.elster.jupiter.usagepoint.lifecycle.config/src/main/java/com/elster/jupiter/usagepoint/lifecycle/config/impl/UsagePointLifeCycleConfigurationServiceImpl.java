@@ -163,7 +163,6 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     public void activate() {
         this.dataModel.register(this.getModule());
         this.upgradeService.register(InstallIdentifier.identifier("Pulse", UsagePointLifeCycleConfigurationService.COMPONENT_NAME), this.dataModel, Installer.class, Collections.emptyMap());
-
     }
 
     public Module getModule() {
@@ -229,14 +228,15 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Override
     public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
+        UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
         FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
         State underConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete();
-        stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete();
-        stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete();
-        stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, underConstruction);
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete());
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete());
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete());
 
         FiniteStateMachine stateMachine = stateMachineBuilder.complete(underConstruction);
-        UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
         lifeCycle.setName(name);
         lifeCycle.setStateMachine(stateMachine);
         lifeCycle.save();
@@ -249,8 +249,10 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         UsagePointLifeCycleImpl sourceImpl = (UsagePointLifeCycleImpl) source;
         UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
         lifeCycle.setName(name);
-        lifeCycle.setStateMachine(this.stateMachineService.cloneFiniteStateMachine(sourceImpl.getStateMachine(), name));
+        FiniteStateMachine stateMachine = this.stateMachineService.cloneFiniteStateMachine(sourceImpl.getStateMachine(), name);
+        lifeCycle.setStateMachine(stateMachine);
         lifeCycle.save();
+        stateMachine.getStates().forEach(fsmState -> this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmState));
         cloneTransitions(sourceImpl, lifeCycle);
         return lifeCycle;
     }
@@ -278,29 +280,18 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
+    public Finder<UsagePointState> getUsagePointStates() {
+        return DefaultFinder.of(UsagePointState.class, this.dataModel, State.class);
+    }
+
+    @Override
     public Optional<UsagePointState> findUsagePointState(long id) {
-        Optional<State> fsmState = this.stateMachineService.findFiniteStateById(id);
-        if (fsmState.isPresent()) {
-            FiniteStateMachine stateMachine = fsmState.get().getFiniteStateMachine();
-            return this.dataModel.query(UsagePointLifeCycle.class).select(where(UsagePointLifeCycleImpl.Fields.STATE_MACHINE.fieldName()).isEqualTo(stateMachine))
-                    .stream()
-                    .map(lifeCycle -> this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmState.get()))
-                    .findFirst();
-        }
-        return Optional.empty();
+        return this.dataModel.mapper(UsagePointState.class).getOptional(id);
     }
 
     @Override
     public Optional<UsagePointState> findAndLockUsagePointStateByIdAndVersion(long id, long version) {
-        Optional<State> fsmState = this.stateMachineService.findAndLockStateByIdAndVersion(id, version);
-        if (fsmState.isPresent()) {
-            FiniteStateMachine stateMachine = fsmState.get().getFiniteStateMachine();
-            return this.dataModel.query(UsagePointLifeCycle.class).select(where(UsagePointLifeCycleImpl.Fields.STATE_MACHINE.fieldName()).isEqualTo(stateMachine))
-                    .stream()
-                    .map(lifeCycle -> this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmState.get()))
-                    .findFirst();
-        }
-        return Optional.empty();
+        return this.dataModel.mapper(UsagePointState.class).lockObjectIfVersion(version, id);
     }
 
     @Override

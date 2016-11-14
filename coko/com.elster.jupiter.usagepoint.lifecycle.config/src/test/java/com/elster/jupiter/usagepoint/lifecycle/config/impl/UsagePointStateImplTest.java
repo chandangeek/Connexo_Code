@@ -7,7 +7,6 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
@@ -31,7 +30,7 @@ public class UsagePointStateImplTest {
     @Mock
     private EventService eventService;
     @Mock
-    private UsagePointLifeCycle lifeCycle;
+    private UsagePointLifeCycleImpl lifeCycle;
     @Mock
     private State fsmState;
     @Mock

@@ -6,7 +6,6 @@ import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import javax.inject.Inject;
@@ -14,7 +13,7 @@ import javax.inject.Inject;
 public class UsagePointStateCreatorImpl implements UsagePointState.UsagePointStateCreator<UsagePointStateCreatorImpl> {
     private final DataModel dataModel;
 
-    private UsagePointLifeCycle lifeCycle;
+    private UsagePointLifeCycleImpl lifeCycle;
     private FiniteStateMachineUpdater stateMachineUpdater;
     private FiniteStateMachineBuilder.StateBuilder stateBuilder;
     private boolean isInitial = false;
