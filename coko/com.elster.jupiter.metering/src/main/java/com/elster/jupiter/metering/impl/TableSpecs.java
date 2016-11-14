@@ -74,6 +74,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Range;
 
@@ -1856,7 +1857,7 @@ public enum TableSpecs {
             table.since(version(10, 3));
             Column usagePoint = table.column("USAGE_POINT").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.column("UPL_STATE").map("stateId").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column state = table.column("UPL_STATE").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.addAuditColumns();
             table.primaryKey("MTR_UPL_STATE_PK").on(usagePoint, intervalColumns.get(0)).add();
             table.foreignKey("MTR_UPL_STATE_2_UP_FK")
@@ -1866,6 +1867,11 @@ public enum TableSpecs {
                     .map("usagePoint")
                     .reverseMap("state")
                     .composition()
+                    .add();
+            table.foreignKey("FK_UPL_STATE_2_STATE")
+                    .on(state)
+                    .references(UsagePointState.class)
+                    .map("state")
                     .add();
         }
     },;

@@ -41,7 +41,7 @@ public class UsagePointStateDeletionEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         UsagePointState source = (UsagePointState) localEvent.getSource();
         if (!this.meteringService.getDataModel().query(UsagePointStateTemporalImpl.class)
-                .select(where("stateId").isEqualTo(source.getId()).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
+                .select(where("state").isEqualTo(source).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
                 .isEmpty()) {
             throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveState(this.thesaurus);
         }

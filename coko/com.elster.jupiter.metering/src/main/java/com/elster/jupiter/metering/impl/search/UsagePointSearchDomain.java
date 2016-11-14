@@ -15,6 +15,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -49,6 +50,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
     private volatile Clock clock;
     private volatile LicenseService licenseService;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     // For OSGi purposes
     public UsagePointSearchDomain() {
@@ -57,13 +59,19 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     // For Testing purposes
     @Inject
-    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, MeteringTranslationService meteringTranslationService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
+    public UsagePointSearchDomain(PropertySpecService propertySpecService,
+                                  ServerMeteringService meteringService,
+                                  MeteringTranslationService meteringTranslationService,
+                                  ServerMetrologyConfigurationService metrologyConfigurationService,
+                                  Clock clock,
+                                  UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
         this.setMeteringTranslationService(meteringTranslationService);
         this.setServerMetrologyConfigurationService(metrologyConfigurationService);
         this.setClock(clock);
+        this.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
     }
 
     @Reference
@@ -94,6 +102,11 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Reference
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Override
@@ -322,6 +335,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new UsagePointStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.usagePointLifeCycleConfigurationService),
                 new MeterSearchableProperty(this, this.propertySpecService, this.meteringService)));
     }
 

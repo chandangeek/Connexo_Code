@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.time.Interval;
 
@@ -19,12 +18,10 @@ import java.time.Instant;
 public class UsagePointStateTemporalImpl implements Effectivity {
 
     private final DataModel dataModel;
-    private final UsagePointLifeCycleConfigurationService lifeCycleConfigurationService;
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-    private long stateId;
-    private transient UsagePointState stateObj;
+    private Reference<UsagePointState> state = ValueReference.absent();
     private Interval interval;
     private long version;
     private Instant createTime;
@@ -32,25 +29,19 @@ public class UsagePointStateTemporalImpl implements Effectivity {
     private String userName;
 
     @Inject
-    public UsagePointStateTemporalImpl(DataModel dataModel, UsagePointLifeCycleConfigurationService lifeCycleConfigurationService) {
+    public UsagePointStateTemporalImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.lifeCycleConfigurationService = lifeCycleConfigurationService;
     }
 
     UsagePointStateTemporalImpl init(UsagePointImpl usagePoint, UsagePointState state, Instant startTime) {
         this.usagePoint.set(usagePoint);
-        this.stateId = state.getId();
-        this.stateObj = state;
+        this.state.set(state);
         this.interval = Interval.of(Range.atLeast(startTime));
         return this;
     }
 
     public UsagePointState getState() {
-        if (this.stateObj == null) {
-            this.stateObj = this.lifeCycleConfigurationService.findUsagePointState(this.stateId)
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown state with id = " + this.stateId));
-        }
-        return this.stateObj;
+        return this.state.get();
     }
 
     @Override

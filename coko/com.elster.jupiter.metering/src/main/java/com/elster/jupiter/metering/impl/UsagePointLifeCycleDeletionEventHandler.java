@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -15,8 +14,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -44,9 +41,8 @@ public class UsagePointLifeCycleDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         UsagePointLifeCycle source = (UsagePointLifeCycle) localEvent.getSource();
-        List<Long> stateIds = source.getStates().stream().map(UsagePointState::getId).collect(Collectors.toList());
         if (!this.meteringService.getDataModel().query(UsagePointStateTemporalImpl.class)
-                .select(ListOperator.IN.contains("stateId", stateIds).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
+                .select(ListOperator.IN.contains("state", source.getStates()).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
                 .isEmpty()) {
             throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveLifeCycle(this.thesaurus);
         }
