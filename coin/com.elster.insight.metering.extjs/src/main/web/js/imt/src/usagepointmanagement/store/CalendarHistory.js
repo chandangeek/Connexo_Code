@@ -1,17 +1,14 @@
-Ext.define('Imt.usagepointmanagement.store.ActiveCalendars', {
+Ext.define('Imt.usagepointmanagement.store.CalendarHistory', {
     extend: 'Ext.data.Store',
     model: 'Imt.usagepointmanagement.model.ActiveCalendar',
-  //  fields: ['fromTime','toTime','next','calendar'],
+    //  fields: ['fromTime','toTime','next','calendar'],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{usagePointMRID}/calendars',
+        urlTpl: '/api/udr/usagepoints/{usagePointMRID}/history/calendars',
         reader: {
             type: 'json',
             root: 'calendars'
-        },
-        pageParam: false,
-        startParam: false,
-        limitParam: false
+        }
     },
 
     setMrid: function (mrid) {

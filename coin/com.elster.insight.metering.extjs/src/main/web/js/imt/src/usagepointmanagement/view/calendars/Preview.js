@@ -12,59 +12,16 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
             {
                 xtype: 'uni-button-action',
                 itemId: 'calendar-preview-action-button',
-                //  hidden: me.hideAction,
-                //  privileges: Imt.privileges.UsagePoint.admin,
                 menu: {
                     xtype: 'calendarActionMenu',
                     itemId: 'calendar-action-menu-id',
-                    //      type: me.type
+                    usagePoint: me.usagePoint
                 }
             }
         ];
 
         me.items = {
-            xtype: 'form',
-            items: [
-                {
-                    xtype: 'fieldset',
-                    title: '<H2>' + Uni.I18n.translate('general.current', 'IMT', 'Current') + '</H2>',
-                    border: false,
-                    defaults: {
-                        labelWidth: 250
-                    },
-                    items: [
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'IMT', 'Start of calculations'),
-                            name: 'startYear'
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('general.periods', 'IMT', 'Periods'),
-                            itemId: 'periodField'
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('general.dayTypes', 'IMT', 'Day types'),
-                            itemId: 'dayTypesField'
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('general.eventTypes', 'IMT', 'Event types'),
-                            itemId: 'tariffsField'
-                        }
-                    ]
-                },
-                {
-                    xtype: 'fieldset',
-                    title: '<H2>'+ Uni.I18n.translate('general.planned', 'IMT', 'Planned') +'</H2>',
-                    border: false,
-                    itemId: 'planned-calendars-fieldset',
-                    defaults: {
-                        labelWidth: 250
-                    }
-                }
-            ]
+            xtype: 'form'
         };
         me.callParent(arguments);
     },
@@ -72,10 +29,50 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
     fillFieldContainers: function (calendarRecord) {
         var me = this;
         Ext.suspendLayouts();
+        me.down('form').removeAll();
+        me.down('form').add([{
+                xtype: 'fieldset',
+                title: '<H2>' + Uni.I18n.translate('general.current', 'IMT', 'Current') + '</H2>',
+                border: false,
+                defaults: {
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'IMT', 'Start of calculations'),
+                        name: 'startYear'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.periods', 'IMT', 'Periods'),
+                        itemId: 'periodField'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.dayTypes', 'IMT', 'Day types'),
+                        itemId: 'dayTypesField'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.eventTypes', 'IMT', 'Event types'),
+                        itemId: 'tariffsField'
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldset',
+                title: '<H2>'+ Uni.I18n.translate('general.planned', 'IMT', 'Planned') +'</H2>',
+                border: false,
+                itemId: 'planned-calendars-fieldset',
+                hidden: true,
+                defaults: {
+                    labelWidth: 250
+                }
+            }]);
 
         me.down('form').loadRecord(calendarRecord);
 
-        me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
             me.down('#periodField').add(
                 {
@@ -86,7 +83,6 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
                 }
             );
         });
-        me.down('#dayTypesField').removeAll();
         calendarRecord.dayTypes().each(function (record) {
             me.down('#dayTypesField').add(
                 {
@@ -98,7 +94,6 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
             );
         });
 
-        this.down('#tariffsField').removeAll();
         calendarRecord.events().each(function (record) {
             me.down('#tariffsField').add(
                 {
@@ -143,20 +138,26 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
         Ext.suspendLayouts();
         this.fillFieldContainers(calendar.getCalendar());
         var temp = calendar;
-        while(!Ext.isEmpty(temp.getNext())){
-            temp = temp.getNext();
-            this.down('#planned-calendars-fieldset').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.calendar', 'IMT', 'Calendar'),
-                    value: temp.getCalendar().get('name')
-                },
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
-                    value: Uni.DateTime.formatDateTimeShort(temp.getCalendar().get('toTime'))
-                }
-            )
+        var plannedFieldSet = this.down('#planned-calendars-fieldset');
+        if(Ext.isEmpty(temp.getNext())){
+            plannedFieldSet.hide();
+        } else {
+            while (!Ext.isEmpty(temp.getNext())) {
+                temp = temp.getNext();
+                plannedFieldSet.show();
+                plannedFieldSet.add(
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.calendar', 'IMT', 'Calendar'),
+                        value: temp.getCalendar().get('name')
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
+                        value: Uni.DateTime.formatDateTimeShort(temp.get('fromTime'))
+                    }
+                )
+            }
         }
         Ext.resumeLayouts(true);
     }

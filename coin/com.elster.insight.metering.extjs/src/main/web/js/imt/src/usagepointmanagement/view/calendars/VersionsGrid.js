@@ -1,6 +1,6 @@
-Ext.define('Imt.usagepointmanagement.view.calendars.Grid', {
+Ext.define('Imt.usagepointmanagement.view.calendars.VersionsGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.active-calendars-grid',
+    alias: 'widget.calendars-versions-grid',
     requires: [
         'Uni.view.toolbar.PagingTop'
     ],
@@ -11,6 +11,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.Category', 'IMT', 'Category'),
+                //  dataIndex: 'calendar',
                 flex: 1,
                 renderer: function(a,b,record){
                     return record.getCalendar().get('category').displayName;
@@ -29,13 +30,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Grid', {
                 dataIndex: 'fromTime',
                 flex: 1,
                 renderer: function(value){
-                   return Uni.DateTime.formatDateTimeShort(value);
-                }
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                menu: {
-                    xtype: 'calendarActionMenu'
+                    return Uni.DateTime.formatDateTimeShort(value);
                 }
             }
         ];
@@ -50,16 +45,13 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Grid', {
                 displayMoreMsg: Uni.I18n.translate('Calendars.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} calendars'),
                 emptyMsg: Uni.I18n.translate('Calendars.pagingtoolbartop.emptyMsg', 'IMT', 'There are no active calendars'),
                 noBottomPaging: true,
-                usesExactCount: true,
-                items: [
-                    {
-                        text: Uni.I18n.translate('devicetype.createDeviceType', 'IMT', 'Add calendar'),
-                        privileges: Imt.privileges.UsagePoint.adminCalendars,
-                        itemId: 'addCalendar',
-                        xtype: 'button',
-                        href: me.router.getRoute('usagepoints/view/calendars/addcalendar').buildUrl({mRID: me.usagePoint.get('mRID')})
-                    }
-                ]
+                usesExactCount: true
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('Calendars.pagingtoolbarbottom.itemsPerPage', 'BPM', 'Calendars per page'),
+                dock: 'bottom'
             }
         ];
 

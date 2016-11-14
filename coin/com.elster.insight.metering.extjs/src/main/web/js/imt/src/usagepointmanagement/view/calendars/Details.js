@@ -56,6 +56,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Details', {
                             {
                                 xtype: 'activeCalendarPreview',
                                 itemId: 'activeCalendarPreview',
+                                usagePoint: me.usagePoint,
                                 frame: true,
                                 title: ' '
                             }
@@ -78,16 +79,6 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Details', {
             }
         ];
         me.callParent(arguments);
-    //    purposesStore.fireEvent('load');
-    //    if (!Ext.isEmpty(me.meterRolesAvailable)) {
-    //        me.down('#metrology-configuration-details-form').insert(2, {
-    //            xtype: 'meter-roles-grid',
-    //            style: 'padding-left: 0; padding-right: 0',
-    //            store: meterRolesStore,
-    //            router: me.router,
-    //            itemId: 'metrology-configuration-meter-roles-grid'
-    //        });
-    //    }
     },
 
     select: function(slectionMode,selection){

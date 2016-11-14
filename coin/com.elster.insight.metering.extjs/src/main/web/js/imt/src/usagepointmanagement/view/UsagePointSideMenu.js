@@ -63,6 +63,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                     {
                         text: Uni.I18n.translate('general.label.calendars', 'IMT', 'Calendars'),
                         itemId: 'usage-point-calendar-configuration-link',
+                        //privileges: Imt.privileges.UsagePoint.adminCalendars,
                         href: me.router.getRoute('usagepoints/view/calendars').buildUrl()
                     }
                 ]

@@ -180,14 +180,28 @@ Ext.define('Imt.controller.History', {
                             route: 'calendars',
                             controller: 'Imt.usagepointmanagement.controller.Calendars',
                             action: 'showCalendars',
-                           // privileges: Imt.privileges.UsagePoint.view,
                             items: {
                                 addcalendar: {
                                     title: Uni.I18n.translate('general.label.addCalendar', 'IMT', 'Add calendar'),
                                     route: 'add',
                                     controller: 'Imt.usagepointmanagement.controller.Calendars',
                                     action: 'addCalendar',
-                                  //  privileges: Imt.privileges.UsagePoint.admin
+                                    privileges: Imt.privileges.UsagePoint.adminCalendars
+                                },
+                                preview: {
+                                    title: Uni.I18n.translate('general.label.addCalendar', 'IMT', 'Preview calendar'),
+                                    route: 'preview/{calendarId}',
+                                    controller: 'Imt.usagepointmanagement.controller.Calendars',
+                                    action: 'previewCalendar',
+                                    callback: function (route) {
+                                        this.getApplication().on('calendarLoaded', function (record) {
+                                            debugger;
+                                            route.setTitle(record.get('mRID'));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },

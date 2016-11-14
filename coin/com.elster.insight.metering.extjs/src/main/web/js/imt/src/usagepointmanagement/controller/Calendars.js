@@ -15,7 +15,8 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
     views: [
         'Imt.usagepointmanagement.view.calendars.Details',
         'Imt.usagepointmanagement.view.calendars.Add',
-        'Imt.usagepointmanagement.view.calendars.ActionMenu'
+        'Imt.usagepointmanagement.view.calendars.ActionMenu',
+        'Imt.usagepointmanagement.view.calendars.PreviewCalendar'
 
     ],
 
@@ -27,6 +28,10 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
         {
             ref: 'form',
             selector: '#frm-add-user-directory'
+        },
+        {
+            ref: 'calendarGrid',
+            selector: 'active-calendars-grid'
         }
     ],
 
@@ -38,10 +43,10 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
             },
             'usage-point-calendar-add #add-button': {
                 click: me.saveCalendar
+            },
+            'calendarActionMenu': {
+                click: me.chooseAction
             }
-            //    '#usage-point-attributes #usage-point-attributes-actions-menu': {
-            //        click: me.chooseAction
-            //    }
         });
     },
 
@@ -58,10 +63,8 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 calendars.setMrid(mRID);
                 calendars.load();
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-calendar-configuration-details', {
-                    // itemId: 'usage-point-metrology-configuration-details',
                     router: router,
                     usagePoint: usagePoint,
-                    // meterRolesAvailable: usagePoint.get('metrologyConfiguration_meterRoles')3269-UP
                 }));
 
 
@@ -83,13 +86,9 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
             success: function (types, usagePoint) {
                 me.usagePoint = usagePoint;
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-calendar-add', {
-                    // itemId: 'usage-point-metrology-configuration-details',
                     router: router,
                     usagePoint: usagePoint
-                    // meterRolesAvailable: usagePoint.get('metrologyConfiguration_meterRoles')
                 }));
-                //   me.getStore('Imt.usagepointmanagement.store.CalendarCategories').load();
-
             },
             failure: function () {
                 viewport.setLoading(false);
@@ -136,6 +135,44 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                         me.getForm().markInvalid(responseText.errors);
                     }
                 }
+            }
+        });
+    },
+
+    chooseAction: function(menu,item){
+        var record = this.getCalendarGrid().getSelectionModel().getLastSelected();
+        switch(item.action){
+            case 'viewPreview':
+                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({mRID: this.usagePoint.get('mRID'), calendarId: record.getCalendar().get('id')})
+                break;
+            case 'viewTimeline':
+                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({mRID: this.usagePoint.get('mRID'), calendarId: record.getCalendar().get('id')})
+                break;
+        }
+    },
+
+    previewCalendar: function(mRID,calendarId){
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
+        usagePointsController.loadUsagePoint(mRID, {
+            success: function (types, usagePoint) {
+                me.usagePoint = usagePoint;
+                var calendars = me.getStore('Imt.usagepointmanagement.store.ActiveCalendars');
+                calendars.setMrid(mRID);
+                calendars.load();
+                me.getApplication().fireEvent('changecontentevent', Ext.widget('usagepoint-view-calendar-setup', {
+                    url: '/api/udr/usagepoints/'+ mRID +'/calendars/',
+                    calendarId: calendarId,
+                    router: router,
+                    usagePoint: usagePoint
+                }));
+
+
+            },
+            failure: function () {
+                viewport.setLoading(false);
             }
         });
     }

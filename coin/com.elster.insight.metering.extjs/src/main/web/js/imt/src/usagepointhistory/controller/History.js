@@ -10,11 +10,13 @@ Ext.define('Imt.usagepointhistory.controller.History', {
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
-        'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'
+        'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint',
+        'Imt.usagepointmanagement.store.CalendarHistory'
     ],
     views: [
         'Imt.usagepointhistory.view.Overview',
-        'Imt.usagepointhistory.view.VersionsOverview'
+        'Imt.usagepointhistory.view.VersionsOverview',
+        'Imt.usagepointhistory.view.CalendarsVersionsOverview'
     ],
     refs: [
         {
@@ -73,85 +75,99 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            calendarStore = me.getStore('Imt.usagepointmanagement.store.CalendarHistory'),
             mRID = router.arguments.mRID,
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
             onVersionsStoreLoad,
             url;
 
-        if (customAttributeSetId != router.queryParams.customAttributeSetId) {
-            router.queryParams.customAttributeSetId = customAttributeSetId;
-            url = router.getRoute().buildUrl(router.arguments, router.queryParams);
-            Uni.util.History.setParsePath(false);
-            Uni.util.History.suspendEventsForNextCall();
-            router.queryParams.customAttributeSetId = customAttributeSetId;
-            delete router.queryParams.selectCurrent;
-            if (isInit) {
-                window.location.replace(url);
-            } else {
-                window.location.href = url;
-            }
-        }
-
-        versionsStore.getProxy().setUrl(mRID, customAttributeSetId);
-
-        Ext.suspendLayouts();
         if (oldCard) {
             oldCard.removeAll();
         }
-        cardView = newCard.add({
-            xtype: 'custom-attribute-set-versions-overview',
-            itemId: 'custom-attribute-set-versions-setup-id',
-            title: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
-            store: versionsStore,
-            type: 'usagePoint',
-            ui: 'medium',
-            padding: 0,
-            selectByDefault: !router.queryParams.selectCurrent
-        });
-        Ext.resumeLayouts(true);
-        if (router.queryParams.selectCurrent) {
-            onVersionsStoreLoad = function () {
-                var currentVersion = versionsStore.find('isActive', true);
 
-                if (cardView.rendered) {
-                    cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
-                }
-            };
-            versionsStore.on('load', onVersionsStoreLoad, me);
-            cardView.on('destroy', function () {
-                versionsStore.un('load', onVersionsStoreLoad, me);
-            })
-        }
-
-        attributeSetModel.getProxy().setUrl(mRID);
-        attributeSetModel.load(customAttributeSetId, {
-            success: function (record) {
-                var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
-
-                if (newCard.rendered) {
-                    Ext.suspendLayouts();
-                    isEditable = record.get('isEditable');
-                    addBtn = newCard.down('#custom-attribute-set-add-version-btn');
-                    addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
-                    actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
-                    actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
-
-                    if (addBtn) {
-                        addBtn.setVisible(isEditable);
-                    }
-                    if (addBtnTop) {
-                        addBtnTop.setVisible(isEditable);
-                    }
-                    if (actionColumn) {
-                        actionColumn.setVisible(isEditable);
-                    }
-                    if (actionBtn) {
-                        actionBtn.setVisible(isEditable);
-                    }
-                    Ext.resumeLayouts(true);
+        if(newCard.itemId === 'calendar-tab'){
+            calendarStore.setMrid(mRID);
+            newCard.add({
+                xtype: 'calendars-versions-overview',
+                store: calendarStore,
+                type: 'usagePoint',
+                ui: 'medium',
+                padding: 0
+            });
+        } else {
+            if (customAttributeSetId != router.queryParams.customAttributeSetId) {
+                router.queryParams.customAttributeSetId = customAttributeSetId;
+                url = router.getRoute().buildUrl(router.arguments, router.queryParams);
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                router.queryParams.customAttributeSetId = customAttributeSetId;
+                delete router.queryParams.selectCurrent;
+                if (isInit) {
+                    window.location.replace(url);
+                } else {
+                    window.location.href = url;
                 }
             }
-        });
+
+            versionsStore.getProxy().setUrl(mRID, customAttributeSetId);
+
+            Ext.suspendLayouts();
+
+            cardView = newCard.add({
+                xtype: 'custom-attribute-set-versions-overview',
+                itemId: 'custom-attribute-set-versions-setup-id',
+                title: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
+                store: versionsStore,
+                type: 'usagePoint',
+                ui: 'medium',
+                padding: 0,
+                selectByDefault: !router.queryParams.selectCurrent
+            });
+            Ext.resumeLayouts(true);
+            if (router.queryParams.selectCurrent) {
+                onVersionsStoreLoad = function () {
+                    var currentVersion = versionsStore.find('isActive', true);
+
+                    if (cardView.rendered) {
+                        cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
+                    }
+                };
+                versionsStore.on('load', onVersionsStoreLoad, me);
+                cardView.on('destroy', function () {
+                    versionsStore.un('load', onVersionsStoreLoad, me);
+                })
+            }
+
+            attributeSetModel.getProxy().setUrl(mRID);
+            attributeSetModel.load(customAttributeSetId, {
+                success: function (record) {
+                    var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
+
+                    if (newCard.rendered) {
+                        Ext.suspendLayouts();
+                        isEditable = record.get('isEditable');
+                        addBtn = newCard.down('#custom-attribute-set-add-version-btn');
+                        addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
+                        actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
+                        actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
+
+                        if (addBtn) {
+                            addBtn.setVisible(isEditable);
+                        }
+                        if (addBtnTop) {
+                            addBtnTop.setVisible(isEditable);
+                        }
+                        if (actionColumn) {
+                            actionColumn.setVisible(isEditable);
+                        }
+                        if (actionBtn) {
+                            actionBtn.setVisible(isEditable);
+                        }
+                        Ext.resumeLayouts(true);
+                    }
+                }
+            });
+        }
     }
 });
