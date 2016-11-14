@@ -80,17 +80,6 @@ public interface SmartMeterProtocol extends HasDynamicProperties {
 
     /**
      * <p>
-     * Validates the protocol specific properties.
-     * The implementer has to specify which keys are mandatory,
-     * </p><p>
-     *
-     * @throws InvalidPropertyException if a property value is not compatible with the device type
-     * @throws MissingPropertyException if a required property is not present
-     */
-    void validateProperties() throws InvalidPropertyException, MissingPropertyException;
-
-    /**
-     * <p>
      * Initializes the MeterProtocol.
      * </p><p>
      * Implementers should save the arguments for future use.
@@ -242,4 +231,10 @@ public interface SmartMeterProtocol extends HasDynamicProperties {
      */
     List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException;
 
+    /**
+     * Returns the implementation version
+     *
+     * @return a version string
+     */
+    String getVersion();
 }
