@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.metering.groups.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.groups.spi.QueryProvider;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -23,6 +24,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -47,6 +49,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -74,6 +77,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     private volatile Thesaurus thesaurus;
     private volatile ExecutionTimerService executionTimerService;
     private volatile UpgradeService upgradeService;
+    private volatile PropertySpecService propertySpecService;
     private ExecutionTimer endDeviceGroupMemberCountTimer;
     private final OptionalServiceContainer<QueryProvider<?>> queryProviders = new CopyOnWriteServiceContainer<>();
 
@@ -81,7 +85,10 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Inject
-    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService, ExecutionTimerService executionTimerService, UpgradeService upgradeService) {
+    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService,
+                                     EventService eventService, SearchService searchService, NlsService nlsService,
+                                     ExecutionTimerService executionTimerService, UpgradeService upgradeService,
+                                     PropertySpecService propertySpecService) {
         this();
         setOrmService(ormService);
         setMeteringService(meteringService);
@@ -91,6 +98,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
         setNlsService(nlsService);
         setExecutionTimerService(executionTimerService);
         setUpgradeService(upgradeService);
+        setPropertySpecService(propertySpecService);
         activate();
     }
 
@@ -111,6 +119,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(ExecutionTimer.class).toInstance(endDeviceGroupMemberCountTimer);
+                    bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
             upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
@@ -306,6 +315,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
         queryProviders.register(queryProvider);
     }
 
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     public void removeQueryProvider(QueryProvider<?> queryProvider) {
         queryProviders.unregister(queryProvider);
     }
@@ -331,6 +345,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
+        translationKeys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
+        return translationKeys;
+    }
+
+    public DataModel getDataModel() {
+        return dataModel;
     }
 }
