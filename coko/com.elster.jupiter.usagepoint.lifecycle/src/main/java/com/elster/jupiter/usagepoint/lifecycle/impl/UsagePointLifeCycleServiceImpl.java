@@ -66,7 +66,7 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, "UsagePoint lifecycle");
+        this.dataModel = ormService.newDataModel(UsagePointLifeCycleService.COMPONENT_NAME, "UsagePoint lifecycle");
     }
 
     @Reference
