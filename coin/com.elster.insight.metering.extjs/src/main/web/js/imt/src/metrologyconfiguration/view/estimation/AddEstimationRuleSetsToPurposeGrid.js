@@ -17,6 +17,16 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.AddEstimationRuleSetsToPu
                 header: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                 dataIndex: 'name',
                 flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.label.activeRules', 'IMT', 'Active rules'),
+                dataIndex: 'activeRules',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.label.inactiveRules', 'IMT', 'Inctive rules'),
+                dataIndex: 'inactiveRules',
+                flex: 1
             }
         ];
 
