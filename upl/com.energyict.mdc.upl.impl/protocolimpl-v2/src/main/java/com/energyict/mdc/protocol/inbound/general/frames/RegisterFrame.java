@@ -1,9 +1,10 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedRegisterList;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.RegisterInfo;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.MdcManager;

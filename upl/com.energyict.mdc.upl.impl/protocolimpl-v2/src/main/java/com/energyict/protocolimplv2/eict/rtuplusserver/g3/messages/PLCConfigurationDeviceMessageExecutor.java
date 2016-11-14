@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.tasks.Issue;
 
 import com.energyict.dlms.axrdencoding.BooleanObject;

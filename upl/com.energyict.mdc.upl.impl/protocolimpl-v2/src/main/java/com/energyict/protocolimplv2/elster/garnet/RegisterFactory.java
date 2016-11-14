@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;

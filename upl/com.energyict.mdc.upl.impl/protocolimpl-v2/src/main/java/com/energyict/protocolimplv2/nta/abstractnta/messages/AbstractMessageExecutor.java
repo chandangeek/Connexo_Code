@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.tasks.Issue;
 
 import com.energyict.dlms.DLMSMeterConfig;

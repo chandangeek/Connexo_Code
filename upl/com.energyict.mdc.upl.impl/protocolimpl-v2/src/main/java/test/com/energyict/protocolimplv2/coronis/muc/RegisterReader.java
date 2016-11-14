@@ -1,6 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.muc;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.cbo.BaseUnit;

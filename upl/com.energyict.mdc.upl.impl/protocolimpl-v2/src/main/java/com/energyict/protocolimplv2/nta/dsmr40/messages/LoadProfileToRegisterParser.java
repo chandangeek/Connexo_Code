@@ -1,15 +1,20 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
+import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedRegisterList;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author sva

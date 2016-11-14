@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;

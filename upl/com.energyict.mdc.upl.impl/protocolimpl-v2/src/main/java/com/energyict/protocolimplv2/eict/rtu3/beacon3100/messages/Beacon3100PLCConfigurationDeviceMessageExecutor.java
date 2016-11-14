@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.dlms.cosem.DataAccessResultException;

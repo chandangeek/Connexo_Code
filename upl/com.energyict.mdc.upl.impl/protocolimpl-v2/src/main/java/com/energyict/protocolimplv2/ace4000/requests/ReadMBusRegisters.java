@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.mdw.offline.OfflineRegister;

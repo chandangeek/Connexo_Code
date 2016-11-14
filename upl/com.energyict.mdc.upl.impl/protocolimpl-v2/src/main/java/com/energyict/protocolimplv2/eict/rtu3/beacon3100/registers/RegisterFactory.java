@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;

@@ -2,12 +2,12 @@ package com.energyict.protocolimplv2.dlms.idis.am130;
 
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;

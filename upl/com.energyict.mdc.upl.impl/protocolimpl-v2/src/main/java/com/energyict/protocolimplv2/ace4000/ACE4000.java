@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;

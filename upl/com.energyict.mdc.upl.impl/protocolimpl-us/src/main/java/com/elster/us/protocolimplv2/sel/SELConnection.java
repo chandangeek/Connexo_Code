@@ -1,13 +1,13 @@
 package com.elster.us.protocolimplv2.sel;
 
 
-import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.elster.us.protocolimplv2.sel.events.EventFormatter;
 import com.elster.us.protocolimplv2.sel.frame.RequestFrame;

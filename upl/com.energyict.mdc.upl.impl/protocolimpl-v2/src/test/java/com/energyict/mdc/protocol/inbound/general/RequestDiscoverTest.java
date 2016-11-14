@@ -2,17 +2,17 @@ package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.tasks.Issue;
 
 import com.energyict.cbo.Quantity;

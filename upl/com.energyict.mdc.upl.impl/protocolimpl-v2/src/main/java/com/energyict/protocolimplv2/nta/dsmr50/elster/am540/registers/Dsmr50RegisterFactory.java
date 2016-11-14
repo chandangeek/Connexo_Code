@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;

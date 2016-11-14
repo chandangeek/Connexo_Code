@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifierType;
+
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
@@ -94,7 +95,7 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.toList((Object) getDeviceIdentifier(), getChannelIndex(), getRegisterObisCode());
     }
 
