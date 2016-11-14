@@ -82,7 +82,7 @@ public class UsagePointCalendarResource {
             CalendarOnUsagePointInfo calendarOnUsagePointInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
         Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CALENDAR, calendarOnUsagePointInfo.calendar.id));
+                .orElse(null);
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
         CalendarOnUsagePoint calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
                     .addCalendar(start, calendar);
