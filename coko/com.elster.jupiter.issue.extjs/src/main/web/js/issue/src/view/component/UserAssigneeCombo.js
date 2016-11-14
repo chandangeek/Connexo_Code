@@ -2,7 +2,9 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.issues-user-assignee-combo',
     checked: false,
-
+    requires: [
+        'Isu.store.IssueWorkgroupAssignees'
+    ],
     tpl: new Ext.XTemplate(
         '<label class="x-form-cb-label">' +
         '<input type="checkbox" id="cboxShowAll" class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
@@ -11,38 +13,49 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
         '<div class=" x-boundlist-item">{name}</div>',
         '</tpl>'
     ),
-    workgroupID: -1,
+    workgroupId: -1,
 
     handleShowAll: function (checkBox) {
         var me = this;
 
         me.value = -1;
         me.checked = document.getElementById("cboxShowAll").checked;
-        if (me.checked) {
-            me.getPicker().tpl = new Ext.XTemplate(
-                '<label class="x-form-cb-label">',
-                '<input type="checkbox" id="cboxShowAll" checked class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
-                '</label><hr />',
-                '<tpl for=".">',
-                '<div class=" x-boundlist-item">{name}</div>',
-                '</tpl>'
-            );
-        }
-        else {
-            me.getPicker().tpl = new Ext.XTemplate(
-                '<label class="x-form-cb-label">',
-                '<input type="checkbox" id="cboxShowAll" class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
-                '</label><hr />',
-                '<tpl for=".">',
-                '<div class=" x-boundlist-item">{name}</div>',
-                '</tpl>'
-            );
-        }
+        me.checked && me.setCheckTemplate();
+        !me.checked && me.setUncheckTemplate();
+
         me.getPicker().refresh();
-        me.store.getProxy().url = me.checked ? '/api/isu/assignees/users' : '/api/isu/workgroups/' + me.workgroupID + '/users';
-        me.store.load();
+        me.loadStore();
     },
 
+    setCheckTemplate: function () {
+        var me = this,
+            picker = me.getPicker(),
+            tpl = picker.tpl;
+
+        tpl = me.getPicker().tpl = new Ext.XTemplate(
+            '<label class="x-form-cb-label">',
+                '<input type="checkbox" id="cboxShowAll" checked class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
+                '</label><hr />',
+            '<tpl for=".">',
+                '<div class=" x-boundlist-item">{name}</div>',
+            '</tpl>'
+        );
+    },
+
+    setUncheckTemplate: function () {
+        var me = this,
+            picker = me.getPicker(),
+            tpl = picker.tpl;
+
+        me.getPicker().tpl = new Ext.XTemplate(
+            '<label class="x-form-cb-label">',
+                '<input type="checkbox" id="cboxShowAll" class=" x-form-checkbox x-form-field .x-form-cb" style="vertical-align: middle; bottom: 20px;"/>' + Uni.I18n.translate("action.assign.showAllUsers", "ISU", "Show all users") +
+                '</label><hr />',
+            '<tpl for=".">',
+                '<div class=" x-boundlist-item">{name}</div>',
+            '</tpl>'
+        );
+    },
 
     listeners: {
         expand: function (combo) {
@@ -50,13 +63,10 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
                 combo.handleShowAll(this);
             };
         },
-        collapse: function (combo) {
-            Ext.get('cboxShowAll').el.dom.onclick = function () {
-            };
-        },
-        render: function () {
 
+        render: function () {
             var me = this;
+
             me.store.on('load', function () {
                 var checkShowAll = Ext.get('cboxShowAll');
                 if (checkShowAll) {
@@ -65,9 +75,61 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
                     };
                 }
             });
-            me.store.getProxy().url = me.checked ? '/api/isu/assignees/users' : '/api/isu/workgroups/' + me.workgroupID + '/users';
-            me.store.load();
+            me.loadStore();
+        },
+
+        change: function (combo, newValue) {
+            var me = this;
+
+            Ext.Ajax.request({
+                url: '/api/isu/workgroups/' + me.workgroupId + '/users',
+                method: 'GET',
+                success: function (response) {
+                    var users = Ext.JSON.decode(response.responseText).data;
+                    if (Ext.isObject(users.find(function (user) {
+                            return user.id == newValue;
+                        })) == false) {
+                        me.checked = true;
+                        me.setCheckTemplate();
+                        me.loadStore();
+                    }
+                }
+            });
+
+        },
+
+        workgroupChanged: function (workgroupId) {
+            var me = this;
+
+            me.workgroupId = workgroupId;
+            if (workgroupId == -1) {
+                me.setCheckTemplate();
+            }
+            else {
+                var selectedValue = me.value;
+
+
+                if (selectedValue && me.checked == false) {
+                    me.store.getProxy().url = '/api/isu/workgroups/' + me.workgroupId + '/users';
+                    me.store.load(function (users) {
+
+                        if (Ext.isObject(users.find(function (user) {
+                                return user.get('id') == selectedValue;
+                            })) == false) {
+                            me.select(-1);
+                        }
+                    });
+                }
+            }
+
         }
+    },
+
+    loadStore: function () {
+        var me = this;
+
+        me.store.getProxy().url = me.checked ? '/api/isu/assignees/users' : '/api/isu/workgroups/' + me.workgroupId + '/users';
+        me.store.load();
     },
 
     initComponent: function () {

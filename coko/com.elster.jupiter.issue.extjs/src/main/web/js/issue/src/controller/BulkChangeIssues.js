@@ -595,7 +595,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
         switch (operation) {
             case 'assign':
-                view = 'issues-assign-form';
+                view = 'assign-issue';
                 break;
             case  'close':
                 view = 'issues-close-form';
@@ -603,6 +603,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
 
         widget = Ext.widget(view);
+
+        if (operation == 'assign') {
+            widget.down('#issue-assign-action-apply').setVisible(false);
+            widget.down('#issue-assign-action-cancel').setVisible(false);
+            widget.down('#cbo-workgroup-issue-assignee').setValue(-1);
+            widget.down('#cbo-user-issue-assignee').setValue(-1);
+        }
 
         if (!Ext.isEmpty(widget.items.getAt(1))) {
             widget.items.getAt(1).margin = '0';
@@ -625,11 +632,12 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
         switch (operation) {
             case 'assign':
-                var activeCombo = formPanel.down('combo[name=assigneeCombo]');
+                var userCombo = formPanel.down('#cbo-user-issue-assignee');
+                var workGroupCombo = formPanel.down('#cbo-workgroup-issue-assignee');
                 record.set('assignee', {
-                    userId: activeCombo.getValue(),
-                    workGroupId: -1,//activeCombo.getValue(),
-                    title: activeCombo.rawValue
+                    userId: userCombo.getValue(),
+                    workGroupId: workGroupCombo.getValue(),
+                    title: userCombo.rawValue
                 });
                 if (!record.get('allIssues')) {
                     message = Uni.I18n.translatePlural('issues.selectedIssues.assign.withCount', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
@@ -696,9 +704,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     beforeStep4: function () {
-        if (this.getBulkRecord().get('operation') == 'assign') {
-            var form = this.getPage().down('bulk-step3 issues-assign-form').getForm();
-            return !form || form.isValid();
-        }
+        return true;
     }
 });

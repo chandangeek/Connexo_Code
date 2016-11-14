@@ -150,20 +150,6 @@ Ext.define('Isu.view.issues.bulk.BulkWizard', {
     },
 
     processValidateOnStep3: function (wizard) {
-        var assignForm = wizard.down('bulk-step3 issues-assign-form'),
-            formErrorsPanel,
-            comboBox;
-
-        if (!Ext.isEmpty(assignForm)) {
-            formErrorsPanel = assignForm.down('[name=form-errors]');
-            formErrorsPanel.hide();
-            comboBox = wizard.down('bulk-step3 issues-assign-form combobox[name=assigneeCombo]');
-            if (Ext.isEmpty(comboBox.getValue())) {
-                comboBox.markInvalid(Uni.I18n.translate('issues.chooseUserToProceed','ISU', 'You must choose user before you can proceed'));
-                formErrorsPanel.show();
-                return false;
-            }
-        }
         return true;
     }
 

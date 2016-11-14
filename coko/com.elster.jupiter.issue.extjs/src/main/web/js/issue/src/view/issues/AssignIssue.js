@@ -47,10 +47,10 @@ Ext.define('Isu.view.issues.AssignIssue', {
                                 this.store.load();
                             },
                             change: function (combo, newValue) {
-                                this.up('#frm-assign-issue').down('#cbo-user-issue-assignee').workgroupID = newValue;
+                                this.up('#frm-assign-issue').down('#cbo-user-issue-assignee').fireEvent('workgroupChanged', newValue);
                             },
                             select: function (combo, newValue) {
-                                this.up('#frm-assign-issue').down('#cbo-user-issue-assignee').select(-1);
+                                this.up('#frm-assign-issue').down('#cbo-user-issue-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));
                             }
                         }
                     },

@@ -65,11 +65,11 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
     onPrevButtonClick: function (prev) {
         var wizard = prev.up('wizard');
         if (!wizard.getForm().isValid()) {
-            var fields = wizard.down('issues-assign-form').getForm().getFields();
+            var fields = wizard.down('assign-issue').getForm().getFields();
             fields.each(function (field) {
                 field.disable();
             });
-        } else if (wizard.down('issues-assign-form')) {
+        } else if (wizard.down('assign-issue')) {
             /*var assignValues = wizard.getForm().getValues(),
                 assignRadio = wizard.down('issues-assign-form').down('radiogroup').items.items[0].getGroupValue();
             Ext.state.Manager.set('formAssignRadio', assignRadio);

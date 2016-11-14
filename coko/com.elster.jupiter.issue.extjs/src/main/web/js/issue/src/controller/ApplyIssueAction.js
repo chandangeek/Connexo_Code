@@ -7,7 +7,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
     ],
 
     stores: [
-        'Isu.store.Issues'
+        'Isu.store.Issues',
+        'Isu.store.IssueWorkgroupAssignees'
     ],
 
     refs: [

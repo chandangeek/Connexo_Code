@@ -45,11 +45,53 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
                 width: 100
             },
             {
-                itemId: 'issues-grid-assignee',
-                header: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
-                xtype: 'isu-assignee-column',
-                dataIndex: 'assignee',
-                flex: 1
+                itemId: 'issues-grid-workgroup-assignee',
+                header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
+                dataIndex: 'workgroup_name',
+                flex: 1,
+                renderer: function (value, metaData, record, rowIndex, colIndex) {
+                    var result;
+
+                    if (!Ext.isEmpty(value) && value.hasOwnProperty('id')) {
+                        result = '';
+
+                        result += '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="';
+                        result += Uni.I18n.translate('assignee.tooltip.workgroup', 'ISU', 'Workgroup');
+                        result += '"></span>';
+
+                        if (value.name) {
+                            result += Ext.String.htmlEncode(value.name);
+                        }
+                    } else {
+                        result = '-'
+                    }
+                    return result || this.columns[colIndex].emptyText;
+                }
+            },
+            {
+                itemId: 'issues-grid-user-assignee',
+                header: Uni.I18n.translate('general.user', 'ISU', 'User'),
+                dataIndex: 'assignee_name',
+                flex: 1,
+                renderer: function (value, metaData, record, rowIndex, colIndex) {
+                    var result
+
+                    if (value && value.hasOwnProperty('id')) {
+                        var result = '';
+
+                        result += '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="';
+                        result += Uni.I18n.translate('assignee.tooltip.USER', 'ISU', 'User');
+                        result += '"></span>';
+
+                        if (value.name) {
+                            result += Ext.String.htmlEncode(value.name);
+                        }
+                    } else {
+                        result = '-';
+                    }
+
+                    return result || this.columns[colIndex].emptyText;
+                }
             }
         ]
     },
