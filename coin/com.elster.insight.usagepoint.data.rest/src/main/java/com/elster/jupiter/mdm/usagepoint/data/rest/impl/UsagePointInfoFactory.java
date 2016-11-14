@@ -39,6 +39,8 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
@@ -75,6 +77,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private volatile LicenseService licenseService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile UsagePointLifeCycleStateInfoFactory stateInfoFactory;
+    private volatile UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
 
     public UsagePointInfoFactory() {
     }
@@ -90,7 +94,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  LocationService locationService,
                                  LicenseService licenseService,
                                  ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                                 PropertyValueInfoService propertyValueInfoService) {
+                                 PropertyValueInfoService propertyValueInfoService,
+                                 UsagePointLifeCycleStateInfoFactory stateInfoFactory,
+                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -103,6 +109,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.setLicenseService(licenseService);
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.propertyValueInfoService = propertyValueInfoService;
+        this.stateInfoFactory = stateInfoFactory;
+        this.lifeCycleInfoFactory = lifeCycleInfoFactory;
         activate();
     }
 
@@ -204,6 +212,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         addDetailsInfo(info, usagePoint);
         addCustomPropertySetInfo(info, usagePoint);
         addLocationInfo(info, usagePoint);
+        info.state = this.stateInfoFactory.from(usagePoint.getState());
+        info.lifeCycle = this.lifeCycleInfoFactory.from(usagePoint.getState().getLifeCycle());
         return info;
     }
 

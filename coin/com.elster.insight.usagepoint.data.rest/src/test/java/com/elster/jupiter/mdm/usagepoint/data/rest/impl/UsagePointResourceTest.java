@@ -30,6 +30,8 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
@@ -99,6 +101,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointPropertySet usagePointPropertySet;
     @Mock
     private MetrologyConfigurationCustomPropertySetUsage metrologyConfigurationCustomPropertySetUsage;
+    @Mock
+    private UsagePointState usagePointState;
+    @Mock
+    private UsagePointLifeCycle usagePointLifeCycle;
 
     @Before
     public void setUp1() {
@@ -143,6 +149,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getServiceLocationString()).thenReturn("serviceLocation");
         when(usagePoint.getConnectionState()).thenReturn(ConnectionState.UNDER_CONSTRUCTION);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        when(usagePoint.getState()).thenReturn(usagePointState);
 
         when(meteringService.findUsagePoint("test")).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
@@ -166,6 +173,16 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
+
+        when(usagePointLifeCycle.getStates()).thenReturn(Collections.singletonList(usagePointState));
+        when(usagePointLifeCycle.getName()).thenReturn("Life cycle");
+        when(usagePointLifeCycle.getId()).thenReturn(1L);
+        when(usagePointLifeCycle.getVersion()).thenReturn(1L);
+
+        when(usagePointState.getLifeCycle()).thenReturn(usagePointLifeCycle);
+        when(usagePointState.getId()).thenReturn(1L);
+        when(usagePointState.getName()).thenReturn("State");
+        when(usagePointState.getVersion()).thenReturn(1L);
     }
 
     @Test
@@ -175,6 +192,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointInfo response = target("usagepoints/MRID").request().get(UsagePointInfo.class);
 
         assertThat(response.mRID).isEqualTo("MRID");
+        assertThat(response.state).isNotNull();
+        assertThat(response.state.id).isEqualTo(1L);
+        assertThat(response.state.name).isEqualTo("State");
+        assertThat(response.lifeCycle.id).isEqualTo(1L);
+        assertThat(response.lifeCycle.name).isEqualTo("Life cycle");
     }
 
     @Test
@@ -431,7 +453,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(model.<List>get("$.meterActivations")).hasSize(2);
         assertThat(model.<String>get("$.meterActivations[0].meter.mRID")).isEqualTo("meter1");
         assertThat(model.<String>get("$.meterActivations[0].meterRole.id")).isEqualTo("key1");
-        assertThat(model.<Object>get("$.meterActivations[1].meter")).isNull();
+        assertThat(model.get("$.meterActivations[1].meter")).isNull();
         assertThat(model.<String>get("$.meterActivations[1].meterRole.id")).isEqualTo("key2");
     }
 
