@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
 
@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
- * that uses a device's {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} and the {@link com.energyict.obis.ObisCode} of the logbook to identify it
+ * that uses a device's {@link DeviceIdentifier} and the {@link com.energyict.obis.ObisCode} of the logbook to identify it
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/05/13

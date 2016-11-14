@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.inbound.crypto.ServerCryptographer;
 import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 

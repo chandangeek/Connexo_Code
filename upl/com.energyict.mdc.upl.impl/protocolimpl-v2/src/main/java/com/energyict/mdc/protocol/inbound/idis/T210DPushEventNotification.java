@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import com.energyict.cpo.TypedProperties;
 

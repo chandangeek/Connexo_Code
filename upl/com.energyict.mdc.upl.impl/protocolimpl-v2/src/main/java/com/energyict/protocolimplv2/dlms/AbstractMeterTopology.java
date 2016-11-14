@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms;
 
-import com.energyict.mdc.protocol.tasks.support.DeviceTopologySupport;
+import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
+
 import com.energyict.obis.ObisCode;
 
 /**

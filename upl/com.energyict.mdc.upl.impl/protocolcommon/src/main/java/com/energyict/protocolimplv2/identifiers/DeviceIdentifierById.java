@@ -7,8 +7,9 @@ package com.energyict.protocolimplv2.identifiers;
  * Author: khe
  */
 
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
@@ -19,7 +20,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface
+ * Provides an implementation for the {@link DeviceIdentifier} interface
  * that uses an {@link com.energyict.mdw.core.Device}'s database identifier.
  *
  * @author Rudi Vankeirsbilck (rudi)

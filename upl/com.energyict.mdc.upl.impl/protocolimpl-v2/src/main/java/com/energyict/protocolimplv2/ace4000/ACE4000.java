@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;

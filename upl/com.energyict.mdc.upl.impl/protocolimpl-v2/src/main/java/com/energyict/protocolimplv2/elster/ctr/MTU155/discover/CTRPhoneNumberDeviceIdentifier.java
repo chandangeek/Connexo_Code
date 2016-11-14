@@ -1,17 +1,19 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 
-import com.energyict.protocol.exceptions.identifier.DuplicateException;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+
+import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.protocol.exceptions.identifier.DuplicateException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface,
+ * Provides an implementation for the {@link DeviceIdentifier} interface,
  * specific for the SMS part of the CTR protocol base (MTU155 and EK155 device types). <br></br>
  * SMSes for these protocols are uniquely identified by the devices phone number.
  *

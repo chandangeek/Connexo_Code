@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import com.energyict.obis.ObisCode;

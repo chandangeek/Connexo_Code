@@ -1,17 +1,19 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.protocol.exceptions.identifier.DuplicateException;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
-import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface
+ * Provides an implementation for the {@link DeviceIdentifier} interface
  * that uses an {@link com.energyict.mdw.core.Device}'s Call Home ID to uniquely identify it.
  *
  * @author: khe
