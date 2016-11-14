@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceBasicSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 /**
  * Defines an Interface between the Data Collection System and a Device.
@@ -22,5 +23,5 @@ import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 public interface DeviceProtocol<DT extends DeviceProtocolDialect>
         extends HasDynamicProperties, DeviceProtocolDialectSupport<DT>,
                 DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
-                DeviceLoadProfileSupport, DeviceLogBookSupport {
+                DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport {
 }

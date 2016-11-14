@@ -4,7 +4,6 @@ package com.energyict.mdc.upl.meterdata.identifiers;
  * Enumerates the known types of LogBookIdentifier and allows for
  * inspection of the LogBookIdentifier by third party components
  * when used in combination with {@link LogBookIdentifier#getParts()}.
-
  *
  * @author sva
  * @since 29/10/2014 - 8:40
