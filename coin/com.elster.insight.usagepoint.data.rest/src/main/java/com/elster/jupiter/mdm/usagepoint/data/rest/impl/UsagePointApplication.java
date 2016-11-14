@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
@@ -89,6 +90,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     private volatile UsagePointCalendarService usagePointCalendarService;
     private volatile CalendarService calendarService;
+    private volatile CalendarInfoFactory calendarInfoFactory;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -274,6 +276,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setCalendarInfoFactory(CalendarInfoFactory calendarInfoFactory) {
+        this.calendarInfoFactory = calendarInfoFactory;
+    }
+
+    @Reference
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
     }
@@ -324,6 +331,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(calendarOnUsagePointInfoFactory).to(CalendarOnUsagePointInfoFactory.class);
             bind(usagePointCalendarService).to(UsagePointCalendarService.class);
             bind(calendarService).to(CalendarService.class);
+            bind(calendarInfoFactory).to(CalendarInfoFactory.class);
         }
     }
 
