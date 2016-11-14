@@ -1,5 +1,6 @@
 package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;

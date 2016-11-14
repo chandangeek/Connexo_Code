@@ -1,4 +1,4 @@
-package com.elster.jupiter.calendar.impl;
+package com.elster.jupiter.calendar;
 
 import com.elster.jupiter.nls.Thesaurus;
 
