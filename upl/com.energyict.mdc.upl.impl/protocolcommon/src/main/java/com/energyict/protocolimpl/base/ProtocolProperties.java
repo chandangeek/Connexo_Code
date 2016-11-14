@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import java.util.Properties;
