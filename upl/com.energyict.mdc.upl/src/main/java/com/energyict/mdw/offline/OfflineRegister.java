@@ -24,13 +24,13 @@ public interface OfflineRegister extends Offline {
      * @return the name (ie. Register mapping) of the Register
      */
     @XmlAttribute
-    public String getName();
+    String getName();
 
     /**
      * @return the ID of the Register
      */
     @XmlAttribute
-    public int getRegisterId ();
+    long getRegisterId();
 
     /**
      * Returns the ObisCode for this Register.<br/>
@@ -38,7 +38,7 @@ public interface OfflineRegister extends Offline {
      * @return the ObisCode
      */
     @XmlAttribute
-    public ObisCode getObisCode();
+    ObisCode getObisCode();
 
 
     /**
@@ -47,7 +47,7 @@ public interface OfflineRegister extends Offline {
      * @return the ID of the RegisterGroup
      */
     @XmlAttribute
-    public int getRegisterGroupId();
+    long getRegisterGroupId();
 
     /**
      * The {@link Unit} corresponding with this register
@@ -55,7 +55,7 @@ public interface OfflineRegister extends Offline {
      * @return the unit of this register
      */
     @XmlAttribute
-    public Unit getUnit();
+    Unit getUnit();
 
     /**
      * Returns the unique identifier of the
@@ -64,7 +64,7 @@ public interface OfflineRegister extends Offline {
      * @return The Device's id
      */
     @XmlAttribute
-    public int getDeviceId ();
+    long getDeviceId();
 
     /**
      * The serialNumber of the OfflineDevice owning this OfflineRegister.
@@ -72,12 +72,12 @@ public interface OfflineRegister extends Offline {
      * @return the serialNumber of the Device owning this Register
      */
     @XmlAttribute
-    public String getSerialNumber();
+    String getSerialNumber();
 
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
-    public String getXmlType();
+    String getXmlType();
 
-    public void setXmlType(String ignore);
+    void setXmlType(String ignore);
 
 }
