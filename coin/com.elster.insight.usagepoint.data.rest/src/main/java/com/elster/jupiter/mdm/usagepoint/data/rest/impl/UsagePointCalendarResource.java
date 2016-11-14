@@ -143,18 +143,20 @@ public class UsagePointCalendarResource {
     private List<CalendarOnUsagePointInfo> withLeadingDummyIfNeeded(UsagePoint usagePoint, List<CalendarOnUsagePointInfo> infoList) {
         List<CalendarOnUsagePointInfo> padded = infoList;
         if (infoList.isEmpty()) {
-            padded = Collections.singletonList(createDummy(usagePoint));
+            padded = Collections.singletonList(createDummy(usagePoint, null, 0));
         } else if (Instant.ofEpochMilli(infoList.get(0).fromTime).isAfter(clock.instant())) {
             padded = new ArrayList<>();
-            padded.add(createDummy(usagePoint));
+            padded.add(createDummy(usagePoint, infoList.get(0).calendar, infoList.get(0).fromTime));
             padded.addAll(infoList);
         }
         return padded;
     }
 
-    private CalendarOnUsagePointInfo createDummy(UsagePoint usagePoint) {
+    private CalendarOnUsagePointInfo createDummy(UsagePoint usagePoint, CalendarInfo calendar, long fromTime) {
         CalendarOnUsagePointInfo dummy = new CalendarOnUsagePointInfo();
         dummy.usagePointId = usagePoint.getId();
+        dummy.calendar = calendar;
+        dummy.fromTime = fromTime;
         return dummy;
     }
 
