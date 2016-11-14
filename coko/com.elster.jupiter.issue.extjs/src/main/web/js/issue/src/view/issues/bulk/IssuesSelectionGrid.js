@@ -47,7 +47,7 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
             {
                 itemId: 'issues-grid-workgroup-assignee',
                 header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
-                dataIndex: 'workgroup_name',
+                dataIndex: 'workGroupAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
                     var result;
@@ -71,7 +71,7 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
             {
                 itemId: 'issues-grid-user-assignee',
                 header: Uni.I18n.translate('general.user', 'ISU', 'User'),
-                dataIndex: 'assignee_name',
+                dataIndex: 'userAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
                     var result

@@ -18,7 +18,6 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
     handleShowAll: function (checkBox) {
         var me = this;
 
-        me.value = -1;
         me.checked = document.getElementById("cboxShowAll").checked;
         me.checked && me.setCheckTemplate();
         !me.checked && me.setUncheckTemplate();
@@ -102,8 +101,10 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
             var me = this;
 
             me.workgroupId = workgroupId;
-            if (workgroupId == -1) {
+            if ((workgroupId == -1) && me.getValue() && me.getValue() > 0) {
+                me.checked = true;
                 me.setCheckTemplate();
+                me.loadStore();
             }
             else {
                 var selectedValue = me.value;
