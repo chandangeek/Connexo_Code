@@ -25,11 +25,11 @@ public interface LogBookIdentifier extends Serializable {
 
     /**
      * Returns the LogBook that is uniquely identified by this identifier.
-     *
-     * @return the referenced LogBook
      * Note that this may throw a runtime exception when the LogBook could
      * either not be found or multiple log books were found in which case
      * this identifier was not as unique as you thought it was.
+     *
+     * @return the referenced LogBook
      */
     LogBook getLogBook();
 
