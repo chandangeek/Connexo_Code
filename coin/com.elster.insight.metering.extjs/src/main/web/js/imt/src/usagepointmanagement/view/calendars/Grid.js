@@ -12,6 +12,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Grid', {
             {
                 header: Uni.I18n.translate('general.Category', 'IMT', 'Category'),
                 flex: 1,
+                dataIndex: 'category',
                 renderer: function(a,b,record){
                     return record.getCalendar().get('category').displayName;
                 }
