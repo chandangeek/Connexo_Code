@@ -73,17 +73,17 @@ public class MulticastSerializer {
             byte[] ak = masterDataSerializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 1);
             byte[] ek = masterDataSerializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), 1);
             byte[] password = masterDataSerializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.PASSWORD.toString(), 1);
-            final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ak, dlmsMeterKEK), "");
-            final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ek, dlmsMeterKEK), "");
-            final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(password, dlmsMeterKEK), "");
+            final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(masterDataSerializer.wrap(ak, dlmsMeterKEK), "");
+            final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(masterDataSerializer.wrap(ek, dlmsMeterKEK), "");
+            final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(masterDataSerializer.wrap(password, dlmsMeterKEK), "");
 
             //Find the keys in a security set that has clientMacAddress 102 (broadcast client)
             byte[] broadCastAK = masterDataSerializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 102);
             byte[] broadCastEK = masterDataSerializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), 102);
             byte[] broadCastPassword = masterDataSerializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.PASSWORD.toString(), 102);
-            final String wrappedMulticastAK = broadCastAK == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(broadCastAK, dlmsMeterKEK), "");
-            final String wrappedMulticastEK = broadCastEK == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(broadCastEK, dlmsMeterKEK), "");
-            final String wrappedMulticastPassword = broadCastPassword == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(broadCastPassword, dlmsMeterKEK), "");
+            final String wrappedMulticastAK = broadCastAK == null ? "" : ProtocolTools.getHexStringFromBytes(masterDataSerializer.wrap(broadCastAK, dlmsMeterKEK), "");
+            final String wrappedMulticastEK = broadCastEK == null ? "" : ProtocolTools.getHexStringFromBytes(masterDataSerializer.wrap(broadCastEK, dlmsMeterKEK), "");
+            final String wrappedMulticastPassword = broadCastPassword == null ? "" : ProtocolTools.getHexStringFromBytes(masterDataSerializer.wrap(broadCastPassword, dlmsMeterKEK), "");
 
             MulticastKeySet unicastSecurity = new MulticastKeySet(new MulticastGlobalKeySet(new MulticastKey(wrappedAK), new MulticastKey(wrappedEK), new MulticastKey(wrappedPassword)));
             MulticastKeySet multicastSecurity = new MulticastKeySet(new MulticastGlobalKeySet(new MulticastKey(wrappedMulticastAK), new MulticastKey(wrappedMulticastEK), new MulticastKey(wrappedMulticastPassword)));
