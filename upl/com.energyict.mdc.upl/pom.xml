@@ -21,6 +21,8 @@
              will be set to false by the release profile for releases -->
         <include.source>true</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jackson.version>1.9.2</jackson.version>
+        <guava.version>19.0</guava.version>
     </properties>
 
     <dependencies>
@@ -33,6 +35,16 @@
             <groupId>com.energyict.dataconcentrator.external</groupId>
             <artifactId>serialio</artifactId>
             <version>10.0.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
 
         <dependency>
