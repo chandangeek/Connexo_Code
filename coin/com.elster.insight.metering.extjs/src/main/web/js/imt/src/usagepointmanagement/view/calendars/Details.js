@@ -81,7 +81,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Details', {
         me.callParent(arguments);
     },
 
-    select: function(slectionMode,selection){
+    select: function(selectionMode,selection){
         this.down('activeCalendarPreview').loadRecord(selection);
     }
 });

@@ -146,7 +146,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({mRID: this.usagePoint.get('mRID'), calendarId: record.getCalendar().get('id')})
                 break;
             case 'viewTimeline':
-                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({mRID: this.usagePoint.get('mRID'), calendarId: record.getCalendar().get('id')})
+                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/history').forward({mRID: this.usagePoint.get('mRID')});
                 break;
         }
     },

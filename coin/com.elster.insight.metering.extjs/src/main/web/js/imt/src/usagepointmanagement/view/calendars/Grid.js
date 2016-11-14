@@ -25,11 +25,11 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.ActiveSince', 'IMT', 'Active since'),
+                header: Uni.I18n.translate('general.ActiveFrom', 'IMT', 'Active from'),
                 dataIndex: 'fromTime',
                 flex: 1,
                 renderer: function(value){
-                   return Uni.DateTime.formatDateTimeShort(value);
+                   return value?Uni.DateTime.formatDateTimeShort(value):'-';
                 }
             },
             {
