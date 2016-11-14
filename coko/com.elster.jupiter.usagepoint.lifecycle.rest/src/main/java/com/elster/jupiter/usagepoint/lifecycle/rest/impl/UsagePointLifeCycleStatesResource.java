@@ -1,6 +1,5 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -8,8 +7,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
-import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfo;
-import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 
@@ -32,18 +29,13 @@ import java.util.stream.Collectors;
 public class UsagePointLifeCycleStatesResource {
     private final ResourceHelper resourceHelper;
     private final UsagePointLifeCycleStateInfoFactory stateInfoFactory;
-    private final FiniteStateMachineService finiteStateMachineService;
-    private final BusinessProcessInfoFactory bpmFactory;
+
 
     @Inject
     public UsagePointLifeCycleStatesResource(ResourceHelper resourceHelper,
-                                             UsagePointLifeCycleStateInfoFactory stateInfoFactory,
-                                             FiniteStateMachineService finiteStateMachineService,
-                                             BusinessProcessInfoFactory bpmFactory) {
+                                             UsagePointLifeCycleStateInfoFactory stateInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.stateInfoFactory = stateInfoFactory;
-        this.finiteStateMachineService = finiteStateMachineService;
-        this.bpmFactory = bpmFactory;
     }
 
     @GET
@@ -64,23 +56,13 @@ public class UsagePointLifeCycleStatesResource {
         return this.stateInfoFactory.fullInfo(state);
     }
 
-    @GET
-    @Path("/processes")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public PagedInfoList getAllProcesses(@BeanParam JsonQueryParameters queryParams) {
-        List<BusinessProcessInfo> processes = this.finiteStateMachineService.findStateChangeBusinessProcesses().stream()
-                .map(this.bpmFactory::from).collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("processes", processes, queryParams);
-    }
-
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public UsagePointLifeCycleStateInfo newState(UsagePointLifeCycleStateInfo stateInfo) {
-        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(stateInfo.parent);
+    public UsagePointLifeCycleStateInfo newState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         UsagePointState.UsagePointStateCreator builder = lifeCycle.newState(stateInfo.name);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);

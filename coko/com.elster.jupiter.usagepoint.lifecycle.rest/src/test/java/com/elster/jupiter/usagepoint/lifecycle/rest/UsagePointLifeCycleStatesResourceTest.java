@@ -14,7 +14,6 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +25,6 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,22 +43,6 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(lifeCycle.getId()).thenReturn(12L);
         when(lifeCycle.getVersion()).thenReturn(4L);
         when(state.getLifeCycle()).thenReturn(lifeCycle);
-    }
-
-    private StateChangeBusinessProcess mockProcess(long id, String name, String deploymentId, String processId) {
-        StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
-        when(process.getId()).thenReturn(id);
-        when(process.getName()).thenReturn(name);
-        when(process.getDeploymentId()).thenReturn(deploymentId);
-        when(process.getProcessId()).thenReturn(processId);
-        return process;
-    }
-
-    private ProcessReference mockProcessReference(long id, String name, String deploymentId, String processId) {
-        ProcessReference reference = mock(ProcessReference.class);
-        StateChangeBusinessProcess process = mockProcess(id, name, deploymentId, processId);
-        when(reference.getStateChangeBusinessProcess()).thenReturn(process);
-        return reference;
     }
 
     @Test
@@ -116,24 +98,6 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<String>get("$.error")).isEqualTo("no.such.life.cycle.state");
     }
 
-    @Test
-    public void testGetAllProcesses() {
-        List<StateChangeBusinessProcess> processes = Arrays.asList(
-                mockProcess(1L, "processName 1", "deploymentId 1", "processId 1"),
-                mockProcess(2L, "processName 2", "deploymentId 2", "processId 2"));
-        when(finiteStateMachineService.findStateChangeBusinessProcesses()).thenReturn(processes);
-        String response = target("/lifecycle/12/states/processes").request().get(String.class);
-        JsonModel model = JsonModel.model(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(2);
-        assertThat(model.<Number>get("$.processes[0].id")).isEqualTo(1);
-        assertThat(model.<String>get("$.processes[0].name")).isEqualTo("processName 1");
-        assertThat(model.<String>get("$.processes[0].deploymentId")).isEqualTo("deploymentId 1");
-        assertThat(model.<String>get("$.processes[0].processId")).isEqualTo("processId 1");
-        assertThat(model.<Number>get("$.processes[1].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.processes[1].name")).isEqualTo("processName 2");
-        assertThat(model.<String>get("$.processes[1].deploymentId")).isEqualTo("deploymentId 2");
-        assertThat(model.<String>get("$.processes[1].processId")).isEqualTo("processId 2");
-    }
 
     @Test
     public void testNewState() throws Exception {

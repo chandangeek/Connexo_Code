@@ -2,6 +2,8 @@ package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -10,6 +12,9 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.impl.UsagePointLifeCycleAppl
 import javax.ws.rs.core.Application;
 
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJerseyTest {
 
@@ -37,4 +42,21 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
         app.setFiniteStateMachineService(this.finiteStateMachineService);
         return app;
     }
+
+    protected StateChangeBusinessProcess mockProcess(long id, String name, String deploymentId, String processId) {
+        StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
+        when(process.getId()).thenReturn(id);
+        when(process.getName()).thenReturn(name);
+        when(process.getDeploymentId()).thenReturn(deploymentId);
+        when(process.getProcessId()).thenReturn(processId);
+        return process;
+    }
+
+    protected ProcessReference mockProcessReference(long id, String name, String deploymentId, String processId) {
+        ProcessReference reference = mock(ProcessReference.class);
+        StateChangeBusinessProcess process = mockProcess(id, name, deploymentId, processId);
+        when(reference.getStateChangeBusinessProcess()).thenReturn(process);
+        return reference;
+    }
+
 }

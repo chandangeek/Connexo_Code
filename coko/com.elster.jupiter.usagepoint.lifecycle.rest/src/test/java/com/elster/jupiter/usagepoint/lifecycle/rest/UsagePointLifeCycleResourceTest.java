@@ -2,6 +2,7 @@ package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleRemoveException;
@@ -15,6 +16,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -295,5 +297,24 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'Life cycle'");
         assertThat(model.<String>get("$.error")).isEqualTo("Life cycle has changed since the page was last updated.");
+    }
+
+    @Test
+    public void testGetAllProcesses() {
+        List<StateChangeBusinessProcess> processes = Arrays.asList(
+                mockProcess(1L, "processName 1", "deploymentId 1", "processId 1"),
+                mockProcess(2L, "processName 2", "deploymentId 2", "processId 2"));
+        when(finiteStateMachineService.findStateChangeBusinessProcesses()).thenReturn(processes);
+        String response = target("/lifecycle/12/states/processes").request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(2);
+        assertThat(model.<Number>get("$.processes[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.processes[0].name")).isEqualTo("processName 1");
+        assertThat(model.<String>get("$.processes[0].deploymentId")).isEqualTo("deploymentId 1");
+        assertThat(model.<String>get("$.processes[0].processId")).isEqualTo("processId 1");
+        assertThat(model.<Number>get("$.processes[1].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.processes[1].name")).isEqualTo("processName 2");
+        assertThat(model.<String>get("$.processes[1].deploymentId")).isEqualTo("deploymentId 2");
+        assertThat(model.<String>get("$.processes[1].processId")).isEqualTo("processId 2");
     }
 }

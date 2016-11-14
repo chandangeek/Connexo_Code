@@ -1,11 +1,14 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 
@@ -31,6 +34,8 @@ public class UsagePointLifeCycleResource {
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final Provider<UsagePointLifeCycleStatesResource> statesResourceProvider;
     private final Provider<UsagePointLifeCycleTransitionsResource> transitionsResourceProvider;
+    private final FiniteStateMachineService finiteStateMachineService;
+    private final BusinessProcessInfoFactory bpmFactory;
     private final UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
     private final ResourceHelper resourceHelper;
 
@@ -38,11 +43,15 @@ public class UsagePointLifeCycleResource {
     public UsagePointLifeCycleResource(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                                        Provider<UsagePointLifeCycleStatesResource> statesResourceProvider,
                                        Provider<UsagePointLifeCycleTransitionsResource> transitionsResourceProvider,
+                                       FiniteStateMachineService finiteStateMachineService,
+                                       BusinessProcessInfoFactory bpmFactory,
                                        UsagePointLifeCycleInfoFactory lifeCycleInfoFactory,
                                        ResourceHelper resourceHelper) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.statesResourceProvider = statesResourceProvider;
         this.transitionsResourceProvider = transitionsResourceProvider;
+        this.finiteStateMachineService = finiteStateMachineService;
+        this.bpmFactory = bpmFactory;
         this.lifeCycleInfoFactory = lifeCycleInfoFactory;
         this.resourceHelper = resourceHelper;
     }
@@ -124,6 +133,16 @@ public class UsagePointLifeCycleResource {
     public UsagePointLifeCycleInfo cloneLifeCycle(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleInfo lifeCycleInfo) {
         UsagePointLifeCycle source = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         return this.lifeCycleInfoFactory.from(this.usagePointLifeCycleConfigurationService.cloneUsagePointLifeCycle(lifeCycleInfo.name, source));
+    }
+
+    @GET
+    @Path("/processes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public PagedInfoList getAllProcesses(@BeanParam JsonQueryParameters queryParams) {
+        List<BusinessProcessInfo> processes = this.finiteStateMachineService.findStateChangeBusinessProcesses().stream()
+                .map(this.bpmFactory::from).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("processes", processes, queryParams);
     }
 
     @Path("{lid}/states")
