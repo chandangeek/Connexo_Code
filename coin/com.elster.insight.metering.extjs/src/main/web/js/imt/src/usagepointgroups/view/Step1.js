@@ -1,5 +1,5 @@
 Ext.define('Imt.usagepointgroups.view.Step1', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.form.Panel',
     alias: 'widget.usagepoint-group-wizard-step1',
     xtype: 'usagepoint-group-wizard-step1',
     ui: 'large',    
@@ -12,7 +12,8 @@ Ext.define('Imt.usagepointgroups.view.Step1', {
             {
                 itemId: 'step1-add-usagepointgroup-errors',
                 xtype: 'uni-form-error-message',
-                hidden: true
+                hidden: true,
+                width: 400
             }
         ];
 

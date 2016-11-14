@@ -50,6 +50,7 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
     filterObjectParam: 'filter',
     lastRequest: undefined,
     searchFieldsOnLoadListener: null,
+    usagePointGroupName: null,
 
     init: function () {
         var me = this;
@@ -107,6 +108,9 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
                     : router.getRoute('usagepoints/usagepointgroups').buildUrl()
             });
 
+        if (me.usagePointGroupName) {
+            me.usagePointGroupName = null;
+        }
         me.service.getSearchDomainsStore().load();
         me.getApplication().fireEvent('changecontentevent', widget);
         if (Ext.isDefined(usagePointGroupId)) {
@@ -231,41 +235,42 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
     validateStep1: function (callback) {
         var me = this,
             wizard = this.getAddUsagePointGroupWizard(),
-            group = wizard.getRecord(),
-            step1ErrorMsg = this.getStep1FormErrorMessage(),
+            record = wizard.getRecord(),            
             nameField = this.getNameTextField(),
-            name;
+            groupName = Ext.clone(record.get('name')),
+            name,            
+            modelProxy;
 
+        if (!me.usagePointGroupName) {
+            me.usagePointGroupName = groupName;
+        }
         if (nameField) {
             name = nameField.getValue();
-            if (!nameField.validate()) {
-                step1ErrorMsg.show();
-            } else if (name !== group.get('name')) {
-                wizard.setLoading();
-                me.getStore('Imt.usagepointgroups.store.UsagePointGroups').load({
-                    params: {
-                        filter: Ext.encode([{
-                            property: 'name',
-                            value: name
-                        }])
+            wizard.clearInvalid();
+            wizard.updateRecord();
+            if (wizard.isEdit && name == me.usagePointGroupName) {
+                callback();
+            } else {
+                modelProxy = record.getProxy();
+                record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
+                modelProxy.appendId = false; // remove 'id' part from request url
+                record.save({
+                    params: {validate: true},
+                    success: function () {
+                        callback();
                     },
-                    callback: function (records) {
-                        wizard.setLoading(false);
-                        if (!records.length) {
-                            step1ErrorMsg.hide();
-                            callback();
-                        } else {
-                            Ext.suspendLayouts();
-                            step1ErrorMsg.show();
-                            nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'IMT', 'Name should be unique'));
-                            Ext.resumeLayouts(true);
+                    failure: function (record, options) {
+                        var response = options.response,
+                            errors = Ext.decode(response.responseText, true);
+
+                        if (errors && Ext.isArray(errors.errors)) {
+                            wizard.markInvalid(errors.errors);
                         }
                     }
                 });
-            } else {
-                step1ErrorMsg.hide();
-                callback();
-            }
+                record.phantom = false;     // restore id in the record data for normal functionality
+                modelProxy.appendId = true; // restore id in the url for normal functionality
+            }            
         } else {
             callback();
         }
@@ -520,6 +525,9 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
         });
         Ext.resumeLayouts(true);
         wizard.updateRecord();
+        if (!wizard.isEdit) {
+            wizard.getRecord().phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
+        }
         wizard.getRecord().save({
             backUrl: finishBtn.href,
             success: function (record) {
