@@ -3,6 +3,7 @@
 Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.upl.cache,\
                 com.energyict.mdc.upl.meterdata,\
+                com.energyict.mdc.upl.offline,\
                 com.energyict.mdc.upl.properties,\
                 com.energyict.mdc.upl.tasks,\
                 com.energyict.mdc.upl.tasks.support,\

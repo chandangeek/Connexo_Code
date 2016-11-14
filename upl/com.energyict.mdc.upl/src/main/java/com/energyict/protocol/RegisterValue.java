@@ -6,9 +6,10 @@
 
 package com.energyict.protocol;
 
+import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;

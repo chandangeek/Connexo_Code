@@ -1,7 +1,6 @@
-package com.energyict.mdw.offline;
+package com.energyict.mdc.upl.offline;
 
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.Offline;
 import com.energyict.obis.ObisCode;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 

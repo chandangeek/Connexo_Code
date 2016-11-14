@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceBasicSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceStatusInformationSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
@@ -25,6 +26,6 @@ public interface DeviceProtocol<DT extends DeviceProtocolDialect>
         extends HasDynamicProperties, DeviceProtocolDialectSupport<DT>,
                 DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
                 DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport,
-                DeviceStatusInformationSupport,
+                DeviceStatusInformationSupport, DeviceMessageSupport,
                 DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport {
 }

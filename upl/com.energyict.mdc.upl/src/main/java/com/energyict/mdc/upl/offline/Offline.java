@@ -1,4 +1,4 @@
-package com.energyict.cpo;
+package com.energyict.mdc.upl.offline;
 
 /**
  * Represents an offline version of some Type.
