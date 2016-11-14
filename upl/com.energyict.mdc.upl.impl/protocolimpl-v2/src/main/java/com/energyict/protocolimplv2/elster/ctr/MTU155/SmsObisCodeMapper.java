@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.Qualifier;

@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.g3.cache;
 
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimpl.dlms.common.ObisCodeAndAttribute;

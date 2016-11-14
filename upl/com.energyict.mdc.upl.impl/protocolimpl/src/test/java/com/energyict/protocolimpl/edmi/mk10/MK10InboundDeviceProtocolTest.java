@@ -1,19 +1,21 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigDecimal;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;

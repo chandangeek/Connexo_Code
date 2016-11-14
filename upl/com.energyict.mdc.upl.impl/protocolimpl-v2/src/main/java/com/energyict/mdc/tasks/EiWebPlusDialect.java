@@ -5,7 +5,10 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Models a {@link DeviceProtocolDialect} for usage with the RTU+Server and EIWebPlus
@@ -22,7 +25,7 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "EIWebPlus dialect";
     }
 

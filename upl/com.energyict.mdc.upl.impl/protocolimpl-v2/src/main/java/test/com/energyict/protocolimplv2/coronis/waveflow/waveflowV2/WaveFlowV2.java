@@ -1,7 +1,8 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
-import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
+
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
 /**

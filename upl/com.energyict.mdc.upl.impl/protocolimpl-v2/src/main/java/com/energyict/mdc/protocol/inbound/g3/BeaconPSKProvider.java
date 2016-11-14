@@ -1,22 +1,17 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.GeneralSecurityException;
-import java.security.Key;
 
 /**
  * Copyrights EnergyICT

@@ -31,7 +31,7 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "TCP";
     }
 

@@ -34,7 +34,7 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "CTR";
     }
 

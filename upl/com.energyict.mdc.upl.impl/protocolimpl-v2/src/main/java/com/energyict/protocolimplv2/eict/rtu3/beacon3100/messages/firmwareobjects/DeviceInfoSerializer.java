@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjec
 
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.ProtocolDialectProperties;
 
 import com.energyict.cpo.BusinessObject;
@@ -23,6 +22,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
 /**
  * Helper class that takes a group of slave devices and returns a JSon serialized version of all their properties.
@@ -75,7 +76,7 @@ public class DeviceInfoSerializer {
                 }
 
                 //Add the name of the gateway dialect in the properties, need to communicate directly to the device, using the gateway
-                dialectProperties.setProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME, DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+                dialectProperties.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
 
                 //Add the first security set. Any security set is fine, as long as it can be used to create a unicast session to the meter.
                 final List<SecurityPropertySet> securityPropertySets = slaveDevice.getConfiguration().getCommunicationConfiguration().getSecurityPropertySets();

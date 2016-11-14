@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-
 import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -14,6 +12,7 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import java.math.BigDecimal;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_UPPER_SERVER_MAC_ADDRESS;
+import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
 /**
  * Extension of the standard DLMS properties, adding DSMR50 stuff
@@ -115,17 +114,17 @@ public class Dsmr50Properties extends DlmsProperties {
     }
 
     public boolean useBeaconMirrorDeviceDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
     public boolean useBeaconGatewayDeviceDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
     public boolean useSerialDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 

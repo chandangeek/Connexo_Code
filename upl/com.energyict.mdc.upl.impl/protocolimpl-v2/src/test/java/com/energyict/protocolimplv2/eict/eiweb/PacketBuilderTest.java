@@ -1,31 +1,37 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianOutputStream;
-import com.energyict.cbo.Password;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DeviceIpAddress;
 import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import com.energyict.cbo.LittleEndianOutputStream;
+import com.energyict.cbo.Password;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
 import org.fest.assertions.core.Condition;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;

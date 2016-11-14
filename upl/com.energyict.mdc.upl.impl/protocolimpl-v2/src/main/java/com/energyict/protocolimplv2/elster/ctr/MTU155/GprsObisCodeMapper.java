@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -33,7 +33,7 @@ public class GprsObisCodeMapper extends ObisCodeMapper {
      * Read the registers from the device.
      *
      * @param rtuRegisters: the list of {@link com.energyict.mdw.offline.OfflineRegister}s to read
-     * @return: a list containing all {@link com.energyict.mdc.meterdata.CollectedRegister}s
+     * @return: a list containing all {@link CollectedRegister}s
      */
     public List<CollectedRegister> readRegisters(List<OfflineRegister> rtuRegisters) {
         List<CollectedRegister> collectedRegisters = new ArrayList<>(rtuRegisters.size());

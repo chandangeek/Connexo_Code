@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -9,6 +7,8 @@ import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.math.BigDecimal;
+
+import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
 /**
  * Copyrights EnergyICT
@@ -64,12 +64,12 @@ public class IDISProperties extends DlmsProperties {
     }
 
     public boolean useBeaconMirrorDeviceDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
     public boolean useSerialDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 

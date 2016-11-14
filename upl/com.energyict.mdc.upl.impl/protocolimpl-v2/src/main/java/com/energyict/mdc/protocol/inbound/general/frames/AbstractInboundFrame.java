@@ -1,7 +1,8 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.InboundParameters;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
 

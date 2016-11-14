@@ -1,10 +1,17 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
+import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
+import com.energyict.mdc.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.meterdata.DeviceLoadProfile;
+import com.energyict.mdc.meterdata.DeviceLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
@@ -13,13 +20,14 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+
+import java.util.List;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;

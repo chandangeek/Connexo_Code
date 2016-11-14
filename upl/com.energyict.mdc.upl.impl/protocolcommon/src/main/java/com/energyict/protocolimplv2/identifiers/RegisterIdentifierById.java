@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifierType;
+
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterFactory;
 import com.energyict.mdw.core.RegisterFactoryProvider;
@@ -99,7 +100,7 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.toList((Object) getId());
     }
 

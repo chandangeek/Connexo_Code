@@ -29,7 +29,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "SDK dialect (default)";
     }
 

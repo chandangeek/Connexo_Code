@@ -1,16 +1,17 @@
 package test.com.energyict.protocolimplv2.coronis.muc;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.ExchangeMode;
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.cbo.TimeDuration;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.ExchangeMode;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;

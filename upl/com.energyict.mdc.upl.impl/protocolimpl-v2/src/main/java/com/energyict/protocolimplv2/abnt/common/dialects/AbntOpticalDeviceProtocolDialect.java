@@ -32,7 +32,7 @@ public class AbntOpticalDeviceProtocolDialect extends AbstractDeviceProtocolDial
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "Optical";
     }
 

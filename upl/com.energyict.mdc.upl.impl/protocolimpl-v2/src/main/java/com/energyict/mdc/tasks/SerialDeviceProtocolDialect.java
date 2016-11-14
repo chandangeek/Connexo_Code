@@ -12,7 +12,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_ROUND_TRIP_CORRECTION;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEOUT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.RETRIES;
+import static com.energyict.dlms.common.DlmsProtocolProperties.ROUND_TRIP_CORRECTION;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
 
 /**
  * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a serial HDLC connection type (optical/RS485/... interface)
@@ -28,7 +33,7 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "Serial DLMS";
     }
 

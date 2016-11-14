@@ -1,7 +1,8 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 

@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.mdw.offline.OfflineRegister;

@@ -1,7 +1,8 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
+
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;

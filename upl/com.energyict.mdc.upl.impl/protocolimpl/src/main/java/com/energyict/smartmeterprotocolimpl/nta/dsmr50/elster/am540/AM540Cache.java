@@ -1,8 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 

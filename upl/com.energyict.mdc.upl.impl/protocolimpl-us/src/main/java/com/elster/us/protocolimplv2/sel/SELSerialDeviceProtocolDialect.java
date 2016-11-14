@@ -1,17 +1,17 @@
 package com.elster.us.protocolimplv2.sel;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class SELSerialDeviceProtocolDialect implements DeviceProtocolDialect {
-  
+
   //public static final String RETRIES = "Retries";
   public static final String TIMEOUT = "tmo";
   //public final static String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
@@ -21,14 +21,14 @@ public class SELSerialDeviceProtocolDialect implements DeviceProtocolDialect {
   public static final int DEFAULT_TIMEOUT = 30;
   //public final static int DEFAULT_ROUND_TRIP_CORRECTION = 0;
   //public static final int DEFAULT_RETRIES = 3;
-  
+
   @Override
   public String getDeviceProtocolDialectName() {
       return "SerialModemSELDialect";
   }
 
   @Override
-  public String getDisplayName() {
+  public String getDeviceProtocolDialectDisplayName() {
       return "Serial SEL 734-735";
   }
 
@@ -85,7 +85,7 @@ public class SELSerialDeviceProtocolDialect implements DeviceProtocolDialect {
 //              return null;
 //      }
 //  }
-  
+
   @Override
   public PropertySpec getPropertySpec(String name) {
       switch (name) {

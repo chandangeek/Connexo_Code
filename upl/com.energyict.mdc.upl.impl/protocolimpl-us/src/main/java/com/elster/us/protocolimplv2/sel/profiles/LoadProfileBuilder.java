@@ -1,39 +1,28 @@
 package com.elster.us.protocolimplv2.sel.profiles;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.logging.Level;
-
+import com.energyict.mdc.meterdata.DeviceLoadProfile;
+import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import com.elster.us.protocolimplv2.sel.SEL;
 import com.elster.us.protocolimplv2.sel.utility.ObisCodeMapper;
 import com.elster.us.protocolimplv2.sel.utility.UnitMapper;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierById;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
-  
+
   private SEL meterProtocol;
   /**
    * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
@@ -56,10 +45,10 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
     LDPData results = meterProtocol.getConnection().readLoadProfileConfig(loadProfileReaders.get(0).getMeterSerialNumber());
     UnitMapper.setupUnitMappings(meterProtocol.getLogger());
     //setUnits(results);
-    
+
     List<Integer> registersToMap = new ArrayList();
     List<String> deviceChannelNames = new ArrayList();
-    
+
     for (int count = 0; count < results.getMeterConfig().getNumberLDPChannelsEnabled(); count++) {
         //registersToMap.add(results.getMeterConfig().getChannelNames().get(count));
       deviceChannelNames.add(results.getMeterConfig().getChannelNames().get(count));
@@ -70,7 +59,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
     List<ObisCode> obisCodesFromDevice = ObisCodeMapper.mapDeviceChannels(registersToMap);
 
     this.channelObisCodes = obisCodesFromDevice;
-    
+
  // Go through the list of load profiles provided from EiServer
     List<CollectedLoadProfileConfiguration> loadProfileConfigList = new ArrayList<CollectedLoadProfileConfiguration>();
     for (LoadProfileReader lpReader : loadProfileReaders) {
@@ -107,12 +96,12 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
         loadProfileConfigList.add(config);
     }
     this.loadProfileConfigurationList = loadProfileConfigList;
-    
+
     return loadProfileConfigList;
   }
 
-  
-  
+
+
   /**
    * <p>
    * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
@@ -146,7 +135,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
           // TODO: set start/end times correctly using timezone
           LDPData results = meterProtocol.getConnection().readLoadProfileData(lpr, intvlLength);
           LoadProfileEIServerFormatter formatter = new LoadProfileEIServerFormatter(results, meterProtocol.getProperties());
-          
+
           // These are the channels we are interested in...
           List<ChannelInfo> channelInfosFromEiServer = lpr.getChannelInfos();
           List<Integer> interestedIn = new ArrayList<Integer>();
@@ -167,7 +156,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
                 interestedIn.add(index);
             }
           }
-          
+
           intervalDatas = formatter.getIntervalData(interestedIn);
           profileData1.setCollectedIntervalData(intervalDatas, channelInfosFromEiServer);
       }
@@ -189,5 +178,5 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
       }
       return null;
   }
-  
+
 }

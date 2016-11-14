@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers;
 
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -17,7 +18,12 @@ import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2PHYAndMA
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.SixLowPanAdaptationLayerSetupMapping;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.*;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.AdditionalInfoCustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.CustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.FirewallSetupCustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.G3NetworkManagementCustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.PushEventNotificationSetupRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.UplinkPingSetupCustomRegisterMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 

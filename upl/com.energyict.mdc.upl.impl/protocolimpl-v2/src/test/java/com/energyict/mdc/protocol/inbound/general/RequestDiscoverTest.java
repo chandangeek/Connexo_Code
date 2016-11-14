@@ -1,27 +1,33 @@
 package com.energyict.mdc.protocol.inbound.general;
 
+import com.energyict.mdc.meterdata.CollectedDataFactory;
+import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
+import com.energyict.mdc.meterdata.CollectedRegisterList;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.tasks.Issue;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.CollectedDataFactory;
-import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedRegisterList;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdw.core.LogBookSpec;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.util.IssueFactory;
 import com.energyict.util.IssueFactoryProvider;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,13 +35,12 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests that mock the comchannel and stub an incoming frame to test the inbound parsing of the RequestDiscover implementation
