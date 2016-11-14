@@ -105,7 +105,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     private PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(G3Properties.PSK);
+        return PropertySpecFactory.stringPropertySpec(G3Properties.PSK);
     }
 
     private PropertySpec nodeAddressPropertySpec() {

@@ -111,6 +111,20 @@
 	public *;
 	protected *;
 }
+-keepnames class com.energyict.mdc.protocol.inbound.g3.BeaconPSKProvider
+-keepnames class com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.mdc.protocol.inbound.g3.BeaconPSKProvider {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.mdc.protocol.inbound.g3.Beacon3100PushEventNotification {
+	public *;
+	protected *;
+}
 -keep public class com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper {
 	public *;
 	protected *;

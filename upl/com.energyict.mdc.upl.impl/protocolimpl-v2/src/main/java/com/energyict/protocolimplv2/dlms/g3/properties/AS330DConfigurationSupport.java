@@ -57,7 +57,7 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(G3Properties.PSK);
+        return PropertySpecFactory.stringPropertySpec(G3Properties.PSK);
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {

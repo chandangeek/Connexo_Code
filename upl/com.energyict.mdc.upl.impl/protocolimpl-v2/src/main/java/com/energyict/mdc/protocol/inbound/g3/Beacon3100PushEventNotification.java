@@ -27,7 +27,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      */
     private static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
     private static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
-    private boolean provideProtocolJavaClasName = true;
+    protected boolean provideProtocolJavaClasName = true;
 
     protected BeaconPSKProvider getPskProvider() {
         return BeaconPSKProviderFactory.getInstance(provideProtocolJavaClasName).getPSKProvider(getDeviceIdentifier(), getContext());
@@ -50,7 +50,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-25 11:28:57 +0200 (Mon, 25 Apr 2016)$";
+        return "$Date: 2016-11-14 09:13:01 +0100 (Mon, 14 Nov 2016)$";
     }
 
     @Override
