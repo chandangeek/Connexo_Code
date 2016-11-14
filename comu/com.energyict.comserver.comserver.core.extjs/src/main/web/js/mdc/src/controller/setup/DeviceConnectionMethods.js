@@ -44,7 +44,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'},
         {ref: 'propertyForm', selector: '#propertyForm'},
         {ref: 'connectionMethodActionMenu', selector: '#device-connection-method-action-menu'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'deviceConnectionMethodSetup', selector: 'deviceConnectionMethodSetup'}
 
     ],
 
@@ -180,6 +181,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             showInbound = true;
         }
         if(showOutbound && showInbound) {
+            label && label.show();
             emptyOutboundButton && emptyOutboundButton.show();
             emptyInboundButton && emptyInboundButton.show();
             actionsMenu && actionsMenu.show();
@@ -190,12 +192,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             emptyOutboundButton && emptyOutboundButton.hide();
             emptyInboundButton && emptyInboundButton.hide();
         } else if (showInbound) {
+            label && label.show();
             emptyOutboundButton && emptyOutboundButton.hide();
             emptyInboundButton && emptyInboundButton.show();
             actionsMenu && actionsMenu.hide();
             gridInboundButton && gridInboundButton.show();
             gridOutboundButton && gridOutboundButton.hide();
         } else if (showOutbound) {
+            label && label.show();
             emptyOutboundButton && emptyOutboundButton.show();
             emptyInboundButton && emptyInboundButton.hide();
             actionsMenu && actionsMenu.hide();
@@ -555,7 +559,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     deleteDeviceConnectionMethod: function (connectionMethodToDelete) {
-        var me = this;
+        var me = this,
+            connectionMethodsStore,
+            widget = me.getDeviceConnectionMethodSetup();
         if (connectionMethodToDelete.hasOwnProperty('action')) {
             connectionMethodToDelete = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
@@ -566,23 +572,31 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 connectionMethodToDelete: connectionMethodToDelete,
                 me: me
             },
-            fn: me.removeDeviceConnectionMethod
-        });
-    },
+            fn: function (btn, text, opt) {
+                if (btn === 'confirm') {
+                    var connectionMethodToDelete = opt.config.connectionMethodToDelete;
+                    var me = opt.config.me;
+                    connectionMethodToDelete.getProxy().extraParams = ({mrid: me.mrid});
+                    connectionMethodToDelete.destroy({
+                        success: function () {
+                            location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods';
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
+                            connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo');
+                            connectionMethodsStore.load({
+                                params:{
+                                    available: true,
+                                    mrId: me.mrid
+                                },
+                                callback: function (records, operation, success) {
+                                    me.showCorrectButtons(connectionMethodsStore, widget, success);
+                                }
+                            });
+                        }
+                    });
 
-    removeDeviceConnectionMethod: function (btn, text, opt) {
-        if (btn === 'confirm') {
-            var connectionMethodToDelete = opt.config.connectionMethodToDelete;
-            var me = opt.config.me;
-            connectionMethodToDelete.getProxy().extraParams = ({mrid: me.mrid});
-            connectionMethodToDelete.destroy({
-                success: function () {
-                    location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods';
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
                 }
-            });
-
-        }
+            }
+        });
     },
 
     showDeviceConnectionMethodEditView: function (mrid, connectionMethodId) {
