@@ -1,4 +1,4 @@
-package com.energyict.mdc.upl.tasks.support;
+package com.energyict.mdc.upl;
 
 /**
  * Provides functionality to do LogOn/LogOff with a device.
