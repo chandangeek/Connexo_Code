@@ -26,5 +26,5 @@ public interface DeviceProtocol<DT extends DeviceProtocolDialect>
                 DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
                 DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport,
                 DeviceStatusInformationSupport,
-                DeviceTopologySupport, DeviceCachingSupport {
+                DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport {
 }
