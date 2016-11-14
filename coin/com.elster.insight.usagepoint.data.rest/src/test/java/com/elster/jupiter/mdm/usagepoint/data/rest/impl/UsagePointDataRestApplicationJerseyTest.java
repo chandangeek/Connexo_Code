@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -121,7 +122,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     private CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     @Mock
     private CalendarService calendarService;
-
+    @Mock
+    private CalendarInfoFactory calendarInfoFactory;
     @Override
     protected Application getApplication() {
         UsagePointApplication application = new UsagePointApplication() {
@@ -159,6 +161,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setUsagePointCalendarService(usagePointCalendarService);
         application.setCalendarOnUsagePointInfoFactory(calendarOnUsagePointInfoFactory);
         application.setCalendarService(calendarService);
+        application.setCalendarInfoFactory(calendarInfoFactory);
         return application;
     }
 

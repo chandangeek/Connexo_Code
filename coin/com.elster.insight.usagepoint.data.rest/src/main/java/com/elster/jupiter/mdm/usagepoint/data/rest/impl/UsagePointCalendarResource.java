@@ -2,6 +2,8 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -18,14 +20,19 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -40,16 +47,18 @@ public class UsagePointCalendarResource {
     private final UsagePointCalendarService usagePointCalendarService;
     private final CalendarService calendarService;
     private final ExceptionFactory exceptionFactory;
+    private final CalendarInfoFactory calendarInfoFactory;
     private final TransactionService transactionService;
 
     @Inject
-    public UsagePointCalendarResource(CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory, Clock clock, ResourceHelper resourceHelper, UsagePointCalendarService usagePointCalendarService, CalendarService calendarService, ExceptionFactory exceptionFactory, TransactionService transactionService) {
+    public UsagePointCalendarResource(CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory, Clock clock, ResourceHelper resourceHelper, UsagePointCalendarService usagePointCalendarService, CalendarService calendarService, ExceptionFactory exceptionFactory, CalendarInfoFactory calendarInfoFactory, TransactionService transactionService) {
         this.calendarOnUsagePointInfoFactory = calendarOnUsagePointInfoFactory;
         this.clock = clock;
         this.resourceHelper = resourceHelper;
         this.usagePointCalendarService = usagePointCalendarService;
         this.calendarService = calendarService;
         this.exceptionFactory = exceptionFactory;
+        this.calendarInfoFactory = calendarInfoFactory;
         this.transactionService = transactionService;
     }
 
@@ -67,6 +76,28 @@ public class UsagePointCalendarResource {
                 .filter(Objects::nonNull)
                 .collect(PagedInfoList.toPagedInfoList("calendars", queryParameters));
     }
+
+    @GET
+    @Path("/{calendarId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public CalendarInfo getCalendar(@PathParam("mRID") String usagePointMrid, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        if (milliseconds <= 0) {
+            return calendarService.findCalendar(calendarId)
+                    .map(calendarInfoFactory::detailedFromCalendar)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CALENDAR));
+        } else {
+            Instant instant = Instant.ofEpochMilli(milliseconds);
+            Calendar calendar = calendarService.findCalendar(calendarId).get();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    .toLocalDate();
+            return transformToWeekCalendar(calendar, localDate);
+        }
+    }
+
+    private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
+        return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
+    }
+
 
     @POST
     @Transactional
