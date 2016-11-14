@@ -24,7 +24,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.AddEstimationRuleSetsToPu
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.label.inactiveRules', 'IMT', 'Inctive rules'),
+                header: Uni.I18n.translate('general.label.inactiveRules', 'IMT', 'Inactive rules'),
                 dataIndex: 'inactiveRules',
                 flex: 1
             }
