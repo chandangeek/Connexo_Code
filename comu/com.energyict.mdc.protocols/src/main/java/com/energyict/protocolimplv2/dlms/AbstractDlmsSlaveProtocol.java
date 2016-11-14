@@ -259,7 +259,7 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        throw new UnsupportedMethodException(this.getClass(), "getDeviceFunction");
+        return DeviceFunction.METER;
     }
 
     @Override

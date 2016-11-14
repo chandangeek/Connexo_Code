@@ -1,18 +1,30 @@
 package com.energyict.protocolimplv2.dlms.idis.am130;
 
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -28,9 +40,10 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
     private final AbstractDlmsProtocol masterProtocol;
     private final IDISMBusMessaging idisMBusMessaging;
 
-    protected MBusDevice(Thesaurus thesaurus, PropertySpecService propertySpecService, Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider, Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider, AbstractDlmsProtocol masterProtocol) {
+    @Inject
+    public MBusDevice(Clock clock, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider, Thesaurus thesaurus, PropertySpecService propertySpecService, Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider, Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider) {
         super(thesaurus, propertySpecService, inheritedAuthenticationDeviceAccessLevelProvider, inheritedEncryptionDeviceAccessLevelProvider);
-        this.masterProtocol = masterProtocol;
+        this.masterProtocol = new AM130(clock, thesaurus, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory, dsmrSecuritySupportProvider);
         this.idisMBusMessaging = new IDISMBusMessaging(masterProtocol);
     }
 
