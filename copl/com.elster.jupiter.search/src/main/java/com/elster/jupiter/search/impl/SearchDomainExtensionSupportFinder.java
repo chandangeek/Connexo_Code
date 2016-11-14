@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -14,6 +15,10 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +87,22 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
         try (Fetcher<T> fetcher = (Fetcher<T>) this.dataModel.mapper(searchDomain.getDomainClass()).fetcher(asFragment("*"))) {
             return StreamSupport.stream(fetcher.spliterator(), false)
                     .collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public int count() {
+        try (Connection connection = this.dataModel.getConnection(false)) {
+            SqlBuilder countSqlBuilder = new SqlBuilder();
+            countSqlBuilder.add(asFragment("count(*)"));
+            try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    return resultSet.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
