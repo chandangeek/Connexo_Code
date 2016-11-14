@@ -154,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-14 11:46:38 +0100 (Mon, 14 Nov 2016)$";
+        return "$Date: 2016-11-14 17:24:27 +0100 (Mon, 14 Nov 2016)$";
     }
 
     /**
@@ -261,7 +261,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
-        if ((initialFrameCounter > cachedFrameCounter) && clientId == EVN_CLIENT_MANAGEMENT) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1). Use initialFC only for client 1, for others read it out
+        if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1).
             getLogger().info("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(initialFrameCounter);
             weHaveAFrameCounter = true;

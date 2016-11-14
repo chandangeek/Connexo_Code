@@ -50,7 +50,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-14 09:13:01 +0100 (Mon, 14 Nov 2016)$";
+        return "$Date: 2016-11-14 17:24:27 +0100 (Mon, 14 Nov 2016)$";
     }
 
     @Override

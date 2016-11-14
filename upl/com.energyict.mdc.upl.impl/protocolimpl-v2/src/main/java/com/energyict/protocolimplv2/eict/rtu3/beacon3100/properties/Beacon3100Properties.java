@@ -8,8 +8,9 @@ import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+
+import java.math.BigDecimal;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
 
@@ -144,5 +145,25 @@ public class Beacon3100Properties extends DlmsProperties {
         } else {
             return 0;
         }
+    }
+
+    public boolean useCachedFrameCounter() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
+    }
+
+    public boolean validateCachedFrameCounter() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, true);
+    }
+
+    public int getFrameCounterRecoveryRetries() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100)).intValue();
+    }
+
+    public int getFrameCounterRecoveryStep() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE).intValue();
+    }
+
+    public long getInitialFrameCounter() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(100)).longValue();
     }
 }
