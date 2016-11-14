@@ -197,6 +197,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      * @return List<RegisterValue> for an List of ObisCodes
      * @throws java.io.IOException Thrown in case of an exception
      */
+    @Override
     public List<RegisterValue> readRegisters(final List<Register> registers) throws IOException {
         return getRegisterFactory().readRegisters(registers);
     }
