@@ -88,7 +88,7 @@ Ext.define('Idv.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDV', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'IDV', 'Unassigned');
                         }
                     },
                     {
@@ -96,7 +96,7 @@ Ext.define('Idv.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.user', 'IDV', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
-                            return value.name ? value.name : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                            return value.name ? value.name : Uni.I18n.translate('general.unassigned', 'IDV', 'Unassigned');
                         }
                     },
                     {
