@@ -306,7 +306,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                     setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     return true;
                 }
-            } catch (Exception ex) {
+            } catch (CommunicationException ex) {
                 long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
                 getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                 frameCounter += step;
