@@ -6,8 +6,8 @@
 
 package com.energyict.dlms;
 
-import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;

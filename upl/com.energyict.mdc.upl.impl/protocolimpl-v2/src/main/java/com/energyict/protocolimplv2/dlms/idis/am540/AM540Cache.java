@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
+import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
-import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
 import com.energyict.protocol.support.FrameCounterCache;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

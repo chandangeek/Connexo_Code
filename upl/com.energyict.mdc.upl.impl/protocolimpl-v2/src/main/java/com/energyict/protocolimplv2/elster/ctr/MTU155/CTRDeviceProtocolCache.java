@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
