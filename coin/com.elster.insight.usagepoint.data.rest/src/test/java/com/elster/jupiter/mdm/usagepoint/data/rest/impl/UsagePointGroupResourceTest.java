@@ -269,7 +269,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Integer>>get("$.usagePoints[*].id")).containsExactly(1, 2);
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].mRID")).containsExactly("MRID1", "MRID2");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].name")).containsExactly("Name1", "Name2");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayServiceCategory")).containsExactly("Electricity", "Heat");
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
@@ -298,7 +298,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Integer>>get("$.usagePoints[*].id")).containsExactly(1, 2);
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].mRID")).containsExactly("MRID1", "MRID2");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].name")).containsExactly("Name1", "Name2");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayServiceCategory")).containsExactly("Electricity", "Heat");
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
@@ -323,7 +323,6 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
                                       String location) {
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getId()).thenReturn(id);
-        when(usagePoint.getMRID()).thenReturn("MRID" + id);
         when(usagePoint.getName()).thenReturn("Name" + id);
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(serviceCategory.getDisplayName()).thenReturn(serviceKind.getDefaultFormat());
