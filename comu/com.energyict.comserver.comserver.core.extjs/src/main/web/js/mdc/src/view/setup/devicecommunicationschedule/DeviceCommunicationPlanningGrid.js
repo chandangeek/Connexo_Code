@@ -158,53 +158,81 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                         removeScheduleMenuItem = me.down('#mdc-device-communication-planning-remove-schedule'),
                                         taskType = me.record.get('type'),
                                         addScheduleVisible = taskType==='ONREQUEST' || taskType==='ADHOC',
-                                        changeAndRemoveScheduleVisible = taskType==='INDIVIDUAL',
+                                        changeAndRemoveSchedulePossible = taskType==='INDIVIDUAL',
                                         isActive = me.record.get('active'),
                                         connectionDefinedOnDevice = me.record.get('connectionDefinedOnDevice'),
-                                        isMinimize = !connectionDefinedOnDevice ? false : me.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS';
+                                        isMinimize = !connectionDefinedOnDevice ? false : me.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
 
-                                    if (isActive && connectionDefinedOnDevice) {
-                                        if (isMinimize) {
-                                            runMenuItem.show();
-                                        } else {
-                                            runMenuItem.hide();
-                                        }
-                                        runNowMenuItem.show();
+                                        runNowEnabled = isActive && connectionDefinedOnDevice,
+                                        runEnabled = runNowEnabled && isMinimize,
+                                        activateEnabled = !Ext.isEmpty(activateMenuItem) && !isActive,
+                                        deactivateEnabled = !Ext.isEmpty(deactivateMenuItem) && isActive,
+                                        addScheduleEnabled = !Ext.isEmpty(addScheduleMenuItem) && addScheduleVisible,
+                                        changeScheduleEnabled = !Ext.isEmpty(changeScheduleMenuItem) && changeAndRemoveSchedulePossible,
+                                        removeScheduleEnabled = !Ext.isEmpty(removeScheduleMenuItem) && changeAndRemoveSchedulePossible;
+
+                                    if (runEnabled) {
+                                        runMenuItem.show();
                                     } else {
                                         runMenuItem.hide();
+                                    }
+                                    if (runNowEnabled) {
+                                        runNowMenuItem.show();
+                                    } else {
                                         runNowMenuItem.hide();
                                     }
-                                    if (addScheduleVisible) {
+                                    if (addScheduleEnabled) {
                                         addScheduleMenuItem.show();
                                     } else {
                                         addScheduleMenuItem.hide();
                                     }
-                                    if (changeAndRemoveScheduleVisible) {
+                                    if (changeScheduleEnabled) {
                                         changeScheduleMenuItem.show();
-                                        removeScheduleMenuItem.show();
                                     } else {
                                         changeScheduleMenuItem.hide();
+                                    }
+                                    if (removeScheduleEnabled) {
+                                        removeScheduleMenuItem.show();
+                                    } else {
                                         removeScheduleMenuItem.hide();
                                     }
-                                    if (isActive) {
+                                    if (activateEnabled) {
+                                        activateMenuItem.show();
+                                    } else {
                                         activateMenuItem.hide();
+                                    }
+                                    if (deactivateEnabled) {
                                         deactivateMenuItem.show();
                                     } else {
-                                        activateMenuItem.show();
                                         deactivateMenuItem.hide();
                                     }
                                 }
                             }
                         },
-                        isDisabled: function(view, rowIndex, callIndex, item){
-                            var menuHasItems = item.menu.items.items
-                                .map( function(menuItem) {
-                                    return menuItem.isVisible()
-                                })
-                                .filter( function(menuItem){
-                                    return !!menuItem
-                                }).length;
-                            return !menuHasItems;
+                        isDisabled: function(view, rowIndex, callIndex, item, record) {
+                            var me = this,
+                                activateMenuItem = me.menu.down('#mdc-device-communication-planning-activate-task'),
+                                deactivateMenuItem = me.menu.down('#mdc-device-communication-planning-deactivate-task'),
+                                addScheduleMenuItem = me.menu.down('#mdc-device-communication-planning-add-schedule'),
+                                changeScheduleMenuItem = me.menu.down('#mdc-device-communication-planning-change-schedule'),
+                                removeScheduleMenuItem = me.menu.down('#mdc-device-communication-planning-remove-schedule'),
+                                isActive = record.get('active'),
+                                connectionDefinedOnDevice = record.get('connectionDefinedOnDevice'),
+                                isMinimize = !connectionDefinedOnDevice ? false : record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
+                                taskType = record.get('type'),
+                                addScheduleVisible = taskType==='ONREQUEST' || taskType==='ADHOC',
+                                changeAndRemoveScheduleVisible = taskType==='INDIVIDUAL',
+
+                                runNowEnabled = isActive && connectionDefinedOnDevice,
+                                runEnabled = runNowEnabled && isMinimize,
+                                activateEnabled = !Ext.isEmpty(activateMenuItem) && !isActive,
+                                deactivateEnabled = !Ext.isEmpty(deactivateMenuItem) && isActive,
+                                addScheduleEnabled = !Ext.isEmpty(addScheduleMenuItem) && addScheduleVisible,
+                                changeScheduleEnabled = !Ext.isEmpty(changeScheduleMenuItem) && changeAndRemoveScheduleVisible,
+                                removeScheduleEnabled = !Ext.isEmpty(removeScheduleMenuItem) && changeAndRemoveScheduleVisible;
+
+                            return !(runNowEnabled || runEnabled || activateEnabled || deactivateEnabled ||
+                                addScheduleEnabled || changeScheduleEnabled || removeScheduleEnabled);
                         }
                     }
                 ],
