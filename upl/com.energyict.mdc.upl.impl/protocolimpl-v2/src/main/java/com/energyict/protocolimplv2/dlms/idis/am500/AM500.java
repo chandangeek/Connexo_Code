@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.idis.am500;
 
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
@@ -13,6 +12,7 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;

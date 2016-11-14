@@ -1,39 +1,14 @@
 package com.elster.us.protocolimplv2.sel;
 
 
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SF;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SN;
-import static com.elster.us.protocolimplv2.sel.Consts.CONTROL_CRC;
-import static com.elster.us.protocolimplv2.sel.Consts.CONTROL_ETX;
-import static com.elster.us.protocolimplv2.sel.Consts.CONTROL_STX;
-import static com.elster.us.protocolimplv2.sel.Consts.ACC1;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_ACC;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_REG;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_LP;
-import static com.elster.us.protocolimplv2.sel.Consts.LDP_DATE_FORMAT;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_DIRECTION_DELIVERED;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_DIRECTION_RECEIVED;
-import static com.elster.us.protocolimplv2.sel.Consts.LDP_YFILE_FORMAT;
-import static com.elster.us.protocolimplv2.sel.utility.ByteArrayHelper.*;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.meterdata.DeviceLogBook;
+import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
-import com.elster.us.protocolimplv2.sel.utility.DateFormatHelper;
-import com.elster.us.protocolimplv2.sel.utility.ObisCodeMapper;
-import com.elster.us.protocolimplv2.sel.utility.UnitMapper;
 import com.elster.us.protocolimplv2.sel.events.EventFormatter;
 import com.elster.us.protocolimplv2.sel.frame.RequestFrame;
 import com.elster.us.protocolimplv2.sel.frame.ResponseFrame;
@@ -44,39 +19,63 @@ import com.elster.us.protocolimplv2.sel.profiles.LDPParser;
 import com.elster.us.protocolimplv2.sel.profiles.structure.SERData;
 import com.elster.us.protocolimplv2.sel.registers.RegisterData;
 import com.elster.us.protocolimplv2.sel.registers.RegisterParser;
+import com.elster.us.protocolimplv2.sel.utility.ObisCodeMapper;
+import com.elster.us.protocolimplv2.sel.utility.UnitMapper;
 import com.elster.us.protocolimplv2.sel.utility.YModem;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
-import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.util.Collections;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
+import static com.elster.us.protocolimplv2.sel.Consts.ACC1;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_ACC;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_LP;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_REG;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SF;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SN;
+import static com.elster.us.protocolimplv2.sel.Consts.CONTROL_CRC;
+import static com.elster.us.protocolimplv2.sel.Consts.CONTROL_ETX;
+import static com.elster.us.protocolimplv2.sel.Consts.CONTROL_STX;
+import static com.elster.us.protocolimplv2.sel.Consts.LDP_DATE_FORMAT;
+import static com.elster.us.protocolimplv2.sel.Consts.LDP_YFILE_FORMAT;
+import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_DIRECTION_DELIVERED;
+import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_DIRECTION_RECEIVED;
+import static com.elster.us.protocolimplv2.sel.utility.ByteArrayHelper.getBytes;
+import static com.elster.us.protocolimplv2.sel.utility.ByteArrayHelper.getString;
 
 public class SELConnection {
-  
+
   private final SELProperties properties;
   private Logger logger;
   private SerialPortComChannel comChannel;
   private boolean connected = false;
   private List<SERData> serCache;
-  
+
   private String lastCommandSent;
-  
+
   public SELConnection(SerialPortComChannel comChannel, SELProperties properties, Logger logger) {
     this.comChannel = comChannel;
     this.properties = properties;
     this.logger = logger;
   }
-  
+
   public List<ResponseFrame> sendAndReceiveFrames(RequestFrame toSend) {
     sendFrame(toSend);
     return receiveResponse();
@@ -162,7 +161,7 @@ public List<ResponseFrame> receiveResponse() {
         } else {
             ResponseFrame response = new ResponseFrame(receivedBytes.toByteArray(), lastCommandSent);
             // add the frame to be returned
-            receivedFrames.add(response); 
+            receivedFrames.add(response);
         }
     }
     if(b == CONTROL_ETX || retries >= 3)
@@ -185,7 +184,7 @@ public List<ResponseFrame> receiveConnectResponse() {
         IOException ioe = new IOException("End of stream when reading from device");
         throw ConnectionCommunicationException.unexpectedIOException(ioe);
     }
-    
+
     if(b == CONTROL_STX) { //start of msg
       transmit = true;
       receivedBytes = new ByteArrayOutputStream();
@@ -196,7 +195,7 @@ public List<ResponseFrame> receiveConnectResponse() {
         } else {
             transmit = false;
             ResponseFrame response = new ResponseFrame(receivedBytes.toByteArray(), lastCommandSent);
-            receivedFrames.add(response); 
+            receivedFrames.add(response);
         }
       }
     }
@@ -321,7 +320,7 @@ public List<CollectedRegister> readRegisters(List<OfflineRegister> list) {
   String strResponse = ((RegisterReadResponseData)response.getData()).getValue();
   RegisterParser regParser = new RegisterParser();
   List<RegisterData> registerDatas = regParser.parse(strResponse);
-  
+
   for (int i = 0; i < list.size(); i++) {
     String obisCode = list.get(i).getObisCode().getValue();
     if (obisCode.equals(ObisCodeMapper.OBIS_KWH_DELIVERED)) {
@@ -345,7 +344,7 @@ public List<CollectedRegister> readRegisters(List<OfflineRegister> list) {
     } else {
         //TODO: unsupported register
     }
-    
+
     //get register data that matches unit and direction
     RegisterData desiredRegister = null;
     for(RegisterData registerData : registerDatas) {
@@ -360,7 +359,7 @@ public List<CollectedRegister> readRegisters(List<OfflineRegister> list) {
     RegisterIdentifier registerIdentifier = new RegisterIdentifierById(list.get(i).getRegisterId(), list.get(i).getObisCode());
     CollectedRegister register = new DefaultDeviceRegister(registerIdentifier);
     retVal.add(register);
-    
+
     if(desiredRegister != null) {
       Quantity quantity = new Quantity(desiredRegister.getBucket("3P").getValue(), unit);
       register.setCollectedData(quantity);
@@ -388,7 +387,7 @@ public LDPData readLoadProfileData(Date start, Date end, String serialNumber, in
       yModem.receive(yFile);
       File lpFile = new File(yFile);
       LDPParser ldpParser = new LDPParser();
-      results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile))); 
+      results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));
     } catch (IOException e) {
       e.printStackTrace();
     } catch (InterruptedException e) {
@@ -428,7 +427,7 @@ public LDPData readLoadProfileConfig(String serialNumber) {
       yModem.receive(yFile);
       File lpFile = new File(yFile);
       LDPParser ldpParser = new LDPParser();
-      results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));  
+      results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));
     } catch (IOException e) {
       e.printStackTrace();
     } catch (InterruptedException e) {

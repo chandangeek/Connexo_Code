@@ -1,8 +1,9 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.EventInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.MdcManager;

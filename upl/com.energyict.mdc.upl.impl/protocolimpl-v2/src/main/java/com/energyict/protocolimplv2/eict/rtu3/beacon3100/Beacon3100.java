@@ -5,7 +5,6 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
@@ -25,6 +24,7 @@ import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.LastSeenDateInfo;

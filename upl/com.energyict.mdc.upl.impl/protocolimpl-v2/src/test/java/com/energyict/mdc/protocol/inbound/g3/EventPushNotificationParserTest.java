@@ -1,12 +1,9 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.SynchroneousComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -14,9 +11,10 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.DataParseException;
@@ -25,12 +23,6 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import junit.framework.TestCase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +31,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventPushNotificationParserTest extends TestCase {

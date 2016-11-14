@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
@@ -19,6 +18,7 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;

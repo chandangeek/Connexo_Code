@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
@@ -8,6 +7,7 @@ import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCOSEMGlobals;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.dlms.g3.events;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;

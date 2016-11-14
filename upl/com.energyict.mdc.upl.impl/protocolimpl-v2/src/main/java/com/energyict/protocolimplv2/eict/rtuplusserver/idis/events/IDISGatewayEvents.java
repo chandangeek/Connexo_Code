@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.events;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.dlms.axrdencoding.AXDRDecoder;

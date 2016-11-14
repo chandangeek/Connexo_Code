@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
+
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -73,7 +74,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.toList((Object) getLogBookId());
     }
 

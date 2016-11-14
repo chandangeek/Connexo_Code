@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;

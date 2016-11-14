@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.events;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;

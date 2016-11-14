@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
