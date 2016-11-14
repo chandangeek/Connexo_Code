@@ -127,14 +127,12 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Usage point saved'));
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward({mRID: btn.mRID});
             },
-            failure: function (record, response) {
-                if (!!response.response) {
-                    var responseText = Ext.decode(response.response.responseText, true);
-
+            failure: function (response) {
+                    var responseText = Ext.decode(response.responseText, true);
                     if (responseText && Ext.isArray(responseText.errors)) {
-                        me.getForm().markInvalid(responseText.errors);
+                        me.getForm().form.markInvalid(responseText.errors);
+                        me.getForm().down('#form-errors').show();
                     }
-                }
             }
         });
     },
