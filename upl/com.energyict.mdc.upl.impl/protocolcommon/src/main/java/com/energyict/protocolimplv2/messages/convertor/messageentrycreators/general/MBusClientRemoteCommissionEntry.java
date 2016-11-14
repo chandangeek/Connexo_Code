@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageTag;

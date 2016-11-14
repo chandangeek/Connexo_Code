@@ -1,12 +1,13 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
 
 import java.util.Collections;
 import java.util.List;

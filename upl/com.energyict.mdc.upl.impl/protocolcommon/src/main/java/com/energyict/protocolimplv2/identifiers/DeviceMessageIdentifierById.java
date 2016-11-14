@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifierType;
+
+import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
-import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.meterdata.identifiers.MessageIdentifierType;
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -54,7 +55,7 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.toList((Object) getMessageId());
     }
 

@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.registers;
 
+import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;

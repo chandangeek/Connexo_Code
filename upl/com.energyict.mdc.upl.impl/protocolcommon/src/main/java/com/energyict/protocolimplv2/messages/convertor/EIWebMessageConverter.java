@@ -1,9 +1,38 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.*;
+import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.EIWebConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.MailConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.ModemConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.OpusConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.OutputConfigurationMessage;
+import com.energyict.protocolimplv2.messages.PPPConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.PeakShaverConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SMSConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.TotalizersConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.EIWebConfigurationMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetLoadMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSetpointMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSwitchTimeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimpleEIWebMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.XMLAttributeDeviceMessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +47,7 @@ import java.util.Map;
 public class EIWebMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
+     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();

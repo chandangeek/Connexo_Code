@@ -1,15 +1,27 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.upl.messages.DeviceMessageCategory;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.beginDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.endDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.latitudeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.longitudeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.offOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.onOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayOperatingModeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.threshold;
 
 /**
  * Provides a summary of all <i>Public Lighting</i> related messages

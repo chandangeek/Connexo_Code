@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.iec1107.abba230.ABBA230;
@@ -12,11 +13,12 @@ import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+
+import java.nio.charset.Charset;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.nio.charset.Charset;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;

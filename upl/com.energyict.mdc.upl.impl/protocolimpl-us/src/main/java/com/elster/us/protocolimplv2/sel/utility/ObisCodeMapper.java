@@ -1,14 +1,10 @@
 package com.elster.us.protocolimplv2.sel.utility;
 
 
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_KWH_DELIVERED;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_KVARH_DELIVERED;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_INTERVAL_KWH;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_INTERVAL_KVARH;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_INTERVAL_MWH3I;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_INTERVAL_MVRH3I;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_INTERVAL_MVRH3O;
-import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_INTERVAL_MWH3O;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.Register;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.Register;
+import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_KVARH_DELIVERED;
+import static com.elster.us.protocolimplv2.sel.Consts.OBJECT_KWH_DELIVERED;
 
 public class ObisCodeMapper {
   //TODO: fix/lookup correct obis codes
@@ -58,7 +53,7 @@ public class ObisCodeMapper {
       channelToObisMap.put(4, ObisCode.fromString(OBIS_CHANNEL_4));
       channelToObisMap.put(5, ObisCode.fromString(OBIS_CHANNEL_5));
       channelToObisMap.put(6, ObisCode.fromString(OBIS_CHANNEL_6));
-      
+
   }
 
   // Prevent instantiation
@@ -105,7 +100,7 @@ public class ObisCodeMapper {
   private static ObisCode mapChannelFromDevice(Integer channelFromDevice) {
       return channelToObisMap.get(channelFromDevice);
   }
-  
+
   public static Integer getObisKeyByValue(ObisCode obis) {
     for(Entry<Integer, ObisCode> entry : channelToObisMap.entrySet()) {
       if(entry.getValue().equals(obis)) {

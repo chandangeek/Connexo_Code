@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.upl.messages.DeviceMessageCategory;
+import com.energyict.mdc.upl.messages.DeviceMessageCategoryPrimaryKey;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
-import com.energyict.mdc.messages.DeviceMessageSpec;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

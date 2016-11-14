@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

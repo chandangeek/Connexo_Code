@@ -1,12 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
+import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

@@ -1,14 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
+import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

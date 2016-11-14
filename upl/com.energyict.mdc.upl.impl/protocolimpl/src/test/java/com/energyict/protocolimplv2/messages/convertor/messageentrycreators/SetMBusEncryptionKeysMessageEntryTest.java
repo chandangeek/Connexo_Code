@@ -1,18 +1,19 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
+import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -20,15 +21,16 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.openKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.transferKeyAttributeName;

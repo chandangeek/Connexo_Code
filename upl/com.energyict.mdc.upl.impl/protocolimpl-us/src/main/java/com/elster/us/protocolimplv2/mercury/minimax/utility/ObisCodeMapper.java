@@ -1,8 +1,7 @@
 package com.elster.us.protocolimplv2.mercury.minimax.utility;
 
-import static com.elster.us.protocolimplv2.mercury.minimax.Consts.*;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
-import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 
@@ -10,6 +9,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CHANNEL_UNDEFINED;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_BATTERY_READING;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_CORRECTED_VOLUME;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_INST_FLOW_RATE;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_INTERVAL_AVG_PRESS;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_INTERVAL_AVG_TEMP;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_INTERVAL_COR_VOL;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_INTERVAL_UNC_VOL;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_MAX_DAY;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_MAX_DAY_DATE;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.OBJECT_UNCORRECTED_VOLUME;
 
 /**
  * Maps OBIS codes to the correct item ID for the mercury protocol spec

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
-import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 

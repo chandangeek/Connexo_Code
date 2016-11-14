@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;

@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -14,9 +15,10 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
-import org.junit.Test;
 
 import java.text.ParseException;
+
+import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 

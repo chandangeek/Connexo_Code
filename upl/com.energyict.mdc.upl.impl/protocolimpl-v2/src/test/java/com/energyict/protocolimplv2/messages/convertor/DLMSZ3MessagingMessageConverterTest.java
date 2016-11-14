@@ -1,22 +1,27 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
 import static org.junit.Assert.assertEquals;
 
 /**

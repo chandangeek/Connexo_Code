@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -22,7 +23,50 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.ActiveChannelAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL1_CREDITWEIGHTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL1_FMAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL1_FSAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL1_SNRAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL2_CREDITWEIGHTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL2_FMAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL2_FSAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL2_SNRAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL3_CREDITWEIGHTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL3_FMAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL3_FSAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL3_SNRAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL4_CREDITWEIGHTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL4_FMAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL4_FSAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL4_SNRAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL5_CREDITWEIGHTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL5_FMAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL5_FSAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL5_SNRAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL6_CREDITWEIGHTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL6_FMAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL6_FSAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CHANNEL6_SNRAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.IEC1107ClassIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MAX_RECEIVING_GAINAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MAX_TRANSMITTING_GAINAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.OffsetAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.REPEATERAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RawDataAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SEARCH_INITIATOR_GAINAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SEARCH_INITIATOR_TIMEOUTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TIME_OUT_FRAME_NOT_OKAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 
 /**
  * Represents a MessageConverter for the DLMS AS220 protocol
@@ -34,7 +78,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public class AS220DLMSMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
+     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();

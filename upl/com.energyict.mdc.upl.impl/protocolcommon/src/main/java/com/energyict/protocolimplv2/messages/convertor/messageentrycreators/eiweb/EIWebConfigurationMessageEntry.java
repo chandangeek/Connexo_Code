@@ -1,8 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb;
 
-import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.Messaging;
 
 /**
  * Copyrights EnergyICT

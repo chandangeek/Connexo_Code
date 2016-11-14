@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.tasks.Issue;
 
@@ -36,8 +39,6 @@ import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.DataParseException;
@@ -62,7 +63,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.norma
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 
 /**
- * Provides functionality to handle the {@link com.energyict.mdc.messages.DeviceMessageSpec}s.
+ * Provides functionality to handle the {@link DeviceMessageSpec}s.
  * <p/>
  *
  * @author sva
@@ -100,7 +101,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     /**
-     * Searches for the {@link com.energyict.mdw.offline.OfflineDeviceMessageAttribute}
+     * Searches for the {@link OfflineDeviceMessageAttribute}
      * in the given {@link OfflineDeviceMessage} which corresponds
      * with the provided name. If no match is found, then an IOException is thrown
      * attribute is returned

@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.upl.messages.DeviceMessageCategory;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -87,9 +88,9 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     SyncDeviceDataForDC(46,
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName, false)),
     SyncOneConfigurationForDC(47, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceConfigurationIDAttributeName)),
-    
+
     /** Trigger the preliminary protocol (read out serial) for a group of meters. */
-	TRIGGER_PRELIMINARY_PROTOCOL(48, 
+	TRIGGER_PRELIMINARY_PROTOCOL(48,
 				PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;

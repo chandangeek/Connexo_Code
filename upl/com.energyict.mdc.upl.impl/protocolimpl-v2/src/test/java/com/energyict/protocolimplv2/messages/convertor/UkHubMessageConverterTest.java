@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -15,11 +16,12 @@ import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.ZigBeeConfigurationDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
+
+import java.text.ParseException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.text.ParseException;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;

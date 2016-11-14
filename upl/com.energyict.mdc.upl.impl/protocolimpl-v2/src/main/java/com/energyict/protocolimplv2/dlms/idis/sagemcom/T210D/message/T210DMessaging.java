@@ -1,10 +1,16 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message;
 
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 import java.util.List;
 

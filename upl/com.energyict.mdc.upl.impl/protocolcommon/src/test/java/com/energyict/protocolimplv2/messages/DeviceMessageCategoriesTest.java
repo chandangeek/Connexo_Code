@@ -1,16 +1,18 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import junit.framework.TestCase;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import org.junit.Test;
 
 public class DeviceMessageCategoriesTest extends TestCase {
 

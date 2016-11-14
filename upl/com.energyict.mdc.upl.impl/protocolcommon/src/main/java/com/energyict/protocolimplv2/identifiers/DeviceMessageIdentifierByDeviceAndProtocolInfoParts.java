@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.meterdata.identifiers.MessageIdentifierType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifierType;
 
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.protocol.exceptions.identifier.DuplicateException;
@@ -67,7 +67,7 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.toList((Object) getDeviceIdentifier(), getMessageProtocolInfoParts());
     }
 

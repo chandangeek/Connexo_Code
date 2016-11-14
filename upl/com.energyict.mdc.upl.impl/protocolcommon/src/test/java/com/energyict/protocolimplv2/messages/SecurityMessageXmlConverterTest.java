@@ -1,15 +1,18 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.shadow.protocol.task.MessagesTaskShadow;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.xml.MdwXmlSerializer;
 import com.energyict.util.ArrayDiffList;
+
 import java.beans.XMLDecoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

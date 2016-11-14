@@ -1,17 +1,21 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
-import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.exceptions.DataParseException;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Generates XML: <Activity_Calendar> <RawContent> (base64 encoded XML description of CodeTable) </RawContent></Activity_Calendar>

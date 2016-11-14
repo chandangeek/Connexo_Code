@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
 
 /**

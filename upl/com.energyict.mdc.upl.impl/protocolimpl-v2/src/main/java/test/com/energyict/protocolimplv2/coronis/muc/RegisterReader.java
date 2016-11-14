@@ -2,6 +2,7 @@ package test.com.energyict.protocolimplv2.coronis.muc;
 
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -10,7 +11,6 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveCard;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackException;
-import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;

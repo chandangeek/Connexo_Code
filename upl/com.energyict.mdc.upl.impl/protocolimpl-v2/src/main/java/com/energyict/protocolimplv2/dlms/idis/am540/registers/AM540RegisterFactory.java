@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am540.registers;
 
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
@@ -11,7 +12,6 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;

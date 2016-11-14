@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.upl.messages.DeviceMessageCategory;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
 import java.math.BigDecimal;
@@ -14,7 +15,44 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlow;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSap;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCycles;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZone;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSize;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnable;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerify;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastClientMacAddressAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastGroupIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastLogicalDeviceIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastNumberOfBlocksInCycleAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.deviceIdsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateURLAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
 
 /**
  * Provides a summary of all <i>Firmware</i> related messages

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr40.registers;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -17,7 +18,6 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.generic.EncryptionStatus;
