@@ -37,7 +37,6 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
     public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
         //TODO what needs to be done?
-//        getProtocolProperties().validateProperties();
     }
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
