@@ -54,7 +54,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplicationJerseyTest {
-    private static final String MAIN_DEVICE_MRID = "device1";
+    private static final String MAIN_DEVICE_NAME = "device1";
 
     @Mock
     Device device;
@@ -70,8 +70,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        when(deviceService.findByUniqueMrid(MAIN_DEVICE_MRID)).thenReturn(Optional.of(device));
-        when(device.getmRID()).thenReturn(MAIN_DEVICE_MRID);
+        when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.of(device));
+        when(device.getmRID()).thenReturn(MAIN_DEVICE_NAME);
         when(device.getId()).thenReturn(1L);
         when(device.getVersion()).thenReturn(1L);
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -107,7 +107,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action1), mockExecutableAction(device, action2));
         when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
 
-        String response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions").request().get(String.class);
+        String response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(2);
         assertThat(model.<List<?>>get("$.transitions")).isNotEmpty();
@@ -129,15 +129,15 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         List<PropertySpec> propertySpecs = mockLastCheckedPropertySpec();
         when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.ENABLE_VALIDATION)).thenReturn(propertySpecs);
 
-        when(deviceService.findByUniqueMrid(MAIN_DEVICE_MRID)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(MAIN_DEVICE_MRID), anyLong())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
         PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         PropertyValueConverter propertyValueConverter = mock(PropertyValueConverter.class);
         when(propertyValueInfoService.getConverter(any())).thenReturn(propertyValueConverter);
-        String response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().get(String.class);
+        String response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions/1").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.id")).isEqualTo(1);
         assertThat(model.<String>get("$.name")).isEqualTo("Transition name 1");
@@ -150,16 +150,16 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_MRID;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
-        when(deviceService.findByUniqueMrid(MAIN_DEVICE_MRID)).thenReturn(Optional.empty());
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(MAIN_DEVICE_MRID), anyLong())).thenReturn(Optional.<Device>empty());
+        when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.empty());
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.<Device>empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.empty());
 
-        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        Response response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
@@ -185,12 +185,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_MRID;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
-        when(deviceService.findByUniqueMrid(MAIN_DEVICE_MRID)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(MAIN_DEVICE_MRID), anyLong())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
 
@@ -201,7 +201,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         property.key = propertySpecs.get(0).getName();
         property.propertyValueInfo = new PropertyValueInfo<>(now.toEpochMilli(), null);
 
-        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        Response response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getEntity()).isNotNull();
         DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);
@@ -238,12 +238,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_MRID;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
-        when(deviceService.findByUniqueMrid(MAIN_DEVICE_MRID)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(MAIN_DEVICE_MRID), anyLong())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
 
@@ -254,7 +254,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         property.key = propertySpecs.get(0).getName();
         property.propertyValueInfo = new PropertyValueInfo<>(now.toEpochMilli(), null);
 
-        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        Response response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getEntity()).isNotNull();
         DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);
@@ -292,12 +292,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_MRID;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
-        when(deviceService.findByUniqueMrid(MAIN_DEVICE_MRID)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(MAIN_DEVICE_MRID), anyLong())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
 
@@ -308,7 +308,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         property.key = propertySpecs.get(0).getName();
         property.propertyValueInfo = new PropertyValueInfo<>(now.toEpochMilli(), null);
 
-        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        Response response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getEntity()).isNotNull();
         DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);
@@ -340,12 +340,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_MRID;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
-        when(deviceService.findByUniqueMrid(MAIN_DEVICE_MRID)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(MAIN_DEVICE_MRID), anyLong())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
 
@@ -355,7 +355,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         property.key = propertySpecs.get(0).getName();
         property.propertyValueInfo = new PropertyValueInfo<>(Instant.now().toEpochMilli(), null);
 
-        Response response = target("/devices/" + MAIN_DEVICE_MRID + "/transitions/1").request().put(Entity.json(info));
+        Response response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getEntity()).isNotNull();
         DeviceLifeCycleActionResultInfo wizardResult = response.readEntity(DeviceLifeCycleActionResultInfo.class);

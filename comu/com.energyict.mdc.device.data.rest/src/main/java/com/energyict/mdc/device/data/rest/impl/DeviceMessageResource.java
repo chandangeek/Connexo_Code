@@ -76,8 +76,8 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getDeviceCommands(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 // we do the explicit filtering because some categories should be hidden for the user
                         filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition().contains(deviceMessage.getSpecification().getCategory())).
@@ -96,8 +96,8 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response getDeviceCommandsPrivileges(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getDeviceCommandsPrivileges(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<IdWithNameInfo> privileges = new ArrayList<>();
         if (hasCommandsWithPrivileges(device)){
             privileges.add(new IdWithNameInfo(null, PRIVILEGE_DEVICE_HAS_COMMANDS_WITH_PRIVILEGES));
@@ -112,8 +112,8 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response createDeviceMessage(@PathParam("mRID") String mrid, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response createDeviceMessage(@PathParam("name") String name, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
         DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
@@ -142,7 +142,7 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+    public DeviceMessageInfo updateDeviceMessage(@PathParam("name") String name, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         deviceMessageInfo.id = deviceMessageId;
         DeviceMessage deviceMessage = resourceHelper.lockDeviceMessageOrThrowException(deviceMessageInfo);
         if (deviceMessageInfo.status != null && DeviceMessageStatus.REVOKED.name().equals(deviceMessageInfo.status.value)) {

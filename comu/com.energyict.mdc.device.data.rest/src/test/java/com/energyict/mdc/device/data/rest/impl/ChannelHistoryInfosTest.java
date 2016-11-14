@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 public class ChannelHistoryInfosTest {
 
-    private final String myDeviceMRID = "MyDeviceMRID";
+    private final String myDeviceName = "MyDeviceName";
     private final Long channelId = 6542L;
 
     @Test
@@ -41,7 +41,7 @@ public class ChannelHistoryInfosTest {
         List<ChannelHistoryInfo> channelHistory = ChannelHistoryInfos.from(Collections.singletonList(dataLoggerChannelUsage)).channelHistory;
         assertThat(channelHistory).isNotEmpty();
         assertThat(channelHistory.get(0).startDate).isEqualTo(startDate);
-        assertThat(channelHistory.get(0).mrid).isEqualTo(myDeviceMRID);
+        assertThat(channelHistory.get(0).deviceName).isEqualTo(myDeviceName);
         assertThat(channelHistory.get(0).channelId).isEqualTo(channelId);
         assertThat(channelHistory.get(0).endDate).isNull();
     }
@@ -58,11 +58,11 @@ public class ChannelHistoryInfosTest {
         List<ChannelHistoryInfo> channelHistory = ChannelHistoryInfos.from(Collections.singletonList(dataLoggerChannelUsage)).channelHistory;
         assertThat(channelHistory).hasSize(2);
         assertThat(channelHistory.get(0).startDate).isEqualTo(endDate);
-        assertThat(channelHistory.get(0).mrid).isNull();
+        assertThat(channelHistory.get(0).deviceName).isNull();
         assertThat(channelHistory.get(0).channelId).isNull();
         assertThat(channelHistory.get(0).endDate).isNull();
         assertThat(channelHistory.get(1).startDate).isEqualTo(startDate);
-        assertThat(channelHistory.get(1).mrid).isEqualTo(myDeviceMRID);
+        assertThat(channelHistory.get(1).deviceName).isEqualTo(myDeviceName);
         assertThat(channelHistory.get(1).channelId).isEqualTo(channelId);
         assertThat(channelHistory.get(1).endDate).isEqualTo(endDate);
     }
@@ -82,11 +82,11 @@ public class ChannelHistoryInfosTest {
         List<ChannelHistoryInfo> channelHistory = ChannelHistoryInfos.from(Arrays.asList(dataLoggerChannelUsage2, dataLoggerChannelUsage1)).channelHistory;
         assertThat(channelHistory).hasSize(2);
         assertThat(channelHistory.get(0).startDate).isEqualTo(endDateFirstStartDateNew);
-        assertThat(channelHistory.get(0).mrid).isEqualTo(myDeviceMRID);
+        assertThat(channelHistory.get(0).deviceName).isEqualTo(myDeviceName);
         assertThat(channelHistory.get(0).channelId).isEqualTo(channelId2);
         assertThat(channelHistory.get(0).endDate).isNull();
         assertThat(channelHistory.get(1).startDate).isEqualTo(startDate);
-        assertThat(channelHistory.get(1).mrid).isEqualTo(myDeviceMRID);
+        assertThat(channelHistory.get(1).deviceName).isEqualTo(myDeviceName);
         assertThat(channelHistory.get(1).channelId).isEqualTo(this.channelId);
         assertThat(channelHistory.get(1).endDate).isEqualTo(endDateFirstStartDateNew);
     }
@@ -108,19 +108,19 @@ public class ChannelHistoryInfosTest {
         List<ChannelHistoryInfo> channelHistory = ChannelHistoryInfos.from(Arrays.asList(dataLoggerChannelUsage2, dataLoggerChannelUsage1)).channelHistory;
         assertThat(channelHistory).hasSize(4);
         assertThat(channelHistory.get(0).startDate).isEqualTo(endDate2);
-        assertThat(channelHistory.get(0).mrid).isNull();
+        assertThat(channelHistory.get(0).deviceName).isNull();
         assertThat(channelHistory.get(0).channelId).isNull();
         assertThat(channelHistory.get(0).endDate).isNull();
         assertThat(channelHistory.get(1).startDate).isEqualTo(startDate2);
-        assertThat(channelHistory.get(1).mrid).isEqualTo(myDeviceMRID);
+        assertThat(channelHistory.get(1).deviceName).isEqualTo(myDeviceName);
         assertThat(channelHistory.get(1).channelId).isEqualTo(channelId2);
         assertThat(channelHistory.get(1).endDate).isEqualTo(endDate2);
         assertThat(channelHistory.get(2).startDate).isEqualTo(endDate1);
-        assertThat(channelHistory.get(2).mrid).isNull();
+        assertThat(channelHistory.get(2).deviceName).isNull();
         assertThat(channelHistory.get(2).channelId).isNull();
         assertThat(channelHistory.get(2).endDate).isEqualTo(startDate2);
         assertThat(channelHistory.get(3).startDate).isEqualTo(startDate1);
-        assertThat(channelHistory.get(3).mrid).isEqualTo(this.myDeviceMRID);
+        assertThat(channelHistory.get(3).deviceName).isEqualTo(this.myDeviceName);
         assertThat(channelHistory.get(3).channelId).isEqualTo(this.channelId);
         assertThat(channelHistory.get(3).endDate).isEqualTo(endDate1);
     }
@@ -154,7 +154,7 @@ public class ChannelHistoryInfosTest {
         Device origin = mock(Device.class);
         when(originChannel.getReadingType()).thenReturn(channelReadingType);
         when(origin.getChannels()).thenReturn(Collections.singletonList(originChannel));
-        when(origin.getmRID()).thenReturn(myDeviceMRID);
+        when(origin.getName()).thenReturn(myDeviceName);
         DataLoggerReference dataLoggerReference = mock(DataLoggerReference.class);
         when(dataLoggerReference.getOrigin()).thenReturn(origin);
         return dataLoggerReference;

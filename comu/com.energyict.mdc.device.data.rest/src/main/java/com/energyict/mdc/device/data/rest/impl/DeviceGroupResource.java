@@ -254,7 +254,7 @@ public class DeviceGroupResource {
         }
         if (!endDevices.isEmpty()) {
             Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(toList()));
-            devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).stream().collect(toList());
+            devices = deviceService.findAllDevices(mdcMembers).sorted("name", true).stream().collect(toList());
         }
         return devices;
     }
