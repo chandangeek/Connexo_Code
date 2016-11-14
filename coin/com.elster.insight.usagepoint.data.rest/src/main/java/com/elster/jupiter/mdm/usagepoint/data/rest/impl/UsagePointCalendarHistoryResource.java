@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.calendar.CalendarOnUsagePoint;
 import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 
 import javax.annotation.security.RolesAllowed;
@@ -18,6 +19,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +55,25 @@ public class UsagePointCalendarHistoryResource {
                 .getCalendars()
                 .entrySet()
                 .stream()
-                .sorted(Comparator.comparing(entry -> entry.getKey().getDisplayName()))
                 .map(Map.Entry::getValue)
                 .flatMap(List::stream)
+                .sorted(
+                        Comparator.<CalendarOnUsagePoint, String>comparing(
+                                calendarOnUsagePoint -> calendarOnUsagePoint
+                                        .getCalendar()
+                                        .getCategory()
+                                        .getDisplayName())
+                                .thenComparing(
+                                        Comparator.<CalendarOnUsagePoint, Instant>comparing(
+                                                calendarOnUsagePoint -> calendarOnUsagePoint
+                                                        .getRange()
+                                                        .lowerEndpoint()
+                                        ).reversed()
+                                )
+                )
                 .map(calendarOnUsagePointInfoFactory::from)
                 .filter(Objects::nonNull)
                 .collect(PagedInfoList.toPagedInfoList("calendars", queryParameters));
     }
+
 }

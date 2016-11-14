@@ -26,11 +26,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Currying.use;
 
 public class UsagePointCalendarResource {
 
@@ -63,7 +67,7 @@ public class UsagePointCalendarResource {
                 .stream()
                 .sorted(Comparator.comparing(entry -> entry.getKey().getDisplayName()))
                 .map(Map.Entry::getValue)
-                .map(this::createFrom)
+                .map(use(this::createFrom).on(usagePoint))
                 .filter(Objects::nonNull)
                 .collect(PagedInfoList.toPagedInfoList("calendars", queryParameters));
     }
@@ -80,28 +84,47 @@ public class UsagePointCalendarResource {
         Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CALENDAR, calendarOnUsagePointInfo.calendar.id));
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
-        CalendarOnUsagePoint calendarOnUsagePoint = calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
+        CalendarOnUsagePoint calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
                     .addCalendar(start, calendar);
         return Response.ok(calendarOnUsagePointInfoFactory.from(calendarOnUsagePoint)).build();
     }
 
-    private CalendarOnUsagePointInfo createFrom(List<CalendarOnUsagePoint> calendars) {
+    private CalendarOnUsagePointInfo createFrom(UsagePoint usagePoint, List<CalendarOnUsagePoint> calendars) {
         List<CalendarOnUsagePointInfo> infoList = calendars.stream()
                 .filter(calendarOnUsagePoint -> !endsBeforeNow(calendarOnUsagePoint.getRange()))
                 .map(calendarOnUsagePointInfoFactory::from)
                 .collect(Collectors.toList());
-        link(infoList);
-        return infoList.isEmpty() ? null : infoList.get(0);
+        return link(usagePoint, infoList);
     }
 
-    private void link(List<CalendarOnUsagePointInfo> infoList) {
+    private CalendarOnUsagePointInfo link(UsagePoint usagePoint, List<CalendarOnUsagePointInfo> infoList) {
+        List<CalendarOnUsagePointInfo> padded = withLeadingDummyIfNeeded(usagePoint, infoList);
         CalendarOnUsagePointInfo previous = null;
-        for (CalendarOnUsagePointInfo current : infoList) {
+        for (CalendarOnUsagePointInfo current : padded) {
             if (previous != null) {
                 previous.next = current;
             }
             previous = current;
         }
+        return padded.isEmpty() ? null : padded.get(0);
+    }
+
+    private List<CalendarOnUsagePointInfo> withLeadingDummyIfNeeded(UsagePoint usagePoint, List<CalendarOnUsagePointInfo> infoList) {
+        List<CalendarOnUsagePointInfo> padded = infoList;
+        if (infoList.isEmpty()) {
+            padded = Collections.singletonList(createDummy(usagePoint));
+        } else if (Instant.ofEpochMilli(infoList.get(0).fromTime).isAfter(clock.instant())) {
+            padded = new ArrayList<>();
+            padded.add(createDummy(usagePoint));
+            padded.addAll(infoList);
+        }
+        return padded;
+    }
+
+    private CalendarOnUsagePointInfo createDummy(UsagePoint usagePoint) {
+        CalendarOnUsagePointInfo dummy = new CalendarOnUsagePointInfo();
+        dummy.usagePointId = usagePoint.getId();
+        return dummy;
     }
 
     private boolean endsBeforeNow(Range<Instant> range) {
