@@ -1,11 +1,7 @@
 package com.energyict.protocolimplv2.dlms;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
@@ -21,13 +17,17 @@ import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;

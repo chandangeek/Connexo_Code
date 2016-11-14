@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.Issue;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;

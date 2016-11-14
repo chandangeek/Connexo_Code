@@ -37,7 +37,7 @@ public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "Default with no properties";
     }
 }

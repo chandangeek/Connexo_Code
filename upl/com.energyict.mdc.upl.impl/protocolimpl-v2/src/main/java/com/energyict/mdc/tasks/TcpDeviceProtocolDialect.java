@@ -7,10 +7,15 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_ROUND_TRIP_CORRECTION;
+import static com.energyict.dlms.common.DlmsProtocolProperties.RETRIES;
+import static com.energyict.dlms.common.DlmsProtocolProperties.ROUND_TRIP_CORRECTION;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
 
 /**
  * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a TCP connection type
@@ -28,7 +33,7 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "TCP DLMS";
     }
 

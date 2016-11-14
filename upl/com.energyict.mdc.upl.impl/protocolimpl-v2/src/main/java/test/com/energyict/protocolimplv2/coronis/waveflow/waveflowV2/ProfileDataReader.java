@@ -1,11 +1,17 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -17,7 +23,13 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.Exte
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.ExtendedIndexReading;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
 public class ProfileDataReader implements DeviceLoadProfileSupport {
 

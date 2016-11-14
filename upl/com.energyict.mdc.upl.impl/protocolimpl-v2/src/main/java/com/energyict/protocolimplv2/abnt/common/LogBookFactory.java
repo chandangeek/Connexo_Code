@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.cim.EndDeviceEventTypeFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;

@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+
+import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimplv2.MdcManager;
@@ -16,7 +17,12 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

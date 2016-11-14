@@ -31,7 +31,7 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "Serial";
     }
 

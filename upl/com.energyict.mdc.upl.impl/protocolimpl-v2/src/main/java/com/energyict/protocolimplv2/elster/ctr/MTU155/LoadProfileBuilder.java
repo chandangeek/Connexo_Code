@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.Issue;
+
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;

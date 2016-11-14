@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageAcknowledgement;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.LogBookTypeFactory;

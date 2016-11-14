@@ -1,9 +1,10 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public class MiniMaxTcpDeviceProtocolDialect implements DeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "TCP/IP";
     }
 

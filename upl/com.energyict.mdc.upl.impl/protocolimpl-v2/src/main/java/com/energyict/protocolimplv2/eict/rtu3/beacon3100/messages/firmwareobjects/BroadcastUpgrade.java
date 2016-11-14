@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjec
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.TypedProperties;

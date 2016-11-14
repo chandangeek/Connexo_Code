@@ -31,7 +31,7 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "ACE 4000";
     }
 

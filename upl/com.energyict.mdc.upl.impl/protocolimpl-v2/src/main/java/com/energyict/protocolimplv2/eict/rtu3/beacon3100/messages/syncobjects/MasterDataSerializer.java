@@ -59,6 +59,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
+
 /**
  * Helper class that takes a group of slave devices and returns a JSon serialized version of all their devicetypes, tasks & master data.
  * Note that every device config is in fact considered as a new unique device type, in the Beacon model.
@@ -609,7 +611,7 @@ public class MasterDataSerializer {
         addDefaultDialectValuesIfNecessary(allProperties);
 
         //Add the name of the gateway dialect. The downstream protocol talks directly to the e-meter, just like when using the gateway functionality of the beacon.
-        allProperties.setProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME, DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        allProperties.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
 
         return new Beacon3100ProtocolConfiguration(javaClassName, allProperties);
     }

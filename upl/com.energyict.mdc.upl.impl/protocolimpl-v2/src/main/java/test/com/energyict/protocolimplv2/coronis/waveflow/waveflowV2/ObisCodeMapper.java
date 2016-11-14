@@ -1,10 +1,11 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;

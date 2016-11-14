@@ -1,15 +1,16 @@
 package com.energyict.mdc.protocol.inbound.general;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.ProtocolImplFactory;
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.exceptions.CodingException;
@@ -17,7 +18,6 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;

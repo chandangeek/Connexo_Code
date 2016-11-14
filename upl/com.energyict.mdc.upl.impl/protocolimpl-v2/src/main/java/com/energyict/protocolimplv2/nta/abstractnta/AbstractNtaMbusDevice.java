@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -15,6 +16,11 @@ import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -28,7 +34,11 @@ import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**

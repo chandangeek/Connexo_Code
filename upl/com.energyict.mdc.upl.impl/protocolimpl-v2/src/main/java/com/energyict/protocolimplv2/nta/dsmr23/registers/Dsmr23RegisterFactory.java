@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr23.registers;
 
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.Issue;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -93,8 +94,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     /**
      * Collect the values of the given <code>Registers</code>.
-     * If for some reason the <code>Register</code> is not supported, a proper {@link com.energyict.mdc.meterdata.ResultType resultType}
-     * <b>and</b> {@link com.energyict.mdc.issues.Issue issue} should be returned so proper logging of this action can be performed.
+     * If for some reason the <code>Register</code> is not supported, a proper {@link ResultType resultType}
+     * <b>and</b> {@link Issue issue} should be returned so proper logging of this action can be performed.
      *
      * @param allRegisters The OfflineRtuRegisters for which to request a value
      * @return a <code>List</code> of collected register values

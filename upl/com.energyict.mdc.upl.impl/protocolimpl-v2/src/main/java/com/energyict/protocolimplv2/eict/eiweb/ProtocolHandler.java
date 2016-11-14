@@ -1,18 +1,19 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.ChannelInfo;
@@ -30,7 +31,13 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {

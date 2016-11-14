@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;

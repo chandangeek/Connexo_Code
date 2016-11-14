@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles;
 
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;

@@ -1,17 +1,22 @@
 package com.energyict.protocolimplv2.edp.registers;
 
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Float64;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;

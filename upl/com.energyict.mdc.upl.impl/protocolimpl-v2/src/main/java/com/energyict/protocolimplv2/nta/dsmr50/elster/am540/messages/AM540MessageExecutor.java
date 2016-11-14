@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;

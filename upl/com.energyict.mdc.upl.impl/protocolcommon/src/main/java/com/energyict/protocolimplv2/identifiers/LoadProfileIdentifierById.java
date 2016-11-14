@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileFactory;
 import com.energyict.mdw.core.LoadProfileFactoryProvider;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -15,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
- * Implementation of a {@link com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier} that uniquely identifies a {@link com.energyict.mdw.core.LoadProfile}
+ * Implementation of a {@link LoadProfileIdentifier} that uniquely identifies a {@link com.energyict.mdw.core.LoadProfile}
  * based on the id of the LoadProfile
  *
  * @author sva
@@ -68,7 +69,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.toList((Object) getLoadProfileId());
     }
 

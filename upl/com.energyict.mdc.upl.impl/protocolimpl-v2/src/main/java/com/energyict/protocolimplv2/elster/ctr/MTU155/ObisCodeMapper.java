@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;

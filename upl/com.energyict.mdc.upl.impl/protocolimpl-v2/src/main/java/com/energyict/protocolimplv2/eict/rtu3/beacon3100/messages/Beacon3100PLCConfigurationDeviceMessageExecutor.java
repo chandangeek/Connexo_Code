@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.G3NetworkManagement;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;

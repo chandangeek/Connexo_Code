@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 
 import com.energyict.cbo.TimeDuration;
@@ -18,6 +17,7 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import java.math.BigDecimal;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
+import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
 /**
  * @author sva
@@ -118,22 +118,22 @@ public class AM540Properties extends IDISProperties {
     }
 
     public boolean useBeaconMirrorDeviceDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         if (dialectName == null) {
             return false;
         }
         MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect();
         // for compatibility with ProtocolTester - here the protocol dialect is the "display name"
-        return dialect.getDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
+        return dialect.getDeviceProtocolDialectDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
     }
 
     public boolean useBeaconGatewayDeviceDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
     public boolean useSerialDialect() {
-        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 

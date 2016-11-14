@@ -32,7 +32,7 @@ public class AbntTransparentTCPDeviceProtocolDialect extends AbstractDeviceProto
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "Serial";
     }
 

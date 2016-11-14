@@ -1,18 +1,22 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import org.junit.Test;
 
 import java.util.Arrays;
 
+import org.junit.Test;
+
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link FirstLoadProfileOnDevice} component.

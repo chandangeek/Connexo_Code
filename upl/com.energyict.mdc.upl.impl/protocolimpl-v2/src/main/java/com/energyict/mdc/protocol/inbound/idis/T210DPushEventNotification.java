@@ -1,11 +1,12 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+
+import com.energyict.cpo.TypedProperties;
 
 import java.util.ArrayList;
 import java.util.List;

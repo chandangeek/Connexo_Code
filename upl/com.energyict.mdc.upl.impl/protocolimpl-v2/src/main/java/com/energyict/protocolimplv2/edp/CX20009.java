@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.edp;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
@@ -11,8 +7,6 @@ import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
@@ -23,6 +17,13 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;

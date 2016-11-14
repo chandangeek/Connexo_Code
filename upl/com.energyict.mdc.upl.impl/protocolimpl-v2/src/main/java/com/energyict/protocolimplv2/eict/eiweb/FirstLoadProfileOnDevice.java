@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -70,7 +71,7 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.toList((Object) getDeviceIdentifier());
     }
 

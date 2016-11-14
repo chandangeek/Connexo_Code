@@ -1,30 +1,62 @@
 package com.energyict.protocolimplv2.edp.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDate;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.AXDRTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.util.AXDRDate;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.PublicLightingDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Scanner;
+import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.beginDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.endDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.offOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.onOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayOperatingModeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
 
 /**
  * Copyrights EnergyICT
