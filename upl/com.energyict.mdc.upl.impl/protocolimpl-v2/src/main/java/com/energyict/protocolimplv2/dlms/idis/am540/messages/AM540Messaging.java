@@ -2,8 +2,6 @@ package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
 import com.energyict.mdc.messages.DeviceMessageSpec;
 
-import com.energyict.protocolimpl.dlms.g3.messaging.messages.LogbookMessages;
-import com.energyict.protocolimplv2.ace4000.objects.LoadProfile;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
@@ -57,6 +55,9 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects);
         supportedMessages.add(LogBookDeviceMessage.ResetAllSecurityGroupEventCounters);
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_EXCEPT_EMERGENCY_ONES);
+        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT);
+        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT);
+        supportedMessages.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT);
     }
 
     @Override
