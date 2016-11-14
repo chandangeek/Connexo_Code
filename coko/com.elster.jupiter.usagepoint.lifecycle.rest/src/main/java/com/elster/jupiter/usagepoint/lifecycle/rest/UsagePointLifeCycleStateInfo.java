@@ -2,9 +2,12 @@ package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.rest.util.VersionInfo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UsagePointLifeCycleStateInfo {
     public long id;
     public long version;
