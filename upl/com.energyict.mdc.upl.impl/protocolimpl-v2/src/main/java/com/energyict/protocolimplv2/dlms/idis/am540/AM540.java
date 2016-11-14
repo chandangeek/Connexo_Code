@@ -154,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-08 13:17:25 +0100 (Tue, 08 Nov 2016)$";
+        return "$Date: 2016-11-14 11:46:38 +0100 (Mon, 14 Nov 2016)$";
     }
 
     /**
@@ -208,25 +208,25 @@ public class AM540 extends AM130 implements SerialNumberSupport {
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
     protected void handleFC(ComChannel comChannel) {
-        final int clientId = getDlmsSessionProperties().getClientMacAddress();
-        validateFCProperties(clientId);
+        if (!getDlmsSessionProperties().usesPublicClient()) {
+            final int clientId = getDlmsSessionProperties().getClientMacAddress();
+            validateFCProperties(clientId);
 
-        boolean weHaveValidCachedFrameCounter = false;
-        if (getDlmsSessionProperties().useCachedFrameCounter()) {
-            weHaveValidCachedFrameCounter = getCachedFrameCounter(comChannel, clientId);
-        }
+            boolean weHaveValidCachedFrameCounter = false;
+            if (getDlmsSessionProperties().useCachedFrameCounter()) {
+                weHaveValidCachedFrameCounter = getCachedFrameCounter(comChannel, clientId);
+            }
 
-        if (!weHaveValidCachedFrameCounter) {
-            if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
-                if (clientId != EVN_CLIENT_MANAGEMENT) {
-                    readFrameCounterSecure(comChannel);
+            if (!weHaveValidCachedFrameCounter) {
+                if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
+                    if (clientId != EVN_CLIENT_MANAGEMENT) {
+                        readFrameCounterSecure(comChannel);
+                    } else {
+                        getLogger().info("Reading frame counter with client " + EVN_CLIENT_MANAGEMENT + " is not allowed. " +
+                                "If communication fails please adjust your initial frame counter value to a proper one");
+                    }
                 } else {
-                    getLogger().info("Reading frame counter with client " + EVN_CLIENT_MANAGEMENT + " is not allowed. " +
-                            "If communication fails please adjust your initial frame counter value to a proper one");
-                }
-            } else {
-                if (!getDlmsSessionProperties().usesPublicClient()) {
-                    getLogger().info("Reading frame counter using normal method");
+                    getLogger().info("Reading frame counter using unsecured public client");
                     super.readFrameCounter(comChannel, (int) getDlmsSessionProperties().getAARQTimeout());
                 }
             }
