@@ -25,16 +25,15 @@ import java.util.Date;
 @XmlRootElement
 public class RegisterValue implements Serializable {
 
+    private ObisCode obisCode; // as support for the toString()
+    private int rtuRegisterId; // to find back the Register to which this RegisterValue belongs
 
-    ObisCode obisCode; // as support for the toString()
-    int rtuRegisterId; // to find back the Register to which this RegisterValue belongs
-
-    Quantity quantity;
-    Date readTime;
-    Date fromTime;
-    Date toTime; // billing timestamp
-    Date eventTime; // Maximum demand timestamp
-    String text;
+    private Quantity quantity;
+    private Date readTime;
+    private Date fromTime;
+    private Date toTime; // billing timestamp
+    private Date eventTime; // Maximum demand timestamp
+    private String text;
 
     private String rtuSerialNumber;
 
@@ -44,7 +43,6 @@ public class RegisterValue implements Serializable {
     private RegisterValue() {
     }
 
-    // this constructor is used when a register is unsupported!
     public RegisterValue(ObisCode obisCode) {
         this(obisCode, null, null, null, null);
     }
