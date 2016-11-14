@@ -133,7 +133,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public void setCommunicationWindow(ComWindow comWindow) {
-        this.comWindow = comWindow;
+        this.comWindow = comWindow == null || comWindow.isEmpty() ? null : comWindow;
     }
 
     @Override

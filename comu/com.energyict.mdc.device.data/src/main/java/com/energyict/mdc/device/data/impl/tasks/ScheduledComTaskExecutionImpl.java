@@ -8,11 +8,13 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -44,11 +46,22 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         this.setExecutingPriority(ComTaskExecution.DEFAULT_PRIORITY);
         this.setPlannedPriority(ComTaskExecution.DEFAULT_PRIORITY);
         this.setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
+        if(!comTaskEnablement.usesDefaultConnectionTask()) {
+            setConnectionTaskIfExists(device, comTaskEnablement);
+        }
         this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties());
         this.comTask.set(comTaskEnablement.getComTask());
         this.comSchedule.set(comSchedule);
         nextExecutionSpecs.set(comSchedule.getNextExecutionSpecs());
         return this;
+    }
+
+    private void setConnectionTaskIfExists(Device device, ComTaskEnablement comTaskEnablement) {
+        PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
+        device.getConnectionTasks()
+                .stream()
+                .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == partialConnectionTask.getId())
+                .forEach(this::setConnectionTask);
     }
 
     @Override
