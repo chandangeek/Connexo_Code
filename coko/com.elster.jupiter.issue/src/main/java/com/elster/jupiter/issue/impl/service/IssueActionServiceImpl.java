@@ -117,7 +117,7 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, Object> props) {
-        IssueActionResult result = null;
+        IssueActionResult result;
         Optional<IssueAction> issueAction = createIssueAction(type.getFactoryId(), type.getClassName());
         if (issueAction.isPresent()) {
             result = issueAction.get().initAndValidate(props).execute(issue);

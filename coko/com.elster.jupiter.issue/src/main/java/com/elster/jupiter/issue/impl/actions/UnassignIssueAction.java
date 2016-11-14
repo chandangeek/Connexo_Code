@@ -45,8 +45,6 @@ public class UnassignIssueAction extends AbstractIssueAction {
         IssueAssignee assignee = new IssueAssigneeImpl();
         assignee.setWorkGroup(issue.getAssignee().getWorkGroup());
         issue.assignTo(assignee);
-
-
         issue.update();
         result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_UNASSIGNED).format());
         return result;
@@ -66,7 +64,7 @@ public class UnassignIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(Issue issue) {
-        return super.isApplicable(issue) && issue.getAssignee().getUser()!=null && issue.getAssignee().getUser().getId() == ((User) this.threadPrincipalService.getPrincipal()).getId();
+        return super.isApplicable(issue) && issue.getAssignee().getUser() != null && issue.getAssignee().getUser().getId() == ((User) this.threadPrincipalService.getPrincipal()).getId();
     }
 
     @Override

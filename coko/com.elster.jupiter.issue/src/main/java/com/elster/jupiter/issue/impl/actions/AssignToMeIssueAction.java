@@ -27,8 +27,6 @@ public class AssignToMeIssueAction extends AbstractIssueAction {
 
     private static final String NAME = "AssignToMeIssueAction";
     public static final String ASSIGNEE = NAME + ".assignee";
-    //public static final String COMMENT = NAME + ".comment";
-
 
     private IssueService issueService;
     private UserService userService;
