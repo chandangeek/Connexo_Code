@@ -30,6 +30,7 @@ public class PurposeInfoFactory {
         PurposeInfo purposeInfo = new PurposeInfo();
         purposeInfo.id = metrologyContract.getId();
         purposeInfo.name = metrologyContract.getMetrologyPurpose().getName();
+        purposeInfo.description = metrologyContract.getMetrologyPurpose().getDescription();
         purposeInfo.required = metrologyContract.isMandatory();
         purposeInfo.active = purposeInfo.required;
         purposeInfo.version = metrologyContract.getVersion();

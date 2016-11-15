@@ -8,6 +8,7 @@ import java.util.List;
 public class PurposeInfo {
     public long id;
     public String name;
+    public String description;
     public boolean required;
     public boolean active;
     public String mRID;
