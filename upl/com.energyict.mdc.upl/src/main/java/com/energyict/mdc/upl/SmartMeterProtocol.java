@@ -1,14 +1,11 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import aQute.bnd.annotation.ConsumerType;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.MultipleLoadProfileSupport;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 
@@ -25,7 +22,7 @@ import java.util.logging.Logger;
  * The basic idea is to do more bulk request and adjust our framework to the current smarter meter market.
  */
 @ConsumerType
-public interface SmartMeterProtocol extends HasDynamicProperties {
+public interface SmartMeterProtocol extends HasDynamicProperties, MultipleLoadProfileSupport, CachingProtocol {
 
     enum Property {
 
@@ -103,10 +100,10 @@ public interface SmartMeterProtocol extends HasDynamicProperties {
      * logbook. Messages with level below INFO are only displayed in diagnostic mode
      * </p>
      *
-     * @param inputStream  byte stream to read data from the device
+     * @param inputStream byte stream to read data from the device
      * @param outputStream byte stream to send data to the device
-     * @param timeZone     the device's timezone
-     * @param logger       used to provide feedback to the collection system
+     * @param timeZone the device's timezone
+     * @param logger used to provide feedback to the collection system
      * @throws IOException Thrown when an exception happens
      */
     void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException;
@@ -169,10 +166,10 @@ public interface SmartMeterProtocol extends HasDynamicProperties {
      * Initializes the device, typically clearing all profile data
      * </p>
      *
-     * @throws IOException          <br>
+     * @throws IOException <br>
      * @throws UnsupportedException if the device does not support this operation
      */
-    void initializeDevice() throws IOException, UnsupportedException;
+    void initializeDevice() throws IOException;
 
     /**
      * This method is called by the collection software before the disconnect()
@@ -182,35 +179,6 @@ public interface SmartMeterProtocol extends HasDynamicProperties {
      * @throws IOException Thrown in case of an exception
      */
     void release() throws IOException;
-
-    /**
-     * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the meter.
-     * Build up a list of <CODE>LoadProfileConfiguration</CODE> objects and return them so the
-     * framework can validate them to the configuration in EIServer
-     *
-     * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
-     * @return a list of <CODE>LoadProfileConfiguration</CODE> objects corresponding with the meter
-     * @throws java.io.IOException if a communication or parsing error occurred
-     */
-    List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException;
-
-    /**
-     * <p>
-     * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
-     * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
-     * or null, then all channels from the corresponding LoadProfile should be fetched.
-     * </p>
-     * <p>
-     * <b>Implementors should throw an exception if all data since {@link LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
-     * as the collecting system will update its lastReading setting based on the returned ProfileData
-     * </p>
-     *
-     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
-     * @return a list of <CODE>ProfileData</CODE> objects containing interval records
-     * @throws java.io.IOException if a communication or parsing error occurred
-     */
-    List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException;
 
     /**
      * Request an array of RegisterValue objects for an given List of ObisCodes. If the ObisCode is not
