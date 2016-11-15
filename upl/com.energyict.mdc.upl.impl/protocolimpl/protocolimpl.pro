@@ -288,6 +288,9 @@
 -keepnames class com.energyict.protocolimpl.iec1107.kamstrup.Kamstrup
 
 -keepnames class com.energyict.protocolimpl.dlms.edp.CX20009
+-keepnames class com.energyict.protocolimpl.dlms.edp.EDPProperties  {
+	public *;
+}
 
 -keepnames class com.energyict.protocolimpl.dlms.edp.JanzB280
 
