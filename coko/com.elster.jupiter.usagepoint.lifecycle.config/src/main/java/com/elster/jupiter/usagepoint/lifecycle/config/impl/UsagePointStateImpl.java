@@ -43,6 +43,7 @@ public class UsagePointStateImpl implements UsagePointState {
     private Reference<State> fsmState = ValueReference.absent();
     private Reference<UsagePointLifeCycleImpl> lifeCycle = ValueReference.absent();
 
+    public long id;
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -61,13 +62,14 @@ public class UsagePointStateImpl implements UsagePointState {
     public UsagePointStateImpl init(UsagePointLifeCycleImpl lifeCycle, State fsmState) {
         this.lifeCycle.set(lifeCycle);
         this.fsmState.set(fsmState);
+        this.id = fsmState.getId();
         lifeCycle.addState(this);
         return this;
     }
 
     @Override
     public long getId() {
-        return this.fsmState.get().getId();
+        return this.id;
     }
 
     @Override

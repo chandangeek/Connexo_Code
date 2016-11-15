@@ -231,14 +231,17 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
         FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
         State underConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete();
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, underConstruction);
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete());
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete());
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete());
-
+        State active = stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete();
+        State inactive = stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete();
+        State demolished = stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
         FiniteStateMachine stateMachine = stateMachineBuilder.complete(underConstruction);
+
         lifeCycle.setName(name);
         lifeCycle.setStateMachine(stateMachine);
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, underConstruction);
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, active);
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, inactive);
+        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, demolished);
         lifeCycle.save();
         this.builders.forEach(builder -> builder.accept(lifeCycle));
         return lifeCycle;
