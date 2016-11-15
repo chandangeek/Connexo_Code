@@ -11,7 +11,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.VersionsGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.Category', 'IMT', 'Category'),
-                dataIndex: 'calendar',
+                dataIndex: 'category',
                 flex: 1,
                 renderer: function(a,b,record){
                     return record.getCalendar().get('category').displayName;
