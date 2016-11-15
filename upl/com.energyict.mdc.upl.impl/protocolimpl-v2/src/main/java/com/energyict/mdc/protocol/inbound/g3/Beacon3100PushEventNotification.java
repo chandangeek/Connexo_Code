@@ -25,8 +25,8 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      * The obiscode of the logbook to store the received events in
      * Note that this one (Beacon main logbook) is different from the G3 gateway main logbook.
      */
-    private static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
-    private static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
+    protected static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
+    protected static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
     protected boolean provideProtocolJavaClasName = true;
 
     protected BeaconPSKProvider getPskProvider() {
@@ -50,7 +50,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-14 17:24:27 +0100 (Mon, 14 Nov 2016)$";
+        return "$Date: 2016-11-15 18:03:36 +0100 (Tue, 15 Nov 2016)$";
     }
 
     @Override

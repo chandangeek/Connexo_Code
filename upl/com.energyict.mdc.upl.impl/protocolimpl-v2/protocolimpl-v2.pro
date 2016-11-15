@@ -121,6 +121,12 @@
 	public *;
 	protected *;
 }
+-keepnames class com.energyict.mdc.protocol.inbound.g3.DummyComChannel
+-keepnames class com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser
+-keep public class com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser {
+	public *;
+	protected *;
+}
 -keep public class com.energyict.mdc.protocol.inbound.g3.BeaconPSKProvider {
 	public *;
 	protected *;

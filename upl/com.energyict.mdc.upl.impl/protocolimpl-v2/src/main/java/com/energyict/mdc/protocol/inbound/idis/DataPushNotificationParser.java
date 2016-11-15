@@ -17,7 +17,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
-
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
@@ -28,11 +28,8 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
-import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.SecurityProperty;
-
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
@@ -66,18 +63,17 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
  */
 public class DataPushNotificationParser {
 
-    CollectedRegisterList collectedRegisters;
-    private ComChannel comChannel;
-    public InboundDAO inboundDAO;
-    public InboundComPort inboundComPort;
-    protected final ObisCode logbookObisCode;
-    protected DeviceIdentifier deviceIdentifier;
-    private DeviceProtocolSecurityPropertySet securityPropertySet;
-    protected CollectedLogBook collectedLogBook;
-    InboundDiscoveryContext context;
-
     private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
+    protected final ObisCode logbookObisCode;
+    public InboundDAO inboundDAO;
+    public InboundComPort inboundComPort;
+    protected DeviceIdentifier deviceIdentifier;
+    protected CollectedLogBook collectedLogBook;
+    CollectedRegisterList collectedRegisters;
+    InboundDiscoveryContext context;
+    private ComChannel comChannel;
+    private DeviceProtocolSecurityPropertySet securityPropertySet;
 
     public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         this.comChannel = comChannel;
@@ -87,17 +83,18 @@ public class DataPushNotificationParser {
         this.context = context;
     }
 
-    protected InboundDiscoveryContext getContext(){
+    protected InboundDiscoveryContext getContext() {
         return context;
     }
 
-    protected void log(String message){
+    protected void log(String message) {
         log(message, Level.INFO);
     }
 
-    protected void log(String message, Level level){
+    protected void log(String message, Level level) {
         getContext().logOnAllLoggerHandlers(message, level);
     }
+
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serverSystemTitle = ProtocolTools.getHexStringFromBytes(systemTitle, "");
         serverSystemTitle = serverSystemTitle.replace("454C53", "ELS-");      // Replace HEX 454C53 by its ASCII 'ELS'
@@ -245,10 +242,17 @@ public class DataPushNotificationParser {
         comChannelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
         dummyComChannel.addProperties(comChannelProperties);
 
-        DlmsSession dlmsSession = new DlmsSession(dummyComChannel, securityProperties);
+        DlmsSession dlmsSession = getNewInstanceOfDlmsSession(securityProperties, dummyComChannel);
         SecurityContext securityContext = dlmsSession.getAso().getSecurityContext();
         securityContext.getSecurityProvider().setRespondingFrameCounterHandling(new DefaultRespondingFrameCounterHandler());
         return securityContext;
+    }
+
+    /**
+     * Subclasses can override this implementation
+     */
+    protected DlmsSession getNewInstanceOfDlmsSession(DlmsProperties securityProperties, DummyComChannel dummyComChannel) {
+        return new DlmsSession(dummyComChannel, securityProperties);
     }
 
     protected byte getCosemEventNotificationAPDUTag() {
