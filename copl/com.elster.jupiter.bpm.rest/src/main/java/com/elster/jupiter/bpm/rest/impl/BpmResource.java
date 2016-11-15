@@ -418,6 +418,19 @@ public class BpmResource {
     }
 
     @POST
+    @Path("/release/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
+    public Response releaseTask(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+        String restURL = "/rest/tasks/release/" + String.valueOf(id) + "?currentuser=" + securityContext.getUserPrincipal().getName();
+        String response = bpmService.getBpmServer().doPost(restURL, null, auth, 0);
+        if (response == null) {
+            throw new BpmResourceAssignUserException(thesaurus);
+        }
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/assigntome/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
