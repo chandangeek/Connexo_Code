@@ -146,8 +146,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             widget,
             availableScheduleStore = this.getAvailableCommunicationSchedulesForDeviceStore();
 
-        widget = Ext.widget('addSharedCommunicationSchedule', {mRID: me.deviceMRID, store: availableScheduleStore});
         me.deviceMRID = mRID;
+        widget = Ext.widget('addSharedCommunicationSchedule', {mRID: me.deviceMRID, store: availableScheduleStore});
         availableScheduleStore.getProxy().setExtraParam('filter', Ext.encode([
             {property: 'mrid', value: mRID},
             {property: 'available', value: true}
