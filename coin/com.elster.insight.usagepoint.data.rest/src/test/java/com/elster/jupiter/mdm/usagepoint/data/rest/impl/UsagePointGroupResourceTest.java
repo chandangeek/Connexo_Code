@@ -243,7 +243,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
 
         when(searchService.search(UsagePoint.class)).thenReturn(new SearchBuilderImpl<>(searchDomain, dummyMonitor));
         when(usagePoint.getId()).thenReturn(31L);
-        when(meteringService.findUsagePoint(31)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointById(31)).thenReturn(Optional.of(usagePoint));
         SearchableProperty nameSearchableProperty = mock(SearchableProperty.class, Answers.RETURNS_DEEP_STUBS.get());
         when(nameSearchableProperty.getName()).thenReturn("name");
         when(nameSearchableProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.SINGLE);
@@ -291,7 +291,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
     @Test
     public void testCreateEnumeratedUsagePointGroupFromList() throws Exception {
         when(usagePoint.getId()).thenReturn(31L);
-        when(meteringService.findUsagePoint(31)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointById(31)).thenReturn(Optional.of(usagePoint));
 
         EnumeratedUsagePointGroup group = mock(EnumeratedUsagePointGroup.class);
         when(group.getId()).thenReturn(133L);
