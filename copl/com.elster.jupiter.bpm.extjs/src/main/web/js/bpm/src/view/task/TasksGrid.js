@@ -58,7 +58,20 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
+                header: Uni.I18n.translate('bpm.task.workgroupAssignee', 'BPM', 'Workgroup'),
+                dataIndex: 'actualOwner',
+                flex: 1,
+                renderer: function (value, metaData, record, rowIndex, colIndex) {
+                    var result = '';
+                    if (!Ext.isEmpty(value)) {
+                        result = '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.workgroup', 'BPM', 'Workgroup') + '"></span> ';
+                        result += Ext.String.htmlEncode(value);
+                    }
+                    return result;
+                }
+            },
+            {
+                header: Uni.I18n.translate('bpm.task.userAssignee', 'BPM', 'User'),
                 dataIndex: 'actualOwner',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {

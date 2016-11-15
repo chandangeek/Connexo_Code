@@ -16,6 +16,7 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.store.task.TasksFilterProcesses',
         'Bpm.store.task.TasksFilterStatuses',
         'Bpm.store.task.TasksFilterUsers',
+        'Bpm.store.task.TasksFilterWorkgroups',
         'Bpm.store.task.TasksUsers',
         'Bpm.store.Clipboard'
     ],
@@ -31,6 +32,10 @@ Ext.define('Bpm.controller.Task', {
         {
             ref: 'mainGrid',
             selector: 'bpm-tasks bpm-tasks-grid'
+        },
+        {
+            ref: 'viewTask',
+            selector: 'bpm-task-view-task'
         }
     ],
 
@@ -40,7 +45,14 @@ Ext.define('Bpm.controller.Task', {
                 select: this.showPreview
             },
             'bpm-task-action-menu': {
+                show: this.onMenuShow,
                 click: this.chooseAction
+            },
+            'bpm-task-action-menu #menu-claim-task': {
+                click: this.claimTaskAction
+            },
+            'bpm-task-action-menu #menu-release-task': {
+                click: this.releaseTaskAction
             },
             'bpm-tasks-grid #btn-tasks-bulk-action': {
                 click: this.forwardToBulk
@@ -124,6 +136,24 @@ Ext.define('Bpm.controller.Task', {
             queryString.param = undefined;
             queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+        } else if (queryString.param === 'myworkgroups') {
+            Ext.Ajax.request({
+                url: '/api/bpm/runtime/workgroups?myworkgroups=true',
+                method: 'GET',
+                success: function (response) {
+                    var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+                    if (decoded && decoded.workgroups) {
+                        queryString.param = undefined;
+                        queryString.userAssignee = [-1];
+                        queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
+                            return wg.id;
+                        });
+                        queryString.status = ['ASSIGNED', 'CREATED'];
+                        queryString.sort = Ext.JSON.encode(sort);
+                        window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                    }
+                }
+            });
         }
         else if (queryString.param === 'myopentasks') {
             Ext.Ajax.request({
@@ -244,6 +274,10 @@ Ext.define('Bpm.controller.Task', {
             route,
             record;
 
+        if ((item.action == 'assignToMeTask') || (item.action == 'releaseTask')) {
+            return;
+        }
+
         record = menu.record || me.getMainGrid().getSelectionModel().getLastSelected();
         router.arguments.taskId = record.get('id');
 
@@ -304,5 +338,86 @@ Ext.define('Bpm.controller.Task', {
 
     updateApplyButtonState: function (view, queryString) {
         view.down('button[action=clearAll]').setDisabled(!((queryString.hasOwnProperty('sort') && Object.keys(queryString).length > 1) || (!queryString.hasOwnProperty('sort') && Object.keys(queryString).length > 0)));
-    }
+    },
+
+    onMenuShow: function (menu) {
+        var me = this,
+            userTask, loggedUser,
+            record = menu.record || me.getMainGrid().getSelectionModel().getLastSelected();
+
+        Ext.Ajax.request({
+            url: '/api/bpm/runtime/assignees?me=true',
+            method: 'GET',
+            success: function (response) {
+                var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+                loggedUser = decoded && decoded.data && decoded.data.length > 0 ? decoded.data[0].name : '';
+                Ext.Ajax.request({
+                    url: '/api/bpm/runtime/tasks/' + record.get('id'),
+                    method: 'GET',
+                    success: function (response) {
+                        var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+                        userTask = decoded ? decoded.actualOwner : null;
+
+                        if (userTask === loggedUser) {
+                            menu.down('#menu-claim-task').hide();
+                            menu.down('#menu-release-task').show();
+                            menu.down('#menu-release-task').record = record;
+                        }
+                        else {
+                            menu.down('#menu-release-task').hide();
+                            menu.down('#menu-claim-task').show();
+                            menu.down('#menu-claim-task').record = record;
+                        }
+                    }
+                });
+            }
+        });
+    },
+
+    claimTaskAction: function (menuItem) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/bpm/runtime/assignees?me=true',
+            method: 'GET',
+            //url: '/api/bpm/runtime/assigntome/' + record.get('id'),
+            //method: 'POST',
+            success: function (response) {
+                var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.assignedtome', 'BPM', 'Task was assigned to {0}', decoded.userName));
+                if (me.getMainGrid()) {
+                    me.getMainGrid().getStore().load();
+                }
+                else if (me.getViewTask()) {
+                    //me.getViewTask().down('form').loadRecord(taskRecord);
+                }
+            }
+        });
+    },
+
+    releaseTaskAction: function (menuItem) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/bpm/runtime/assignees?me=true',
+            method: 'GET',
+            //url: '/api/bpm/runtime/release/' + record.get('id'),
+            //method: 'POST',
+            success: function (response) {
+                var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.assignedtome', 'BPM', 'Task was released to {0}', decoded.workgroupName));
+                if (me.getMainGrid()) {
+                    me.getMainGrid().getStore().load();
+                }
+                else if (me.getViewTask()) {
+                    //me.getViewTask().down('form').loadRecord(taskRecord);
+                }
+            }
+        });
+    },
+
+
+
 });

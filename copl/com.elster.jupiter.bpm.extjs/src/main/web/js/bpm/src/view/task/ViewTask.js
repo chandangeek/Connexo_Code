@@ -76,9 +76,15 @@ Ext.define('Bpm.view.task.ViewTask', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
+                                        fieldLabel: Uni.I18n.translate('bpm.task.workgroupAssignee', 'BPM', 'Workgroup'),
+                                        name: 'workgroup',
+                                        itemId: 'bpm-task-view-workgroup-assignee'
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('bpm.task.userAssignee', 'BPM', 'User'),
                                         name: 'actualOwner',
-                                        itemId: 'bpm-task-view-assignee'
+                                        itemId: 'bpm-task-view-user-assignee'
                                     },
                                     {
                                         xtype: 'displayfield',
