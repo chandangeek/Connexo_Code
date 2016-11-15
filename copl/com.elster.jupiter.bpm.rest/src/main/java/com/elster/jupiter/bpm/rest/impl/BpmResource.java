@@ -428,11 +428,12 @@ public class BpmResource {
         String userName = getQueryValue(uriInfo, "username");
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
+        String workGroupName = getQueryValue(uriInfo, "workgroupname");
         String rest = "/rest/tasks/";
         rest += String.valueOf(id) + "/";
         rest += String.valueOf(optLock);
         String req = getQueryParam(queryParameters);
-        if (userName != null || date != null || priority != null) {
+        if (userName != null || date != null || priority != null || workGroupName != null) {
             rest += "/assign/" + req;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
