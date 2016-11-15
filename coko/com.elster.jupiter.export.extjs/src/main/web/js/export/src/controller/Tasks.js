@@ -760,9 +760,6 @@ Ext.define('Dxp.controller.Tasks', {
                 page.down('#destination-recipients').focus(false, 200);
                 break;
             case 'FTP':
-                me.showFtpDestinationAttributes(true);
-                page.down('#hostname').focus(false, 200);
-                break;
             case 'FTPS':
                 me.showFtpDestinationAttributes(true);
                 page.down('#hostname').focus(false, 200);
