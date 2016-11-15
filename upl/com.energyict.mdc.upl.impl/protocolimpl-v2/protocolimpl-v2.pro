@@ -12,6 +12,7 @@
 -keepattributes *Annotation*
 -keepattributes Exceptions
 -keepattributes Signature
+-keepattributes InnerClasses
 
 -keepnames class * implements java.io.Serializable
 
@@ -61,6 +62,9 @@
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer
 -keepnames class com.energyict.protocolimplv2.dlms.g3.AS330D
 -keepnames class com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100
+-keep class com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100$ClientConfiguration {
+        *;
+}
 -keep public class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer {
 	public *;
 	protected *;
