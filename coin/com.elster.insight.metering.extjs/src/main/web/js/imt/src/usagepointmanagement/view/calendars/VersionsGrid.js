@@ -26,7 +26,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.VersionsGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.ActiveSince', 'IMT', 'Active since'),
+                header: Uni.I18n.translate('general.ActiveFrom', 'IMT', 'Active from'),
                 dataIndex: 'fromTime',
                 flex: 1,
                 renderer: function(value){
