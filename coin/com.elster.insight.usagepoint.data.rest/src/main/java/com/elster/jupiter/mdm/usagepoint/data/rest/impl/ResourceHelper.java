@@ -16,6 +16,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 public class ResourceHelper {
 
@@ -92,6 +93,10 @@ public class ResourceHelper {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> meteringService.findUsagePoint(id).map(UsagePoint::getVersion).orElse(null))
                         .supplier());
+    }
+
+    public Optional<MetrologyPurpose> findMetrologyPurpose(long id) {
+        return metrologyConfigurationService.findMetrologyPurpose(id);
     }
 
     public MetrologyPurpose findMetrologyPurposeOrThrowException(long id) {

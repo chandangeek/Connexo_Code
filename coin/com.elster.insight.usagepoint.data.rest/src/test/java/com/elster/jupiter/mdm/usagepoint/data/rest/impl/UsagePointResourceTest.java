@@ -320,6 +320,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.getStatus()).isEqualTo(202);
         verify(usagePoint, never()).apply(any(UsagePointMetrologyConfiguration.class));
 
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration, now);

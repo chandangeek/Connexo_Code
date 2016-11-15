@@ -286,7 +286,14 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, upVersion);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyPurpose purpose = resourceHelper.findMetrologyPurposeOrThrowException(purposeId);
-        effectiveMC.activateOptionalMetrologyContract(purpose, Range.atLeast(clock.instant()));
+
+        effectiveMC.getMetrologyConfiguration().getContracts()
+                .stream()
+                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                .filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose))
+                .filter(metrologyContract -> !metrologyContract.isMandatory())
+                .findFirst()
+                .ifPresent(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range.atLeast(clock.instant())));
 
         return Response.status(Response.Status.OK).build();
     }

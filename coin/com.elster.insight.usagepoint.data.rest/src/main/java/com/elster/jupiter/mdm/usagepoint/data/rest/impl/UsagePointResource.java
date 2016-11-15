@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -352,6 +353,16 @@ public class UsagePointResource {
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
         usagePoint.update();
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+
+        effectiveMC.getMetrologyConfiguration().getContracts()
+                .stream()
+                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                .filter(metrologyContract -> info.purposes.stream().anyMatch(purpose -> metrologyContract.getMetrologyPurpose().getId() == purpose.id) )
+                .filter(metrologyContract -> !metrologyContract.isMandatory())
+                .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range.atLeast(effectiveMC.getStart())));
+
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
