@@ -359,6 +359,17 @@ public class JbpmTaskResource {
     }
 
     @POST
+    @Path("/release/{taskId: [0-9-]+}")
+    public Response releaseTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
+        String currentuser = getQueryValue(uriInfo, "currentuser");
+        Task task = taskService.getTaskById(taskId);
+        if(task != null) {
+            taskService.release(task.getId(), currentuser);
+        }
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/assigntome/{taskId: [0-9-]+}")
     public Response assignToMeTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
         String currentuser = getQueryValue(uriInfo, "currentuser");
