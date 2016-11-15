@@ -417,6 +417,18 @@ public class BpmResource {
         return Response.ok(new AssigneeFilterListInfo(list)).build();
     }
 
+    @POST
+    @Path("/assigntome/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
+    public Response assignUser(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+        String restURL = "/rest/tasks/assigntome/" + String.valueOf(id) + "?currentuser=" + securityContext.getUserPrincipal().getName();
+        String response = bpmService.getBpmServer().doPost(restURL, null, auth, 0);
+        if (response == null) {
+            throw new BpmResourceAssignUserException(thesaurus);
+        }
+        return Response.ok().build();
+    }
 
     @POST
     @Path("tasks/{id}/{optLock}/assign")
