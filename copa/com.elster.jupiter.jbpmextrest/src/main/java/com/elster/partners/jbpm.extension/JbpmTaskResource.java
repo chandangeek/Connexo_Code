@@ -10,6 +10,8 @@ import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
+import org.jbpm.services.cdi.Selectable;
+import org.jbpm.services.cdi.producer.UserGroupInfoProducer;
 import org.jbpm.services.task.commands.CompleteTaskCommand;
 import org.jbpm.services.task.commands.TaskCommand;
 import org.jbpm.services.task.impl.model.TaskImpl;
@@ -23,6 +25,7 @@ import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.remote.services.cdi.ProcessRequestBean;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -83,6 +86,10 @@ public class JbpmTaskResource {
 
     @Inject
     FormManagerService formManagerService;
+
+    @Inject
+    @Selectable
+    private Instance<UserGroupInfoProducer> userGroupInfoProducers;
 
 
     @POST
@@ -352,6 +359,22 @@ public class JbpmTaskResource {
     }
 
     @POST
+    @Path("/assigntome/{taskId: [0-9-]+}")
+    public Response assignToMeTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
+        String currentuser = getQueryValue(uriInfo, "currentuser");
+        Task task = taskService.getTaskById(taskId);
+        if(task != null) {
+            if(currentuser != null) {
+                boolean check = assignTaskToUser(currentuser, currentuser, taskId);
+                if(!check){
+                    return Response.status(403).build();
+                }
+            }
+        }
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/{taskId: [0-9-]+}/{optLock: [0-9-]+}/assign")
     public Response assignTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId, @PathParam("optLock") long optLock){
         String userName = getQueryValue(uriInfo, "username");
@@ -379,7 +402,7 @@ public class JbpmTaskResource {
                     }
                 }
                 if(workGroupName != null){
-                    if(!workGroupName.equals("")) {
+                    if(userGroupInfoProducers.get().produceCallback().existsGroup(workGroupName)) {
                         taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, workGroupName));
                     }
                 }

@@ -56,6 +56,11 @@
 
         <!-- jBPM 6 dependencies -->
         <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-services-cdi</artifactId>
+            <version>${jbpm.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.kie</groupId>
             <artifactId>kie-api</artifactId>
             <version>${jbpm.version}</version>
