@@ -3,6 +3,7 @@ package com.elster.jupiter.properties.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.ValueFactory;
@@ -53,12 +54,12 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
     }
 
     @Override
-    public boolean isReference () {
+    public boolean isReference() {
         return true;
     }
 
     @Override
-    public Class<T> getValueType () {
+    public Class<T> getValueType() {
         return this.domainClass;
     }
 
@@ -112,8 +113,7 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
                     .stream()
                     .anyMatch(mapping::initIfSupported)) {
                 this.mapping = mapping;
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Type " + domainClass + " not configured in any of the ORM data models");
             }
         }
@@ -183,8 +183,7 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
                 this.dataMapper = dataModel.mapper(domainClass);
                 // Would be nice if DataMapper#getTable() would exists or be public
                 this.table = (Table<T>) dataModel.getTables().stream().filter(table -> table.maps(domainClass)).findAny().get();
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 // DataModel throws IllegalArgumentException when domainClass is not mapped by any of its Tables
                 return false;
             }
@@ -192,7 +191,16 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
                 throw new IllegalArgumentException(ReferenceValueFactory.class.getSimpleName() + " does not support persistent entities with multi valued primary keys");
             }
             this.primaryKeyColumn = this.table.getPrimaryKeyColumns().get(0);
-            this.primaryKeyType = this.getPropertyType(domainClass, this.primaryKeyColumn.getFieldName());
+            String fieldName = this.primaryKeyColumn.getFieldName();
+            if (fieldName == null) {
+                fieldName = this.table.getForeignKeyConstraints()
+                        .stream()
+                        .filter(constraint -> constraint.hasColumn(this.primaryKeyColumn))
+                        .map(ForeignKeyConstraint::getFieldName)
+                        .findFirst()
+                        .orElse("id"); // try to guess
+            }
+            this.primaryKeyType = this.getPropertyType(domainClass, fieldName);
             this.initConverterAndPrimaryKeyCheckerIfSupported();
             return true;
         }
