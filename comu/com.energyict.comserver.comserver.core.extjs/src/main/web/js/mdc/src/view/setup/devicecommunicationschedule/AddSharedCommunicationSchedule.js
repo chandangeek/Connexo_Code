@@ -23,8 +23,9 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                 items: [
                     {
                         xtype: 'uni-form-info-message',
-                        text: Uni.I18n.translate("deviceCommunicationSchedule.infoMessage", "MDC",
-                            "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list."),
+                        text:
+                            Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC',
+                                "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list."),
                         hidden: false
                     },
                     {
@@ -51,7 +52,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                             title: Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.title', 'MDC', 'No shared communication schedules found'),
                             reasons: [
                                 Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item1', 'MDC', 'No shared communication schedules with communication tasks on this device have been added yet'),
-                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC', 'There are shared communication schedules defined in Administration but one or more communication tasks in the communication schedule are already scheduled on the device with a shared communication schedule (a communication task on device level can only be scheduled in maximum one shared communication schedule)'),
+                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC',
+                                    "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list.")
                             ],
                             stepsText: '',
                             stepItems: [
