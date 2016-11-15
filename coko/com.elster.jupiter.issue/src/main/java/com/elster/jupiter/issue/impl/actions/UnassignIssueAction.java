@@ -24,9 +24,7 @@ import java.util.Optional;
 
 public class UnassignIssueAction extends AbstractIssueAction {
     private static final String NAME = "UnassignIssueAction";
-    public static final String ASSIGNEE = NAME + ".assignee";
-
-
+    
     private IssueService issueService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
