@@ -65,7 +65,7 @@ public class UsagePointLifeCycleStatesResource {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         UsagePointState.UsagePointStateCreator builder = lifeCycle.newState(stateInfo.name);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
-        stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
+        stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onExit);
         return this.stateInfoFactory.fullInfo(builder.complete());
     }
 
