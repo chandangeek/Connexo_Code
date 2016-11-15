@@ -2,7 +2,9 @@ package com.energyict.protocolimplv2.edp;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
@@ -19,6 +21,7 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
@@ -30,6 +33,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
@@ -38,7 +42,10 @@ import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +56,7 @@ import java.util.List;
  * Time: 11:34
  * Author: khe
  */
-public class CX20009 extends AbstractDlmsProtocol {
+public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protocol {
 
     private LogbookReader logbookReader = null;
     private RegisterReader registerReader;
@@ -239,4 +246,16 @@ public class CX20009 extends AbstractDlmsProtocol {
         }
         return registerReader;
     }
+
+    @Override
+    public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
+        TypedProperties result = TypedProperties.empty();
+        // Transform 'ReadCache' from int to bool
+        Object readCache = legacyProperties.getProperty(com.energyict.protocolimpl.dlms.edp.EDPProperties.READCACHE_PROPERTY);
+        if (readCache != null) {
+            result.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, ProtocolTools.getBooleanFromString(readCache.toString()));
+        }
+        return result;
+    }
+
 }
