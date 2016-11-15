@@ -43,7 +43,7 @@ public class UsagePointLifeCycleStatesResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public PagedInfoList getAllStates(@PathParam("lid") long lifeCycleId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
-        List<UsagePointLifeCycleStateInfo> states = lifeCycle.getStates().stream().map(this.stateInfoFactory::from).collect(Collectors.toList());
+        List<UsagePointLifeCycleStateInfo> states = lifeCycle.getStates().stream().map(this.stateInfoFactory::fullInfo).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("states", states, queryParameters);
     }
 
