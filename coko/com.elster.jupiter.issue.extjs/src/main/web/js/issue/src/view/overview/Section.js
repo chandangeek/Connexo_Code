@@ -43,9 +43,8 @@ Ext.define('Isu.view.overview.Section', {
                 }
             }
             Ext.Array.each(store.getRange(), function (record) {
-                if (section == 'userAssignee') {
-                    queryString[section] = record.get('id');
-                }
+
+                queryString[section] = record.get('id');
                 queryString.groupingType = 'none';
                 queryString.sort = ['dueDate', 'modTime'];
                 if (me.up('overview-of-issues')) {

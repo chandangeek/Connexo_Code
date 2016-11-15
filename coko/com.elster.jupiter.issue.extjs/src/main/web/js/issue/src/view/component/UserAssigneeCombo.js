@@ -16,14 +16,23 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
     workgroupId: -1,
 
     handleShowAll: function (checkBox) {
-        var me = this;
+        var me = this,
+            value = me.getValue();
 
         me.checked = document.getElementById("cboxShowAll").checked;
         me.checked && me.setCheckTemplate();
         !me.checked && me.setUncheckTemplate();
 
         me.getPicker().refresh();
-        me.loadStore();
+        me.store.getProxy().url = me.checked ? '/api/isu/assignees/users' : '/api/isu/workgroups/' + me.workgroupId + '/users';
+        me.store.load(function (records) {
+            if (Ext.isObject(records.filter(function (user) {
+                    return user.id == value;
+                })) == false) {
+                me.select(-1);
+            }
+        });
+        //me.loadStore();
     },
 
     setCheckTemplate: function () {
@@ -99,30 +108,11 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
 
         workgroupChanged: function (workgroupId) {
             var me = this;
-
-            me.workgroupId = workgroupId;
-            if ((workgroupId == -1) && me.getValue() && me.getValue() > 0) {
-                me.checked = true;
-                me.setCheckTemplate();
-                me.loadStore();
-            }
-            else {
-                var selectedValue = me.value;
-
-
-                if (selectedValue && me.checked == false) {
-                    me.store.getProxy().url = '/api/isu/workgroups/' + me.workgroupId + '/users';
-                    me.store.load(function (users) {
-
-                        if (Ext.isObject(users.find(function (user) {
-                                return user.get('id') == selectedValue;
-                            })) == false) {
-                            me.select(-1);
-                        }
-                    });
-                }
-            }
-
+            me.checked = false;
+            me.setUncheckTemplate();
+            me.getPicker().refresh();
+            me.select(-1);
+            me.loadStore();
         }
     },
 

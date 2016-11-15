@@ -21,7 +21,8 @@ Ext.define('Isu.view.issues.bulk.Step1', {
             ]
         },
         {
-            xtype: 'issues-selection-grid'
+            xtype: 'issues-selection-grid',
+            itemId: 'grd-issues-selection'
         },
         {
             xtype: 'component',
