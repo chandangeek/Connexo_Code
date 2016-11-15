@@ -358,6 +358,7 @@ public class JbpmTaskResource {
         String currentuser = getQueryValue(uriInfo, "currentuser");
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
+        String workGroupName = getQueryValue(uriInfo, "workgroupname");
         Task task = taskService.getTaskById(taskId);
         if(task != null) {
             if(((TaskImpl) task).getVersion() == optLock) {
@@ -375,6 +376,11 @@ public class JbpmTaskResource {
                         Date millis = new Date();
                         millis.setTime(Long.valueOf(date));
                         setDueDate(millis, taskId);
+                    }
+                }
+                if(workGroupName != null){
+                    if(!workGroupName.equals("")) {
+                        taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, workGroupName));
                     }
                 }
             } else {
