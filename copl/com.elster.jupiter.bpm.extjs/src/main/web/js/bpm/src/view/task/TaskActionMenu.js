@@ -18,9 +18,9 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
             privileges: Bpm.privileges.BpmManagement.assign
         },
         {
-            itemId: 'menu-release-task',
-            text: Uni.I18n.translate('bpm.menu.releaseTask', 'BPM', 'Release task'),
-            action: 'releaseTask',
+            itemId: 'menu-unassigned-task',
+            text: Uni.I18n.translate('bpm.menu.releaseTask', 'BPM', 'Unassigned'),
+            action: 'unassignedTask',
             privileges: Bpm.privileges.BpmManagement.assign
         },
         {
