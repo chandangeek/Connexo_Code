@@ -16,7 +16,6 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -377,7 +376,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
 
     private Calendar createCalendar(String name) {
         return inMemoryPersistence.
-                getCalendarService().newCalendar(name, TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+                getCalendarService().newCalendar(name, Year.of(2010))
                 .endYear(Year.of(2020))
                 .description("Description remains to be completed :-)")
                 .mRID(name + "-mRID")
