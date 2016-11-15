@@ -26,7 +26,7 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterEventParser;
+import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterAlarmParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -748,7 +747,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         Date dateTime = Calendar.getInstance().getTime();
         deviceIdentifier = new DialHomeIdDeviceIdentifier(logicalDeviceName.toString());
 
-        createCollectedLogBook(MeterEventParser.parseEventCode(dateTime, attributeValue.getValue(), 1));
+        createCollectedLogBook(MeterAlarmParser.parseAlarmCode(dateTime, attributeValue.getValue(), 1));
     }
 
     private void parseGatewayRelayedEventWith2Elements(Structure eventPayLoad, int alarmRegister) {
@@ -763,7 +762,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             deviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
         }
         Date dateTime = Calendar.getInstance().getTime();//TODO: see what timezone should be used
-        createCollectedLogBook(MeterEventParser.parseEventCode(dateTime, attributeValue.getValue(), alarmRegister));
+        createCollectedLogBook(MeterAlarmParser.parseAlarmCode(dateTime, attributeValue.getValue(), alarmRegister));
     }
 
     private void createCollectedLogBook(Date dateTime, int eiCode, int protocolCode, String description) {
