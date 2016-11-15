@@ -406,7 +406,8 @@ Ext.define('Bpm.controller.Task', {
     },
 
     unassignTaskAction: function (menuItem) {
-        var me = this;
+        var me = this,
+            record = menuItem.record;
 
         Ext.Ajax.request({
             url: '/api/bpm/runtime/release/' + record.get('id'),
@@ -421,7 +422,7 @@ Ext.define('Bpm.controller.Task', {
                         var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                         loggedUser = decoded && decoded.data && decoded.data.length > 0 ? decoded.data[0].name : '';
 
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.assignedtome', 'BPM', 'Task was assigned to {0}', loggedUser));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.unassigned', 'BPM', 'Task was unassigned'));
                         if (me.getMainGrid()) {
                             me.getMainGrid().getStore().load();
                         }
