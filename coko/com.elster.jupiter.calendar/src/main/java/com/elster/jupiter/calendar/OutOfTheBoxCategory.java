@@ -1,4 +1,4 @@
-package com.elster.jupiter.calendar.impl;
+package com.elster.jupiter.calendar;
 
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -17,6 +17,7 @@ public enum OutOfTheBoxCategory {
     }
 
     public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString(CategoryImpl.CALENDAR_CATEGORY_KEY_PREFIX + this.name().toLowerCase(), getDefaultDisplayName());
+        return thesaurus.getString("calendar.category." + this.name().toLowerCase(), getDefaultDisplayName());
+
     }
 }
