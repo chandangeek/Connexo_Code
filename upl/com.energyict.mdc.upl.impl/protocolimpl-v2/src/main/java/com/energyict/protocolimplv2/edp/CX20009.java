@@ -251,7 +251,7 @@ public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protoc
     public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
         TypedProperties result = TypedProperties.empty();
         // Transform 'ReadCache' from int to bool
-        Object readCache = legacyProperties.getProperty(com.energyict.protocolimpl.dlms.edp.EDPProperties.READCACHE_PROPERTY);
+        Object readCache = legacyProperties.getProperty(DlmsProtocolProperties.READCACHE_PROPERTY);
         if (readCache != null) {
             result.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, ProtocolTools.getBooleanFromString(readCache.toString()));
         }
