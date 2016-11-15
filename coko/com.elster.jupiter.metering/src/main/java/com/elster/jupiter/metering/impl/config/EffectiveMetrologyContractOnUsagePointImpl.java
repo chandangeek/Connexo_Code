@@ -8,7 +8,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
+import java.time.Instant;
 
 public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetrologyContractOnUsagePoint {
 
@@ -46,8 +49,28 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.metrologyContract.set(metrologyContract);
         this.interval = metrologyConfiguration.getInterval();
+        MetrologyContractChannelsContainerImpl channelsContainer = this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)
+                .init(this);
+        dataModel.persist(channelsContainer);
+        this.channelsContainer.set(channelsContainer);
+        return this;
+    }
+
+    public EffectiveMetrologyContractOnUsagePointImpl init(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration, MetrologyContract metrologyContract, Range<Instant> interval) {
+        this.metrologyConfiguration.set(metrologyConfiguration);
+        this.metrologyContract.set(metrologyContract);
+        this.interval = Interval.of(interval);
         this.channelsContainer.set(this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class).init(this));
         return this;
+    }
+
+    @Override
+    public void close(Instant closingDate) {
+        if (!isEffectiveAt(closingDate)) {
+            throw new IllegalArgumentException();
+        }
+        this.interval = this.interval.withEnd(closingDate);
+        this.dataModel.update(this);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -113,8 +114,33 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         getMetrologyConfiguration().getContracts()
                 .stream()
                 .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                .filter(MetrologyContract::isMandatory)
                 .forEach(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
                         .init(this, metrologyContract)));
+    }
+
+    @Override
+    public void activateOptionalMetrologyContract(MetrologyPurpose purpose, Range<Instant> interval) {
+        getMetrologyConfiguration().getContracts()
+                .stream()
+                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                .filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose))
+                .filter(metrologyContract -> !metrologyContract.isMandatory())
+                .findFirst()
+                .ifPresent(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
+                        .init(this, metrologyContract, interval)));
+    }
+
+    @Override
+    public void deactivateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when) {
+        this.effectiveContracts
+                .stream()
+                .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getMetrologyContract().isMandatory())
+                .filter(effectiveMetrologyContract -> effectiveMetrologyContract.getMetrologyContract()
+                        .equals(metrologyContract))
+                .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getRange().hasUpperBound())
+                .findFirst()
+                .ifPresent(effectiveMetrologyContract -> effectiveMetrologyContract.close(when));
     }
 
     @Override

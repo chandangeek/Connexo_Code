@@ -137,7 +137,9 @@ public class MeterActivationImplTest extends EqualsContractTest {
     }
 
     private MeterActivationImpl getTestInstanceAndInitWithActivationTime() {
-        return getTestInstance().init(meter, meterRole, usagePoint, ACTIVATION_TIME);
+        MeterActivationImpl meterActivation = getTestInstance().init(meter, meterRole, usagePoint, ACTIVATION_TIME);
+        meterActivation.save();
+        return meterActivation;
     }
 
     private MeterActivationImpl getTestInstance() {
