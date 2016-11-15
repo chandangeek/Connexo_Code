@@ -4,12 +4,11 @@ Ext.define('Bpm.store.task.TasksFilterWorkgroups', {
 
     proxy: {
         type: 'rest',
-        //url: '/api/bpm/runtime/assignees/workgroups',
-        url: '/api/bpm/runtime/assignees?me=false',
+        url: '/api/bpm/workgroups',
         timeout: 240000,
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'workgroups'
         },
         pageParam: false,
         startParam: false,

@@ -59,7 +59,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
             },
             {
                 header: Uni.I18n.translate('bpm.task.workgroupAssignee', 'BPM', 'Workgroup'),
-                dataIndex: 'actualOwner',
+                dataIndex: 'workgroup',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
                     var result = '';
