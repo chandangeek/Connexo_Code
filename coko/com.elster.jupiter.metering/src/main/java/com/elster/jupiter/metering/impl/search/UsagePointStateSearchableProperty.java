@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UsagePointStateSearchableProperty implements SearchableUsagePointProperty {
-    private static final String FIELD_NAME = "state";
+    private static final String FIELD_NAME = "state.state";
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
@@ -40,7 +40,7 @@ public class UsagePointStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Condition toCondition(Condition condition) {
-        return condition.and(where(FIELD_NAME).isEffective());
+        return condition.and(where("state").isEffective());
     }
 
     @Override

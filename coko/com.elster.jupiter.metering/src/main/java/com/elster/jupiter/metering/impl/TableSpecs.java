@@ -1857,7 +1857,7 @@ public enum TableSpecs {
             table.since(version(10, 3));
             Column usagePoint = table.column("USAGE_POINT").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            Column state = table.column("UPL_STATE").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column state = table.column("UPL_STATE").map("state").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.addAuditColumns();
             table.primaryKey("MTR_UPL_STATE_PK").on(usagePoint, intervalColumns.get(0)).add();
             table.foreignKey("MTR_UPL_STATE_2_UP_FK")
