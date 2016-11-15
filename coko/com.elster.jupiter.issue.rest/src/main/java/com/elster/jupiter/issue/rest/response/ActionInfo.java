@@ -21,6 +21,10 @@ public class ActionInfo {
         success.add(new IssueShortInfo(id));
     }
 
+    public void addSuccess(long id, String title){
+        success.add(new IssueShortInfo(id, title));
+    }
+
     public void addFail(String reason, long id, String title){
         if (reason != null) {
             ActionFailInfo failsWithSameReason = fails.get(reason);

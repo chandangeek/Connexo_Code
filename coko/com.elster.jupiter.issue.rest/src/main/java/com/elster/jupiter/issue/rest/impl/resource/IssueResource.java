@@ -21,6 +21,7 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.AssignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -176,7 +177,8 @@ public class IssueResource extends BaseResource {
             Optional<? extends Issue> issueRef = baseIssue.getStatus().isHistorical() ?
                     issueProvider.getHistoricalIssue((HistoricalIssue) baseIssue) : issueProvider.getOpenIssue((OpenIssue) baseIssue);
             if (issueRef.isPresent()) {
-                return Response.ok(issueResourceHelper.performIssueAction(issueRef.get(), request)).build();
+                IssueActionResult info = issueResourceHelper.performIssueAction(issueRef.get(), request);
+                return Response.ok(info).build();
             }
         }
         return Response.ok(issueResourceHelper.performIssueAction(baseIssue, request)).build();
@@ -192,7 +194,7 @@ public class IssueResource extends BaseResource {
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, Issue> issueProvider;
         issueProvider = result -> getIssue(request, result);
-        ActionInfo info = getTransactionService().execute(new AssignSingleIssueTransaction(request, performer, issueProvider));
+        ActionInfo info = getTransactionService().execute(new AssignSingleIssueTransaction(request, performer, issueProvider, getThesaurus()));
         return entity(info).build();
 
     }
