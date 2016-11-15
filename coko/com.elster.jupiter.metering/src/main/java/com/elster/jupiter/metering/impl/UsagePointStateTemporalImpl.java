@@ -14,6 +14,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Objects;
 
 public class UsagePointStateTemporalImpl implements Effectivity {
 
@@ -21,11 +22,16 @@ public class UsagePointStateTemporalImpl implements Effectivity {
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePointState> state = ValueReference.absent();
     private Interval interval;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
+    @SuppressWarnings("unused")
     private String userName;
 
     @Inject
@@ -55,5 +61,23 @@ public class UsagePointStateTemporalImpl implements Effectivity {
         }
         this.interval = this.interval.withEnd(closingTime);
         this.dataModel.update(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UsagePointStateTemporalImpl that = (UsagePointStateTemporalImpl) o;
+        return Objects.equals(this.usagePoint.get(), that.usagePoint.get()) &&
+                Objects.equals(this.interval.getStart(), that.interval.getStart());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.usagePoint.get(), this.interval.getStart());
     }
 }

@@ -27,6 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -265,5 +266,20 @@ public class UsagePointImplIT {
         usagePoint.setState(state, AUG_1ST_2016);
 
         state.remove();
+    }
+
+    @Test
+    @Transactional
+    public void testCanQueryUsagePointsWithState() {
+        UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
+        UsagePointState initialState = lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get();
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanQueryUsagePointsWithState", AUG_1ST_2016).create();
+
+        usagePoint.setState(initialState, AUG_15TH_2016);
+
+        UsagePoint found = meteringService.getUsagePointQuery().select(where("state.state").isEqualTo(initialState)).get(0);
+        assertThat(found).isEqualTo(usagePoint);
     }
 }

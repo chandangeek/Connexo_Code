@@ -40,7 +40,7 @@ public class UsagePointStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Condition toCondition(Condition condition) {
-        return condition.and(where("state").isEffective());
+        return condition.and(where("state.interval").isEffective());
     }
 
     @Override
