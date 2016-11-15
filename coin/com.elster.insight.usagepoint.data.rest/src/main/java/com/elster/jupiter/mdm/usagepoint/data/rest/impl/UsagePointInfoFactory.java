@@ -178,6 +178,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayConnectionState = usagePoint.getConnectionStateDisplayName();
         info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
         info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
+        info.state = usagePoint.getState().getName();
         return info;
     }
 
@@ -259,6 +260,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.STATE, String.class));
         return propertyDescriptionInfoList;
     }
 
