@@ -7,6 +7,7 @@ import org.kie.internal.task.api.UserInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Produces;
 
 @ApplicationScoped
 @Alternative
@@ -20,12 +21,14 @@ public class ConnexoUserGroupInfoProducer implements UserGroupInfoProducer {
 	}
 
 	@Override
+	@Produces
 	public UserGroupCallback produceCallback() {
 
 		return callback;
 	}
 
 	@Override
+	@Produces
 	public UserInfo produceUserInfo() {
 
 		return userInfo;
