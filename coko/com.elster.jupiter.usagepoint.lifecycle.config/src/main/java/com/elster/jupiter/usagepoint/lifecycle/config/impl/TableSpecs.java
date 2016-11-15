@@ -41,6 +41,7 @@ public enum TableSpecs {
             table.map(UsagePointStateImpl.class);
             Column stateColumn = table.column("STATE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column lifeCycleColumn = table.column("LIFE_CYCLE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            table.addAuditColumns();
 
             table.primaryKey("PK_UPL_STATE").on(stateColumn).add();
             table.foreignKey("FK_UPL_STATE_2_LIFE_CYCLE")

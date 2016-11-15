@@ -12,6 +12,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,6 +42,15 @@ public class UsagePointStateImpl implements UsagePointState {
 
     private Reference<State> fsmState = ValueReference.absent();
     private Reference<UsagePointLifeCycleImpl> lifeCycle = ValueReference.absent();
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public UsagePointStateImpl(Thesaurus thesaurus, EventService eventService) {
@@ -86,7 +96,7 @@ public class UsagePointStateImpl implements UsagePointState {
 
     @Override
     public long getVersion() {
-        return this.fsmState.get().getVersion();
+        return this.version;
     }
 
     @Override

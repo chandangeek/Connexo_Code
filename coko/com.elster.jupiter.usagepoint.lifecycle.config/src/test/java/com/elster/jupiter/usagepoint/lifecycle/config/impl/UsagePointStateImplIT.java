@@ -75,9 +75,10 @@ public class UsagePointStateImplIT extends BaseTestIT {
 
         UsagePointState testState = lifeCycle.newState("TestState").complete();
         assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount + 1);
+        testState = get(UsagePointLifeCycleConfigurationService.class).findAndLockUsagePointStateByIdAndVersion(testState.getId(), testState.getVersion()).get();
 
         testState.remove();
-        assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount);
+        assertThat(testState.getLifeCycle().getStates().size()).isEqualTo(stateCount);
     }
 
     @Test(expected = UsagePointStateRemoveException.class)
