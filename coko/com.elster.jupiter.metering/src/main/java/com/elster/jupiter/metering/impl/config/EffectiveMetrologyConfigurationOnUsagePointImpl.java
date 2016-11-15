@@ -120,15 +120,9 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     @Override
-    public void activateOptionalMetrologyContract(MetrologyPurpose purpose, Range<Instant> interval) {
-        getMetrologyConfiguration().getContracts()
-                .stream()
-                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                .filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose))
-                .filter(metrologyContract -> !metrologyContract.isMandatory())
-                .findFirst()
-                .ifPresent(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
-                        .init(this, metrologyContract, interval)));
+    public void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Range<Instant> interval) {
+        this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
+                .init(this, metrologyContract, interval));
     }
 
     @Override
