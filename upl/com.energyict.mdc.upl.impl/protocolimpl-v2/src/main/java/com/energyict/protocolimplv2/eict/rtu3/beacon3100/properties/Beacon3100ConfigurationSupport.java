@@ -10,6 +10,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,12 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String POLLING_DELAY = "PollingDelay";
     public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
 
+    public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
+    public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
+    public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
+    public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
+    public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
+
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
@@ -44,6 +51,12 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(callingAPTitlePropertySpec());
         optionalProperties.add(publicClientPreEstablishedPropertySpec());
 
+        optionalProperties.add(useCachedFrameCounter());
+        optionalProperties.add(validateCachedFrameCounter());
+        optionalProperties.add(frameCounterRecoveryRetries());
+        optionalProperties.add(frameCounterRecoveryStep());
+        optionalProperties.add(initialFrameCounter());
+
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
@@ -51,6 +64,26 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.remove(deviceId());
 
         return optionalProperties;
+    }
+
+    private PropertySpec frameCounterRecoveryRetries() {
+        return PropertySpecFactory.bigDecimalPropertySpec(FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
+    }
+
+    private PropertySpec frameCounterRecoveryStep() {
+        return PropertySpecFactory.bigDecimalPropertySpec(FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
+    }
+
+    private PropertySpec validateCachedFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(VALIDATE_CACHED_FRAMECOUNTER);
+    }
+
+    private PropertySpec useCachedFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(USE_CACHED_FRAME_COUNTER);
+    }
+
+    private PropertySpec initialFrameCounter() {
+        return PropertySpecFactory.positiveDecimalPropertySpec(INITIAL_FRAME_COUNTER);
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {

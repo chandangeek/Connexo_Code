@@ -120,7 +120,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(G3Properties.PSK);
+        return PropertySpecFactory.stringPropertySpec(G3Properties.PSK);
     }
 
     protected PropertySpec aarqTimeoutPropertySpec() {

@@ -248,6 +248,11 @@ public class NTASecurityProvider implements SecurityProvider {
         this.authenticationKey = newAuthenticationKey;
     }
 
+    @Override
+    public void changeMasterKey(byte[] newMasterKey) throws IOException {
+        this.masterKey = newMasterKey;
+    }
+
     public byte[] getDedicatedKey() {
         if (dedicatedKey == null) {
             dedicatedKey = new byte[16];

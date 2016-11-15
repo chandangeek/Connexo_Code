@@ -262,8 +262,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
+        assertEquals(meterProtocolEvent.getEiCode(), 2);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
     }
 
@@ -377,8 +377,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
+        assertEquals(meterProtocolEvent.getEiCode(), 2);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
     }
 

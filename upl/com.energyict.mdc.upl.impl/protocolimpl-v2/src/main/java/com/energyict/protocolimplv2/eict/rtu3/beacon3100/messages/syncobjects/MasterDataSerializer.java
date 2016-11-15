@@ -250,8 +250,12 @@ public class MasterDataSerializer {
         return  clientDetails;
     }
 
-    protected byte[] wrap(byte[] dlmsMeterKEK, byte[] ak) {
-        return ProtocolTools.aesWrap(ak, dlmsMeterKEK);
+    /**
+     * AES wrap the given key with the given master key (KEK).
+     * This method is overridden in the crypto-protocols for EVN, where the wrapping is done by the HSM.
+     */
+    public byte[] wrap(byte[] masterKey, byte[] key) {
+        return ProtocolTools.aesWrap(key, masterKey);
     }
 
     public String parseCallHomeId(Device device) {

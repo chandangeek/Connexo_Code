@@ -1,19 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.LastSeenDateInfo;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
@@ -24,21 +17,12 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.MigratePropertiesFromPreviousSecuritySet;
-import com.energyict.mdc.protocol.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.security.SecuritySuite;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
@@ -50,8 +34,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.ConnectionSetupException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -69,6 +54,14 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+
 /**
  * Copyrights EnergyICT
  *
@@ -76,72 +69,6 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
  * @since 18/06/2015 - 15:07
  */
 public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
-	
-	/**
-	 * Enumerates the different clients for the Beacon.
-	 * 
-	 * @author alex
-	 */
-	private enum ClientConfiguration {
-		
-		/** Management client. */
-		MANAGEMENT(1, ObisCode.fromString("0.0.43.1.1.255")),
-		
-		/** Public client. */
-		PUBLIC(16, null),
-		
-		/** Read-write client. */
-		READ_WRITE(32,  ObisCode.fromString("0.0.43.1.2.255")),
-		
-		/** Firmware upgrade client. */
-		FIRMWARE(64, ObisCode.fromString("0.0.43.1.3.255")),
-		
-		/** Read only client. */
-		READ_ONLY(127, ObisCode.fromString("0.0.43.1.4.255"));
-		
-		/** Client ID to be used. */
-		private final int clientId;
-		
-		/** OBIS code of the frame counter. */
-		private final ObisCode frameCounterOBIS;
-		
-		/**
-		 * Create a new instance.
-		 * 
-		 * @param 	id						Client ID.
-		 * @param 	frameCounterOBIS		Frame counter OBIS code.
-		 */
-		private ClientConfiguration(final int id, final ObisCode frameCounterOBIS) {
-			this.clientId = id;
-			this.frameCounterOBIS = frameCounterOBIS;
-		}
-		
-		/**
-		 * Returns the OBIS of the FC.
-		 * 
-		 * @return	The OBIS of the FC.
-		 */
-		private final ObisCode getFrameCounterOBIS() {
-			return frameCounterOBIS;
-		}
-		
-		/**
-		 * Returns the client with the given ID.
-		 * 
-		 * @param 	clientId		ID of the requested client.
-		 * 
-		 * @return	The matching client, <code>null</code> if not known.
-		 */
-		private static final ClientConfiguration getByID(final int clientId) {
-			for (final ClientConfiguration client : ClientConfiguration.values()) {
-				if (client.clientId == clientId) {
-					return client;
-				}
-			}
-			
-			return null;
-		}
-	}
 
     // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
     // https://jira.eict.vpdc/browse/COMMUNICATION-1552
@@ -150,8 +77,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
     private static final String UTF_8 = "UTF-8";
     private static final int MAC_ADDRESS_LENGTH = 8;    //In bytes
-
     protected Beacon3100Messaging beacon3100Messaging;
+    private BeaconCache beaconCache = null;
     private RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
 
@@ -161,7 +88,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: " + getVersion());
-        readFrameCounter(comChannel);
+        handleFrameCounter(comChannel);
         initDlmsSession(comChannel);
     }
 
@@ -170,22 +97,148 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     }
 
     /**
+     * Either get the FC from the device cache, or read it out using the public client. This can be configured with general properties.
+     * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
+     */
+    protected void handleFrameCounter(ComChannel comChannel) {
+        int clientMacAddress = getDlmsSessionProperties().getClientMacAddress();
+        if (clientMacAddress != ClientConfiguration.PUBLIC.clientId) {
+
+            boolean weHaveValidCachedFrameCounter = false;
+            if (getDlmsSessionProperties().useCachedFrameCounter()) {
+                weHaveValidCachedFrameCounter = getCachedFrameCounter(comChannel, clientMacAddress);
+            }
+
+            if (!weHaveValidCachedFrameCounter) {
+                //No cached FC available. Read it out using the public client.
+                readFrameCounter(comChannel);
+            }
+        }
+    }
+
+    @Override
+    public BeaconCache getDeviceCache() {
+        if (beaconCache == null) {
+            beaconCache = new BeaconCache();
+        }
+        return beaconCache;
+    }
+
+    @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof BeaconCache)) {
+            beaconCache = (BeaconCache) deviceProtocolCache;
+        }
+    }
+
+    @Override
+    public void terminate() {
+        //As a last step, update the cache with the last FC
+        if (getDlmsSession() != null && getDlmsSession().getAso() != null && getDlmsSession().getAso().getSecurityContext() != null) {
+            getDeviceCache().setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(), getDlmsSession().getAso().getSecurityContext().getFrameCounter());
+        }
+    }
+
+    /**
+     * Get the frame counter from the cache, for the given clientId.
+     * If no frame counter is available in the cache (value -1), use the configured InitialFC property.
+     * <p/>
+     * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
+     */
+    private boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
+        getLogger().info("Will try to use a cached frame counter");
+        boolean weHaveAFrameCounter = false;
+        long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
+        long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
+
+        if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1).
+            getLogger().info("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
+            setTXFrameCounter(initialFrameCounter);
+            weHaveAFrameCounter = true;
+        } else if (cachedFrameCounter > 0) {
+            getLogger().info("Using cached frame counter: " + cachedFrameCounter);
+            setTXFrameCounter(cachedFrameCounter + 1);
+            weHaveAFrameCounter = true;
+        }
+
+        if (weHaveAFrameCounter) {
+            if (getDlmsSessionProperties().validateCachedFrameCounter()) {
+                return testConnectionAndRetryWithFrameCounterIncrements(comChannel);
+            } else {
+                getLogger().warning(" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
+                // do not validate, just use it and hope for the best
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean testConnectionAndRetryWithFrameCounterIncrements(ComChannel comChannel) {
+        DlmsSession testDlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
+        int retries = getDlmsSessionProperties().getFrameCounterRecoveryRetries();
+        int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
+        boolean releaseOnce = true;
+
+        getLogger().info("Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
+        if (retries <= 0) {
+            retries = 0;
+            step = 0;
+        }
+
+        do {
+            try {
+                testDlmsSession.getDlmsV2Connection().connectMAC();
+                testDlmsSession.createAssociation();
+                if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
+                    testDlmsSession.disconnect();
+                    getLogger().info("Cached FrameCounter is valid!");
+                    setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
+                    return true;
+                }
+            } catch (CommunicationException ex) {
+                long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
+                getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
+                frameCounter += step;
+                setTXFrameCounter(frameCounter);
+                testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
+
+                if (releaseOnce) {
+                    releaseOnce = false;
+                    //Try to release that association once, it may be that it was still open from a previous session, causing troubles to create the new association.
+                    try {
+                        testDlmsSession.getAso().releaseAssociation();
+                    } catch (ProtocolRuntimeException e) {
+                        testDlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                        // Absorb exception: in 99% of the cases we expect an exception here ...
+                    }
+                }
+            }
+            retries--;
+        } while (retries > 0);
+
+        testDlmsSession.disconnect();
+        getLogger().warning("Could not validate the frame counter, seems that it's out-of synch whith the device. You'll have to read a fresh one.");
+        return false;
+    }
+
+    private void setTXFrameCounter(long frameCounter) {
+        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+    }
+
+    /**
      * Will return the correct frame counter obis code, for each client ID.
-     * Management Client (1): 0 0 43 1 1 255 -> With a pre-established framecounter association.
-     * R/W Client (32): 0 0 43 1 2 255 -> With a pre-established framecounter association.
-     * Firmware Client (64): 0 0 43 1 3 255 255 -> With a pre-established framecounter association.
-     * https://jira.eict.vpdc/browse/COMMUNICATION-1552
      *
      * @param clientId - DLMS Client ID used in association
      * @return - the correct obis code for this client
      */
-    private final ObisCode getFrameCounterObisCode(final int clientId) {
+    private ObisCode getFrameCounterObisCode(final int clientId) {
         final ClientConfiguration client = ClientConfiguration.getByID(clientId);
-        
+
         if (client == null) {
-        	throw new IllegalArgumentException("No client with ID [" + clientId + "] defined for this device !");
+            throw new IllegalArgumentException("No client with ID [" + clientId + "] defined for this device !");
         }
-        
+
         return client.getFrameCounterOBIS();
     }
 
@@ -224,74 +277,74 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         }
 
         final Beacon3100Properties publicClientProperties = new Beacon3100Properties();
-        
+
         publicClientProperties.addProperties(getDlmsSessionProperties().getProperties().clone());
-        publicClientProperties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS.toString(), 
-        												   BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId));
-        
+        publicClientProperties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS,
+                BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId));
+
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, getDlmsSessionProperties().getProperties()));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
-        
+
         final long frameCounter;
 
         final com.energyict.dlms.protocolimplv2.DlmsSessionProperties sessionProperties = this.getDlmsSessionProperties();
 
         if (this.getDlmsSessionProperties().isPublicClientPreEstablished() && this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
-        	if (this.getLogger().isLoggable(Level.WARNING)) {
-        		this.getLogger().log(Level.WARNING, "Invalid configuration detected : cannot use a pre-established public client association in combination with and authenticated frame counter, overriding to non-pre-established.");
-        	}
+            if (this.getLogger().isLoggable(Level.WARNING)) {
+                this.getLogger().log(Level.WARNING, "Invalid configuration detected : cannot use a pre-established public client association in combination with and authenticated frame counter, overriding to non-pre-established.");
+            }
         }
         final boolean preEstablished = sessionProperties.isPublicClientPreEstablished() && !this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter();
 
-        try {        	
-	        // Associate if necessary.
-	        if (preEstablished) {
-	        	if (this.getLogger().isLoggable(Level.FINE)) {
-	        		this.getLogger().log(Level.FINE, "Public client association is pre-established.");
-	        	}
-	        	
-	        	publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
-	        } else {
-	        	if (this.getLogger().isLoggable(Level.FINE)) {
-	        		this.getLogger().log(Level.FINE, "Public client association is not pre-established.");
-	        	}
-	        	
-	            publicDlmsSession.getDlmsV2Connection().connectMAC();
-	            publicDlmsSession.createAssociation();
-	        }
-	        
-	        // Then read out the frame counter.
-	        final ObisCode frameCounterObisCode = this.getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress());
-	        
-	        if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
-	            getLogger().finest("Requesting authenticated frame counter");
-	            try {
-	                FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
-	                frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
-	            } catch (IOException e) {
-	                getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
-	                throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
-	            } catch (Exception e) {
-	                getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
-	                final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the frame counter, cannot continue! " + e.getMessage());
-	                throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
-	            }
-	        } else {
-	            try {
-	                frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
-	            } catch (IOException e) {
-	                getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
-	                throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
-	            }
-	        }
+        try {
+            // Associate if necessary.
+            if (preEstablished) {
+                if (this.getLogger().isLoggable(Level.FINE)) {
+                    this.getLogger().log(Level.FINE, "Public client association is pre-established.");
+                }
+
+                publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
+            } else {
+                if (this.getLogger().isLoggable(Level.FINE)) {
+                    this.getLogger().log(Level.FINE, "Public client association is not pre-established.");
+                }
+
+                publicDlmsSession.getDlmsV2Connection().connectMAC();
+                publicDlmsSession.createAssociation();
+            }
+
+            // Then read out the frame counter.
+            final ObisCode frameCounterObisCode = this.getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress());
+
+            if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
+                getLogger().finest("Requesting authenticated frame counter");
+                try {
+                    FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
+                    frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
+                    throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+                } catch (Exception e) {
+                    getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
+                    final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the frame counter, cannot continue! " + e.getMessage());
+                    throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+                }
+            } else {
+                try {
+                    frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
+                    throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+                }
+            }
         } finally {
-        	// Only disconnect if the association is not pre-established.
-        	if (!preEstablished) {
-        		publicDlmsSession.disconnect();
-        	}
+            // Only disconnect if the association is not pre-established.
+            if (!preEstablished) {
+                publicDlmsSession.disconnect();
+            }
         }
-        
+
         this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
@@ -530,7 +583,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-08 13:17:25 +0100 (Tue, 08 Nov 2016)$";
+        return "$Date: 2016-11-14 17:24:27 +0100 (Mon, 14 Nov 2016)$";
     }
 
     @Override
@@ -579,5 +632,112 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     @Override
     public DeviceProtocolSecurityCapabilities getPreviousSecuritySupport() {
         return new DsmrSecuritySupport();
+    }
+
+    /**
+     * Enumerates the different clients for the Beacon.
+     *
+     * @author alex
+     */
+    public enum ClientConfiguration {
+
+        /**
+         * Management client.
+         */
+        MANAGEMENT(1, ObisCode.fromString("0.0.43.1.1.255"), ObisCode.fromString("0.0.43.0.2.255"), ObisCode.fromString("0.0.40.0.2.255")),
+
+        /**
+         * Public client.
+         */
+        PUBLIC(16, null, ObisCode.fromString("0.0.40.0.1.255"), ObisCode.fromString("0.0.40.0.1.255")),
+
+        /**
+         * Read-write client.
+         */
+        READ_WRITE(32, ObisCode.fromString("0.0.43.1.2.255"), ObisCode.fromString("0.0.43.0.3.255"), ObisCode.fromString("0.0.40.0.3.255")),
+
+        /**
+         * Firmware upgrade client.
+         */
+        FIRMWARE(64, ObisCode.fromString("0.0.43.1.3.255"), ObisCode.fromString("0.0.43.0.4.255"), ObisCode.fromString("0.0.40.0.4.255")),
+
+        /**
+         * Read only client.
+         */
+        READ_ONLY(127, ObisCode.fromString("0.0.43.1.4.255"), ObisCode.fromString("0.0.43.0.5.255"), ObisCode.fromString("0.0.40.0.5.255"));
+
+        /**
+         * Client ID to be used.
+         */
+        private final int clientId;
+
+        /**
+         * OBIS code of the frame counter.
+         */
+        private final ObisCode frameCounterOBIS;
+
+        /**
+         * OBIS code of the Security Setup
+         */
+        private final ObisCode securitySetupOBIS;
+
+        /**
+         * OBIS code of the Association LN setup
+         */
+        private final ObisCode associationLnOBIS;
+
+        /**
+         * Create a new instance.
+         *
+         * @param id               Client ID.
+         * @param frameCounterOBIS Frame counter OBIS code.
+         */
+        ClientConfiguration(final int id, final ObisCode frameCounterOBIS, final ObisCode securitySetupOBIS, final ObisCode associationLNOBIS) {
+            this.clientId = id;
+            this.frameCounterOBIS = frameCounterOBIS;
+            this.securitySetupOBIS = securitySetupOBIS;
+            this.associationLnOBIS = associationLNOBIS;
+        }
+
+        /**
+         * Returns the client with the given ID.
+         *
+         * @param clientId ID of the requested client.
+         * @return The matching client, <code>null</code> if not known.
+         */
+        public static ClientConfiguration getByID(final int clientId) {
+            for (final ClientConfiguration client : ClientConfiguration.values()) {
+                if (client.clientId == clientId) {
+                    return client;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Returns the OBIS of the FC.
+         *
+         * @return The OBIS of the FC.
+         */
+        public final ObisCode getFrameCounterOBIS() {
+            return frameCounterOBIS;
+        }
+
+        /**
+         * Returns the OBIS of the SecuritySetup.
+         *
+         * @return The OBIS of the SecuritySetup.
+         */
+        public final ObisCode getSecuritySetupOBIS() {
+            return securitySetupOBIS;
+        }
+
+        /**
+         * Return the Association LN ObisCode
+         */
+        public ObisCode getAssociationLN() {
+            return associationLnOBIS;
+        }
     }
 }

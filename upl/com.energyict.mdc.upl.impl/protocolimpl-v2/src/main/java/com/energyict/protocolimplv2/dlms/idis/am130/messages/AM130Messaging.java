@@ -60,6 +60,7 @@ public class AM130Messaging extends IDISMessaging {
     protected void addCommonDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
+        supportedMessages.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS);
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS);
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR);
         supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1);
