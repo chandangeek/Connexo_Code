@@ -294,11 +294,35 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     switch (operation) {
                         case 'assign':
                             if (successCount > 0) {
-                                successMessage =  Uni.I18n.translatePlural('issues.assign.success.result5', successCount, 'ISU',
-                                        "There were no issues to assign to ",
+                                var userId = record.get('assignee').userId;
+                                var workGroupId = record.get('assignee').workGroupId;
+
+                                if ((userId == -1) && (workGroupId == -1)) {
+                                    successMessage = Uni.I18n.translatePlural('issues.assign.success.result51', successCount, 'ISU',
+                                        "There were no issues",
+                                        "Successfully unassign one issue",
+                                        "Successfully unassign {0} issues");
+                                } else if ((userId > -1) && (workGroupId == -1)) {
+                                    successMessage = Uni.I18n.translatePlural('issues.assign.success.result52', successCount, 'ISU',
+                                        "There were no issues to assigned to ",
                                         "Successfully assigned one issue to ",
                                         "Successfully assigned {0} issues to ");
-                                successMessage = '\<h3\>' + successMessage + record.get('assignee').title + '\</h3\>\<br\>'
+                                    successMessage = '\<h3\>' + successMessage + record.get('assignee').title + '\</h3\>\<br\>'
+                                } else if ((userId == -1) && (workGroupId > -1)) {
+                                    successMessage = Uni.I18n.translatePlural('issues.assign.success.result53', successCount, 'ISU',
+                                        "There were no issues to assigned to ",
+                                        "Successfully assigned one issue to ",
+                                        "Successfully assigned {0} issues to ");
+                                    successMessage = '\<h3\>' + successMessage + record.get('assignee').workGroupTitle + '\</h3\>\<br\>'
+                                } else if ((userId > -1) && (workGroupId > -1)) {
+                                    successMessage = Uni.I18n.translatePlural('issues.assign.success.result54', successCount, 'ISU',
+                                        "There were no issues to assigne to ",
+                                        "Successfully assigned one issue to ",
+                                        "Successfully assigned {0} issues to ");
+                                    successMessage = '\<h3\>' + successMessage + record.get('assignee').title +
+                                        Uni.I18n.translate('general.and', 'ISU', ' and ')
+                                        + successMessage + record.get('assignee').workGroupTitle + '\</h3\>\<br\>'
+                                }
                             }
                             break;
                         case 'close':
@@ -411,6 +435,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     };
                     if (isRetry) {
                         warnMessageParams.btns = [{
+                            itemId: 'btn-finish',
                             text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'),
                             hnd: function () {
                                 Ext.History.back();
@@ -451,7 +476,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     };
                     if ((!isRetry && failedCount == 0) || (isRetry && warnCount == 0)) {
                         successMsgParams.btns = [
-                            {text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'), ui: 'action', hnd: function () {
+                            {
+                                itemId: 'btn-finish',
+                                text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'), ui: 'action', hnd: function () {
                                 step5panel.removeAll(true);
                                 Ext.History.back();
                             }}
@@ -602,9 +629,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 break;
         }
 
-        widget = Ext.widget(view);
+        widget = Ext.widget(view, {
+            labelWidth: 100,
+        });
 
         if (operation == 'assign') {
+            widget.down('#frm-assign-issue').setTitle('');
+
             widget.down('#issue-assign-action-apply').setVisible(false);
             widget.down('#issue-assign-action-cancel').setVisible(false);
             widget.down('#cbo-workgroup-issue-assignee').setValue(-1);
@@ -634,17 +665,42 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             case 'assign':
                 var userCombo = formPanel.down('#cbo-user-issue-assignee');
                 var workGroupCombo = formPanel.down('#cbo-workgroup-issue-assignee');
+                var userId = userCombo.getValue();
+                var workGroupId = workGroupCombo.getValue();
                 record.set('assignee', {
                     userId: userCombo.getValue(),
                     workGroupId: workGroupCombo.getValue(),
-                    title: userCombo.rawValue
+                    title: userCombo.rawValue,
+                    workGroupTitle: workGroupCombo.rawValue
                 });
                 if (!record.get('allIssues')) {
-                    message = Uni.I18n.translatePlural('issues.selectedIssues.assign.withCount', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
-                        + Uni.I18n.translate('issues.selectedIssues.willBeAssigned', 'ISU','The selected issue(s) will be assigned to {0}',[record.get('assignee').title])
+                    if ((userId == -1) && (workGroupId == -1)) {
+                        message = Uni.I18n.translatePlural('issues.selectedIssues.assign.msg1', record.get('issues').length, 'ISU', '-', '<h3>Unassign one issue?</h3><br>', '<h3>Unassign {0} issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title1', 'ISU', 'The selected issue(s) will be unassigned');
+                    } else if ((userId > -1) && (workGroupId == -1)) {
+                        message = Uni.I18n.translatePlural('issues.selectedIssues.assign.msg2', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title2', 'ISU', 'The selected issue(s) will be assigned to {0} user', userCombo.rawValue)
+                    } else if ((userId == -1) && (workGroupId > -1)) {
+                        message = Uni.I18n.translatePlural('issues.selectedIssues.assign.msg2', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title3', 'ISU', 'The selected issue(s) will be assigned to {0} workgroup', workGroupCombo.rawValue)
+                    } else if ((userId > -1) && (workGroupId > -1)) {
+                        message = Uni.I18n.translatePlural('issues.selectedIssues.assign.msg2', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title4', 'ISU', 'The selected issue(s) will be assigned to {0} workgroup and {1} user', workGroupCombo.rawValue, userCombo.rawValue)
+                    }
                 } else {
-                    message = Uni.I18n.translate('issues.allIssues.willBeAssigned.title', 'ISU', '<h3>Assign all issues to {0}?</h3><br>', [record.get('assignee').title])
-                        + Uni.I18n.translate('issues.allIssues.willBeAssigned', 'ISU','All issues will be assigned to {0}',[record.get('assignee').title]);
+                    if ((userId == -1) && (workGroupId == -1)) {
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg3', record.get('issues').length, 'ISU', '-', '<h3>Unassign all issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title5', 'ISU', 'All issues will be unassigned');
+                    } else if ((userId > -1) && (workGroupId == -1)) {
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', record.get('issues').length, 'ISU', '-', '<h3>Assign all issued?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title6', 'ISU', 'All issues) will be assigned to {0} user', userCombo.rawValue)
+                    } else if ((userId == -1) && (workGroupId > -1)) {
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', record.get('issues').length, 'ISU', '-', '<h3>Assign all issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title7', 'ISU', 'All issues will be assigned to {0} workgroup', workGroupCombo.rawValue)
+                    } else if ((userId > -1) && (workGroupId > -1)) {
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', record.get('issues').length, 'ISU', '-', '<h3>Assign all issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title8', 'ISU', 'All issues will be assigned to {0} workgroup and {1} user', workGroupCombo.rawValue, userCombo.rawValue)
+                    }
                 }
                 break;
 
