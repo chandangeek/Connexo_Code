@@ -14,11 +14,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
     shadow: true,
     items: [
         {
-            xtype: 'component',
-            itemId: 'sharedScheduleWarning',
-            html: ''
-        },
-        {
             xtype: 'container',
             items: [
                 {
@@ -69,11 +64,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
         var me = this;
         this.callParent(arguments);
         this.down('#changeButton').action = this.action;
-        if(this.scheduleName){
-            this.down('#sharedScheduleWarning').html =
-                Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.sharedScheduleWarning.part1', 'MDC', "'{0}' is part of the shared communication schedule '{1}'."),this.comTaskName,this.scheduleName) +
-                '<BR>' + Uni.I18n.translate('deviceCommunicationTask.sharedScheduleWarning.part2', 'MDC', 'Changes will be applied to all other communication tasks in this schedule.');
-        }
         Ext.suspendLayouts();
         switch (this.action) {
             case 'changeConnectionMethodOfDeviceComTask':
