@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
@@ -91,6 +92,11 @@ public class ResourceHelper {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> meteringService.findUsagePoint(id).map(UsagePoint::getVersion).orElse(null))
                         .supplier());
+    }
+
+    public MetrologyPurpose findMetrologyPurposeOrThrowException(long id) {
+        return metrologyConfigurationService.findMetrologyPurpose(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_PURPOSE, id));
     }
 
     public ConcurrentModificationException throwUsagePointLinkedException(String mrid) {

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -272,6 +273,34 @@ public class UsagePointOutputResource {
                         validationService.validate(
                             new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
                             purposeInfo.validationInfo.lastChecked));
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{purposeId}/activate")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response activateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @QueryParam("upVersion") long upVersion, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, upVersion);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyPurpose purpose = resourceHelper.findMetrologyPurposeOrThrowException(purposeId);
+        effectiveMC.activateOptionalMetrologyContract(purpose, Range.atLeast(clock.instant()));
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{purposeId}/deactivate")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response deactivateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @QueryParam("upVersion") long upVersion, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, upVersion);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, purposeId);
+        effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, clock.instant());
 
         return Response.status(Response.Status.OK).build();
     }
