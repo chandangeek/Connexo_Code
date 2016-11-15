@@ -37,7 +37,8 @@ public enum TranslationKeys implements TranslationKey {
     TIMER_NODE("TimerNode", "Timer"),
     TRANSFORMATION_NODE("Transformation", "Transformation"),
     TRIGGER_NODE("Trigger", "Trigger"),
-    WORK_ITEM_NODE("WorkItemNode", "Work item")
+    WORK_ITEM_NODE("WorkItemNode", "Work item"),
+    BPM_ASSIGNEE_UNASSIGNED ("BPMAssigneeUnassigned", "Unassigned")
     ;
 
     private final String key;

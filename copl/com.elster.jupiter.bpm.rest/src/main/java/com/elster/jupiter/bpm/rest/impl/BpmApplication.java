@@ -48,7 +48,7 @@ public class BpmApplication extends Application implements MessageSeedProvider, 
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(BpmResource.class);
+        return ImmutableSet.<Class<?>>of(BpmResource.class, BpmWorkGroupResource.class);
     }
 
     @Override
