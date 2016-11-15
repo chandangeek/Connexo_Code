@@ -1,12 +1,14 @@
 package com.energyict.mdc.channels.serial;
 
+import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.tasks.ConnectionTypeImpl;
+
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.dynamicattributes.StringFactory;
-import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;

@@ -1,12 +1,14 @@
 package com.energyict.mdc.channels.dlms;
 
 
+import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.ConnectionTypeImpl;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dynamicattributes.BigDecimalFactory;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
 

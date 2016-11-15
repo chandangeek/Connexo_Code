@@ -1,9 +1,11 @@
 package com.energyict.mdc.channels.ip;
 
+import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
+import com.energyict.mdc.tasks.ConnectionTypeImpl;
+
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

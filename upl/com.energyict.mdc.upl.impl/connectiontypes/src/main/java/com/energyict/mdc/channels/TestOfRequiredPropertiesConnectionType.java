@@ -1,5 +1,13 @@
 package com.energyict.mdc.channels;
 
+import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
+import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.VoidComChannel;
+import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.tasks.ConnectionTypeImpl;
+
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
@@ -9,13 +17,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.ean.Ean13;
 import com.energyict.ean.Ean18;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileType;
@@ -23,6 +24,7 @@ import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ import java.util.Set;
 @SuppressWarnings("unused") // Pluggable
 public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
 
-    private final static PropertySpec<BigDecimal> BIG_DECIMAL_PROPERTY_SPEC  = PropertySpecFactory.bigDecimalPropertySpec("BigDecimal");
+    private final static PropertySpec<BigDecimal> BIG_DECIMAL_PROPERTY_SPEC = PropertySpecFactory.bigDecimalPropertySpec("BigDecimal");
     private final static PropertySpec<Boolean> BOOLEAN_PROPERTY_SPEC = PropertySpecFactory.booleanPropertySpec("Boolean");
     private final static PropertySpec<Date> DATE_TIME_PROPERTY_SPEC = PropertySpecFactory.dateTimePropertySpec("DateTime");
     private final static PropertySpec<Date> DATE_PROPERTY_SPEC = PropertySpecFactory.datePropertySpec("MyDate");
@@ -80,9 +82,9 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        if (name != null){
-            for (PropertySpec spec: getRequiredProperties()){
-                if (name.equals(spec.getName())){
+        if (name != null) {
+            for (PropertySpec spec : getRequiredProperties()) {
+                if (name.equals(spec.getName())) {
                     return spec;
                 }
             }

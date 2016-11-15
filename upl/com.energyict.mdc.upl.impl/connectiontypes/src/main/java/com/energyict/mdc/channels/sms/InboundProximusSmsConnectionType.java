@@ -1,13 +1,16 @@
 package com.energyict.mdc.channels.sms;
 
+import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 /**
  * An implementation of the {@link com.energyict.mdc.tasks.ConnectionType} interface specific for inbound SMS communication using Proximus as carrier.
