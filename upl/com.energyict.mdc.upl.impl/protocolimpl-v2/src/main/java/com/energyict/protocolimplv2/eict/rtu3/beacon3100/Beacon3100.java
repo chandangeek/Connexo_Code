@@ -92,6 +92,9 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         initDlmsSession(comChannel);
     }
 
+    /**
+     * Can be overridden by the crypto-protocols
+     */
     protected void initDlmsSession(ComChannel comChannel) {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
@@ -175,7 +178,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     }
 
     private boolean testConnectionAndRetryWithFrameCounterIncrements(ComChannel comChannel) {
-        DlmsSession testDlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
+        DlmsSession testDlmsSession = getDlmsSessionForFCTesting(comChannel);
         int retries = getDlmsSessionProperties().getFrameCounterRecoveryRetries();
         int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
         boolean releaseOnce = true;
@@ -220,6 +223,13 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         testDlmsSession.disconnect();
         getLogger().warning("Could not validate the frame counter, seems that it's out-of synch whith the device. You'll have to read a fresh one.");
         return false;
+    }
+
+    /**
+     * Sub classes (for example the crypto-protocol) can override
+     */
+    protected DlmsSession getDlmsSessionForFCTesting(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties());
     }
 
     private void setTXFrameCounter(long frameCounter) {
@@ -583,7 +593,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-14 17:24:27 +0100 (Mon, 14 Nov 2016)$";
+        return "$Date: 2016-11-15 11:14:48 +0100 (Tue, 15 Nov 2016)$";
     }
 
     @Override

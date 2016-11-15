@@ -154,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-14 17:24:27 +0100 (Mon, 14 Nov 2016)$";
+        return "$Date: 2016-11-15 11:14:48 +0100 (Tue, 15 Nov 2016)$";
     }
 
     /**
@@ -285,7 +285,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     }
 
     protected boolean testConnectionAndRetryWithFrameCounterIncrements(ComChannel comChannel) {
-        DlmsSession testDlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
+        DlmsSession testDlmsSession = getDlmsSessionForFCTesting(comChannel);
         int retries = getDlmsSessionProperties().getFrameCounterRecoveryRetries();
         int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
         boolean releaseOnce = true;
@@ -330,6 +330,13 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         testDlmsSession.disconnect();
         getLogger().warning("Could not validate the frame counter, seems that it's out-of synch whith the device. You'll have to read a fresh one.");
         return false;
+    }
+
+    /**
+     * Sub classes (for example the crypto-protocol) can override
+     */
+    protected DlmsSession getDlmsSessionForFCTesting(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties());
     }
 
     /**
