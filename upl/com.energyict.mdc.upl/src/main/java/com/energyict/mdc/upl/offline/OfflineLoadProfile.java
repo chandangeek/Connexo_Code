@@ -1,12 +1,11 @@
 package com.energyict.mdc.upl.offline;
 
 import com.energyict.obis.ObisCode;
-import com.google.common.collect.Range;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public interface OfflineLoadProfile extends Offline {
      * @return the integration period.
      */
     @XmlAttribute
-    Range<Instant> getInterval();
+    TemporalAmount getInterval();
 
     /**
      * return the end time of the last interval read from the device.
