@@ -27,23 +27,12 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.name', 'DSH', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.communicationTask', 'DSH', 'Communication task'),
                     name: 'name'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTasks', 'DSH', 'Communication task(s)'),
-                    name: 'comTasks',
-                        renderer: function(value){
-                            if(!Ext.isEmpty(value)){
-                                var result = '';
-                                Ext.each(value, function(item){
-                                    result = result + '<li>'+ Ext.String.htmlEncode(item.name)+'</li>'
-                                });
-                                return result;
-                            } else {
-                                return '-';
-                            }
-                    }
+                    fieldLabel: Uni.I18n.translate('general.sharedCommunicationSchedule', 'DSH', 'Shared communication schedule'),
+                    name: 'comScheduleName'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.device', 'DSH', 'Device'),
