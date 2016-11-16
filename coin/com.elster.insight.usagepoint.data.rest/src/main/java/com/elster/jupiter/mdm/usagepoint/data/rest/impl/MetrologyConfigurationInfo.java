@@ -23,6 +23,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.net.URL;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,12 +43,15 @@ public class MetrologyConfigurationInfo {
 
     @JsonIgnore
     public Thesaurus thesaurus;
+    @JsonIgnore
+    public Clock clock;
 
     public MetrologyConfigurationInfo() {
     }
 
-    public MetrologyConfigurationInfo(UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint, Thesaurus thesaurus, ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+    public MetrologyConfigurationInfo(UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint, Thesaurus thesaurus, Clock clock, ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
         this.thesaurus = thesaurus;
+        this.clock = clock;
         this.id = metrologyConfiguration.getId();
         this.name = metrologyConfiguration.getName();
         this.version = metrologyConfiguration.getVersion();
@@ -128,7 +132,7 @@ public class MetrologyConfigurationInfo {
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.description = metrologyContract.getMetrologyPurpose().getDescription();
         info.required = metrologyContract.isMandatory();
-        info.active = info.required;
+        info.active = usagePoint.getEffectiveMetrologyConfiguration(clock.instant()).flatMap(mc -> mc.getChannelsContainer(metrologyContract)).isPresent();
         info.meterRoles = asInfoList(metrologyConfiguration, usagePoint);
         IdWithNameInfo metrologyContractStatus = new IdWithNameInfo();
         metrologyContractStatus.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
