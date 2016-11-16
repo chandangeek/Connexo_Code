@@ -51,6 +51,7 @@ public enum MessageSeeds implements MessageSeed {
     VALID_TRANSITIONS(2030, Constants.VALID_TRANSITIONS, "In case of non recurring transitions, a transition at or before the first day of the start year is required.", Level.SEVERE),
     DUPLICATE_CATEGORY_NAME(2031, Constants.DUPLICATE_CATEGORY_NAME, "The category name must be unique.", Level.SEVERE),
     CATEGORY_NOT_FOUND(2032, Constants.CATEGORY_NOT_FOUND, "The category {0} does not exist."),
+    EVENTSET_NAME_FIELD_TOO_LONG(2033, Constants.EVENTSET_NAME_FIELD_TOO_LONG, "Event Set name is too long, it must not exceed 80 characters.", Level.SEVERE),
     ;
 
     private final int number;
@@ -135,6 +136,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CALENDAR_CREATED = "calendar.import.calendar.created";
         public static final String CALENDAR_UPDATED = "calendar.import.calendar.updated";
         public static final String CAL_NAME_FIELD_TOO_LONG = "calendar.calendar.name.too.long";
+        public static final String EVENTSET_NAME_FIELD_TOO_LONG = "calendar.eventset.name.too.long";
         public static final String CATEGORY_NAME_FIELD_TOO_LONG = "calendar.category.name.too.long";
         public static final String DAYTYPE_NAME_FIELD_TOO_LONG = "calendar.daytype.name.too.long";
         public static final String EVENT_NAME_FIELD_TOO_LONG = "calendar.event.name.too.long";

@@ -6,6 +6,7 @@ import com.elster.jupiter.calendar.CalendarResolver;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.CalendarStatusTranslationKeys;
 import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -173,10 +174,15 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
-    public CalendarBuilder newCalendar(String name, Year start) {
-        CalendarBuilderImpl builder = new CalendarBuilderImpl(getDataModel());
+    public CalendarBuilder newCalendar(String name, Year start, EventSet eventSet) {
+        CalendarBuilderImpl builder = new CalendarBuilderImpl(getDataModel(), eventSet);
         builder.init(name, start);
         return builder;
+    }
+
+    @Override
+    public EventSetBuilder newEventSet(String name) {
+        return new EventSetBuilderImpl(dataModel, name);
     }
 
     @Override

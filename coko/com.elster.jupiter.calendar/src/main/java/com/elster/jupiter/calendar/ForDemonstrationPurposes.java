@@ -14,13 +14,15 @@ import java.time.Year;
 public class ForDemonstrationPurposes {
     public static void main(String[] args) {
         CalendarService service = null;
+        EventSet eventSet = service.newEventSet("Test")
+                .addEvent("On peak").withCode(3)
+                .addEvent("Off peak").withCode(5)
+                .addEvent("Demand response").withCode(97)
+                .add();
         Calendar robsExample = service
-            .newCalendar("Test", Year.of(2010))
+            .newCalendar("Test", Year.of(2010), eventSet)
             .description("Description remains to be completed :-)")
             .mRID("Sample-TOU-rates")
-            .addEvent("On peak", 3)
-            .addEvent("Off peak", 5)
-            .addEvent("Demand response", 97)
             .newDayType("Summer weekday")
                 .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                 .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))

@@ -4,8 +4,6 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.orm.DataModel;
 
-import java.util.Optional;
-
 /**
  * Created by igh on 21/04/2016.
  */
@@ -25,22 +23,22 @@ public class DayTypeBuilderImpl implements CalendarService.DayTypeBuilder {
 
     @Override
     public CalendarService.DayTypeEventOccurrenceBuilder event(String eventName) {
-        Optional<Event> event =
-                calendarImpl.getEvents().stream().filter(evt -> evt.getName().equals(eventName)).findAny();
-        if (!event.isPresent()) {
-            throw new IllegalArgumentException("No event defined yet with name '" + eventName + "'");
-        }
-        return new DayTypeEventOccurrenceBuilderImpl(dataModel, this, dayTypeImpl, event.get());
+        Event event = calendarImpl.getEvents()
+                .stream()
+                .filter(evt -> evt.getName().equals(eventName))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("No event defined yet with name '" + eventName + "'"));
+        return new DayTypeEventOccurrenceBuilderImpl(dataModel, this, dayTypeImpl, event);
     }
 
     @Override
     public CalendarService.DayTypeEventOccurrenceBuilder eventWithCode(int code) {
-        Optional<Event> event =
-                calendarImpl.getEvents().stream().filter(evt -> evt.getCode() == code).findAny();
-        if (!event.isPresent()) {
-            throw new IllegalArgumentException("No event defined yet with code '" + code + "'");
-        }
-        return new DayTypeEventOccurrenceBuilderImpl(dataModel, this, dayTypeImpl, event.get());
+        Event event = calendarImpl.getEvents()
+                .stream()
+                .filter(evt -> evt.getCode() == code)
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("No event defined yet with code '" + code + "'"));
+        return new DayTypeEventOccurrenceBuilderImpl(dataModel, this, dayTypeImpl, event);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.elster.jupiter.calendar.impl;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -26,7 +26,7 @@ class EventImpl implements Event {
         ID("id"),
         NAME("name"),
         CODE("code"),
-        CALENDAR("calendar");
+        EVENTSET("eventSet");
 
         private String javaFieldName;
 
@@ -46,7 +46,7 @@ class EventImpl implements Event {
     private String name;
     private long code;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<Calendar> calendar = ValueReference.absent();
+    private Reference<EventSet> eventSet = ValueReference.absent();
 
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
@@ -64,9 +64,9 @@ class EventImpl implements Event {
         this.calendarService = calendarService;
     }
 
-    public EventImpl init(Calendar calendar, String name, long code) {
+    public EventImpl init(EventSet eventSet, String name, long code) {
         this.name = name;
-        this.calendar.set(calendar);
+        this.eventSet.set(eventSet);
         this.code = code;
         return this;
     }
@@ -84,11 +84,6 @@ class EventImpl implements Event {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public Calendar getCalendar() {
-        return this.calendar.orNull();
     }
 
     @Override

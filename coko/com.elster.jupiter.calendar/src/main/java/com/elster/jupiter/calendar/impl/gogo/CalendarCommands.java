@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl.gogo;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -91,14 +92,16 @@ public class CalendarCommands {
     public void createCalendar(String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            calendarService.newCalendar(name, Year.of(2010))
+            EventSet eventSet = calendarService.newEventSet(name)
+                    .addEvent("On peak").withCode(3)
+                    .addEvent("Off peak").withCode(5)
+                    .addEvent("Demand response").withCode(97)
+                    .add();
+            calendarService.newCalendar(name, Year.of(2010), eventSet)
                     .endYear(Year.of(2020))
                     .description("Description remains to be completed :-)")
                     .category(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get())
                     .mRID(name)
-                    .addEvent("On peak", 3)
-                    .addEvent("Off peak", 5)
-                    .addEvent("Demand response", 97)
                     .newDayType("Summer weekday")
                         .event("Off peak").startsFrom(LocalTime.of(0,0,0))
                         .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
@@ -147,11 +150,13 @@ public class CalendarCommands {
     public void createEiserverActivityCalendar(String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            calendarService.newCalendar(name, Year.of(2009))
+            EventSet eventSet = calendarService.newEventSet(name)
+                    .addEvent("One").withCode(1)
+                    .addEvent("Three").withCode(3)
+                    .addEvent("Four").withCode(4)
+                    .add();
+            calendarService.newCalendar(name, Year.of(2009), eventSet)
                     .description("Conforms to typical old style eiServer Code, as expected by legacy protocols")
-                    .addEvent("One", 1)
-                    .addEvent("Three", 3)
-                    .addEvent("Four", 4)
                     .newDayType("Day1")
                         .eventWithCode(4).startsFrom(LocalTime.of(7, 0, 0))
                         .eventWithCode(3).startsFrom(LocalTime.of(18, 0, 0))

@@ -4,6 +4,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.orm.DataModel;
 
@@ -20,9 +21,9 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
     private DataModel dataModel;
     private CalendarImpl calendarImpl;
 
-    public CalendarBuilderImpl(DataModel dataModel) {
+    public CalendarBuilderImpl(DataModel dataModel, EventSet eventSet) {
         this.dataModel = dataModel;
-        this.calendarImpl = this.dataModel.getInstance(CalendarImpl.class);
+        this.calendarImpl = CalendarImpl.from(dataModel, eventSet);
         this.calendarImpl.setStatus(Status.INACTIVE);
     }
 
@@ -69,12 +70,6 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
     @Override
     public CalendarService.CalendarBuilder description(String description) {
         this.calendarImpl.setDescription(description);
-        return this;
-    }
-
-    @Override
-    public CalendarService.CalendarBuilder addEvent(String name, int code) {
-        this.calendarImpl.addEvent(name, code);
         return this;
     }
 

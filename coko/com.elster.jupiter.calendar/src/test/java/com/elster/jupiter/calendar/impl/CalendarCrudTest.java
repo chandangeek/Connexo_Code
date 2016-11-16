@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
@@ -81,14 +82,17 @@ public class CalendarCrudTest {
     // formula = Requirement
     public void testCalendarCrudByBuilder() {
         CalendarService service = getCalendarService();
-        service.newCalendar("Test", Year.of(2010))
+        EventSet eventSet = service.newEventSet("eventset")
+                .addEvent("On peak").withCode(3)
+                .addEvent("Off peak").withCode(5)
+                .addEvent("Demand response").withCode(97)
+                .add();
+
+        service.newCalendar("Test", Year.of(2010), eventSet)
                 .category(service.findCategoryByName("TOU").orElseThrow(AssertionError::new))
                 .description("Description remains to be completed :-)")
                 .endYear(Year.of(2018))
                 .mRID("Sample-TOU-rates")
-                .addEvent("On peak", 3)
-                .addEvent("Off peak", 5)
-                .addEvent("Demand response", 97)
                 .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                     .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
@@ -224,13 +228,16 @@ public class CalendarCrudTest {
     public void testNullName() {
         try {
             CalendarService service = getCalendarService();
-            service.newCalendar(null, Year.of(2010))
+            EventSet eventSet = service.newEventSet("eventset")
+                    .addEvent("On peak").withCode(3)
+                    .addEvent("Off peak").withCode(5)
+                    .addEvent("Demand response").withCode(97)
+                    .add();
+
+            service.newCalendar(null, Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
                     .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
-                    .addEvent("On peak", 3)
-                    .addEvent("Off peak", 5)
-                    .addEvent("Demand response", 97)
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                     .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
@@ -266,13 +273,16 @@ public class CalendarCrudTest {
     public void testEmptyName() {
         try {
             CalendarService service = getCalendarService();
-            service.newCalendar("", Year.of(2010))
+            EventSet eventSet = service.newEventSet("eventset")
+                    .addEvent("On peak").withCode(3)
+                    .addEvent("Off peak").withCode(5)
+                    .addEvent("Demand response").withCode(97)
+                    .add();
+
+            service.newCalendar("", Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
                     .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
-                    .addEvent("On peak", 3)
-                    .addEvent("Off peak", 5)
-                    .addEvent("Demand response", 97)
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                     .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
@@ -308,12 +318,16 @@ public class CalendarCrudTest {
     public void testNoStartYear() {
         try {
             CalendarService service = getCalendarService();
-            service.newCalendar("test", null) .description("Description remains to be completed :-)")
+            EventSet eventSet = service.newEventSet("eventset")
+                    .addEvent("On peak").withCode(3)
+                    .addEvent("Off peak").withCode(5)
+                    .addEvent("Demand response").withCode(97)
+                    .add();
+
+            service.newCalendar("test", null, eventSet)
+                    .description("Description remains to be completed :-)")
                     .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
-                    .addEvent("On peak", 3)
-                    .addEvent("Off peak", 5)
-                    .addEvent("Demand response", 97)
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                     .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
@@ -350,12 +364,16 @@ public class CalendarCrudTest {
     public void testNoPeriods() {
         try {
             CalendarService service = getCalendarService();
-            service.newCalendar("test", Year.of(2010)) .description("Description remains to be completed :-)")
+            EventSet eventSet = service.newEventSet("eventset")
+                    .addEvent("On peak").withCode(3)
+                    .addEvent("Off peak").withCode(5)
+                    .addEvent("Demand response").withCode(97)
+                    .add();
+
+            service.newCalendar("test", Year.of(2010), eventSet)
+                    .description("Description remains to be completed :-)")
                     .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
-                    .addEvent("On peak", 3)
-                    .addEvent("Off peak", 5)
-                    .addEvent("Demand response", 97)
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                     .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
@@ -389,13 +407,16 @@ public class CalendarCrudTest {
     public void testInvalidDayTypeForWednesday() {
         try {
             CalendarService service = getCalendarService();
-            service.newCalendar("test", Year.of(2010))
+            EventSet eventSet = service.newEventSet("eventset")
+                    .addEvent("On peak").withCode(3)
+                    .addEvent("Off peak").withCode(5)
+                    .addEvent("Demand response").withCode(97)
+                    .add();
+
+            service.newCalendar("test", Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
                     .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
-                    .addEvent("On peak", 3)
-                    .addEvent("Off peak", 5)
-                    .addEvent("Demand response", 97)
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                     .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
@@ -465,14 +486,17 @@ public class CalendarCrudTest {
     @Transactional
     public void testRemove() {
         CalendarService service = getCalendarService();
-        service.newCalendar("Test", Year.of(2010))
+        EventSet eventSet = service.newEventSet("eventset")
+                .addEvent("On peak").withCode(3)
+                .addEvent("Off peak").withCode(5)
+                .addEvent("Demand response").withCode(97)
+                .add();
+
+        service.newCalendar("Test", Year.of(2010), eventSet)
                 .endYear(Year.of(2018))
                 .category(service.findCategoryByName("TOU").orElseThrow(AssertionError::new))
                 .description("Description remains to be completed :-)")
                 .mRID("Sample-TOU-rates")
-                .addEvent("On peak", 3)
-                .addEvent("Off peak", 5)
-                .addEvent("Demand response", 97)
                 .newDayType("Summer weekday")
                 .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
                 .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))

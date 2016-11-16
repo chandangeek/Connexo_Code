@@ -34,6 +34,4 @@ public interface Event extends HasId, HasName {
 
     String getUserName();
 
-    Calendar getCalendar();
-
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
@@ -34,6 +35,17 @@ public enum TableSpecs {
             table.primaryKey("CAL_PK_CATEGORY").on(idColumn).add();
         }
     },
+    CAL_EVENTSET {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<EventSet> table = dataModel.addTable(name(), EventSet.class);
+            table.since(version(10, 3));
+            table.map(EventSetImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.column("NAME").varChar().notNull().map(EventSetImpl.Fields.NAME.fieldName()).add();
+            table.primaryKey("CAL_PK_EVENTSET").on(idColumn).add();
+        }
+    },
     CAL_CALENDAR {
         @Override
         public void addTo(DataModel dataModel) {
@@ -50,6 +62,7 @@ public enum TableSpecs {
             table.column("TIMEZONENAME").varChar().map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).upTo(version(10, 3)).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
             table.column("STATUS").number().notNull().map(CalendarImpl.Fields.STATUS.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).since(Version.version(10, 3)).installValue(String.valueOf(Status.INACTIVE.ordinal())).add();
+            Column eventSetColumn = table.column("EVENTSET").number().notNull().since(version(10, 3)).add();
             table.setJournalTableName("CAL_CALENDARJRNL");
             table.addAuditColumns();
             table.primaryKey("CAL_PK_CALENDAR").on(idColumn).add();
@@ -58,6 +71,11 @@ public enum TableSpecs {
                     .references(Category.class)
                     .on(categoryColumn)
                     .map(CalendarImpl.Fields.CATEGORY.fieldName())
+                    .add();
+            table.foreignKey("CAL_CAL_TO_EVENTSET")
+                    .references(EventSet.class)
+                    .on(eventSetColumn)
+                    .map(CalendarImpl.Fields.EVENTSET.fieldName())
                     .add();
         }
     },
@@ -70,15 +88,23 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(EventImpl.Fields.NAME.fieldName()).add();
             table.column("CODE").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(EventImpl.Fields.CODE.fieldName()).add();
-            Column calendarColumn = table.column("calendar").number().notNull().add();
+            Column calendarColumn = table.column("calendar").number().notNull().upTo(version(10, 3)).add();
+            Column eventSetColumn = table.column(EventImpl.Fields.EVENTSET.fieldName()).number().notNull().since(version(10, 3)).add();
             table.setJournalTableName("CAL_EVENTJRNL");
             table.addAuditColumns();
             table.primaryKey("CAL_PK_EVENT").on(idColumn).add();
             table.foreignKey("CAL_EVENT_TO_CALENDAR")
+                    .upTo(version(10, 3))
                     .references(Calendar.class)
+                    .map("calendar")
                     .on(calendarColumn)
-                    .map(EventImpl.Fields.CALENDAR.fieldName())
-                    .reverseMap(CalendarImpl.Fields.EVENTS.fieldName())
+                    .add();
+            table.foreignKey("CAL_EVENT_TO_SET")
+                    .since(version(10, 3))
+                    .references(EventSet.class)
+                    .on(eventSetColumn)
+                    .map(EventImpl.Fields.EVENTSET.fieldName())
+                    .reverseMap(EventSetImpl.Fields.EVENTS.fieldName())
                     .add();
         }
     },

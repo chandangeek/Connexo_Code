@@ -30,7 +30,9 @@ public interface CalendarService {
      * @param start The year from which any timeline will start
      * @return The CalendarBuilder
      */
-    CalendarBuilder newCalendar(String name, Year start);
+    CalendarBuilder newCalendar(String name, Year start, EventSet eventSet);
+
+    EventSetBuilder newEventSet(String name);
 
     List<Calendar> findAllCalendars();
 
@@ -58,13 +60,22 @@ public interface CalendarService {
         CalendarBuilder endYear(Year setStartYear);
         CalendarBuilder mRID(String mRID);
         CalendarBuilder description(String description);
-        CalendarBuilder addEvent(String name, int code);
         DayTypeBuilder newDayType(String name);
         CalendarBuilder addPeriod(String name, String mondayDayTypeName, String tuesdayDayTypeName, String wednesdayDayTypeName, String thursdayDayTypeName, String fridayDayTypeName, String saturdayDayTypeName, String sundayDayTypeName);
         TransitionBuilder on(MonthDay occurrence);
         TransitionBuilder on(LocalDate occurrence);
         ExceptionBuilder except(String dayTypeName);
         Calendar add();
+    }
+
+    @ProviderType
+    interface EventSetBuilder {
+        EventBuilder addEvent(String name);
+        EventSet add();
+
+        interface EventBuilder {
+            EventSetBuilder withCode(int code);
+        }
     }
 
     @ProviderType

@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.EventType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
@@ -19,7 +20,9 @@ import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
@@ -60,8 +63,8 @@ class CalendarImpl implements Calendar {
         PERIODS("periods"),
         EXCEPTIONAL_OCCURRENCES("exceptionalOccurrences"),
         PERIOD_TRANSITION_SPECS("periodTransitionSpecs"),
-        EVENTS("events"),
-        STATUS("status");
+        STATUS("status"),
+        EVENTSET("eventSet");
 
         private final String javaFieldName;
 
@@ -101,8 +104,8 @@ class CalendarImpl implements Calendar {
     private String userName;
 
     private Reference<Category> category = ValueReference.absent();
-    @Valid
-    private List<Event> events = new ArrayList<>();
+    @IsPresent
+    private Reference<EventSet> eventSet = ValueReference.absent();
     @Size(min = 1, message = "{" + MessageSeeds.Constants.DAYTYPES_REQUIRED + "}")
     @Valid
     private List<DayType> dayTypes = new ArrayList<>();
@@ -121,6 +124,15 @@ class CalendarImpl implements Calendar {
     CalendarImpl(ServerCalendarService calendarService, EventService eventService) {
         this.calendarService = calendarService;
         this.eventService = eventService;
+    }
+
+    static CalendarImpl from(DataModel dataModel, EventSet eventSet) {
+        return dataModel.getInstance(CalendarImpl.class).init(eventSet);
+    }
+
+    private CalendarImpl init(EventSet eventSet) {
+        this.eventSet.set(eventSet);
+        return this;
     }
 
     @Override
@@ -204,7 +216,6 @@ class CalendarImpl implements Calendar {
 
     private void doSave() {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
-        saveEvents();
         saveDayTypes();
         savePeriods();
         savePeriodTransitionSpecs();
@@ -229,12 +240,8 @@ class CalendarImpl implements Calendar {
         for (DayType dayType : savedCalendar.getDayTypes()) {
             ((DayTypeImpl) dayType).delete();
         }
-        for (Event event : savedCalendar.getEvents()) {
-            ((EventImpl) event).delete();
-        }
 
         Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
-        saveEvents();
         saveDayTypes();
         savePeriods();
         savePeriodTransitionSpecs();
@@ -253,14 +260,7 @@ class CalendarImpl implements Calendar {
         periodTransitionSpecs.clear();
         periods.clear();
         dayTypes.clear();
-        events.clear();
         return new CalendarBuilderImpl(calendarService.getDataModel(), this);
-    }
-
-    private void saveEvents() {
-        for (Event event : events) {
-            ((EventImpl) event).save();
-        }
     }
 
     private void saveDayTypes() {
@@ -310,9 +310,6 @@ class CalendarImpl implements Calendar {
         for (DayType dayType : savedCalendar.getDayTypes()) {
             ((DayTypeImpl) dayType).delete();
         }
-        for (Event event : savedCalendar.getEvents()) {
-            ((EventImpl) event).delete();
-        }
         calendarService.getDataModel().remove(this);
         eventService.postEvent(EventType.CALENDAR_DELETE.topic(), this);
     }
@@ -324,7 +321,7 @@ class CalendarImpl implements Calendar {
 
     @Override
     public List<Event> getEvents() {
-        return Collections.unmodifiableList(this.events);
+        return eventSet.get().getEvents();
     }
 
     @Override
@@ -428,13 +425,6 @@ class CalendarImpl implements Calendar {
         Save.CREATE.validate(calendarService.getDataModel(), periodTransitionSpec);
         this.periodTransitionSpecs.add(periodTransitionSpec);
         return periodTransitionSpec;
-    }
-
-    Event addEvent(String name, long code) {
-        EventImpl event = calendarService.getDataModel().getInstance(EventImpl.class).init(this, name, code);
-        Save.CREATE.validate(calendarService.getDataModel(), event);
-        this.events.add(event);
-        return event;
     }
 
     public Year getStartYear() {

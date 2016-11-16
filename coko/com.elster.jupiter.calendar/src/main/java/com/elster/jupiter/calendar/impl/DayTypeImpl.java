@@ -138,7 +138,7 @@ class DayTypeImpl implements DayType {
          for (EventOccurrence eventOccurrence : eventOccurrences) {
              Event event = this.getCalendar().getEvents()
                      .stream()
-                     .filter(evt -> evt.getName().equals(eventOccurrence.getEvent().getName())).findFirst().get();
+                     .filter(evt -> evt.getName().equals(eventOccurrence.getEvent().getName())).findAny().get();
 
              ((EventOccurrenceImpl) eventOccurrence).setEvent(event);
          }

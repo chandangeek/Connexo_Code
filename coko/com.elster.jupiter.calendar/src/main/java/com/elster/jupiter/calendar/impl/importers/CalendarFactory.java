@@ -60,7 +60,7 @@ public class CalendarFactory {
                         .mRID(getMRID()))
                 .orElseGet(() -> calendarService.newCalendar(
                         getCalendarName(),
-                        getStartYear())
+                        getStartYear(), null)
                         .description(getDescription()).mRID(getMRID()));
         builder.category(category);
 
@@ -70,7 +70,7 @@ public class CalendarFactory {
             String eventName = getEventName(event);
             int eventCode = getEventCode(event);
             events.put(eventId, eventName);
-            builder.addEvent(eventName, eventCode);
+// TODO            builder.addEvent(eventName, eventCode);
         }
 
         dayTypes = new HashMap<>(); // needed for periods (has a link to daytypes on code) and builder api requires daytype name
