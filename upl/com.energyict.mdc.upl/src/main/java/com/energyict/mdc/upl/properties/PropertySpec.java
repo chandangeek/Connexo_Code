@@ -2,6 +2,9 @@ package com.energyict.mdc.upl.properties;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Models the specification of a dynamic property of a protocol.
  * A property has a name that uniquely identifies it and
@@ -15,7 +18,7 @@ import aQute.bnd.annotation.ConsumerType;
  * @since 2016-10-28 (14:50)
  */
 @ConsumerType
-public interface PropertySpec {
+public interface PropertySpec<T> {
 
     /**
      * Gets the name of this PropertySpec.
@@ -45,7 +48,7 @@ public interface PropertySpec {
     /**
      * Tests if a value will be required for this PropertySpec.
      *
-     * @return true iff a value will be required
+     * @return true if a value will be required
      */
     boolean isRequired();
 
@@ -62,5 +65,19 @@ public interface PropertySpec {
      * @throws PropertyValidationException Thrown if the value is not valid for this attribute specification.
      */
     boolean validateValue(Object value) throws PropertyValidationException;
+
+    /**
+     * @return the Default value defined for this PropertySpec
+     */
+    Optional<T> getDefaultValue();
+
+    /**
+     * Provides a list of possible values for the PropertySpec. Every value should only occur once.
+     * If a default value is applicable for this PropertySpec, then it should also be included in this list.
+     * This list can be empty.
+     *
+     * @return the list of possible values for this PropertySpec
+     */
+    List<T> getPossibleValues();
 
 }
