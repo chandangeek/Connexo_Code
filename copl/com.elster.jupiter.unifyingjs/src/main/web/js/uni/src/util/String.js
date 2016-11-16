@@ -70,5 +70,22 @@ Ext.define('Uni.util.String', {
     replaceAll: function (param, searchIndex, replaceValue) {
         var lookup = '\{[' + searchIndex + ']\}';
         return param.replace(new RegExp(lookup, 'g'), replaceValue);
+    },
+
+    /**
+     * Method to replace ExtJS's not-always-correctly-working Ext.util.Format.stripTags() [used @ Uni.grid.plugin.ShowConditionalToolTip]
+     * since parsing HTML with regex is a bad idea: http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags
+     * Idea: http://stackoverflow.com/questions/5002111/javascript-how-to-strip-html-tags-from-string
+     * @param stringToStrip
+     * @returns {string|string} the stripped text
+     */
+    stripTags: function(stringToStrip) {
+        if (Ext.isEmpty(stringToStrip)) {
+            return stringToStrip;
+        }
+        var div = document.createElement("div");
+        div.innerHTML = stringToStrip;
+        return div.textContent || div.innerText || "";
     }
+
 });
