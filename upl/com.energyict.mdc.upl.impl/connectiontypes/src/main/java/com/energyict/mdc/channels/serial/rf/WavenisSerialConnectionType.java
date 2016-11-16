@@ -1,11 +1,5 @@
 package com.energyict.mdc.channels.serial.rf;
 
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.dynamicattributes.BigDecimalFactory;
-import com.energyict.dynamicattributes.StringFactory;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
@@ -16,8 +10,15 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecBuilder;
+import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.dynamicattributes.StringFactory;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;

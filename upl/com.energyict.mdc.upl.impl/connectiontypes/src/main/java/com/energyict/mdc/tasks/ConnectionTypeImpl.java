@@ -12,8 +12,8 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Properties;
  */
 public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.ConnectionType {
 
-    private TypedProperties properties = TypedProperties.empty();
+    private TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
 
     public ConnectionTypeImpl() {
         super();
@@ -39,7 +39,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
 
     @Override
     public void setProperties(Properties properties) throws PropertyValidationException {
-        this.properties = TypedProperties.copyOf(properties);
+        this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
     }
 
     protected TypedProperties getAllProperties() {
@@ -59,7 +59,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     }
 
     @Override
-    public void disconnect(ComChannel comChannel) {
+    public void disconnect(ComChannel comChannel) throws ConnectionException{
         // Prepare the comChannel for disconnect
         comChannel.prepareForDisConnect();
 
@@ -155,7 +155,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * This is used by the protocols to determine the transport layer.
      */
     public static TypedProperties createTypeProperty(ComChannelType comChannelType) {
-        TypedProperties typedProperties = TypedProperties.empty();
+        TypedProperties typedProperties = com.energyict.cpo.TypedProperties.empty();
         typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
         return typedProperties;
     }

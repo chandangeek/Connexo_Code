@@ -1,7 +1,9 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
+
+import com.energyict.cpo.PropertySpec;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

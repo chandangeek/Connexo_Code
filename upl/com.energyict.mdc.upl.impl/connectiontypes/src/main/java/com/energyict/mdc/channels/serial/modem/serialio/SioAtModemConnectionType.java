@@ -1,14 +1,15 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+
+import com.energyict.cpo.PropertySpec;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ModemException;
 
 import javax.xml.bind.annotation.XmlRootElement;

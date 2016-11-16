@@ -1,14 +1,14 @@
 package com.energyict.mdc.channels.serial.modem.rxtx;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.protocol.exceptions.ModemException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,15 +29,15 @@ public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
     private AtModemComponent atModemComponent;
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect(TypedProperties properties) throws ConnectionException {
 
         this.atModemComponent = ManagerFactory.getCurrent().getSerialComponentFactory().newAtModemComponent(new TypedAtModemProperties(properties));
         /*
         create the serial ComChannel and set all property values
          */
-        ComChannel comChannel = super.connect(comPort, properties);
+        ComChannel comChannel = super.connect(properties);
         try {
-            atModemComponent.connect(comPort.getName(), comChannel);
+            atModemComponent.connect(getComPortName(properties), comChannel);
         } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             if (e instanceof ModemException) {

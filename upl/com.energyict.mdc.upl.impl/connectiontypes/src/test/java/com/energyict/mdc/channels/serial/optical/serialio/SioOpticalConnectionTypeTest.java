@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.serial.optical.serialio;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

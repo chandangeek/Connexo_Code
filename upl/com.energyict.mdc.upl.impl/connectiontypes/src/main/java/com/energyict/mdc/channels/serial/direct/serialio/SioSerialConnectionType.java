@@ -1,8 +1,5 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.AbstractSerialConnectionType;
 import com.energyict.mdc.channels.serial.BaudrateValue;
@@ -10,8 +7,12 @@ import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecBuilder;
+import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;

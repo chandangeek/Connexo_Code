@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.cbo.TimeDuration;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -53,11 +54,11 @@ public final class UPLPropertySpecFactory {
         return new StringPropertySpec(name, required);
     }
 
-    public static PropertySpec<String> string(String name, boolean required, String... possibleValues){
+    public static PropertySpec<String> string(String name, boolean required, String... possibleValues) {
         return new StringPropertySpec(name, required, possibleValues);
     }
 
-    public static PropertySpec<String> string(String name, boolean required, String defaultValue, String... possibleValues){
+    public static PropertySpec<String> string(String name, String defaultValue, boolean required, String... possibleValues) {
         StringPropertySpec stringPropertySpec = new StringPropertySpec(name, required, possibleValues);
         stringPropertySpec.setDefaultValue(defaultValue);
         return stringPropertySpec;
@@ -87,6 +88,13 @@ public final class UPLPropertySpecFactory {
         return new CharPropertySpec(name, required, possibleValues);
     }
 
+    public static PropertySpec<TimeDuration> timeDuration(String name, TimeDuration defaultValue, boolean required, boolean onlySmallUnits) {
+        TimeDurationPropertySpec timeDurationPropertySpec = new TimeDurationPropertySpec(name, required, onlySmallUnits);
+        timeDurationPropertySpec.setDefaultValue(defaultValue);
+        return timeDurationPropertySpec;
+    }
+
     // Hide utility class constructor
-    private UPLPropertySpecFactory() {}
+    private UPLPropertySpecFactory() {
+    }
 }
