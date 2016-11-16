@@ -44,13 +44,11 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     private PropertySpec timeoutPropertySpec() {
-        // Todo: provide default value: DEFAULT_TIMEOUT
-        return UPLPropertySpecFactory.bigDecimal(TIMEOUT_PROPERTY_NAME, false);
+        return UPLPropertySpecFactory.bigDecimal(TIMEOUT_PROPERTY_NAME, false, DEFAULT_TIMEOUT);
     }
 
     private PropertySpec retriesPropertySpec() {
-        // Todo: provide default value: DEFAULT_RETRIES
-        return UPLPropertySpecFactory.bigDecimal(RETRIES_PROPERTY_NAME, false);
+        return UPLPropertySpecFactory.bigDecimal(RETRIES_PROPERTY_NAME, false, DEFAULT_RETRIES);
     }
 
 }

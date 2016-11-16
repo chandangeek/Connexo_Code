@@ -63,13 +63,11 @@ class ACE4000Properties {
     }
 
     private PropertySpec timeoutPropertySpec() {
-        // Todo: provide default value: DEFAULT_TIMEOUT
-        return UPLPropertySpecFactory.bigDecimal(TIMEOUT, false);
+        return UPLPropertySpecFactory.bigDecimal(TIMEOUT, false, DEFAULT_TIMEOUT);
     }
 
     private PropertySpec retriesPropertySpec() {
-        // Todo: provide default value: DEFAULT_RETRIES
-        return UPLPropertySpecFactory.bigDecimal(RETRIES, false);
+        return UPLPropertySpecFactory.bigDecimal(RETRIES, false, DEFAULT_RETRIES);
     }
 
     List<PropertySpec> getOptionalKeys() {
