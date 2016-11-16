@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -106,6 +105,15 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract) {
         return effectiveContracts.stream()
                 .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .findAny();
+    }
+
+    @Override
+    public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract, Instant when) {
+        return effectiveContracts.stream()
+                .filter(effectiveContract -> effectiveContract.getMetrologyContract()
+                        .equals(metrologyContract) && effectiveContract.isEffectiveAt(when))
                 .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
                 .findAny();
     }

@@ -11,6 +11,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 
 public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetrologyContractOnUsagePoint {
@@ -33,6 +34,7 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
     }
 
     private final DataModel dataModel;
+    private final Clock clock;
 
     private long id;
     private Interval interval;
@@ -41,8 +43,9 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
     private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
 
     @Inject
-    public EffectiveMetrologyContractOnUsagePointImpl(DataModel dataModel) {
+    public EffectiveMetrologyContractOnUsagePointImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
+        this.clock = clock;
     }
 
     public EffectiveMetrologyContractOnUsagePointImpl init(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration, MetrologyContract metrologyContract) {
@@ -60,7 +63,15 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.metrologyContract.set(metrologyContract);
         this.interval = Interval.of(interval);
-        this.channelsContainer.set(this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class).init(this));
+        ChannelsContainer channelsContainer = metrologyConfiguration.getChannelsContainer(metrologyContract)
+                .orElseGet(() -> {
+                    MetrologyContractChannelsContainerImpl newChannelsContainer = this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)
+                            .init(this);
+                    dataModel.persist(newChannelsContainer);
+                    return newChannelsContainer;
+                });
+
+        this.channelsContainer.set(channelsContainer);
         return this;
     }
 

@@ -35,6 +35,8 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
 
     Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract);
 
+    Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract, Instant when);
+
     void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Range<Instant> interval);
 
     void deactivateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when);
