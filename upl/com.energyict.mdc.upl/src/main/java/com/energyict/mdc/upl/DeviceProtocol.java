@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl;
 
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.security.DeviceSecuritySupport;
 import com.energyict.mdc.upl.tasks.support.DeviceBasicSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
@@ -22,10 +23,18 @@ import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-14 (10:04)
  */
-public interface DeviceProtocol<DT extends DeviceProtocolDialect>
-        extends HasDynamicProperties, DeviceProtocolDialectSupport<DT>,
+public interface DeviceProtocol
+        extends HasDynamicProperties, DeviceProtocolDialectSupport,
                 DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
                 DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport,
-                DeviceStatusInformationSupport, DeviceMessageSupport,
+                DeviceStatusInformationSupport, DeviceMessageSupport, DeviceSecuritySupport,
                 DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport {
+
+    /**
+     * Gets the implementation version.
+     *
+     * @return The version
+     */
+    String getVersion();
+
 }
