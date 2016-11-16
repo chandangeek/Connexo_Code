@@ -13,6 +13,7 @@ import com.elster.jupiter.util.time.Never;
 
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationHandler;
@@ -99,6 +100,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         doReturn(Optional.of(estimationTask)).when(estimationService).findAndLockEstimationTask(TASK_ID, 1L);
         doReturn(Optional.empty()).when(estimationService).findAndLockEstimationTask(TASK_ID, 2L);
         doReturn(Arrays.asList(estimationTask)).when(estimationService).findEstimationTasks(QualityCodeSystem.MDC);
+
     }
 
     @After
@@ -170,6 +172,32 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
 
         Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void deleteTasksTest() {
+        when(estimationTask.canBeDeleted()).thenReturn(true);
+        EstimationTaskInfo info = new EstimationTaskInfo();
+        info.id = TASK_ID;
+        info.deviceGroup = new MeterGroupInfo();
+        info.deviceGroup.id = 5;
+        info.version = 1L;
+        Entity<EstimationTaskInfo> json = Entity.json(info);
+        Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void deleteTasksInUseTest() {
+        when(estimationTask.canBeDeleted()).thenReturn(false);
+        EstimationTaskInfo info = new EstimationTaskInfo();
+        info.id = TASK_ID;
+        info.deviceGroup = new MeterGroupInfo();
+        info.deviceGroup.id = 5;
+        info.version = 1L;
+        Entity<EstimationTaskInfo> json = Entity.json(info);
+        Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
 }
