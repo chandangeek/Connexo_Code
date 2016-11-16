@@ -289,7 +289,7 @@ final class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public boolean canBeDeleted() {
-        return true; // TODO
+        return !getLastOccurrence().filter(taskOccurrence -> taskOccurrence.getStatus().equals(TaskStatus.BUSY)).isPresent();
     }
 
     @Override
