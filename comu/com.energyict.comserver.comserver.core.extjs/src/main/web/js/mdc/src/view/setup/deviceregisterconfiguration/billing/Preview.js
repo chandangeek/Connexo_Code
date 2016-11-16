@@ -71,18 +71,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                             {
                                 fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                                 name: 'interval',
-                                format: 'M j, Y \\a\\t G:i',
                                 renderer: function (value) {
-                                    if (!Ext.isEmpty(value)) {
-                                        return Ext.util.Format.date(new Date(value.start), this.format) + '-' + Ext.util.Format.date(new Date(value.end), this.format);
-                                    }
-
-                                    return '-';
+                                    return Ext.isEmpty(value)
+                                        ? '-'
+                                        : Uni.DateTime.formatDateTimeShort(new Date(value.start)) + ' - ' + Uni.DateTime.formatDateTimeShort(new Date(value.end));
                                 }
-                            },
-                            {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfDigits', 'MDC', 'Number of digits'),
-                                name: 'numberOfDigits'
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
