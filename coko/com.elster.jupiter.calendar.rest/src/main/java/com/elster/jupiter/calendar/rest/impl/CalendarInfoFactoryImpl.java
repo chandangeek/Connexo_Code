@@ -68,7 +68,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
         addBasicInformation(calendar, calendarInfo);
         addPeriods(calendarInfo, calendar.getTransitions());
-        addEvents(calendarInfo, calendar.getEvents());
+        addEvents(calendarInfo, calendar.getEvents()); // TODO
         addDayTypes(calendarInfo, calendar.getDayTypes());
         addDaysPerType(calendarInfo, calendar.getPeriods(), calendar.getDayTypes());
         return calendarInfo;
