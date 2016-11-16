@@ -3,17 +3,14 @@ package com.energyict.mdc.masterdata.rest.impl;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.masterdata.LoadProfileIntervals;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -42,7 +39,6 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,8 +75,8 @@ public class LoadProfileTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getIntervals(@BeanParam JsonQueryParameters queryParameters) {
-        List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(getIntervals().size());
-        for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : getIntervals().entrySet()) {
+        List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
+        for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : LocalizedTimeDuration.intervals.entrySet()) {
             LocalizedTimeDuration.TimeDurationInfo info = new LocalizedTimeDuration.TimeDurationInfo();
             info.id = timeDurationEntry.getKey();
             info.name = timeDurationEntry.getValue().toString(thesaurus);
@@ -265,14 +261,6 @@ public class LoadProfileTypeResource {
     private boolean getBoolean(UriInfo uriInfo, String key) {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
-    }
-
-    private Map<Integer, LocalizedTimeDuration> getIntervals() {
-        Map<Integer, LocalizedTimeDuration> intervals = new HashMap<>();
-        for(LoadProfileIntervals loadProfileIntervals: LoadProfileIntervals.values()) {
-            intervals.put(loadProfileIntervals.ordinal(), new LocalizedTimeDuration(loadProfileIntervals.getTimeDuration(), TranslationKeys.getByKey(loadProfileIntervals.getTimeDuration().getTimeUnit().name())));
-        }
-        return intervals;
     }
 
 
