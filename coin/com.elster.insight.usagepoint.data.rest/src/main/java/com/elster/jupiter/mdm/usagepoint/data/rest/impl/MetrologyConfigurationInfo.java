@@ -132,7 +132,7 @@ public class MetrologyConfigurationInfo {
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.description = metrologyContract.getMetrologyPurpose().getDescription();
         info.required = metrologyContract.isMandatory();
-        info.active = usagePoint.getEffectiveMetrologyConfiguration(clock.instant()).flatMap(mc -> mc.getChannelsContainer(metrologyContract)).isPresent();
+        info.active = usagePoint.getEffectiveMetrologyConfiguration(clock.instant()).flatMap(mc -> mc.getChannelsContainer(metrologyContract, clock.instant())).isPresent();
         info.meterRoles = asInfoList(metrologyConfiguration, usagePoint);
         IdWithNameInfo metrologyContractStatus = new IdWithNameInfo();
         metrologyContractStatus.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
