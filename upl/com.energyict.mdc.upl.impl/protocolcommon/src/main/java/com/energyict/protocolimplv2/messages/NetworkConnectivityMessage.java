@@ -141,7 +141,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.modemResetThreshold),
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.systemRebootThreshold)
     ),
-    EnableNetworkInterfaces(51,
+    EnableNetworkInterfacesForWebPortal(51,
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ETHERNET_WAN),
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ETHERNET_LAN),
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WIRELESS_WAN),
@@ -155,7 +155,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private NetworkConnectivityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    NetworkConnectivityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }

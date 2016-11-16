@@ -157,7 +157,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
-        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfaces);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfacesForWebPortal);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpPort);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpsPort);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
@@ -600,7 +600,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = dcMulticastUpgrade(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ReadMulticastProgress)) {
                         collectedMessage = readMulticastProgress(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfaces)) {
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfacesForWebPortal)) {
                         enableNetworkInterfaces(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetMainLogbook)) {
                         this.resetLogbook(Beacon3100LogBookFactory.MAIN_LOGBOOK);
