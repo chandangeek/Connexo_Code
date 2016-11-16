@@ -4,11 +4,13 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -18,12 +20,14 @@ public class PurposeInfoFactory {
     private final ValidationStatusFactory validationStatusFactory;
     private final ValidationService validationService;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final Clock clock;
 
     @Inject
-    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, Thesaurus thesaurus, ValidationService validationService, TimeService timeService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
+    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, Thesaurus thesaurus, ValidationService validationService, TimeService timeService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory, Clock clock) {
         this.validationStatusFactory = validationStatusFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.validationService = validationService;
+        this.clock = clock;
     }
 
     public PurposeInfo asInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, boolean withValidationTasks) {
@@ -32,7 +36,8 @@ public class PurposeInfoFactory {
         purposeInfo.name = metrologyContract.getMetrologyPurpose().getName();
         purposeInfo.description = metrologyContract.getMetrologyPurpose().getDescription();
         purposeInfo.required = metrologyContract.isMandatory();
-        purposeInfo.active = purposeInfo.required;
+        purposeInfo.active = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract, clock.instant())
+                .isPresent();
         purposeInfo.version = metrologyContract.getVersion();
         IdWithNameInfo status = new IdWithNameInfo();
         MetrologyContract.Status metrologyContractStatus = metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint());
@@ -49,6 +54,8 @@ public class PurposeInfoFactory {
                     .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         }
+        purposeInfo.parent = new VersionInfo<>(effectiveMetrologyConfiguration.getUsagePoint()
+                .getId(), effectiveMetrologyConfiguration.getUsagePoint().getVersion());
         return purposeInfo;
     }
 }
