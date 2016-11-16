@@ -178,8 +178,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
     showRemoveSharedSchedule: function (mRID) {
         var me = this,
             usedSchedulesStore = me.getUsedCommunicationSchedulesForDeviceStore(),
-            widget = Ext.widget('removeSharedCommunicationSchedule', {mRID: mRID, store: usedSchedulesStore});
+            widget;
 
+        me.deviceMRID = mRID;
+        widget = Ext.widget('removeSharedCommunicationSchedule', {mRID: mRID, store: usedSchedulesStore});
         usedSchedulesStore.getProxy().setExtraParam('filter', Ext.encode([
             {property: 'mrid', value: mRID},
         ]));
