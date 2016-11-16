@@ -6,7 +6,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    FIELD_TOO_LONG(1, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),;
+    FIELD_TOO_LONG(1, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
+    USER_CAN_NOT_PERFORM_TRANSITION(2, Keys.USER_CAN_NOT_PERFORM_TRANSITION, "The current user is not allowed to perform this transition");
 
     private final int number;
     private final String key;
@@ -48,12 +49,6 @@ public enum MessageSeeds implements MessageSeed {
         }
 
         public static final String FIELD_TOO_LONG = "FieldTooLong";
-        public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
-        public static final String UNIQUE_USAGE_POINT_LIFE_CYCLE_NAME = "usage.point.life.cycle.unique.name";
-        public static final String CAN_NOT_REMOVE_STATE_HAS_TRANSITIONS = "can.not.remove.state.has.transitions";
-        public static final String CAN_NOT_REMOVE_LAST_STATE = "can.not.remove.last.state";
-        public static final String CAN_NOT_REMOVE_INITIAL_STATE = "can.not.remove.initial.state";
-        public static final String TRANSITION_COMBINATION_OF_FROM_AND_NAME_NOT_UNIQUE = "transition.combination.of.from.and.name.not.unique";
-        public static final String TRANSITION_FROM_AND_TO_ARE_THE_SAME = "transition.from.and.to.are.the.same";
+        public static final String USER_CAN_NOT_PERFORM_TRANSITION = "user.can.not.perform.transition";
     }
 }

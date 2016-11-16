@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
@@ -22,6 +23,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -32,6 +34,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +50,7 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     private Thesaurus thesaurus;
     private UpgradeService upgradeService;
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private ThreadPrincipalService threadPrincipalService;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -56,11 +60,13 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     public UsagePointLifeCycleServiceImpl(OrmService ormService,
                                           NlsService nlsService,
                                           UpgradeService upgradeService,
-                                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+                                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+                                          ThreadPrincipalService threadPrincipalService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
+        setThreadPrincipalService(threadPrincipalService);
         activate();
     }
 
@@ -85,6 +91,11 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
@@ -105,10 +116,35 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
     }
 
     @Override
-    public void triggerTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
-        this.triggerMicroChecks(usagePoint, transition, transitionTime, properties);
-        this.triggerMicroActions(usagePoint, transition, transitionTime, properties);
-        this.performTransition(usagePoint, transition, transitionTime, properties);
+    public void triggerTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
+        checkTransitionIsAllowedForUsagePoint(usagePoint, transition, transitionTime);
+        checkCurrentUserPrivileges(transition, application);
+        triggerMicroChecks(usagePoint, transition, transitionTime, properties);
+        triggerMicroActions(usagePoint, transition, transitionTime, properties);
+        performTransition(usagePoint, transition, transitionTime, properties);
+    }
+
+    private void checkTransitionIsAllowedForUsagePoint(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
+        // Check that there is no planned transitions between this state and transition time.
+    }
+
+    private void checkCurrentUserPrivileges(UsagePointTransition transition, String application) throws SecurityException {
+        if (!this.userHasExecutePrivilege(transition, application)) {
+            throw new SecurityException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
+        }
+    }
+
+    private boolean userHasExecutePrivilege(UsagePointTransition transition, String application) throws SecurityException {
+        Principal principal = this.threadPrincipalService.getPrincipal();
+        if (principal instanceof User) {
+            User user = (User) principal;
+            return transition.getLevels()
+                    .stream()
+                    .map(UsagePointTransition.Level::getPrivilege)
+                    .anyMatch(privilege -> user.hasPrivilege(application, privilege));
+        } else {
+            return false;
+        }
     }
 
     private void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {

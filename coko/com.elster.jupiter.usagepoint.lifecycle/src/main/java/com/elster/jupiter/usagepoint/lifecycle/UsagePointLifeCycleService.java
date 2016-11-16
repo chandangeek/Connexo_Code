@@ -12,5 +12,5 @@ import java.util.Map;
 public interface UsagePointLifeCycleService {
     String COMPONENT_NAME = "UPE";
 
-    void triggerTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties);
+    void triggerTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties);
 }
