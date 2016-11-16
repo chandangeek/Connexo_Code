@@ -291,11 +291,11 @@ public class G3GatewayPSKProvider {
                                 joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                             }
                         } else {
-                            context.logOnAllLoggerHandlers("Device with MAC address " + macAddress + " does not have a PSK property in EIServer, skipping.", Level.WARNING);
+                            context.logOnAllLoggerHandlers("Device with MAC address " + macAddress + " does not have a PSK property in our system, skipping.", Level.WARNING);
                             joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                         }
                     } else {
-                        context.logOnAllLoggerHandlers("No unique device with MAC address " + macAddress + " exists in EIServer, cannot provide PSK key. Skipping.", Level.WARNING);
+                        context.logOnAllLoggerHandlers("No unique device with MAC address " + macAddress + " exists in our system, cannot provide PSK key. Skipping.", Level.WARNING);
                         joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                     }
                 }
