@@ -10,9 +10,6 @@ import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -27,6 +24,9 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;
@@ -113,18 +113,18 @@ public class MiniMax implements DeviceProtocol {
     private OfflineDevice offlineDevice;
     private ComChannel comChannel;
 
-    List<ObisCode> channelObisCodes;
+    private List<ObisCode> channelObisCodes;
 
     private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
 
-    Logger logger = Logger.getLogger(this.getClass().getName());
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public Logger getLogger() {
         return logger;
     }
 
     private void populateUnitMap() {
-        List<String> registers = new ArrayList<String>();
+        List<String> registers = new ArrayList<>();
         registers.add(OBJECT_UOM_PRESS);
         registers.add(OBJECT_UOM_PRESS_DECIMALS);
         registers.add(OBJECT_UOM_TEMP);

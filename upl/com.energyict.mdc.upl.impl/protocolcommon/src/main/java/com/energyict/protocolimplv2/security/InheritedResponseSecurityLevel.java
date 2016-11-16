@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.DeviceAccessLevel;
+
+import com.energyict.cpo.PropertySpec;
 
 import java.util.Collections;
 import java.util.List;

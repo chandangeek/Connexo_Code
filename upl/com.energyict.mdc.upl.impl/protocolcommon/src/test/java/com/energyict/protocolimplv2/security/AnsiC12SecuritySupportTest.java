@@ -1,13 +1,15 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
 import org.fest.assertions.core.Condition;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

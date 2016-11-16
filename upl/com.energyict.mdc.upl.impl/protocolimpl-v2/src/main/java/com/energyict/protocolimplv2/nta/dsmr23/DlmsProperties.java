@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 
 import java.util.Arrays;
 import java.util.List;

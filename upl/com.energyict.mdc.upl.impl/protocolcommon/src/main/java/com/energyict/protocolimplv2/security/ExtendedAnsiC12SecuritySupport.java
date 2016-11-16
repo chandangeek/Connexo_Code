@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 
 import java.util.Arrays;
 import java.util.Collections;

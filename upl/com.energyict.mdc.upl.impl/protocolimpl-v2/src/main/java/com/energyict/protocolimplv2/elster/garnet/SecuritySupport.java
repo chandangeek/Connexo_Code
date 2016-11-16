@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
+import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 import com.energyict.protocolimplv2.security.SecurityRelationTypeName;
 
@@ -15,24 +16,24 @@ import java.util.List;
  * @author sva
  * @since 18/06/2014 - 10:54
  */
-public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
+class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
-    public final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
-    public final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
+    private static final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
+    private static final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
      */
-    protected enum AuthenticationAccessLevelIds {
+    private enum AuthenticationAccessLevelIds {
         NO_AUTHENTICATION(0);
 
         private final int accessLevel;
 
-        private AuthenticationAccessLevelIds(int accessLevel) {
+        AuthenticationAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
+        private int getAccessLevel() {
             return this.accessLevel;
         }
     }
@@ -40,16 +41,16 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
     /**
      * Summarizes the used ID for the EncryptionLevels.
      */
-    protected enum EncryptionAccessLevelIds {
+    private enum EncryptionAccessLevelIds {
         MESSAGE_ENCRYPTION(1);
 
         private final int accessLevel;
 
-        private EncryptionAccessLevelIds(int accessLevel) {
+        EncryptionAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
+        private int getAccessLevel() {
             return this.accessLevel;
         }
     }
@@ -69,12 +70,12 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.asList((AuthenticationDeviceAccessLevel) new NoAuthentication());
+        return Collections.singletonList((AuthenticationDeviceAccessLevel) new NoAuthentication());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.asList((EncryptionDeviceAccessLevel) new MessageEncryption());
+        return Collections.singletonList((EncryptionDeviceAccessLevel) new MessageEncryption());
     }
 
     @Override
@@ -91,7 +92,7 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
      * An encryption level where the data of the frame is encrypted using
      * the manufacturer or the customer key
      */
-    protected class MessageEncryption implements EncryptionDeviceAccessLevel {
+    private class MessageEncryption implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -115,7 +116,7 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
      * An authentication level which indicate that no authentication is required
      * for communication with the device.
      */
-    protected class NoAuthentication implements AuthenticationDeviceAccessLevel {
+    private class NoAuthentication implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {

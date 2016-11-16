@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +30,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
     }
 
     @Override
