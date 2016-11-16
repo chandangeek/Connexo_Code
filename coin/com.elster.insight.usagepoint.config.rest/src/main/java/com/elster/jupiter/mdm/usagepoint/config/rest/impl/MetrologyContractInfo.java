@@ -14,6 +14,7 @@ import java.util.List;
 public class MetrologyContractInfo {
     public long id;
     public String name;
+    public String description;
     public boolean mandatory;
     public Long version;
     public List<ReadingTypeDeliverablesInfo> readingTypeDeliverables;
@@ -26,6 +27,7 @@ public class MetrologyContractInfo {
     public MetrologyContractInfo(MetrologyContract metrologyContract) {
         this.id = metrologyContract.getId();
         this.name = metrologyContract.getMetrologyPurpose().getName();
+        this.description = metrologyContract.getMetrologyPurpose().getDescription();
         this.version = metrologyContract.getVersion();
         this.mandatory = metrologyContract.isMandatory();
     }

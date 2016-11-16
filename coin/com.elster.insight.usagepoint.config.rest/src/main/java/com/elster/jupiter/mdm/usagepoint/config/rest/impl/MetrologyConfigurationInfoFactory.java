@@ -88,6 +88,7 @@ public class MetrologyConfigurationInfoFactory {
         MetrologyContractInfo info = new MetrologyContractInfo();
         info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
+        info.description = metrologyContract.getMetrologyPurpose().getDescription();
         info.mandatory = metrologyContract.isMandatory();
         info.readingTypeDeliverables = metrologyContract.getDeliverables()
                 .stream()
