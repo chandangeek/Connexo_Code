@@ -220,6 +220,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public Optional<EventSet> findEventSetByName(String name) {
+        return getDataModel().mapper(EventSet.class).getUnique("name", name);
+    }
+
+    @Override
     public boolean isCalendarInUse(Calendar calendar) {
         for (CalendarResolver resolver : calendarResolvers) {
             if (resolver.isCalendarInUse(calendar)) {

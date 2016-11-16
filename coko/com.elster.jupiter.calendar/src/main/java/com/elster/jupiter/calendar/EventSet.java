@@ -14,4 +14,5 @@ public interface EventSet extends HasName {
     List<Event> getEvents();
 
 
+    CalendarService.EventSetBuilder redefine();
 }

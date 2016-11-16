@@ -1,5 +1,6 @@
 package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.MessageSeeds;
@@ -48,6 +49,10 @@ public class EventSetImpl implements EventSet {
         return dataModel.getInstance(EventSetImpl.class).init(name);
     }
 
+    long getId() {
+        return id;
+    }
+
     @Inject
     public EventSetImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -79,4 +84,8 @@ public class EventSetImpl implements EventSet {
         return event;
     }
 
+    @Override
+    public CalendarService.EventSetBuilder redefine() {
+        return new EventSetBuilderImpl(this);
+    }
 }

@@ -6,6 +6,7 @@ package com.elster.jupiter.calendar.impl.importers;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.impl.xmlbinding.DayType;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
 import com.elster.jupiter.calendar.impl.xmlbinding.FixedOccurrence;
@@ -26,6 +27,7 @@ import java.time.Year;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by igh on 10/05/2016.
@@ -52,26 +54,37 @@ public class CalendarFactory {
         Category category = calendarService.findCategoryByName(calendar.getCategory())
                 .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory()));
 
+        CalendarService.EventSetBuilder eventSetBuilder = calendarService.findEventSetByName(calendar.getName())
+                .map(EventSet::redefine)
+                .orElseGet(() -> calendarService.newEventSet(calendar.getName()));
+
+        events = calendar.getEvents()
+                .getEvent()
+                .stream()
+                .collect(Collectors.toMap(
+                        this::getEventId,
+                        this::getEventName
+                ));
+
+        calendar.getEvents()
+                .getEvent()
+                .stream()
+                .forEach(event ->  eventSetBuilder.addEvent(getEventName(event)).withCode(getEventCode(event)));
+
+        EventSet eventSet = eventSetBuilder.add();
+
         CalendarService.CalendarBuilder builder = calendarService.findCalendarByMRID(calendar.getMRID())
-                .map(c -> c.redefine()
+                .map(existingCalendar -> existingCalendar.redefine()
                         .name(getCalendarName())
                         .startYear(getStartYear())
                         .description(getDescription())
                         .mRID(getMRID()))
                 .orElseGet(() -> calendarService.newCalendar(
                         getCalendarName(),
-                        getStartYear(), null)
+                        getStartYear(), eventSet)
                         .description(getDescription()).mRID(getMRID()));
         builder.category(category);
 
-        events = new HashMap<>();
-        for (Event event : calendar.getEvents().getEvent()) {
-            BigInteger eventId = getEventId(event);
-            String eventName = getEventName(event);
-            int eventCode = getEventCode(event);
-            events.put(eventId, eventName);
-// TODO            builder.addEvent(eventName, eventCode);
-        }
 
         dayTypes = new HashMap<>(); // needed for periods (has a link to daytypes on code) and builder api requires daytype name
         for (DayType dayType : calendar.getDayTypes().getDayType()) {

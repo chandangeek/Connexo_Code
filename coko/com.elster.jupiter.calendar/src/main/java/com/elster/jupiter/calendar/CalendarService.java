@@ -52,6 +52,8 @@ public interface CalendarService {
 
     Optional<Calendar> lockCalendar(long id, long version);
 
+    Optional<EventSet> findEventSetByName(String name);
+
     @ProviderType
     interface CalendarBuilder {
         CalendarBuilder category(Category category);
