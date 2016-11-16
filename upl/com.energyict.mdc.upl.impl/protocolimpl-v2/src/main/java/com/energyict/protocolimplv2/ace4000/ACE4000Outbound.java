@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
 import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -21,16 +20,16 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -42,6 +41,7 @@ import com.energyict.protocolimplv2.ace4000.requests.ReadMBusRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
 import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.SetTime;
+import com.energyict.protocolimplv2.common.Temporals;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -74,6 +75,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         setAce4000Connection(new ACE4000Connection(comChannel, this, false));
     }
 
+    @Override
     public String getSerialNumber() {
         //Return the configured serial number for the basic check task.
         //We already know that the serial number is correct because the inbound session successfully identified a device in EIServer, leading up to this outbound session.
@@ -90,6 +92,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return "Actaris ACE4000 MeterXML";
     }
 
+    @Override
     public String getVersion() {
         return "$Date: 2016-06-29 13:42:57 +0200 (Wed, 29 Jun 2016)$";
     }
@@ -110,14 +113,14 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                     config.setSupportedByMeter(false);
                 } else {
                     List<OfflineLoadProfile> offlineLoadProfiles = getOfflineDevice().getAllOfflineLoadProfiles();
-                    if (offlineLoadProfiles != null && offlineLoadProfiles.size() > 0) {
+                    if (offlineLoadProfiles != null && !offlineLoadProfiles.isEmpty()) {
                         OfflineLoadProfile offlineLoadProfile = getOfflineLoadProfile(offlineLoadProfiles, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
-                        long profileInterval = offlineLoadProfile.getInterval().getMilliSeconds();
+                        long profileInterval = Temporals.toMilliSeconds(offlineLoadProfile.getInterval());
                         Date toDate = new Date();
                         Date fromDate = new Date(toDate.getTime() - (2 * profileInterval)); // get the last interval from date
                         ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, fromDate, toDate);
                         List<CollectedLoadProfile> collectedLoadProfiles = readLoadProfileRequest.request(loadProfileReader);
-                        if (collectedLoadProfiles != null && collectedLoadProfiles.size() > 0) {
+                        if (collectedLoadProfiles != null && !collectedLoadProfiles.isEmpty()) {
                             config.setChannelInfos(collectedLoadProfiles.get(0).getChannelInfo());
                         } else { // if we are not able to read the channelInfos from device then return the ones configured in EIMaster and skip validation of channelInfos
                             config.setChannelInfos(loadProfileReader.getChannelInfos());
@@ -126,7 +129,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                     }
                 }
                 result.add(config);
-            } else {                                                                                    //Slave doesn't support
+            } else {
+                //Slave doesn't support
                 CollectedLoadProfileConfiguration slaveConfig = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getConfiguredSerialNumber());
                 slaveConfig.setSupportedByMeter(false);
                 result.add(slaveConfig);
@@ -153,7 +157,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {    //Slave device
                 CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
-                Issue<LoadProfileReader> warning = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode(), "MBus slave device doesn't support load profiles");
+                Issue warning = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode(), "MBus slave device doesn't support load profiles");
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, warning);
                 result.add(collectedLoadProfile);
             }
@@ -210,21 +214,18 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         return getMessageProtocol().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return getMessageProtocol().prepareMessageContext(offlineDevice, deviceMessage);
     }
 
     @Override
-    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        ACE4000DeviceProtocolDialect gprsDialect = new ACE4000DeviceProtocolDialect();
-        ArrayList<DeviceProtocolDialect> dialects = new ArrayList<DeviceProtocolDialect>();
-        dialects.add(gprsDialect);
-        return dialects;
+    public List<? extends DeviceProtocolDialect> getDeviceProtocolDialects() {
+        return Collections.singletonList(new ACE4000DeviceProtocolDialect());
     }
 
     @Override
@@ -240,13 +241,23 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        addProperties(dialectProperties);
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return this.getProperties().getPropertySpecs();
+    }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        this.getProperties().setAllProperties(properties);
+    }
+
+    @Override
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
+        getProperties().setAllProperties(dialectProperties);
     }
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        List<CollectedRegister> result = new ArrayList<CollectedRegister>();
+        List<CollectedRegister> result = new ArrayList<>();
 
         boolean requestMBusRegisters = false;
         for (OfflineRegister register : registers) {
@@ -344,18 +355,23 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     //No log on / log off needed...
+    @Override
     public void logOn() {
     }
 
+    @Override
     public void daisyChainedLogOn() {
     }
 
+    @Override
     public void logOff() {
     }
 
+    @Override
     public void daisyChainedLogOff() {
     }
 
+    @Override
     public void terminate() {
     }
 
@@ -370,9 +386,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        ArrayList<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new InboundIpConnectionType());
-        return connectionTypes;
+        return Collections.singletonList(new InboundIpConnectionType());
     }
 
     public ACE4000Messaging getMessageProtocol() {
@@ -381,4 +395,5 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         }
         return messageProtocol;
     }
+
 }

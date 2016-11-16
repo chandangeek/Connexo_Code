@@ -47,7 +47,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
         return ace4000Connection;
     }
 
-    public void setAce4000Connection(ACE4000Connection ace4000Connection) {
+    void setAce4000Connection(ACE4000Connection ace4000Connection) {
         this.ace4000Connection = ace4000Connection;
     }
 
@@ -70,7 +70,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     }
 
     public void addProperties(TypedProperties properties) {
-        getProperties().getProperties().setAllProperties(properties, true);
+        getProperties().setAllProperties(properties);
     }
 
     public List<PropertySpec> getRequiredProperties() {

@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,8 +17,10 @@ import java.util.List;
 
 /**
  * Provides general security <b>capabilities</b> for device that have either:
- * <ul><li>No password</li>
- * <li>A password</li></ul>
+ * <ul>
+ *     <li>No password</li>
+ *     <li>A password</li>
+ * </ul>
  * <p/>
  * Copyrights EnergyICT
  * Date: 21/01/13
@@ -34,11 +36,6 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.NO_OR_PASSWORD_SECURITY.toString();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Arrays.asList(new NoAuthenticationAccessLevel(), new StandardAuthenticationAccessLevel());
     }
@@ -46,16 +43,6 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
     }
 
     @Override

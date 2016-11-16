@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 

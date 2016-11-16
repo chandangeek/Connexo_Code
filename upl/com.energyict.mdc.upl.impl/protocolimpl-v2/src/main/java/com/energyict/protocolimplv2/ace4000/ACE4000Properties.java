@@ -1,53 +1,100 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.cpo.*;
+import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
  * Date: 29-sep-2010
  * Time: 15:58:56
  */
-public class ACE4000Properties {
+class ACE4000Properties {
 
-    public static final String TIMEOUT = "Timeout";
-    public static final String RETRIES = "Retries";
+    public static final String TIMEOUT = DeviceProtocol.Property.TIMEOUT.getName();
+    public static final String RETRIES = DeviceProtocol.Property.RETRIES.getName();
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal("30000");
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
 
-    public TypedProperties properties;
+    public Properties properties;
 
-    public ACE4000Properties() {
-        this(TypedProperties.empty());
+    ACE4000Properties() {
+        super();
+        this.properties = new Properties();
     }
 
-    public ACE4000Properties(TypedProperties properties) {
-        this.properties = properties;
+    private ACE4000Properties(TypedProperties properties) {
+        this();
+        this.copyProperties(properties);
     }
 
-    public List<PropertySpec> getOptionalKeys() {
-        List<PropertySpec> optional = new ArrayList<PropertySpec>();
-        optional.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT));
-        return optional;
+    private void copyProperties(TypedProperties properties) {
+        this.copyPropertyValue(properties, TIMEOUT);
+        this.copyPropertyValue(properties, RETRIES);
     }
 
-    public List<PropertySpec> getRequiredKeys() {
-        List<PropertySpec> required = new ArrayList<PropertySpec>();
-        return required;
+    private void copyPropertyValue(TypedProperties properties, String propertyName) {
+        Object propertyValue = properties.getProperty(TIMEOUT);
+        if (propertyValue != null) {
+            this.properties.put(propertyName, propertyValue);
+        }
+    }
+
+    void setAllProperties(TypedProperties properties) {
+        this.copyProperties(properties);
+    }
+
+    void setAllProperties(Properties properties) {
+        this.properties = new Properties(properties);
+    }
+
+    List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                this.timeoutPropertySpec(),
+                this.retriesPropertySpec());
+    }
+
+    private PropertySpec timeoutPropertySpec() {
+        // Todo: provide default value: DEFAULT_TIMEOUT
+        return UPLPropertySpecFactory.bigDecimal(TIMEOUT, false);
+    }
+
+    private PropertySpec retriesPropertySpec() {
+        // Todo: provide default value: DEFAULT_RETRIES
+        return UPLPropertySpecFactory.bigDecimal(RETRIES, false);
+    }
+
+    List<PropertySpec> getOptionalKeys() {
+        return Collections.singletonList(UPLPropertySpecFactory.bigDecimal(TIMEOUT, false));
+    }
+
+    List<PropertySpec> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     public int getTimeout() {
-        return properties.getIntegerProperty(TIMEOUT, DEFAULT_TIMEOUT).intValue();
+        return this.getIntegerProperty(TIMEOUT, DEFAULT_TIMEOUT);
     }
 
     public int getRetries() {
-        return properties.getIntegerProperty(RETRIES, DEFAULT_RETRIES).intValue();
+        return this.getIntegerProperty(RETRIES, DEFAULT_RETRIES);
     }
 
-    public TypedProperties getProperties() {
-        return properties;
+    private int getIntegerProperty(String name, BigDecimal defaultValue) {
+        Object value = this.properties.get(TIMEOUT);
+        if (value == null) {
+            return defaultValue.intValue();
+        } else {
+            return ((BigDecimal) value).intValue();
+        }
     }
+
 }

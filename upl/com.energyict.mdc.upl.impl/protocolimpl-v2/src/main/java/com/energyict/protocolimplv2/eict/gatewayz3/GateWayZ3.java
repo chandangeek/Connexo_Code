@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.eict.gatewayz3;
 
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
