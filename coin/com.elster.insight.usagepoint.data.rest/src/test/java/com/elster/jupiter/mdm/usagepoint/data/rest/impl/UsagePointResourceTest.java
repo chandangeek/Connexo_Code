@@ -10,6 +10,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -99,6 +100,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointPropertySet usagePointPropertySet;
     @Mock
     private MetrologyConfigurationCustomPropertySetUsage metrologyConfigurationCustomPropertySetUsage;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     @Before
     public void setUp1() {
@@ -441,15 +444,18 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Test
     public void testUsagePointMetrologyConfigurationDetails() {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = mockMetrologyConfigurationWithContract(1, "MetrologyConfiguration");
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
 
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().get(0);
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
         when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(eq(metrologyContract), any(Instant.class)))
+                .thenReturn(Optional.of(channelsContainer));
 
         // Business method
         String json = target("/usagepoints/MRID").request().get(String.class);

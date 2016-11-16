@@ -296,9 +296,12 @@ public class UsagePointOutputResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE));
 
+        resourceHelper.checkMeterRequirements(usagePoint, metrologyContract);
+
         effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range.atLeast(clock.instant()));
         return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
+
 
     @PUT
     @Path("/{purposeId}/deactivate")

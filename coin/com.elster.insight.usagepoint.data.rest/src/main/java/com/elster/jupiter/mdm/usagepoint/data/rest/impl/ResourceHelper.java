@@ -2,21 +2,29 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ResourceHelper {
 
@@ -24,17 +32,19 @@ public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final Clock clock;
 
     @Inject
     public ResourceHelper(MeteringService meteringService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
-                          MetrologyConfigurationService metrologyConfigurationService) {
+                          MetrologyConfigurationService metrologyConfigurationService, Clock clock) {
         super();
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.clock = clock;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -120,5 +130,34 @@ public class ResourceHelper {
                 .filter(deliverable -> deliverable.getId() == outputId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, usagePointMrid, outputId));
+    }
+
+    public void checkMeterRequirements(UsagePoint usagePoint, MetrologyContract metrologyContract) {
+        List<ReadingType> readingTypesOnMeter = new ArrayList<>();
+
+        usagePoint.getMeterActivations(clock.instant()).stream().forEach(meterActivation -> {
+            meterActivation.getMeter().get().getHeadEndInterface()
+                    .flatMap(headEndInterface -> meterActivation.getMeter().map(headEndInterface::getCapabilities))
+                    .ifPresent(endDeviceCapabilities -> readingTypesOnMeter.addAll(endDeviceCapabilities.getConfiguredReadingTypes()));
+        });
+
+        List<ReadingTypeRequirement> unmatchedRequirements = getReadingTypeRequirements(metrologyContract)
+                .stream()
+                .filter(requirement -> !readingTypesOnMeter.stream().anyMatch(requirement::matches))
+                .collect(Collectors.toList());
+
+        if (!unmatchedRequirements.isEmpty()) {
+            throw exceptionFactory.newException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
+        }
+    }
+
+    public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+        metrologyContract.getDeliverables()
+                .stream()
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
     }
 }
