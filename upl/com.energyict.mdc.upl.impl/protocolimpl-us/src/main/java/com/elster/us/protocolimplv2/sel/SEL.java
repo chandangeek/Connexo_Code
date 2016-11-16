@@ -6,9 +6,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -21,6 +18,9 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.elster.us.protocolimplv2.sel.frame.ResponseFrame;
 import com.elster.us.protocolimplv2.sel.frame.data.DeviceIDReadResponseData;
@@ -58,7 +58,7 @@ public class SEL implements DeviceProtocol {
   private SELProperties properties = new SELProperties();
   private OfflineDevice offlineDevice;
   private SerialPortComChannel comChannel;
-  Logger logger = Logger.getLogger(this.getClass().getName());
+  private Logger logger = Logger.getLogger(this.getClass().getName());
   private LoadProfileBuilder loadProfileBuilder;
 
   public SELConnection getConnection() {
@@ -72,10 +72,11 @@ public class SEL implements DeviceProtocol {
   public OfflineDevice getOfflineDevice() { return offlineDevice; }
 
   private TimeZone getTimeZone() {
-    if(properties.getTimezone() != null)
+    if (properties.getTimezone() != null) {
       return TimeZone.getTimeZone(properties.getTimezone());
-    else
+    } else {
       return null;
+    }
   }
 
   @Override

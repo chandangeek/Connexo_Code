@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;

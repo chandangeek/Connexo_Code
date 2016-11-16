@@ -1,11 +1,12 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.TimeZone;
 
@@ -22,7 +23,7 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
     String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
     String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
-   
+
     /** Property indicating whether the public client is pre-established or not. */
     String PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED = "PublicClient-PreEstablished";
 
@@ -206,7 +207,7 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
 
     /**
      * Indicates whether or not the public client has a pre-established association or not.
-     * 
+     *
      * @return		<code>true</code> if the public client is pre-established, false if not.
      */
     boolean isPublicClientPreEstablished();

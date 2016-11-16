@@ -4,10 +4,7 @@ import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -20,6 +17,9 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cpo.PropertySpec;
@@ -46,9 +46,9 @@ import java.util.List;
  */
 public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
-    abstract protected DeviceProtocolSecurityCapabilities getSecurityCapabilities();
+    protected abstract DeviceProtocolSecurityCapabilities getSecurityCapabilities();
 
-    abstract protected DeviceMessageSupport getDeviceMessageSupport();
+    protected abstract DeviceMessageSupport getDeviceMessageSupport();
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {

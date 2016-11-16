@@ -1,11 +1,16 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dynamicattributes.EncryptedStringFactory;
-import com.energyict.mdc.protocol.security.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
