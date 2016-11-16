@@ -54,9 +54,8 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
     @Test
     public void testIntervalsList() throws Exception {
-        when(masterDataService.getLoadProfileTypeIntervals()).thenReturn(Arrays.asList(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), new TimeDuration(5, TimeDuration.TimeUnit.MONTHS)));
         List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
-        assertThat(intervals).hasSize(2);
+        assertThat(intervals).hasSize(7);
         assertThat(((Map) intervals.get(0)).get("name")).isEqualTo("5 minutes");
     }
 
