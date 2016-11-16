@@ -162,8 +162,8 @@ public class RegisterResource {
     @Path("/registergroups")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getRegisterGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getRegisterGroups(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<Register> registers = device.getRegisters();
         List<RegisterGroup> allRegisterGroups = masterDataService.findAllRegisterGroups().find();
         List<IdWithNameInfo> filteredRegisterGroups = allRegisterGroups.stream()
@@ -180,8 +180,8 @@ public class RegisterResource {
     @Path("/registersforgroups")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getRegistersForGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getRegistersForGroups(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
         List<SummarizedRegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
@@ -210,8 +210,8 @@ public class RegisterResource {
     @Path("/registerreadings")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public PagedInfoList getRegisterReadings(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getRegisterReadings(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
         List<Register> registers = device.getRegisters().stream()
                 .filter(register -> filteredReadingTypes.contains(register.getReadingType()))
