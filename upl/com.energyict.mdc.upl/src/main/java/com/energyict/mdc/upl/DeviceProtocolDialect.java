@@ -1,5 +1,9 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
+import java.util.List;
+
 /**
  * Models a component that will contain several properties for a specific DeviceProtocol.
  * With this set, a protocol should be able to fully understand how to connect with a device.
@@ -32,6 +36,8 @@ public interface DeviceProtocolDialect {
             return this.name;
         }
     }
+
+    List<PropertySpec> getPropertySpecs();
 
     /**
      * Provides a <b>unique</b> name for this DeviceProtocolDialect.

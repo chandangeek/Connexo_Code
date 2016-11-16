@@ -10,14 +10,14 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-14 (10:51)
  */
-public interface DeviceProtocolDialectSupport<T extends DeviceProtocolDialect> {
+public interface DeviceProtocolDialectSupport {
 
     /**
      * Provides the set of supported {@link DeviceProtocolDialect}s.
      *
      * @return the List of DeviceProtocolDialect
      */
-    List<T> getDeviceProtocolDialects();
+    List<? extends DeviceProtocolDialect> getDeviceProtocolDialects();
 
     /**
      * Adds the set of TypedProperties of the specific DeviceProtocolDialect.
