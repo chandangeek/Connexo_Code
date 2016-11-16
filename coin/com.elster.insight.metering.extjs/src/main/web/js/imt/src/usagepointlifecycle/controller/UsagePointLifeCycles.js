@@ -3,7 +3,6 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
 
     views: [
         'Imt.usagepointlifecycle.view.Setup',
-        'Imt.usagepointlifecycle.view.Add',
         'Imt.usagepointlifecycle.view.Clone',
         'Imt.usagepointlifecycle.view.Edit',
         'Imt.usagepointlifecycle.view.Overview'
@@ -25,10 +24,6 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
         {
             ref: 'lifeCyclesGrid',
             selector: 'usagepoint-life-cycles-grid'
-        },
-        {
-            ref: 'addPage',
-            selector: 'usagepoint-life-cycles-add'
         },
         {
             ref: 'clonePage',
@@ -154,8 +149,9 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
 
     showAddUsagePointLifeCycle: function () {
         var me = this,
-            view = Ext.widget('usagepoint-life-cycles-add', {
-                router: me.getController('Uni.controller.history.Router')
+            view = Ext.widget('usagepoint-life-cycles-edit', {
+                router: me.getController('Uni.controller.history.Router'),
+                route: 'administration/usagepointlifecycles'
             });
 
         me.usagePointLifeCycle = null;
@@ -172,7 +168,8 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
                 route = me.fromOverview ? 'administration/usagepointlifecycles/usagepointlifecycle' : 'administration/usagepointlifecycles';
                 var view = Ext.widget('usagepoint-life-cycles-edit', {
                         router: me.getController('Uni.controller.history.Router'),
-                        route: route
+                        route: route,
+                        isEdit: true
                     }),
                     form = view.down('usagepoint-life-cycles-add-form');
 
@@ -249,7 +246,7 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
 
     createUsagePointLifeCycle: function (btn) {
         var me = this,
-            page = me.usagePointLifeCycle ? me.getEditPage() : me.getAddPage(),
+            page = me.getEditPage(),
             form = page.down('usagepoint-life-cycles-add-form'),
             formErrorsPanel = form.down('#form-errors'),
             record = me.usagePointLifeCycle || Ext.create('Imt.usagepointlifecycle.model.UsagePointLifeCycle'),

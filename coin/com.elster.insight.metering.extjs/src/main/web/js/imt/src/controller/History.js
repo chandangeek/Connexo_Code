@@ -381,7 +381,89 @@ Ext.define('Imt.controller.History', {
                                         }, {single: true});
                                         return this;
                                     }
-                                }
+                                },
+                                states: {
+                                    title: Uni.I18n.translate('general.states', 'IMT', 'States'),
+                                    route: 'states',
+                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                    action: 'showUsagePointLifeCycleStates',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('usagePointLifeCycleStates.add', 'IMT', 'Add state'),
+                                            route: 'add',
+                                            controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                            action: 'showUsagePointLifeCycleStateEdit',
+                                            items: {
+                                                addEntryProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'entryprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableEntryTransitionProcesses'
+                                                },
+                                                addExitProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'exitprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableExitTransitionProcesses'
+                                                }
+                                            }
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('usagePointLifeCycleStates.edit', 'IMT', 'Edit state'),
+                                            route: '{id}/edit',
+                                            controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                            action: 'showUsagePointLifeCycleStateEdit',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadlifecyclestate', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('name')], false));
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            },
+                                            items: {
+                                                addEntryProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'entryprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableEntryTransitionProcesses'
+                                                },
+                                                addExitProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'exitprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableExitTransitionProcesses'
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                /*transitions: {
+                                    title: Uni.I18n.translate('general.transitions', 'IMT', 'Transitions'),
+                                    route: 'transitions',
+                                    controller: 'Imt.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
+                                    action: 'showDeviceLifeCycleTransitions',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.addTransition', 'IMT', 'Add transition'),
+                                            route: 'add',
+                                            controller: 'Imt.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
+                                            action: 'showAddDeviceLifeCycleTransition'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                            route: '{transitionId}/edit',
+                                            controller: 'Imt.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
+                                            action: 'showAddDeviceLifeCycleTransition',
+                                            callback: function (route) {
+                                                this.getApplication().on('deviceLifeCycleTransitionEdit', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'IMT', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            }
+                                        }
+                                    }
+                                }*/
                             }
                         }
                     }

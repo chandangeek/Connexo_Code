@@ -14,6 +14,7 @@ Ext.define('Imt.usagepointlifecycle.view.AddForm', {
     hideInfoMsg: false,    
     ui: 'large',
     width: '100%',
+    title: Uni.I18n.translate('general.addUsagePointLifeCycle', 'IMT', 'Add usage point life cycle'),
     defaults: {
         labelWidth: 250
     },
@@ -70,7 +71,7 @@ Ext.define('Imt.usagepointlifecycle.view.AddForm', {
                     {
                         xtype: 'button',
                         itemId: 'cancel-link',
-                        text: Uni.I18n.translate('general.cancel', 'DLC', 'Cancel'),
+                        text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                         ui: 'link',
                         href: me.router.getRoute(me.route).buildUrl()
                     }

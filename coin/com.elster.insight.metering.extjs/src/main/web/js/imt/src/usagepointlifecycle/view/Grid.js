@@ -14,18 +14,12 @@ Ext.define('Imt.usagepointlifecycle.view.Grid', {
     initComponent: function () {
         var me = this;
 
-        me.columns = [
+        me.columns = [            
             {
+                xtype: 'uni-default-column',
                 header: Uni.I18n.translate('general.default', 'IMT', 'Default'),
                 dataIndex: 'isDefault',
-                width: 80,                
-                renderer: function (value) {
-                    if (!!value) {
-                        return '<i class="icon icon-checkmark-circle"></i>';
-                    } else {
-                        return null;
-                    }
-                }
+                width: 70
             },
             {
                 header: Uni.I18n.translate('general.name', 'IMT', 'Name'),
