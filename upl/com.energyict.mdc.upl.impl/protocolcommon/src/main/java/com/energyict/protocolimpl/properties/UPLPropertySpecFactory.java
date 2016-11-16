@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
+
 /**
  * Provides factory services for {@link com.energyict.mdc.upl.properties.PropertySpec}s
  * as defined by the universal protocol layer.
@@ -37,12 +39,28 @@ public final class UPLPropertySpecFactory {
         return new LongPropertySpec(name, required, validValues);
     }
 
-    public static PropertySpec bigDecimal(String name, boolean required) {
+    public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required) {
         return new BigDecimalPropertySpec(name, required);
     }
 
-    public static PropertySpec string(String name, boolean required) {
+    public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required, BigDecimal defaultValue, BigDecimal... possibleValues) {
+        BigDecimalPropertySpec bigDecimalPropertySpec = new BigDecimalPropertySpec(name, required, possibleValues);
+        bigDecimalPropertySpec.setDefaultValue(defaultValue);
+        return bigDecimalPropertySpec;
+    }
+
+    public static PropertySpec<String> string(String name, boolean required) {
         return new StringPropertySpec(name, required);
+    }
+
+    public static PropertySpec<String> string(String name, boolean required, String... possibleValues){
+        return new StringPropertySpec(name, required, possibleValues);
+    }
+
+    public static PropertySpec<String> string(String name, boolean required, String defaultValue, String... possibleValues){
+        StringPropertySpec stringPropertySpec = new StringPropertySpec(name, required, possibleValues);
+        stringPropertySpec.setDefaultValue(defaultValue);
+        return stringPropertySpec;
     }
 
     public static PropertySpec stringOfMaxLength(String name, boolean required, int maxLength) {
@@ -71,5 +89,4 @@ public final class UPLPropertySpecFactory {
 
     // Hide utility class constructor
     private UPLPropertySpecFactory() {}
-
 }

@@ -1,18 +1,19 @@
 package com.energyict.mdc.channels.serial;
 
-import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.dynamicattributes.StringFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ import java.util.Set;
  */
 public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
-    private Map<String, PropertySpec> propertySpecs;
+//    private Map<String, PropertySpec> propertySpecs;
 
     @Override
     public boolean allowsSimultaneousConnections() {
@@ -35,10 +36,16 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return true;
     }
 
+//    @Override
+//    public PropertySpec getPropertySpec(String name) {
+//        this.ensurePropertySpecsInitialized();
+//        return this.propertySpecs.get(name);
+//    }
+
+
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        this.ensurePropertySpecsInitialized();
-        return this.propertySpecs.get(name);
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(baudRatePropertySpec(), parityPropertySpec(), nrOfStopBitsPropertySpec(), nrOfDataBitsPropertySpec(), flowControlPropertySpec());
     }
 
     private void ensurePropertySpecsInitialized() {
@@ -58,22 +65,11 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected PropertySpec<String> flowControlPropertySpec() {
-        return PropertySpecBuilder.
-                forClass(String.class, new StringFactory()).
-                name(SerialPortConfiguration.FLOW_CONTROL_NAME).
-                markExhaustive().
-                setDefaultValue(FlowControl.NONE.getFlowControl()).
-                addValues(FlowControl.getTypedValues()).
-                finish();
+        return  UPLPropertySpecFactory.string(SerialPortConfiguration.FLOW_CONTROL_NAME, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
     }
 
     protected PropertySpec<BigDecimal> nrOfDataBitsPropertySpec() {
-        return PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
-                name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).
-                markExhaustive().
-                setDefaultValue(NrOfDataBits.EIGHT.getNrOfDataBits()).
-                addValues(NrOfDataBits.getTypedValues()).finish();
+        return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, false, NrOfDataBits.EIGHT.getNrOfDataBits(), NrOfDataBits.getTypedValues());
     }
 
     protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec() {

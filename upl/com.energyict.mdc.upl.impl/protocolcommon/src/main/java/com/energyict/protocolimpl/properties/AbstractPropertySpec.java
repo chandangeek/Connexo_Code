@@ -2,13 +2,17 @@ package com.energyict.protocolimpl.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Insert your comments here.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-31 (08:42)
  */
-public abstract class AbstractPropertySpec implements PropertySpec {
+public abstract class AbstractPropertySpec<T> implements PropertySpec<T> {
 
     private final String name;
     private final boolean required;
@@ -38,4 +42,13 @@ public abstract class AbstractPropertySpec implements PropertySpec {
         return this.required;
     }
 
+    @Override
+    public List<T> getPossibleValues() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<T> getDefaultValue() {
+        return Optional.empty();
+    }
 }

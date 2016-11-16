@@ -1,18 +1,12 @@
 package com.energyict.mdc.channels.sms;
 
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.PropertySpec;
-
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -39,18 +33,8 @@ public abstract class AbstractInboundSmsConnectionType extends ConnectionTypeImp
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect(TypedProperties connectionProperties) throws com.energyict.dialer.connection.ConnectionException {
         return new VoidComChannel();
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>();
     }
 
 }

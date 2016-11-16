@@ -13,7 +13,7 @@ import com.energyict.protocolimpl.properties.AbstractPropertySpec;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-31 (15:47)
  */
-public class ObisCodePropertySpec extends AbstractPropertySpec {
+public class ObisCodePropertySpec extends AbstractPropertySpec<ObisCode> {
 
     public ObisCodePropertySpec(String name, boolean required) {
         super(name, required);
