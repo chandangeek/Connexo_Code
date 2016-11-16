@@ -5,27 +5,45 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * Provides an implementation for the {@link PropertySpec} interface for "String" values.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-31 (09:01)
  */
-class StringPropertySpec extends AbstractPropertySpec {
+class StringPropertySpec extends AbstractPropertySpec<String> {
 
-    private LengthConstraint lengthConstraint;
+    private Constraint constraint;
+    private Optional<String> defaultValue = Optional.empty();
 
     StringPropertySpec(String name, boolean required) {
         super(name, required);
-        this.lengthConstraint = new NoConstraint();
+        this.constraint = new NoConstraint();
+    }
+
+    public StringPropertySpec(String name, boolean required, String... possibleValues) {
+        super(name, required);
+        this.constraint = new PossibleValues(possibleValues);
     }
 
     void setMaximumLength(int maximumLength) {
-        this.lengthConstraint = new Max(maximumLength);
+        this.constraint = new Max(maximumLength);
     }
 
     void setExactLength(int length) {
-        this.lengthConstraint = new Exact(length);
+        this.constraint = new Exact(length);
+    }
+
+    void setDefaultValue(String defaultValue){
+        this.defaultValue = Optional.ofNullable(defaultValue);
     }
 
     @Override
@@ -33,29 +51,43 @@ class StringPropertySpec extends AbstractPropertySpec {
         if (this.isRequired() && value == null) {
             throw MissingPropertyException.forName(this.getName());
         } else if (value instanceof String) {
-            this.lengthConstraint.validateValue((String) value, this.getName());
+            this.constraint.validateValue((String) value, this.getName());
             return true;
         } else {
             throw InvalidPropertyException.forNameAndValue(this.getName(), value);
         }
     }
 
-    private interface LengthConstraint {
+    @Override
+    public List<String> getPossibleValues() {
+        return Collections.unmodifiableList(constraint.getPossibleValues());
+    }
+
+    @Override
+    public Optional<String> getDefaultValue() {
+        return defaultValue;
+    }
+
+    private interface Constraint {
         void validateValue(String value, String propertyName) throws InvalidPropertyException;
+
+        default List<String> getPossibleValues(){
+            return Collections.emptyList();
+        }
     }
 
     /**
-     * Provides an implementation for the {@link LengthConstraint} interface
+     * Provides an implementation for the {@link Constraint} interface
      * that does not actually impose any constraint at all.
      */
-    private static class NoConstraint implements LengthConstraint {
+    private static class NoConstraint implements Constraint {
         @Override
         public void validateValue(String value, String propertyName) throws InvalidPropertyException {
             // No constraint so no checks and no exception
         }
     }
 
-    private static class Max implements LengthConstraint {
+    private static class Max implements Constraint {
         private final int maxLength;
 
         private Max(int maxLength) {
@@ -70,7 +102,7 @@ class StringPropertySpec extends AbstractPropertySpec {
         }
     }
 
-    private static class Exact implements LengthConstraint {
+    private static class Exact implements Constraint {
         private final int length;
 
         private Exact(int length) {
@@ -82,6 +114,26 @@ class StringPropertySpec extends AbstractPropertySpec {
             if (value != null && value.length() != this.length) {
                 throw  new InvalidPropertyException(value + " is not a valid value for property " + propertyName + " because the length should be exactly" + this.length + " character(s)");
             }
+        }
+    }
+
+    private static class PossibleValues implements Constraint {
+        private final Set<String> possibleValues;
+
+        private PossibleValues(String... possibleValues) {
+            this.possibleValues = new HashSet<>(Arrays.asList(possibleValues));
+        }
+
+        @Override
+        public void validateValue(String value, String propertyName) throws InvalidPropertyException {
+            if (!this.possibleValues.contains(value)) {
+                throw  new InvalidPropertyException(value + " is not a valid value for property " + propertyName + " because it should be contained in " + this.possibleValues);
+            }
+        }
+
+        @Override
+        public List<String> getPossibleValues() {
+            return new ArrayList<>(possibleValues);
         }
     }
 

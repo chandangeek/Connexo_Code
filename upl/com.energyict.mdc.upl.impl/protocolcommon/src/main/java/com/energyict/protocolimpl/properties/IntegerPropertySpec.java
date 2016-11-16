@@ -17,7 +17,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-28 (16:32)
  */
-class IntegerPropertySpec extends AbstractPropertySpec {
+class IntegerPropertySpec extends AbstractPropertySpec<Integer> {
 
     private final RangeConstraint rangeConstraint;
 

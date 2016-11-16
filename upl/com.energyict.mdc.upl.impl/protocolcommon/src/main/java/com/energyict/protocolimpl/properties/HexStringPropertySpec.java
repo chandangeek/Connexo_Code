@@ -5,13 +5,15 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
+import com.energyict.cbo.HexString;
+
 /**
  * Provides an implementation for the {@link PropertySpec} interface for hex "String" values.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-04 (12:47)
  */
-class HexStringPropertySpec extends AbstractPropertySpec {
+class HexStringPropertySpec extends AbstractPropertySpec<HexString> {
 
     HexStringPropertySpec(String name, boolean required) {
         super(name, required);

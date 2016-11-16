@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
+import com.energyict.cbo.Password;
 import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
 /**
@@ -13,7 +14,7 @@ import com.energyict.protocolimpl.properties.AbstractPropertySpec;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-31 (11:33)
  */
-public class PasswordPropertySpec extends AbstractPropertySpec {
+public class PasswordPropertySpec extends AbstractPropertySpec<Password> {
 
     private final int length;
 

@@ -1,6 +1,5 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
@@ -12,22 +11,25 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
+import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
 
-import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Properties;
 
 /**
  * Serves as the root for components that intend to implement
- * the {@link com.energyict.mdc.tasks.ConnectionType} interface.
+ * the ConnectionType interface.
  * Mostly provides code reuse opportunities for storing properties.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (15:19)
  */
-public abstract class ConnectionTypeImpl implements ConnectionType {
+public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.ConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
 
@@ -36,7 +38,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void setProperties(Properties properties) throws PropertyValidationException {
         this.properties = TypedProperties.copyOf(properties);
     }
 
@@ -57,18 +59,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     }
 
     @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-        //Ignore, only used for JSON
-    }
-
-    @Override
-    public void disconnect(ComChannel comChannel) throws ConnectionException {
+    public void disconnect(ComChannel comChannel) {
         // Prepare the comChannel for disconnect
         comChannel.prepareForDisConnect();
 
@@ -81,8 +72,8 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * Creates a new {@link com.energyict.mdc.protocol.ComChannel}
      * that uses Sockets as the actual connection mechanism.
      *
-     * @param host    The host name, or <code>null</code> for the loopback address.
-     * @param port    The port number
+     * @param host The host name, or <code>null</code> for the loopback address.
+     * @param port The port number
      * @param timeOut the timeOut in milliseconds to wait before throwing a ConnectionException
      * @return The ComChannel
      * @throws ConnectionException Indicates a failure in the actual connection mechanism
@@ -140,8 +131,8 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * that uses UDP Datagrams as the actual connection mechanism
      *
      * @param bufferSize the bufferSize of the ByteArray which receives the UDP data
-     * @param host       the host to which to connect
-     * @param port       the portNumber to which we need to connect
+     * @param host the host to which to connect
+     * @param port the portNumber to which we need to connect
      * @return the newly created DatagramComChannel
      * @throws ConnectionException if the connection setup did not work
      */
@@ -167,10 +158,5 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
         return typedProperties;
-    }
-
-    @Override
-    public void injectConnectionTaskId(int connectionTaskId) {
-        // Not interested in this kind of info, sub-classes who need this can override
     }
 }
