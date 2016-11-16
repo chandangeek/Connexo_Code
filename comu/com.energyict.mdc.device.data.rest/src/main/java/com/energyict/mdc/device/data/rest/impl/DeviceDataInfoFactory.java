@@ -99,7 +99,11 @@ public class DeviceDataInfoFactory {
                 .collect(Collectors.toList());
 
 
-        Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+        Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues()
+                .entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.multiplier = channel.getMultiplier(reading.getTimeStamp()).orElseGet(() -> null);
             channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
@@ -235,16 +239,16 @@ public class DeviceDataInfoFactory {
         } else if (reading instanceof NumericalReading) {
             return createNumericalReadingInfo((NumericalReading) reading, register, isValidationStatusActive, dataLoggerSlave);
         } else if (reading instanceof TextReading) {
-            return createTextReadingInfo((TextReading) reading);
+            return createTextReadingInfo((TextReading) reading, register);
         } else if (reading instanceof FlagsReading) {
-            return createFlagsReadingInfo((FlagsReading) reading);
+            return createFlagsReadingInfo((FlagsReading) reading, register);
 
         }
         throw new IllegalArgumentException("Unsupported reading type: " + reading.getClass().getSimpleName());
     }
 
-    private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo) {
-        readingInfo.id = reading.getTimeStamp();
+    private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
+        readingInfo.id = Long.parseLong("" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId());
         readingInfo.timeStamp = reading.getTimeStamp();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
@@ -272,16 +276,19 @@ public class DeviceDataInfoFactory {
 
     private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
-        setCommonReadingInfo(reading, billingReadingInfo);
+        setCommonReadingInfo(reading, billingReadingInfo, register);
         Instant timeStamp = reading.getTimeStamp();
         if (timeStamp != null) {
             billingReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         }
-        if (reading.getQuantity() != null) {
-            billingReadingInfo.value = reading.getQuantity().getValue();
+        Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
+        int numberOfFractionDigits = ((BillingRegister) register).getNumberOfFractionDigits();
+        if (collectedValue != null) {
+            billingReadingInfo.value = reading.getQuantity().getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             billingReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
-            setCalculatedValueIfApplicable(reading, register, billingReadingInfo, 0);
+            billingReadingInfo.rawValue = billingReadingInfo.value;
         }
+        setCalculatedValueIfApplicable(reading, register, billingReadingInfo, numberOfFractionDigits);
         if (reading.getRange().isPresent()) {
             billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
         }
@@ -294,7 +301,7 @@ public class DeviceDataInfoFactory {
 
     private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
-        setCommonReadingInfo(reading, numericalReadingInfo);
+        setCommonReadingInfo(reading, numericalReadingInfo, register);
         Instant timeStamp = reading.getTimeStamp();
         if (timeStamp != null) {
             numericalReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
@@ -344,17 +351,17 @@ public class DeviceDataInfoFactory {
         });
     }
 
-    private TextReadingInfo createTextReadingInfo(TextReading reading) {
+    private TextReadingInfo createTextReadingInfo(TextReading reading, Register<?,?> register) {
         TextReadingInfo textReadingInfo = new TextReadingInfo();
-        setCommonReadingInfo(reading, textReadingInfo);
+        setCommonReadingInfo(reading, textReadingInfo, register);
         textReadingInfo.value = reading.getValue();
 
         return textReadingInfo;
     }
 
-    private FlagsReadingInfo createFlagsReadingInfo(FlagsReading reading) {
+    private FlagsReadingInfo createFlagsReadingInfo(FlagsReading reading, Register<?,?> register) {
         FlagsReadingInfo flagsReadingInfo = new FlagsReadingInfo();
-        setCommonReadingInfo(reading, flagsReadingInfo);
+        setCommonReadingInfo(reading, flagsReadingInfo, register);
         flagsReadingInfo.value = reading.getFlags();
         return flagsReadingInfo;
     }
@@ -408,6 +415,7 @@ public class DeviceDataInfoFactory {
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         billingRegisterInfo.useMultiplier = register.getRegisterSpec().isUseMultiplier();
+        billingRegisterInfo.overruledNumberOfFractionDigits = register.getRegisterSpec().getNumberOfFractionDigits();
         return billingRegisterInfo;
     }
 
