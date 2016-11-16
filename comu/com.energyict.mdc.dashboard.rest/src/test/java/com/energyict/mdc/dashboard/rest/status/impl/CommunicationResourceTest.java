@@ -312,7 +312,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> communicationTaskMap = (Map) ((List) map.get("communicationTasks")).get(0);
         assertThat(communicationTaskMap)
                 .containsKey("name")
-                .containsKey("comTasks")
+                .containsKey("comTask")
                 .containsKey("device")
                 .containsKey("deviceType")
                 .containsKey("deviceConfiguration")

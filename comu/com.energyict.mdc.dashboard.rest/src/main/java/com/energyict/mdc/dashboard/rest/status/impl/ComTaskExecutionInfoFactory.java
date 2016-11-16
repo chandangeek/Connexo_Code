@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -33,8 +32,7 @@ public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory
 
     @Override
     protected void initExtraFields(ComTaskExecutionInfo info, ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) {
-        info.comTasks = new ArrayList<>();
-        info.comTasks.add(new IdWithNameInfo(comTaskExecution.getComTask()));
+        info.comTask = new IdWithNameInfo(comTaskExecution.getComTask());
         Device device = comTaskExecution.getDevice();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
