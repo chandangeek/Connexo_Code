@@ -287,17 +287,17 @@ public class UsagePointOutputResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyPurpose purpose = resourceHelper.findMetrologyPurposeOrThrowException(purposeId);
 
-        effectiveMC.getMetrologyConfiguration().getContracts()
+        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts()
                 .stream()
-                .filter(metrologyContract -> !effectiveMC.getChannelsContainer(metrologyContract, clock.instant())
-                        .isPresent())
-                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                .filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose))
-                .filter(metrologyContract -> !metrologyContract.isMandatory())
+                .filter(mc -> !effectiveMC.getChannelsContainer(mc, clock.instant()).isPresent())
+                .filter(mc -> !mc.getDeliverables().isEmpty())
+                .filter(mc -> mc.getMetrologyPurpose().equals(purpose))
+                .filter(mc -> !mc.isMandatory())
                 .findFirst()
-                .ifPresent(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range.atLeast(clock.instant())));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE));
 
-        return Response.status(Response.Status.OK).build();
+        effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range.atLeast(clock.instant()));
+        return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
 
     @PUT
@@ -312,7 +312,7 @@ public class UsagePointOutputResource {
         if (effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()) {
             effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, clock.instant());
         }
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
 
 }

@@ -36,7 +36,8 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_COMPLETED(35, Keys.PROCESS_STATUS_COMPLETED, "Completed"),
     PROCESS_STATUS_ABORTED(36, Keys.PROCESS_STATUS_ABORDED, "Aborted"),
     PROCESS_STATUS_SUSPENDED(37, Keys.PROCESS_STATUS_SUSPENDED, "Suspended"),
-    NO_SUCH_METROLOGY_PURPOSE(38, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}");
+    NO_SUCH_METROLOGY_PURPOSE(38, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}"),
+    CANNOT_ACTIVATE_METROLOGY_PURPOSE(39, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can't activate metrology purpose with ID {0}");
 
     private final int number;
     private final String key;
@@ -94,6 +95,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PROCESS_STATUS_ABORDED = "ProcessStatusAborted";
         public static final String PROCESS_STATUS_SUSPENDED = "ProcessStatusSuspended";
         public static final String NO_SUCH_METROLOGY_PURPOSE = "NoSuchMetrologyPurpose";
+        public static final String CANNOT_ACTIVATE_METROLOGY_PURPOSE = "CannotActivateMetrologyPurpose";
     }
 
 }
