@@ -719,4 +719,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public final FrameCounterProvider getFrameCounterProvider(final ObisCode obisCode) throws NotInObjectListException{
         return new FrameCounterProvider(this.protocolLink, this.getObjectReference(obisCode));
     }
+
+    public final DLMSGatewaySetup getDLMSGatewaySetup() {
+        return new DLMSGatewaySetup(this.protocolLink, DLMSGatewaySetup.DEFAULT_OBIS_CODE);
+    }
 }

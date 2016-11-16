@@ -758,4 +758,8 @@ public class DeviceMessageConstants {
     public static final String securityGroupEventCounters = "LogBookDeviceMessage.securityGroupEventCounters";
     public static final String deviceLogLevel = "ConfigurationChangeDeviceMessage.deviceLogLevel";
 
+    public static final String RelayMeterNotifications = "DLMSGatewayMessage.RelayMeterNotifications";
+    public static final String DecipherMeterNotifications = "DLMSGatewayMessage.DecipherMeterNotifications";
+    public static final String DropUnencryptedMeterNotifications = "DLMSGatewayMessage.DropUnencryptedMeterNotifications";
+
 }
