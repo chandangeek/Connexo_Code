@@ -52,8 +52,10 @@ Ext.define('Bpm.view.task.bulk.Step3', {
         var me = this;
         var arrActions = [];
 
-        if(!me.down('fieldcontainer[name=assign]').disabled)
-            arrActions.push('assign');
+        if (!me.down('combo[itemId=cbo-user-assignee]').disabled)
+            arrActions.push('userAssign');
+        if (!me.down('combo[itemId=cbo-workgroup-assignee]').disabled)
+            arrActions.push('workgroupAssign');
         if(!me.down('fieldcontainer[name=setDueDate]').disabled)
             arrActions.push('setDueDate');
         if(!me.down('fieldcontainer[name=setPriority]').disabled)

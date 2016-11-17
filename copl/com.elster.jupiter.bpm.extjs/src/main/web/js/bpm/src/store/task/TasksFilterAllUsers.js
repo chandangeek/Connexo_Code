@@ -20,7 +20,7 @@ Ext.define('Bpm.store.task.TasksFilterAllUsers', {
         {name: 'name',  type: 'string'}
     ],
     listeners: {
-        load: function() {
+        load1: function () {
             this.filter(function(rec){
                 return rec.get('id') != -1;
             });

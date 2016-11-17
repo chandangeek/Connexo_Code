@@ -18,6 +18,8 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.store.task.TasksFilterUsers',
         'Bpm.store.task.TasksFilterWorkgroups',
         'Bpm.store.task.TasksUsers',
+        'Bpm.store.task.TasksFilterAllUsers',
+        'Bpm.store.task.TaskWorkgroupAssignees',
         'Bpm.store.Clipboard'
     ],
     models: [
@@ -345,6 +347,8 @@ Ext.define('Bpm.controller.Task', {
             userTask, loggedUser,
             record = menu.record || me.getMainGrid().getSelectionModel().getLastSelected();
 
+        menu.down('#menu-claim-task').hide();
+        menu.down('#menu-unassigned-task').hide();
         Ext.Ajax.request({
             url: '/api/bpm/runtime/assignees?me=true',
             method: 'GET',

@@ -256,13 +256,14 @@ Ext.define('Bpm.controller.OpenTask', {
         if (assigneeForm == undefined) {
             return;
         }
-
+        assigneeForm.loadRecord(taskRecord);
+        /*
         var assigneeCombo = assigneeForm.down('#cbo-assignee-user');
         assigneeCombo.store.load({
             callback: function (records, operation, success) {
                 assigneeForm.loadRecord(taskRecord);
             }
-        });
+         });*/
     },
 
     loadEditTaskForm: function (taskRecord) {
@@ -287,7 +288,8 @@ Ext.define('Bpm.controller.OpenTask', {
             editTaskForm = me.getEditTaskForm();
 
         assignUser.getProxy().extraParams = {
-            username: assigneeForm.down('#cbo-assignee-user').getValue(),
+            username: assigneeForm.down('#cbo-user-assignee').getValue(),
+            workgroup: assigneeForm.down('#cbo-workgroup-assignee').getValue(),
             priority: editTaskForm.down('#num-priority').getValue(),
             duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''
         };
@@ -301,7 +303,6 @@ Ext.define('Bpm.controller.OpenTask', {
                 if (json && json.errors) {
                     assigneeForm.getForm().markInvalid(json.errors);
                 }
-
             }
         })
     },

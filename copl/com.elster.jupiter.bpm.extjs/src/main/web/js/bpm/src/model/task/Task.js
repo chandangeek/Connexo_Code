@@ -108,7 +108,9 @@ Ext.define('Bpm.model.task.Task', {
         },
         {
             name: 'workgroup',
-            type: 'string'
+            convert: function (value, record) {
+                return 1;
+            }
         },
         {
             name: 'actualOwnerDisplay',
@@ -121,12 +123,10 @@ Ext.define('Bpm.model.task.Task', {
                 return actualOwner;
             }
         },
-
         {
             name: 'processInstancesId',
             type: 'string'
         },
-
         {
             name: 'optLock',
             type: 'number'

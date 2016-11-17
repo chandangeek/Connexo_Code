@@ -2,7 +2,10 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
     extend: 'Ext.form.Panel',
     requires: [
         'Ext.form.Panel',
-        'Bpm.store.task.TasksUsers'
+        'Bpm.store.task.TasksUsers',
+        'Bpm.store.task.TasksFilterAllUsers',
+        'Bpm.store.task.TaskWorkgroupAssignees',
+        'Bpm.view.task.AssigneeForm'
     ],
     ui: 'medium',
     padding: 0,
@@ -21,62 +24,44 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
             },
             items: [
                 {
-                    xtype: 'container',
+                    xtype: 'form',
+                    itemId: 'frm-assignee-user',
                     layout: {
-                        type: 'hbox',
-                        align: 'center'
+                        type: 'vbox',
+                        align: 'stretch'
                     },
+                    defaults: {
+                        labelWidth: 250,
+                        width: 564
+                    },
+                    margin: '0 0 10 0',
                     items: [
-
                         {
-                            xtype: 'checkbox',
-                            itemId: 'task-bulk-assignee-check',
-                            name: 'cbAssignee',
-                            inputValue: 'assign',
-                            listeners: {
-                                change: function() {
-                                    if(this.value)
-                                        this.up('form').down('fieldcontainer[name=assign]').enable();
-                                    else
-                                        this.up('form').down('fieldcontainer[name=assign]').disable();
-                                }
-                            }
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            name: 'assign',
-                            disabled: true,
-                            margin: '0 10 0 0',
-                            width: 800,
-                            layout: 'hbox',
-                            items: [
-
-                                {
-                                    xtype: 'combobox',
-                                    itemId: 'cbo-bulk-task-assignee',
-                                    fieldLabel: Uni.I18n.translate('general.assignee', 'BPM', 'Assignee'),
-                                    required: true,
-                                    queryMode: 'local',
-                                    margin: '0 10 0 0',
-                                    valueField: 'id',
-                                    allowBlank: false,
-                                    validateOnChange: false,
-                                    name: 'assigneeCombo',
-                                    emptyText: Uni.I18n.translate('bpm.task.startTypingForUsers', 'BPM', 'Start typing for users'),
-                                    displayField: 'name'
-                                }
-
-                            ]
+                            xtype: 'assignee-form',
+                            itemId: 'task-assignee-form',
+                            workgroup: {
+                                dataIndex: 'workgroup',
+                                name: 'workgroup',
+                                valueField: 'id',
+                                displayField: 'name',
+                                store: 'Bpm.store.task.TaskWorkgroupAssignees'
+                            },
+                            user: {
+                                dataIndex: 'actualOwner',
+                                name: 'assignee',
+                                valueField: 'name',
+                                displayField: 'name',
+                                store: 'Bpm.store.task.TasksFilterAllUsers'
+                            },
+                            defaults: {
+                                labelWidth: 100,
+                                width: 400
+                            },
+                            allUsersUrl: '/api/bpm/runtime/assignees',
+                            workgroupUsersUrl: '/api/bpm/workgroups/{0}/users',
+                            withCheckBox: true
                         }
                     ]
-                },
-                {
-                    xtype: 'component',
-                    itemId: 'user-selection-error',
-                    cls: 'x-form-invalid-under',
-                    margin: '0 0 0 40',
-                    html: Uni.I18n.translate('task.bulk.MgmtAsignneSelectionError', 'BPM', 'You must choose user before you can proceed'),
-                    hidden: true
                 },
                 {
                     xtype: 'container',
@@ -92,8 +77,8 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                             name: 'cbDuedate',
                             inputValue: 'dueDate',
                             listeners: {
-                                change: function() {
-                                    if(this.value)
+                                change: function () {
+                                    if (this.value)
                                         this.up('form').down('fieldcontainer[name=setDueDate]').enable();
                                     else
                                         this.up('form').down('fieldcontainer[name=setDueDate]').disable();
@@ -217,21 +202,5 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
 
             ]
         }
-    ],
-    initComponent: function() {
-        var me = this,
-            userStore = Ext.getStore('Bpm.store.task.TasksUsers'),
-            assigneeCombo;
-
-        me.callParent(arguments);
-
-        assigneeCombo = me.down('combobox[name=assigneeCombo]');
-        userStore.load(function (records) {
-            Ext.getBody().unmask();
-            if (!Ext.isEmpty(records)) {
-                assigneeCombo.bindStore(userStore);
-            }
-        });
-
-    }
+    ]
 });

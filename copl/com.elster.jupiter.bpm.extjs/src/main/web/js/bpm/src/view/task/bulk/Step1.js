@@ -76,8 +76,22 @@ Ext.define('Bpm.view.task.bulk.Step1', {
                         flex: 1
                     },
                     {
+                        itemId: 'workgroup',
+                        text: Uni.I18n.translate('general.workgroup', 'BPM', 'Workgroup'),
+                        dataIndex: 'workgroup',
+                        flex: 1,
+                        renderer: function (value, metaData, record, rowIndex, colIndex) {
+                            var result = '';
+                            if (!Ext.isEmpty(value)) {
+                                result = '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.user', 'BPM', 'User') + '"></span> ';
+                                result += Ext.String.htmlEncode(value);
+                            }
+                            return result;
+                        }
+                    },
+                    {
                         itemId: 'assignee',
-                        text: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
+                        text: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'User'),
                         dataIndex: 'actualOwner',
                         flex: 1,
                         renderer: function (value, metaData, record, rowIndex, colIndex) {
@@ -89,7 +103,6 @@ Ext.define('Bpm.view.task.bulk.Step1', {
                             return result;
                         }
                     }
-
                 ]
             },
             {

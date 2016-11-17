@@ -3,10 +3,12 @@ Ext.define('Bpm.view.task.EditTask', {
     alias: 'widget.bpm-task-edit-task',
     requires: [
         'Bpm.store.task.Tasks',
-        'Bpm.store.task.TasksFilterAllUsers',
         'Uni.view.toolbar.PreviousNextNavigation',
         'Uni.property.form.Property',
-        'Uni.property.form.GroupedPropertyForm'
+        'Uni.property.form.GroupedPropertyForm',
+        'Bpm.store.task.TasksFilterAllUsers',
+        'Bpm.store.task.TaskWorkgroupAssignees',
+        'Bpm.view.task.AssigneeForm'
     ],
     taskRecord: null,
     showNavigation: true,
@@ -55,13 +57,41 @@ Ext.define('Bpm.view.task.EditTask', {
                                     {
                                         xtype: 'form',
                                         itemId: 'frm-assignee-user',
-                                        margin: '0 0 0 0',
                                         layout: {
-                                            type: 'hbox',
+                                            type: 'vbox',
                                             align: 'left'
+                                        },
+                                        defaults: {
+                                            labelWidth: 250,
+                                            width: 564
                                         },
                                         items: [
                                             {
+                                                xtype: 'assignee-form',
+                                                itemId: 'task-assignee-form',
+                                                workgroup: {
+                                                    dataIndex: 'workgroup',
+                                                    name: 'workgroup',
+                                                    valueField: 'id',
+                                                    displayField: 'name',
+                                                    store: 'Bpm.store.task.TaskWorkgroupAssignees'
+                                                },
+                                                user: {
+                                                    dataIndex: 'actualOwner',
+                                                    name: 'assignee',
+                                                    valueField: 'name',
+                                                    displayField: 'name',
+                                                    store: 'Bpm.store.task.TasksFilterAllUsers'
+                                                },
+                                                defaults: {
+                                                    labelWidth: 250,
+                                                    width: 564
+                                                },
+                                                allUsersUrl: '/api/bpm/runtime/assignees',
+                                                workgroupUsersUrl: '/api/bpm/workgroups/{0}/users',
+                                                withCheckBox: false
+                                            }
+                                            /* {
                                                 xtype: 'combobox',
                                                 dataIndex: 'actualOwner',
                                                 fieldLabel: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
@@ -71,13 +101,53 @@ Ext.define('Bpm.view.task.EditTask', {
                                                 valueField: 'name',
                                                 itemId: 'cbo-assignee-user',
                                                 store: 'Bpm.store.task.TasksFilterAllUsers',
-                                                width: 564,
-                                                labelWidth: 250,
                                                 editable: false,
                                                 queryMode: 'local',
                                                 name: 'assignee',
                                                 required: true
-                                            }
+                                             },*/
+                                            /*  {
+                                             xtype: 'combobox',
+                                             dataIndex: 'workgroup',
+                                             itemId: 'cbo-workgroup-task-assignee',
+                                             fieldLabel: Uni.I18n.translate('general.workgroup', 'BPM', 'Workgroup'),
+                                             queryMode: 'local',
+                                             name: 'workgroup',
+                                             valueField: 'id',
+                                             displayField: 'name',
+                                             allowBlank: false,
+                                             store: 'Bpm.store.task.TaskWorkgroupAssignees',
+                                             emptyText: Uni.I18n.translate('task.startTypingForWorkgroup', 'BPM', 'Start typing for workgroup'),
+                                             msgTarget: 'under',
+                                             editable: false,
+                                             listeners: {
+                                             render: function () {
+                                             this.store.load();
+                                             },
+                                             change: function (combo, newValue) {
+                                             this.up('#frm-assignee-user').down('#cbo-user-task-assignee').fireEvent('workgroupChanged', newValue);
+                                             },
+                                             select: function (combo, newValue) {
+                                             this.up('#frm-assignee-user').down('#cbo-user-task-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));
+                                             }
+                                             }
+                                             },
+                                             {
+                                             xtype: 'bpm-user-assignee-combo',
+                                             dataIndex: 'actualOwner',
+                                             itemId: 'cbo-user-task-assignee',
+                                             fieldLabel: Uni.I18n.translate('general.user', 'BPM', 'User'),
+                                             queryMode: 'local',
+                                             name: 'assignee',
+                                             valueField: 'id',
+                                             displayField: 'name',
+                                             allowBlank: false,
+                                             editable: false,
+                                             //store: 'Bpm.store.task.TaskWorkgroupAssignees',
+                                             store: 'Bpm.store.task.TasksFilterAllUsers',
+                                             emptyText: Uni.I18n.translate('task.startTypingForUsers', 'BPM', 'Start typing for users'),
+                                             msgTarget: 'under'
+                                             }*/
                                         ]
                                     },
                                     {

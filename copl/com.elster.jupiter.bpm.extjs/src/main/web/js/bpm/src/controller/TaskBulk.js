@@ -26,7 +26,8 @@ Ext.define('Bpm.controller.TaskBulk', {
         'Bpm.store.task.Tasks',
         'Bpm.store.task.TasksBuffered',
         'Bpm.store.task.TasksUsers',
-        'Bpm.store.task.TaskGroups'
+        'Bpm.store.task.TaskGroups',
+        'Bpm.store.task.TasksFilterAllUsers'
     ],
     models: [
         'Bpm.model.task.TaskForm'
@@ -390,8 +391,11 @@ Ext.define('Bpm.controller.TaskBulk', {
             };
             Ext.each(me.manageTaskActions, function (item) {
                 switch (item) {
-                    case 'assign':
-                        tasksQueryParams.assign = manageTaskForm.down('combobox[name=assigneeCombo]').getRawValue();
+                    case 'userAssign':
+                        tasksQueryParams.assign = manageTaskForm.down('combo[itemId=cbo-user-assignee]').getRawValue();
+                        break;
+                    case 'workgroupAssign':
+                        tasksQueryParams.workgroup = manageTaskForm.down('combo[itemId=cbo-workgroup-assignee]').getRawValue();
                         break;
                     case 'setDueDate':
                         tasksQueryParams.setDueDate = moment(manageTaskForm.down('#task-due-date').getValue()).valueOf();
@@ -518,7 +522,7 @@ Ext.define('Bpm.controller.TaskBulk', {
             stepView,
             selectionGrid,
             manageTaskForm,
-            assigneeContainer,
+            workgroupAssignee, userAssignee,
             dueDateContainer,
             priorityContainer,
             tasksGroupsStore = me.getStore('Bpm.store.task.TaskGroups'),
@@ -546,12 +550,12 @@ Ext.define('Bpm.controller.TaskBulk', {
                 if (me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskmanagement') {
 
                     manageTaskForm = stepView.down('task-manage-form');
-                    assigneeCombo = manageTaskForm.down('combobox[name=assigneeCombo]');
-                    assigneeContainer = manageTaskForm.down('fieldcontainer[name=assign]');
+                    workgroupAssignee = manageTaskForm.down('combobox[itemId=cbo-workgroup-assignee]');
+                    userAssignee = manageTaskForm.down('combobox[itemId=cbo-user-assignee]');
                     dueDateContainer = manageTaskForm.down('fieldcontainer[name=setDueDate]');
                     priorityContainer = manageTaskForm.down('fieldcontainer[name=setPriority]');
 
-                    if (assigneeContainer.disabled && dueDateContainer.disabled && priorityContainer.disabled) {
+                    if (workgroupAssignee.disabled && userAssignee.disabled && dueDateContainer.disabled && priorityContainer.disabled) {
                         valid = false;
                         stepView.down('#controls-selection-error').setVisible(!valid);
                         stepView.down('#step3-error-message').setVisible(!valid);
@@ -560,7 +564,11 @@ Ext.define('Bpm.controller.TaskBulk', {
                     else {
                         stepView.down('#controls-selection-error').setVisible(!valid);
                     }
-                    if (!assigneeContainer.disabled && assigneeCombo.getRawValue() === "") {
+                    if (!workgroupAssignee.disabled && workgroupAssignee.getRawValue() === "") {
+                        valid = false;
+                    }
+
+                    if (!userAssignee.disabled && userAssignee.getRawValue() === "") {
                         valid = false;
                     }
 
@@ -580,7 +588,8 @@ Ext.define('Bpm.controller.TaskBulk', {
                     stepView.down('#mandatory-fields-error').setVisible(!valid);
                 }
 
-                stepView.down('#user-selection-error').setVisible(!valid);
+                if (stepView.down('#user-selection-error'))
+                    stepView.down('#user-selection-error').setVisible(!valid);
                 stepView.down('#step3-error-message').setVisible(!valid);
                 me.getWizard().setLoading(false);
                 break;

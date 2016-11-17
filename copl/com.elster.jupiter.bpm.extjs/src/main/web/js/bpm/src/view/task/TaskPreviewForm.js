@@ -34,13 +34,19 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.task.workgroupAssignee', 'BPM', 'Workgroup'),
                                 name: 'workgroup',
-                                itemId: 'bpm-preview-workgroup-assignee'
+                                itemId: 'bpm-preview-workgroup-assignee',
+                                renderer: function (value) {
+                                    return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'BPM', 'Unassigned');
+                                }
                             },
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.task.userAssignee', 'BPM', 'User'),
                                 name: 'actualOwner',
-                                itemId: 'bpm-preview-user-assignee'
+                                itemId: 'bpm-preview-user-assignee',
+                                renderer: function (value) {
+                                    return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'BPM', 'Unassigned');
+                                }
                             },
                             {
                                 xtype: 'displayfield',

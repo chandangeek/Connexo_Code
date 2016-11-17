@@ -15,13 +15,15 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
             itemId: 'menu-claim-task',
             text: Uni.I18n.translate('bpm.menu.assignToMe', 'BPM', 'Assign to me'),
             action: 'assignToMeTask',
-            privileges: Bpm.privileges.BpmManagement.assign
+            privileges: Bpm.privileges.BpmManagement.assign,
+            visible: false
         },
         {
             itemId: 'menu-unassigned-task',
             text: Uni.I18n.translate('bpm.menu.releaseTask', 'BPM', 'Unassigned'),
             action: 'unassignedTask',
-            privileges: Bpm.privileges.BpmManagement.assign
+            privileges: Bpm.privileges.BpmManagement.assign,
+            visible: false
         },
         {
             itemId: 'menu-perform-task',
