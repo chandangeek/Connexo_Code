@@ -1,16 +1,14 @@
 Ext.define('Scs.view.object.CancelAllActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.cancel-all-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
     record: null,
     items: [
         {
             itemId: 'cancel-all-scs',
             text: Uni.I18n.translate('general.cancelAll', 'SCS', 'Cancel all'),
             privileges: Scs.privileges.ServiceCall.admin,
-            action: 'cancel-all'
+            action: 'cancel-all',
+            section: this.SECTION_ACTION
         }
     ],
     listeners: {
