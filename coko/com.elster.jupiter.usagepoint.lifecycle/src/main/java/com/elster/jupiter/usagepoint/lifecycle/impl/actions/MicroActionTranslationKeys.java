@@ -3,8 +3,8 @@ package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum MicroActionTranslationKeys implements TranslationKey {
-    CANCEL_ALL_SERVICE_CALLS_NAME(Keys.NAME_PREFIX + CancelAllServiceCallsAction.class.getSimpleName(), "Cancel all service calls"),
-    CANCEL_ALL_SERVICE_CALLS_DESCRIPTION(Keys.DESCRIPTION_PREFIX + CancelAllServiceCallsAction.class.getSimpleName(), "Cancel all service calls on a usage point that can be canceled"),;
+    SET_CONNECTED_CONNECTION_STATE_NAME(Keys.NAME_PREFIX + SetConnectedConnectionStateAction.class.getSimpleName(), "Change connection state to Connected"),
+    SET_CONNECTED_CONNECTION_STATE_DESCRIPTION(Keys.DESCRIPTION_PREFIX + SetConnectedConnectionStateAction.class.getSimpleName(), "Change connection state to ''Connected''"),;
 
     private final String key;
     private final String defaultFormat;

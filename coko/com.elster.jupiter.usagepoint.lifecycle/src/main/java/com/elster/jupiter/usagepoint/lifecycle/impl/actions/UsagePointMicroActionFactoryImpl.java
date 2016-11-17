@@ -73,7 +73,7 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     }
 
     private void addMicroActionMappings() {
-        addMicroActionMapping(CancelAllServiceCallsAction.class);
+        addMicroActionMapping(SetConnectedConnectionStateAction.class);
     }
 
     private void addMicroActionMapping(Class<? extends ExecutableMicroAction> clazz) {

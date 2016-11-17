@@ -74,7 +74,7 @@ public enum TableSpecs {
             table.foreignKey("FK_UPE_F_2_REQUEST")
                     .on(changeRequest)
                     .references(UsagePointStateChangeRequest.class)
-                    .map(UsagePointStateChangePropertyImpl.Fields.CHANGE_REQUEST.fieldName())
+                    .map(UsagePointStateChangeFailImpl.Fields.CHANGE_REQUEST.fieldName())
                     .reverseMap(UsagePointStateChangeRequestImpl.Fields.FAILS.fieldName())
                     .composition()
                     .add();

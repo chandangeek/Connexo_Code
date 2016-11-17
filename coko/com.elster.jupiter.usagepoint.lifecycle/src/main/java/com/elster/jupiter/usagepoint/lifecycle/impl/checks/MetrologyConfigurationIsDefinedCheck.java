@@ -7,19 +7,15 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 import java.time.Instant;
 import java.util.Optional;
 
-public class AllDataValidCheck extends TranslatableCheck {
-    @Override
-    public String getKey() {
-        return this.getClass().getSimpleName();
-    }
+public class MetrologyConfigurationIsDefinedCheck extends TranslatableCheck {
 
     @Override
     public String getCategory() {
-        return MicroCategory.VALIDATION.name();
+        return MicroCategory.INSTALLATION.name();
     }
 
     @Override
     public Optional<ExecutableMicroCheckViolation> execute(UsagePoint usagePoint, Instant transitionTime) {
-        return null;
+        return Optional.empty();
     }
 }

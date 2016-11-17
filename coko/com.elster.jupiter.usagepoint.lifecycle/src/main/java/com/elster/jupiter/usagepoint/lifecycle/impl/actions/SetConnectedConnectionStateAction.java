@@ -7,15 +7,11 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 import java.time.Instant;
 import java.util.Map;
 
-public class CancelAllServiceCallsAction extends TranslatableAction {
-    @Override
-    public String getKey() {
-        return this.getClass().getSimpleName();
-    }
+public class SetConnectedConnectionStateAction extends TranslatableAction {
 
     @Override
     public String getCategory() {
-        return MicroCategory.SERVICE_CALLS.name();
+        return MicroCategory.CONNECTION_STATE.name();
     }
 
     @Override

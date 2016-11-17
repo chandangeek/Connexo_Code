@@ -19,6 +19,11 @@ public abstract class TranslatableAction implements ExecutableMicroAction {
     }
 
     @Override
+    public String getKey() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public String getName() {
         return this.thesaurus.getString(MicroActionTranslationKeys.Keys.NAME_PREFIX + getKey(), getKey());
     }

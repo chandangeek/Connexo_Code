@@ -3,8 +3,8 @@ package com.elster.jupiter.usagepoint.lifecycle.impl;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum MicroCategoryTranslationKeys implements TranslationKey {
-    SERVICE_CALLS_NAME(Keys.NAME_PREFIX + MicroCategory.SERVICE_CALLS.name(), "Service calls"),
-    VALIDATION_NAME(Keys.NAME_PREFIX + MicroCategory.VALIDATION.name(), "Validation"),;
+    CONNECTION_STATE_NAME(Keys.NAME_PREFIX + MicroCategory.CONNECTION_STATE.name(), "Connection state"),
+    INSTALLATION_NAME(Keys.NAME_PREFIX + MicroCategory.INSTALLATION.name(), "Installation"),;
 
     private final String key;
     private final String defaultFormat;

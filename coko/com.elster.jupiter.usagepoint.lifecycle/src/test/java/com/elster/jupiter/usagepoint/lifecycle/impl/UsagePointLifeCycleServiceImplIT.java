@@ -12,10 +12,16 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
+import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
+import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectedConnectionStateAction;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -26,6 +32,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -139,6 +146,48 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
                 .findFirst();
         assertThat(transition).isPresent();
         assertThat(transition.get().getTo()).isEqualTo(demolished.get());
+    }
+
+    @Test
+    public void testMicroActionFactoryCanFindByCorrectKey() {
+        assertThat(get(UsagePointMicroActionFactoryImpl.class)
+                .from(SetConnectedConnectionStateAction.class.getSimpleName())
+                .map(MicroAction::getKey))
+                .contains(SetConnectedConnectionStateAction.class.getSimpleName());
+    }
+
+    @Test
+    public void testMicroActionFactoryCanFindByWrongKey() {
+        assertThat(get(UsagePointMicroActionFactoryImpl.class).from("bla-bla")).isEmpty();
+    }
+
+    @Test
+    public void testMicroActionFactoryGetAll() {
+        assertThat(get(UsagePointMicroActionFactoryImpl.class).getAllActions()
+                .stream()
+                .map(MicroAction::getKey)
+                .collect(Collectors.toList())).containsExactly(SetConnectedConnectionStateAction.class.getSimpleName());
+    }
+
+    @Test
+    public void testMicroCheckFactoryCanFindByCorrectKey() {
+        assertThat(get(UsagePointMicroCheckFactoryImpl.class)
+                .from(MetrologyConfigurationIsDefinedCheck.class.getSimpleName())
+                .map(MicroCheck::getKey))
+                .contains(MetrologyConfigurationIsDefinedCheck.class.getSimpleName());
+    }
+
+    @Test
+    public void testMicroCheckFactoryCanFindByWrongKey() {
+        assertThat(get(UsagePointMicroCheckFactoryImpl.class).from("bla-bla")).isEmpty();
+    }
+
+    @Test
+    public void testMicroCheckFactoryGetAll() {
+        assertThat(get(UsagePointMicroCheckFactoryImpl.class).getAllChecks()
+                .stream()
+                .map(MicroCheck::getKey)
+                .collect(Collectors.toList())).containsExactly(MetrologyConfigurationIsDefinedCheck.class.getSimpleName());
     }
 
     @Test

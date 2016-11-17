@@ -19,6 +19,11 @@ public abstract class TranslatableCheck implements ExecutableMicroCheck {
     }
 
     @Override
+    public String getKey() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public String getName() {
         return this.thesaurus.getString(MicroCheckTranslationKeys.Keys.NAME_PREFIX + getKey(), getKey());
     }
