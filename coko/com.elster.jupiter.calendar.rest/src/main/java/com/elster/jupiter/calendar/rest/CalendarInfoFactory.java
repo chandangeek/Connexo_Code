@@ -1,7 +1,6 @@
 package com.elster.jupiter.calendar.rest;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.rest.CalendarInfo;
 
 import aQute.bnd.annotation.ProviderType;
 

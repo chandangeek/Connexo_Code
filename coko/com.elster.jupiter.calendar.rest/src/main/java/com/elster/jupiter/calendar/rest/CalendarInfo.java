@@ -13,7 +13,7 @@ import java.util.List;
 public class CalendarInfo {
     public long id;
     public String name;
-    public String category;
+    public CategoryInfo category;
     public String mRID;
     public String description;
     public int startYear;

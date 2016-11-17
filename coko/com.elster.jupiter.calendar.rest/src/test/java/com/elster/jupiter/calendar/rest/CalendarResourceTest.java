@@ -1,3 +1,5 @@
+package com.elster.jupiter.calendar.rest;
+
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
@@ -46,7 +48,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("name")).isEqualTo(CALENDAR_NAME);
         assertThat(jsonModel.<String>get("description")).isEqualTo(CALENDAR_DESCRIPTION);
-        assertThat(jsonModel.<String>get("category")).isEqualTo("ToU");
+        assertThat(jsonModel.<String>get("category.name")).isEqualTo("ToU");
         assertThat(jsonModel.<Integer>get("events[0].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("events[0].name")).isEqualTo(EVENT_NAME);
         assertThat(jsonModel.<Integer>get("events[0].code")).isEqualTo(3);
