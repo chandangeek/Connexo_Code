@@ -50,11 +50,6 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 
-/**
- * Created by igh on 18/04/2016.
- */
-
-
 @Component(name = "com.elster.jupiter.calendar",
         service = {CalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + CalendarService.COMPONENTNAME,
@@ -240,7 +235,21 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public Optional<EventSet> findEventSetByName(String name) {
-        return getDataModel().mapper(EventSet.class).getUnique("name", name);
+        return eventSetMapper().getUnique("name", name);
+    }
+
+    private DataMapper<EventSet> eventSetMapper() {
+        return getDataModel().mapper(EventSet.class);
+    }
+
+    @Override
+    public Optional<EventSet> findEventSet(long id) {
+        return eventSetMapper().getOptional(id);
+    }
+
+    @Override
+    public List<EventSet> findEventSets() {
+        return eventSetMapper().find();
     }
 
     @Override

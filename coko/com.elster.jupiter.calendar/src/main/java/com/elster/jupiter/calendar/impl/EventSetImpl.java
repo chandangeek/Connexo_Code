@@ -49,7 +49,8 @@ public class EventSetImpl implements EventSet {
         return dataModel.getInstance(EventSetImpl.class).init(name);
     }
 
-    long getId() {
+    @Override
+    public long getId() {
         return id;
     }
 

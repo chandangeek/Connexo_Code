@@ -58,6 +58,10 @@ public interface CalendarService {
 
     Optional<EventSet> findEventSetByName(String name);
 
+    Optional<EventSet> findEventSet(long id);
+
+    List<EventSet> findEventSets();
+
     @ProviderType
     interface CalendarBuilder {
         CalendarBuilder category(Category category);
