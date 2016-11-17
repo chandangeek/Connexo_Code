@@ -43,7 +43,7 @@ public class UsagePointFinder implements Finder<UsagePoint> {
                         ServiceCategory.class,
                         UsagePointConnectionState.class,
                         MetrologyContract.class)
-                .defaultSortColumn("mRID");
+                .defaultSortColumn("name");
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {

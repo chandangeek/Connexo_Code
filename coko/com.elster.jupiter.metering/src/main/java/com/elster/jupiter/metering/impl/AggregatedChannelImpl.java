@@ -127,7 +127,7 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Range<Instant> interval) {
-        if (getMainReadingType().equals(readingType)) {
+        if (!getMainReadingType().equals(readingType)) {
             throw new IllegalArgumentException("Incorrect reading type. This channel supports only " + this.deliverable.getReadingType().getMRID());
         }
         return getIntervalReadings(interval);

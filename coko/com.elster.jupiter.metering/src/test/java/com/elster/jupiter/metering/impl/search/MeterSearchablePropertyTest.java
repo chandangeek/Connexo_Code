@@ -138,12 +138,12 @@ public class MeterSearchablePropertyTest {
     public void displayString() {
         Meter meter = mock(Meter.class);
         MeterSearchableProperty property = this.getTestInstance();
-        when(meter.getMRID()).thenReturn("name");
+        when(meter.getName()).thenReturn("name");
         // Business method
         String displayValue = property.toDisplay(meter);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(meter.getMRID());
+        assertThat(displayValue).isEqualTo("name");
     }
 
     private MeterSearchableProperty getTestInstance() {

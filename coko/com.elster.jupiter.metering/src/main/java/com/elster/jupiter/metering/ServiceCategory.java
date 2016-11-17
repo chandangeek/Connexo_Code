@@ -8,6 +8,8 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -23,11 +25,11 @@ public interface ServiceCategory extends HasName, HasAuditInfo, HasId {
     /**
      * Creates a new UsagePoint for this ServiceCategory.
      *
-     * @param mRID The master resource identifier for the new UsagePoint
+     * @param name The master resource identifier for the new UsagePoint
      * @param installationTime The time of installation of the new UsagePoint
      * @return The builder that allows you to specify optional information
      */
-    UsagePointBuilder newUsagePoint(String mRID, Instant installationTime);
+    UsagePointBuilder newUsagePoint(String name, Instant installationTime);
 
     UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Instant start);
 

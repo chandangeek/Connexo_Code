@@ -88,7 +88,7 @@ public class NameSearchablePropertyTest {
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
     }
 
     @Test

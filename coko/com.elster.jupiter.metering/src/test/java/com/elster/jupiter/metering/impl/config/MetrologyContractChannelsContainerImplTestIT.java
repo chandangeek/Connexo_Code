@@ -135,7 +135,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         usagePoint.apply(metrologyConfiguration);
 
         AmrSystem amrSystem = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = amrSystem.newMeter("").setMRID("meter1").create();
+        Meter meter = amrSystem.newMeter("", "meter1").create();
         usagePoint.linkMeters().activate(meter, meterRole);
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()

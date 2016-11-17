@@ -92,7 +92,7 @@ public class MeterImplTest {
     @Test
     public void testNoOverlapOnActivate() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "testNoOverlapOnActivate");
+        meter.init(amrSystem, "1", "Name", null);
 
         MeterActivation meterActivation = meter.activate(START.toInstant());
 
@@ -105,7 +105,7 @@ public class MeterImplTest {
     @Test
     public void testActivateWithUsagePoint() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "testActivateWithUsagePoint");
+        meter.init(amrSystem, "1", "Name", null);
 
         MeterActivation meterActivation = meter.activate(usagePoint, START.toInstant());
 
@@ -113,33 +113,30 @@ public class MeterImplTest {
         assertThat(meterActivation.getMeter()).contains(meter);
         assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
         verify(meteringService).getHeadEndInterface(HEADEND_INTERFACE_NAME);
-
     }
 
     @Test(expected = MeterAlreadyActive.class)
     public void testOverlapOnActivate() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "testOverlapOnActivate");
+        meter.init(amrSystem, "1", "Name", null);
 
         meter.activate(START.toInstant());
         meter.activate(START.minusMonths(1).toInstant());
-
     }
 
     @Test
     public void testSetName() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService)
-                .init(amrSystem, "amrID", "mrId");
+                .init(amrSystem, "amrID", "Name", null);
+        assertThat(meter.getName()).isEqualTo("Name");
         meter.setName("name42");
-
         assertThat(meter.getName()).isEqualTo("name42");
-
     }
 
     @Test
     public void getMeterActivationsRangeWithSingleMATest() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "getMeterActivationsRangeWithSingleMATest");
+        meter.init(amrSystem, "1", "Name", null);
 
         MeterActivation meterActivation = meter.activate(START.toInstant());
 
@@ -152,7 +149,7 @@ public class MeterImplTest {
     @Test
     public void getMeterActivationsRangeWithSingleMAOnBoundaryTest() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "getMeterActivationsRangeWithSingleMAOnBoundaryTest");
+        meter.init(amrSystem, "1", "Name", null);
 
         MeterActivation meterActivation = meter.activate(START.toInstant());
 
@@ -164,7 +161,7 @@ public class MeterImplTest {
     @Test
     public void getMeterActivationsRangeWithSingleMAOverLappingTest() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "getMeterActivationsRangeWithSingleMAOverLappingTest");
+        meter.init(amrSystem, "1", "Name", null);
 
         MeterActivation meterActivation = meter.activate(START.toInstant());
 
@@ -177,7 +174,7 @@ public class MeterImplTest {
     @Test
     public void getMeterActivationsRangeWithTwoMATest() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "getMeterActivationsRangeWithTwoMATest");
+        meter.init(amrSystem, "1", "Name", null);
 
         MeterActivation meterActivation1 = meter.activate(START.toInstant().minus(1, ChronoUnit.DAYS));
         meterActivation1.endAt(START.toInstant());
@@ -192,7 +189,7 @@ public class MeterImplTest {
     @Test
     public void getMeterActivationsRangeWithTwoMAOnBoundaryTest() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
-        meter.init(amrSystem, "1", "getMeterActivationsRangeWithTwoMAOnBoundaryTest");
+        meter.init(amrSystem, "1", "Name", null);
 
         MeterActivation meterActivation1 = meter.activate(START.toInstant().minus(1, ChronoUnit.DAYS));
         meterActivation1.endAt(START.toInstant());
@@ -202,6 +199,4 @@ public class MeterImplTest {
         assertThat(meterActivations).hasSize(1);
         assertThat(meterActivations).containsExactly(meterActivation2);
     }
-
-
 }

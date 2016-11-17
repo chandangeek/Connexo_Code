@@ -155,7 +155,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         this.usagePoint.touch();
         refreshMeterActivations();
         // Notify
-        eventService.postEvent(EventType.METER_ACTIVATED.topic(), this.usagePoint);
+        eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this.usagePoint);
     }
 
     private Stream<Meter> convertMeterActivationsToStreamOfMeters(List<MeterActivation> meterActivations) {
@@ -208,7 +208,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private void validate(ValidationReport validationReport) {
         // check that we can manage meter activations
         if (this.usagePoint.getConnectionState() != ConnectionState.UNDER_CONSTRUCTION) {
-            throw UsagePointManageException.incorrectState(this.metrologyConfigurationService.getThesaurus(), this.usagePoint.getMRID());
+            throw UsagePointManageException.incorrectState(this.metrologyConfigurationService.getThesaurus(), this.usagePoint.getName());
         }
         // prepare time lines and virtualize all meter activations, so our changes will not have permanent effect
         Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
@@ -795,7 +795,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         public void meterActiveOnDifferentUsagePoint(Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
             this.valid = false;
             String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT).format();
-            errorMessage = MessageFormat.format(errorMessage, meter.getMRID(), meterCurrentUsagePoint.getMRID(), currentRole.getDisplayName());
+            errorMessage = MessageFormat.format(errorMessage, meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(desiredRole.getKey()).addConstraintViolation();
         }
 
@@ -809,7 +809,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
             this.valid = false;
-            String message = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE).format(meterActiveOnRole.getMRID(), meterRole.getDisplayName());
+            String message = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE).format(meterActiveOnRole.getName(), meterRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(message).addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }
 
