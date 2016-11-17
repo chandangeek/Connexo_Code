@@ -1,21 +1,23 @@
 Ext.define('Usr.view.workgroup.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.usr-workgroup-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'edit-workgroup',
-            text: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
-            privileges: Usr.privileges.Users.admin,
-            action: 'editWorkgroup'
-        },
-        {
-            itemId: 'remove-workgroup',
-            text: Uni.I18n.translate('general.remove', 'USR', 'Remove'),
-            privileges: Usr.privileges.Users.admin,
-            action: 'removeWorkgroup'
-        }
-    ]
+    initComponent: function() {
+        this.items =  [
+            {
+                itemId: 'edit-workgroup',
+                text: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
+                privileges: Usr.privileges.Users.admin,
+                action: 'editWorkgroup',
+                section: this.SECTION_EDIT
+            },
+            {
+                itemId: 'remove-workgroup',
+                text: Uni.I18n.translate('general.remove', 'USR', 'Remove'),
+                privileges: Usr.privileges.Users.admin,
+                action: 'removeWorkgroup',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

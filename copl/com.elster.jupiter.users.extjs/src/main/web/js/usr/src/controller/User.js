@@ -32,9 +32,6 @@ Ext.define('Usr.controller.User', {
             'userBrowse userList': {
                 select: this.selectUser
             },
-            'user-action-menu': {
-                show: this.onShowUserActionMenu
-            },
             'userBrowse userDetails menuitem[action=edit]': {
                 click: this.editUserMenu
             },
@@ -45,8 +42,6 @@ Ext.define('Usr.controller.User', {
                 edit: this.editUser,
                 activate: this.userActivation
             }
-
-
         });
     },
 
@@ -72,30 +67,13 @@ Ext.define('Usr.controller.User', {
             roles = '',
             currentGroups = record.groups().data.items,
             detailsRoles = form.down('[name=roles]');
-
         page.down('userDetails').setTitle(Ext.String.htmlEncode(record.get('authenticationName')));
+        page.down('userDetails').down('user-action-menu').record = record;
         form.loadRecord(record);
         for (var i = 0; i < currentGroups.length; i++) {
             roles += Ext.String.htmlEncode(currentGroups[i].data.name) + '<br/>';
         }
         detailsRoles.setValue(roles);
-    },
-
-    onShowUserActionMenu: function (menu) {
-        var me = this,
-            page = me.getUserBrowse(),
-            detailForm = page.down('#userDetailsForm'),
-            activate = menu.down('#activate-user'),
-            deactivate = menu.down('#deactivate-user'),
-            active;
-
-        if(menu.record)
-            active = menu.record.get('active');
-        else
-            active = detailForm.getRecord().get('active');
-
-        activate && activate.setVisible(!active);
-        deactivate && deactivate.setVisible(active);
     },
 
     activateUserMenu: function (button) {

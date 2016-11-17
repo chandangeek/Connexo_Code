@@ -31,9 +31,6 @@ Ext.define('Usr.controller.Group', {
             'groupBrowse groupList uni-actioncolumn': {
                 edit: this.editGroup,
                 remove: this.removeGroup
-            },
-            'group-action-menu': {
-                show: this.onMenuShow
             }
         });
     },
@@ -87,10 +84,6 @@ Ext.define('Usr.controller.Group', {
             }
         });
 
-    },
-
-    onMenuShow: function (menu) {
-        menu.record.get('name') == 'Administrators' ? menu.down('#removeGroup').hide() : menu.down('#removeGroup').show();
     },
 
     selectGroup: function (selectionModel, record) {
