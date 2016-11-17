@@ -42,6 +42,10 @@ public class DeviceIdentifierById implements DeviceIdentifier {
         this.id = id;
     }
 
+    public DeviceIdentifierById(long id) {
+        this((int) id);
+    }
+
     // used for reflection
     public DeviceIdentifierById(String id) {
         super();
