@@ -51,6 +51,7 @@ import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCode
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
+import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -222,6 +223,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetCoverLogbook);
         SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetCommunicationLogbook);
         SUPPORTED_MESSAGES.add(LogBookDeviceMessage.ResetVoltageCutLogbook);
+
+        //DLMS Gateway
+        SUPPORTED_MESSAGES.add(DLMSGatewayMessage.MeterPushNotificationSettings);
     }
 
     private MasterDataSync masterDataSync;
@@ -575,6 +579,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         configureFWLAN(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ConfigureFWWAN)) {
                         configureFWWAN(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(DLMSGatewayMessage.MeterPushNotificationSettings)){
+                        configureDLMSGateway(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
 
                         String[] macAddressesAndProtocols = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
@@ -1862,6 +1868,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String logLevel = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceLogLevel).getDeviceMessageAttributeValue();
         int level = ConfigurationChangeDeviceMessage.DeviceLogLevel.valueOf(logLevel).getId();
         getCosemObjectFactory().getConcentratorSetup().setDeviceLogLevel(new TypeEnum(level));
+    }
+
+    private void configureDLMSGateway(OfflineDeviceMessage pendingMessage) throws IOException {
+        String relayOptionName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.RelayMeterNotifications).getDeviceMessageAttributeValue();
+        int relayMeterNotification = DLMSGatewayNotificationRelayType.fromOptionName(relayOptionName);
+        boolean decypherMeterNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DecipherMeterNotifications).getDeviceMessageAttributeValue());
+        boolean dropUnencryptedNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DropUnencryptedMeterNotifications).getDeviceMessageAttributeValue());
+
+        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDecipher(decypherMeterNotifications);
+        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationRelaying(relayMeterNotification);
+        getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDropUnencrypted(dropUnencryptedNotifications);
     }
 
 
