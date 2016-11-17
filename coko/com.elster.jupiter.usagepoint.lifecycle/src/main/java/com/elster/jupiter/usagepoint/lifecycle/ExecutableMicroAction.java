@@ -11,6 +11,12 @@ import java.util.Map;
 @ConsumerType
 public interface ExecutableMicroAction extends MicroAction {
 
-    default void execute(UsagePoint usagePoint, Map<String, Object> properties, Instant transitionTime) {
-    }
+    /**
+     * Perform {@link MicroAction} on specific {@link UsagePoint} at given time.
+     *
+     * @param usagePoint target object
+     * @param transitionTime point in time when transition occurs
+     * @param properties contains all properties (i.e. this map can contain properties from other actions)
+     */
+    void execute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties) throws ExecutableMicroActionException;
 }

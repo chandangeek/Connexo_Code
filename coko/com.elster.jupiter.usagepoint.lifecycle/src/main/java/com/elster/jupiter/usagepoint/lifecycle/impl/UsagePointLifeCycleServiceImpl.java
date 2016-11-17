@@ -1,5 +1,6 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -14,7 +15,10 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckException;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
@@ -23,7 +27,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
-import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -34,23 +38,30 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.security.Principal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "UsagePointLifeCycleServiceImpl",
-        service = {UsagePointLifeCycleService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {UsagePointLifeCycleService.class, ServerUsagePointLifeCycleService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true)
-public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleService, MessageSeedProvider, TranslationKeyProvider, UsagePointLifeCycleBuilder {
+public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycleService, MessageSeedProvider, TranslationKeyProvider, UsagePointLifeCycleBuilder {
     private DataModel dataModel;
     private Thesaurus thesaurus;
     private UpgradeService upgradeService;
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private ThreadPrincipalService threadPrincipalService;
+    private MeteringService meteringService; // table model ordering
+    private Clock clock;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -61,18 +72,23 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                                           NlsService nlsService,
                                           UpgradeService upgradeService,
                                           UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
-                                          ThreadPrincipalService threadPrincipalService) {
+                                          ThreadPrincipalService threadPrincipalService,
+                                          MeteringService meteringService,
+                                          Clock clock) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         setThreadPrincipalService(threadPrincipalService);
+        setMeteringService(meteringService);
+        setClock(clock);
         activate();
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(UsagePointLifeCycleService.COMPONENT_NAME, "UsagePoint lifecycle");
+        Stream.of(TableSpecs.values()).forEach(table -> table.addTo(this.dataModel));
     }
 
     @Reference
@@ -96,6 +112,16 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
@@ -111,56 +137,57 @@ public class UsagePointLifeCycleServiceImpl implements UsagePointLifeCycleServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(UsagePointLifeCycleService.class).toInstance(UsagePointLifeCycleServiceImpl.this);
+                bind(ServerUsagePointLifeCycleService.class).toInstance(UsagePointLifeCycleServiceImpl.this);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         };
     }
 
     @Override
-    public void triggerTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
-        checkTransitionIsAllowedForUsagePoint(usagePoint, transition, transitionTime);
-        checkCurrentUserPrivileges(transition, application);
-        triggerMicroChecks(usagePoint, transition, transitionTime, properties);
-        triggerMicroActions(usagePoint, transition, transitionTime, properties);
-        performTransition(usagePoint, transition, transitionTime, properties);
+    public UsagePointStateChangeRequest performTransition(UsagePoint usagePoint, UsagePointTransition transition, String application, Map<String, Object> properties) {
+        return this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
+                .init(usagePoint, transition, this.clock.instant(), application, properties)
+                .execute();
     }
 
-    private void checkTransitionIsAllowedForUsagePoint(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
-        // Check that there is no planned transitions between this state and transition time.
+    @Override
+    public UsagePointStateChangeRequest scheduleTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
+        UsagePointStateChangeRequestImpl changeRequest = this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
+                .init(usagePoint, transition, transitionTime, application, properties);
+        // TODO fetch the recurrent task, check its schedule and reschedule if needed
+        return changeRequest;
     }
 
-    private void checkCurrentUserPrivileges(UsagePointTransition transition, String application) throws SecurityException {
-        if (!this.userHasExecutePrivilege(transition, application)) {
-            throw new SecurityException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
-        }
+    @Override
+    public List<UsagePointStateChangeRequest> getHistory(UsagePoint usagePoint) {
+        return this.dataModel.query(UsagePointStateChangeRequest.class, UsagePointStateChangePropertyImpl.class)
+                .select(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint),
+                        Order.descending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName()));
     }
 
-    private boolean userHasExecutePrivilege(UsagePointTransition transition, String application) throws SecurityException {
-        Principal principal = this.threadPrincipalService.getPrincipal();
-        if (principal instanceof User) {
-            User user = (User) principal;
-            return transition.getLevels()
-                    .stream()
-                    .map(UsagePointTransition.Level::getPrivilege)
-                    .anyMatch(privilege -> user.hasPrivilege(application, privilege));
-        } else {
-            return false;
-        }
-    }
-
-    private void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
-        transition.getChecks().stream()
+    @Override
+    public void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
+        List<ExecutableMicroCheckViolation> violations = transition.getChecks().stream()
                 .map(ExecutableMicroCheck.class::cast)
-                .forEach(action -> action.execute(usagePoint, properties, transitionTime));
+                .map(check -> check.execute(usagePoint, transitionTime, properties))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+        if (!violations.isEmpty()) {
+            throw new ExecutableMicroCheckException(this.thesaurus, MessageSeeds.MICRO_CHECKS_FAILED, violations);
+        }
     }
 
-    private void triggerMicroActions(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
+    @Override
+    public void triggerMicroActions(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
         transition.getActions().stream()
                 .map(ExecutableMicroAction.class::cast)
-                .forEach(action -> action.execute(usagePoint, properties, transitionTime));
+                .forEach(action -> action.execute(usagePoint, transitionTime, properties));
     }
 
-    public void performTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
-        transition.doTransition(usagePoint.getMRID(), UsagePoint.class.getName(), transitionTime, properties);
+    @Override
+    public void performTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
+        transition.doTransition(usagePoint.getMRID(), UsagePoint.class.getName(), transitionTime, Collections.emptyMap());
     }
 
     @Override

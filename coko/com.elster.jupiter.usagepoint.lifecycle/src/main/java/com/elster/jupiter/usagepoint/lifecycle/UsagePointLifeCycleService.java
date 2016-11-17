@@ -6,11 +6,16 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 @ProviderType
 public interface UsagePointLifeCycleService {
     String COMPONENT_NAME = "UPE";
 
-    void triggerTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties);
+    UsagePointStateChangeRequest performTransition(UsagePoint usagePoint, UsagePointTransition transition, String application, Map<String, Object> properties);
+
+    UsagePointStateChangeRequest scheduleTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties);
+
+    List<UsagePointStateChangeRequest> getHistory(UsagePoint usagePoint);
 }

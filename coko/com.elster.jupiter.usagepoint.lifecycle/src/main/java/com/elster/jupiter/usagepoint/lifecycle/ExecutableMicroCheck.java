@@ -7,10 +7,10 @@ import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @ConsumerType
 public interface ExecutableMicroCheck extends MicroCheck {
 
-    default void execute(UsagePoint usagePoint, Map<String, Object> properties, Instant transitionTime) {
-    }
+    Optional<ExecutableMicroCheckViolation> execute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties);
 }
