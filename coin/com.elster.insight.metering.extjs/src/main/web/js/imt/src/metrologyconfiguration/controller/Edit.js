@@ -194,7 +194,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         }
     },
 
-    showWizard: function (mRID) {
+    showWizard: function (usagePointId) {
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
@@ -204,12 +204,12 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         mainView.setLoading();
 
-        usagePointModel.load(mRID, {
+        usagePointModel.load(usagePointId, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
-                store.getProxy().setUrl(mRID);
+                store.getProxy().setExtraParam('usagePointId', usagePointId);
                 me.returnLink = router.queryParams.fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl();
-                configurationModel.getProxy().setUrl(mRID);
+                configurationModel.getProxy().setExtraParam('usagePointId', usagePointId);
                 me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations').load(function (records) {
                     var isPossibleAdd = records && records.length;
                     me.getApplication().fireEvent('changecontentevent', Ext.widget('define-metrology-configuration', {
@@ -401,7 +401,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         me.doRequest({
             success: function (record) {
-                router.getRoute('usagepoints/view/metrologyconfiguration').forward({mRID: record.get('mRID')});
+                router.getRoute('usagepoints/view/metrologyconfiguration').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyConfiguration.wizard.successMsg', 'IMT', "Metrology configuration defined"));
             }
         });

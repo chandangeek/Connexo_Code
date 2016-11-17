@@ -14,10 +14,10 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
             }
         }
     ],
-    
-    disableActionsButton: function(disabled){
+
+    setVisibleActionsButton: function(visible){
         if (this.down('#actionButton')) {
-            this.down('#actionButton').setDisabled(disabled);
+            this.down('#actionButton').setVisible(visible);
         }        
     }    
 });
