@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Map;
 
 public interface ServerUsagePointLifeCycleService extends UsagePointLifeCycleService {
-    void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties)
+    void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime)
             throws ExecutableMicroCheckException;
 
     void triggerMicroActions(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties)

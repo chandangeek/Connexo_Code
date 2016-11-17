@@ -21,6 +21,8 @@ import javax.validation.MessageInterpolator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component(name = "UsagePointMicroCheckFactoryImpl",
         service = {UsagePointMicroCheckFactory.class},
@@ -82,5 +84,12 @@ public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFact
     public Optional<MicroCheck> from(String microCheckKey) {
         return Optional.ofNullable(this.microCheckMapping.get(microCheckKey))
                 .map(this.dataModel::getInstance);
+    }
+
+    @Override
+    public Set<MicroCheck> getAllChecks() {
+        return this.microCheckMapping.values().stream()
+                .map(this.dataModel::getInstance)
+                .collect(Collectors.toSet());
     }
 }

@@ -5,7 +5,6 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
 
 public class AllDataValidCheck extends TranslatableCheck {
@@ -20,7 +19,7 @@ public class AllDataValidCheck extends TranslatableCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> execute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties) {
+    public Optional<ExecutableMicroCheckViolation> execute(UsagePoint usagePoint, Instant transitionTime) {
         return null;
     }
 }

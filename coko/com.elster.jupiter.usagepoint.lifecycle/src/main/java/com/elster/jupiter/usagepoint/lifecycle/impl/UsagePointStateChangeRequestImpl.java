@@ -202,7 +202,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
             this.status = Status.FAILED;
             if (transitionExistsAndCanBeFetched() && transitionIsActualForUsagePoint()) {
                 try {
-                    this.lifeCycleService.triggerMicroChecks(this.usagePoint.get(), this.transition, this.transitionTime, getProperties());
+                    this.lifeCycleService.triggerMicroChecks(this.usagePoint.get(), this.transition, this.transitionTime);
                     this.lifeCycleService.triggerMicroActions(this.usagePoint.get(), this.transition, this.transitionTime, getProperties());
                     this.lifeCycleService.performTransition(this.usagePoint.get(), this.transition, this.transitionTime);
                     this.status = Status.COMPLETED;

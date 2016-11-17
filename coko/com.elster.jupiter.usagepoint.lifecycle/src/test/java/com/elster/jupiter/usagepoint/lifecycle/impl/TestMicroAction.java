@@ -7,8 +7,10 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class TestMicroAction implements ExecutableMicroAction {
@@ -73,6 +75,11 @@ public class TestMicroAction implements ExecutableMicroAction {
         @Override
         public Optional<MicroAction> from(String microActionKey) {
             return Optional.of(new TestMicroAction(this.onExecute));
+        }
+
+        @Override
+        public Set<MicroAction> getAllActions() {
+            return Collections.singleton(new TestMicroAction(this.onExecute));
         }
 
         public void setOnExecute(BiConsumer<UsagePoint, Instant> onExecute) {

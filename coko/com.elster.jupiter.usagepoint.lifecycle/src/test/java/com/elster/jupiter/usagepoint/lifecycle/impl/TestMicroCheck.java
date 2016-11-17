@@ -7,8 +7,9 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 
 import java.time.Instant;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 public class TestMicroCheck implements ExecutableMicroCheck {
@@ -61,7 +62,7 @@ public class TestMicroCheck implements ExecutableMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> execute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties) {
+    public Optional<ExecutableMicroCheckViolation> execute(UsagePoint usagePoint, Instant transitionTime) {
         if (this.onExecute != null) {
             return this.onExecute.apply(usagePoint, transitionTime);
         }
@@ -74,6 +75,11 @@ public class TestMicroCheck implements ExecutableMicroCheck {
         @Override
         public Optional<MicroCheck> from(String microActionKey) {
             return Optional.of(new TestMicroCheck(this.onExecute));
+        }
+
+        @Override
+        public Set<MicroCheck> getAllChecks() {
+            return Collections.singleton(new TestMicroCheck(this.onExecute));
         }
 
         public void setOnExecute(BiFunction<UsagePoint, Instant, Optional<ExecutableMicroCheckViolation>> onExecute) {

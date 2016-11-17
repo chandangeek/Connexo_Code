@@ -166,10 +166,10 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     @Override
-    public void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
+    public void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
         List<ExecutableMicroCheckViolation> violations = transition.getChecks().stream()
                 .map(ExecutableMicroCheck.class::cast)
-                .map(check -> check.execute(usagePoint, transitionTime, properties))
+                .map(check -> check.execute(usagePoint, transitionTime))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());

@@ -21,6 +21,8 @@ import javax.validation.MessageInterpolator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component(name = "UsagePointMicroActionFactoryImpl",
         service = {UsagePointMicroActionFactory.class},
@@ -82,5 +84,12 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     public Optional<MicroAction> from(String microActionKey) {
         return Optional.ofNullable(this.microActionMapping.get(microActionKey))
                 .map(this.dataModel::getInstance);
+    }
+
+    @Override
+    public Set<MicroAction> getAllActions() {
+        return this.microActionMapping.values().stream()
+                .map(this.dataModel::getInstance)
+                .collect(Collectors.toSet());
     }
 }
