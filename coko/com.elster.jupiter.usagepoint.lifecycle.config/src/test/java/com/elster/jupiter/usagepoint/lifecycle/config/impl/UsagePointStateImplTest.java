@@ -76,12 +76,6 @@ public class UsagePointStateImplTest {
     }
 
     @Test
-    public void testGetVersion() {
-        when(this.fsmState.getVersion()).thenReturn(123L);
-        assertThat(getTestInstance().getVersion()).isEqualTo(123L);
-    }
-
-    @Test
     public void testGetProcessesOnEntry() {
         when(this.fsmState.getOnEntryProcesses()).thenReturn(Collections.singletonList(this.process));
         assertThat(getTestInstance().getOnEntryProcesses()).containsExactly(this.process);
