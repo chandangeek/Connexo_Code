@@ -4,10 +4,12 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link com.elster.jupiter.calendar.Category} interface.
@@ -16,7 +18,9 @@ import javax.validation.constraints.Size;
  * @since 2016-04-15
  */
 @UniqueCategoryName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CATEGORY_NAME + "}")
-class CategoryImpl implements Category {
+final class CategoryImpl implements Category {
+
+    static final String CALENDAR_CATEGORY_KEY_PREFIX = "calendar.category.";
 
     public enum Fields {
         ID("id"),
@@ -40,6 +44,7 @@ class CategoryImpl implements Category {
     private String name;
 
     private final ServerCalendarService calendarService;
+    private final Thesaurus thesaurus;
 
     public CategoryImpl init(String name) {
         this.name = name;
@@ -47,8 +52,9 @@ class CategoryImpl implements Category {
     }
 
     @Inject
-    CategoryImpl(ServerCalendarService calendarService) {
+    CategoryImpl(ServerCalendarService calendarService, Thesaurus thesaurus) {
         this.calendarService = calendarService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -66,4 +72,25 @@ class CategoryImpl implements Category {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
 
+    @Override
+    public String getDisplayName() {
+        return thesaurus.getString(CALENDAR_CATEGORY_KEY_PREFIX + getName().toLowerCase(), getName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CategoryImpl category = (CategoryImpl) o;
+        return id == category.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
