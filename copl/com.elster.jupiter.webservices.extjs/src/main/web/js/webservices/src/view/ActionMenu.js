@@ -1,28 +1,31 @@
 Ext.define('Wss.view.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.webservices-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'edit-webservice',
-            text: Uni.I18n.translate('general.edit', 'WSS', 'Edit'),
-            action: 'edit',
-            privileges: Wss.privileges.Webservices.admin
-        },
-        {
-            itemId: 'activate-webservice',
-            action: 'activate',
-            privileges: Wss.privileges.Webservices.admin
-        },
-        {
-            itemId: 'remove-webservice',
-            text: Uni.I18n.translate('general.remove', 'WSS', 'Remove'),
-            action: 'remove',
-            privileges: Wss.privileges.Webservices.admin
-        }
-    ],
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'activate-webservice',
+                action: 'activate',
+                privileges: Wss.privileges.Webservices.admin,
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit-webservice',
+                text: Uni.I18n.translate('general.edit', 'WSS', 'Edit'),
+                action: 'edit',
+                privileges: Wss.privileges.Webservices.admin,
+                section: this.SECTION_EDIT
+            },
+            {
+                itemId: 'remove-webservice',
+                text: Uni.I18n.translate('general.remove', 'WSS', 'Remove'),
+                action: 'remove',
+                privileges: Wss.privileges.Webservices.admin,
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    },
     listeners: {
         beforeshow: function () {
             var me = this;
