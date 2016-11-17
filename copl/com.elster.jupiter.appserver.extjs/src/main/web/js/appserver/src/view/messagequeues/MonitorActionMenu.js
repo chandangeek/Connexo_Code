@@ -1,15 +1,17 @@
 Ext.define('Apr.view.messagequeues.MonitorActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.monitor-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'clear-error-queue',
-            text: Uni.I18n.translate('general.clearErrorQueue', 'APR', 'Clear error queue'),
-            privileges: Apr.privileges.AppServer.admin,
-            action: 'clearErrorQueue'
-        }
-    ]
+    initComponent: function () {
+        this.items =
+            [
+                {
+                    itemId: 'clear-error-queue',
+                    text: Uni.I18n.translate('general.clearErrorQueue', 'APR', 'Clear error queue'),
+                    privileges: Apr.privileges.AppServer.admin,
+                    action: 'clearErrorQueue',
+                    section: this.SECTION_ACTION
+                }
+            ];
+        this.callParent(arguments);
+    }
 });

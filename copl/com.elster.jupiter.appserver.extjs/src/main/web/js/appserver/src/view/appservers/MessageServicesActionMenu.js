@@ -1,14 +1,17 @@
 Ext.define('Apr.view.appservers.MessageServicesActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.message-services-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'remove-message-service',
-            text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
-            action: 'removeMessageService'
-        }
-    ]
+
+    initComponent: function () {
+        this.items =
+            [
+                {
+                    itemId: 'remove-message-service',
+                    text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
+                    action: 'removeMessageService',
+                    section: this.SECTION_REMOVE
+                }
+            ];
+        this.callParent(arguments);
+    }
 });

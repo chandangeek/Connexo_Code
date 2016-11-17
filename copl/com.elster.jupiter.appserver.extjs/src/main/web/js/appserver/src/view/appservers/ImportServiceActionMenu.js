@@ -1,14 +1,15 @@
 Ext.define('Apr.view.appservers.ImportServiceActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.apr-import-services-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'remove-import-service',
-            text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
-            //action: 'removeImportService'
-        }
-    ]
+    initComponent: function () {
+        this.items =
+            [
+                {
+                    itemId: 'remove-import-service',
+                    text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
+                    section: this.SECTION_REMOVE
+                }
+            ];
+        this.callParent(arguments);
+    }
 });

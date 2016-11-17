@@ -1,13 +1,14 @@
 Ext.define('Apr.view.appservers.WebserviceEndpointActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.apr-webservices-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'remove-webservice',
-            text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
-        }
-    ]
+    initComponent: function() {
+        this.items =  [
+            {
+                itemId: 'remove-webservice',
+                text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
