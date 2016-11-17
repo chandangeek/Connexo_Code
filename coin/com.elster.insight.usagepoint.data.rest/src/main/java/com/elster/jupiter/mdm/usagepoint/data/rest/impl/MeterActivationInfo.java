@@ -25,12 +25,12 @@ public class MeterActivationInfo {
         this.version = meterActivation.getVersion();
         meterActivation.getMeter().ifPresent(m -> {
             this.meter = includeMeterInfo ? new MeterInfo(m) : new MeterInfo();
-            this.meter.mRID = meterActivation.getMeter().get().getMRID();
+            this.meter.name = m.getName();
         });
         meterActivation.getMeterRole().ifPresent(mr -> this.meterRole = new MeterRoleInfo(mr));
         meterActivation.getUsagePoint().ifPresent(up -> {
             this.usagePoint = new UsagePointInfo();
-            this.usagePoint.mRID = meterActivation.getUsagePoint().get().getMRID();
+            this.usagePoint.name = up.getName();
         });
     }
 }

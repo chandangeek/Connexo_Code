@@ -101,13 +101,13 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
     @Before
     public void setStubs() {
         when(clock.instant()).thenReturn(NOW);
-        when(meteringService.findUsagePoint("UP")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP")).thenReturn(Optional.of(usagePoint));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
         readingType = mockReadingType(READING_TYPE_MRID);
         when(readingType.isRegular()).thenReturn(true);
         setDataValidationTaskStub();
         when(usagePoint.getId()).thenReturn(1L);
-        when(usagePoint.getMRID()).thenReturn("UP");
+        when(usagePoint.getName()).thenReturn("UP");
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);

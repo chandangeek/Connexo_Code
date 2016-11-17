@@ -31,13 +31,9 @@ public class LocationInfo {
     public LocationInfo() {
     }
 
-    public LocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, String mRID) {
-        Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(mRID);
-        if (usagePoint.isPresent()) {
-            Optional<Location> location = usagePoint.get().getLocation();
-            location.ifPresent(loc -> createLocationInfo(meteringService, locationService, thesaurus, loc.getId()));
-        }
-
+    public LocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, UsagePoint usagePoint) {
+        Optional<Location> location = usagePoint.getLocation();
+        location.ifPresent(loc -> createLocationInfo(meteringService, locationService, thesaurus, loc.getId()));
     }
 
     public final void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId) {

@@ -157,20 +157,41 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.licenseService = licenseService;
     }
 
-
+    /**
+     * for search only - so only populate fields that will be used/shown (see {@link #modelStructure()}) !!!
+     */
     @Override
-    // for search only - so only populate fields that will be used/shown !!!
     public UsagePointSearchInfo from(UsagePoint usagePoint) {
         UsagePointSearchInfo info = new UsagePointSearchInfo();
         info.id = usagePoint.getId();
-        info.mRID = usagePoint.getMRID();
+        info.name = usagePoint.getName();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
         info.displayConnectionState = usagePoint.getConnectionStateDisplayName();
-        info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
-        info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
+        info.location = usagePoint.getLocation().map(Location::toString).orElse(
+                usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null));
         return info;
+    }
+
+    @Override
+    public List<PropertyDescriptionInfo> modelStructure() {
+        List<PropertyDescriptionInfo> propertyDescriptionInfoList = new ArrayList<>();
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.NAME_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.SERVICE_CATEGORY_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.METROLOGY_CONFIGURATION_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
+        return propertyDescriptionInfoList;
+    }
+
+    @Override
+    public Class getDomainClass() {
+        if (!licenseService.getLicenseForApplication("INS").isPresent()) {
+            return EmptyDomain.class;
+        }
+        return UsagePoint.class;
     }
 
     public UsagePointInfo fullInfoFrom(UsagePoint usagePoint) {
@@ -233,31 +254,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     private void addLocationInfo(UsagePointInfo info, UsagePoint usagePoint) {
-        info.extendedGeoCoordinates = new CoordinatesInfo(meteringService, usagePoint.getMRID());
-        info.extendedLocation = new LocationInfo(meteringService, locationService, thesaurus, usagePoint.getMRID());
-
+        info.extendedGeoCoordinates = new CoordinatesInfo(usagePoint);
+        info.extendedLocation = new LocationInfo(meteringService, locationService, thesaurus, usagePoint);
         info.geoCoordinates = info.extendedGeoCoordinates.coordinatesDisplay;
         info.location = info.extendedLocation.locationValue;
-    }
-
-    @Override
-    public List<PropertyDescriptionInfo> modelStructure() {
-        List<PropertyDescriptionInfo> propertyDescriptionInfoList = new ArrayList<>();
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.MRID_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.SERVICE_CATEGORY_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.METROLOGY_CONFIGURATION_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
-        return propertyDescriptionInfoList;
-    }
-
-    @Override
-    public Class getDomainClass() {
-        if (!licenseService.getLicenseForApplication("INS").isPresent()) {
-            return EmptyDomain.class;
-        }
-        return UsagePoint.class;
     }
 
     private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {
@@ -287,9 +287,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         UsagePointBuilder usagePointBuilder = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
                 .orElseThrow(IllegalArgumentException::new)
                 .newUsagePoint(
-                        usagePointInfo.mRID,
+                        usagePointInfo.name,
                         usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
-                .withName(usagePointInfo.name)
                 .withIsSdp(usagePointInfo.isSdp)
                 .withIsVirtual(usagePointInfo.isVirtual)
                 .withReadRoute(usagePointInfo.readRoute)
@@ -326,7 +325,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             LocationBuilder builder = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
                     .orElseThrow(IllegalArgumentException::new)
                     .newUsagePoint(
-                            usagePointInfo.mRID,
+                            usagePointInfo.name,
                             usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant()).newLocationBuilder();
             Map<String, Integer> ranking = meteringService
                     .getLocationTemplate()
@@ -386,20 +385,20 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                     meterActivationInfo.meterRole = meterRoleEntry.getValue();
                     MeterActivation meterActivationForMeterRole = meterRoleToMeterInfoMapping.get(meterRoleEntry.getKey());
                     if (meterActivationForMeterRole != null) {
-                        Meter meter = meterActivationForMeterRole.getMeter().get();
-                        meterActivationInfo.meter = new MeterInfo();
-                        meterActivationInfo.meter.id = meter.getId();
-                        meterActivationInfo.meter.mRID = meter.getMRID();
-                        meterActivationInfo.meter.name = meter.getName();
-                        meterActivationInfo.meter.version = meter.getVersion();
-                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
-                        meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
                         meterActivationInfo.id = meterActivationForMeterRole.getId();
-                        meterActivationInfo.meter.url = meter.getHeadEndInterface()
-                                .map(he -> he.getURLForEndDevice(meter)
-                                        .map(URL::toString)
-                                        .orElse(null))
-                                .orElse(null);
+                        meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
+                        meterActivationForMeterRole.getMeter().ifPresent(meter -> {
+                            meterActivationInfo.meter = new MeterInfo();
+                            meterActivationInfo.meter.id = meter.getId();
+                            meterActivationInfo.meter.mRID = meter.getMRID();
+                            meterActivationInfo.meter.name = meter.getName();
+                            meterActivationInfo.meter.version = meter.getVersion();
+                            meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                            meterActivationInfo.meter.url = meter.getHeadEndInterface()
+                                    .flatMap(he -> he.getURLForEndDevice(meter))
+                                    .map(URL::toString)
+                                    .orElse(null);
+                        });
                     }
                     return meterActivationInfo;
                 })

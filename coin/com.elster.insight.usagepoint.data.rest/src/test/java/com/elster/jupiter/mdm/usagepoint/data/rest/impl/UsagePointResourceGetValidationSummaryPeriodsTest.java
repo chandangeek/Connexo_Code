@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePointDataRestApplicationJerseyTest {
-
+    private static final String USAGE_POINT_NAME = "Il nome";
     private static final String LAST_7_DAYS = "Last 7 days";
     private static final String PREVIOUS_MONTH = "Previous month";
     private static final String THIS_MONTH = "This month";
@@ -52,7 +52,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
 
     @Before
     public void before() {
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
         when(clock.instant()).thenReturn(referenceTime.toInstant());
         when(clock.getZone()).thenReturn(referenceTime.getZone());
 
@@ -84,7 +84,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
 
     @Test
     public void testNoSuchUsagePoint() {
-        when(meteringService.findUsagePoint("xxx")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName("xxx")).thenReturn(Optional.empty());
 
         // Business method
         Response response = target("usagepoints/xxx/validationSummaryPeriods").queryParam("purposeId", 1000).request().get();
@@ -98,7 +98,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         mockUsagePointMetrologyConfiguration();
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 1000).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummaryPeriods").queryParam("purposeId", 1000).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -109,7 +109,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         mockUsagePointMetrologyConfiguration();
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummaryPeriods").request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummaryPeriods").request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -122,7 +122,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         when(metrologyConfiguration.getContracts()).thenReturn(metrologyContracts);
 
         // Business method
-        String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -144,7 +144,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
         // Business method
-        String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -167,7 +167,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
         // Business method
-        String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -190,7 +190,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
         // Business method
-        String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -213,7 +213,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
         // Business method
-        String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
