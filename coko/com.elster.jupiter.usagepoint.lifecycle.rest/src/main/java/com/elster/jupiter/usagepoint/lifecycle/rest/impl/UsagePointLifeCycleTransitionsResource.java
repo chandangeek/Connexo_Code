@@ -61,8 +61,8 @@ public class UsagePointLifeCycleTransitionsResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public UsagePointLifeCycleTransitionInfo newTransition(UsagePointLifeCycleTransitionInfo transitionInfo) {
-        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(transitionInfo.parent);
+    public UsagePointLifeCycleTransitionInfo newTransition(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleTransitionInfo transitionInfo) {
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         UsagePointState fromState = this.resourceHelper.getStateByIdOrThrowException(transitionInfo.fromState.id);
         UsagePointState toState = this.resourceHelper.getStateByIdOrThrowException(transitionInfo.toState.id);
         Set<UsagePointTransition.Level> levels = transitionInfo.privileges.stream().map(privilege -> privilege.privilege)

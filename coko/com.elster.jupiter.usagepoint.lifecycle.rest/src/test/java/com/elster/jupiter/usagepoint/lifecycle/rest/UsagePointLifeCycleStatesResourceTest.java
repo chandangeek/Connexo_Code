@@ -161,26 +161,6 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
     }
 
     @Test
-    public void testNewStateConcurrent() throws Exception {
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 3L)).thenReturn(Optional.empty());
-        when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(lifeCycle));
-
-        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
-        info.id = 4L;
-        info.name = "State";
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
-        info.parent = new VersionInfo<>(12L, 3L);
-        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
-
-        Response response = target("/lifecycle/12/states").request().post(json);
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save '12'");
-        assertThat(model.<String>get("$.error")).isEqualTo("12 has changed since the page was last updated.");
-    }
-
-    @Test
     public void testEditState() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));

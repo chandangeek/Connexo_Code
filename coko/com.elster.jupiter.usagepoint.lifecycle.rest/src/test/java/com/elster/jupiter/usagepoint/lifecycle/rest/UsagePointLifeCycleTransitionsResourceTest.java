@@ -217,18 +217,6 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
     }
 
     @Test
-    public void testNewTransitionConcurrent() throws Exception {
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.empty());
-
-        Response response = target("/lifecycle/12/transitions").request().post(Entity.json(getInfo()));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save '12'");
-        assertThat(model.<String>get("$.error")).isEqualTo("12 has changed since the page was last updated.");
-    }
-
-    @Test
     public void testEditTransition() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointTransitionByIdAndVersion(6L, 7L)).thenReturn(Optional.of(transition));
