@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleRemoveException;
 
 import com.jayway.jsonpath.JsonModel;
@@ -316,5 +317,14 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         assertThat(model.<String>get("$.processes[1].name")).isEqualTo("processName 2");
         assertThat(model.<String>get("$.processes[1].deploymentId")).isEqualTo("deploymentId 2");
         assertThat(model.<String>get("$.processes[1].processId")).isEqualTo("processId 2");
+    }
+
+    @Test
+    public void testGetAllPrivileges() {
+        String response = target("/lifecycle/privileges").request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(UsagePointTransition.Level.values().length);
+        assertThat(model.<Number>get("$.privileges[0].privilege")).isEqualTo(UsagePointTransition.Level.ONE.name());
+        assertThat(model.<String>get("$.privileges[0].name")).isEqualTo(UsagePointTransition.Level.ONE.name());
     }
 }

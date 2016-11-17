@@ -7,10 +7,13 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilegeInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilegeInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -28,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/lifecycle")
 public class UsagePointLifeCycleResource {
@@ -37,6 +41,7 @@ public class UsagePointLifeCycleResource {
     private final FiniteStateMachineService finiteStateMachineService;
     private final BusinessProcessInfoFactory bpmFactory;
     private final UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
+    private final UsagePointLifeCyclePrivilegeInfoFactory privilegeInfoFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
@@ -46,6 +51,7 @@ public class UsagePointLifeCycleResource {
                                        FiniteStateMachineService finiteStateMachineService,
                                        BusinessProcessInfoFactory bpmFactory,
                                        UsagePointLifeCycleInfoFactory lifeCycleInfoFactory,
+                                       UsagePointLifeCyclePrivilegeInfoFactory privilegeInfoFactory,
                                        ResourceHelper resourceHelper) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.statesResourceProvider = statesResourceProvider;
@@ -53,6 +59,7 @@ public class UsagePointLifeCycleResource {
         this.finiteStateMachineService = finiteStateMachineService;
         this.bpmFactory = bpmFactory;
         this.lifeCycleInfoFactory = lifeCycleInfoFactory;
+        this.privilegeInfoFactory = privilegeInfoFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -143,6 +150,17 @@ public class UsagePointLifeCycleResource {
         List<BusinessProcessInfo> processes = this.finiteStateMachineService.findStateChangeBusinessProcesses().stream()
                 .map(this.bpmFactory::from).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("processes", processes, queryParams);
+    }
+
+    @GET
+    @Path("/privileges")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public PagedInfoList getAllPrivileges(@BeanParam JsonQueryParameters queryParams) {
+        List<UsagePointLifeCyclePrivilegeInfo> privileges = Stream.of(UsagePointTransition.Level.values())
+                .map(privilegeInfoFactory::from)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("privileges", privileges, queryParams);
     }
 
     @Path("{lid}/states")
