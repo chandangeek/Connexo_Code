@@ -2,8 +2,10 @@ package com.elster.partners.jbpm.extension;
 
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.kie.api.task.model.Task;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class TaskSummaryList {
@@ -20,6 +22,10 @@ public class TaskSummaryList {
         }
         this.tasks = tasks;
         this.total = tasks == null ? 0 : tasks.size();
+    }
+
+    public TaskSummaryList(List<Task> tasks){
+        this.tasks = tasks.stream().map(TaskSummary::new).collect(Collectors.toList());
     }
 
     public List<TaskSummary> getTasks() {

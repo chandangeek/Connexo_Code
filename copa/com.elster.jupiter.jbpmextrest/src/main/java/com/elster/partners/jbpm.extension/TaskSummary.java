@@ -1,6 +1,8 @@
 package com.elster.partners.jbpm.extension;
 
 import org.jbpm.services.task.impl.model.TaskImpl;
+import org.kie.api.task.model.Group;
+import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 
@@ -21,6 +23,7 @@ public class TaskSummary {
     private String actualOwner;
     private long processInstanceId;
     private long optLock = -1;
+    private String workGroup;
 
     public TaskSummary(){}
 
@@ -54,6 +57,7 @@ public class TaskSummary {
         }
         this.processInstanceId = task.getTaskData().getProcessInstanceId();
         this.optLock = ((TaskImpl) task).getVersion();
+        task.getPeopleAssignments().getPotentialOwners().stream().filter(group -> group instanceof Group).map(OrganizationalEntity::getId).findFirst().ifPresent(groupName -> workGroup = groupName);
 
     }
 
@@ -162,5 +166,13 @@ public class TaskSummary {
 
     public void setOptLock(int optLock) {
         this.optLock = optLock;
+    }
+
+    public String getWorkGroup() {
+        return workGroup;
+    }
+
+    public void setWorkGroup(String workGroup) {
+        this.workGroup = workGroup;
     }
 }
