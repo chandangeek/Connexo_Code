@@ -92,8 +92,10 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     @Override
     public Optional<UsagePoint> getUsagePoint() {
         return this.effectiveMetrologyContract
+                .stream()
                 .map(EffectiveMetrologyContractOnUsagePoint::getMetrologyConfigurationOnUsagePoint)
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getUsagePoint);
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getUsagePoint)
+                .findFirst();
     }
 
     @Override
