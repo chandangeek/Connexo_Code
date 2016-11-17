@@ -145,7 +145,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Override
     public void removeMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory) {
-        this.microCheckFactories.add(microCheckFactory);
+        this.microCheckFactories.remove(microCheckFactory);
     }
 
     @Override

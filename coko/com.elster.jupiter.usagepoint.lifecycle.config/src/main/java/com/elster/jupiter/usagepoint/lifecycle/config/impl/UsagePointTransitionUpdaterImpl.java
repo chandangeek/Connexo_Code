@@ -44,6 +44,7 @@ public class UsagePointTransitionUpdaterImpl implements UsagePointTransition.Usa
         this.fromState = this.transition.getFrom();
         this.toState = this.transition.getTo();
         this.eventType = this.transition.getTriggeredBy().orElse(null);
+        this.name = transition.getName();
         return this;
     }
 

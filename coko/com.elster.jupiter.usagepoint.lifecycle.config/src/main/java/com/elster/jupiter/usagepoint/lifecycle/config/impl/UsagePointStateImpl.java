@@ -21,8 +21,6 @@ import java.util.stream.Stream;
 public class UsagePointStateImpl implements UsagePointState {
 
     public enum Fields {
-        // Common fields
-
         LIFE_CYCLE("lifeCycle"),
         STATE("fsmState"),;
 

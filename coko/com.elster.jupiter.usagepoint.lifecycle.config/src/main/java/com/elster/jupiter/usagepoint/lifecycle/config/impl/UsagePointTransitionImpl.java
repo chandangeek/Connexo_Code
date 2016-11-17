@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 public class UsagePointTransitionImpl implements UsagePointTransition, PersistenceAware {
 
     public enum Fields {
-        // Common fields
         NAME("name"),
         LIFE_CYCLE("lifeCycle"),
         FSM_TRANSITION("fsmTransition"),

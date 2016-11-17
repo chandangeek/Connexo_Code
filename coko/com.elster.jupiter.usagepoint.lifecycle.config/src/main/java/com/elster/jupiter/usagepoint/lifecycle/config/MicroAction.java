@@ -23,6 +23,12 @@ public interface MicroAction extends HasName {
 
     String getCategoryName();
 
+    /**
+     * Property spec name must be unique among all micro actions available for {@link UsagePointTransition}.
+     * It is good idea to append {@link #getKey()} as a prefix for property name.
+     *
+     * @return list of action's properties
+     */
     default List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }

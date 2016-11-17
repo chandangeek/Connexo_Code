@@ -318,4 +318,16 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
         assertThat(get(FiniteStateMachineService.class).findCustomStateTransitionEventType(eventType.getSymbol())).isEmpty();
         assertThat(this.lifeCycle.getTransitions().size()).isEqualTo(transition.getFsmTransition().getFrom().getFiniteStateMachine().getTransitions().size());
     }
+
+    @Test
+    @Transactional
+    public void testTransitionUpdateDoesNotClearName() {
+        UsagePointTransitionImpl transition = (UsagePointTransitionImpl) this.lifeCycle.newTransition("tr1", this.state1, this.state2)
+                .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .complete();
+
+        transition.startUpdate().complete();
+
+        assertThat(transition.getName()).isEqualTo("tr1");
+    }
 }

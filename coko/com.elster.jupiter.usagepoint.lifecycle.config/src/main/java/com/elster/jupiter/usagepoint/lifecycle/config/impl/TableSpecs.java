@@ -68,7 +68,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column lifeCycle = table.column("LIFE_CYCLE").number().notNull().add();
-            table.column("NAME").varChar().map(UsagePointTransitionImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().map(UsagePointTransitionImpl.Fields.NAME.fieldName()).notNull().add();
             table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(UsagePointTransitionImpl.Fields.LEVELS.fieldName()).add();
             Column fsmTransition = table.column("FSM_TRANSITION").number().add();
 
