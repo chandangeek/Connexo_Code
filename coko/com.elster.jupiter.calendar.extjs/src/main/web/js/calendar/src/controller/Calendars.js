@@ -91,7 +91,7 @@ Ext.define('Cal.controller.Calendars', {
             router = me.getController('Uni.controller.history.Router'),
             route;
 
-        route = router.getRoute('administration/timeofusecalendars/preview');
+        route = router.getRoute('administration/calendars/preview');
         route.forward({id: id});
     },
 
