@@ -133,7 +133,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
 
         var me = this,
             assembledName = value.fullAliasName,
-            icon = '<span class="icon-info" style="cursor:pointer; display:inline-block; color:#A9A9A9; font-size:16px; line-height: 13px; vertical-align: middle;" data-qtip="'
+            icon = '<span class="icon-info" style="margin-left: 10px; cursor:pointer; display:inline-block; color:#A9A9A9; font-size:16px; line-height: 13px; vertical-align: middle;" data-qtip="'
                 + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information') + '"></span>';
 
         setTimeout(function () {
@@ -166,8 +166,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
             }
         }, 1);
 
-        return '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px;">' +
-            (me.link ? ('<a href="' + me.link + '">' + (Ext.String.htmlEncode(assembledName) || Ext.String.htmlEncode(value.mRID)) + '</a>') :
-                (Ext.String.htmlEncode(assembledName) || Ext.String.htmlEncode(value.mRID))) + '</span>' + icon;
+        return (me.link ? ('<a href="' + me.link + '">' + (Ext.String.htmlEncode(assembledName) || Ext.String.htmlEncode(value.mRID)) + '</a>') :
+                (Ext.String.htmlEncode(assembledName) || Ext.String.htmlEncode(value.mRID))) + icon;
     }
 });
