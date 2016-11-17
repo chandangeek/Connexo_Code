@@ -17154,7 +17154,7 @@ a.x-color-picker-item:hover {
 .x-menu-icon-separator {
   left: 26px;
   border-left: solid 1px #e1e1e1;
-  background-color: #a7ccdf;
+  background-color: transparent;
   width: 1px;
 }
 
@@ -17271,7 +17271,7 @@ a.x-color-picker-item:hover {
 .x-menu-item-separator {
   height: 1px;
   border-top: solid 1px #e1e1e1;
-  background-color: #a7ccdf;
+  background-color: transparent;
   margin: 2px 0;
   padding: 0;
 }
