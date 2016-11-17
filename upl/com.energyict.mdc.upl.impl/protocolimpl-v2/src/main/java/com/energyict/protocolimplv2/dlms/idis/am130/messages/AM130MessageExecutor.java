@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.messages.DeviceMessageStatus;
@@ -228,7 +229,9 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
 
         //Reset frame counter, only if a different key has been written
         if (!newKey.equalsIgnoreCase(oldEncryptionKey)) {
-            getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
+            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         }
     }
 

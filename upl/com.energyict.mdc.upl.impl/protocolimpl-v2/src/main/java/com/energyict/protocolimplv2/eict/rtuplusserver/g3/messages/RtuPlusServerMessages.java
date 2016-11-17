@@ -4,6 +4,7 @@ import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
@@ -406,6 +407,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         //Reset frame counter, only if a different key has been written
         if (!oldHexKey.equalsIgnoreCase(plainHexKey)) {
             session.getAso().getSecurityContext().setFrameCounter(1);
+            SecurityContext securityContext = session.getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         }
     }
 

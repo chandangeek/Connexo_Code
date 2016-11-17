@@ -10,42 +10,26 @@ import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
  */
 public class AM110RRespondingFrameCounterHandler implements RespondingFrameCounterHandler {
 
-    private Integer responseFrameCounter = null;
+    private long responseFrameCounter = -1;
 
-    /**
-     * Indicates whether the FrameCounter needs to be validated with a +1
-     */
-    private boolean frameCounterInitialized = false;
-
-
-    public Integer checkRespondingFrameCounter(final int receivedFrameCounter) throws DLMSConnectionException {
-        if (isFrameCounterInitialized()) {
-            if (this.responseFrameCounter == -1 && receivedFrameCounter == 0) { // rollover
-                this.responseFrameCounter = receivedFrameCounter;
-            } else if (this.responseFrameCounter == -1 && receivedFrameCounter != 0) {
-                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
-            } else if (receivedFrameCounter != this.responseFrameCounter + 1) {
-                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
+    public Long checkRespondingFrameCounter(final long receivedFrameCounter) throws DLMSConnectionException {
+        if (receivedFrameCounter == FC_MAX_VALUE) {
+            throw new DLMSConnectionException("FrameCounter reached the maximum value: "+ FC_MAX_VALUE + "! This must be prevented by changeing the encryption key on time!", DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
+        } else if (responseFrameCounter != -1) {
+            if (receivedFrameCounter != this.responseFrameCounter + 1) {
+                throw new DLMSConnectionException("Received incorrect FrameCounter: " +receivedFrameCounter+ " expected "+(this.responseFrameCounter + 1), DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
             } else {
                 this.responseFrameCounter = receivedFrameCounter;
             }
         } else {
             this.responseFrameCounter = receivedFrameCounter;
-            setFrameCounterInitialized(true);
         }
         return this.responseFrameCounter;
     }
 
     @Override
-    public void resetRespondingFrameCounter(int initialValue) {
+    public void setRespondingFrameCounter(long initialValue) {
         responseFrameCounter = initialValue;
     }
 
-    private boolean isFrameCounterInitialized() {
-        return frameCounterInitialized;
-    }
-
-    private void setFrameCounterInitialized(boolean frameCounterInitialized) {
-        this.frameCounterInitialized = frameCounterInitialized;
-    }
 }

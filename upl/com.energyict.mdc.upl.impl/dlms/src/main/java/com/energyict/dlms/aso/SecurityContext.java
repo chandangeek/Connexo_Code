@@ -80,15 +80,11 @@ public class SecurityContext {
      */
     private int securitySuite;
     private long frameCounter;
-    private Integer responseFrameCounter = null;
+    private Long responseFrameCounter = null;
     private byte[] systemTitle;
     private byte[] responseSystemTitle;
     private AuthenticationTypes authenticationAlgorithm;
     private boolean lastResponseWasSigned = false;
-    /**
-     * Indicates whether the FrameCounter needs to be validated with a +1
-     */
-    private boolean frameCounterInitialized = false;
 
     /**
      * This state allows us to include the general ciphering key information just once, for the first request.
@@ -695,8 +691,8 @@ public class SecurityContext {
             getGeneralCipheringSecurityProvider().setServerSessionKey(serverSessionKey);
 
             //New server session key in use, so start using a new responding frame counter
-            getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(0);
-            responseFrameCounter = 0;
+            getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(0);
+            responseFrameCounter = 0l;
         }
     }
 
@@ -1185,7 +1181,7 @@ public class SecurityContext {
      * @param frameCounter the frameCounter to set from the server
      * @throws com.energyict.dlms.DLMSConnectionException * @throws com.energyict.dlms.DLMSConnectionException if the FrameCounter was not incremented in a proper way
      */
-    public void setResponseFrameCounter(int frameCounter) throws DLMSConnectionException {
+    public void setResponseFrameCounter(long frameCounter) throws DLMSConnectionException {
         this.responseFrameCounter = this.securityProvider.getRespondingFrameCounterHandler().checkRespondingFrameCounter(frameCounter);
     }
 
@@ -1276,11 +1272,4 @@ public class SecurityContext {
         return this.cipheringType == CipheringType.DEDICATED.getType() || this.cipheringType == CipheringType.GENERAL_DEDICATED.getType();
     }
 
-    public boolean isFrameCounterInitialized() {
-        return frameCounterInitialized;
-    }
-
-    public void setFrameCounterInitialized(boolean frameCounterInitialized) {
-        this.frameCounterInitialized = frameCounterInitialized;
-    }
 }
