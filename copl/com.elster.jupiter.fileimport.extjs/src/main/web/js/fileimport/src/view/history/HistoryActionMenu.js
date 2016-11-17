@@ -1,16 +1,17 @@
 Ext.define('Fim.view.history.HistoryActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.fim-history-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'menu-view-log',
-            text: Uni.I18n.translate('importService.history.viewLog', 'FIM', 'View log'),
-            action: 'viewLog'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'menu-view-log',
+                text: Uni.I18n.translate('importService.history.viewLog', 'FIM', 'View log'),
+                action: 'viewLog',
+                section: this.SECTION_VIEW
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
 
 
