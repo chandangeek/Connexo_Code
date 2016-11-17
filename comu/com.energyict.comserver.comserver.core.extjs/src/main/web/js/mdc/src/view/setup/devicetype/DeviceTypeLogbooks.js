@@ -8,7 +8,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
         'Mdc.view.setup.devicetype.SideMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.deviceconfiguration.ActionMenu',
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',
         'Uni.form.field.ObisDisplay',

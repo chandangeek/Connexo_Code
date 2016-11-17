@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
 
     requires: [
         'Mdc.util.ScheduleToStringConverter',
-        'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleActionMenu',
         'Uni.grid.column.RemoveAction'
     ],
 

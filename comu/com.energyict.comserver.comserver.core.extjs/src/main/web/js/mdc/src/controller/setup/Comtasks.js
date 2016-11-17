@@ -62,9 +62,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             'comtaskSetup comtaskGrid': {
                 select: this.showTaskDetails
             },
-            'comtaskSetup comtaskGrid uni-actioncolumn': {
-                menuclick: this.chooseCommunicationTasksAction
-            },
             'comtaskActionMenu': {
                 click: this.chooseCommunicationTasksAction
             },
@@ -117,7 +114,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
     chooseCommunicationTasksAction: function (menu, item) {
         var tasksGrid = this.getTasksGrid(),
-            comTask = tasksGrid ? tasksGrid.getView().getSelectionModel().getLastSelected() : menu.communicationTask
+            comTask = tasksGrid ? tasksGrid.getView().getSelectionModel().getLastSelected() : menu.communicationTask;
 
         this.performMenuAction(item.action, comTask);
     },
