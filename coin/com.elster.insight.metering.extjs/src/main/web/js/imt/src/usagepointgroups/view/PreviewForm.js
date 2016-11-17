@@ -21,6 +21,7 @@ Ext.define('Imt.usagepointgroups.view.PreviewForm', {
         {
             xtype: 'displayfield',
             name: 'dynamic',
+            itemId: 'usageppointgroup-type',
             fieldLabel: Uni.I18n.translate('general.type', 'IMT', 'Type'),
             renderer: function (value) {
                 if (value) {
