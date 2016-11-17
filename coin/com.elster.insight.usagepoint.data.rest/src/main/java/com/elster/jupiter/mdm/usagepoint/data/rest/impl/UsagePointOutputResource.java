@@ -282,8 +282,8 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response activateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, purposeInfo.parent.version);
+    public Response activateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyPurpose purpose = resourceHelper.findMetrologyPurposeOrThrowException(purposeId);
 
@@ -308,8 +308,8 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response deactivateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, purposeInfo.parent.version);
+    public Response deactivateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, purposeId);
         if (effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()) {

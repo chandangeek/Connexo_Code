@@ -124,8 +124,6 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_PURPOSE, id));
     }
 
-    }
-
     public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {
         return effectiveMC.getMetrologyConfiguration().getContracts().stream()
                 .filter(contract -> contract.getId() == contractId)
@@ -170,9 +168,7 @@ public class ResourceHelper {
                                 .map(UsagePointGroup::getVersion)
                                 .orElse(null))
                         .supplier());
-         }
-     }
-
+    }
 
     public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
