@@ -331,7 +331,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
                 filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( fromDate.toDate() );
             } else {
-                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( channel.get('lastReading') );
+                var fromDate = channel.get('lastReading');
+                if (!Ext.isEmpty(gasDayYearStart)) {
+                    var lastReading = moment(channel.get('lastReading')),
+                        lastReadingDayAtGasDayOffset = moment(channel.get('lastReading')).startOf('day').add(gasDayYearStart.get('hours'), 'hours').add(gasDayYearStart.get('minutes'), 'minutes');
+                    if (lastReading.isBefore(lastReadingDayAtGasDayOffset) || lastReading.isSame(lastReadingDayAtGasDayOffset)) {
+                        fromDate = lastReadingDayAtGasDayOffset;
+                    } else {
+                        lastReadingDayAtGasDayOffset.add(1, 'days');
+                        fromDate = lastReadingDayAtGasDayOffset;
+                    }
+                }
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( fromDate );
             }
         }
         filter.duration = all.count + all.timeUnit;

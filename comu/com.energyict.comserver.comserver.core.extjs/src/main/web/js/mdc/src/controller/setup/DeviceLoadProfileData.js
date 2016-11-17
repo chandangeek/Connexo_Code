@@ -133,17 +133,29 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             var func = function () {
                 viewport.setLoading(false);
                 var all = dataIntervalAndZoomLevels.get('all'),
-                    intervalStart;
+                    intervalStart,
+                    fromDate;
 
                 if ( Ext.isEmpty(me.loadProfileModel.get('lastReading')) ) {
-                    var fromDate = moment().startOf('day');
+                    fromDate = moment().startOf('day');
                     if (!Ext.isEmpty(gasDayYearStart)) {
                         fromDate.add(gasDayYearStart.get('hours'), 'hours')
                             .add(gasDayYearStart.get('minutes'), 'minutes');
                     }
                     intervalStart = dataIntervalAndZoomLevels.getIntervalStart( fromDate.toDate() );
                 } else {
-                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart( me.loadProfileModel.get('lastReading') );
+                    fromDate = me.loadProfileModel.get('lastReading');
+                    if (!Ext.isEmpty(gasDayYearStart)) {
+                        var lastReading = moment(me.loadProfileModel.get('lastReading')),
+                            lastReadingDayAtGasDayOffset = moment(me.loadProfileModel.get('lastReading')).startOf('day').add(gasDayYearStart.get('hours'), 'hours').add(gasDayYearStart.get('minutes'), 'minutes');
+                        if (lastReading.isBefore(lastReadingDayAtGasDayOffset) || lastReading.isSame(lastReadingDayAtGasDayOffset)) {
+                            fromDate = lastReadingDayAtGasDayOffset;
+                        } else {
+                            lastReadingDayAtGasDayOffset.add(1, 'days');
+                            fromDate = lastReadingDayAtGasDayOffset;
+                        }
+                    }
+                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart( fromDate );
                 }
                 widget = Ext.widget('tabbedDeviceLoadProfilesView',{
                     device: device,
