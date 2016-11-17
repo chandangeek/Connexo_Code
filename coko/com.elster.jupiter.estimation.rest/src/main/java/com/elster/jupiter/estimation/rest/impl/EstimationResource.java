@@ -493,13 +493,13 @@ public class EstimationResource {
         EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
-            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
+            occurrencesFinder.withStartDateIn(filter.hasProperty("startedOnTo") ? Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")) : Range.atLeast(filter.getInstant("startedOnFrom")));
         } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
 
         if (filter.hasProperty("finishedOnFrom")) {
-            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
+            occurrencesFinder.withEndDateIn(filter.hasProperty("finishedOnTo") ? Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")) : Range.atLeast(filter.getInstant("finishedOnFrom")));
         } else if (filter.hasProperty("finishedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
