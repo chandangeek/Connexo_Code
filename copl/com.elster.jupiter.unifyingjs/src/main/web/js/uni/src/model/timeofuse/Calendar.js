@@ -14,7 +14,7 @@ Ext.define('Uni.model.timeofuse.Calendar', {
 
     fields: [
         {name: 'name', type: 'string'},
-        {name: 'category', type: 'string'},
+        {name: 'category'},
         {name: 'mRID', type: 'string'},
         {name: 'id', type: 'number'},
         {name: 'description', type: 'string'},
