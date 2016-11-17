@@ -234,6 +234,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
             panel.removeAll();
             panel.add({
                 xtype: 'estimation-mc-rule-sets',
+                itemId: 'estimation-mc-rule-sets-id',
                 metrologyConfig: panel.metrologyConfig,
                 rulesStore: rulesStore,
                 purposes: purposes,
