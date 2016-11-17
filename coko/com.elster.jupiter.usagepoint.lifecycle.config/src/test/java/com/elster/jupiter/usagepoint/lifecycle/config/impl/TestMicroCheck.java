@@ -3,7 +3,9 @@ package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 public class TestMicroCheck implements MicroCheck {
     @Override
@@ -53,6 +55,11 @@ public class TestMicroCheck implements MicroCheck {
         @Override
         public Optional<MicroCheck> from(String microActionKey) {
             return Optional.of(new TestMicroCheck());
+        }
+
+        @Override
+        public Set<MicroCheck> getAllChecks() {
+            return Collections.singleton(new TestMicroCheck());
         }
     }
 }

@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -317,11 +318,25 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
+    public Set<MicroAction> getMicroActions() {
+        return this.microActionFactories.stream()
+                .flatMap(factory -> factory.getAllActions().stream())
+                .collect(Collectors.toSet());
+    }
+
+    @Override
     public Optional<MicroCheck> getMicroCheckByKey(String key) {
         return this.microCheckFactories.stream()
                 .map(factory -> factory.from(key))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst();
+    }
+
+    @Override
+    public Set<MicroCheck> getMicroChecks() {
+        return this.microCheckFactories.stream()
+                .flatMap(factory -> factory.getAllChecks().stream())
+                .collect(Collectors.toSet());
     }
 }

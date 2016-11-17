@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Finder;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface UsagePointLifeCycleConfigurationService {
@@ -34,7 +35,11 @@ public interface UsagePointLifeCycleConfigurationService {
 
     Optional<MicroAction> getMicroActionByKey(String microActionKey);
 
+    Set<MicroAction> getMicroActions();
+
     Optional<MicroCheck> getMicroCheckByKey(String microCheckKey);
+
+    Set<MicroCheck> getMicroChecks();
 
     void addMicroActionFactory(UsagePointMicroActionFactory microActionFactory);
 

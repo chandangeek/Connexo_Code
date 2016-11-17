@@ -3,7 +3,9 @@ package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 public class TestMicroAction implements MicroAction {
     @Override
@@ -53,6 +55,11 @@ public class TestMicroAction implements MicroAction {
         @Override
         public Optional<MicroAction> from(String microActionKey) {
             return Optional.of(new TestMicroAction());
+        }
+
+        @Override
+        public Set<MicroAction> getAllActions() {
+            return Collections.singleton(new TestMicroAction());
         }
     }
 }
