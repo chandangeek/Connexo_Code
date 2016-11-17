@@ -10,6 +10,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.MicroActionAndCheckInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.MicroActionAndCheckInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilegeInfo;
@@ -42,6 +44,7 @@ public class UsagePointLifeCycleResource {
     private final BusinessProcessInfoFactory bpmFactory;
     private final UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
     private final UsagePointLifeCyclePrivilegeInfoFactory privilegeInfoFactory;
+    private final MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
@@ -52,6 +55,7 @@ public class UsagePointLifeCycleResource {
                                        BusinessProcessInfoFactory bpmFactory,
                                        UsagePointLifeCycleInfoFactory lifeCycleInfoFactory,
                                        UsagePointLifeCyclePrivilegeInfoFactory privilegeInfoFactory,
+                                       MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory,
                                        ResourceHelper resourceHelper) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.statesResourceProvider = statesResourceProvider;
@@ -60,6 +64,7 @@ public class UsagePointLifeCycleResource {
         this.bpmFactory = bpmFactory;
         this.lifeCycleInfoFactory = lifeCycleInfoFactory;
         this.privilegeInfoFactory = privilegeInfoFactory;
+        this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -158,9 +163,33 @@ public class UsagePointLifeCycleResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public PagedInfoList getAllPrivileges(@BeanParam JsonQueryParameters queryParams) {
         List<UsagePointLifeCyclePrivilegeInfo> privileges = Stream.of(UsagePointTransition.Level.values())
-                .map(privilegeInfoFactory::from)
+                .map(this.privilegeInfoFactory::from)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("privileges", privileges, queryParams);
+    }
+
+    @GET
+    @Path("/microChecks")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public PagedInfoList getAllMicroChecks(@BeanParam JsonQueryParameters queryParams) {
+        List<MicroActionAndCheckInfo> privileges = this.usagePointLifeCycleConfigurationService.getMicroChecks()
+                .stream()
+                .map(this.microActionAndCheckInfoFactory::optional)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("microChecks", privileges, queryParams);
+    }
+
+    @GET
+    @Path("/microActions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public PagedInfoList getAllMicroActions(@BeanParam JsonQueryParameters queryParams) {
+        List<MicroActionAndCheckInfo> privileges = this.usagePointLifeCycleConfigurationService.getMicroActions()
+                .stream()
+                .map(this.microActionAndCheckInfoFactory::optional)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("microActions", privileges, queryParams);
     }
 
     @Path("{lid}/states")

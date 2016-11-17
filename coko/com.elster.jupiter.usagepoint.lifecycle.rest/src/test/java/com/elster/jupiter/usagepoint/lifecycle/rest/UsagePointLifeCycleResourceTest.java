@@ -3,6 +3,8 @@ package com.elster.jupiter.usagepoint.lifecycle.rest;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
+import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
@@ -306,7 +308,9 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
                 mockProcess(1L, "processName 1", "deploymentId 1", "processId 1"),
                 mockProcess(2L, "processName 2", "deploymentId 2", "processId 2"));
         when(finiteStateMachineService.findStateChangeBusinessProcesses()).thenReturn(processes);
-        String response = target("/lifecycle/12/states/processes").request().get(String.class);
+
+        String response = target("/lifecycle/processes").request().get(String.class);
+
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(2);
         assertThat(model.<Number>get("$.processes[0].id")).isEqualTo(1);
@@ -322,9 +326,55 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
     @Test
     public void testGetAllPrivileges() {
         String response = target("/lifecycle/privileges").request().get(String.class);
+
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(UsagePointTransition.Level.values().length);
         assertThat(model.<Number>get("$.privileges[0].privilege")).isEqualTo(UsagePointTransition.Level.ONE.name());
         assertThat(model.<String>get("$.privileges[0].name")).isEqualTo(UsagePointTransition.Level.ONE.name());
+    }
+
+    @Test
+    public void testGetAllMicroActions() {
+        MicroAction microAction = mock(MicroAction.class);
+        when(usagePointLifeCycleConfigurationService.getMicroActions()).thenReturn(Collections.singleton(microAction));
+        when(microAction.getKey()).thenReturn("actionKey");
+        when(microAction.getName()).thenReturn("actionName");
+        when(microAction.getDescription()).thenReturn("actionDescription");
+        when(microAction.getCategory()).thenReturn("categoryKey");
+        when(microAction.getCategoryName()).thenReturn("categoryName");
+
+        String response = target("/lifecycle/microActions").request().get(String.class);
+
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(1);
+        assertThat(model.<String>get("$.microActions[0].key")).isEqualTo("actionKey");
+        assertThat(model.<String>get("$.microActions[0].name")).isEqualTo("actionName");
+        assertThat(model.<String>get("$.microActions[0].description")).isEqualTo("actionDescription");
+        assertThat(model.<String>get("$.microActions[0].category.id")).isEqualTo("categoryKey");
+        assertThat(model.<String>get("$.microActions[0].category.name")).isEqualTo("categoryName");
+        assertThat(model.<Boolean>get("$.microActions[0].isRequired")).isEqualTo(false);
+    }
+
+
+    @Test
+    public void testGetAllMicroChecks() {
+        MicroCheck microCheck = mock(MicroCheck.class);
+        when(usagePointLifeCycleConfigurationService.getMicroChecks()).thenReturn(Collections.singleton(microCheck));
+        when(microCheck.getKey()).thenReturn("checkKey");
+        when(microCheck.getName()).thenReturn("checkName");
+        when(microCheck.getDescription()).thenReturn("checkDescription");
+        when(microCheck.getCategory()).thenReturn("categoryKey");
+        when(microCheck.getCategoryName()).thenReturn("categoryName");
+
+        String response = target("/lifecycle/microChecks").request().get(String.class);
+
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(1);
+        assertThat(model.<String>get("$.microChecks[0].key")).isEqualTo("checkKey");
+        assertThat(model.<String>get("$.microChecks[0].name")).isEqualTo("checkName");
+        assertThat(model.<String>get("$.microChecks[0].description")).isEqualTo("checkDescription");
+        assertThat(model.<String>get("$.microChecks[0].category.id")).isEqualTo("categoryKey");
+        assertThat(model.<String>get("$.microChecks[0].category.name")).isEqualTo("categoryName");
+        assertThat(model.<Boolean>get("$.microChecks[0].isRequired")).isEqualTo(false);
     }
 }
