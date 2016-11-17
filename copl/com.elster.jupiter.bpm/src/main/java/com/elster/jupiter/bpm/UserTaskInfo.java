@@ -16,6 +16,7 @@ public class UserTaskInfo {
     public String processInstancesId;
     public String optLock;
     public boolean isAssignedToCurrentUser;
+    public String workgroup;
 
     public UserTaskInfo() {
     }
@@ -35,6 +36,7 @@ public class UserTaskInfo {
             this.actualOwner = jsonObject.isNull("actualOwner") ? "" : jsonObject.getString("actualOwner");
             this.isAssignedToCurrentUser = (!currentUser.isEmpty() && this.actualOwner.equals(currentUser));
             this.optLock = "-1".equals(jsonObject.getString("optLock")) ? "" : jsonObject.getString("optLock");
+            this.workgroup = jsonObject.isNull("workGroup") ? "" : jsonObject.getString("workGroup");
         } catch (JSONException e) {
             throw new IllegalArgumentException(e);
         }
