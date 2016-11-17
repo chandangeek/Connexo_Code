@@ -73,8 +73,7 @@ Ext.define('Bpm.processes.controller.Processes', {
             'bpm-processes bpm-processes-grid': {
                 select: this.showPreview
             },
-            'bpm-process-action-menu': {
-                show: this.onMenuShow,
+            'bpm-process-action-menu menuitem': {
                 click: this.chooseAction
             },
             'bpm-edit-process #cbo-associated-to': {
@@ -370,17 +369,6 @@ Ext.define('Bpm.processes.controller.Processes', {
         })
     },
 
-    onMenuShow: function (menu) {
-        if (menu.record.get('active') === 'ACTIVE') {
-            menu.down('#menu-activate-process').hide();
-            menu.down('#menu-edit-process').show();
-            menu.down('#menu-deactivate-process').show();
-        } else {
-            menu.down('#menu-edit-process').hide();
-            menu.down('#menu-deactivate-process').hide();
-            menu.down('#menu-activate-process').show();
-        }
-    },
 
     chooseAction: function (menu, item) {
         var me = this,
