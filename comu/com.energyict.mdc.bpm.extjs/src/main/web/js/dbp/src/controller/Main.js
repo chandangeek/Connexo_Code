@@ -62,11 +62,6 @@ Ext.define('Dbp.controller.Main', {
                         href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'myopentasks'})
                     },
                     {
-                        text: Uni.I18n.translate('general.taskmanagement.myworkgroupstasks', 'DBP', 'My workgroups tasks'),
-                        itemId: 'my-workgroups-tasks',
-                        href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'myworkgroups'})
-                    },
-                    {
                         text: Uni.I18n.translate('general.taskmanagement.unassignedtask', 'DBP', 'Unassigned tasks'),
                         itemId: 'unassigned-tasks',
                         href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'unassign'})
