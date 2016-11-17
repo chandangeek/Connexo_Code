@@ -11,7 +11,8 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
     ],
 
     models: [
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.usagepointmanagement.model.Purpose'
     ],
 
     views: [
@@ -30,6 +31,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         this.control({
             'usage-point-metrology-configuration-details purposes-grid': {
                 select: this.showPreview
+            },
+            '#usage-point-purpose-action-menu': {
+                click: this.chooseAction
             }
         });
     },
@@ -62,5 +66,34 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         var me = this;
 
         me.getPage().down('purposes-preview').loadRecord(record, me.usagePoint);
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this;
+
+        switch (item.action) {
+            case 'triggerActivation':
+                me.triggerActivation(menu.record);
+                break;
+        }
+    },
+
+    triggerActivation: function (record) {
+        var me = this,
+            usagePointPurpose = Ext.create('Imt.usagepointmanagement.model.Purpose', record.getData());
+
+        usagePointPurpose.triggerActivation(me.usagePoint, {
+            isNotEdit: true,
+            success: function (response) {
+                var responseObject = Ext.decode(response.responseText);
+
+                if (responseObject.active) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.activated', 'IMT', 'Purpose activated'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.deactivated', 'IMT', 'Purpose deactivated'));
+                }
+                me.getController('Uni.controller.history.Router').getRoute().forward();
+            }
+        });
     }
 });

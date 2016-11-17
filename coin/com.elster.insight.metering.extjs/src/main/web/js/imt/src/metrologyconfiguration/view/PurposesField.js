@@ -35,7 +35,15 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
                 {
                     header: Uni.I18n.translate('general.name', 'IMT', 'Name'),
                     dataIndex: 'name',
-                    flex: 2
+                    flex: 2,
+                    renderer: function (value, metaData, record) {
+                        var description = record.get('description');
+
+                        return value + (description
+                                ? '<span class="icon-info" style="color: #A9A9A9; margin-left: 10px; font-size: 16px; vertical-align: middle;" data-qtip="'
+                            + description + '"></span>'
+                                : '');
+                    }
                 },
                 {
                     header: Uni.I18n.translate('general.required', 'IMT', 'Required'),
@@ -109,7 +117,7 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
 
             store.each(function (record) {
                 if (record.get('active')) {
-                    value.push(record.getId());
+                    value.push(_.pick(record.getData(), 'id'));
                 }
             });
         }

@@ -138,6 +138,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 var combo = step.down('#metrology-configuration-combo');
                 me.getRecord().set('id',combo.getValue());
                 me.getRecord().set('name',combo.getRawValue());
+                me.getRecord().set('purposes', step.down('#purposes-field').getValue());
                 record && me.getRecord().set('version', record.get('version'));
                 me.callParent(arguments);
                 break;
