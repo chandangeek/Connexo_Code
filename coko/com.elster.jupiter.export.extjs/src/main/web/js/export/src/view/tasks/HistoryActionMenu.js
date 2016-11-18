@@ -1,16 +1,17 @@
 Ext.define('Dxp.view.tasks.HistoryActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tasks-history-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'view-log',
-            text: Uni.I18n.translate('general.viewLog', 'DES', 'View log'),
-            action: 'viewLog'
-        }
-    ]
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'view-log',
+                text: Uni.I18n.translate('general.viewLog', 'DES', 'View log'),
+                action: 'viewLog',
+                section: this.SECTION_VIEW
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
 
 
