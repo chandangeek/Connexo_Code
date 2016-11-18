@@ -1087,7 +1087,6 @@ public class UsagePointImpl implements UsagePoint {
                 .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at " + instant));
     }
 
-    @Override
     public void setState(UsagePointState state, Instant startTime) {
         Objects.requireNonNull(state);
         Objects.requireNonNull(startTime);

@@ -81,7 +81,7 @@ public class UsagePointStateChangeEventHandler implements TopicHandler {
         Optional<UsagePoint> usagePoint = this.meteringService.findUsagePoint(usagePointRef);
         if (usagePoint.isPresent()) {
             UsagePointState targetState = this.lifeCycleConfService.findUsagePointState(event.getNewState().getId()).get();
-            usagePoint.get().setState(targetState, getTransitionTime(event));
+            ((UsagePointImpl) usagePoint.get()).setState(targetState, getTransitionTime(event));
         } else {
             this.logger.warning("No usage point with id = " + usagePointRef);
         }

@@ -203,12 +203,9 @@ public class UsagePointImplIT {
 
     @Test
     @Transactional
-    public void testCanSetStateForUsagePoint() {
-        UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
+    public void testUsagePointHasDefaultState() {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanSetStateForUsagePoint", AUG_1ST_2016).create();
-
-        usagePoint.setState(lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get(), AUG_1ST_2016);
 
         usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint.getMRID()).get();
         assertThat(usagePoint.getState().isInitial()).isTrue();
@@ -224,12 +221,12 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanChangeStateForUsagePoint", AUG_1ST_2016).create();
 
-        usagePoint.setState(initialState, AUG_1ST_2016);
-        usagePoint.setState(state2, AUG_15TH_2016);
+        ((UsagePointImpl) usagePoint).setState(initialState, AUG_15TH_2016);
+        ((UsagePointImpl) usagePoint).setState(state2, SEPT_1ST_2016);
 
         usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint.getMRID()).get();
         assertThat(usagePoint.getState()).isEqualTo(state2);
-        assertThat(usagePoint.getState(AUG_1ST_2016)).isEqualTo(initialState);
+        assertThat(usagePoint.getState(AUG_15TH_2016)).isEqualTo(initialState);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -241,8 +238,8 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotChangeStateForUsagePointIfItHasOtherStatesInFuture", AUG_1ST_2016).create();
 
-        usagePoint.setState(initialState, AUG_15TH_2016);
-        usagePoint.setState(state2, AUG_1ST_2016);
+        ((UsagePointImpl) usagePoint).setState(initialState, SEPT_1ST_2016);
+        ((UsagePointImpl) usagePoint).setState(state2, AUG_15TH_2016);
     }
 
     @Test(expected = UsagePointLifeCycleDeleteObjectException.class)
@@ -251,7 +248,7 @@ public class UsagePointImplIT {
         UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotDeleteUsagePointLifeCycleWhichIsInUse", AUG_1ST_2016).create();
-        usagePoint.setState(lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get(), AUG_1ST_2016);
+        ((UsagePointImpl) usagePoint).setState(lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get(), AUG_15TH_2016);
 
         lifeCycle.remove();
     }
@@ -263,7 +260,7 @@ public class UsagePointImplIT {
         UsagePointState state = lifeCycle.newState("State").complete();
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotDeleteUsagePointStateWhichIsInUse", AUG_1ST_2016).create();
-        usagePoint.setState(state, AUG_1ST_2016);
+        ((UsagePointImpl) usagePoint).setState(state, AUG_15TH_2016);
 
         state.remove();
     }
@@ -277,7 +274,7 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanQueryUsagePointsWithState", AUG_1ST_2016).create();
 
-        usagePoint.setState(initialState, AUG_15TH_2016);
+        ((UsagePointImpl) usagePoint).setState(initialState, AUG_15TH_2016);
 
         UsagePoint found = meteringService.getUsagePointQuery().select(where("state.state").isEqualTo(initialState)).get(0);
         assertThat(found).isEqualTo(usagePoint);

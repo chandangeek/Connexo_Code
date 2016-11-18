@@ -16,6 +16,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Sets;
 
@@ -119,6 +122,14 @@ public class ServiceCategoryImplTest {
                 return new UsagePointConnectionStateImpl();
             }
         });
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePointState.isInitial()).thenReturn(true);
+        UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);
+        when(usagePointLifeCycle.getStates()).thenReturn(Collections.singletonList(usagePointState));
+        UsagePointLifeCycleConfigurationService lifeCycleConfigurationService = mock(UsagePointLifeCycleConfigurationService.class);
+        when(lifeCycleConfigurationService.getDefaultLifeCycle()).thenReturn(usagePointLifeCycle);
+        when(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)).thenReturn(lifeCycleConfigurationService);
+        when(dataModel.getInstance(UsagePointStateTemporalImpl.class)).thenReturn(new UsagePointStateTemporalImpl(dataModel));
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
     }

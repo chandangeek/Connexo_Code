@@ -237,8 +237,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointState getState(Instant instant);
 
-    void setState(UsagePointState state, Instant startTime);
-
     interface UsagePointConfigurationBuilder {
 
         UsagePointConfigurationBuilder endingAt(Instant endTime);
