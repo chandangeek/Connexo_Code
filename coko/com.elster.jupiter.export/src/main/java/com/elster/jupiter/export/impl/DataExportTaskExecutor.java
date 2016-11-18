@@ -122,7 +122,7 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(() -> {
             FormattedData formattedData;
-            if (task.hasDefaultSelector() && task.getReadingTypeDataSelector().isPresent()) {
+            if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
                 formattedData = doProcessFromDefaultReadingSelector(occurrence, data, itemExporter);
             } else {
                 formattedData = dataFormatter.processData(data);
@@ -135,9 +135,9 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(loggingExceptions(logger, dataFormatter::endExport)).run();
 
-        if (task.hasDefaultSelector() && task.getReadingTypeDataSelector().isPresent()) {
+        if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
-                task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
                         .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                         .forEach(IReadingTypeDataExportItem::update);
                 context.commit();
@@ -185,21 +185,13 @@ class DataExportTaskExecutor implements TaskExecutor {
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
-    private DataFormatterFactory getDataFormatterFactory(String dataFormatter) {
-        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(() -> new NoSuchDataFormatter(thesaurus, dataFormatter));
-    }
-
-    private DataSelectorFactory getDataSelectorFactory(String dataSelector) {
-        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new NoSuchDataSelector(thesaurus, dataSelector));
-    }
-
-    private FormattedData doProcessFromDefaultReadingSelector(DataExportOccurrence occurrence, Stream<ExportData> exportDatas, ItemExporter itemExporter) {
-        List<FormattedExportData> formattedDatas = exportDatas
+    private FormattedData doProcessFromDefaultReadingSelector(DataExportOccurrence occurrence, Stream<ExportData> exportData, ItemExporter itemExporter) {
+        List<FormattedExportData> formattedData = exportData
                 .map(MeterReadingData.class::cast)
                 .flatMap(meterReadingData -> doProcess(occurrence, meterReadingData, itemExporter).stream())
                 .sorted(Comparator.comparing(data -> data.getStructureMarker().getStructurePath().get(0)))
                 .collect(Collectors.toList());
-        return SimpleFormattedData.of(formattedDatas);
+        return SimpleFormattedData.of(formattedData);
     }
 
     private List<FormattedExportData> doProcess(DataExportOccurrence occurrence, MeterReadingData meterReadingData, ItemExporter itemExporter) {

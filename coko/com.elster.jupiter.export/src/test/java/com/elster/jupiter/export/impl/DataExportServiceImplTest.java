@@ -121,7 +121,7 @@ public class DataExportServiceImplTest {
     @Mock
     private PropertySpec propertySpec1, propertySpec2, propertySpec3;
     @Mock
-    private IStandardDataSelector standardDataSelector;
+    private MeterReadingSelectorConfigImpl meterReadingSelectorConfig;
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
@@ -136,8 +136,8 @@ public class DataExportServiceImplTest {
     @Before
     public void setUp() throws SQLException {
         when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
-        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
-        when(iExportTask.getEventDataSelector()).thenReturn(Optional.empty());
+        when(iExportTask.getReadingDataSelectorConfig()).thenReturn(Optional.of(meterReadingSelectorConfig));
+        when(iExportTask.getStandardDataSelectorConfig()).thenReturn(Optional.of(meterReadingSelectorConfig));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<ExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
@@ -168,21 +168,22 @@ public class DataExportServiceImplTest {
     public void testNewBuilder() {
         ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
         when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
-        StandardDataSelectorImpl selectorImpl = new StandardDataSelectorImpl(dataModel, meteringService);
-        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenReturn(selectorImpl);
+        MeterReadingSelectorConfigImpl selectorConfigImpl = new MeterReadingSelectorConfigImpl(dataModel);
+        when(dataModel.getInstance(MeterReadingSelectorConfigImpl.class)).thenReturn(selectorConfigImpl);
         DataSelectorFactory dataSelectorFactory = mock(DataSelectorFactory.class);
         when(dataSelectorFactory.getName()).thenReturn("Standard Data Selector");
         DataSelector dataSelector = mock(DataSelector.class);
         when(dataSelectorFactory.createDataSelector(anyMap(), any(Logger.class))).thenReturn(dataSelector);
         dataExportService.addSelector(dataSelectorFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, "Standard Data Selector"));
-        DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
+        DataExportTaskBuilder dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName("task")
                 .setDataFormatterFactoryName(DATA_FORMATTER)
                 .setNextExecution(nextExecution)
-                .selectingReadingTypes()
+                .selectingMeterReadings()
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromExportPeriod(relativePeriod)
                 .endSelection();
+
         assertThat(dataExportService.newBuilder()).isInstanceOf(DataExportTaskBuilder.class);
         assertThat(dataExportTaskBuilder.create()).isEqualTo(readingTypeDataExportTaskImpl);
     }
@@ -195,7 +196,7 @@ public class DataExportServiceImplTest {
         DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService, transactionService, thesaurus, clock);
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
-        when(standardDataSelector.getExportPeriod()).thenReturn(relativePeriod);
+        when(meterReadingSelectorConfig.getExportPeriod()).thenReturn(relativePeriod);
         when(relativePeriod.getOpenClosedInterval(any())).thenReturn(Range.openClosed(NOW, NOW));
 
         assertThat(dataExportService.createExportOccurrence(taskOccurrence)).isEqualTo(dataExportOccurrence1);
@@ -257,5 +258,4 @@ public class DataExportServiceImplTest {
 
         assertThat(dataExportService.formatterFactoriesMatching(dataSelector)).hasSize(2).containsOnly(complexMatch, trivialMatch);
     }
-
 }

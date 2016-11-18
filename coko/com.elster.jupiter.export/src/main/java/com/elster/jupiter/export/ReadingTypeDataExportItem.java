@@ -1,14 +1,19 @@
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Optional;
 
+@ProviderType
 public interface ReadingTypeDataExportItem {
-    StandardDataSelector getSelector();
+
+    ReadingDataSelectorConfig getSelector();
 
     ReadingContainer getReadingContainer();
 
@@ -23,4 +28,9 @@ public interface ReadingTypeDataExportItem {
     boolean isActive();
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
+
+    String getDescription();
+
+    IdentifiedObject getDomainObject();
 }
+

@@ -5,23 +5,18 @@ import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRule;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -33,10 +28,18 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRule;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 public class LoggingItemExporterTest {
 
@@ -63,7 +66,7 @@ public class LoggingItemExporterTest {
     @Mock
     private DataExportOccurrence occurrence;
     @Mock
-    private IReadingTypeDataExportItem item;
+    private ReadingTypeDataExportItem item;
     @Mock
     private ReadingType readingType;
     @Mock
@@ -75,12 +78,11 @@ public class LoggingItemExporterTest {
     @Mock
     private FormattedData formattedData;
     @Mock
-    private ExportTask task;
+    private IExportTask task;
     @Mock
-    private IStandardDataSelector dataSelector;
-
-    public LoggingItemExporterTest() {
-    }
+    private ReadingDataSelectorConfigImpl readingDataSelectorConfig;
+    @Mock
+    private DataExportStrategy dataExportStrategy;
 
     @Before
     public void setUp() {
@@ -93,43 +95,32 @@ public class LoggingItemExporterTest {
         to = ZonedDateTime.of(2013, 4, 18, 18, 2, 19, 0, ZoneId.systemDefault());
         range = Range.closed(from.toInstant(), to.toInstant());
 
-        doReturn(Optional.of(dataSelector)).when(task).getReadingTypeDataSelector();
         when(meterReadingData.getItem()).thenReturn(item);
         when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);
-        when(readingType.getAliasName()).thenReturn("The Speed Of Pain");
-        when(readingType.getFullAliasName()).thenReturn("The Speed Of Pain");
+        when(item.getDescription()).thenReturn("I'm Marilyn and I take drugs");
         when(item.getReadingContainer()).thenReturn(meter);
         when(meter.getMeter(any())).thenReturn(Optional.of(meter));
-        when(meter.getMRID()).thenReturn("MRID4711");
         when(thesaurus.getFormat(MessageSeeds.ITEM_EXPORTED_SUCCESFULLY)).thenReturn(successFormat);
-        when(successFormat.format(anyVararg())).thenAnswer(invocation -> {
-            return MessageFormat.format(MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.getDefaultFormat(), invocation.getArguments()[0], invocation.getArguments()[1], invocation.getArguments()[2], invocation.getArguments()[3]);
-        });
+        when(successFormat.format(anyVararg())).thenAnswer(invocation ->
+                MessageFormat.format(MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.getDefaultFormat(), invocation.getArguments()[0], invocation.getArguments()[1], invocation.getArguments()[2]));
         when(thesaurus.getFormat(MessageSeeds.ITEM_FAILED)).thenReturn(failedFormat);
-        when(failedFormat.format(anyVararg())).thenAnswer(invocation -> {
-            return MessageFormat.format(MessageSeeds.ITEM_FAILED.getDefaultFormat(), invocation.getArguments()[0], invocation.getArguments()[1]);
-        });
+        when(failedFormat.format(anyVararg())).thenAnswer(invocation ->
+                MessageFormat.format(MessageSeeds.ITEM_FAILED.getDefaultFormat(), invocation.getArguments()[0]));
         when(thesaurus.getFormat(MessageSeeds.ITEM_FATALLY_FAILED)).thenReturn(fatallyFailedFormat);
-        when(fatallyFailedFormat.format(anyVararg())).thenAnswer(invocation -> {
-            return MessageFormat.format(MessageSeeds.ITEM_FATALLY_FAILED.getDefaultFormat(), invocation.getArguments()[0], invocation.getArguments()[1]);
-        });
+        when(fatallyFailedFormat.format(anyVararg())).thenAnswer(invocation ->
+                MessageFormat.format(MessageSeeds.ITEM_FATALLY_FAILED.getDefaultFormat(), invocation.getArguments()[0]));
+
         when(occurrence.getTask()).thenReturn(task);
-        when(dataSelector.adjustedExportPeriod(occurrence, item)).thenReturn(range);
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(readingDataSelectorConfig));
+        when(readingDataSelectorConfig.getStrategy()).thenReturn(dataExportStrategy);
+        when(dataExportStrategy.adjustedExportPeriod(occurrence, item)).thenReturn(range);
 
         loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, decorated);
-
-
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     @Test
     public void testExportItem() throws Exception {
-
         loggingItemExporter.exportItem(occurrence, meterReadingData);
 
         assertThat(logRecorder.getRecords()).hasSize(1);
@@ -137,7 +128,7 @@ public class LoggingItemExporterTest {
         LogRecord logRecord = logRecorder.getRecords().get(0);
 
         assertThat(logRecord.getLevel()).isEqualTo(Level.INFO);
-        assertThat(logRecord.getMessage()).isEqualTo("Item MRID4711:The Speed Of Pain exported successfully for period Thu, Apr-18-'13 01:02:19 PM - Thu, Apr-18-'13 06:02:19 PM");
+        assertThat(logRecord.getMessage()).isEqualTo("Item I'm Marilyn and I take drugs exported successfully for period Thu, Apr-18-'13 01:02:19 PM - Thu, Apr-18-'13 06:02:19 PM");
     }
 
     @Test
@@ -155,8 +146,7 @@ public class LoggingItemExporterTest {
         LogRecord logRecord = logRecorder.getRecords().get(0);
 
         assertThat(logRecord.getLevel()).isEqualTo(Level.WARNING);
-        assertThat(logRecord.getMessage()).isEqualTo("Item MRID4711:The Speed Of Pain failed to export");
-
+        assertThat(logRecord.getMessage()).isEqualTo("Item I'm Marilyn and I take drugs failed to export");
     }
 
     @Test
@@ -174,7 +164,6 @@ public class LoggingItemExporterTest {
         LogRecord logRecord = logRecorder.getRecords().get(0);
 
         assertThat(logRecord.getLevel()).isEqualTo(Level.SEVERE);
-        assertThat(logRecord.getMessage()).isEqualTo("Item MRID4711:The Speed Of Pain fatally failed to export");
-
+        assertThat(logRecord.getMessage()).isEqualTo("Item I'm Marilyn and I take drugs fatally failed to export");
     }
 }

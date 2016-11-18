@@ -79,5 +79,4 @@ class DefaultItemExporter implements ItemExporter {
     public void done() {
         exportItems.forEach(IReadingTypeDataExportItem::update);
     }
-
 }

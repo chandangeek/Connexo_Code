@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
@@ -89,7 +90,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     static final String DESTINATION_NAME = "DataExport";
     static final String SUBSCRIBER_NAME = "DataExport";
-    static final String SUBSCRIBER_DISPLAYNAME = "Handle data export";
+    static final String SUBSCRIBER_DISPLAY_NAME = "Handle data export";
     private static final String MODULE_DESCRIPTION = "Data Export";
     private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
     private volatile DataModel dataModel;
@@ -185,11 +186,6 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public Optional<? extends ExportTask> findAndLockExportTask(long id, long version) {
         return dataModel.mapper(IExportTask.class).lockObjectIfVersion(version, id);
-    }
-
-    @Override
-    public Query<? extends ExportTask> getReadingTypeDataExportTaskQuery() {
-        return queryService.wrap(dataModel.query(IExportTask.class));
     }
 
     @Override
@@ -329,6 +325,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
             });
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
             addSelector(new StandardEventDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_EVENT_DATA_TYPE));
+            addSelector(new UsagePointReadingSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_USAGE_POINT_DATA_TYPE));
             String tempDirectoryPath = context.getProperty(JAVA_TEMP_DIR_PROPERTY);
             if (tempDirectoryPath == null) {
                 tempDirectory = fileSystem.getRootDirectories().iterator().next();
@@ -340,7 +337,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     dataModel,
                     Installer.class,
                     ImmutableMap.of(
-                            version(10, 2), UpgraderV10_2.class
+                            version(10, 2), UpgraderV10_2.class,
+                            version(10, 3), UpgraderV10_3.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -468,9 +466,9 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     @Override
     public List<ExportTask> findExportTaskUsing(RelativePeriod relativePeriod) {
-        return dataModel.stream(IStandardDataSelector.class)
+        return dataModel.stream(MeterReadingSelectorConfigImpl.class)
                 .filter(EQUAL.compare("exportPeriod", relativePeriod).or(EQUAL.compare("updatePeriod", relativePeriod)))
-                .map(IStandardDataSelector::getExportTask)
+                .map(DataSelectorConfig::getExportTask)
                 .collect(Collectors.toList());
     }
 
@@ -513,11 +511,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public List<TranslationKey> getKeys() {
         SimpleTranslationKey standardDataSelectorKey = new SimpleTranslationKey(StandardDataSelectorFactory.TRANSLATION_KEY, StandardDataSelectorFactory.DISPLAY_NAME);
         SimpleTranslationKey standardEventDataSelectorKey = new SimpleTranslationKey(StandardEventDataSelectorFactory.TRANSLATION_KEY, StandardEventDataSelectorFactory.DISPLAY_NAME);
+        SimpleTranslationKey aggregatedDataSelectorKey = new SimpleTranslationKey(UsagePointReadingSelectorFactory.TRANSLATION_KEY, UsagePointReadingSelectorFactory.DISPLAY_NAME);
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
                 Stream.of(DataExportStatus.values()),
                 Stream.of(Privileges.values()),
-                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey))
+                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey, aggregatedDataSelectorKey))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -526,5 +525,4 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
-
 }

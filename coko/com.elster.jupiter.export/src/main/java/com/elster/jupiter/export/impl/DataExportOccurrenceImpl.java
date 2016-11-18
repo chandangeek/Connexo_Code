@@ -60,13 +60,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         readingTask.set(task);
         //TODO ZoneId !!
 
-        task.getReadingTypeDataSelector()
-                .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
-                .ifPresent(instantRange -> {
-                    exportedDataInterval = Interval.of(instantRange);
-                    exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
-                });
-        task.getEventDataSelector()
+        task.getStandardDataSelectorConfig()
                 .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
                 .ifPresent(instantRange -> {
                     exportedDataInterval = Interval.of(instantRange);

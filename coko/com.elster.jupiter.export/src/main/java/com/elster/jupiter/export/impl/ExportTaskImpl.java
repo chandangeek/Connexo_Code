@@ -6,17 +6,15 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.EmailDestination;
-import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
-import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -49,6 +47,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 final class ExportTaskImpl implements IExportTask {
+
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
@@ -74,12 +73,12 @@ final class ExportTaskImpl implements IExportTask {
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-    @SuppressWarnings("unused") // Managed by ORM
-    private String userName;
     @Valid
-    private Reference<IStandardDataSelector> readingTypeDataSelector = Reference.empty();
+    private Reference<DataSelectorConfig> dataSelectorConfig = Reference.empty();
     @Valid
     private List<IDataExportDestination> destinations = new ArrayList<>();
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     private transient String application;
 
@@ -173,7 +172,7 @@ final class ExportTaskImpl implements IExportTask {
         } else {
             doUpdate();
         }
-        readingTypeDataSelector.getOptional().ifPresent(StandardDataSelector::save);
+        dataSelectorConfig.getOptional().map(StandardDataSelectorConfigImpl.class::cast).ifPresent(StandardDataSelectorConfigImpl::save);
         recurrentTaskDirty = false;
         propertiesDirty = false;
     }
@@ -188,7 +187,7 @@ final class ExportTaskImpl implements IExportTask {
         }
         properties.clear();
         destinations.clear();
-        readingTypeDataSelector.getOptional().ifPresent(IStandardDataSelector::delete);
+        dataSelectorConfig.getOptional().map(StandardDataSelectorConfigImpl.class::cast).ifPresent(StandardDataSelectorConfigImpl::delete);
         dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {
@@ -373,12 +372,6 @@ final class ExportTaskImpl implements IExportTask {
                 .setFirstExecution(nextExecution)
                 .build();
         recurrentTask.set(task);
-        if (DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector)) {
-            Save.CREATE.validate(dataModel, this, StandardDataSelector.class);
-        }
-        if (DataExportService.STANDARD_EVENT_DATA_SELECTOR.equals(dataSelector)) {
-            Save.CREATE.validate(dataModel, this, EventDataSelector.class);
-        }
         Save.CREATE.save(dataModel, this);
     }
 
@@ -423,24 +416,6 @@ final class ExportTaskImpl implements IExportTask {
         return new History<>(journal, this);
     }
 
-    @Override
-    public Optional<IStandardDataSelector> getReadingTypeDataSelector() {
-        return readingTypeDataSelector.getOptional()
-                .filter(selector -> DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector));
-    }
-
-    @Override
-    public Optional<EventDataSelector> getEventDataSelector() {
-        return readingTypeDataSelector.getOptional()
-                .map(EventDataSelector.class::cast)
-                .filter(selector -> DataExportService.STANDARD_EVENT_DATA_SELECTOR.equals(dataSelector));
-    }
-
-    @Override
-    public Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at) {
-        return getReadingTypeDataSelector().flatMap(selector -> selector.getHistory().getVersionAt(at));
-    }
-
     DataModel getDataModel() {
         return dataModel;
     }
@@ -461,13 +436,8 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public void setReadingTypeDataSelector(StandardDataSelectorImpl readingTypeDataSelector) {
-        this.readingTypeDataSelector.set(readingTypeDataSelector);
-    }
-
-    @Override
-    public void setEventDataSelector(StandardDataSelectorImpl eventDataSelector) {
-        this.readingTypeDataSelector.set(eventDataSelector);
+    public void setStandardDataSelectorConfig(DataSelectorConfig dataSelectorConfig) {
+        this.dataSelectorConfig.set(dataSelectorConfig);
     }
 
     @Override
@@ -525,7 +495,14 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public boolean hasDefaultSelector() {
-        return readingTypeDataSelector.isPresent();
+        return dataSelectorConfig.isPresent();
+    }
+
+    @Override
+    public Optional<ReadingDataSelectorConfigImpl> getReadingDataSelectorConfig() {
+        return dataSelectorConfig
+                .filter(ReadingDataSelectorConfigImpl.class::isInstance)
+                .map(ReadingDataSelectorConfigImpl.class::cast);
     }
 
     @Override
@@ -555,5 +532,15 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public String getApplication() {
         return recurrentTask.get().getApplication();
+    }
+
+    @Override
+    public Optional<DataSelectorConfig> getStandardDataSelectorConfig() {
+        return dataSelectorConfig.getOptional();
+    }
+
+    @Override
+    public Optional<DataSelectorConfig> getStandardDataSelectorConfig(Instant at) {
+        return dataSelectorConfig.flatMap(selectorConfig -> selectorConfig.getHistory().getVersionAt(at));
     }
 }
