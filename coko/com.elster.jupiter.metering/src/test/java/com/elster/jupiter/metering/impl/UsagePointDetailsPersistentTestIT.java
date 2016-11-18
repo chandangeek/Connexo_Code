@@ -45,24 +45,22 @@ public class UsagePointDetailsPersistentTestIT {
     @Transactional
     @Test
     public void testSaveEmpty() {
-
-        UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY)
+        inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY)
                 .get().newUsagePoint("test", Instant.EPOCH).create();
 
         UsagePointFilter usagePointFilter = new UsagePointFilter();
-        usagePointFilter.setMrid("*");
+        usagePointFilter.setName("*");
 
         UsagePoint usagePoint = inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0);
 
         assertThat(usagePoint.getInstallationTime()).isEqualTo(Instant.EPOCH);
-        assertThat(usagePoint.getMRID()).isEqualTo("test");
+        assertThat(usagePoint.getName()).isEqualTo("test");
         assertThat(usagePoint.getServiceCategory().getKind()).isEqualTo(ServiceKind.ELECTRICITY);
     }
 
     @Transactional
     @Test
     public void testSaveWithGasDetails() {
-
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.GAS)
                 .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
@@ -85,7 +83,7 @@ public class UsagePointDetailsPersistentTestIT {
         up.update();
 
         UsagePointFilter usagePointFilter = new UsagePointFilter();
-        usagePointFilter.setMrid("*");
+        usagePointFilter.setName("*");
 
         GasDetail gasDetail = (GasDetail) inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0).getDetail(inMemoryPersistentModule.getClock().instant()).get();
 
@@ -109,7 +107,6 @@ public class UsagePointDetailsPersistentTestIT {
     @Transactional
     @Test
     public void testSaveWithWaterDetails() {
-
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.WATER)
                 .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
@@ -131,7 +128,7 @@ public class UsagePointDetailsPersistentTestIT {
         up.update();
 
         UsagePointFilter usagePointFilter = new UsagePointFilter();
-        usagePointFilter.setMrid("*");
+        usagePointFilter.setName("*");
 
         WaterDetail waterDetail = (WaterDetail) inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0).getDetail(inMemoryPersistentModule.getClock().instant()).get();
 
@@ -154,7 +151,6 @@ public class UsagePointDetailsPersistentTestIT {
     @Transactional
     @Test
     public void testSaveWithHeatDetails() {
-
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.HEAT)
                 .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
@@ -170,7 +166,7 @@ public class UsagePointDetailsPersistentTestIT {
         up.update();
 
         UsagePointFilter usagePointFilter = new UsagePointFilter();
-        usagePointFilter.setMrid("*");
+        usagePointFilter.setName("*");
 
         HeatDetail waterDetail = (HeatDetail) inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0).getDetail(inMemoryPersistentModule.getClock().instant()).get();
 

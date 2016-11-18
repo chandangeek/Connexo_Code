@@ -20,17 +20,17 @@ import java.util.Objects;
 import java.util.Optional;
 
 final class AmrSystemImpl implements AmrSystem {
-	//persistent fields
-	private int id;
-	private String name;
-	@SuppressWarnings("unused")
-	private long version;
-	@SuppressWarnings("unused")
-	private Instant createTime;
-	@SuppressWarnings("unused")
-	private Instant modTime;
-	@SuppressWarnings("unused")
-	private String userName;
+    //persistent fields
+    private int id;
+    private String name;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     private final DataModel dataModel;
     private final MeteringService meteringService;
@@ -38,99 +38,94 @@ final class AmrSystemImpl implements AmrSystem {
     private final Provider<EndDeviceImpl> endDeviceFactory;
 
     @Inject
-	AmrSystemImpl(DataModel dataModel, MeteringService meteringService,Provider<MeterImpl> meterFactory, Provider<EndDeviceImpl> endDeviceFactory) {
+    AmrSystemImpl(DataModel dataModel, MeteringService meteringService, Provider<MeterImpl> meterFactory, Provider<EndDeviceImpl> endDeviceFactory) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.meterFactory = meterFactory;
         this.endDeviceFactory = endDeviceFactory;
     }
 
-	AmrSystemImpl init(int id , String name) {
-		this.id = id;
-		this.name = name;
+    AmrSystemImpl init(int id, String name) {
+        this.id = id;
+        this.name = name;
         return this;
-	}
-
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	void save() {
-		dataModel.persist(this);
-	}
-
-	@Override
-	public MeterBuilder newMeter(String amrId) {
-        return new MeterBuilderImpl(this, meterFactory, amrId);
-	}
+    }
 
     @Override
-	public EndDevice createEndDevice(String amrId) {
-		return createEndDevice(amrId, null);
-	}
-	@Override
-	public EndDevice createEndDevice(String amrId, String mRID) {
-        EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, mRID);
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    void save() {
+        dataModel.persist(this);
+    }
+
+    @Override
+    public MeterBuilder newMeter(String amrId, String name) {
+        return new MeterBuilderImpl(this, meterFactory, amrId, name);
+    }
+
+    @Override
+    public EndDevice createEndDevice(String amrId, String name) {
+        EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, name, null);
         endDevice.doSave();
         return endDevice;
-	}
+    }
 
     @Override
-	public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId) {
-		return this.createEndDevice(stateMachine, amrId, null);
-	}
-
-	@Override
-	public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId, String mRID) {
-        EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, mRID);
+    public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId, String name) {
+        EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, name, null);
         endDevice.setFiniteStateMachine(stateMachine);
-		endDevice.doSave();
+        endDevice.doSave();
         return endDevice;
-	}
+    }
 
-	@Override
-	public Optional<Meter> findMeter(String amrId) {
-		Condition condition = Operator.EQUAL.compare("amrSystemId", getId());
-		condition = condition.and(Operator.EQUAL.compare("amrId",amrId));
-		Query<Meter> meterQuery = meteringService.getMeterQuery();
-		meterQuery.setEager();
-		List<Meter> candidates = meterQuery.select(condition);
-		switch(candidates.size()) {
-			case 0:
-				return Optional.empty();
-			case 1:
-				return Optional.of(candidates.get(0));
-			default:
-				throw new IllegalStateException();
-		}
-	}
+    @Override
+    public Optional<Meter> findMeter(String amrId) {
+        Condition condition = Operator.EQUAL.compare("amrSystemId", getId());
+        condition = condition.and(Operator.EQUAL.compare("amrId", amrId));
+        Query<Meter> meterQuery = meteringService.getMeterQuery();
+        meterQuery.setEager();
+        List<Meter> candidates = meterQuery.select(condition);
+        switch (candidates.size()) {
+            case 0:
+                return Optional.empty();
+            case 1:
+                return Optional.of(candidates.get(0));
+            default:
+                throw new IllegalStateException();
+        }
+    }
 
     @Override
     public boolean is(KnownAmrSystem knownAmrSystem) {
         return knownAmrSystem != null && knownAmrSystem.getId() == getId();
     }
 
-	@Override
-	public Optional<Meter> lockMeter(String amrId) {
-		return findMeter(amrId).map(meter -> dataModel.mapper(Meter.class).lock(meter.getId()));
-	}
+    @Override
+    public Optional<Meter> lockMeter(String amrId) {
+        return findMeter(amrId).map(meter -> dataModel.mapper(Meter.class).lock(meter.getId()));
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		AmrSystemImpl amrSystem = (AmrSystemImpl) o;
-		return Objects.equals(id, amrSystem.id);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AmrSystemImpl amrSystem = (AmrSystemImpl) o;
+        return Objects.equals(id, amrSystem.id);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

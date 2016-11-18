@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2_1;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_3;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -240,7 +241,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 2, 1), UpgraderV10_2_1.class,
+                        version(10, 3), UpgraderV10_3.class
                 ));
         this.meteringService.readLocationTemplatesFromDatabase();
     }

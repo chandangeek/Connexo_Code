@@ -157,13 +157,12 @@ public class MeterMultiplierIT {
     private void createAndActivateMeter() {
         try (TransactionContext context = transactionService.getContext()) {
              meter = meteringService.findAmrSystem(1).get()
-                    .newMeter("amrID")
-                    .setMRID("mRID")
+                    .newMeter("amrID", "name")
                     .create();
             meterActivation = meter.activate(ACTIVE_DATE.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         meterActivation = meter.getMeterActivations().get(0);
     }
 

@@ -122,7 +122,7 @@ public class NtaReadingTypeTest {
         });
         Meter meter = txService.execute(() -> {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            return amrSystem.newMeter("myMeter").create(); });
+            return amrSystem.newMeter("myMeter", "myName").create(); });
         meterActivation = txService.execute(() -> meter.activate(Instant.now()));
     }
 

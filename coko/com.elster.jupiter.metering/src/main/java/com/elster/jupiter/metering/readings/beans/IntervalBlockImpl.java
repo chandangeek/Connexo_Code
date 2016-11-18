@@ -40,7 +40,7 @@ public class IntervalBlockImpl implements IntervalBlock {
         return this.readingTypeCode;
     }
 
-    public void addIntervalReading(final IntervalReading intervalReading){
+    public void addIntervalReading(IntervalReading intervalReading){
         this.intervals.add(intervalReading);
     }
 

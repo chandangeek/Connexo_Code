@@ -135,7 +135,7 @@ public class ReadingQualityLifeCycleTest {
         ZonedDateTime dateTime = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter").create();
+            meter = amrSystem.newMeter("myMeter", "myName").create();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .accumulate(Accumulation.BULKQUANTITY)
                     .flow(FlowDirection.FORWARD)

@@ -874,18 +874,18 @@ public class DataAggregationServiceImplCalculateIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter1 = mdc.newMeter(amrIdBase).create();
+        this.meter1 = mdc.newMeter(amrIdBase, amrIdBase).create();
     }
 
     private void setupMeters(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter1 = mdc.newMeter(amrIdBase + "-1").create();
-        this.meter2 = mdc.newMeter(amrIdBase + "-2").create();
+        this.meter1 = mdc.newMeter(amrIdBase + "-1", amrIdBase + "-1").create();
+        this.meter2 = mdc.newMeter(amrIdBase + "-2", amrIdBase + "-2").create();
     }
 
-    private void setupUsagePoint(String mRID) {
+    private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName(DataAggregationServiceImplCalculateIT.class.getSimpleName()).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
     }
 
     private void activateMeterWithAll15MinChannels(MeterRole meterRole) {

@@ -535,7 +535,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = mdc.newMeter(amrIdBase).create();
+        this.meter = mdc.newMeter(amrIdBase, amrIdBase).create();
     }
 
     @SuppressWarnings("unchecked")
@@ -552,9 +552,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         return specs.stream().filter(each -> each.getName().equals(specName)).findFirst().get();
     }
 
-    private void setupUsagePoint(String mRID) {
+    private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName(DataAggregationServiceImplCalculateWithCustomPropertiesIT.class.getSimpleName()).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
     }
 
     private void activateMeter() {
