@@ -43,7 +43,7 @@ public class UsagePointLifeCycleTransitionsResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public PagedInfoList getAllTransitions(@PathParam("lid") long lifeCycleId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
-        List<UsagePointLifeCycleTransitionInfo> transitions = lifeCycle.getTransitions().stream().map(this.transitionInfoFactory::from).collect(Collectors.toList());
+        List<UsagePointLifeCycleTransitionInfo> transitions = lifeCycle.getTransitions().stream().map(this.transitionInfoFactory::fullInfo).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("transitions", transitions, queryParameters);
     }
 
@@ -68,9 +68,11 @@ public class UsagePointLifeCycleTransitionsResource {
         Set<UsagePointTransition.Level> levels = transitionInfo.privileges.stream().map(privilege -> privilege.privilege)
                 .map(UsagePointTransition.Level::valueOf).collect(Collectors.toSet());
         Set<String> microChecks = transitionInfo.microChecks.stream()
+                .filter(check -> check.checked)
                 .map(check -> check.key)
                 .collect(Collectors.toSet());
         Set<String> microActions = transitionInfo.microActions.stream()
+                .filter(action -> action.checked)
                 .map(action -> action.key)
                 .collect(Collectors.toSet());
         UsagePointTransition transition = lifeCycle.newTransition(transitionInfo.name, fromState, toState)

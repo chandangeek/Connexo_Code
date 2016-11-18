@@ -35,8 +35,20 @@ public class UsagePointLifeCycleTransitionInfoFactory {
     public UsagePointLifeCycleTransitionInfo fullInfo(UsagePointTransition transition) {
         UsagePointLifeCycleTransitionInfo info = from(transition);
         info.privileges = transition.getLevels().stream().map(this.privilegeInfoFactory::from).collect(Collectors.toList());
-        info.microActions = transition.getActions().stream().map(this.microActionAndCheckInfoFactory::optional).collect(Collectors.toSet());
-        info.microChecks = transition.getChecks().stream().map(this.microActionAndCheckInfoFactory::optional).collect(Collectors.toSet());
+        info.microActions = transition.getActions().stream()
+                .map(this.microActionAndCheckInfoFactory::optional)
+                .map(action -> {
+                    action.checked = true;
+                    return action;
+                })
+                .collect(Collectors.toSet());
+        info.microChecks = transition.getChecks().stream()
+                .map(this.microActionAndCheckInfoFactory::optional)
+                .map(check -> {
+                    check.checked = true;
+                    return check;
+                })
+                .collect(Collectors.toSet());
         return info;
     }
 }
