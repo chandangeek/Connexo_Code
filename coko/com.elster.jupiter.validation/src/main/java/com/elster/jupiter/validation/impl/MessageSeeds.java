@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_DEVICEGROUP_DELETION(1013, Constants.DEVICE_GROUP_STILL_IN_USE, "Device group {0} is still in use by a data validation task.", Level.SEVERE),
 
     DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
-    CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "Cannot delete a validation task ''{0}'' while it is running.", Level.SEVERE),
+    CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "The validation task can''t be removed because the task is running at this moment", Level.SEVERE),
     DEVICE_TASK_VALIDATED_SUCCESFULLY(107, Constants.DEVICE_TASK_VALIDATED_SUCCESFULLY, "Device {0} validated successfully on {1}", Level.INFO),
     USAGE_POINT_TASK_VALIDATED_SUCCESFULLY(108, Constants.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY, "Usage point {0} validated successfully on {1}", Level.INFO),
 
