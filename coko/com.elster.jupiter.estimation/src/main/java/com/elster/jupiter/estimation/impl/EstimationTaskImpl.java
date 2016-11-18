@@ -289,7 +289,28 @@ final class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public boolean canBeDeleted() {
-        return !getLastOccurrence().filter(taskOccurrence -> taskOccurrence.getStatus().equals(TaskStatus.BUSY)).isPresent();
+        return !hasUnfinishedOccurrences();
+    }
+
+    private boolean hasUnfinishedOccurrences() {
+        return hasBusyOccurrence() || hasQueuedMessages();
+    }
+
+    private boolean hasBusyOccurrence() {
+        return getLastOccurrence()
+                .map(TaskOccurrence::getStatus)
+                .orElse(TaskStatus.SUCCESS)
+                .equals(TaskStatus.BUSY);
+    }
+
+    private boolean hasQueuedMessages() {
+        Optional<? extends TaskOccurrence> lastOccurrence = recurrentTask.get().getLastOccurrence();
+        Optional<TaskOccurrence> lastDataEstimationOccurrence = getLastOccurrence();
+        return lastOccurrence.isPresent() &&
+                lastDataEstimationOccurrence
+                        .map(TaskOccurrence::getId)
+                        .map(i -> !i.equals(lastOccurrence.get().getId()))
+                        .orElse(true);
     }
 
     @Override
