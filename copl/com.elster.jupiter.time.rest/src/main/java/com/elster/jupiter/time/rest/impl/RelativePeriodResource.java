@@ -24,6 +24,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 
+import com.google.common.collect.Range;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -178,9 +180,8 @@ public class RelativePeriodResource {
                 .notEmpty(relativeDatePreviewInfo.date, "date")
                 .validate();
         ZonedDateTime referenceDate = getZonedDateTime(relativeDatePreviewInfo);
-        ZonedDateTime start = relativePeriod.getRelativeDateFrom().getRelativeDate(referenceDate);
-        ZonedDateTime end = relativePeriod.getRelativeDateTo().getRelativeDate(referenceDate);
-        return new RelativePeriodPreviewInfo(start, end);
+        Range<Instant> interval = relativePeriod.getClosedOpenInterval(referenceDate);
+        return new RelativePeriodPreviewInfo(interval.lowerEndpoint(), interval.upperEndpoint(), referenceDate.getZone());
     }
 
     @Path("/preview")

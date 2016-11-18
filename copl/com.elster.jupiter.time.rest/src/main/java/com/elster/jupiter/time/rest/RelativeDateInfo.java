@@ -4,6 +4,7 @@ import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativeOperator;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class RelativeDateInfo {
 
     public RelativeDateInfo(RelativeDate relativeDate) {
         List<RelativeOperation> relativeOperations = relativeDate.getOperations();
-        relativeOperations.stream().forEach(ro -> {
+        relativeOperations.forEach(ro -> {
             RelativeField relativeField = ro.getField();
             RelativeOperator relativeOperator = ro.getOperator();
             switch (relativeField) {
