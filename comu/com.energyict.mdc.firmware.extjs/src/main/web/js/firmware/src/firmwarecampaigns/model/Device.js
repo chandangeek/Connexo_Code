@@ -17,6 +17,6 @@ Ext.define('Fwc.firmwarecampaigns.model.Device', {
     },
     replaceIds: function(tpl){
         var url = tpl.replace('{campaignId}', this.get('campaignId'));
-        return url.replace('{deviceId}', this.get('name'));
+        return url.replace('{deviceId}', this.get('deviceName'));
     }
 });
