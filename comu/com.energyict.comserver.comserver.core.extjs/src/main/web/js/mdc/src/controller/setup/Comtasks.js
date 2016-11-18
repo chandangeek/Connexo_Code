@@ -89,9 +89,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             '#mdc-comtask-commandCategories-grid actioncolumn': {
                 removeCommandCategory: this.onRemoveCommandCategory
             },
-            'comTaskActions comtaskActionsGrid uni-actioncolumn': {
-                menuclick: this.onActionActionMenuClick
-            },
             'comtaskActionActionMenu': {
                 click: this.onActionActionMenuClick
             },
