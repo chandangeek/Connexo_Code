@@ -71,9 +71,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             'device-life-cycle-state-edit #addOnExitTransitionBusinessProcess': {
                 click: this.addExitTransitionBusinessProcessesToState
             },
-            'device-life-cycle-states-action-menu': {
-                show: this.configureMenu
-            },
             'AddProcessesToState button[name=cancel]': {
                 click: this.forwardToPreviousPage
             },
@@ -81,13 +78,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 click: this.addSelectedProcesses
             }
         });
-    },
-
-    configureMenu: function (menu) {
-        var initialAction = menu.down('#initialAction'),
-            isInitial = menu.record.get('isInitial');
-
-        isInitial ? initialAction.hide() : initialAction.show();
     },
 
     showErrorPanel: function (value) {

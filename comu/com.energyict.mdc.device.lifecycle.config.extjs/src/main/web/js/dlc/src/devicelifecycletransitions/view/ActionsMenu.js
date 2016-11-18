@@ -1,21 +1,23 @@
 Ext.define('Dlc.devicelifecycletransitions.view.ActionsMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.transitions-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'edit-transition',
-            text: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
-            action: 'editTransition'
-        },
-        {
-            itemId: 'remove-transition',
-            text: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
-            action: 'removeTransition'
-        }
-    ]
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'edit-transition',
+                text: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
+                action: 'editTransition',
+                section: this.SECTION_EDIT
+            },
+            {
+                itemId: 'remove-transition',
+                text: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
+                action: 'removeTransition',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
 
 

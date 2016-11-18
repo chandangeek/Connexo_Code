@@ -1,21 +1,24 @@
 Ext.define('Dlc.devicelifecycles.view.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-life-cycles-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.clone', 'DLC', 'Clone'),
-            action: 'clone'
-        },
-        {
-            text: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
-            action: 'edit'
-        },
-        {
-            text: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
-            action: 'remove'
-        }
-    ]
+    initComponent: function() {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.clone', 'DLC', 'Clone'),
+                action: 'clone',
+                section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
+                action: 'edit',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
+                action: 'remove',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
