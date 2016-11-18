@@ -4,19 +4,44 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     itemId: 'readings-list',
     requires: [
         'Imt.purpose.store.Readings',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Imt.purpose.view.DataBulkActionMenu'
     ],
-    plugins: [
-        {
-            ptype: 'bufferedrenderer'
-        }
-    ],
+    selModel: {
+        mode: 'MULTI'
+    },
+    viewConfig: {
+        loadMask: false,
+        enableTextSelection: true
+    },
+    // plugins: [
+    //     {
+    //         ptype: 'bufferedrenderer'
+    //     }
+    // ],
     store: 'Imt.purpose.store.Readings',
 
     initComponent: function () {
         var me = this,
             readingType = me.output.get('readingType'),
             unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
+        me.plugins = [
+            {
+                ptype: 'bufferedrenderer',
+                trailingBufferZone: 12,
+                leadingBufferZone: 24
+            },
+            {
+                ptype: 'cellediting',
+                clicksToEdit: 1,
+                pluginId: 'cellplugin',
+                listeners: {
+                    'beforeedit': function (e, f) {
+                        return !f.record.get('slaveChannel');
+                    }
+                }
+            }
+        ];
 
         me.columns = [
             {
@@ -69,7 +94,30 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 noBottomPaging: true,
                 usesExactCount: true,
                 isFullTotalCount: true,
-                displayMsg: Uni.I18n.translate('reading.pagingtoolbartop.displayMsg', 'IMT', '{1} reading(s)')
+                displayMsg: Uni.I18n.translate('reading.pagingtoolbartop.displayMsg', 'IMT', '{1} reading(s)'),
+                items: [
+                    {
+                        xtype: 'button',
+                        itemId: 'save-changes-button',
+                        text: Uni.I18n.translate('general.saveChanges', 'IMT', 'Save changes'),
+                        disabled: true
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'undo-button',
+                        text: Uni.I18n.translate('general.undo', 'IMT', 'Undo'),
+                        disabled: true
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'device-channel-data-bulk-action-button',
+                        text: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
+                        menu: {
+                            xtype: 'purpose-channel-data-bulk-action-menu',
+                            itemId: 'purpose-channel-data-bulk-action-menu'
+                        }
+                    }
+                ]
             }
         ];
 
