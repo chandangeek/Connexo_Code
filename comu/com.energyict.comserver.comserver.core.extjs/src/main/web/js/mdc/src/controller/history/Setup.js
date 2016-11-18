@@ -361,9 +361,13 @@ Ext.define('Mdc.controller.history.Setup', {
                         registers: {
                             title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                             route: 'registers',
-                            controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
-                            privileges: Mdc.privileges.Device.viewDeviceCommunication,
-                            action: 'showDeviceRegisterConfigurationsView',
+                            redirect: {
+                                route: 'devices/device/registers/tab',
+                                params: {
+                                    tab: 'registers'
+                                },
+                                locationReplace: true /* = don't remember the devices/device/registers route in browser history */
+                            },
                             items: {
                                 register: {
                                     route: '{registerId}',
@@ -499,8 +503,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         }
                                     }
+                                },
+                                tab: {
+                                    title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
+                                    route: 'tab/:tab:',
+                                    controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                    privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    action: 'showDeviceRegisterConfigurationsView'
                                 }
-
                             }
                         },
                         dataloggerslaves: {
