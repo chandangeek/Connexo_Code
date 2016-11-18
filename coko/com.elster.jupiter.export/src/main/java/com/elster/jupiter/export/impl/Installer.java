@@ -5,10 +5,12 @@ import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
@@ -20,9 +22,9 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_MONTH;
@@ -114,26 +116,86 @@ class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createRelativePeriods() {
-        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY)
-                .forEach(definition -> {
-                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
-                            .orElseThrow(IllegalArgumentException::new);
+        this.requiredExportCategoryRelativePeriodNames()
+                .forEach(name -> {
+                    RelativePeriod relativePeriod =
+                            timeService
+                                    .findRelativePeriodByName(name)
+                                    .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_CATEGORY));
                 });
+        this.optionalExportCategoryRelativePeriodNames()
+                .forEach(name ->
+                        timeService
+                                .findRelativePeriodByName(name)
+                                .ifPresent(relativePeriod -> relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_CATEGORY))));
 
-        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, YESTERDAY)
-                .forEach(definition -> {
-                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
-                            .orElseThrow(IllegalArgumentException::new);
+        this.requiredUpdateWindowCategoryRelativePeriodNames()
+                .forEach(name -> {
+                    RelativePeriod relativePeriod =
+                            timeService
+                                    .findRelativePeriodByName(name)
+                                    .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY));
                 });
+        this.optionalUpdateWindowCategoryRelativePeriodNames()
+                .forEach(name ->
+                        timeService
+                                .findRelativePeriodByName(name)
+                                .ifPresent(relativePeriod -> relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY))));
 
-        EnumSet.of(THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY)
-                .forEach(definition -> {
-                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
-                            .orElseThrow(IllegalArgumentException::new);
+        this.requiredUpdateTimeFrameCategoryRelativePeriodNames()
+                .forEach(name -> {
+                    RelativePeriod relativePeriod =
+                            timeService
+                                    .findRelativePeriodByName(name)
+                                    .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY));
                 });
+        this.optionalUpdateTimeFrameCategoryRelativePeriodNames()
+                .forEach(name ->
+                        timeService
+                                .findRelativePeriodByName(name)
+                                .ifPresent(relativePeriod -> relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY))));
+    }
+
+    private Stream<String> requiredExportCategoryRelativePeriodNames() {
+        return Stream.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY).map(DefaultRelativePeriodDefinition::getPeriodName);
+    }
+
+    private Stream<String> optionalExportCategoryRelativePeriodNames() {
+        return Stream.of(
+                        GasDayOptions.RelativePeriodTranslationKey.LAST_7_DAYS,
+                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_MONTH,
+                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_WEEK,
+                        GasDayOptions.RelativePeriodTranslationKey.THIS_MONTH,
+                        GasDayOptions.RelativePeriodTranslationKey.THIS_WEEK,
+                        GasDayOptions.RelativePeriodTranslationKey.TODAY,
+                        GasDayOptions.RelativePeriodTranslationKey.YESTERDAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
+    }
+
+    private Stream<String> requiredUpdateWindowCategoryRelativePeriodNames() {
+        return Stream.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, YESTERDAY).map(DefaultRelativePeriodDefinition::getPeriodName);
+    }
+
+    private Stream<String> optionalUpdateWindowCategoryRelativePeriodNames() {
+        return Stream.of(
+                        GasDayOptions.RelativePeriodTranslationKey.LAST_7_DAYS,
+                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_MONTH,
+                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_WEEK,
+                        GasDayOptions.RelativePeriodTranslationKey.YESTERDAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
+    }
+
+    private Stream<String> requiredUpdateTimeFrameCategoryRelativePeriodNames() {
+        return Stream.of(THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY).map(DefaultRelativePeriodDefinition::getPeriodName);
+    }
+
+    private Stream<String> optionalUpdateTimeFrameCategoryRelativePeriodNames() {
+        return Stream.of(
+                        GasDayOptions.RelativePeriodTranslationKey.THIS_MONTH,
+                        GasDayOptions.RelativePeriodTranslationKey.THIS_WEEK,
+                        GasDayOptions.RelativePeriodTranslationKey.THIS_YEAR,
+                        GasDayOptions.RelativePeriodTranslationKey.TODAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
     }
 
 }
