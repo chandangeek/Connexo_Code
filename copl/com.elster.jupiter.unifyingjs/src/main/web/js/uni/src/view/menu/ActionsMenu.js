@@ -21,6 +21,7 @@ Ext.define('Uni.view.menu.ActionsMenu', {
 
     sortMenuItems: function() {
         var me = this,
+            menuItems,
             // Order the menu items by
             // 1. their section (first WITH section, THEN without)
             // 2. their text (when their section equals)
@@ -45,73 +46,110 @@ Ext.define('Uni.view.menu.ActionsMenu', {
 
         if (Ext.isArray(me.items)) {
             me.items = Ext.Array.sort(me.items, sort);
+            menuItems = Ext.Array.clone(me.items);
         } else if (Ext.isArray(me.items.items)) {
             me.items.items = Ext.Array.sort(me.items.items, sort);
+            menuItems = Ext.Array.clone(me.items.items);
+        }
+
+        // Add separators where needed (without taking the visibility of the menu items into account)
+        var separatorIndices = [],
+            indexCounter = -1,
+            previousSection = -1,
+            itemsBeforeSeparator = 0;
+
+        Ext.Array.forEach(menuItems, function(menuItem) {
+            indexCounter++;
+            if (Ext.isEmpty(menuItem.section)) {
+                if (!Ext.isEmpty(previousSection)) {
+                    if (itemsBeforeSeparator > 0) {
+                        separatorIndices.push(indexCounter);
+                        itemsBeforeSeparator = 0;
+                    }
+                    itemsBeforeSeparator++;
+                    previousSection = undefined;
+                }
+            } else if (menuItem.section !== previousSection) {
+                if (itemsBeforeSeparator > 0) {
+                    separatorIndices.push(indexCounter);
+                    itemsBeforeSeparator = 0;
+                }
+                itemsBeforeSeparator++;
+                previousSection = menuItem.section;
+            }
+        });
+
+        // Add the separators
+        var counter,
+            separatorsAdded = 0,
+            theMenuItems;
+
+        if (Ext.isArray(me.items)) {
+            theMenuItems = me.items;
+        } else if (Ext.isArray(me.items.items)) {
+            theMenuItems = me.items.items;
+        }
+
+        for (counter = 0; counter < separatorIndices.length; counter++) {
+            theMenuItems.splice(separatorIndices[counter] + separatorsAdded, 0, { xtype: 'menuseparator', action:'none' });
+            separatorsAdded++;
         }
     },
 
     onBeforeShow: function() {
         var me = this,
             menuItems = Ext.Array.clone(me.items.items),
-            separatorIndices = [],
-            previousSection = -1,
-            indexCounter = -1,
-            visiblesBeforeSeparator = 0;
+            visiblesBeforeSeparator = 0,
+            lastVisibleSeparator = undefined;
 
         Ext.Array.forEach(menuItems, function(menuItem) {
-            indexCounter++;
-            var visible = !menuItem.hidden;
-            if (visible) {
-                if (menuItem.xtype === 'menuseparator') {
-                    if (visiblesBeforeSeparator > 0) {
-                        menuItem.show();
-                        visiblesBeforeSeparator = 0;
-                    } else {
-                        menuItem.hide();
-                    }
-                } else if (Ext.isEmpty(menuItem.section)) {
-                    if (!Ext.isEmpty(previousSection) && previousSection !== -1 && visiblesBeforeSeparator > 0) {
-                        separatorIndices.push(indexCounter);
-                        visiblesBeforeSeparator = 0;
-                    }
-                    visiblesBeforeSeparator++;
-                    previousSection = undefined;
+            if (menuItem.xtype === 'menuseparator') {
+                if (visiblesBeforeSeparator>0) {
+                    menuItem.show();
+                    lastVisibleSeparator = menuItem;
+                    visiblesBeforeSeparator = 0;
                 } else {
-                    if (menuItem.section !== previousSection) {
-                        if (previousSection !== -1 && visiblesBeforeSeparator > 0) {
-                            separatorIndices.push(indexCounter);
-                            visiblesBeforeSeparator = 0;
-                        }
-                        visiblesBeforeSeparator++;
-                        previousSection = menuItem.section;
-                    } else {
-                        visiblesBeforeSeparator++;
-                    }
+                    menuItem.hide();
                 }
             } else {
-                if (menuItem.xtype !== 'menuseparator' && menuItem.section !== previousSection) {
-                    if (previousSection !== -1 && visiblesBeforeSeparator > 0) {
-                        separatorIndices.push(indexCounter);
-                        visiblesBeforeSeparator = 0;
-                    }
-                    previousSection = menuItem.section;
+                if (!menuItem.hidden) {
+                    visiblesBeforeSeparator++;
                 }
             }
         });
-        if (visiblesBeforeSeparator === 0) {
-            if (separatorIndices.length > 0) {
-                separatorIndices.pop(); // Don't add the last separator
-            } else if (menuItems.length>0 && menuItems[menuItems.length-1].xtype === 'menuseparator') { // last element is a separator
-                menuItems[menuItems.length-1].hide(); // hide the last item
+
+        if (!Ext.isEmpty(lastVisibleSeparator) && visiblesBeforeSeparator===0) {
+            lastVisibleSeparator.hide();
+        }
+    },
+
+    // This method is copied from the Ext.menu.Menu code
+    // + changes
+    onClick: function(e) {
+        var me = this,
+            item;
+
+        if (me.disabled) {
+            e.stopEvent();
+            return;
+        }
+
+        item = (e.type === 'click') ? me.getItemFromEvent(e) : me.activeItem;
+        if (item && item.isMenuItem) {
+            if (item.xtype === 'menuseparator') {  // <<< added
+                e.stopEvent();
+                return; // We don't want the menu to fire a 'click' event when clicked on the separator
+            } else if (!item.menu || !me.ignoreParentClicks) {
+                item.onClick(e);
+            } else {
+                e.stopEvent();
             }
         }
-
-        // Add the separators where needed
-        var counter = 0, separatorsAdded = 0;
-        for (counter = 0; counter < separatorIndices.length; counter++) {
-            me.insert(separatorIndices[counter] + separatorsAdded, { xtype: 'menuseparator' });
-            separatorsAdded++;
+        // Click event may be fired without an item, so we need a second check
+        if (!item || item.disabled) {
+            item = undefined;
+            return; // <<< added: We don't want the menu to fire a 'click' event without an item
         }
+        me.fireEvent('click', me, item, e);
     }
-
 });
