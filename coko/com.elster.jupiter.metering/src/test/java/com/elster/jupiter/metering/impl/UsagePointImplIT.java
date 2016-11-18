@@ -18,6 +18,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -77,14 +78,14 @@ public class UsagePointImplIT {
         Instant usagePointCreationTime = AUG_1ST_2016;
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
-            serviceCategory
-                .newUsagePoint("effectiveMetrologyConfigurationContainsPeriod", usagePointCreationTime)
-                .create();
+                serviceCategory
+                        .newUsagePoint("effectiveMetrologyConfigurationContainsPeriod", usagePointCreationTime)
+                        .create();
         UsagePointMetrologyConfiguration configuration =
-            inMemoryBootstrapModule
-                .getMetrologyConfigurationService()
-                .newUsagePointMetrologyConfiguration("effectiveMetrologyConfigurationContainsPeriod", serviceCategory)
-                .create();
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("effectiveMetrologyConfigurationContainsPeriod", serviceCategory)
+                        .create();
         configuration.activate();
         usagePoint.apply(configuration, usagePointCreationTime);
         Instant periodStart = AUG_15TH_2016;
@@ -104,14 +105,14 @@ public class UsagePointImplIT {
         Instant usagePointCreationTime = AUG_1ST_2016;  // for curiosity's sake 2016-08-01 00:00:00 (Brussels)
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
-            serviceCategory
-                .newUsagePoint("effectiveMetrologyConfigurationAfterPeriod", usagePointCreationTime)
-                .create();
+                serviceCategory
+                        .newUsagePoint("effectiveMetrologyConfigurationAfterPeriod", usagePointCreationTime)
+                        .create();
         UsagePointMetrologyConfiguration configuration =
-            inMemoryBootstrapModule
-                .getMetrologyConfigurationService()
-                .newUsagePointMetrologyConfiguration("effectiveMetrologyConfigurationAfterPeriod", serviceCategory)
-                .create();
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("effectiveMetrologyConfigurationAfterPeriod", serviceCategory)
+                        .create();
         configuration.activate();
         usagePoint.apply(configuration, usagePointCreationTime);
         Range<Instant> period = Range.closedOpen(JULY_1ST_2016, JULY_15TH_2016);
@@ -130,14 +131,14 @@ public class UsagePointImplIT {
         Instant usagePointCreationTime = AUG_1ST_2016;
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
-            serviceCategory
-                .newUsagePoint("effectiveMetrologyConfigurationOverlapsWithPeriodAtStart", usagePointCreationTime)
-                .create();
+                serviceCategory
+                        .newUsagePoint("effectiveMetrologyConfigurationOverlapsWithPeriodAtStart", usagePointCreationTime)
+                        .create();
         UsagePointMetrologyConfiguration configuration =
-            inMemoryBootstrapModule
-                .getMetrologyConfigurationService()
-                .newUsagePointMetrologyConfiguration("effectiveMetrologyConfigurationOverlapsWithPeriodAtStart", serviceCategory)
-                .create();
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("effectiveMetrologyConfigurationOverlapsWithPeriodAtStart", serviceCategory)
+                        .create();
         configuration.activate();
         usagePoint.apply(configuration, usagePointCreationTime);
         Range<Instant> period = Range.closedOpen(JULY_15TH_2016, SEPT_1ST_2016);
@@ -155,20 +156,20 @@ public class UsagePointImplIT {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
-            serviceCategory
-                .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", AUG_1ST_2016)
-                .create();
+                serviceCategory
+                        .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", AUG_1ST_2016)
+                        .create();
         UsagePointMetrologyConfiguration configuration1 =
-            inMemoryBootstrapModule
-                .getMetrologyConfigurationService()
-                .newUsagePointMetrologyConfiguration("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary1", serviceCategory)
-                .create();
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary1", serviceCategory)
+                        .create();
         configuration1.activate();
         UsagePointMetrologyConfiguration configuration2 =
-            inMemoryBootstrapModule
-                .getMetrologyConfigurationService()
-                .newUsagePointMetrologyConfiguration("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary2", serviceCategory)
-                .create();
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary2", serviceCategory)
+                        .create();
         configuration2.activate();
         usagePoint.apply(configuration1, JULY_1ST_2016);
         usagePoint.apply(configuration2, AUG_1ST_2016);
@@ -181,4 +182,58 @@ public class UsagePointImplIT {
         assertThat(metrologyConfigurations).hasSize(2);
     }
 
+    @Test
+    @Transactional
+    public void testMakeObsolete() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint =
+                serviceCategory
+                        .newUsagePoint("testMakeObsolete", AUG_1ST_2016)
+                        .create();
+
+        // Business method
+        usagePoint.makeObsolete();
+
+        // Asserts
+        Optional<UsagePoint> foundUsagePoint;
+
+        // Asserts that usage point is available by id
+        foundUsagePoint = meteringService.findUsagePointById(usagePoint.getId());
+        assertThat(foundUsagePoint).isPresent();
+        assertThat(foundUsagePoint.get()).isEqualTo(usagePoint);
+        assertThat(foundUsagePoint.get().getObsoleteTime()).isPresent();
+
+        // Asserts that usage point is available by mrid
+        foundUsagePoint = meteringService.findUsagePointByMRID(usagePoint.getMRID());
+        assertThat(foundUsagePoint).isPresent();
+        assertThat(foundUsagePoint.get()).isEqualTo(usagePoint);
+        assertThat(foundUsagePoint.get().getObsoleteTime()).isPresent();
+
+        // Asserts that usage point is NOT available by name
+        foundUsagePoint = meteringService.findUsagePointByName(usagePoint.getName());
+        assertThat(foundUsagePoint).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testGetObsoleteTime() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint =
+                serviceCategory
+                        .newUsagePoint("nonObsolete", AUG_1ST_2016)
+                        .create();
+        UsagePoint usagePointObsolete =
+                serviceCategory
+                        .newUsagePoint("obsolete", AUG_1ST_2016)
+                        .create();
+
+        // Business method
+        usagePointObsolete.makeObsolete();
+
+        // Asserts
+        assertThat(meteringService.findUsagePointById(usagePoint.getId()).get().getObsoleteTime()).isEmpty();
+        assertThat(meteringService.findUsagePointById(usagePointObsolete.getId()).get().getObsoleteTime()).isPresent();
+    }
 }

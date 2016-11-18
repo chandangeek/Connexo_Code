@@ -253,7 +253,7 @@ final class ServiceLocationImpl implements ServiceLocation {
 
     private List<UsagePoint> doGetUsagePoints() {
         if (usagePoints == null) {
-            usagePoints = dataModel.mapper(UsagePoint.class).find("serviceLocation",this);
+            usagePoints = dataModel.mapper(UsagePoint.class).find("serviceLocation", this, "obsoleteTime", null);
         }
         return usagePoints;
     }

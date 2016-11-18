@@ -29,6 +29,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 public class UsagePointFinder implements Finder<UsagePoint> {
     private DefaultFinder<UsagePoint> finder;
     private final ServerMeteringService meteringService;
@@ -36,7 +38,7 @@ public class UsagePointFinder implements Finder<UsagePoint> {
     UsagePointFinder(ServerMeteringService meteringService, List<SearchablePropertyCondition> conditions) {
         this.meteringService = meteringService;
         this.finder = DefaultFinder
-                .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
+                .of(UsagePoint.class, where("obsoleteTime").isNull().and(toCondition(conditions)), meteringService.getDataModel(),
                         EffectiveMetrologyConfigurationOnUsagePoint.class,
                         MetrologyConfiguration.class,
                         UsagePointDetail.class,

@@ -138,6 +138,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    private Instant obsoleteTime;
     private long location;
     private SpatialCoordinates spatialCoordinates;
 
@@ -297,7 +298,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setInstallationTime(Instant installationTime) {
-        this.installationTime = installationTime !=null ? installationTime.truncatedTo(ChronoUnit.MINUTES) : null;
+        this.installationTime = installationTime != null ? installationTime.truncatedTo(ChronoUnit.MINUTES) : null;
     }
 
     @Override
@@ -372,6 +373,11 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
+    /**
+     * This method will not work if there are meter activations, channel containers and channels linked
+     * We keep this method for physical deletion in the future.
+     *
+     **/
     @Override
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
@@ -379,7 +385,6 @@ public class UsagePointImpl implements UsagePoint {
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);
-        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     private void removeMetrologyConfigurations() {
@@ -1162,5 +1167,17 @@ public class UsagePointImpl implements UsagePoint {
 
     private Optional<Location> findLocation(long id) {
         return dataModel.mapper(Location.class).getOptional(id);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteTime = this.clock.instant();
+        this.dataModel.update(this, "obsoleteTime");
+        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
     }
 }

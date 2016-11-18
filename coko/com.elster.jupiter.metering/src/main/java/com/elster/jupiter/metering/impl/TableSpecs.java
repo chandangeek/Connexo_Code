@@ -298,10 +298,13 @@ public enum TableSpecs {
                     .since(version(10, 2))
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
+            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
             table.addAuditColumns();
+
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
-            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).since(version(10, 2, 1)).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).since(version(10, 2, 1)).upTo(version(10, 3)).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn, obsoleteTime).since(version(10, 3)).add();
             table.foreignKey("FK_MTR_USAGEPOINTSERVICECAT")
                     .on(serviceKindColumn)
                     .references(ServiceCategory.class)

@@ -205,7 +205,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Optional<UsagePoint> findUsagePointByName(String name) {
-        return dataModel.mapper(UsagePoint.class).getUnique("name", name);
+        return dataModel.mapper(UsagePoint.class).getUnique("name", name, "obsoleteTime", null);
     }
 
     @Override
