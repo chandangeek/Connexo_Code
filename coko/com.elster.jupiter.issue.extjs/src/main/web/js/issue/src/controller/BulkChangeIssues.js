@@ -693,7 +693,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         message = Uni.I18n.translate('issues.selectedIssues.assign.msg3', 'ISU', '<h3>Unassign all issues?</h3><br>')
                             + Uni.I18n.translate('issues.selectedIssues.assign.title5', 'ISU', 'All issues will be unassigned');
                     } else if ((userId > -1) && (workGroupId == -1)) {
-                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', 'ISU', '<h3>Assign all issued?</h3><br>')
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', 'ISU', '<h3>Assign all issues?</h3><br>')
                             + Uni.I18n.translate('issues.selectedIssues.assign.title6', 'ISU', 'All issues) will be assigned to {0} user', [Ext.String.htmlEncode(userCombo.rawValue)])
                     } else if ((userId == -1) && (workGroupId > -1)) {
                         message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', 'ISU', '<h3>Assign all issues?</h3><br>')
