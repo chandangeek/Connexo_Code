@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.time.DayMonthTime;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -23,8 +23,11 @@ public class GasDayResource {
     @Path("/yearstart")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public GasDayYearStartInfo getYearStart() {
-        DayMonthTime yearStart = this.meteringService.getGasDayYearStart();
-        return new GasDayYearStartInfo(yearStart);
+        return this.meteringService
+                .getGasDayOptions()
+                .map(GasDayOptions::getYearStart)
+                .map(GasDayYearStartInfo::new)
+                .orElseGet(GasDayYearStartInfo::new);
     }
 
 }

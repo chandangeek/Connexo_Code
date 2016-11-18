@@ -9,7 +9,12 @@ public class GasDayYearStartInfo {
     public int minutes;
     public int seconds;
 
+    public GasDayYearStartInfo() {
+        super();
+    }
+
     public GasDayYearStartInfo(DayMonthTime yearStart) {
+        this();
         if (yearStart!=null) {
             this.month = yearStart.getMonthValue();
             this.day = yearStart.getDayOfMonth();
