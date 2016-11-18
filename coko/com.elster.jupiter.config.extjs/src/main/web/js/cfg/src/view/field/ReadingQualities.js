@@ -107,10 +107,11 @@ Ext.define('Cfg.view.field.ReadingQualities', {
                 prop = '';
             }
             if (rule.deleted) {
-                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'CFG', '(removed rule)') + prop + '</span>' + '&nbsp;' + application  + '<br>';
-            } if (rule.application && rule.application.id == "MDM" && !me.usedInInsight) {
+                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'CFG', '(removed rule)') + prop  + '&nbsp;' + application  + '</span><br>';
+            }
+            if (rule.application && rule.application.id == "MDM" && !me.usedInInsight) {
                 str += Uni.I18n.translate('device.suspectInInsight', 'CFG', 'Suspect in Insight');
-            } else if (!Ext.isEmpty(application)) {
+            } else if (!Ext.isEmpty(application) && !rule.deleted) {
                 str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
 
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
