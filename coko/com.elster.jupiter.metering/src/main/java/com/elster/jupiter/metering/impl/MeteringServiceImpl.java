@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -682,12 +683,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public GasDayOptions getGasDayOptions() {
-        return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID).orElse(null);
+    public Optional<GasDayOptions> getGasDayOptions() {
+        return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID);
     }
 
-    public DayMonthTime getGasDayYearStart() {
-        GasDayOptions gasDayOptions = getGasDayOptions();
-        return gasDayOptions==null ? null : getGasDayOptions().getYearStart();
-    }
 }

@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.impl.GasDayOptions;
+import com.elster.jupiter.metering.GasDayOptions;
 
 import java.time.Instant;
 import java.time.ZoneId;
