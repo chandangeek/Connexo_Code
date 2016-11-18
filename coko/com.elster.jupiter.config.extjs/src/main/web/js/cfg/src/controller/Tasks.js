@@ -486,41 +486,6 @@ Ext.define('Cfg.controller.Tasks', {
                 if (operation.response.status === 409) {
                     return
                 }
-                var json = Ext.decode(operation.response.responseText, true);
-                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'CFG', 'Unknown error occurred');
-                if (json && json.errors) {
-                    errorText = json.errors[0].msg;
-                }
-
-                if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
-                    Ext.widget('messagebox', {
-                        itemId: 'remove-error-messagebox',
-                        buttons: [
-                            {
-                                text: Uni.I18n.translate('general.retry', 'CFG', 'Retry'),
-                                ui: 'remove',
-                                handler: function (button, event) {
-                                    me.removeOperation(record);
-                                }
-                            },
-                            {
-                                text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
-                                action: 'cancel',
-                                ui: 'link',
-                                href: '#/administration/validationtasks/',
-                                handler: function (button, event) {
-                                    this.up('messagebox').destroy();
-                                }
-                            }
-                        ]
-                    }).show({
-                        ui: 'notification-error',
-                        title: Uni.I18n.translate('validationTasks.general.remove.error.msg', 'CFG', 'Remove operation failed'),
-                        msg: errorText,
-                        modal: false,
-                        icon: Ext.MessageBox.ERROR
-                    })
-                }
             },
             callback: function() {
                 mainView.setLoading(false);
