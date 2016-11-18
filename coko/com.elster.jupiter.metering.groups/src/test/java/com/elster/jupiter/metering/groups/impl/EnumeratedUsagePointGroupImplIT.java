@@ -3,7 +3,10 @@ package com.elster.jupiter.metering.groups.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -11,6 +14,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
@@ -25,8 +29,6 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -38,7 +40,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
@@ -46,120 +47,91 @@ import java.time.Instant;
 import java.time.Month;
 import java.time.Year;
 import java.time.ZoneId;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedUsagePointGroupImplIT {
 
-//    private static final String UP_NAME = "15-451785-45 ";
     private static final String UP_NAME = " ( ";
-    private Injector injector;
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private ServiceRegistration serviceRegistration;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
+    @Rule
+    public TransactionalRule transactional = new TransactionalRule(injector.getInstance(TransactionService.class));
 
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-
-    private class MockModule extends AbstractModule {
-
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(UserService.class).toInstance(mock(UserService.class));
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        when(this.bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(this.serviceRegistration);
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new IdsModule(),
-                    new FiniteStateMachineModule(),
-                    new MeteringModule(),
-                    new BasicPropertiesModule(),
-                    new TimeModule(),
-                    new MeteringGroupsModule(),
-                    new SearchModule(),
-                    new PartyModule(),
-                    new EventsModule(),
-                    new DomainUtilModule(),
-                    new OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new NlsModule(),
-                    new DataVaultModule(),
-                    new CustomPropertySetsModule()
-
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(FiniteStateMachineService.class);
-                injector.getInstance(MeteringGroupsService.class);
-                return null;
-            }
+    @BeforeClass
+    public static void setUp() throws SQLException {
+        injector = Guice.createInjector(
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new InMemoryMessagingModule(),
+                new IdsModule(),
+                new MeteringModule(),
+                new BasicPropertiesModule(),
+                new TimeModule(),
+                new MeteringGroupsModule(),
+                new SearchModule(),
+                new PartyModule(),
+                new EventsModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new NlsModule(),
+                new FiniteStateMachineModule(),
+                new DataVaultModule(),
+                new CustomPropertySetsModule()
+        );
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringGroupsService.class);
+            return null;
         });
     }
 
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testPersistence() {
-        UsagePoint usagePoint = null;
-        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_NAME, Instant.EPOCH).create();
-            ctx.commit();
-        }
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        UsagePoint usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_NAME, Instant.EPOCH).create();
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            meteringGroupsService.createEnumeratedUsagePointGroup()
-                    .setName("Mine")
-                    .setMRID("mine")
-                    .at(Instant.EPOCH)
-                    .containing(usagePoint)
-                    .create();
-            ctx.commit();
-        }
+        meteringGroupsService.createEnumeratedUsagePointGroup()
+                .setName("Mine")
+                .setMRID("mine")
+                .at(Instant.EPOCH)
+                .containing(usagePoint)
+                .create();
 
         Optional<UsagePointGroup> found = meteringGroupsService.findUsagePointGroup("mine");
         assertThat(found.isPresent()).isTrue();
@@ -170,4 +142,30 @@ public class EnumeratedUsagePointGroupImplIT {
         assertThat(members.get(0).getId()).isEqualTo(usagePoint.getId());
     }
 
+    @Test
+    @Transactional
+    public void testUsagePointDeletionHandler() {
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usage point", Instant.EPOCH).create();
+        EnumeratedUsagePointGroup enumeratedUsagePointGroup = meteringGroupsService.createEnumeratedUsagePointGroup(usagePoint).setName("test").create();
+        Instant activeMemberTime = Instant.now();
+        assertThat(enumeratedUsagePointGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
+        usagePoint.makeObsolete();
+
+        UsagePointDeletionEventHandler usagePointDeletionEventHandler = injector.getInstance(UsagePointDeletionEventHandler.class);
+        LocalEvent usagePointDeletionEvent = mock(LocalEvent.class);
+        when(usagePointDeletionEvent.getSource()).thenReturn(usagePoint);
+
+        // Business method
+        usagePointDeletionEventHandler.handle(usagePointDeletionEvent);
+
+        // Assert
+        enumeratedUsagePointGroup = meteringGroupsService.findEnumeratedUsagePointGroup(enumeratedUsagePointGroup.getId()).get();
+        assertThat(enumeratedUsagePointGroup.getMemberCount(Instant.now())).isEqualTo(0);
+        assertThat(enumeratedUsagePointGroup.getMembers(Instant.now())).isEmpty();
+        assertThat(enumeratedUsagePointGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
+        assertThat(enumeratedUsagePointGroup.getMembers(activeMemberTime)).contains(usagePoint);
+    }
 }
