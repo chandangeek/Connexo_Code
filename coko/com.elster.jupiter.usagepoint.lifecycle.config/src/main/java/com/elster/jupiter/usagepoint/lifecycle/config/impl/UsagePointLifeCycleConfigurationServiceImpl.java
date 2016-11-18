@@ -21,6 +21,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
+import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -197,6 +198,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Stream.of(DefaultState.values()).map(DefaultState::getTranslation).collect(Collectors.toList()));
         keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }
 
