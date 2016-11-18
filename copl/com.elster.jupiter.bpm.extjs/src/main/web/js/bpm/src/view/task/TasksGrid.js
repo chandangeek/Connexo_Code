@@ -66,6 +66,8 @@ Ext.define('Bpm.view.task.TasksGrid', {
                     if (!Ext.isEmpty(value)) {
                         result = '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.workgroup', 'BPM', 'Workgroup') + '"></span> ';
                         result += Ext.String.htmlEncode(value);
+                    } else {
+                        result = '-'
                     }
                     return result;
                 }
@@ -79,6 +81,8 @@ Ext.define('Bpm.view.task.TasksGrid', {
                     if (!Ext.isEmpty(value)) {
                         result = '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.user', 'BPM', 'User') + '"></span> ';
                         result += Ext.String.htmlEncode(value);
+                    } else {
+                        result = '-'
                     }
                     return result;
                 }

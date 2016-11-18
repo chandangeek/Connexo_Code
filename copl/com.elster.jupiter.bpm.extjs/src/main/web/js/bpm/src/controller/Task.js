@@ -400,7 +400,19 @@ Ext.define('Bpm.controller.Task', {
                             me.getMainGrid().getStore().load();
                         }
                         else if (me.getViewTask()) {
-                            //me.getViewTask().down('form').loadRecord(taskRecord);
+                            var task = me.getModel('Bpm.model.task.Task'),
+                                form = me.getViewTask().down('form');
+
+                            form.setLoading();
+                            task.load(record.get('id'), {
+                                success: function (taskRecord) {
+                                    form.loadRecord(taskRecord);
+                                    form.setLoading(false);
+                                },
+                                failure: function () {
+                                    form.setLoading(false);
+                                }
+                            })
                         }
                     }
                 });
@@ -431,15 +443,25 @@ Ext.define('Bpm.controller.Task', {
                             me.getMainGrid().getStore().load();
                         }
                         else if (me.getViewTask()) {
-                            //me.getViewTask().down('form').loadRecord(taskRecord);
+                            var task = me.getModel('Bpm.model.task.Task'),
+                                form = me.getViewTask().down('form');
+
+                            form.setLoading();
+                            task.load(record.get('id'), {
+                                success: function (taskRecord) {
+                                    form.loadRecord(taskRecord);
+                                    form.setLoading(false);
+                                },
+                                failure: function () {
+                                    form.setLoading(false);
+                                }
+                            })
                         }
                     }
                 });
 
             }
         });
-    },
-
-
-
+    }
 });
+
