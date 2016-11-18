@@ -1,8 +1,7 @@
 Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.time-sliced-custom-attribute-set-action-menu',
     type: null,
-    plain: true,
 
     initComponent: function () {
         var me = this;
@@ -14,7 +13,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
                 privileges: Imt.privileges.UsagePoint.admin,
                 handler: function() {
                     me.fireEvent('moveToEditPage', me.type, me.record.get('versionId'));
-                }
+                },
+                section: this.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
@@ -22,7 +22,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
                 privileges: Imt.privileges.UsagePoint.adminTimeSlicedCps,
                 handler: function() {
                     me.fireEvent('moveToClonePage', me.type, me.record.get('versionId'));
-                }
+                },
+                section: this.SECTION_ACTION
             }
         ];
 
