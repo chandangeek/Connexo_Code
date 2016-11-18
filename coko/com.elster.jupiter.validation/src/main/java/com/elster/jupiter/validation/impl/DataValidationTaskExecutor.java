@@ -129,7 +129,7 @@ class DataValidationTaskExecutor implements TaskExecutor {
                         transactionContext.commit();
                     }
                 }
-                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
+                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getName(), occurrence.getStartDate()
                         .get())));
             }
         }
@@ -154,7 +154,7 @@ class DataValidationTaskExecutor implements TaskExecutor {
                                             .execute(VoidTransaction.of(() ->
                                                     MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY
                                                             .log(logger, thesaurus, metrologyConfigurationOnUsagePoint.getUsagePoint()
-                                            .getMRID(), occurrence.getStartDate().get())));
+                                            .getName(), occurrence.getStartDate().get())));
                                 }));
     }
 
