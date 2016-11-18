@@ -8,7 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
@@ -46,6 +48,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                RestValidationExceptionMapper.class,
                 UsagePointLifeCycleResource.class,
                 UsagePointLifeCycleStatesResource.class,
                 UsagePointLifeCycleTransitionsResource.class);
@@ -96,6 +99,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
             bind(UsagePointLifeCycleTransitionInfoFactory.class).to(UsagePointLifeCycleTransitionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
