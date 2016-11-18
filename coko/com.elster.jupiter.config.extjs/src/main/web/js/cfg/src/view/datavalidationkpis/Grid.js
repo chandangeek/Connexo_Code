@@ -4,7 +4,6 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Cfg.view.datavalidationkpis.ActionMenu',
         'Uni.util.ScheduleToStringConverter',
         'Uni.grid.column.RemoveAction'
     ],
