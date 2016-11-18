@@ -1,31 +1,34 @@
 Ext.define('Fwc.view.firmware.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.firmware-action-menu',
-    plain: true,
-    border: false,
     itemId: 'firmware-action-menu',
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
-            action: 'editFirmware',
-            itemId: 'editFirmware'
-        },
-        {
-            text: Uni.I18n.translate('firmware.final', 'FWC', 'Set as final'),
-            action: 'setFinal',
-            itemId: 'setFinal',
-            visible: function () {
-                return this.record.getAssociatedData().firmwareStatus
-                    && this.record.getAssociatedData().firmwareStatus.id === 'test';
+    initComponent: function() {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
+                action: 'editFirmware',
+                itemId: 'editFirmware',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('firmware.final', 'FWC', 'Set as final'),
+                action: 'setFinal',
+                itemId: 'setFinal',
+                visible: function () {
+                    return this.record.getAssociatedData().firmwareStatus
+                        && this.record.getAssociatedData().firmwareStatus.id === 'test';
+                },
+                section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.deprecate', 'FWC', 'Deprecate'),
+                action: 'deprecate',
+                itemId: 'deprecate',
+                section: this.SECTION_ACTION
             }
-        },
-        {
-            text: Uni.I18n.translate('general.deprecate', 'FWC', 'Deprecate'),
-            action: 'deprecate',
-            itemId: 'deprecate'
-        }
-    ],
+        ];
+        this.callParent(arguments);
+    },
 
     listeners: {
         beforeshow: function () {
