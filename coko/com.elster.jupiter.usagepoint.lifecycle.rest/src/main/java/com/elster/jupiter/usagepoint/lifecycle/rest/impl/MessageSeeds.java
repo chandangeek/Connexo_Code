@@ -9,6 +9,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_LIFE_CYCLE_STATE(2, "no.such.life.cycle.state", "No usage point state with id {0}"),
     NO_SUCH_BUSINESS_PROCESS(3, "no.such.state.process", "No business process with id {0}"),
     NO_SUCH_LIFE_CYCLE_TRANSITION(4, "no.such.life.cycle.transition", "No usage point transition with id {0}"),
+    FIELD_CAN_NOT_BE_EMPTY(5, "field.can.not.be.empty", "This field is required"),
     ;
 
     private final int number;

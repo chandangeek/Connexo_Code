@@ -94,9 +94,11 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
         info.privileges.add(privilegeInfo);
         MicroActionAndCheckInfo actionInfo = new MicroActionAndCheckInfo();
         actionInfo.key = "actionKey";
+        actionInfo.checked = true;
         info.microActions.add(actionInfo);
         MicroActionAndCheckInfo checkInfo = new MicroActionAndCheckInfo();
         checkInfo.key = "checkKey";
+        checkInfo.checked = true;
         info.microChecks.add(checkInfo);
         info.fromState = new UsagePointLifeCycleStateInfo();
         info.fromState.id = 56L;

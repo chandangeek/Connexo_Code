@@ -2,6 +2,7 @@ package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -63,6 +64,10 @@ public class UsagePointLifeCycleTransitionsResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleTransitionInfo newTransition(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleTransitionInfo transitionInfo) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
+        new RestValidationBuilder()
+                .on(transitionInfo.fromState.id).check(id -> id > 0).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).field("fromState").test()
+                .on(transitionInfo.toState.id).check(id -> id > 0).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).field("toState").test()
+                .validate();
         UsagePointState fromState = this.resourceHelper.getStateByIdOrThrowException(transitionInfo.fromState.id);
         UsagePointState toState = this.resourceHelper.getStateByIdOrThrowException(transitionInfo.toState.id);
         Set<UsagePointTransition.Level> levels = transitionInfo.privileges.stream().map(privilege -> privilege.privilege)
@@ -88,14 +93,20 @@ public class UsagePointLifeCycleTransitionsResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleTransitionInfo editTransition(UsagePointLifeCycleTransitionInfo transitionInfo) {
         UsagePointTransition transition = this.resourceHelper.lockTransition(transitionInfo);
+        new RestValidationBuilder()
+                .on(transitionInfo.fromState.id).check(id -> id > 0).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).field("fromState").test()
+                .on(transitionInfo.toState.id).check(id -> id > 0).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).field("toState").test()
+                .validate();
         UsagePointState fromState = this.resourceHelper.getStateByIdOrThrowException(transitionInfo.fromState.id);
         UsagePointState toState = this.resourceHelper.getStateByIdOrThrowException(transitionInfo.toState.id);
         Set<UsagePointTransition.Level> levels = transitionInfo.privileges.stream().map(privilege -> privilege.privilege)
                 .map(UsagePointTransition.Level::valueOf).collect(Collectors.toSet());
         Set<String> microChecks = transitionInfo.microChecks.stream()
+                .filter(check -> check.checked)
                 .map(check -> check.key)
                 .collect(Collectors.toSet());
         Set<String> microActions = transitionInfo.microActions.stream()
+                .filter(action -> action.checked)
                 .map(action -> action.key)
                 .collect(Collectors.toSet());
         transition.startUpdate().withName(transitionInfo.name).from(fromState).to(toState)
