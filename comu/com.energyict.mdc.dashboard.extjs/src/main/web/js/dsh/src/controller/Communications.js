@@ -80,7 +80,7 @@ Ext.define('Dsh.controller.Communications', {
         store.load();
     },
 
-    initMenu: function (record, menuItems, me) {
+    initMenu: function (record, menuItems) {
         var me = this;
 
         me.getCommunicationsGridActionMenu().menu.removeAll();
@@ -171,7 +171,7 @@ Ext.define('Dsh.controller.Communications', {
             menuItems = [];
 
         if (record) {
-            me.initMenu(record, menuItems, me);
+            me.initMenu(record, menuItems);
             preview.loadRecord(record);
             preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('name'), record.get('device').id]));
             if (record.getData().connectionTask) {

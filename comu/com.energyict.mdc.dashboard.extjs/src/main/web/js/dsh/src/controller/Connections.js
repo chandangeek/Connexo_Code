@@ -86,8 +86,10 @@ Ext.define('Dsh.controller.Connections', {
             'connections-details #communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
             },
+            'preview_connection #connectionsActionMenu': {
+                click: this.chooseAction
+            },
             '#connectionsDetailsActionMenu': {
-                show: this.initConnectionMenu,
                 click: this.chooseAction
             },
             'connections-list #generate-report': {
@@ -192,14 +194,6 @@ Ext.define('Dsh.controller.Connections', {
             if (id) {
                 commStore.setConnectionId(id);
                 commStore.load();
-            }
-        }
-    },
-
-    initConnectionMenu: function (menu) {
-        if (menu && menu.record) {
-            if (menu.record.get('comSessionId') !== 0 && menu.down('menuitem[action=viewLog]')!== null) {
-                menu.down('menuitem[action=viewLog]').show()
             }
         }
     },
