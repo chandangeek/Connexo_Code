@@ -1,23 +1,27 @@
 Ext.define('Est.estimationrules.view.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.estimation-rules-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.activate', 'EST', 'Activate'),
-            action: 'toggleActivation'
-        },
-        {
-            text: Uni.I18n.translate('general.edit', 'EST', 'Edit'),
-            action: 'edit'
-        },
-        {
-            text: Uni.I18n.translate('general.remove', 'EST', 'Remove'),
-            action: 'remove'
-        }
-    ],
+    initComponent: function() {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.activate', 'EST', 'Activate'),
+                action: 'toggleActivation',
+                section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.edit', 'EST', 'Edit'),
+                action: 'edit',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'EST', 'Remove'),
+                action: 'remove',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    },
+
     listeners: {
         show: {
             fn: function (menu) {
