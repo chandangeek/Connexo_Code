@@ -30,6 +30,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -231,19 +232,25 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
         UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
         FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
-        State underConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete();
-        State active = stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete();
-        State inactive = stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete();
-        State demolished = stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
-        FiniteStateMachine stateMachine = stateMachineBuilder.complete(underConstruction);
+        State fsmStateUnderConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete();
+        State fsmStateActive = stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete();
+        State fsmStateInactive = stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete();
+        State fsmStateDemolished = stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
+        FiniteStateMachine stateMachine = stateMachineBuilder.complete(fsmStateUnderConstruction);
 
         lifeCycle.setName(name);
         lifeCycle.setStateMachine(stateMachine);
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, underConstruction);
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, active);
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, inactive);
-        this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, demolished);
+        UsagePointState underConstruction = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateUnderConstruction);
+        UsagePointState active = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateActive);
+        UsagePointState inactive = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateInactive);
+        UsagePointState demolished = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateDemolished);
         lifeCycle.save();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_ACTIVE).format(), underConstruction, active).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_INACTIVE).format(), underConstruction, inactive).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEACTIVATE).format(), active, inactive).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_ACTIVATE).format(), inactive, active).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE).format(), active, demolished).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE).format(), inactive, demolished).complete();
         this.builders.forEach(builder -> builder.accept(lifeCycle));
         return lifeCycle;
     }
@@ -259,6 +266,14 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         stateMachine.getStates().forEach(fsmState -> this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmState));
         cloneTransitions(sourceImpl, lifeCycle);
         return lifeCycle;
+    }
+
+    @Override
+    public UsagePointLifeCycle getDefaultLifeCycle() {
+        // it is not possible to delete default life cycle, so it is always present
+        return this.dataModel.query(UsagePointLifeCycle.class)
+                .select(where(UsagePointLifeCycleImpl.Fields.DEFAULT.fieldName()).isEqualTo(true), Order.NOORDER, true, new String[0], 1, 2)
+                .get(0);
     }
 
     private void cloneTransitions(UsagePointLifeCycleImpl source, UsagePointLifeCycleImpl target) {

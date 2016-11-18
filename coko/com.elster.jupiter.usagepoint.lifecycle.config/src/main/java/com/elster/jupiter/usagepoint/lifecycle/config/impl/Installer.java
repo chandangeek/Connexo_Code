@@ -1,6 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -20,12 +21,16 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final DataModel dataModel;
     private final UserService userService;
     private final EventService eventService;
+    private final Thesaurus thesaurus;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, EventService eventService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, Thesaurus thesaurus, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.dataModel = dataModel;
         this.userService = userService;
         this.eventService = eventService;
+        this.thesaurus = thesaurus;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Override
@@ -37,6 +42,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 this::createEventTypes,
                 logger
         );
+        doTry(
+                "Create default usage point lifecycle",
+                this::createLifeCycle,
+                logger
+        );
+
     }
 
     @Override
@@ -60,5 +71,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         for (EventType eventType : EventType.values()) {
             eventType.install(this.eventService);
         }
+    }
+
+    private void createLifeCycle() {
+        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(this.thesaurus.getFormat(TranslationKeys.LIFE_CYCLE_NAME).format())
+                .markAsDefault();
     }
 }

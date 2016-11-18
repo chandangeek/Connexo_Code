@@ -23,6 +23,8 @@ public interface UsagePointLifeCycleConfigurationService {
 
     UsagePointLifeCycle cloneUsagePointLifeCycle(String name, UsagePointLifeCycle source);
 
+    UsagePointLifeCycle getDefaultLifeCycle();
+
     Finder<UsagePointState> getUsagePointStates();
 
     Optional<UsagePointState> findUsagePointState(long id);
