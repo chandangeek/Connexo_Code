@@ -29,7 +29,7 @@ Ext.define('Mdc.model.DeviceConnection', {
     run: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',
-            url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
+            url: this.buildUrl(body.parent.id) + '/run',
             callback: callback,
             isNotEdit: true,
             jsonData: body
@@ -38,11 +38,15 @@ Ext.define('Mdc.model.DeviceConnection', {
     deactivate: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',
-            url: this.proxy.url + '/{id}'.replace('{id}', this.getId()),
+            url: this.buildUrl(body.parent.id),
             callback: callback,
             isNotEdit: true,
             jsonData: body
         });
+    },
+
+    buildUrl: function (deviceId) {
+        return this.proxy.url.replace('{deviceId}', deviceId) + '/' + this.getId();
     },
 
     proxy: {
