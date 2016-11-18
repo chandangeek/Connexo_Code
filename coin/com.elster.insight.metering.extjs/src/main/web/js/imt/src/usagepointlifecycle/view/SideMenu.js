@@ -18,12 +18,12 @@ Ext.define('Imt.usagepointlifecycle.view.SideMenu', {
                 text: Uni.I18n.translate('general.states', 'IMT', 'States'),
                 itemId: 'usagepoint-life-cycles-states-link',
                 href: me.router.getRoute('administration/usagepointlifecycles/usagepointlifecycle/states').buildUrl()
-            }/*,
+            },
             {
                 text: Uni.I18n.translate('general.transitions', 'IMT', 'Transitions'),
                 itemId: 'usagepoint-life-cycles-transitions-link',
                 href: me.router.getRoute('administration/usagepointlifecycles/usagepointlifecycle/transitions').buildUrl()                
-            }*/
+            }
         ];
 
         me.callParent(arguments);

@@ -437,33 +437,33 @@ Ext.define('Imt.controller.History', {
                                         }
                                     }
                                 },
-                                /*transitions: {
+                                transitions: {
                                     title: Uni.I18n.translate('general.transitions', 'IMT', 'Transitions'),
                                     route: 'transitions',
-                                    controller: 'Imt.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
-                                    action: 'showDeviceLifeCycleTransitions',
+                                    controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
+                                    action: 'showUsagePointLifeCycleTransitions',
                                     items: {
                                         add: {
                                             title: Uni.I18n.translate('general.addTransition', 'IMT', 'Add transition'),
                                             route: 'add',
-                                            controller: 'Imt.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
-                                            action: 'showAddDeviceLifeCycleTransition'
+                                            controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
+                                            action: 'showAddUsagePointLifeCycleTransition'
                                         },
                                         edit: {
                                             title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                                             route: '{transitionId}/edit',
-                                            controller: 'Imt.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
-                                            action: 'showAddDeviceLifeCycleTransition',
+                                            controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
+                                            action: 'showAddUsagePointLifeCycleTransition',
                                             callback: function (route) {
-                                                this.getApplication().on('deviceLifeCycleTransitionEdit', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'IMT', "Edit '{0}'", [record.get('name')]));
+                                                this.getApplication().on('usagePointLifeCycleTransitionEdit', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
                                                 return this;
                                             }
                                         }
                                     }
-                                }*/
+                                }
                             }
                         }
                     }
