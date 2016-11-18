@@ -10,6 +10,7 @@ Ext.define('Isu.view.issues.AssignIssue', {
     alias: 'widget.assign-issue',
     router: null,
     labelWidth: 250,
+    controlsWidth: 600,
     initComponent: function () {
         var me = this;
 
@@ -20,8 +21,8 @@ Ext.define('Isu.view.issues.AssignIssue', {
                 title: Uni.I18n.translate('issue.assignIssue', 'ISU', 'Assign issue'),
                 itemId: 'frm-assign-issue',
                 defaults: {
-                    labelWidth: me.labelWidth,//250,
-                    width: 600,
+                    labelWidth: me.labelWidth,
+                    width: me.controlsWidth,
                     enforceMaxLength: true
                 },
                 items: [

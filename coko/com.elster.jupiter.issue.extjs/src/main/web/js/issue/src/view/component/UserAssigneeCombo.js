@@ -108,6 +108,7 @@ Ext.define('Isu.view.component.UserAssigneeCombo', {
 
         workgroupChanged: function (workgroupId) {
             var me = this;
+            me.workgroupId = workgroupId;
             me.checked = false;
             me.setUncheckTemplate();
             me.getPicker().refresh();

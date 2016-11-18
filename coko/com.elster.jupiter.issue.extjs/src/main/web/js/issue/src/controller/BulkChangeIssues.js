@@ -300,8 +300,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                                 if ((userId == -1) && (workGroupId == -1)) {
                                     successMessage = Uni.I18n.translatePlural('issues.assign.success.result51', successCount, 'ISU',
                                         "There were no issues",
-                                        "Successfully unassign one issue",
-                                        "Successfully unassign {0} issues");
+                                        "Successfully unassigned one issue",
+                                        "Successfully unassigned {0} issues");
                                 } else if ((userId > -1) && (workGroupId == -1)) {
                                     successMessage = Uni.I18n.translatePlural('issues.assign.success.result52', successCount, 'ISU',
                                         "There were no issues to assigned to ",
@@ -630,7 +630,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
 
         widget = Ext.widget(view, {
-            labelWidth: 100,
+            labelWidth: 120,
+            controlsWidth: 500
         });
 
         if (operation == 'assign') {
@@ -671,7 +672,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     userId: userCombo.getValue(),
                     workGroupId: workGroupCombo.getValue(),
                     title: userCombo.rawValue,
-                    workGroupTitle: workGroupCombo.rawValue
+                    workGroupTitle: Ext.String.htmlEncode(workGroupCombo.rawValue)
                 });
                 if (!record.get('allIssues')) {
                     if ((userId == -1) && (workGroupId == -1)) {
@@ -679,27 +680,27 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             + Uni.I18n.translate('issues.selectedIssues.assign.title1', 'ISU', 'The selected issue(s) will be unassigned');
                     } else if ((userId > -1) && (workGroupId == -1)) {
                         message = Uni.I18n.translatePlural('issues.selectedIssues.assign.msg2', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
-                            + Uni.I18n.translate('issues.selectedIssues.assign.title2', 'ISU', 'The selected issue(s) will be assigned to {0} user', userCombo.rawValue)
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title2', 'ISU', 'The selected issue(s) will be assigned to {0} user', [Ext.String.htmlEncode(userCombo.rawValue)])
                     } else if ((userId == -1) && (workGroupId > -1)) {
                         message = Uni.I18n.translatePlural('issues.selectedIssues.assign.msg2', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
-                            + Uni.I18n.translate('issues.selectedIssues.assign.title3', 'ISU', 'The selected issue(s) will be assigned to {0} workgroup', workGroupCombo.rawValue)
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title3', 'ISU', 'The selected issue(s) will be assigned to {0} workgroup', [Ext.String.htmlEncode(workGroupCombo.rawValue)])
                     } else if ((userId > -1) && (workGroupId > -1)) {
                         message = Uni.I18n.translatePlural('issues.selectedIssues.assign.msg2', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
-                            + Uni.I18n.translate('issues.selectedIssues.assign.title4', 'ISU', 'The selected issue(s) will be assigned to {0} workgroup and {1} user', workGroupCombo.rawValue, userCombo.rawValue)
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title4', 'ISU', 'The selected issue(s) will be assigned to {0} workgroup and {1} user', [Ext.String.htmlEncode(workGroupCombo.rawValue), Ext.String.htmlEncode(userCombo.rawValue)])
                     }
                 } else {
                     if ((userId == -1) && (workGroupId == -1)) {
-                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg3', record.get('issues').length, 'ISU', '-', '<h3>Unassign all issues?</h3><br>')
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg3', 'ISU', '<h3>Unassign all issues?</h3><br>')
                             + Uni.I18n.translate('issues.selectedIssues.assign.title5', 'ISU', 'All issues will be unassigned');
                     } else if ((userId > -1) && (workGroupId == -1)) {
-                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', record.get('issues').length, 'ISU', '-', '<h3>Assign all issued?</h3><br>')
-                            + Uni.I18n.translate('issues.selectedIssues.assign.title6', 'ISU', 'All issues) will be assigned to {0} user', userCombo.rawValue)
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', 'ISU', '<h3>Assign all issued?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title6', 'ISU', 'All issues) will be assigned to {0} user', [Ext.String.htmlEncode(userCombo.rawValue)])
                     } else if ((userId == -1) && (workGroupId > -1)) {
-                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', record.get('issues').length, 'ISU', '-', '<h3>Assign all issues?</h3><br>')
-                            + Uni.I18n.translate('issues.selectedIssues.assign.title7', 'ISU', 'All issues will be assigned to {0} workgroup', workGroupCombo.rawValue)
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', 'ISU', '<h3>Assign all issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title7', 'ISU', 'All issues will be assigned to {0} workgroup', [Ext.String.htmlEncode(workGroupCombo.rawValue)])
                     } else if ((userId > -1) && (workGroupId > -1)) {
-                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', record.get('issues').length, 'ISU', '-', '<h3>Assign all issues?</h3><br>')
-                            + Uni.I18n.translate('issues.selectedIssues.assign.title8', 'ISU', 'All issues will be assigned to {0} workgroup and {1} user', workGroupCombo.rawValue, userCombo.rawValue)
+                        message = Uni.I18n.translate('issues.selectedIssues.assign.msg4', 'ISU', '<h3>Assign all issues?</h3><br>')
+                            + Uni.I18n.translate('issues.selectedIssues.assign.title8', 'ISU', 'All issues will be assigned to {0} workgroup and {1} user', [Ext.String.htmlEncode(workGroupCombo.rawValue), Ext.String.htmlEncode(userCombo.rawValue)])
                     }
                 }
                 break;
