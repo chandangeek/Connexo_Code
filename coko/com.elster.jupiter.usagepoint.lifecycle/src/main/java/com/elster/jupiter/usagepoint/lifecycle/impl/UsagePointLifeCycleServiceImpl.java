@@ -1,5 +1,6 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
@@ -11,6 +12,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
@@ -19,11 +21,9 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckException;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
@@ -62,6 +62,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     private ThreadPrincipalService threadPrincipalService;
     private MeteringService meteringService; // table model ordering
     private Clock clock;
+    private MessageService messageService;
+    private TaskService taskService;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -74,7 +76,9 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                                           UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                                           ThreadPrincipalService threadPrincipalService,
                                           MeteringService meteringService,
-                                          Clock clock) {
+                                          Clock clock,
+                                          MessageService messageService,
+                                          TaskService taskService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
@@ -82,6 +86,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         setThreadPrincipalService(threadPrincipalService);
         setMeteringService(meteringService);
         setClock(clock);
+        setMessageService(messageService);
+        setTaskService(taskService);
         activate();
     }
 
@@ -122,6 +128,16 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         this.clock = clock;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
@@ -139,6 +155,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 bind(UsagePointLifeCycleService.class).toInstance(UsagePointLifeCycleServiceImpl.this);
                 bind(ServerUsagePointLifeCycleService.class).toInstance(UsagePointLifeCycleServiceImpl.this);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(TaskService.class).toInstance(taskService);
             }
         };
     }
@@ -154,7 +172,11 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     public UsagePointStateChangeRequest scheduleTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
         UsagePointStateChangeRequestImpl changeRequest = this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
                 .init(usagePoint, transition, transitionTime, application, properties);
-        // TODO fetch the recurrent task, check its schedule and reschedule if needed
+        if (!this.clock.instant().isBefore(transitionTime)) {
+            changeRequest.execute();
+        } else {
+            rescheduleExecutor();
+        }
         return changeRequest;
     }
 
@@ -191,6 +213,26 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     @Override
+    public DataModel getDataModel() {
+        return this.dataModel;
+    }
+
+    @Override
+    public void rescheduleExecutor() {
+        this.taskService.getRecurrentTask(EXECUTOR_TASK).ifPresent(task -> {
+            Instant nextExecution = this.dataModel.query(UsagePointStateChangeRequest.class)
+                    .select(where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName()).isEqualTo(UsagePointStateChangeRequest.Status.SCHEDULED),
+                            new Order[]{Order.ascending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName())}, false, new String[0], 1, 2)
+                    .stream()
+                    .map(UsagePointStateChangeRequest::getTransitionTime)
+                    .findFirst()
+                    .orElse(null);
+            task.setNextExecution(nextExecution);
+            task.save();
+        });
+    }
+
+    @Override
     public String getComponentName() {
         return COMPONENT_NAME;
     }
@@ -206,6 +248,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         keys.addAll(Arrays.asList(MicroCheckTranslationKeys.values()));
         keys.addAll(Arrays.asList(MicroActionTranslationKeys.values()));
         keys.addAll(Arrays.asList(MicroCategoryTranslationKeys.values()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 
@@ -216,22 +259,6 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
 
     @Override
     public void accept(UsagePointLifeCycle usagePointLifeCycle) {
-        UsagePointState underConstruction = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.UNDER_CONSTRUCTION)).findFirst().get();
-        UsagePointState active = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.ACTIVE)).findFirst().get();
-        UsagePointState inactive = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.INACTIVE)).findFirst().get();
-        UsagePointState demolished = usagePointLifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.DEMOLISHED)).findFirst().get();
-
-        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_ACTIVE).format(), underConstruction, active)
-                .complete();
-        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_INACTIVE).format(), underConstruction, inactive)
-                .complete();
-        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEACTIVATE).format(), active, inactive)
-                .complete();
-        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_ACTIVATE).format(), inactive, active)
-                .complete();
-        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE).format(), active, demolished)
-                .complete();
-        usagePointLifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE).format(), inactive, demolished)
-                .complete();
+        // todo add default micro actions and checks
     }
 }

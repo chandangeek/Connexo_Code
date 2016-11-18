@@ -1,10 +1,13 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 public abstract class TranslatableCheck implements ExecutableMicroCheck {
     private Thesaurus thesaurus;
@@ -36,6 +39,10 @@ public abstract class TranslatableCheck implements ExecutableMicroCheck {
     @Override
     public String getCategoryName() {
         return this.thesaurus.getString(MicroCategoryTranslationKeys.Keys.NAME_PREFIX + getCategory(), getCategory());
+    }
+
+    protected Optional<ExecutableMicroCheckViolation> fail(TranslationKey failMessage, Object... args) {
+        return Optional.of(new ExecutableMicroCheckViolation(this, this.thesaurus.getFormat(failMessage).format(args)));
     }
 
     @Override

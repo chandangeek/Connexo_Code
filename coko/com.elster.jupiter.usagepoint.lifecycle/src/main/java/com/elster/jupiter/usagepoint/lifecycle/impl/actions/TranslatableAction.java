@@ -1,10 +1,14 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroActionException;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Map;
 
 public abstract class TranslatableAction implements ExecutableMicroAction {
     private Thesaurus thesaurus;
@@ -37,6 +41,17 @@ public abstract class TranslatableAction implements ExecutableMicroAction {
     public String getCategoryName() {
         return this.thesaurus.getString(MicroCategoryTranslationKeys.Keys.NAME_PREFIX + getCategory(), getCategory());
     }
+
+    @Override
+    public void execute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties) throws ExecutableMicroActionException {
+        try {
+            doExecute(usagePoint, transitionTime, properties);
+        } catch (Exception ex) {
+            throw new ExecutableMicroActionException(this, ex.getLocalizedMessage());
+        }
+    }
+
+    protected abstract void doExecute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties);
 
     @Override
     public boolean equals(Object o) {
