@@ -1,15 +1,5 @@
 package com.elster.jupiter.metering.impl.upgraders;
 
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
-import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.orm.DataModel;
@@ -44,16 +34,6 @@ public class UpgraderV10_3 implements Upgrader {
     }
 
     private void installTemplates() {
-        new ReadingTypeTemplateInstaller.Template(metrologyConfigurationService, DefaultReadingTypeTemplate.DELTA_A_PLUS)
-                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
-                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
-                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
-                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
-                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
-                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
-                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
-                .done();
+        new ReadingTypeTemplateInstaller(metrologyConfigurationService).installTemplatesFor10_3();
     }
-
 }
-

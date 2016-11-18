@@ -202,15 +202,6 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATT)
                 .done();
-        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.DELTA_A_PLUS)
-                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
-                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
-                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
-                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
-                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
-                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
-                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
-                .done();
     }
 
     private void installGasTemplates() {
@@ -297,17 +288,28 @@ public class ReadingTypeTemplateInstaller {
                 .done();
     }
 
-    //for internal use
-    public static class Template {
+    public void installTemplatesFor10_3(){
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.DELTA_A_PLUS)
+                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
+                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
+                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
+                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
+                .done();
+    }
+
+    private static class Template {
 
         private final ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter setter;
 
-        public Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate defaultTemplate) {
+        Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate defaultTemplate) {
             this.setter = metrologyConfigurationService.createReadingTypeTemplate(defaultTemplate);
         }
 
         @SafeVarargs
-        public final <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {
+        final <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {
             if (values != null && values.length > 0) {
                 Integer[] possibleValues = new Integer[values.length];
                 for (int i = 0; i < values.length; i++) {
@@ -318,7 +320,7 @@ public class ReadingTypeTemplateInstaller {
             return this;
         }
 
-        public void done() {
+        void done() {
             this.setter.done();
         }
     }
