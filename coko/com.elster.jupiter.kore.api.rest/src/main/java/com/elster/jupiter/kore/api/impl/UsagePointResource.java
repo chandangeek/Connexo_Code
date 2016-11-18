@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -257,5 +258,23 @@ public class UsagePointResource {
         UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         return usagePointCommandInfo.command.process(usagePoint, usagePointCommandInfo, usagePointCommandHelper);
+    }
+
+    /**
+     * Delete a usage point identified by mRID
+     *
+     * @param mrid The usage point's unique mRID identifier
+     * @return No content
+     * @summary Delete a usage point
+     */
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{mRID}")
+    @Transactional
+    public Response deleteUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
+        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+        usagePoint.makeObsolete();
+        return Response.noContent().build();
     }
 }
