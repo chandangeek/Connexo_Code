@@ -41,7 +41,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
             selector: 'add-processes-to-state'
         }
     ],
-    usagePointLifeCycle: null,
+    usagePointLifeCycleState: null,
     init: function () {
         this.control({
             'usagepoint-life-cycle-states-setup usagepoint-life-cycle-states-grid': {
@@ -112,7 +112,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
 
     saveState: function (btn) {
         var me = this,
-            router = this.getController('Uni.controller.history.Router'),
+            router = me.getController('Uni.controller.history.Router'),
             editForm = me.getLifeCycleStatesEditForm(),
             successMessage = btn.action === 'add'
                 ? Uni.I18n.translate('usagePointLifeCycleStates.added', 'IMT', 'State added')
@@ -124,10 +124,14 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
 
         editForm.updateRecord();
         record = editForm.getRecord();
+        Ext.suspendLayouts();
         me.showErrorPanel(false);
+        Ext.resumeLayouts(true);
         editForm.setLoading();
+        record.beginEdit();
         record.set('onEntry', me.getProcessItemsFromStore(entryProcessesStore));
         record.set('onExit', me.getProcessItemsFromStore(exitProcessesStore));
+        record.endEdit();
         if (me.fromAddTransition) {
             backUrl = router.getRoute('administration/usagepointlifecycles/usagepointlifecycle/transitions/add').buildUrl();
         } else if (me.fromEditTransition) {
@@ -146,6 +150,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
+                    Ext.suspendLayouts();
                     me.showErrorPanel(true);
                     if (!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
@@ -153,11 +158,12 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                             editForm.getForm().markInvalid(json.errors);
                         }
                     }
+                    Ext.resumeLayouts(true);
                 }
             },
             callback: function () {
                 editForm.setLoading(false);
-                me.usagePointLifeCycle = null;
+                me.usagePointLifeCycleState = null;
             }
         });
     },
@@ -180,7 +186,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
         }
         entryProcessesStore.removeAll();
         exitProcessesStore.removeAll();
-        me.usagePointLifeCycle = null;
+        me.usagePointLifeCycleState = null;
         route.forward();
     },
 
@@ -189,17 +195,14 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
     },
 
     setAsInitial: function () {
-        var me = this,
-            grid = this.getLifeCycleStatesGrid(),
+        var me = this,            
             page = this.getPage(),
             router = this.getController('Uni.controller.history.Router'),
-            record = grid.getSelectionModel().getLastSelected();
+            record = this.getLifeCycleStatesGrid().getSelectionModel().getLastSelected(),
+            state = Ext.create('Imt.usagepointlifecyclestates.model.UsagePointLifeCycleState', record.getData());
 
         page.setLoading();
-        Ext.Ajax.request({
-            url: '/api/upl/lifecycle/' + router.arguments.usagePointLifeCycleId + '/states/' + record.get('id') + '/status',
-            method: 'PUT',
-            jsonData: record.getRecordData(),
+        state.setAsInitial(router.arguments.usagePointLifeCycleId, {
             isNotEdit: true,
             success: function () {
                 router.getRoute().forward(null, router.queryParams);
@@ -208,7 +211,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
             callback: function () {
                 page.setLoading(false);
             }
-        });
+        });        
     },
 
     moveToEditPage: function () {
@@ -303,16 +306,17 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                 if (!Ext.isEmpty(stateId)) {
                     stateModel.load(stateId, {
                         success: function (record) {
+                            me.usagePointLifeCycleState = record;
                             me.getApplication().fireEvent('loadlifecyclestate', record);
                             form.loadRecord(record);
                             me.getApplication().fireEvent('changecontentevent', widget);
                         }
                     });
                 } else {
-                    if (!me.usagePointLifeCycle) {
-                        me.usagePointLifeCycle = Ext.create(stateModel);
+                    if (!me.usagePointLifeCycleState) {
+                        me.usagePointLifeCycleState = Ext.create(stateModel);
                     }
-                    form.loadRecord(me.usagePointLifeCycle);
+                    form.loadRecord(me.usagePointLifeCycleState);
                     me.getApplication().fireEvent('changecontentevent', widget);
                 }
             }
@@ -345,7 +349,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                 }
             }
         });
-        me.usagePointLifeCycle = null;
+        me.usagePointLifeCycleState = null;
     },
 
     addEntryTransitionBusinessProcessesToState: function () {
@@ -358,7 +362,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
 
     addTransitionBusinessProcessesToState: function (storeToUpdate) {
         var me = this,
-            router = this.getController('Uni.controller.history.Router'),        
+            router = me.getController('Uni.controller.history.Router'),
             editForm = me.getLifeCycleStatesEditForm();
         
         editForm.updateRecord();
@@ -374,10 +378,14 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
     },
 
     showAvailableTransitionProcesses: function (storeToUpdate) {
-        var store = Ext.data.StoreManager.lookup(storeToUpdate),
-            widget = Ext.widget('add-processes-to-state', {storeToUpdate: store});
+        if (!this.usagePointLifeCycleState) {
+            this.forwardToPreviousPage();
+        } else {
+            var store = Ext.data.StoreManager.lookup(storeToUpdate),
+                widget = Ext.widget('add-processes-to-state', {storeToUpdate: store});
 
-        this.getApplication().fireEvent('changecontentevent', widget);
+            this.getApplication().fireEvent('changecontentevent', widget);
+        }
     },
     
     forwardToPreviousPage: function () {

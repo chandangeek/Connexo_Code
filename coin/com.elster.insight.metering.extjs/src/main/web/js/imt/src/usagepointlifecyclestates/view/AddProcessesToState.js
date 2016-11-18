@@ -98,11 +98,12 @@ Ext.define('Imt.usagepointlifecyclestates.view.AddProcessesToState', {
                         me.down('#lnk-cancel-process').setVisible(availableProcesses.count() !== 0);
                     }
                 } else {
-                    console.warn("Available business processes could not be loaded");
                     // show gridContainer's 'empty component'
                     me.down('#gridContainer').onLoad(availableProcesses, records);
+                    Ext.suspendLayouts();
                     me.down('#btn-add-process').setVisible(false);
                     me.down('#lnk-cancel-process').setVisible(false);
+                    Ext.resumeLayouts(true);
                 }
             })
         }

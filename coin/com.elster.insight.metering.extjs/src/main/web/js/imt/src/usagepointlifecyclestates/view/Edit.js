@@ -241,9 +241,11 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
         var processOnEntryStore = this.down('#processesOnEntryGrid').getStore(),
             processOnExitStore = this.down('#processesOnExitGrid').getStore();
 
+        Ext.suspendLayouts();
         this.down('#noOnEntryProcessesAddedMsg').setVisible(!processOnEntryStore.getCount());
         this.down('#processesOnEntryGrid').setVisible(processOnEntryStore.getCount());
         this.down('#noOnExitProcessesAddedMsg').setVisible(!processOnExitStore.getCount());
         this.down('#processesOnExitGrid').setVisible(processOnExitStore.getCount());
+        Ext.resumeLayouts(true);
     }
 });

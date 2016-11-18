@@ -29,9 +29,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.PreviewForm', {
                 items: [
                     {
                         xtype: 'container',
-                        itemId: 'entry-container',
-                        items: [
-                        ]
+                        itemId: 'entry-container'
                     }
                 ]
             },
@@ -42,9 +40,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.PreviewForm', {
                 items: [
                     {
                         xtype: 'container',
-                        itemId: 'exit-container',
-                        items: [
-                        ]
+                        itemId: 'exit-container'
                     }
                 ]
             }
