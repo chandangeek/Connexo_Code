@@ -130,5 +130,31 @@ Ext.define('Imt.usagepointgroups.view.Wizard', {
             store = me.service.getSearchResultsStore();
 
         return store.getProxy().encodeFilters(me.service.getFilters());
+    },
+
+    markInvalid: function (errors) {
+        this.toggleValidation(errors);
+    },
+
+    clearInvalid: function () {
+        this.toggleValidation();
+    },
+
+    toggleValidation: function (errors) {
+        var me = this,
+            isValid = !errors,
+            step = me.getLayout().getActiveItem(),
+            warning = step.down('uni-form-error-message');
+
+        Ext.suspendLayouts();
+        if (warning) {
+            warning.setVisible(!isValid);
+        }
+        if (!isValid) {
+            step.getForm().markInvalid(errors);
+        } else {
+            step.getForm().clearInvalid();
+        }
+        Ext.resumeLayouts(true);
     }
 });

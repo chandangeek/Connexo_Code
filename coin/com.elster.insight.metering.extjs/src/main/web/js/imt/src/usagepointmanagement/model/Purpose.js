@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{mRID}/purposes',
+        url: '/api/udr/usagepoints/{usagePointId}/purposes',
         reader: {
             type: 'json'
         }

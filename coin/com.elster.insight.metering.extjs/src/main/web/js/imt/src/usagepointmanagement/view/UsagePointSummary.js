@@ -20,14 +20,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
         },
         {
-            itemId: 'up-summary-name',
-            name: 'name',
-            fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
-            renderer: function (value) {
-                return value ? value : '-';
-            }
-        },
-        {
             itemId: 'up-summary-created',
             name: 'installationTime',
             fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),

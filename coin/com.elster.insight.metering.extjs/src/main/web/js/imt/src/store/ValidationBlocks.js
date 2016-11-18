@@ -3,7 +3,7 @@ Ext.define('Imt.store.ValidationBlocks', {
     model: 'Imt.model.ValidationBlock',
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/channels/{channelId}/datavalidationissues/{issueId}/validationblocks',
+        url: '/api/udr/usagepoints/{usagePointId}/channels/{channelId}/datavalidationissues/{issueId}/validationblocks',
         timeout: 240000,
         pageParam: false,
         startParam: false,
@@ -14,10 +14,6 @@ Ext.define('Imt.store.ValidationBlocks', {
             totalProperty: 'total',
             root: 'validationBlocks',
             idProperty: 'startTime'
-        },
-
-        setUrl: function (mRID, channelId, issueId) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId).replace('{issueId}', issueId);
         }
     }
 });

@@ -6,10 +6,6 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetVersionOnUsage
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}/versions',
-
-        setUrl: function (mRID, customPropertySetId) {
-            this.url = this.urlTpl.replace('{mRID}', Uni.util.Common.encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
-        }
+        url: '/api/udr/usagepoints/{usagePointId}/customproperties/{customPropertySetId}/versions'
     }
 });

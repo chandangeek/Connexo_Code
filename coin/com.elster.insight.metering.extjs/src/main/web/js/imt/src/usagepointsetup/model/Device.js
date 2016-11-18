@@ -7,5 +7,5 @@ Ext.define('Imt.usagepointsetup.model.Device', {
         'name',
         {name: 'meterActivations', type: 'auto'}
     ],
-    idProperty: 'mRID'
+    idProperty: 'name'
 });

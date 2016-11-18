@@ -2,7 +2,7 @@ Ext.define('Imt.servicecalls.view.ServiceCallsSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.service-calls-setup',
     itemId: 'serviceCallsSetup',
-    mRID: null,
+    usagePointId: null,
     activeTab: 0,
     filterDefault: {},
 
@@ -32,7 +32,7 @@ Ext.define('Imt.servicecalls.view.ServiceCallsSetup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID,
+                        usagePointId: me.usagePointId,
                         usagePoint: me.usagePoint
                     }
                 ]
@@ -46,7 +46,7 @@ Ext.define('Imt.servicecalls.view.ServiceCallsSetup', {
                 title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
                 ui: 'large',
                 activeTab: me.activeTab,
-                mRID: me.mRID,
+                usagePointId: me.usagePointId,
                 items: [
                     {
                         title: Uni.I18n.translate('servicecalls.runningServiceCalls', 'IMT', 'Running service calls'),

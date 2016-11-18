@@ -16,8 +16,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupsGrid', {
                 header: Uni.I18n.translate('general.name', 'IMT', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    // return '<a href="' + me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: record.get('id')}) + '">' + Ext.String.htmlEncode(value) + '</a>';
-                    return value;
+                    return '<a href="' + me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: record.get('id')}) + '">' + Ext.String.htmlEncode(value) + '</a>';                    
                 },
                 flex: 1
             },
