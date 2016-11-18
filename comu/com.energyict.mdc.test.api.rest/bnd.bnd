@@ -1,6 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package:  \
-	com.elster.jupiter.autotests.rest.impl.*
+	ccom.energyict.mdc.test.api.rest.impl.*
 Export-Package:  \
-	com.elster.jupiter.autotests.rest
+	com.energyict.mdc.test.api.rest
