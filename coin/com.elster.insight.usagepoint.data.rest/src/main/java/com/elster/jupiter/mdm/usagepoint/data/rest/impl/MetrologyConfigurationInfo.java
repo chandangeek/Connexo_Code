@@ -2,8 +2,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
@@ -54,17 +52,17 @@ public class MetrologyConfigurationInfo {
         this.activationTime = usagePoint.getInstallationTime();
         this.meterRoles = metrologyConfiguration.getMeterRoles()
                 .stream()
-                .map(mr -> asDetailedInfo(mr, metrologyConfiguration, usagePoint))
+                .map(mr -> asDetailedMeterRoleInfo(mr, metrologyConfiguration, usagePoint))
                 .collect(Collectors.toList());
         this.purposes = metrologyConfiguration.getContracts()
                 .stream()
-                .map(c -> asDetailedInfo(c, metrologyConfiguration, usagePoint, readingTypeDeliverableFactory))
+                .map(c -> asDetailedPurposeInfo(c, usagePoint, readingTypeDeliverableFactory))
                 .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
-        this.status = asInfo();
+        this.status = statusInfo();
     }
 
-    private IdWithNameInfo asInfo() {
+    private IdWithNameInfo statusInfo() {
         IdWithNameInfo info = new IdWithNameInfo();
         info.id = this.purposes
                 .stream()
@@ -75,39 +73,19 @@ public class MetrologyConfigurationInfo {
         return info;
     }
 
-    private MeterRoleInfo asDetailedInfo(MeterRole meterRole, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
-        MeterRoleInfo info = new MeterRoleInfo();
+    private MeterRoleInfo asDetailedMeterRoleInfo(MeterRole meterRole, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
+        MeterRoleInfo info = asMeterRoleInfo(meterRole, usagePoint);
         info.id = meterRole.getKey();
-        info.name = meterRole.getDisplayName();
-        MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole).isEmpty() ? usagePoint.getMeterActivations(meterRole)
-                .stream()
-                .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
-                .findFirst()
-                .orElse(null) : null;
-        Meter meter = meterActivation != null ? meterActivation.getMeter().get() : null;
-        info.mRID = meterActivation != null ? meterActivation.getMeter().get().getMRID() : null;
-        info.url = meter != null ? meter.getHeadEndInterface()
-                .map(he -> he.getURLForEndDevice(meter)
-                        .map(URL::toString)
-                        .orElse(null))
-                .orElse(null) : null;
-        info.activationTime = meterActivation != null ? this.activationTime : null;
-        List<ReadingTypeDeliverable> readingTypeDeliverables = metrologyConfiguration.getContracts()
+        info.required = metrologyConfiguration.getContracts()
                 .stream()
                 .filter(MetrologyContract::isMandatory)
                 .flatMap(c -> c.getDeliverables().stream())
-                .collect(Collectors.toList());
-        List<MeterRole> meterRolesList = readingTypeDeliverables
-                .stream()
                 .flatMap(d -> getMeterRolesFromReadingTypeDeliverable(d).stream())
-                .collect(Collectors.toList());
-        info.required = meterRolesList
-                .stream()
                 .anyMatch(mr -> mr.getKey().equals(meterRole.getKey()));
         return info;
     }
 
-    private List<MeterRole> getMeterRolesFromReadingTypeDeliverable(ReadingTypeDeliverable readingTypeDeliverable) {
+    private static List<MeterRole> getMeterRolesFromReadingTypeDeliverable(ReadingTypeDeliverable readingTypeDeliverable) {
         List<MeterRole> meterRolesList = new ArrayList<>();
         ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
         readingTypeDeliverable.getFormula().getExpressionNode().accept(readingTypeVisitor);
@@ -121,14 +99,14 @@ public class MetrologyConfigurationInfo {
         return meterRolesList;
     }
 
-    private PurposeInfo asDetailedInfo(MetrologyContract metrologyContract, UsagePointMetrologyConfiguration metrologyConfiguration,
-                                       UsagePoint usagePoint, ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+    private PurposeInfo asDetailedPurposeInfo(MetrologyContract metrologyContract, UsagePoint usagePoint,
+                                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
         PurposeInfo info = new PurposeInfo();
         info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.required = metrologyContract.isMandatory();
         info.active = info.required;
-        info.meterRoles = asInfoList(metrologyConfiguration, usagePoint);
+        info.meterRoles = asMeterRoleInfoList(metrologyContract, usagePoint);
         IdWithNameInfo metrologyContractStatus = new IdWithNameInfo();
         metrologyContractStatus.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
         metrologyContractStatus.name = metrologyContract.getStatus(usagePoint).getName();
@@ -137,38 +115,35 @@ public class MetrologyConfigurationInfo {
         return info;
     }
 
-    private List<MeterRoleInfo> asInfoList(UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
-        List<ReadingTypeDeliverable> readingTypeDeliverables = metrologyConfiguration.getContracts()
-                .stream()
-                .flatMap(c -> c.getDeliverables().stream())
-                .collect(Collectors.toList());
-        return readingTypeDeliverables
-                .stream()
+    private List<MeterRoleInfo> asMeterRoleInfoList(MetrologyContract metrologyContract, UsagePoint usagePoint) {
+        return metrologyContract.getDeliverables().stream()
                 .flatMap(d -> getMeterRolesFromReadingTypeDeliverable(d).stream())
                 .distinct()
-                .map(meterRole -> asInfo(meterRole, usagePoint))
+                .map(meterRole -> asMeterRoleInfo(meterRole, usagePoint))
                 .collect(Collectors.toList());
     }
 
-    private MeterRoleInfo asInfo(MeterRole meterRole, UsagePoint usagePoint) {
+    private MeterRoleInfo asMeterRoleInfo(MeterRole meterRole, UsagePoint usagePoint) {
         MeterRoleInfo info = new MeterRoleInfo();
         info.name = meterRole.getDisplayName();
-        MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole).isEmpty() ? usagePoint.getMeterActivations(meterRole)
+        usagePoint.getMeterActivations(meterRole)
                 .stream()
                 .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
                 .findFirst()
-                .orElse(null) : null;
-        Meter meter = meterActivation != null ? meterActivation.getMeter().get() : null;
-        info.mRID = meterActivation != null ? meterActivation.getMeter().get().getMRID() : null;
-        info.url = meter != null ? meter.getHeadEndInterface()
-                .map(he -> he.getURLForEndDevice(meter)
-                        .map(URL::toString)
-                        .orElse(null))
-                .orElse(null) : null;
+                .ifPresent(meterActivation -> {
+                    meterActivation.getMeter().ifPresent(meter -> {
+                        info.meter = meter.getName();
+                        info.url = meter.getHeadEndInterface()
+                                .flatMap(he -> he.getURLForEndDevice(meter))
+                                .map(URL::toString)
+                                .orElse(null);
+                    });
+                    info.activationTime = this.activationTime;
+                });
         return info;
     }
 
-    private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void> {
+    private static class ReadingTypeVisitor implements ExpressionNode.Visitor<Void> {
 
         private List<ReadingTypeRequirementNode> readingTypeRequirementNodes = new ArrayList<>();
 
