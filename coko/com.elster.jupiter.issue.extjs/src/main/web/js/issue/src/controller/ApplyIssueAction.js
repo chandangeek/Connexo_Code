@@ -222,7 +222,11 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 jsonData: jsonData,
                 method: 'PUT',
                 success: function (response) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('issue.asigneSuccessMsg', 'ISU', 'Issue was assigned.'));
+                    var responseText = Ext.decode(response.responseText, true);
+
+                    if (responseText.data.success) {
+                        me.getApplication().fireEvent('acknowledge', responseText.data.success[0].title);
+                    }
                 },
                 callback: function () {
                     assignIssuePage.setLoading(false);
