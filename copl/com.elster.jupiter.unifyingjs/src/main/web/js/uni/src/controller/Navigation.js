@@ -121,17 +121,19 @@ Ext.define('Uni.controller.Navigation', {
         _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
-            breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
-                key: route.key.replace('/','.'),
-                text: Ext.isString(title) ? title : '',
-                href: route.buildUrl(),
-                relative: false
-            });
+            if (route.route !== 'tab/:tab:') {
+                breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
+                    key: route.key.replace('/', '.'),
+                    text: Ext.isString(title) ? title : '',
+                    href: route.buildUrl(),
+                    relative: false
+                });
 
-            if (child) {
-                breadcrumb.setChild(child);
+                if (child) {
+                    breadcrumb.setChild(child);
+                }
+                child = breadcrumb;
             }
-            child = breadcrumb;
         });
 
         me.initTitle(breadcrumb);
