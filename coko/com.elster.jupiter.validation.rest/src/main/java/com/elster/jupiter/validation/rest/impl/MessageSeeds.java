@@ -8,8 +8,7 @@ public enum MessageSeeds implements MessageSeed {
     RUN_TASK_CONCURRENT_TITLE(4, "RunTaskConcurrentTitle", "Failed to run ''{0}''", Level.SEVERE),
     RUN_TASK_CONCURRENT_BODY(5, "RunTaskConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     NO_SUCH_DEVICE_GROUP(7, "NoSuchDeviceGroup", "No end device group with id ''{0}''", Level.SEVERE),
-    RULE_SET_IN_USE(6, "RuleSetInIse", "''{0}'' can''t be removed since this validation rule set is used by at least one metrology configuration", Level.SEVERE),
-    VALIDATION_TASK_IN_USE(7, "RuleSetInIse", "The validation task can't be removed because the task is running at this moment", Level.SEVERE)
+    RULE_SET_IN_USE(6, "RuleSetInIse", "''{0}'' can''t be removed since this validation rule set is used by at least one metrology configuration", Level.SEVERE)
     ;
 
     private final int number;
