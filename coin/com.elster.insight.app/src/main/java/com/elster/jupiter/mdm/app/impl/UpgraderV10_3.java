@@ -39,6 +39,11 @@ public class UpgraderV10_3 implements Upgrader {
                 //Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
+                // Usage point groups
+                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
+                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
+                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
+
                 //estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
@@ -50,7 +55,7 @@ public class UpgraderV10_3 implements Upgrader {
 
                 //Estimation configuration on metrology configuration
                 com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION,
-                com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION,
+                com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION
         };
     }
 
@@ -62,6 +67,9 @@ public class UpgraderV10_3 implements Upgrader {
 
                 //Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                //Usage point groups
+                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
 
                 //estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
