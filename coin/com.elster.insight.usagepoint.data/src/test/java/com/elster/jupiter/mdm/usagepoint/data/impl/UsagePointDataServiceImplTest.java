@@ -26,7 +26,6 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
@@ -65,8 +64,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -90,8 +87,6 @@ public class UsagePointDataServiceImplTest {
 
     @Mock
     private Clock clock;
-    @Mock
-    private OrmService ormService;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -139,7 +134,7 @@ public class UsagePointDataServiceImplTest {
     @Before
     public void setUp() {
         when(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        when(ormService.newDataModel(eq(UsagePointDataService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
+        when(upgradeService.newNonOrmDataModel()).thenReturn(dataModel);
         when(clock.instant()).thenReturn(NOW);
         when(usagePoint.getName()).thenReturn("Mrmrmrrr");
         when(metrologyContract.getId()).thenReturn(777L);
@@ -151,7 +146,7 @@ public class UsagePointDataServiceImplTest {
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
-        usagePointDataService = new UsagePointDataServiceImpl(clock, ormService, meteringService, validationService,
+        usagePointDataService = new UsagePointDataServiceImpl(clock, meteringService, validationService,
                 nlsService, customPropertySetService, usagePointConfigurationService, upgradeService, userService);
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
