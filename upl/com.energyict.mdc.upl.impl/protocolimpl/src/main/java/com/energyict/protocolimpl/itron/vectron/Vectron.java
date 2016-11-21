@@ -120,16 +120,16 @@ public class Vectron extends SchlumbergerProtocol {
         Dialer dialer=null;
         try {
             
-            String[] phones = new String[]{"00012254734958","00017149909878"};
-            String[] passwords = new String[]{"EXKV",""};
-            int phoneId=1;
+            String[] phones = new String[]{"00012254734958","00017149909878","0014156811226"};
+            String[] passwords = new String[]{"EXKV","","5F296E00"};
+            int phoneId=2;
             
             //dialer =DialerFactory.getDirectDialer().newDialer();
             dialer =DialerFactory.getDefault().newDialer();
-            dialer.init("COM1");
+            dialer.init("COM5");
             
             
-            dialer.getSerialCommunicationChannel().setBaudrate(1200);
+            dialer.getSerialCommunicationChannel().setBaudrate(9600);
             
             dialer.connect(phones[phoneId],60000); 
             

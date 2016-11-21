@@ -87,6 +87,14 @@ public final class ProtocolTools {
         return bb.toByteArray();
     }
 
+    public static byte[] getBytesFromHexString(final String hexString, int hexLen) {
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
+        for (int i = 0; i < hexString.length(); i += hexLen) {
+            bb.write(Integer.parseInt(hexString.substring(i, i + hexLen), HEX));
+        }
+        return bb.toByteArray();
+    }
+
     /**
      * Turn an integer into a byte array, with a given length.
      *
