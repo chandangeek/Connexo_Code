@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
@@ -71,6 +72,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile MeteringService meteringService;
     private volatile EventService eventService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private volatile UpgradeService upgradeService;
@@ -83,7 +85,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     // For testing purposes
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-                                              ValidationService validationService, NlsService nlsService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UpgradeService upgradeService) {
+                                              ValidationService validationService, EstimationService estimationService, NlsService nlsService,
+                                              MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UpgradeService upgradeService) {
         this();
         setClock(clock);
         setOrmService(ormService);
@@ -92,6 +95,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         setEventService(eventService);
         setUserService(userService);
         setValidationService(validationService);
+        setEstimationService(estimationService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         activate();
@@ -168,6 +172,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        // need to have explicit dependency to estimation component that installs estimation rule sets
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -345,7 +355,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 }
             }
         }
-
         return false;
     }
 
@@ -357,7 +366,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                         .isEqualTo(ruleset), Order.NOORDER, false, new String[0], 1, 1)
                 .isEmpty();
     }
-
 
     @Override
     public String getComponentName() {
@@ -381,5 +389,4 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }
-
 }
