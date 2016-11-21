@@ -18,11 +18,11 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step2', {
         items: [
             {
                 itemId: 'usagepointsaddcalendars',
-                boxLabel: '<b>' + Uni.I18n.translate('usagepoints.bulk.addCalendars', 'MDC', 'Add calendar') + '</b>',
+                boxLabel: '<b>' + Uni.I18n.translate('usagepoints.bulk.addCalendars', 'IMT', 'Add calendar') + '</b>',
                 name: 'operation',
                 inputValue: 'addCalendar',
                 afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('usagepoints.bulk.calendargMsg', 'IMT', 'Add calendar to selected usage points') + '</span>',
-                //privileges: Mdc.privileges.Device.administrateDeviceCommunication
+                privileges: Imt.privileges.UsagePoint.adminCalendars
             }
         ]
     }

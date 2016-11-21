@@ -27,7 +27,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         {
             ref: 'statusPage',
             selector: '#usagepoints-bulk-step5'
-        },
+        }
     ],
 
     init: function(){
@@ -38,6 +38,12 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             'usagepoints-wizard #backButton': {
                 click: this.backClick
             },
+            'usagepoints-wizard #confirmButton': {
+                click: this.confirmClick
+            },
+            'usagepoints-wizard #finishButton': {
+                click: this.goBack
+            }
         });
     },
 
@@ -113,7 +119,6 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 if (!me.allDevices) {
                     me.devices = me.getUsagePointsGrid().getSelectionModel().getSelection();
                 }
-                debugger;
                 me.operation = 'addCalendar';
                 nextCmp.down('#usagepointsactionselect').setValue({operation: 'addCalendar'});
 
@@ -122,112 +127,35 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 break;
             case 'selectOperation':
                 me.operation = currentCmp.down('#usagepointsactionselect').getValue().operation;
-                debugger;
                 if (nextCmp.name == 'selectActionItems') {
                     if (me.operation == 'addCalendar') {
-                        //var configStore = me.getStore('Mdc.store.BulkDeviceConfigurations'),
-                        //    changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
-                        //    currentConfigField = nextCmp.down('#current-device-config-selection');
-                        //
-                        //nextCmp.down('#select-schedules-panel').hide();
-                        //changeDeviceConfigForm.show();
-                        //changeDeviceConfigForm.getForm().clearInvalid();
-                        //
-                        //var device = me.getDevicesGrid().getStore().getAt(0);
-                        //configStore.getProxy().setUrl({deviceType: me.deviceType});
-                        //
-                        //wizard.setLoading(true);
-                        //configStore.clearFilter(false);
-                        //configStore.addFilter([
-                        //    function (record) {
-                        //        return record.get('id') !== me.deviceConfigId && !record.get('dataloggerEnabled');
-                        //    }
-                        //]);
-                        //configStore.load(function (operation, success) {
-                        //    var deviceConfig = this.getById(me.deviceConfigId);
-                        //    currentConfigField.setValue(deviceConfig.get('name'));
-                        //    if (success && (configStore.getCount() < 1)) {
-                        //        wizard.down('#nextButton').disable();
-                        //        nextCmp.down('#new-device-config-selection').hide();
-                        //        nextCmp.down('#no-device-configuration').show();
-                        //    } else {
-                        //        wizard.down('#nextButton').enable();
-                        //        nextCmp.down('#new-device-config-selection').show();
-                        //        nextCmp.down('#no-device-configuration').hide();
-                        //    }
-                        //    if (configStore.getCount() === 1) {
-                        //        wizard.down('#new-device-config-selection').setValue(this.getAt(0).get('id'));
-                        //        wizard.down('#nextButton').enable();
-                        //    }
-                        //    wizard.setLoading(false);
-                        //});
+                       //do nothing
                     }
                 }
                 break;
             case 'selectActionItems':
-                //debugger;
-                //if (me.operation != 'changeconfig') {
-                //    me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
-                //    errorPanel = currentCmp.down('#step3-errors');
-                //    me.validation = me.schedules.length;
-                //} else {
-                //    var form = currentCmp.down('#change-device-configuration');
-                //    me.validation = currentCmp.down('#change-device-configuration').isValid();
-                //    me.validation && (me.configData = form.getValues());
-                //    me.configNames = {
-                //        fromconfig: form.down('#current-device-config-selection').getRawValue(),
-                //        toconfig: form.down('#new-device-config-selection').getRawValue()
-                //    };
-                //    errorPanel = currentCmp.down('#step3-errors');
-                //    errorContainer = null;
-                //}
-
+                errorPanel = currentCmp.down('#step3-errors');
+                if (me.operation == 'addCalendar') {
+                    me.addCalendarFormValues = currentCmp.down('form').getValues();
+                    if(Ext.isEmpty(me.addCalendarFormValues.calendar)){
+                        me.validation = false;
+                    } else {
+                        me.validation = true;
+                        me.calendarName = currentCmp.down('form').down('#calendar-combo').getDisplayValue();
+                        me.fromTime  = currentCmp.down('form').down('#activation-date-values').down('#activation-on').getValue().getTime()
+                    }
+                }
                 break;
         }
 
         (currentCmp.navigationIndex > nextCmp.navigationIndex) && (me.validation = true);
 
         if (me.validation) {
-            //switch (nextCmp.name) {
-            //    case 'confirmPage':
-            //        if (me.operation != 'changeconfig') {
-            //            nextCmp.showMessage(me.buildConfirmMessage());
-            //            wizard.down('#confirmButton').enable()
-            //        } else {
-            //            wizard.setLoading(true);
-            //            nextCmp.removeAll();
-            //            me.checkConflictMappings(me.deviceConfigId, me.configData['toconfig'], function (unsolvedConflicts) {
-            //                wizard.setLoading(false);
-            //                if (unsolvedConflicts) {
-            //                    me.getNavigationMenu().markInvalid();
-            //                    var title = me.devices?Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.length, 'MDC', "Unable to change device configuration of {0} devices", "Unable to change device configuration of {0} device", "Unable to change device configuration of {0} devices"):
-            //                            Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsTitleForSearch', 'MDC', "Unable to change device configuration of the selected devices"),
-            //                        text = Ext.String.format(Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsMsg', 'MDC', 'The configuration of devices with current configuration \'{0}\' cannot be changed to \'{1}\' due to unsolved conflicts.'), me.configNames.fromconfig, me.configNames.toconfig);
-            //                    text = text.replace('{fromconfig}', me.configNames.fromconfig).replace('{toconfig}', me.configNames.toconfig);
-            //                    if (Mdc.privileges.DeviceType.canAdministrate()) {
-            //                        var solveLink = router.getRoute('administration/devicetypes/view/conflictmappings/edit').buildUrl({deviceTypeId: me.deviceType, id: unsolvedConflicts});
-            //                        me.getController('Mdc.controller.setup.DeviceConflictingMapping').returnInfo = {
-            //                            from: 'changeDeviceConfigurationBulk'
-            //                        };
-            //                        wizard.down('#confirmButton').disable();
-            //                        nextCmp.showChangeDeviceConfigConfirmation(title, text, solveLink, null, 'error');
-            //                    } else {
-            //                        wizard.down('#confirmButton').hide();
-            //                        wizard.down('#backButton').hide();
-            //                        wizard.down('#wizardCancelButton').hide();
-            //                        wizard.down('#failureFinishButton').show();
-            //                        additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigNoPrivileges', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.');
-            //                        nextCmp.showChangeDeviceConfigConfirmation(title, text, null, additionalText, 'error');
-            //                    }
-            //                } else {
-            //                    wizard.down('#confirmButton').enable();
-            //                    var message = me.buildConfirmMessage();
-            //                    additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'The device configuration change can possibly lead to critical data loss (security settings, connection attributes...).');
-            //                    nextCmp.showChangeDeviceConfigConfirmation(message.title, message.body, null, additionalText)
-            //                }
-            //            });
-            //        }
-            //        break;
+            switch (nextCmp.name) {
+                case 'confirmPage':
+                        nextCmp.showMessage(me.buildConfirmMessage());
+                        wizard.down('#confirmButton').enable()
+                        break;
             //    case 'statusPage':
             //        if (currentCmp.name != 'statusPage') {
             //            if (me.operation != 'changeconfig') {
@@ -246,12 +174,12 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             //            }
             //        }
             //        break;
-            //}
+            }
             errorPanel && errorPanel.hide();
             errorContainer && errorContainer.hide();
             layout.setActiveItem(nextCmp);
             this.updateButtonsState(nextCmp);
-            this.updateTitles();
+          //  this.updateTitles();
          //   me.getStatusPage().setLoading(false);
             return true;
         } else {
@@ -285,7 +213,6 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             case 'selectOperation' :
                 backBtn.show();
                 nextBtn.show();
-                debugger;
                 nextBtn.setDisabled(Ext.isEmpty(me.operation));
                 confirmBtn.hide();
                 finishBtn.hide();
@@ -309,13 +236,13 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 falureFinishBtn.hide();
                 cancelBtn.show();
                 break;
-            //case 'statusPage' :
-            //    backBtn.hide();
-            //    nextBtn.hide();
-            //    confirmBtn.hide();
-            //    finishBtn.show();
-            //    cancelBtn.hide();
-            //    break;
+            case 'statusPage' :
+                backBtn.hide();
+                nextBtn.hide();
+                confirmBtn.hide();
+                finishBtn.show();
+                cancelBtn.hide();
+                break;
             //case 'statusPageViewDevices' :
             //    backBtn.show();
             //    nextBtn.hide();
@@ -327,30 +254,30 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         }
     },
 
-    updateTitles: function () {
-        var me = this,
-            title;
-        //if (me.operation) {
-        //    var items = Ext.ComponentQuery.query('#searchitemsbulkactiontitle');
-        //    switch (me.operation){
-        //        case 'add' : {
-        //            title = Uni.I18n.translate('searchItems.bulk.addActionTitle', 'MDC', 'Add shared communication schedules')
-        //        }
-        //            break;
-        //        case 'remove' : {
-        //            title = Uni.I18n.translate('searchItems.bulk.removeActionTitle', 'MDC', 'Remove shared communication schedules')
-        //        }
-        //            break;
-        //        case 'changeconfig' : {
-        //            title = Uni.I18n.translate('searchItems.bulk.changeConfigActionTitle', 'MDC', 'Change device configuration')
-        //        }
-        //            break;
-        //    }
-        //    (items.length > 0) && Ext.each(items, function (item) {
-        //        item.setTitle(title);
-        //    })
-        //}
-    },
+    //updateTitles: function () {
+    //    var me = this,
+    //        title;
+    //    //if (me.operation) {
+    //    //    var items = Ext.ComponentQuery.query('#searchitemsbulkactiontitle');
+    //    //    switch (me.operation){
+    //    //        case 'add' : {
+    //    //            title = Uni.I18n.translate('searchItems.bulk.addActionTitle', 'MDC', 'Add shared communication schedules')
+    //    //        }
+    //    //            break;
+    //    //        case 'remove' : {
+    //    //            title = Uni.I18n.translate('searchItems.bulk.removeActionTitle', 'MDC', 'Remove shared communication schedules')
+    //    //        }
+    //    //            break;
+    //    //        case 'changeconfig' : {
+    //    //            title = Uni.I18n.translate('searchItems.bulk.changeConfigActionTitle', 'MDC', 'Change device configuration')
+    //    //        }
+    //    //            break;
+    //    //    }
+    //    //    (items.length > 0) && Ext.each(items, function (item) {
+    //    //        item.setTitle(title);
+    //    //    })
+    //    //}
+    //},
 
     goBack: function () {
         var me = this,
@@ -366,6 +293,141 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         }
 
         router.getRoute('search').forward(null, queryParams);
+    },
+
+    buildConfirmMessage: function () {
+        var me = this,
+            message,
+            pattern,
+            titleText,
+            bodyText,
+            scheduleList = '';
+
+        if (me.allDevices) {
+            switch (me.operation) {
+                case 'addCalendar':
+                        titleText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg', 'MDC',
+                            "Add calendar '{0}' to all devices?", Ext.String.htmlEncode(me.calendarName));
+                    break;
+            }
+        } else {
+            switch (me.operation) {
+                case 'addCalendar':
+                        if (me.devices.length <= 1) {
+                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg0', 'MDC', "Add shared communication schedule '{1}' to {0} device?")
+                        } else {
+                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsgn', 'MDC', "Add shared communication schedule '{1}' to {0} devices?")
+                        }
+                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.calendarName));
+                    break;
+            }
+        }
+
+        switch (me.operation) {
+            case 'addCalendar':
+                bodyText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.addMsg', 'MDC', 'The selected devices will use this calendar');
+                break;
+        }
+
+        message = {
+            title: titleText,
+            body: bodyText
+        };
+        return message;
+    },
+
+    confirmClick: function () {
+        var me = this,
+            wizard = me.getUsagePointsItemsWizard(),
+            finishBtn = wizard.down('#finishButton'),
+            statusPage = me.getStatusPage(),
+            scheduleIds = [],
+            devicesMRID = [],
+            url = '/api/udr/usagepoints/calendars',
+            request = {},
+            jsonData,
+            infoMessage;
+
+        finishBtn.disable();
+        statusPage.removeAll();
+        wizard.setLoading(true);
+
+        if (me.operation === 'addCalendar') {
+            Ext.each(me.devices, function (item) {
+                devicesMRID.push(item.get('mRID'));
+            });
+            request.action = me.operation;
+            if (me.allDevices) {
+                var store = me.getUsagePointsGrid().getStore();
+                request.filter = store.getProxy().encodeFilters(store.filters.getRange());
+            } else {
+                request.deviceMRIDs = devicesMRID;
+            }
+            request.calendarIds = [me.addCalendarFormValues.calendar];
+            request.startTime = me.addCalendarFormValues.activateCalendar === 'immediate-activation' ? new Date().getTime() : me.fromTime;
+            jsonData = Ext.encode(request);
+            Ext.Ajax.request({
+                url: url,
+                method: 'PUT',
+                jsonData: jsonData,
+                timeout: 180000,
+                success: function (response) {
+                    statusPage.showAddCalendarSuccess(
+                        me.buildFinalMessage()
+                    );
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                },
+
+                failure: function (response) {
+                    var resp = Ext.decode(response.responseText, true);
+                    if (resp && resp.message) {
+                        me.showStatusMsg(me.buildMessage(resp.message));
+                    }
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                }
+            });
+        }
+        me.nextClick();
+    },
+
+    showStatusMsg: function (msg) {
+        var me = this;
+        me.getStatusPage().add(msg);
     }
+    ,
+
+    buildMessage: function (message) {
+        var messagePanel = {
+            xType: 'panel'
+        };
+
+        messagePanel.html = '<h3>' + message + '</h3>';
+        return messagePanel;
+    },
+
+    buildFinalMessage: function () {
+        var me = this,
+            message = '',
+            finalMessage = '';
+
+        switch (me.operation) {
+            case 'addCalendar':
+                message = Ext.isEmpty(me.devices)
+                    ? Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.all1', 'IMT', "to all usage points")
+                    : Uni.I18n.translatePlural('searchItems.bulk.addCalendarToAllDevices', me.devices.length, 'IMT',
+                    "to {0} usage points",
+                    "to {0} usage point",
+                    "to {0} usage points"
+                );
+                finalMessage = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.baseSuccessMsg', 'MDC',
+                        "Successfully added calendar '{0}' {1}", [me.calendarName, message]);
+                break;
+        }
+
+        return finalMessage;
+    }
+
 
 });

@@ -15,6 +15,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step4', {
         title: '',
         itemId: 'usagepointsbulkactiontitle'
     },
+
     showMessage: function (message) {
         var widget = {
             html: '<h3>' + Ext.String.htmlEncode(message.title) + '</h3><br>' + Ext.String.htmlEncode(message.body)

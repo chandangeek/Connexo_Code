@@ -31,14 +31,16 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                 {
                     itemId: 'step3-errors',
                     xtype: 'uni-form-error-message',
-                    hidden: true
+                    hidden: true,
+                    text: Uni.I18n.translate('searchItems.bulk.devicesError', 'IMT', 'It is required to select a calendar to go to the next step.')
                 }
             ]
         },
         {
             xtype: 'panel',
             itemId: 'select-calendars-panel',
-            title: 'Add same page here as add calendar to single usage point',
+            ui: 'medium',
+            title: Uni.I18n.translate('general.addCalendar', 'IMT', 'Add calendar'),
             items: {
                 xtype: 'form',
                 itemId: 'frm-add-user-directory',
@@ -67,14 +69,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                         fieldLabel: Uni.I18n.translate('general.category', 'IMT', 'Category'),
                         store: 'Imt.usagepointmanagement.store.CalendarCategories',
                         valueField: 'name',
-                        displayField: 'name',
-                        //listeners: {
-                        //    afterrender: function (field) {
-                        //        if(!me.edit) {
-                        //            field.focus(false, 500);
-                        //        }
-                        //    }
-                        //}
+                        displayField: 'name'
                     },
                     {
                         xtype: 'combobox',
@@ -87,20 +82,11 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                         displayField: 'name',
                         valueField: 'id',
                         disabled: true
-                        //listeners: {
-                        //    afterrender: function (field) {
-                        //        if(me.edit) {
-                        //            field.focus(false, 500);
-                        //        }
-                        //    }
-                        //}
                     },
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.activateCalendar', 'IMT', 'Activate calendar'),
                         itemId: 'activate-calendar-container',
-                        //required: Mdc.dynamicprivileges.DeviceState.activationDateSupported(),
-                        //hidden: !Mdc.dynamicprivileges.DeviceState.activationDateSupported() ,
                         layout: 'hbox',
                         items: [
                             {
@@ -119,7 +105,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                                 },
                                 listeners: {
                                     change: function (field, newValue, oldValue) {
-                                        me.down('#activation-date-values').setDisabled(newValue.activateCalendar !== 'on-date-activation');
+                                        field.up('form').down('#activation-date-values').setDisabled(newValue.activateCalendar !== 'on-date-activation');
                                     }
                                 },
                                 items: [
@@ -184,7 +170,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
             xtype: 'container',
             itemId: 'stepSelectionError',
             hidden: true,
-            html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 shared communication schedule') + '</span>'
+            html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectCalendar', 'IMT', 'Select a calendar') + '</span>'
         }
     ]
 });

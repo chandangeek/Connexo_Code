@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.CalendarsSelectionGrid', {
             'No calendars selected', '{0} calendar selected', '{0} calendars selected'
         );
     },
-    selectedDescription: Uni.I18n.translate('usagepoints.bulk.selectedScheduleInTable', 'MDC', 'Select calendars in table'),
+    selectedDescription: Uni.I18n.translate('usagepoints.bulk.selectedScheduleInTable', 'IMT', 'Select calendars in table'),
 
     cancelHref: '#/search',
 

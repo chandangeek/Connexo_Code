@@ -189,7 +189,7 @@ Ext.define('Imt.controller.History', {
                                     privileges: Imt.privileges.UsagePoint.adminCalendars
                                 },
                                 preview: {
-                                    title: Uni.I18n.translate('general.label.addCalendar', 'IMT', 'Preview calendar'),
+                                    title: Uni.I18n.translate('general.label.previewCalendar', 'IMT', 'Preview calendar'),
                                     route: 'preview/{calendarId}',
                                     controller: 'Imt.usagepointmanagement.controller.Calendars',
                                     action: 'previewCalendar',
