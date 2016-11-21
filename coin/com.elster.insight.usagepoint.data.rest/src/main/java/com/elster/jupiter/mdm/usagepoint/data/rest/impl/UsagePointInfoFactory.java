@@ -269,16 +269,16 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private String getUsagePointDisplayType(UsagePoint usagePoint) {
         if (usagePoint.isSdp() && usagePoint.isVirtual()) {
-            return UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.getDisplayName(thesaurus);
+            return UsagePointTypeInfo.UsagePointType.VIRTUAL_SDP.getDisplayName(thesaurus);
         }
         if (!usagePoint.isSdp() && usagePoint.isVirtual()) {
-            return UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.getDisplayName(thesaurus);
+            return UsagePointTypeInfo.UsagePointType.VIRTUAL_NON_SDP.getDisplayName(thesaurus);
         }
         if (usagePoint.isSdp() && !usagePoint.isVirtual()) {
-            return UsagePointTypeInfo.UsagePointType.MEASURED_SDP.getDisplayName(thesaurus);
+            return UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP.getDisplayName(thesaurus);
         }
         if (!usagePoint.isSdp() && !usagePoint.isVirtual()) {
-            return UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.getDisplayName(thesaurus);
+            return UsagePointTypeInfo.UsagePointType.PHYSICAL_NON_SDP.getDisplayName(thesaurus);
         }
         return null;
     }
