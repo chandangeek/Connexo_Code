@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.app.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.app.MdmAppService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -30,6 +31,7 @@ public class MdmAppInstaller {
     private volatile UpgradeService upgradeService;
     private volatile ValidationService validationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile UsagePointDataService usagePointDataService;
 
     @Activate
     public void activate() {
@@ -147,5 +149,10 @@ public class MdmAppInstaller {
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setUsagePointDataService(UsagePointDataService usagePointDataService) {
+        this.usagePointDataService = usagePointDataService;
     }
 }
