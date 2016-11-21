@@ -18,6 +18,7 @@ import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.TaskService;
+import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
@@ -52,8 +53,10 @@ import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -146,7 +149,137 @@ public class JbpmTaskResource {
                     .collect(Collectors.toList());
 
 
-            System.out.println("mmm");
+            List<java.util.function.Predicate<Task>> statusP = new ArrayList<>();
+            List<java.util.function.Predicate<Task>> userP = new ArrayList<>();
+            List<java.util.function.Predicate<Task>> dueDatePredicate = new ArrayList<>();
+            List<java.util.function.Predicate<Task>> processPredicate = new ArrayList<>();
+            List<java.util.function.Predicate<Task>> deploymentPredicate = new ArrayList<>();
+            List<java.util.function.Predicate<Task>> workGroupPredicate = new ArrayList<>();
+            Comparator<Task> comp = (task1, task2) -> task1.getTaskData().getActualOwner().getId().compareTo(task2.getName());
+
+
+
+            Iterator<String> it = filterProperties.keySet().iterator();
+            while (it.hasNext()) {
+                String theKey = (String) it.next();
+                if (theKey.equals("status")) {
+                    for (int i = 0; i < filterProperties.get("status").size(); i++) {
+                        if (filterProperties.get("status").get(i).toString().contains("CREATED")) {
+                            statusP.add((task) -> task.getTaskData().getStatus().equals(Status.Created));
+                            statusP.add((task) -> task.getTaskData().getStatus().equals(Status.Ready));
+                            statusP.add((task) -> task.getTaskData().getStatus().equals(Status.Suspended));
+                        }
+                        if (filterProperties.get("status").get(i).toString().contains("ASSIGNED")) {
+                            statusP.add((task) -> task.getTaskData().getStatus().equals(Status.Reserved));
+                        }
+                        if (filterProperties.get("status").get(i).toString().contains("ONGOING")) {
+                            statusP.add((task) -> task.getTaskData().getStatus().equals(Status.InProgress));
+                        }
+                    }
+                }
+                if (theKey.equals("user")) {
+                    for (int i = 0; i < filterProperties.get("user").size(); i++) {
+                        final String userName = filterProperties.get("user").get(i).toString().replace("\"", "");
+                        if (filterProperties.get("user").get(i).toString().replace("\"", "").equals("Unassigned")) {
+                            userP.add((task -> task.getTaskData().getActualOwner() == null));
+                        } else {
+                            userP.add((task) -> task.getTaskData().getActualOwner() != null && task.getTaskData()
+                                    .getActualOwner()
+                                    .getId()
+                                    .equals(userName));
+                        }
+                    }
+                }
+                if (theKey.equals("dueDate")) {
+                    for (int i = 0; i < filterProperties.get("dueDate").size(); i++) {
+                        if (filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("OVERDUE")) {
+                            Calendar cal = Calendar.getInstance();
+                            cal.add(Calendar.DATE, -1);
+                            cal.set(Calendar.HOUR, 11);
+                            cal.set(Calendar.MINUTE, 59);
+                            cal.set(Calendar.SECOND, 59);
+                            cal.set(Calendar.AM_PM, Calendar.PM);
+                            dueDatePredicate.add((task) -> task.getTaskData()
+                                    .getExpirationTime() != null && task.getTaskData()
+                                    .getExpirationTime()
+                                    .before(cal.getTime()));
+                        }
+                        if (filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("TODAY")) {
+                            Calendar cal = Calendar.getInstance();
+                            cal.add(Calendar.DATE, -1);
+                            cal.set(Calendar.HOUR, 11);
+                            cal.set(Calendar.MINUTE, 59);
+                            cal.set(Calendar.SECOND, 59);
+                            cal.set(Calendar.AM_PM, Calendar.PM);
+                            Calendar cal2 = Calendar.getInstance();
+                            cal2.add(Calendar.DATE, 0);
+                            cal2.set(Calendar.HOUR, 11);
+                            cal2.set(Calendar.MINUTE, 59);
+                            cal2.set(Calendar.SECOND, 59);
+                            cal2.set(Calendar.AM_PM, Calendar.PM);
+                            dueDatePredicate.add((task) -> task.getTaskData()
+                                    .getExpirationTime() != null && task.getTaskData()
+                                    .getExpirationTime()
+                                    .after(cal.getTime()) && task.getTaskData()
+                                    .getExpirationTime()
+                                    .before(cal2.getTime()));
+                        }
+                        if (filterProperties.get("dueDate").get(i).toString().replace("\"", "").equals("UPCOMING")) {
+                            Calendar cal = Calendar.getInstance();
+                            cal.add(Calendar.DATE, 0);
+                            cal.set(Calendar.HOUR, 11);
+                            cal.set(Calendar.MINUTE, 59);
+                            cal.set(Calendar.SECOND, 59);
+                            cal.set(Calendar.AM_PM, Calendar.PM);
+                            dueDatePredicate.add((task) -> task.getTaskData()
+                                    .getExpirationTime() != null && task.getTaskData()
+                                    .getExpirationTime()
+                                    .after(cal.getTime()));
+                        }
+                    }
+                }
+                if (theKey.equals("process")) {
+                    for (int i = 0; i < filterProperties.get("process").size(); i++) {
+                        String[] processItems = filterProperties.get("process")
+                                .get(i)
+                                .toString()
+                                .replace("\"", "")
+                                .split(" \\(");
+                        if (processItems.length == 3) {
+                            String processId = processItems[0];
+                            String deploymentId = processItems[2].replace(")", "");
+                            processPredicate.add((task) -> task.getTaskData().getProcessId() != null && task.getTaskData().getProcessId().equals(processId));
+                            deploymentPredicate.add((task) -> task.getTaskData().getDeploymentId() != null && task.getTaskData().getDeploymentId().equals(deploymentId));
+                        }
+                    }
+                }
+                if (theKey.equals("workgroup")) {
+                    for (int i = 0; i < filterProperties.get("workgroup").size(); i++) {
+                        final String workGroup = filterProperties.get("workgroup").get(i).toString().replace("\"", "");
+                        if (filterProperties.get("workgroup").get(i).toString().replace("\"", "").equals("Unassigned")) {
+                            workGroupPredicate.add((task -> task.getPeopleAssignments().getPotentialOwners().stream()
+                                    .filter(potO -> potO instanceof Group)
+                                    .collect(Collectors.toList())
+                                    .isEmpty()));
+                        } else {
+                            workGroupPredicate.add((task) -> task.getPeopleAssignments().getPotentialOwners().stream()
+                                    .filter(potO -> potO instanceof Group)
+                                    .map(OrganizationalEntity::getId).anyMatch(groupName -> groupName.equals(workGroup)));
+                        }
+                    }
+                }
+            }
+
+
+            tasks = tasks.stream()
+                    .filter(statusP.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
+                    .filter(userP.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
+                    .filter(dueDatePredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
+                    .filter(processPredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
+                    .filter(deploymentPredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
+                    .filter(workGroupPredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
+                    .collect(Collectors.toList());
+
             TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
             return taskSummaryList;
 
@@ -233,7 +366,6 @@ public class JbpmTaskResource {
                         taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, workGroupName));
                     }
                 }
-                taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, "VVV"));
             } else {
                 return Response.status(409).entity(task.getName()).build();
             }
