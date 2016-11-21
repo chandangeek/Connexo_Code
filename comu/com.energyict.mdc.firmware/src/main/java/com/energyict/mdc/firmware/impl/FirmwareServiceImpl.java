@@ -31,7 +31,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
@@ -362,7 +361,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<FirmwareCampaign> getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution) {
+    public Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution) {
         Optional<FirmwareCampaignImpl> firmwareCampaign = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
                 .stream()
                 .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)

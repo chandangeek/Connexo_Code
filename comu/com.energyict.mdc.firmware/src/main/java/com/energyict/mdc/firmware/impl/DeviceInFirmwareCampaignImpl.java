@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
@@ -160,7 +159,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return false;
     }
 
-    public FirmwareManagementDeviceStatus updateStatus(FirmwareComTaskExecution comTaskExecution) {
+    public FirmwareManagementDeviceStatus updateStatus(ComTaskExecution comTaskExecution) {
         FirmwareManagementDeviceStatus currentStatus = getStatus();
         if (currentStatus == null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
             FirmwareManagementDeviceUtils helper = firmwareService.getFirmwareManagementDeviceUtilsFor(comTaskExecution.getDevice());
@@ -229,7 +228,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                                 comWindow.getStart().copyTo(calendar);
                             }
                             comTaskExecution.schedule(calendar.toInstant());
-                            updateStatus((FirmwareComTaskExecution) comTaskExecution);
+                            updateStatus(comTaskExecution);
                         }
                     });
                 }
@@ -303,7 +302,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 .findFirst()
                 .orElseGet(() -> {
                     ComTaskEnablement comTaskEnablement = getDevice().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask).get();
-                    FirmwareComTaskExecution firmwareComTaskExecution = getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
+                    ComTaskExecution firmwareComTaskExecution = getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
                     getDevice().save();
                     return firmwareComTaskExecution;
                 });
