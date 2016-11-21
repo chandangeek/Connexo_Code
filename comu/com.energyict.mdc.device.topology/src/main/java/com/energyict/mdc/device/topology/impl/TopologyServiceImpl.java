@@ -147,7 +147,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
         List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(device);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
             comTaskExecutionUpdater.update();
         }
@@ -762,7 +762,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private void updateComTasksToUseNewDefaultConnectionTask(Device slave, List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         this.findDefaultConnectionTaskForTopology(slave).ifPresent(dct -> {
             for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-                ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+                ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
                 comTaskExecutionUpdater.useDefaultConnectionTask(dct);
                 comTaskExecutionUpdater.update();
             }
@@ -771,7 +771,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.connectionTask(null);
             comTaskExecutionUpdater.useDefaultConnectionTask(true);
             comTaskExecutionUpdater.update();
