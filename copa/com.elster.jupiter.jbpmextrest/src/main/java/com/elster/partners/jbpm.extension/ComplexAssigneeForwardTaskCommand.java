@@ -42,19 +42,34 @@ public class ComplexAssigneeForwardTaskCommand extends UserGroupCallbackTaskComm
                 .findTask(taskId)
                 .getPeopleAssignments();
 
-        if(peopleAssignments.getPotentialOwners().stream().filter(org -> org instanceof Group).noneMatch(g -> g.getId().equals(groupId))){
-            Group group = createGroup(groupId, context);
+        if(!groupId.equals("Unassigned")) {
+            if (peopleAssignments.getPotentialOwners()
+                    .stream()
+                    .filter(org -> org instanceof Group)
+                    .noneMatch(g -> g.getId().equals(groupId))) {
+                Group group = createGroup(groupId, context);
+                List<OrganizationalEntity> potentialGroupOwner = peopleAssignments.getPotentialOwners()
+                        .stream()
+                        .filter(org -> org instanceof User)
+                        .collect(Collectors.toList());
+                peopleAssignments.getPotentialOwners().clear();
+                peopleAssignments.getPotentialOwners().addAll(potentialGroupOwner);
+                peopleAssignments.getPotentialOwners().add(group);
+            }
+            InternalTask intTask = (InternalTask) context.getPersistenceContext().findTask(taskId);
+            intTask.setPeopleAssignments(peopleAssignments);
+            context.getPersistenceContext().persistTask(intTask);
+        }else {
             List<OrganizationalEntity> potentialGroupOwner = peopleAssignments.getPotentialOwners()
                     .stream()
                     .filter(org -> org instanceof User)
                     .collect(Collectors.toList());
             peopleAssignments.getPotentialOwners().clear();
             peopleAssignments.getPotentialOwners().addAll(potentialGroupOwner);
-            peopleAssignments.getPotentialOwners().add(group);
+            InternalTask intTask = (InternalTask) context.getPersistenceContext().findTask(taskId);
+            intTask.setPeopleAssignments(peopleAssignments);
+            context.getPersistenceContext().persistTask(intTask);
         }
-        InternalTask intTask = (InternalTask) context.getPersistenceContext().findTask(taskId);
-        intTask.setPeopleAssignments(peopleAssignments);
-        context.getPersistenceContext().persistTask(intTask);
 
         return null;
     }

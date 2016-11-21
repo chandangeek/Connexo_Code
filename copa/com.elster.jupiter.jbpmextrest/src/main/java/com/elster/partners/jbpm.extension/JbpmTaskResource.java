@@ -376,9 +376,15 @@ public class JbpmTaskResource {
         if(task != null) {
             if(((TaskImpl) task).getVersion() == optLock) {
                 if(userName != null && currentuser != null) {
-                    boolean check = assignTaskToUser(userName, currentuser, taskId);
-                    if (!check) {
-                        return Response.status(403).build();
+                    if(!userName.equals("Unassigned")) {
+                        boolean check = assignTaskToUser(userName, currentuser, taskId);
+                        if (!check) {
+                            return Response.status(403).build();
+                        }
+                    }else {
+                        if(task.getTaskData().getActualOwner() != null){
+                            taskService.release(task.getId(), task.getTaskData().getActualOwner().getId());
+                        }
                     }
                 }
                 if(priority != null || date != null){
