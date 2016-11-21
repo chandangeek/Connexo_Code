@@ -17,7 +17,6 @@ import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -300,13 +299,13 @@ public class DeviceFirmwareMessagesResource {
         }
     }
 
-    private FirmwareComTaskExecution createFirmwareComTaskExecution(Device device) {
+    private ComTaskExecution createFirmwareComTaskExecution(Device device) {
         // Check firmware upgrade task
         ComTask comTask = taskService.findFirmwareComTask()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND));
         ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE));
-        FirmwareComTaskExecution firmwareComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
+        ComTaskExecution firmwareComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
         device.save();
         return firmwareComTaskExecution;
     }
