@@ -23,6 +23,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -35,21 +36,23 @@ public class BulkScheduleResource {
     private final MessageService messageService;
     private final SearchService searchService;
     private final AppServerHelper appServerHelper;
+    private final Clock clock;
 
     @Inject
-    public BulkScheduleResource(ExceptionFactory exceptionFactory, JsonService jsonService, MessageService messageService, SearchService searchService, AppServerHelper appServerHelper) {
+    public BulkScheduleResource(ExceptionFactory exceptionFactory, JsonService jsonService, MessageService messageService, SearchService searchService, AppServerHelper appServerHelper, Clock clock) {
         this.exceptionFactory = exceptionFactory;
         this.jsonService = jsonService;
         this.messageService = messageService;
         this.searchService = searchService;
         this.appServerHelper = appServerHelper;
+        this.clock = clock;
     }
 
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS})
-    public Response addOrRemoveComScheduleToDeviceSet(BulkRequestInfo request) {
+    public Response bulkAddCalendarToUsagePoint(BulkRequestInfo request) {
         if (!appServerHelper.verifyActiveAppServerExists(UsagePointDataService.BULK_ITEMIZER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
@@ -71,6 +74,7 @@ public class BulkScheduleResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.BAD_ACTION, request.action)));
         message.setUsagePointMRIDs(request.usagePointMRIDs);
         message.setCalendarIds(request.calendarIds);
+        message.setStartTime(request.startTime == null ? clock.millis() : request.startTime);
         if (request.filter != null) {
             JsonQueryFilter filter = new JsonQueryFilter(request.filter);
             Optional<SearchDomain> usagePointSearchDomain = searchService.findDomain(UsagePoint.class.getName());
