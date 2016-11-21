@@ -21,6 +21,26 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of String values that need to be
+     * an exact number of characters in length.
+     *
+     * @param length The number of characters
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<String> stringSpecOfExactLength(int length);
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of String values whose length should not
+     * exceed the specified number of characters.
+     *
+     * @param length The maximumn number of characters
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<String> stringSpecOfMaximumLength(int length);
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of Boolean values.
      *
      * @return The PropertySpecBuilder
