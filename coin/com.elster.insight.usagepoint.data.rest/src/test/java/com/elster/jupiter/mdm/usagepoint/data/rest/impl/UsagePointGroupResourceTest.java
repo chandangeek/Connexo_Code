@@ -502,7 +502,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayServiceCategory")).containsExactly("Electricity", "Heat");
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Unmeasured SDP", "Measured SDP");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Virtual SDP", "Physical SDP");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Under construction", "Connected");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].location")).containsExactly("Cosmos", "Earth");
     }
@@ -531,7 +531,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayServiceCategory")).containsExactly("Electricity", "Heat");
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Unmeasured SDP", "Measured SDP");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Virtual SDP", "Physical SDP");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Under construction", "Connected");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].location")).containsExactly("Cosmos", "Earth");
     }
