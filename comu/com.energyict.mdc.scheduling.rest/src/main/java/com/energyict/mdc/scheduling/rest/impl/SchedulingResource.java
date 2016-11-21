@@ -1,21 +1,18 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.rest.IdListBuilder;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
@@ -47,11 +44,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/schedules")
@@ -108,8 +103,7 @@ public class SchedulingResource {
         List<ComSchedule> usedSchedules = device.getComTaskExecutions()
                 .stream()
                 .filter(ComTaskExecution::usesSharedSchedule)
-                .map(comTaskExecution -> (ScheduledComTaskExecution) comTaskExecution)
-                .map(ScheduledComTaskExecution::getComSchedule)
+                .map(comTaskExecution -> comTaskExecution.getComSchedule().get())
                 .distinct()
                 .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
                 .collect(Collectors.toList());
@@ -156,7 +150,7 @@ public class SchedulingResource {
 
     private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements, List<ComTaskExecution> comTaskExecutions) {
         boolean alreadyScheduledExecutionForTaskInSchedule = comTaskExecutions.stream()
-                .filter(comTaskExecution -> comTaskExecution instanceof ScheduledComTaskExecution)
+                .filter(ComTaskExecution::usesSharedSchedule)
                 .map(ComTaskExecution::getComTask)
                 .filter(comSchedule.getComTasks()::contains)
                 .findFirst()
