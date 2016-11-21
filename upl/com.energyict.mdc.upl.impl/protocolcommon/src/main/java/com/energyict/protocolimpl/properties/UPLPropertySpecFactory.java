@@ -27,7 +27,7 @@ public final class UPLPropertySpecFactory {
 
     public static PropertySpec<Integer> integer(String name, boolean required, Range<Integer> validRange) {
         PropertySpecBuilder<Integer> builder = integerSpecBuilder(name, required);
-        builder.addValues(toStream(validRange).collect(Collectors.toList()));
+        builder.addValues(toIntegerStream(validRange).collect(Collectors.toList()));
         return builder.finish();
     }
 
@@ -45,16 +45,28 @@ public final class UPLPropertySpecFactory {
         return builder;
     }
 
-    public static PropertySpec longValue(String name, boolean required) {
-        return new LongPropertySpec(name, required);
+    public static PropertySpec<Long> longValue(String name, boolean required) {
+        return longSpecBuilder(name, required).finish();
     }
 
-    public static PropertySpec longValue(String name, boolean required, Range<Long> validRange) {
-        return new LongPropertySpec(name, required, validRange);
+    public static PropertySpec<Long> longValue(String name, boolean required, Range<Long> validRange) {
+        PropertySpecBuilder<Long> builder = longSpecBuilder(name, required);
+        builder.addValues(toLongStream(validRange).collect(Collectors.toList()));
+        return builder.finish();
     }
 
-    public static PropertySpec longValue(String name, boolean required, Long... validValues) {
-        return new LongPropertySpec(name, required, validValues);
+    public static PropertySpec<Long> longValue(String name, boolean required, Long... validValues) {
+        PropertySpecBuilder<Long> builder = longSpecBuilder(name, required);
+        builder.addValues(Arrays.asList(validValues));
+        return builder.finish();
+    }
+
+    private static PropertySpecBuilder<Long> longSpecBuilder(String name, boolean required) {
+        PropertySpecBuilder<Long> builder = Services.propertySpecService().longSpec().named(name, name).describedAs("Description for " + name);
+        if (required) {
+            builder.markRequired();
+        }
+        return builder;
     }
 
     public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required) {
@@ -105,9 +117,9 @@ public final class UPLPropertySpecFactory {
         return new CharPropertySpec(name, required, possibleValues);
     }
 
-    private static Stream<Integer> toStream(Range<Integer> range) {
+    private static Stream<Integer> toIntegerStream(Range<Integer> range) {
         Stream.Builder<Integer> builder = Stream.builder();
-        Integer current = firstMemberCandidate(range);
+        Integer current = firstIntegerMemberCandidate(range);
         while (range.contains(current)) {
             builder.add(current);
             current = current + 1;
@@ -115,7 +127,25 @@ public final class UPLPropertySpecFactory {
         return builder.build();
     }
 
-    private static Integer firstMemberCandidate(Range<Integer> range) {
+    private static Integer firstIntegerMemberCandidate(Range<Integer> range) {
+        if (range.lowerBoundType().equals(OPEN)) {
+            return range.lowerEndpoint() + 1;
+        } else {
+            return range.lowerEndpoint();
+        }
+    }
+
+    private static Stream<Long> toLongStream(Range<Long> range) {
+        Stream.Builder<Long> builder = Stream.builder();
+        Long current = firstLongMemberCandidate(range);
+        while (range.contains(current)) {
+            builder.add(current);
+            current = current + 1;
+        }
+        return builder.build();
+    }
+
+    private static Long firstLongMemberCandidate(Range<Long> range) {
         if (range.lowerBoundType().equals(OPEN)) {
             return range.lowerEndpoint() + 1;
         } else {
