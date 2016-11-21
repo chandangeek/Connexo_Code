@@ -34,6 +34,7 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.ExecutionTimer;
 import com.elster.jupiter.util.time.ExecutionTimerService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -52,6 +53,7 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
@@ -111,7 +113,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                     bind(ExecutionTimer.class).toInstance(endDeviceGroupMemberCountTimer);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                    dataModel,
+                    Installer.class,
+                    ImmutableMap.of(
+                            version(10, 2), V10_2SimpleUpgrader.class,
+                            version(10, 2, 1), UpgraderV10_2_1.class
+                    ));
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
