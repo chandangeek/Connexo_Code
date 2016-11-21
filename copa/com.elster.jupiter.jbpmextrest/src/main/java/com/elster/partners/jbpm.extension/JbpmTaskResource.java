@@ -155,9 +155,6 @@ public class JbpmTaskResource {
             List<java.util.function.Predicate<Task>> processPredicate = new ArrayList<>();
             List<java.util.function.Predicate<Task>> deploymentPredicate = new ArrayList<>();
             List<java.util.function.Predicate<Task>> workGroupPredicate = new ArrayList<>();
-            Comparator<Task> comp = (task1, task2) -> task1.getTaskData().getActualOwner().getId().compareTo(task2.getName());
-
-
 
             Iterator<String> it = filterProperties.keySet().iterator();
             while (it.hasNext()) {
@@ -270,7 +267,6 @@ public class JbpmTaskResource {
                 }
             }
 
-
             tasks = tasks.stream()
                     .filter(statusP.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
                     .filter(userP.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
@@ -279,6 +275,42 @@ public class JbpmTaskResource {
                     .filter(deploymentPredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
                     .filter(workGroupPredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
                     .collect(Collectors.toList());
+
+            List<Comparator<Task>> sort = new ArrayList<>();
+            if (!sortProperties.isEmpty()) {
+                Iterator<String> sortIterator = sortProperties.keySet().iterator();
+                while (sortIterator.hasNext()) {
+                    String theKey = (String) sortIterator.next();
+                    if (theKey.equals("dueDate")) {
+                        if (sortProperties.get("dueDate").toString().replace("\"", "").equals("asc")) {
+                            sort.add((task1, task2) -> task1.getTaskData().getExpirationTime().compareTo(task2.getTaskData().getExpirationTime()));
+                        } else {
+                            sort.add((task1, task2) -> task2.getTaskData().getExpirationTime().compareTo(task1.getTaskData().getExpirationTime()));
+                        }
+                    }
+                    if (theKey.equals("creationDate")) {
+                        if (sortProperties.get("creationDate").toString().replace("\"", "").equals("asc")) {
+                            sort.add((task1, task2) -> task1.getTaskData().getCreatedOn().compareTo(task2.getTaskData().getCreatedOn()));
+                        } else {
+                            sort.add((task1, task2) -> task2.getTaskData().getCreatedOn().compareTo(task1.getTaskData().getCreatedOn()));
+                        }
+                    }
+                    if (theKey.equals("priority")) {
+                        if (sortProperties.get("priority").toString().replace("\"", "").equals("asc")) {
+                            sort.add((task1, task2) -> Integer.compare(task1.getPriority(), task2.getPriority()));
+                        } else {
+                            sort.add((task1, task2) -> Integer.compare(task2.getPriority(), task1.getPriority()));
+                        }
+                    }
+                }
+            } else {
+                sort.add((task1, task2) -> task1.getName().compareTo(task2.getName()));
+            }
+
+            Collections.reverse(sort);
+            for (Comparator<Task> aSort : sort) {
+                tasks = tasks.stream().sorted(aSort).collect(Collectors.toList());
+            }
 
             TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
             return taskSummaryList;
@@ -744,18 +776,18 @@ public class JbpmTaskResource {
         Map<Map<ProcessDefinition, String>, List<Task>> groupedTasks = new HashMap<>();
         for(Long id: taskIds){
             Task task = taskService.getTaskById(id);
-                if (task != null) {
-                    if(!task.getTaskData().getStatus().equals(Status.Completed)) {
-                        ProcessDefinition process = null;
-                        Collection<ProcessDefinition> processesList = runtimeDataService.getProcessesByDeploymentId(task
-                                .getTaskData()
-                                .getDeploymentId(), new QueryContext());
-                        for (ProcessDefinition each : processesList) {
+            if (task != null) {
+                if(!task.getTaskData().getStatus().equals(Status.Completed)) {
+                    ProcessDefinition process = null;
+                    Collection<ProcessDefinition> processesList = runtimeDataService.getProcessesByDeploymentId(task
+                            .getTaskData()
+                            .getDeploymentId(), new QueryContext());
+                    for (ProcessDefinition each : processesList) {
                         if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
                             process = each;
                         }
                     }
-                        Map<ProcessDefinition, String> proc = new HashMap<>();
+                    Map<ProcessDefinition, String> proc = new HashMap<>();
                     proc.put(process, ((InternalTask) task).getFormName());
                     if (groupedTasks.containsKey(proc)) {
                         List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(proc));
@@ -901,43 +933,43 @@ public class JbpmTaskResource {
 
     private boolean assignTaskToUser(String userName, String currentuser, long taskId){
         Task task = taskService.getTaskById(taskId);
-            if (task != null) {
-                if (task.getTaskData().getStatus().equals(Status.Created)) {
-                    List<OrganizationalEntity> businessAdministrators = task.getPeopleAssignments().getBusinessAdministrators();
-                    boolean check = false;
-                    for(int i = 0;i<businessAdministrators.size();i++){
-                        if(businessAdministrators.get(i).getId().equals(userName)){
-                            check = true;
-                        }
+        if (task != null) {
+            if (task.getTaskData().getStatus().equals(Status.Created)) {
+                List<OrganizationalEntity> businessAdministrators = task.getPeopleAssignments().getBusinessAdministrators();
+                boolean check = false;
+                for(int i = 0;i<businessAdministrators.size();i++){
+                    if(businessAdministrators.get(i).getId().equals(userName)){
+                        check = true;
                     }
-                    if(check) {
-                        taskService.activate(taskId, userName);
-                        assignTaskToUser(userName, currentuser, taskId);
+                }
+                if(check) {
+                    taskService.activate(taskId, userName);
+                    assignTaskToUser(userName, currentuser, taskId);
+                }
+                return check;
+            }
+            if (task.getTaskData().getStatus().equals(Status.Ready)) {
+                taskService.claim(taskId, currentuser);
+                taskService.delegate(taskId, currentuser, userName);
+            }
+            if (task.getTaskData().getStatus().equals(Status.Reserved)) {
+                if (task.getTaskData().getActualOwner() != null) {
+                    if (!userName.equals("")) {
+                        taskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
                     }
-                    return check;
                 }
-                if (task.getTaskData().getStatus().equals(Status.Ready)) {
-                    taskService.claim(taskId, currentuser);
-                    taskService.delegate(taskId, currentuser, userName);
-                }
-                if (task.getTaskData().getStatus().equals(Status.Reserved)) {
+            }
+            if (task.getTaskData().getStatus().equals(Status.InProgress)) {
+                if(!task.getTaskData().getActualOwner().getId().equals(userName)) {
                     if (task.getTaskData().getActualOwner() != null) {
                         if (!userName.equals("")) {
+                            taskService.stop(taskId, task.getTaskData().getActualOwner().getId());
                             taskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
                         }
                     }
                 }
-                if (task.getTaskData().getStatus().equals(Status.InProgress)) {
-                    if(!task.getTaskData().getActualOwner().getId().equals(userName)) {
-                        if (task.getTaskData().getActualOwner() != null) {
-                            if (!userName.equals("")) {
-                                taskService.stop(taskId, task.getTaskData().getActualOwner().getId());
-                                taskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
-                            }
-                        }
-                    }
-                }
             }
+        }
         return true;
     }
 
