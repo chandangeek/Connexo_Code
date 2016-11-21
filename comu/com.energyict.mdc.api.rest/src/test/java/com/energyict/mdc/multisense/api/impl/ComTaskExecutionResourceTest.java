@@ -9,9 +9,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -42,7 +40,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
-        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        ComTaskExecution manuallyScheduledComTaskExecution = mock(ComTaskExecution.class);
         ComTask comTask = mockComTask(23, "Com task", 3333L);
 
         when(manuallyScheduledComTaskExecution.getId()).thenReturn(102L);
@@ -73,7 +71,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
-        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        ComTaskExecution manuallyScheduledComTaskExecution = mock(ComTaskExecution.class);
         when(manuallyScheduledComTaskExecution.getId()).thenReturn(102L);
         when(manuallyScheduledComTaskExecution.getPlannedPriority()).thenReturn(-20);
         when(manuallyScheduledComTaskExecution.getDevice()).thenReturn(device);
@@ -96,7 +94,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         DeviceType deviceType = mockDeviceType(21, "Some type", 13333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         Device device = mockDevice("SPE001", "01011", deviceConfiguration, 23333L);
-        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        ComTaskExecution manuallyScheduledComTaskExecution = mock(ComTaskExecution.class);
         when(manuallyScheduledComTaskExecution.getId()).thenReturn(102L);
         when(manuallyScheduledComTaskExecution.getPlannedPriority()).thenReturn(-20);
         ComTask comTask = mockComTask(23, "doIt", 33333L);
@@ -184,7 +182,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
-        ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(102L);
         when(comTaskExecution.getPlannedPriority()).thenReturn(-20);
         ComTask comTask = mockComTask(23, "doIt", 3333L);
@@ -192,7 +190,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getId()).thenReturn(24L);
         when(comSchedule.getName()).thenReturn("Periodically");
-        when(comTaskExecution.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution.getComSchedule()).thenReturn(Optional.of(comSchedule));
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(now);
         when(comTaskExecution.getPlannedNextExecutionTimestamp()).thenReturn(later);
@@ -268,7 +266,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(builder);
-        ManuallyScheduledComTaskExecution comTaskExecution1 = mock(ManuallyScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getId()).thenReturn(999L);
         ComTaskExecution comTaskExecution = comTaskExecution1;
@@ -306,7 +304,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
         when(device.newScheduledComTaskExecution(comSchedule)).thenReturn(builder);
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getId()).thenReturn(999L);
         ComTaskExecution comTaskExecution = comTaskExecution1;
@@ -340,12 +338,12 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3335L);
 
 
-        ScheduledComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device, 3339L);
+        ComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device, 3339L);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(scheduledComTaskExecution));
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
-        ScheduledComTaskExecutionUpdater updater = mock(ScheduledComTaskExecutionUpdater.class);
+        ComTaskExecutionUpdater updater = mock(ComTaskExecutionUpdater.class);
         when(scheduledComTaskExecution.getUpdater()).thenReturn(updater);
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getId()).thenReturn(999L);
         when(updater.update()).thenReturn(comTaskExecution1);
@@ -378,12 +376,12 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(999, 666)).thenReturn(Optional.empty());
 
 
-        ScheduledComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device, 3339L);
+        ComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device, 3339L);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(scheduledComTaskExecution));
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
-        ScheduledComTaskExecutionUpdater updater = mock(ScheduledComTaskExecutionUpdater.class);
+        ComTaskExecutionUpdater updater = mock(ComTaskExecutionUpdater.class);
         when(scheduledComTaskExecution.getUpdater()).thenReturn(updater);
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getId()).thenReturn(999L);
         when(updater.update()).thenReturn(comTaskExecution1);

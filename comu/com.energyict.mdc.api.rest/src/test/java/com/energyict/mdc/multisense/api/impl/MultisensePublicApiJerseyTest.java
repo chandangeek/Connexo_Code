@@ -59,11 +59,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -617,9 +617,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return deviceMessage;
     }
 
-    protected ScheduledComTaskExecution mockScheduledComTaskExecution(long id, ComSchedule comSchedule, Device device, long version) {
-        ScheduledComTaskExecution scheduledComTaskExecution = mock(ScheduledComTaskExecution.class);
-        when(scheduledComTaskExecution.getComSchedule()).thenReturn(comSchedule);
+    protected ComTaskExecution mockScheduledComTaskExecution(long id, ComSchedule comSchedule, Device device, long version) {
+        ComTaskExecution scheduledComTaskExecution = mock(ComTaskExecution.class);
+        when(scheduledComTaskExecution.getComSchedule()).thenReturn(Optional.of(comSchedule));
         when(scheduledComTaskExecution.getId()).thenReturn(id);
         when(scheduledComTaskExecution.getDevice()).thenReturn(device);
         when(scheduledComTaskExecution.getVersion()).thenReturn(version);
