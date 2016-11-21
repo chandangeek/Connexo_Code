@@ -1,5 +1,11 @@
 package com.energyict.mdc.gogo;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -7,7 +13,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -17,12 +22,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -217,8 +216,8 @@ public class FirmwareUtils {
                         System.out.println("Creating a new FirmwareComTaskExecution based on the enablement of the config");
                         Optional<ComTaskEnablement> firmwareComTaskEnablement = device.get().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask.get());
                         if (firmwareComTaskEnablement.isPresent()) {
-                            ComTaskExecutionBuilder<FirmwareComTaskExecution> firmwareComTaskExecutionBuilder = device.get().newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
-                            FirmwareComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionBuilder.add();
+                            ComTaskExecutionBuilder firmwareComTaskExecutionBuilder = device.get().newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
+                            ComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionBuilder.add();
                             device.get().save();
                             firmwareComTaskExecution.runNow();
                             System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
