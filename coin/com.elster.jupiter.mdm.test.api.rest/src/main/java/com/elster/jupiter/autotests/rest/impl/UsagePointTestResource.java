@@ -51,36 +51,26 @@ public class UsagePointTestResource {
                 statement.addBatch(
                         "DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN (" +
                                 "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
-                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT CHANNELS_CONTAINER FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
                                 "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
-                                usagePointId + "))))"
+                                usagePointId + ")))"
                 );
                 statement.addBatch(
                         "DELETE FROM VAL_CH_VALIDATION WHERE CHANNELID IN (" +
                                 "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
-                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT CHANNELS_CONTAINER FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
                                 "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
-                                usagePointId + "))))"
+                                usagePointId + ")))"
                 );
                 statement.addBatch(
                         "DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
-                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT CHANNELS_CONTAINER FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
                                 "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
-                                usagePointId + ")))"
+                                usagePointId + "))"
                 );
                 statement.addBatch(
                         "DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN (" +
-                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
-                                usagePointId + ")))"
-                );
-                statement.addBatch(
-                        "DELETE FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT CHANNELS_CONTAINER FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
                                 "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
                                 usagePointId + "))"
                 );
