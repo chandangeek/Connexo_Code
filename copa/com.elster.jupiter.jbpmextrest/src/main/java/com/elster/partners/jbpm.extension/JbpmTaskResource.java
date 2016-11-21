@@ -853,6 +853,13 @@ public class JbpmTaskResource {
                 }
             }
         }
+        if(getQueryValue(uriInfo, "workgroup") != null){
+            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
+                for(Long taskId: taskGroup.taskIds){
+                    taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, getQueryValue(uriInfo, "workgroup")));
+                }
+            }
+        }
         if(getQueryValue(uriInfo, "setPriority") != null){
             for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                 for(Long taskId: taskGroup.taskIds){
