@@ -195,7 +195,6 @@ Ext.define('Imt.controller.History', {
                                     action: 'previewCalendar',
                                     callback: function (route) {
                                         this.getApplication().on('calendarLoaded', function (record) {
-                                            debugger;
                                             route.setTitle(record.get('mRID'));
                                             return true;
                                         }, {single: true});

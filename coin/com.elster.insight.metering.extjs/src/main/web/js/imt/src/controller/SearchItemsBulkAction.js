@@ -43,6 +43,9 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             },
             'usagepoints-wizard #finishButton': {
                 click: this.goBack
+            },
+            'usagepoints-wizard #wizardCancelButton': {
+                click: this.goBack
             }
         });
     },
@@ -58,13 +61,6 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         if (!searchResults.getCount()) {
             this.goBack();
         } else {
-            //me.devices = null;
-            //me.allDevices = false;
-            //me.schedules = null;
-            //me.operation = null;
-            //me.configData = null;
-            //me.shedulesUnchecked = false;
-
             var store = Ext.create('Ext.data.Store', {
                 buffered: true,
                 pageSize: 100,
@@ -87,7 +83,6 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                     widget.setLoading(false);
                 }
             });
-            //me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
         }
     },
 
@@ -106,7 +101,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
 
 
     changeContent: function (nextCmp, currentCmp) {
-        var me = this, errorPanel = null, additionalText, progressBar,
+        var me = this, errorPanel = null,
             router = me.getController('Uni.controller.history.Router'),
             search = me.getController('Imt.controller.Search'),
             wizard = me.getUsagePointsItemsWizard(),
@@ -156,36 +151,15 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                         nextCmp.showMessage(me.buildConfirmMessage());
                         wizard.down('#confirmButton').enable()
                         break;
-            //    case 'statusPage':
-            //        if (currentCmp.name != 'statusPage') {
-            //            if (me.operation != 'changeconfig') {
-            //                progressBar = Ext.create('Ext.ProgressBar', {width: '50%'});
-            //                Ext.suspendLayouts();
-            //                nextCmp.removeAll(true);
-            //                nextCmp.add(
-            //                    progressBar.wait({
-            //                        interval: 50,
-            //                        increment: 20,
-            //                        text: (me.operation === 'add' ? Uni.I18n.translate('general.adding', 'IMT', 'Adding...') : Uni.I18n.translate('general.removing', 'IMT', 'Removing...'))
-            //                    })
-            //                );
-            //                Ext.resumeLayouts();
-            //                this.getNavigationMenu().jumpBack = false;
-            //            }
-            //        }
-            //        break;
             }
             errorPanel && errorPanel.hide();
             errorContainer && errorContainer.hide();
             layout.setActiveItem(nextCmp);
             this.updateButtonsState(nextCmp);
-          //  this.updateTitles();
-         //   me.getStatusPage().setLoading(false);
             return true;
         } else {
             errorPanel && errorPanel.show();
             errorContainer && errorContainer.show();
-         //   me.getStatusPage().setLoading(false);
             return false;
         }
     },
@@ -243,41 +217,8 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 finishBtn.show();
                 cancelBtn.hide();
                 break;
-            //case 'statusPageViewDevices' :
-            //    backBtn.show();
-            //    nextBtn.hide();
-            //    confirmBtn.hide();
-            //    finishBtn.hide();
-            //    falureFinishBtn.hide();
-            //    cancelBtn.hide();
-            //    break;
         }
     },
-
-    //updateTitles: function () {
-    //    var me = this,
-    //        title;
-    //    //if (me.operation) {
-    //    //    var items = Ext.ComponentQuery.query('#searchitemsbulkactiontitle');
-    //    //    switch (me.operation){
-    //    //        case 'add' : {
-    //    //            title = Uni.I18n.translate('searchItems.bulk.addActionTitle', 'IMT', 'Add shared communication schedules')
-    //    //        }
-    //    //            break;
-    //    //        case 'remove' : {
-    //    //            title = Uni.I18n.translate('searchItems.bulk.removeActionTitle', 'IMT', 'Remove shared communication schedules')
-    //    //        }
-    //    //            break;
-    //    //        case 'changeconfig' : {
-    //    //            title = Uni.I18n.translate('searchItems.bulk.changeConfigActionTitle', 'IMT', 'Change device configuration')
-    //    //        }
-    //    //            break;
-    //    //    }
-    //    //    (items.length > 0) && Ext.each(items, function (item) {
-    //    //        item.setTitle(title);
-    //    //    })
-    //    //}
-    //},
 
     goBack: function () {
         var me = this,
@@ -300,8 +241,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             message,
             pattern,
             titleText,
-            bodyText,
-            scheduleList = '';
+            bodyText;
 
         if (me.allDevices) {
             switch (me.operation) {
@@ -345,8 +285,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             devicesMRID = [],
             url = '/api/udr/usagepoints/calendars',
             request = {},
-            jsonData,
-            infoMessage;
+            jsonData;
 
         finishBtn.disable();
         statusPage.removeAll();

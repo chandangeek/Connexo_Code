@@ -24,31 +24,6 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step4', {
         this.removeAll();
         this.add(widget);
         Ext.resumeLayouts();
-    },
-
-
-    //showChangeDeviceConfigConfirmation: function (title, text, solveLink, additionalText, type) {
-    //    var bodyText, widget,
-    //        solve = solveLink ? Uni.I18n.translate('searchItems.bulk.SolveTheConflictsBeforeYouRetry', 'IMT', '<br><a href="{0}">Solve the conflicts</a> before you retry.', solveLink) : '';
-    //    bodyText = Ext.String.htmlEncode(text) + '<br>' + solve;
-    //    if (additionalText) bodyText += '<br>' + additionalText;
-    //    type = type ? type : 'confirmation';
-    //    widget = {
-    //        xtype: 'uni-notification-panel',
-    //        margin: '0 0 0 -13',
-    //        message: title,
-    //        type: type,
-    //        additionalItems: [
-    //            {
-    //                xtype: 'container',
-    //                html: bodyText
-    //            }
-    //        ]
-    //    };
-    //    Ext.suspendLayouts();
-    //    this.removeAll();
-    //    this.add(widget);
-    //    Ext.resumeLayouts(true);
-    //}
+    }
 
 });
