@@ -283,9 +283,9 @@ public class JbpmTaskResource {
                     String theKey = (String) sortIterator.next();
                     if (theKey.equals("dueDate")) {
                         if (sortProperties.get("dueDate").toString().replace("\"", "").equals("asc")) {
-                            sort.add(Comparator.nullsFirst((task1, task2) -> task1.getTaskData().getExpirationTime().compareTo(task2.getTaskData().getExpirationTime())));
+                            sort.add(Comparator.comparing((task) -> task.getTaskData().getExpirationTime(), Comparator.nullsFirst(Date::compareTo)));
                         } else {
-                            sort.add(Comparator.nullsLast((task1, task2) -> task1.getTaskData().getExpirationTime().compareTo(task2.getTaskData().getExpirationTime())));
+                            sort.add(Comparator.comparing((task) -> task.getTaskData().getExpirationTime(), Comparator.nullsFirst(Date::compareTo).reversed()));
                         }
                     }
                     if (theKey.equals("creationDate")) {
