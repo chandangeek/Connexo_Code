@@ -17,6 +17,8 @@ public class UserTaskInfo {
     public String optLock;
     public boolean isAssignedToCurrentUser;
     public String workgroup;
+    public long workgroupId = -1L;
+    public long userId = -1L;
 
     public UserTaskInfo() {
     }
