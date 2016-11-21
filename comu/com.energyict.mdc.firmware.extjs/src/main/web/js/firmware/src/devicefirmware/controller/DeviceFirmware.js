@@ -9,7 +9,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     ],
 
     requires: [
-        'Mdc.model.Device'
+        'Mdc.model.Device',
+        'Uni.util.Common'
     ],
 
     models: [
@@ -97,7 +98,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         errorMsg.hide();
         propertyForm.clearInvalid();
 
-        model.getProxy().setExtraParam('deviceId', router.arguments.deviceId);
+        model.getProxy().setExtraParam('deviceId', Uni.util.Common.decodeURIArguments(router.arguments.deviceId));
 
         record = Ext.create(model, {
             uploadOption: messageSpec.get('id'),
@@ -158,7 +159,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             method: 'PUT',
             url: '/api/fwc/devices/{deviceId}/status/{action}'
                 .replace('{action}', action)
-                .replace('{deviceId}', encodeURIComponent(router.arguments.deviceId))
+                .replace('{deviceId}', Uni.util.Common.encodeURIComponent(router.arguments.deviceId))
                 .replace('{id}', record.get('comTaskId')),
             jsonData: _.pick(container.device.getData(), 'version'),
             success: function () {
@@ -203,7 +204,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             message = new Model();
 
         form.setLoading();
-        message.getProxy().setExtraParam('deviceId', router.arguments.deviceId);
+        message.getProxy().setExtraParam('deviceId', Uni.util.Common.decodeURIArguments(router.arguments.deviceId));
         message.setId(devicemessageId);
         message.set('version', container.device.get('version'));
         message.destroy({
