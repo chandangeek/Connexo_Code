@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                             },
                             title: Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.title', 'MDC', 'No shared communication schedules found'),
                             reasons: [
-                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item1', 'MDC', 'No shared communication schedules with communication tasks on this device have been added yet'),
+                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item1', 'MDC', 'No shared communication schedules with communication tasks on this device have been added yet.'),
                                 Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC',
                                     "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list.")
                             ],
