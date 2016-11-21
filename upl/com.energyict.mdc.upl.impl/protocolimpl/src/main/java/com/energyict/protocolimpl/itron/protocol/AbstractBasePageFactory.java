@@ -10,12 +10,18 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
+import com.energyict.protocolimpl.base.AbstractProtocol;
+
+import java.util.logging.Logger;
+
 /**
  *
  * @author Koen
  */
 abstract public class AbstractBasePageFactory {
-    
+
+    private Logger logger;
+
     abstract public ProtocolLink getProtocolLink();
     
     private int memStartAddress=0;
@@ -32,8 +38,7 @@ abstract public class AbstractBasePageFactory {
         this.memStartAddress = memStartAddress;
     }
 
-
-    
-    
-    
+    public Logger getLogger() {
+        return ((AbstractProtocol)getProtocolLink()).getLogger();
+    }
 }
