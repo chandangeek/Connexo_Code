@@ -80,4 +80,18 @@ public interface PropertySpec<T> {
      */
     List<T> getPossibleValues();
 
+    /**
+     * Tests if this PropertySpec has support for
+     * multiple values at the same time, i.e. client
+     * code can specify a Collection of its value type
+     * instead of a single value.
+     * The class returning a PropertySpec that has
+     * support for multi values should be prepared
+     * to accept both Collection&lt;ValueType&gt;
+     * and ValueType when receiving values for that PropertySpec.
+     *
+     * @return A flag that indicates if this PropertySpec supports multi values
+     */
+    boolean supportsMultiValues();
+
 }
