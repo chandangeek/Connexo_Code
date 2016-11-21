@@ -283,9 +283,9 @@ public class JbpmTaskResource {
                     String theKey = (String) sortIterator.next();
                     if (theKey.equals("dueDate")) {
                         if (sortProperties.get("dueDate").toString().replace("\"", "").equals("asc")) {
-                            sort.add((task1, task2) -> task1.getTaskData().getExpirationTime().compareTo(task2.getTaskData().getExpirationTime()));
+                            sort.add(Comparator.nullsFirst((task1, task2) -> task1.getTaskData().getExpirationTime().compareTo(task2.getTaskData().getExpirationTime())));
                         } else {
-                            sort.add((task1, task2) -> task2.getTaskData().getExpirationTime().compareTo(task1.getTaskData().getExpirationTime()));
+                            sort.add(Comparator.nullsLast((task1, task2) -> task1.getTaskData().getExpirationTime().compareTo(task2.getTaskData().getExpirationTime())));
                         }
                     }
                     if (theKey.equals("creationDate")) {
@@ -313,12 +313,10 @@ public class JbpmTaskResource {
             }
 
             TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
+            taskSummaryList.setTotal(tasks.size());
             return taskSummaryList;
 
         }
-
-
-
         return new TaskSummaryList(runtimeDataService, new ArrayList<>());
     }
 
