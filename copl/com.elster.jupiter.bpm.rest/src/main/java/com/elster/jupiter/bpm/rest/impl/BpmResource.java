@@ -55,6 +55,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -334,6 +335,14 @@ public class BpmResource {
         if ("0".equals(taskInfo.id)) {
             throw new NoTaskWithIdException(thesaurus, MessageSeeds.NO_TASK_WITH_ID , id);
         }
+        Optional<WorkGroup> workGroup = userService.getWorkGroup(taskInfo.workgroup);
+        if(workGroup.isPresent()){
+            taskInfo.workgroupId = workGroup.get().getId();
+        }
+        Optional<User> user = userService.findUser(taskInfo.actualOwner);
+        if(user.isPresent()){
+            taskInfo.userId = user.get().getId();
+        }
         return taskInfo;
     }
 
@@ -451,16 +460,29 @@ public class BpmResource {
     public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @PathParam("optLock") long optLock, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String response;
-        String userName = getQueryValue(uriInfo, "username");
+        String userId = getQueryValue(uriInfo, "userId");
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
-        String workGroupName = getQueryValue(uriInfo, "workgroupname");
+        String workGroupId = getQueryValue(uriInfo, "workgroupId");
+        Optional<WorkGroup> workGroup = userService.getWorkGroup(Long.valueOf(workGroupId));
+        Optional<User> user = userService.getUser(Long.valueOf(userId));
+        String workGroupName;
+        String userName;
+        if(workGroup.isPresent()){
+            workGroupName = workGroup.get().getName();
+        }else{
+            workGroupName = "Unassigned";
+        }
+        if(user.isPresent()){
+            userName = user.get().getName();
+        }else{
+            userName = "Unassigned";
+        }
         String rest = "/rest/tasks/";
         rest += String.valueOf(id) + "/";
         rest += String.valueOf(optLock);
-        String req = getQueryParam(queryParameters);
         if (userName != null || date != null || priority != null || workGroupName != null) {
-            rest += "/assign/" + req;
+            rest += "/assign/" + "?username=" + userName + "&workgroupname=" + workGroupName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
                 response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
