@@ -846,8 +846,14 @@ public class JbpmTaskResource {
             if (getQueryValue(uriInfo, "currentuser") != null) {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                     for(Long taskId: taskGroup.taskIds){
-                        if(!assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId)){
-                            failed++;
+                        if(!getQueryValue(uriInfo, "assign").equals("Unassigned")) {
+                            if (!assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId)) {
+                                failed++;
+                            }
+                        }else{
+                            if(taskService.getTaskById(taskId).getTaskData().getActualOwner() != null){
+                                taskService.release(taskId, taskService.getTaskById(taskId).getTaskData().getActualOwner().getId());
+                            }
                         }
                     }
                 }
