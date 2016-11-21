@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
@@ -24,7 +23,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
-import com.energyict.mdc.tasks.ComTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -196,7 +194,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         CommunicationTaskIssueInfo communicationTaskInfo = new CommunicationTaskIssueInfo();
         communicationTaskInfo.id = comTaskExecution.getId();
         if (comTaskExecution.usesSharedSchedule()) {
-            communicationTaskInfo.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
+            communicationTaskInfo.name = comTaskExecution.getComSchedule().get().getName();
         } else {
             communicationTaskInfo.name = comTaskExecution.getComTask().getName();
         }
