@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-21 (09:38)
  */
-public interface BoundedBigDecimalPropertySpec extends PropertySpec {
+public interface BoundedBigDecimalPropertySpec extends PropertySpec<BigDecimal> {
 
     BigDecimal getLowerLimit();
 

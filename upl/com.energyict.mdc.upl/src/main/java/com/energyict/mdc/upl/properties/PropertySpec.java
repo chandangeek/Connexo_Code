@@ -2,7 +2,6 @@ package com.energyict.mdc.upl.properties;
 
 import aQute.bnd.annotation.ConsumerType;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -64,7 +63,7 @@ public interface PropertySpec<T> {
      * @return <code>true</code> iff the value is valid, all other cases will throw an InvalidValueException
      * @throws PropertyValidationException Thrown if the value is not valid for this attribute specification.
      */
-    boolean validateValue(Object value) throws PropertyValidationException;
+    boolean validateValue(T value) throws PropertyValidationException;
 
     /**
      * @return the Default value defined for this PropertySpec
@@ -78,7 +77,7 @@ public interface PropertySpec<T> {
      *
      * @return the list of possible values for this PropertySpec
      */
-    List<T> getPossibleValues();
+    PropertySpecPossibleValues<T> getPossibleValues();
 
     /**
      * Tests if this PropertySpec has support for
