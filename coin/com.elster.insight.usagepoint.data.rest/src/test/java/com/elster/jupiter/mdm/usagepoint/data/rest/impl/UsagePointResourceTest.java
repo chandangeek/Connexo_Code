@@ -452,6 +452,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(any(MetrologyContract.class), any(Instant.class)))
+                .thenReturn(Optional.of(channelsContainer));
         when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(eq(metrologyContract), any(Instant.class)))
                 .thenReturn(Optional.of(channelsContainer));
 
