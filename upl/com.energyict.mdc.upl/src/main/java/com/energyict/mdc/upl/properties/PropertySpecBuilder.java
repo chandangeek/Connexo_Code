@@ -124,6 +124,6 @@ public interface PropertySpecBuilder<T> {
      *
      * @return The PropertySpec
      */
-    PropertySpec finish();
+    PropertySpec<T> finish();
 
 }
