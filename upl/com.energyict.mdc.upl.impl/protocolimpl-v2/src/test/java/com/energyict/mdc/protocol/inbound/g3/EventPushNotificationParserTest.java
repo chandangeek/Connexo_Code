@@ -14,9 +14,6 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
-
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.DataParseException;
@@ -314,9 +311,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertNotNull(meterProtocolEvent.getTime().getTime());
-        assertEquals(MeterEvent.FRAUD_ATTEMPT_MBUS, meterProtocolEvent.getEiCode());
+        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
         assertEquals(40, meterProtocolEvent.getProtocolCode());
-        assertEquals("Fraud attempt", meterProtocolEvent.getMessage());
+        assertEquals("Alarm generated event: Fraud attempt", meterProtocolEvent.getMessage());
     }
 
     @Test

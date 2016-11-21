@@ -32,6 +32,7 @@ public class DlmsSession implements ProtocolLink {
 
     private final ComChannel comChannel;
     private final DlmsSessionProperties properties;
+    private Logger logger;
     protected ApplicationServiceObjectV2 aso;
     protected DLMSMeterConfig dlmsMeterConfig;
     protected SecureConnection dlmsConnection;
@@ -51,6 +52,13 @@ public class DlmsSession implements ProtocolLink {
         this.comChannel = comChannel;
         this.properties = properties;
         init(hhuSignOn, deviceId, null);
+    }
+
+    public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, Logger logger) {
+        this.comChannel = comChannel;
+        this.properties = properties;
+        this.logger = logger;
+        init(null, "", null);
     }
 
     protected void init(HHUSignOnV2 hhuSignOn, String deviceId, String calledSystemTitle) {
@@ -249,7 +257,10 @@ public class DlmsSession implements ProtocolLink {
     }
 
     public Logger getLogger() {
-        return Logger.getLogger(this.getClass().getName());
+        if(logger == null){
+            logger = Logger.getLogger(this.getClass().getName());
+        }
+        return logger;
     }
 
     public boolean isRequestTimeZone() {

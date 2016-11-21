@@ -68,10 +68,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -1022,6 +1019,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         if (keyId == 0) {
             securityPropertyName = SecurityPropertySpecName.ENCRYPTION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeEncryptionKey(agreedKey);
+            byte[] oldEncryptionKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
+            if (!Arrays.equals(oldEncryptionKey, agreedKey)) { //reset FC values after the EK key change
+                securityContext.setFrameCounter(1);
+                securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+            }
         } else if (keyId == 2) {
             securityPropertyName = SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeAuthenticationKey(agreedKey);
@@ -1581,7 +1583,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         //Reset frame counter, only if a different key has been written
         if (!oldHexKey.equalsIgnoreCase(newKey)) {
-            getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
+            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(0);
         }
     }
 

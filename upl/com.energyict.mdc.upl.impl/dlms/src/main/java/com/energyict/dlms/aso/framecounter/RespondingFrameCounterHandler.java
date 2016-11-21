@@ -7,6 +7,7 @@ import com.energyict.dlms.DLMSConnectionException;
  */
 public interface RespondingFrameCounterHandler {
 
+    public static final long FC_MAX_VALUE = 0xFFFFFFFFl;
     /**
      * Check and process the received frameCounter.
      *
@@ -14,11 +15,14 @@ public interface RespondingFrameCounterHandler {
      * @return the processed frameCounter
      * @throws DLMSConnectionException if the received frameCounter is not valid
      */
-    Integer checkRespondingFrameCounter(int receivedFrameCounter) throws DLMSConnectionException;
+    Long checkRespondingFrameCounter(long receivedFrameCounter) throws DLMSConnectionException;
 
     /**
      * When the encryption key is changed, the frame counters reset.
+     * This method is also used in case of dedicated ciphering to make the checkRespondingFrameCounter accept any FC value
+     * that comes in, except com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler#FC_MAX_VALUE
+     * @param initialValue
      */
-    void resetRespondingFrameCounter(int initialValue);
+    void setRespondingFrameCounter(long initialValue);
 
 }

@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.g3.messaging;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -575,7 +576,9 @@ public class G3Messaging extends AnnotatedMessaging {
 
         //Reset frame counter, only if a different key has been written
         if (!oldGlobalKey.equalsIgnoreCase(message.getNewEncryptionKey())) {
-            session.getAso().getSecurityContext().setFrameCounter(1);
+            SecurityContext securityContext = session.getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         }
 
         return MessageResult.createSuccess(message.getMessageEntry());

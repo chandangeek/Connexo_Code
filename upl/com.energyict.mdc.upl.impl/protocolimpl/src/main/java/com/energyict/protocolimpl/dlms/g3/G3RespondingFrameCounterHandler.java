@@ -15,12 +15,7 @@ public class G3RespondingFrameCounterHandler implements RespondingFrameCounterHa
      */
     private final short errorHandling;
 
-    private Integer responseFrameCounter = null;
-
-    /**
-     * Indicates whether the FrameCounter needs to be validated with a +1
-     */
-    private boolean frameCounterInitialized = false;
+    private long responseFrameCounter = -1;
 
     public G3RespondingFrameCounterHandler(short errorHandling) {
         this.errorHandling = errorHandling;
@@ -33,34 +28,23 @@ public class G3RespondingFrameCounterHandler implements RespondingFrameCounterHa
      * @return the processed frameCounter
      * @throws com.energyict.dlms.DLMSConnectionException if the received frameCounter is not valid
      */
-    public Integer checkRespondingFrameCounter(final int receivedFrameCounter) throws DLMSConnectionException {
-        if (isFrameCounterInitialized()) {
-            if (this.responseFrameCounter == -1 && receivedFrameCounter == 0) { // rollover
-                this.responseFrameCounter = receivedFrameCounter;
-            } else if (this.responseFrameCounter == -1 && receivedFrameCounter < 0) {
-                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", errorHandling);
-            } else if (!(receivedFrameCounter > this.responseFrameCounter)) {  //Greater than previous FC, gaps are allowed. No more +1 restriction!
+    public Long checkRespondingFrameCounter(final long receivedFrameCounter) throws DLMSConnectionException {
+        if (receivedFrameCounter == FC_MAX_VALUE) {
+            throw new DLMSConnectionException("FrameCounter reached the maximum value: "+ FC_MAX_VALUE + "! This must be prevented by changeing the encryption key on time!", DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
+        } else if (responseFrameCounter != -1) {
+            if (!(receivedFrameCounter > this.responseFrameCounter)) {  //Greater than previous FC, gaps are allowed. No more +1 restriction!
                 throw new DLMSConnectionException("Received incorrect frame counter '" + receivedFrameCounter + "'. Should be greater than the previous frame counter: '" + responseFrameCounter + "'", errorHandling);
             } else {
                 this.responseFrameCounter = receivedFrameCounter;
             }
         } else {
             this.responseFrameCounter = receivedFrameCounter;
-            setFrameCounterInitialized(true);
         }
         return this.responseFrameCounter;
     }
 
     @Override
-    public void resetRespondingFrameCounter(int initialValue) {
+    public void setRespondingFrameCounter(long initialValue) {
         responseFrameCounter = initialValue;
-    }
-
-    private boolean isFrameCounterInitialized() {
-        return frameCounterInitialized;
-    }
-
-    private void setFrameCounterInitialized(boolean frameCounterInitialized) {
-        this.frameCounterInitialized = frameCounterInitialized;
     }
 }

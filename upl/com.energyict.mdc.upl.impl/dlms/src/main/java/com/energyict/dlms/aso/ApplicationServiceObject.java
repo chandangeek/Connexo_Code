@@ -141,7 +141,7 @@ public class ApplicationServiceObject {
 
             if (getSecurityContext().isDedicatedCiphering()) {
                 // if dedicated ciphering is used, then a new FrameCounter is used for each session
-                getSecurityContext().setFrameCounterInitialized(false);
+                getSecurityContext().getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
             }
             handleHighLevelSecurityAuthentication();
         } else {

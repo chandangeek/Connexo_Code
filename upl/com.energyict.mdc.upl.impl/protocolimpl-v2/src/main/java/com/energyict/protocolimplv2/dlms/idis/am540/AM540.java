@@ -96,7 +96,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     }
 
     protected void initDlmsSession(ComChannel comChannel) {
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger()));
     }
 
     private void setMeterToTransparentMode(ComChannel comChannel) {
@@ -336,7 +336,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
      * Sub classes (for example the crypto-protocol) can override
      */
     protected DlmsSession getDlmsSessionForFCTesting(ComChannel comChannel) {
-        return new DlmsSession(comChannel, getDlmsSessionProperties());
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
     }
 
     /**
