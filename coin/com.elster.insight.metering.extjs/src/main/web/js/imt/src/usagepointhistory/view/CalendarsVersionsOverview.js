@@ -29,7 +29,7 @@ Ext.define('Imt.usagepointhistory.view.CalendarsVersionsOverview', {
             emptyComponent: {
                 xtype: 'no-items-found-panel',
                 itemId: 'no-versions-found',
-                title: Uni.I18n.translate('customattributesets.versions.empty.title', 'IMT', 'No history available')
+                title: Uni.I18n.translate('calendar.history.title', 'IMT', 'No history available')
             },
             previewComponent: {
                 xtype: 'historyCalendarPreview',
