@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterRescheduleQueueMessage;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -324,7 +323,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getDevice()).thenReturn(device);
-        ScheduledComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(comSchedule, connectionTask, device);
+        ComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(comSchedule, connectionTask, device);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
@@ -577,13 +576,13 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         return device;
     }
 
-    private ScheduledComTaskExecution mockScheduledComTaskExecution(ComSchedule comSchedule, ConnectionTask connectionTask, Device device) {
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+    private ComTaskExecution mockScheduledComTaskExecution(ComSchedule comSchedule, ConnectionTask connectionTask, Device device) {
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
-        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getComSchedule()).thenReturn(Optional.of(comSchedule));
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(Instant.now());
@@ -634,7 +633,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comTask1.getId()).thenReturn(1111L);
         when(comTask1.getName()).thenReturn("Read all");
         ComSchedule comSchedule = mockComSchedule();
-        ScheduledComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(lastExecStart, lastSuccess, plannedNext, connectionTask, comSchedule, comTask1);
+        ComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(lastExecStart, lastSuccess, plannedNext, connectionTask, comSchedule, comTask1);
 
         ComTaskExecutionSession comTaskExecutionSession1 = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession1.getComTaskExecution()).thenReturn(comTaskExecution1);
@@ -698,13 +697,14 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
-    private ScheduledComTaskExecution mockScheduledComTaskExecution(Instant lastExecStart, Instant lastSuccess, Instant plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, ComTask comTask) {
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+    private ComTaskExecution mockScheduledComTaskExecution(Instant lastExecStart, Instant lastSuccess, Instant plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, ComTask comTask) {
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getComTask()).thenReturn(comTask);
         when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
-        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getComSchedule()).thenReturn(Optional.of(comSchedule));
+        when(comTaskExecution1.usesSharedSchedule()).thenReturn(true);
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(lastExecStart);
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(lastSuccess);

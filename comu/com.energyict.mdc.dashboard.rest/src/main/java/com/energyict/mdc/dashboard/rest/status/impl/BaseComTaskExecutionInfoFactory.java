@@ -1,20 +1,14 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public abstract class BaseComTaskExecutionInfoFactory<T extends BaseComTaskExecutionInfo> {
 
@@ -34,8 +28,8 @@ public abstract class BaseComTaskExecutionInfoFactory<T extends BaseComTaskExecu
         info.id = comTaskExecution.getId();
         info.name = comTaskExecution.getComTask().getName();
 
-        if (comTaskExecution instanceof ScheduledComTaskExecution) {
-            ComSchedule comSchedule = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule();
+        if (comTaskExecution.usesSharedSchedule()) {
+            ComSchedule comSchedule = comTaskExecution.getComSchedule().get();
             info.comScheduleName = comSchedule.getName();
             if (comSchedule.getTemporalExpression() != null) {
                 info.comScheduleFrequency = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
