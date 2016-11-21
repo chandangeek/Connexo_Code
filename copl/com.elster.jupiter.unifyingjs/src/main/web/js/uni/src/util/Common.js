@@ -109,6 +109,24 @@ Ext.define('Uni.util.Common', {
     },
 
     encodeURIComponent: function (component) {
-        return decodeURIComponent(component) === component ? encodeURIComponent(component) : component;
+        try {
+            return decodeURIComponent(component) === component ? encodeURIComponent(component) : component;
+        } catch (e) {
+        }
+        return encodeURIComponent(component);
+    },
+
+    decodeURIArguments: function (params) {
+        var result = Ext.clone(params);
+
+        if (Ext.isObject(result)) {
+            for (var key in result) {
+                result[key] = decodeURIComponent(result[key]);
+            }
+        } else if (Ext.isString(result)) {
+            result = decodeURIComponent(result);
+        }
+
+        return result;
     }
 });
