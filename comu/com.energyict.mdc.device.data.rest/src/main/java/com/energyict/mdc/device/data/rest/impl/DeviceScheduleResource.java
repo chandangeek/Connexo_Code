@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -129,14 +128,14 @@ public class DeviceScheduleResource {
                     boolean comTaskExecutionExists = false;
                     for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
                         if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
-                            ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
+                            comTaskExecution.getUpdater().createNextExecutionSpecs(schedulingInfo.schedule.asTemporalExpression()).update();
                             comTaskExecutionExists = true;
                         } else if(comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
                             return Response.status(Response.Status.BAD_REQUEST).build();
                         }
                     }
                     if (!comTaskExecutionExists) {
-                        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
+                        ComTaskExecutionBuilder builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
                         if (comTaskEnablement.hasPartialConnectionTask()) {
                             device.getConnectionTasks()
                                     .stream()
@@ -160,13 +159,13 @@ public class DeviceScheduleResource {
         // In this method, id == id of comtaskexec
         checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
-        if(!(comTaskExecution instanceof ManuallyScheduledComTaskExecution)) {
+        if(!(comTaskExecution.isScheduledManually())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (info.schedule == null) {
-            ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().removeSchedule().update();
+            comTaskExecution.getUpdater().removeSchedule().update();
         } else {
-            ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(info.schedule.asTemporalExpression()).update();
+            comTaskExecution.getUpdater().createNextExecutionSpecs(info.schedule.asTemporalExpression()).update();
         }
         return Response.status(Response.Status.OK).build();
     }

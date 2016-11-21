@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -17,8 +16,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
@@ -35,7 +32,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -74,8 +70,9 @@ public class DeviceComTaskResource {
         this.journalEntryInfoFactory = journalEntryInfoFactory;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -84,15 +81,16 @@ public class DeviceComTaskResource {
         return Response.ok(PagedInfoList.fromPagedList("comTasks", deviceSchedulesInfos, queryParameters)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/urgency")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskUrgencyInfo comTaskUrgencyInfo) {
         Device device = resourceHelper.lockDeviceOrThrowException(comTaskUrgencyInfo.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-        if(comTaskExecutions.isEmpty()){
+        if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
@@ -106,15 +104,16 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/protocoldialect")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateProtocolDialect(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskProtocolDialectInfo comTaskProtocolDialectInfo) {
         Device device = resourceHelper.lockDeviceOrThrowException(comTaskProtocolDialectInfo.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-        if(comTaskExecutions.isEmpty()){
+        if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
@@ -128,16 +127,17 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/frequency")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateFrequency(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskFrequencyInfo comTaskFrequencyInfo) {
         checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.lockDeviceOrThrowException(comTaskFrequencyInfo.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-        if(comTaskExecutions.isEmpty()){
+        if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
@@ -152,15 +152,16 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/connectionmethod")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo comTaskConnectionMethodInfo) {
         Device device = resourceHelper.lockDeviceOrThrowException(comTaskConnectionMethodInfo.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-        if(comTaskExecutions.isEmpty()){
+        if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
@@ -181,13 +182,14 @@ public class DeviceComTaskResource {
         }
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/run")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response run(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -203,13 +205,14 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/runnow")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response runnow(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -225,9 +228,10 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{comTaskId}/comtaskexecutionsessions")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getComTaskExecutionSessions(@PathParam("mRID") String mrid,
                                                      @PathParam("comTaskId") long comTaskId, @BeanParam JsonQueryParameters queryParameters) {
@@ -237,7 +241,7 @@ public class DeviceComTaskResource {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-        if(comTaskExecutions.isEmpty()){
+        if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
@@ -254,9 +258,10 @@ public class DeviceComTaskResource {
         return PagedInfoList.fromPagedList("comTaskExecutionSessions", infos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{comTaskId}/comtaskexecutionsessions/{comTaskExecutionSessionId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public ComTaskExecutionSessionInfo getComTaskExecutionSession(@PathParam("mRID") String mrid,
                                                                   @PathParam("comTaskId") long comTaskId, @PathParam("comTaskExecutionSessionId") Long comTaskExecutionSessionId) {
@@ -278,9 +283,10 @@ public class DeviceComTaskResource {
     }
 
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{comTaskId}/comtaskexecutionsessions/{sessionId}/journals")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getComTaskExecutionSessionJournals(@PathParam("mRID") String mrid,
                                                             @PathParam("comTaskId") long comTaskId,
@@ -305,13 +311,14 @@ public class DeviceComTaskResource {
 
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("{comTaskId}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -332,13 +339,14 @@ public class DeviceComTaskResource {
         comTaskExecutions.stream().filter(ComTaskExecution::isOnHold).forEach(ComTaskExecution::resume);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("{comTaskId}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -359,13 +367,14 @@ public class DeviceComTaskResource {
         comTaskExecutions.stream().filter(not(ComTaskExecution::isOnHold)).forEach(ComTaskExecution::putOnHold);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateAllComTasks(@PathParam("mRID") String mrid, ComTaskConnectionMethodInfo info) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -377,13 +386,14 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivateAllComTasks(@PathParam("mRID") String mrid, ComTaskConnectionMethodInfo info) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.mRID = mrid;
@@ -399,8 +409,7 @@ public class DeviceComTaskResource {
         Optional<ComTaskExecutionSession> session = this.communicationTaskService.findSession(sessionId);
         if (session.isPresent() && session.get().getComTask().getId() == comTask.getId()) {
             return session.get();
-        }
-        else {
+        } else {
             throw this.exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK_EXEC_SESSION);
         }
     }
@@ -418,8 +427,8 @@ public class DeviceComTaskResource {
         };
     }
 
-    private ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> createManuallyScheduledComTaskExecutionWithoutFrequency(Device device, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+    private ComTaskExecutionBuilder createManuallyScheduledComTaskExecutionWithoutFrequency(Device device, ComTaskEnablement comTaskEnablement) {
+        ComTaskExecutionBuilder manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         if (comTaskEnablement.hasPartialConnectionTask()) {
             device.getConnectionTasks().stream()
                     .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
@@ -453,10 +462,8 @@ public class DeviceComTaskResource {
 
     private Consumer<ComTaskExecution> updateUrgency(ComTaskUrgencyInfo comTaskUrgencyInfo, Device device) {
         return comTaskExecution -> {
-            if (comTaskExecution.isScheduledManually()) {
-                device.getComTaskExecutionUpdater((ManuallyScheduledComTaskExecution) comTaskExecution).priority(comTaskUrgencyInfo.urgency).update();
-            } else if (comTaskExecution.usesSharedSchedule()) {
-                device.getComTaskExecutionUpdater((ScheduledComTaskExecution) comTaskExecution).priority(comTaskUrgencyInfo.urgency).update();
+            if (comTaskExecution.isScheduledManually() || comTaskExecution.usesSharedSchedule()) {
+                device.getComTaskExecutionUpdater(comTaskExecution).priority(comTaskUrgencyInfo.urgency).update();
             } else {
                 throw exceptionFactory.newException(MessageSeeds.UPDATE_URGENCY_NOT_ALLOWED);
             }
@@ -467,10 +474,12 @@ public class DeviceComTaskResource {
         return comTaskExecution -> {
             List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = device.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
             Optional<ProtocolDialectConfigurationProperties> dialectConfigurationPropertiesOptional = protocolDialectConfigurationPropertiesList.stream()
-                    .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName().equals(comTaskProtocolDialectInfo.protocolDialect))
+                    .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getDeviceProtocolDialect()
+                            .getDisplayName()
+                            .equals(comTaskProtocolDialectInfo.protocolDialect))
                     .findFirst();
             if (comTaskExecution.isScheduledManually() && dialectConfigurationPropertiesOptional.isPresent()) {
-                device.getComTaskExecutionUpdater((ManuallyScheduledComTaskExecution) comTaskExecution).protocolDialectConfigurationProperties(dialectConfigurationPropertiesOptional.get()).update();
+                device.getComTaskExecutionUpdater(comTaskExecution).protocolDialectConfigurationProperties(dialectConfigurationPropertiesOptional.get()).update();
             } else {
                 throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
             }
@@ -480,14 +489,14 @@ public class DeviceComTaskResource {
     private Consumer<ComTaskExecution> updateComTaskExecutionFrequency(ComTaskFrequencyInfo comTaskFrequencyInfo, Device device) {
         return comTaskExecution -> {
             if (comTaskExecution.isScheduledManually() || comTaskExecution.isAdHoc()) {
-                device.getComTaskExecutionUpdater((ManuallyScheduledComTaskExecution) comTaskExecution).scheduleAccordingTo(comTaskFrequencyInfo.temporalExpression.asTemporalExpression()).update();
+                device.getComTaskExecutionUpdater(comTaskExecution).createNextExecutionSpecs(comTaskFrequencyInfo.temporalExpression.asTemporalExpression()).update();
             }
         };
     }
 
     private Consumer<ComTaskEnablement> createManuallyScheduledComTaskExecutionForEnablement(ComTaskFrequencyInfo comTaskFrequencyInfo, Device device) {
         return comTaskEnablement -> {
-            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskFrequencyInfo.temporalExpression.asTemporalExpression());
+            ComTaskExecutionBuilder manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskFrequencyInfo.temporalExpression.asTemporalExpression());
             if (comTaskEnablement.hasPartialConnectionTask()) {
                 device.getConnectionTasks().stream()
                         .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
@@ -502,17 +511,9 @@ public class DeviceComTaskResource {
         return comTaskExecution -> {
             Optional<ConnectionTask<?, ?>> connectionTaskOptional = device.getConnectionTasks().stream().filter(ct -> ct.getName().equals(comTaskConnectionMethodInfo.connectionMethod)).findFirst();
             if (connectionTaskOptional.isPresent()) {
-                if (comTaskExecution.isScheduledManually()) {
-                    device.getComTaskExecutionUpdater((ManuallyScheduledComTaskExecution) comTaskExecution).connectionTask(connectionTaskOptional.get()).update();
-                } else {
-                    device.getComTaskExecutionUpdater((ScheduledComTaskExecution) comTaskExecution).connectionTask(connectionTaskOptional.get()).update();
-                }
+                device.getComTaskExecutionUpdater(comTaskExecution).connectionTask(connectionTaskOptional.get()).update();
             } else {
-                if (comTaskExecution.isScheduledManually()) {
-                    device.getComTaskExecutionUpdater((ManuallyScheduledComTaskExecution) comTaskExecution).useDefaultConnectionTask(true).update();
-                } else {
-                    device.getComTaskExecutionUpdater((ScheduledComTaskExecution) comTaskExecution).useDefaultConnectionTask(true).update();
-                }
+                device.getComTaskExecutionUpdater(comTaskExecution).useDefaultConnectionTask(true).update();
             }
         };
     }
