@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -18,7 +17,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -70,7 +68,7 @@ import java.util.stream.Stream;
  * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.config.ComPort ComPorts }
  * which perform one or more ComTasks.
  * It will be useful to group the AOP logging as well.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 25/10/12
  * Time: 16:27
@@ -98,25 +96,8 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
-        if (isItAScheduledComTaskExecution(comTaskExecution)) {
-            ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) comTaskExecution;
-            return getProtocolDialectTypedProperties(scheduledComTaskExecution);
-        } else if (comTaskExecution != null) {
+        if (comTaskExecution != null) {
             return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), comTaskExecution.getProtocolDialectConfigurationProperties());
-        } else {
-            return TypedProperties.empty();
-        }
-    }
-
-    private static boolean isItAScheduledComTaskExecution(ComTaskExecution comTaskExecution) {
-        return comTaskExecution instanceof ScheduledComTaskExecution;
-    }
-
-    private static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
-        Optional<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = getProtocolDialectConfigurationProperties(comTaskExecution);
-        if (protocolDialectConfigurationProperties.isPresent()) {
-            Device device = comTaskExecution.getDevice();
-            return getProtocolDialectTypedProperties(device, protocolDialectConfigurationProperties.get());
         } else {
             return TypedProperties.empty();
         }
@@ -129,28 +110,6 @@ public abstract class JobExecution implements ScheduledJob {
         } else {
             return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
         }
-    }
-
-    private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution.getComTask() == null) {
-            return Optional.empty();
-        } else {
-            Optional<ProtocolDialectConfigurationProperties> properties = getProtocolDialectConfigurationProperties(comTaskExecution.getDevice(), comTaskExecution.getComTask());
-            if (properties.isPresent()) {
-                return properties;  // Got out now that we have got one, else continue with the next ComTask
-            }
-            // Bugger: none of the ComTask were enabled with ProtocolDialectConfigurationProperties
-            return Optional.empty();
-        }
-    }
-
-    private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(Device device, ComTask comTask) {
-        for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
-            if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
-                return Optional.of(comTaskEnablement.getProtocolDialectConfigurationProperties());
-            }
-        }
-        return Optional.empty();
     }
 
     /**

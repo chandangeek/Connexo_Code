@@ -20,7 +20,6 @@ import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -108,7 +107,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.SingleThreadedScheduledComPort} component.
@@ -662,7 +660,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private ComTaskExecution mockComTaskExecution(long id, OutboundConnectionTask connectionTask) {
-        ManuallyScheduledComTaskExecution comTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
+        ComTaskExecution comTask = mock(ComTaskExecution.class);
         when(comTask.getId()).thenReturn(id);
         when(comTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTask.getDevice()).thenReturn(this.device);

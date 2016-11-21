@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ScheduledJob;
@@ -35,9 +34,9 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
     @Override
     protected void doExecute(ComServerDAO comServerDAO, JobExecution scheduledJob) {
         Instant startingPoint = getClock().instant();
-        Optional<ComTaskExecution> firmwareComTaskExecution = scheduledJob.getComTaskExecutions().stream().filter(comTaskExecution -> comTaskExecution instanceof FirmwareComTaskExecution).findAny();
+        Optional<ComTaskExecution> firmwareComTaskExecution = scheduledJob.getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findAny();
         if (firmwareComTaskExecution.isPresent()) {
-            Optional<FirmwareCampaign> firmwareCampaign = firmwareService.getFirmwareCampaign(((FirmwareComTaskExecution) firmwareComTaskExecution.get()));
+            Optional<FirmwareCampaign> firmwareCampaign = firmwareService.getFirmwareCampaign(firmwareComTaskExecution.get());
             if (firmwareCampaign.isPresent()) {
                 startingPoint = getComWindowAppliedStartDate(firmwareCampaign.get(), firmwareComTaskExecution.get().getNextExecutionTimestamp());
             }
