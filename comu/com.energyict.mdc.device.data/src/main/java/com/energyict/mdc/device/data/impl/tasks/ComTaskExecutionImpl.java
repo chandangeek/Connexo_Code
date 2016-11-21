@@ -1568,6 +1568,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         public ComTaskExecutionUpdater removeSchedule() {
             this.comTaskExecution.behavior = new ManualBehavior();
             this.comTaskExecution.comSchedule = ValueReference.absent();
+            this.comTaskExecution.nextExecutionSpecs = ValueReference.absent();
             return this;
         }
 

@@ -2693,7 +2693,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             if(existingComTaskExecution.get().usesSharedSchedule() && existingComTaskExecution.get().getComSchedule().get().getId() != comSchedule.getId()){
                                 throw new CannotSetMultipleComSchedulesWithSameComTask(comSchedule, DeviceImpl.this, thesaurus);
                             }
-                            comTaskExecutionsUpdaters.add(existingComTaskExecution.get().getUpdater());
+                            comTaskExecutionsUpdaters.add(existingComTaskExecution.get().getUpdater().addSchedule(comSchedule));
                         } else { // create
                             ComTaskExecutionImpl scheduledComTaskExecution = comTaskExecutionProvider.get();
                             scheduledComTaskExecution.initializeForScheduledComTask(DeviceImpl.this, comTaskEnablement, comSchedule);
