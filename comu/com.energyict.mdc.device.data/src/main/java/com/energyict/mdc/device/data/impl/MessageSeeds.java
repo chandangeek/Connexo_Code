@@ -161,7 +161,8 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED(2137, Keys.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED, "You cannot change the configuration to a datalogger enabled device"),
     CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED(2138, Keys.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED, "You cannot change the configuration of a datalogger enabled device"),
     INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(2139, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
-    INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}")
+    INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}"),
+    MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2141, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule")
     ;
     private final int number;
     private final String key;
@@ -346,5 +347,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED = "device.config.change.not.from.datalogger";
         public static final String INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = "InvalidNumberOfSimultaneousConnections";
         public static final String INVALID_SHIPMENT_DATE = "InvalidShipmentDate";
+        public static final String MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK = "multiple.comschedules.with.same.comtask";
+
     }
 }

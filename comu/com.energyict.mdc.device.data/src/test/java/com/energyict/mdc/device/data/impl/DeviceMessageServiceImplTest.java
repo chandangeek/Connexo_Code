@@ -11,8 +11,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -692,9 +690,9 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     }
 
     enum RunMode {
-        SharedScheduled(false, false, ScheduledComTaskExecution.class),
-        ManuallyScheduled(false, true, ManuallyScheduledComTaskExecution.class),
-        AdHoc(true, true, ManuallyScheduledComTaskExecution.class);
+        SharedScheduled(false, false, ComTaskExecution.class),
+        ManuallyScheduled(false, true, ComTaskExecution.class),
+        AdHoc(true, true, ComTaskExecution.class);
         private final boolean adHoc;
         private final boolean scheduledManually;
         private final Class<? extends ComTaskExecution> comTaskExecutionClass;

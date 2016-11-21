@@ -7,7 +7,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
@@ -35,16 +34,15 @@ class UpgraderV10_3 implements Upgrader {
     }
 
     private void upgradeExistingScheduledComTaskExecutions() {
-        Map<Device, Map<ComSchedule, List<ScheduledComTaskExecution>>> collected = dataModel.mapper(ComTaskExecution.class).find()
+        Map<Device, Map<ComSchedule, List<ComTaskExecution>>> collected = dataModel.mapper(ComTaskExecution.class).find()
                 .stream()
                 .filter(not(ComTaskExecution::isObsolete))
-                .filter(comTaskExecution -> comTaskExecution instanceof ScheduledComTaskExecution)
-                .map(comTaskExecution -> (ScheduledComTaskExecution) comTaskExecution)
-                .collect(Collectors.groupingBy(ComTaskExecution::getDevice, Collectors.groupingBy(ScheduledComTaskExecution::getComSchedule)));
+                .filter(ComTaskExecution::usesSharedSchedule)
+                .collect(Collectors.groupingBy(ComTaskExecution::getDevice, Collectors.groupingBy(scheduledComTaskExecution -> scheduledComTaskExecution.getComSchedule().get())));
 
-        for(Device device: collected.keySet()) {
+        for (Device device : collected.keySet()) {
             List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-            Map<ComSchedule, List<ScheduledComTaskExecution>> executionsPerSchedule = collected.get(device);
+            Map<ComSchedule, List<ComTaskExecution>> executionsPerSchedule = collected.get(device);
             executionsPerSchedule.keySet().stream()
                     .forEach(comschedule -> {
                         List<ComTaskEnablement> validEnablementsForSchedule = comTaskEnablements
@@ -58,20 +56,25 @@ class UpgraderV10_3 implements Upgrader {
         }
     }
 
-    private void doSQL(List<ComTaskEnablement> validEnablementsForSchedule, ScheduledComTaskExecution scheduledComTaskExecution) {
+    private void doSQL(List<ComTaskEnablement> validEnablementsForSchedule, ComTaskExecution comTaskExecution) {
         List<String> sql = new ArrayList<>();
-        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + "' WHERE ID='" + scheduledComTaskExecution.getId() + "'";
+        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + ", PROTOCOLDIALECTCONFIGPROPS = '" + validEnablementsForSchedule.get(0)
+                .getProtocolDialectConfigurationProperties()
+                .getId() + " WHERE ID='" + comTaskExecution.getId() + "'";
         sql.add(updateSQL);
 
         for (int i = 1; i < validEnablementsForSchedule.size(); i++) {
+            ComTaskEnablement comTaskEnablement = validEnablementsForSchedule.get(i);
             String insertSQL = "INSERT INTO DDC_COMTASKEXEC (ID, VERSIONCOUNT, CREATETIME, MODTIME, DISCRIMINATOR, DEVICE, COMTASK, COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
                     "NEXTEXECUTIONTIMESTAMP, COMPORT, OBSOLETE_DATE, PRIORITY, USEDEFAULTCONNECTIONTASK, CURRENTRETRYCOUNT, PLANNEDNEXTEXECUTIONTIMESTAMP, EXECUTIONPRIORITY, EXECUTIONSTART, LASTSUCCESSFULCOMPLETION, " +
                     "LASTEXECUTIONFAILED, CONNECTIONTASK, PROTOCOLDIALECTCONFIGPROPS, IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD) " +
-                    "SELECT DDC_COMTASKEXECID.nextval, '0', CREATETIME, MODTIME, DISCRIMINATOR, DEVICE, '" + validEnablementsForSchedule.get(i).getComTask().getId() + "', COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
+                    "SELECT DDC_COMTASKEXECID.nextval, '0', CREATETIME, MODTIME, DISCRIMINATOR, DEVICE, '" + comTaskEnablement.getComTask()
+                    .getId() + "', COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
                     "NEXTEXECUTIONTIMESTAMP, COMPORT, OBSOLETE_DATE, PRIORITY, USEDEFAULTCONNECTIONTASK, CURRENTRETRYCOUNT, PLANNEDNEXTEXECUTIONTIMESTAMP, EXECUTIONPRIORITY, EXECUTIONSTART, LASTSUCCESSFULCOMPLETION, " +
-                    "LASTEXECUTIONFAILED, CONNECTIONTASK, PROTOCOLDIALECTCONFIGPROPS, IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
+                    "LASTEXECUTIONFAILED, CONNECTIONTASK, " + comTaskEnablement.getProtocolDialectConfigurationProperties()
+                    .getId() + ", IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
                     "FROM DDC_COMTASKEXEC " +
-                    "WHERE ID='" + scheduledComTaskExecution.getId() + "'";
+                    "WHERE ID='" + comTaskExecution.getId() + "'";
             sql.add(insertSQL);
         }
 

@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 /**
-* Models a range of ids of {@link com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution}s
+* Models a range of ids of ComTaskExecutionss
 * that are all using the same {@link com.energyict.mdc.scheduling.model.ComSchedule}.
 *
 * @author Rudi Vankeirsbilck (rudi)

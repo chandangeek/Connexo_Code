@@ -16,7 +16,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,6 +101,13 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return A flag that indicates if this ComTaskExecution is adhoc
      */
     boolean isAdHoc();
+
+    /**
+     * Test if this ComTaskExecution is a firmware related comtaskexecution
+     *
+     * @return a flag that indicates if this ComTaskExecution is firmware related
+     */
+    boolean isFirmware();
 
     /**
      * Gets the {@link Device} for which this ComTaskExecution
@@ -340,17 +346,9 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     void schedule(Instant when);
 
-    ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> getUpdater();
+    ComTaskExecutionUpdater getUpdater();
 
     List<ProtocolTask> getProtocolTasks();
-
-    /**
-     * Tests if this ComTaskExecution is configured to execute the ComSchedule.
-     * Note that only {@link ScheduledComTaskExecution} can be configured to do this.
-     *
-     * @see #usesSharedSchedule()
-     */
-    boolean executesComSchedule(ComSchedule comSchedule);
 
     /**
      * Tests if this ComTaskExecution is configured to execute the {@link ComTask}.
@@ -386,7 +384,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
      * Returns a list with one element with the {@link ComTask} that specifies
      * the details of this ComTaskExecution.
-     *
+     * <p>
      * The getComTask method should be used
      *
      * @return Singleton list of the ComTask
@@ -406,4 +404,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * Gets the {@link ProtocolDialectConfigurationProperties}.
      */
     ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
+
+    Optional<ComSchedule> getComSchedule();
 }

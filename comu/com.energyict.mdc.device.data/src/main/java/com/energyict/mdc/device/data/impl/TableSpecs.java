@@ -5,7 +5,6 @@ import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -330,10 +329,10 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
-            table.map(ComTaskExecutionImpl.IMPLEMENTERS);
+            table.map(ComTaskExecutionImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "number");
+            table.column("DISCRIMINATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.COMTASKEXECTYPE.fieldName()).notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
             Column comTask = table.column("COMTASK").number().add();
             Column comSchedule = table.column("COMSCHEDULE").number().add();

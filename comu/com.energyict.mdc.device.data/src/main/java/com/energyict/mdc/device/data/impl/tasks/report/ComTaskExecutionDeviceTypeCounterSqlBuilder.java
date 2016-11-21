@@ -12,7 +12,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.time.Clock;
 
 /**
- * Builds the SQL query thats counts {@link com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution}s
+ * Builds the SQL query thats counts ComTasksExecutions
  * for a single {@link TaskStatus}, grouping them by the {@link com.energyict.mdc.scheduling.model.ComSchedule}.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -281,7 +281,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
                 .and(where("obsoleteDate").isNull());
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
             comTaskExecutionUpdater.updateFields(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
                                                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName(),

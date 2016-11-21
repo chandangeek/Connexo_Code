@@ -10,17 +10,14 @@ import com.energyict.mdc.device.data.exceptions.DefaultTranslationKey;
 import com.energyict.mdc.device.data.impl.ComScheduleOnDeviceQueueMessage;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.ScheduleAddStrategy;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -78,8 +75,7 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
             List<ComSchedule> conflictingSchedules = device.getComTaskExecutions().stream()
                     .filter(ComTaskExecution::usesSharedSchedule)
                     .filter(comTaskExecution -> comSchedule.getComTasks().contains(comTaskExecution.getComTask()))
-                    .map(comTaskExecution -> (ScheduledComTaskExecution) comTaskExecution)
-                    .map(ScheduledComTaskExecution::getComSchedule)
+                    .map(comTaskExecution -> comTaskExecution.getComSchedule().get())
                     .distinct()
                     .collect(Collectors.toList());
 

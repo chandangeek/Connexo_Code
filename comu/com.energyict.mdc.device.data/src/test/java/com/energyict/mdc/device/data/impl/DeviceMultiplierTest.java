@@ -31,11 +31,9 @@ import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
@@ -121,11 +119,11 @@ public class DeviceMultiplierTest {
     @Mock
     private Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     @Mock
-    private Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     @Mock
-    private Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     @Mock
-    private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -234,8 +232,8 @@ public class DeviceMultiplierTest {
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
-                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
-                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
+                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
         device.save();
