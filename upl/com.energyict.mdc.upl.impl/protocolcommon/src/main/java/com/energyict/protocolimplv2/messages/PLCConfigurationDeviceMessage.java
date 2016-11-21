@@ -194,8 +194,9 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     RemoveMetersFromBlackList(74, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.macAddresses)),
     KickMeter(75, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.macAddress)),
     PathRequestWithTimeout(76, PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName),
-            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.timeout));
-
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.timeout)),
+    SetBroadCastLogTableEntryTTLVersion1(77, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)),
+    ;
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

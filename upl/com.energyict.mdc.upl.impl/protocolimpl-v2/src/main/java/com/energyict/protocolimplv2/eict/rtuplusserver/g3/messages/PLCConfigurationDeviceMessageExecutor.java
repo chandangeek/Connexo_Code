@@ -61,7 +61,8 @@ public class PLCConfigurationDeviceMessageExecutor {
             setSecurityLevelpendingMessage(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
             setRoutingConfiguration(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName)) {
+        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName) ||
+                pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLVersion1)) {
             setBroadCastLogTableEntryTTL(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime)) {
             setMaxJoinWaitTime(pendingMessage);

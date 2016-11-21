@@ -86,7 +86,7 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLVersion1);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
