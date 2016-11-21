@@ -166,7 +166,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             //                    progressBar.wait({
             //                        interval: 50,
             //                        increment: 20,
-            //                        text: (me.operation === 'add' ? Uni.I18n.translate('general.adding', 'MDC', 'Adding...') : Uni.I18n.translate('general.removing', 'MDC', 'Removing...'))
+            //                        text: (me.operation === 'add' ? Uni.I18n.translate('general.adding', 'IMT', 'Adding...') : Uni.I18n.translate('general.removing', 'IMT', 'Removing...'))
             //                    })
             //                );
             //                Ext.resumeLayouts();
@@ -261,15 +261,15 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
     //    //    var items = Ext.ComponentQuery.query('#searchitemsbulkactiontitle');
     //    //    switch (me.operation){
     //    //        case 'add' : {
-    //    //            title = Uni.I18n.translate('searchItems.bulk.addActionTitle', 'MDC', 'Add shared communication schedules')
+    //    //            title = Uni.I18n.translate('searchItems.bulk.addActionTitle', 'IMT', 'Add shared communication schedules')
     //    //        }
     //    //            break;
     //    //        case 'remove' : {
-    //    //            title = Uni.I18n.translate('searchItems.bulk.removeActionTitle', 'MDC', 'Remove shared communication schedules')
+    //    //            title = Uni.I18n.translate('searchItems.bulk.removeActionTitle', 'IMT', 'Remove shared communication schedules')
     //    //        }
     //    //            break;
     //    //        case 'changeconfig' : {
-    //    //            title = Uni.I18n.translate('searchItems.bulk.changeConfigActionTitle', 'MDC', 'Change device configuration')
+    //    //            title = Uni.I18n.translate('searchItems.bulk.changeConfigActionTitle', 'IMT', 'Change device configuration')
     //    //        }
     //    //            break;
     //    //    }
@@ -306,7 +306,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         if (me.allDevices) {
             switch (me.operation) {
                 case 'addCalendar':
-                        titleText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg', 'MDC',
+                        titleText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg', 'IMT',
                             "Add calendar '{0}' to all devices?", Ext.String.htmlEncode(me.calendarName));
                     break;
             }
@@ -314,9 +314,9 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             switch (me.operation) {
                 case 'addCalendar':
                         if (me.devices.length <= 1) {
-                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg0', 'MDC', "Add shared communication schedule '{1}' to {0} device?")
+                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg0', 'IMT', "Add shared communication schedule '{1}' to {0} device?")
                         } else {
-                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsgn', 'MDC', "Add shared communication schedule '{1}' to {0} devices?")
+                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsgn', 'IMT', "Add shared communication schedule '{1}' to {0} devices?")
                         }
                         titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.calendarName));
                     break;
@@ -325,7 +325,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
 
         switch (me.operation) {
             case 'addCalendar':
-                bodyText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.addMsg', 'MDC', 'The selected devices will use this calendar');
+                bodyText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.addMsg', 'IMT', 'The selected devices will use this calendar');
                 break;
         }
 
@@ -421,7 +421,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                     "to {0} usage point",
                     "to {0} usage points"
                 );
-                finalMessage = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.baseSuccessMsg', 'MDC',
+                finalMessage = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.baseSuccessMsg', 'IMT',
                         "Successfully added calendar '{0}' {1}", [me.calendarName, message]);
                 break;
         }
