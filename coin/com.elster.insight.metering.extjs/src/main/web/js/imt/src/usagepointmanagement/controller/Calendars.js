@@ -124,7 +124,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 fromTime: values.activateCalendar === 'immediate-activation' ? new Date().getTime() : this.getForm().down('#activation-date-values').down('#activation-on').getValue().getTime()
             },
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Calendar added'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.calendarAdded', 'IMT', 'Calendar added'));
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward({mRID: btn.mRID});
             },
             failure: function (response) {
