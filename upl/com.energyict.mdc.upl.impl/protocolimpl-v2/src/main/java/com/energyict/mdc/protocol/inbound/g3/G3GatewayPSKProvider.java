@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimePeriod;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -265,9 +264,9 @@ public class G3GatewayPSKProvider {
                     final DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
                     final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(slaveDeviceIdentifier);
                     if (deviceProtocolProperties != null) {
-                        final HexString psk = deviceProtocolProperties.getTypedProperty(G3Properties.PSK);
-                        if (psk != null && psk.getContent() != null && psk.getContent().length() > 0) {
-                            final byte[] pskBytes = parseKey(psk.getContent());
+                        final String psk = deviceProtocolProperties.getTypedProperty(G3Properties.PSK);
+                        if (psk != null && psk.length() > 0) {
+                            final byte[] pskBytes = parseKey(psk);
                             if (pskBytes != null) {
                                 final OctetString wrappedPSKKey = wrap(dlmsSession.getProperties().getProperties(), pskBytes);
                                 Structure macAndKeyPair = createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
