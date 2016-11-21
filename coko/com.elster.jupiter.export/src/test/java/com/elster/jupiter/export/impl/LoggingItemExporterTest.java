@@ -7,18 +7,15 @@ import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.FatalDataExportException;
-import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.collect.Range;
 
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,7 +34,6 @@ import org.mockito.junit.MockitoJUnitRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -61,22 +57,15 @@ public class LoggingItemExporterTest {
 
     @Mock
     private ItemExporter decorated;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private DataExportOccurrence occurrence;
     @Mock
     private ReadingTypeDataExportItem item;
     @Mock
-    private ReadingType readingType;
-    @Mock
     private Meter meter;
     @Mock
-    private NlsMessageFormat successFormat, failedFormat, fatallyFailedFormat;
-    @Mock
     private MeterReadingData meterReadingData;
-    @Mock
-    private FormattedData formattedData;
     @Mock
     private IExportTask task;
     @Mock
@@ -97,19 +86,9 @@ public class LoggingItemExporterTest {
 
         when(meterReadingData.getItem()).thenReturn(item);
         when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
-        when(item.getReadingType()).thenReturn(readingType);
         when(item.getDescription()).thenReturn("I'm Marilyn and I take drugs");
         when(item.getReadingContainer()).thenReturn(meter);
         when(meter.getMeter(any())).thenReturn(Optional.of(meter));
-        when(thesaurus.getFormat(MessageSeeds.ITEM_EXPORTED_SUCCESFULLY)).thenReturn(successFormat);
-        when(successFormat.format(anyVararg())).thenAnswer(invocation ->
-                MessageFormat.format(MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.getDefaultFormat(), invocation.getArguments()[0], invocation.getArguments()[1], invocation.getArguments()[2]));
-        when(thesaurus.getFormat(MessageSeeds.ITEM_FAILED)).thenReturn(failedFormat);
-        when(failedFormat.format(anyVararg())).thenAnswer(invocation ->
-                MessageFormat.format(MessageSeeds.ITEM_FAILED.getDefaultFormat(), invocation.getArguments()[0]));
-        when(thesaurus.getFormat(MessageSeeds.ITEM_FATALLY_FAILED)).thenReturn(fatallyFailedFormat);
-        when(fatallyFailedFormat.format(anyVararg())).thenAnswer(invocation ->
-                MessageFormat.format(MessageSeeds.ITEM_FATALLY_FAILED.getDefaultFormat(), invocation.getArguments()[0]));
 
         when(occurrence.getTask()).thenReturn(task);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(readingDataSelectorConfig));
