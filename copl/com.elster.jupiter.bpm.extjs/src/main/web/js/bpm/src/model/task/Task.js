@@ -107,10 +107,7 @@ Ext.define('Bpm.model.task.Task', {
             type: 'string'
         },
         {
-            name: 'workgroup',
-            convert: function (value, record) {
-                return 1;
-            }
+            name: 'workgroup'
         },
         {
             name: 'actualOwnerDisplay',
