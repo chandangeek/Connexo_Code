@@ -5,7 +5,7 @@ Ext.define('Tme.view.relativeperiod.Details', {
         'Tme.view.relativeperiod.Menu',
         'Tme.view.relativeperiod.PreviewForm',
         'Tme.view.relativeperiod.ActionMenu',
-        'Uni.form.RelativePeriodPreview'
+        'Uni.form.RelativePeriodPreviewBasedOnId'
     ],
 
     router: null,
@@ -33,7 +33,7 @@ Ext.define('Tme.view.relativeperiod.Details', {
                                 emptyValueDisplay: ''
                             },
                             {
-                                xtype: 'uni-form-relativeperiodpreview'
+                                xtype: 'uni-form-relativeperiodpreview-basedOnId'
                             }
                         ]
                     }

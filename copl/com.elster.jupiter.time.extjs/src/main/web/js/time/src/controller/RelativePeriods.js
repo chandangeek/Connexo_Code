@@ -228,7 +228,7 @@ Ext.define('Tme.controller.RelativePeriods', {
             view = Ext.widget('relative-periods-details', {
                 router: router
             }),
-            relativePeriodPreview = view.down('uni-form-relativeperiodpreview'),
+            relativePeriodPreview = view.down('uni-form-relativeperiodpreview-basedOnId'),
             actionsMenu = view.down('relative-periods-action-menu');
 
         me.getApplication().fireEvent('changecontentevent', view);
@@ -240,8 +240,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                 me.getApplication().fireEvent('relativeperiodload', record);
                 detailsForm.loadRecord(record);
                 view.down('relative-periods-menu #relative-period-overview-link').setText(record.get('name'));
-                relativePeriodPreview.updateStartPeriodValue(record.data.from);
-                relativePeriodPreview.updateEndPeriodValue(record.data.to);
+                relativePeriodPreview.setRelativePeriodId(periodId);
                 relativePeriodPreview.updatePreview();
             }
         });
