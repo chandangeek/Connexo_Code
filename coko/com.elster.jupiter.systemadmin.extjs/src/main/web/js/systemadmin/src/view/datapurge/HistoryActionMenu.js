@@ -3,7 +3,8 @@ Ext.define('Sam.view.datapurge.HistoryActionMenu', {
     alias: 'widget.data-purge-history-action-menu',
     router: null,
     initComponent: function() {
-        this.items = [
+        var me = this;
+        me.items = [
             {
                 text: Uni.I18n.translate('datapurge.history.viewlog', 'SAM', 'View log'),
                 itemId: 'sam-purge-history-view-log',
@@ -11,7 +12,7 @@ Ext.define('Sam.view.datapurge.HistoryActionMenu', {
                 section: this.SECTION_VIEW
             }
         ];
-        this.callParent(arguments);
+        me.callParent(arguments);
     },
 
     listeners: {
