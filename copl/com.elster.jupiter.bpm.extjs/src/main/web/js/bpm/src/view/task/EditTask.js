@@ -70,16 +70,17 @@ Ext.define('Bpm.view.task.EditTask', {
                                                 xtype: 'assignee-form',
                                                 itemId: 'task-assignee-form',
                                                 workgroup: {
-                                                    dataIndex: 'workgroup',
-                                                    name: 'workgroup',
+                                                    dataIndex: 'workgroupId',
+                                                    name: 'workgroupId',
                                                     valueField: 'id',
                                                     displayField: 'name',
-                                                    store: 'Bpm.store.task.TaskWorkgroupAssignees'
+                                                    store: 'Bpm.store.task.TaskWorkgroupAssignees',
+                                                    value: undefined
                                                 },
                                                 user: {
                                                     dataIndex: 'actualOwner',
-                                                    name: 'assignee',
-                                                    valueField: 'name',
+                                                    name: 'userId',
+                                                    valueField: 'id',
                                                     displayField: 'name',
                                                     store: 'Bpm.store.task.TasksFilterAllUsers'
                                                 },

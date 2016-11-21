@@ -107,7 +107,13 @@ Ext.define('Bpm.model.task.Task', {
             type: 'string'
         },
         {
+            name: 'userId'
+        },
+        {
             name: 'workgroup'
+        },
+        {
+            name: 'workgroupId'
         },
         {
             name: 'actualOwnerDisplay',

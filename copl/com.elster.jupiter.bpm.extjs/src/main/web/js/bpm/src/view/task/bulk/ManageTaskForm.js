@@ -44,7 +44,8 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                                 name: 'workgroup',
                                 valueField: 'id',
                                 displayField: 'name',
-                                store: 'Bpm.store.task.TaskWorkgroupAssignees'
+                                store: 'Bpm.store.task.TaskWorkgroupAssignees',
+                                value: -1
                             },
                             user: {
                                 dataIndex: 'actualOwner',

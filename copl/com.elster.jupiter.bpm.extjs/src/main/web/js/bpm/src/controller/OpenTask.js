@@ -288,8 +288,8 @@ Ext.define('Bpm.controller.OpenTask', {
             editTaskForm = me.getEditTaskForm();
 
         assignUser.getProxy().extraParams = {
-            username: assigneeForm.down('#cbo-user-assignee').getValue(),
-            workgroup: assigneeForm.down('#cbo-workgroup-assignee').getValue(),
+            userId: assigneeForm.down('#cbo-user-assignee').getValue(),
+            workgroupId: assigneeForm.down('#cbo-workgroup-assignee').getValue(),
             priority: editTaskForm.down('#num-priority').getValue(),
             duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''
         };

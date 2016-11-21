@@ -78,13 +78,12 @@ Ext.define('Bpm.view.task.AssigneeForm', {
                         valueField: me.workgroup.valueField,
                         displayField: me.workgroup.displayField,
                         store: me.workgroup.store,
-                        value: -1,
+                        value: me.workgroup.value,
                         listeners: {
                             render: function () {
                                 this.store.load();
                             },
                             change: function (combo, newValue) {
-                                //this.up('#frm-assignee-user').down('#cbo-user-assignee').fireEvent('workgroupChanged', newValue);
                                 this.up('#frm-assignee-user').down('#cbo-user-assignee').workgroupId = newValue;
                                 this.up('#frm-assignee-user').down('#cbo-user-assignee').fireEvent('workgroupFirstChanged', newValue);
                             },
