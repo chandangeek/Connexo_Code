@@ -2186,29 +2186,22 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     addReadingTypes: function () {
-        if (!this.readingTypesArray) {
-            this.forwardToPreviousPage();
-            return;
-        }
-
-        this.getApplication().fireEvent('changecontentevent', Ext.widget('AddReadingTypesToTaskSetup'));
-        this.loadReadingTypes();
-    },
-
-
-    loadReadingTypes: function () {
         var me = this,
             readingTypeStore = me.getStore('Dxp.store.LoadedReadingTypes');
 
-        Ext.ComponentQuery.query('viewport')[0].down('dxp-view-tasks-addreadingtypestotaskfilter').setActive();
-        // Tell the REST side what readingTypes to exclude (because they're already assigned)
-        if (Ext.isArray(me.readingTypesArray) && !Ext.isEmpty(me.readingTypesArray)) {
-            var mRIDs = [];
-            me.readingTypesArray.forEach(function (readingType) {
-                mRIDs.push(readingType.readingType.mRID.toLowerCase());
-            });
-            Ext.ComponentQuery.query('viewport')[0].down('dxp-view-tasks-addreadingtypestotaskfilter').setSelectedReadings(mRIDs);
+        if (!me.readingTypesArray) {
+            me.forwardToPreviousPage();
+            return;
         }
+
+        me.getApplication().fireEvent('changecontentevent', Ext.widget('AddReadingTypesToTaskSetup', {
+            defaultFilters: {
+                active: true,
+                selectedreadingtypes: _.map(me.readingTypesArray, function (readingType) {
+                    return readingType.readingType.mRID.toLowerCase();
+                })
+            }
+        }));
 
         readingTypeStore.on('beforeload', function () {
             me.setAddBtnDisabled(true);
