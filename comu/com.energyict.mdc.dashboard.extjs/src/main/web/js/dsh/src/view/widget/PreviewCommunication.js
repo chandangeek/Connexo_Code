@@ -31,10 +31,6 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     name: 'name'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.sharedCommunicationSchedule', 'DSH', 'Shared communication schedule'),
-                    name: 'comScheduleName'
-                },
-                {
                     fieldLabel: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
@@ -76,7 +72,11 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.frequency', 'DSH', 'Frequency'),
+                    fieldLabel: Uni.I18n.translate('general.sharedCommunicationSchedule', 'DSH', 'Shared communication schedule'),
+                    name: 'comScheduleName'
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('general.schedule', 'DSH', 'Schedule'),
                     name: 'comScheduleFrequency',
                     renderer: function (val) {
                         var res = '-';
