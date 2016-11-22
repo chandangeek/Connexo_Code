@@ -5,11 +5,12 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,12 +39,12 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     private static final String DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS = "ATS0=0E0V1";   // Auto-answer disabled: modem will not answer incoming calls
     private static final String DEFAULT_AT_MODEM_INIT_STRINGS = "";
     private static final BigDecimal DEFAULT_AT_COMMAND_TRIES = new BigDecimal(3);
-    private static final TimeDuration DEFAULT_AT_COMMAND_TIMEOUT = new TimeDuration(5, TimeDuration.SECONDS);
-    private static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.MILLISECONDS);
-    private static final TimeDuration DEFAULT_DELAY_AFTER_CONNECT = new TimeDuration(500, TimeDuration.MILLISECONDS);
-    private static final TimeDuration DEFAULT_AT_CONNECT_TIMEOUT = new TimeDuration(60, TimeDuration.SECONDS);
+    private static final TemporalAmount DEFAULT_AT_COMMAND_TIMEOUT = Duration.ofSeconds(5);
+    private static final TemporalAmount DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
+    private static final TemporalAmount DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
+    private static final TemporalAmount DEFAULT_AT_CONNECT_TIMEOUT = Duration.ofSeconds(60);
     private static final String DEFAULT_AT_MODEM_DIAL_PREFIX = "";
-    private static final TimeDuration DEFAULT_DTR_TOGGLE_DELAY = new TimeDuration(2, TimeDuration.SECONDS);
+    private static final TemporalAmount DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
 
     private TypedProperties properties;
 
@@ -87,27 +88,27 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    protected TimeDuration getConnectTimeout() {
+    protected TemporalAmount getConnectTimeout() {
         Object value = this.properties.getTypedProperty(AT_CONNECT_TIMEOUT);
-        return value != null ? (TimeDuration) value : DEFAULT_AT_CONNECT_TIMEOUT;
+        return value != null ? (TemporalAmount) value : DEFAULT_AT_CONNECT_TIMEOUT;
     }
 
     @Override
-    protected TimeDuration getDelayAfterConnect() {
+    protected TemporalAmount getDelayAfterConnect() {
         Object value = this.properties.getTypedProperty(DELAY_AFTER_CONNECT);
-        return value != null ? (TimeDuration) value : DEFAULT_DELAY_AFTER_CONNECT;
+        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_AFTER_CONNECT;
     }
 
     @Override
-    protected TimeDuration getDelayBeforeSend() {
+    protected TemporalAmount getDelayBeforeSend() {
         Object value = this.properties.getTypedProperty(DELAY_BEFORE_SEND);
-        return value != null ? (TimeDuration) value : DEFAULT_DELAY_BEFORE_SEND;
+        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_BEFORE_SEND;
     }
 
     @Override
-    protected TimeDuration getCommandTimeOut() {
+    protected TemporalAmount getCommandTimeOut() {
         Object value = this.properties.getTypedProperty(AT_COMMAND_TIMEOUT);
-        return value != null ? (TimeDuration) value : DEFAULT_AT_COMMAND_TIMEOUT;
+        return value != null ? (TemporalAmount) value : DEFAULT_AT_COMMAND_TIMEOUT;
     }
 
     @Override
@@ -139,9 +140,9 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    protected TimeDuration getLineToggleDelay() {
+    protected TemporalAmount getLineToggleDelay() {
         Object value = this.properties.getTypedProperty(DTR_TOGGLE_DELAY);
-        return value != null ? (TimeDuration) value : DEFAULT_DTR_TOGGLE_DELAY;
+        return value != null ? (TemporalAmount) value : DEFAULT_DTR_TOGGLE_DELAY;
     }
 
     @Override

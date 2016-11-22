@@ -5,10 +5,11 @@ import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -89,11 +90,11 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return this.nrOfMilliSecondsOfTimeDuration(SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT);
     }
 
-    protected BigDecimal nrOfMilliSecondsOfTimeDuration(TimeDuration value) {
+    protected BigDecimal nrOfMilliSecondsOfTimeDuration(TemporalAmount value) {
         if (value == null) {
             return new BigDecimal(0);
         } else {
-            return new BigDecimal(value.getMilliSeconds());
+            return new BigDecimal(value.get(ChronoUnit.MILLIS));
         }
     }
 

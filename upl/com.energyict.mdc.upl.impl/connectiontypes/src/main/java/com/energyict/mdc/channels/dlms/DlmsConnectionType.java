@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels.dlms;
 
 
-import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 

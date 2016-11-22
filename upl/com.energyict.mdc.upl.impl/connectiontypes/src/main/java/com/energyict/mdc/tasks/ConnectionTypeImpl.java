@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
@@ -99,7 +100,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     protected ComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         try {
             SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            RxTxSerialPort serialPort = serialComponentFactory.newRxTxSerialPort(serialPortConfiguration);
+            ServerSerialPort serialPort = serialComponentFactory.newRxTxSerialPort(serialPortConfiguration);
             serialPort.openAndInit();
             return serialComponentFactory.newSerialComChannel(serialPort);
         } catch (SerialPortException e) {
@@ -118,7 +119,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     protected ComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         try {
             SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            SioSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialPortConfiguration);
+            ServerSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialPortConfiguration);
             serialPort.openAndInit();
             return serialComponentFactory.newSerialComChannel(serialPort);
         } catch (SerialPortException | UnsatisfiedLinkError e) {

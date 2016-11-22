@@ -3,14 +3,12 @@ package com.energyict.mdc.channels.serial.optical.serialio;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
 /**
  * Provides an implementation of a {@link com.energyict.mdc.tasks.ConnectionType} interface for optical
@@ -26,8 +24,8 @@ import java.util.List;
 public class SioOpticalConnectionType extends SioSerialConnectionType implements OpticalDriver {
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        ComChannel comChannel = super.connect(comPort, properties);
+    public ComChannel connect(TypedProperties properties) throws ConnectionException {
+        ComChannel comChannel = super.connect(properties);
         comChannel.addProperties(createTypeProperty(ComChannelType.OpticalComChannel));
         return comChannel;
     }
