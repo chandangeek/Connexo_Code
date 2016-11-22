@@ -4,6 +4,7 @@ Ext.define('Uni.view.menu.ActionsMenu', {
     plain: true,
     border: false,
     shadow: false,
+    minWidth: 20,
     defaultAlign: 'tr-br?',
     items: [],
 
