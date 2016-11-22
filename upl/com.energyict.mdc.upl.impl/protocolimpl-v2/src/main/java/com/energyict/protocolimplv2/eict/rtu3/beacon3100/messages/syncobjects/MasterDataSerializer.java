@@ -14,10 +14,10 @@ import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.tasks.ServerComTask;
+import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.Clock;
