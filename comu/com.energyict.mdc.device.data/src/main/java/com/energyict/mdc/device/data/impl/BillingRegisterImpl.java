@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -41,6 +42,31 @@ public class BillingRegisterImpl extends RegisterImpl<BillingReading, NumericalR
     @Override
     public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
         return getRegisterSpec().isUseMultiplier()?getDevice().getMultiplierAt(timeStamp):Optional.empty();
+    }
+
+    @Override
+    public Optional<BigDecimal> getOverflow() {
+        Optional<MeterReadingTypeConfiguration> registerReadingTypeConfiguration = this.device.getMeterReadingTypeConfigurationFor(this.getReadingType());
+        if (registerReadingTypeConfiguration.isPresent()) {
+            Optional<BigDecimal> overflowValue = registerReadingTypeConfiguration.get().getOverflowValue();
+            if (overflowValue.isPresent()) {
+                return overflowValue;
+            } else {
+                return getRegisterSpec().getOverflowValue();
+            }
+        } else {
+            return getRegisterSpec().getOverflowValue();
+        }
+    }
+
+    @Override
+    public int getNumberOfFractionDigits() {
+        Optional<MeterReadingTypeConfiguration> registerReadingTypeConfiguration = this.device.getMeterReadingTypeConfigurationFor(this.getReadingType());
+        if (registerReadingTypeConfiguration.isPresent()) {
+            return registerReadingTypeConfiguration.get().getNumberOfFractionDigits().orElse(getRegisterSpec().getNumberOfFractionDigits());
+        } else {
+            return getRegisterSpec().getNumberOfFractionDigits();
+        }
     }
 
 }
