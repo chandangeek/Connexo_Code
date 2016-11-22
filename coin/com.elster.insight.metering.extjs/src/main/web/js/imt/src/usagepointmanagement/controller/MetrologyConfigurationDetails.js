@@ -34,14 +34,14 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         });
     },
 
-    showUsagePointMetrologyConfiguration: function (mRID) {
+    showUsagePointMetrologyConfiguration: function (usagePointId) {
         var me = this,
             resultSet,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
                 me.usagePoint = usagePoint;
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-metrology-configuration-details', {

@@ -12,16 +12,21 @@ Ext.define('Imt.customattributesonvaluesobjects.store.ConflictedAttributeSetVers
         startParam: false,
         limitParam: false,
 
-        setUsagePointUrl: function (mRID, customPropertySetId) {
-            var urlTpl = '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}/conflicts';
+        setUsagePointUrl: function (usagePointId, customPropertySetId) {
+            var url = '/api/udr/usagepoints/{usagePointId}/customproperties/{customPropertySetId}/conflicts';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
+            this.url = url
+                .replace('{usagePointId}', encodeURIComponent(usagePointId))
+                .replace('{customPropertySetId}', customPropertySetId);
         },
 
-        setUsagePointEditUrl: function (mRID, customPropertySetId, versionId) {
-            var urlTpl = '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}/conflicts/{versionId}';
+        setUsagePointEditUrl: function (usagePointId, customPropertySetId, versionId) {
+            var url = '/api/udr/usagepoints/{usagePointId}/customproperties/{customPropertySetId}/conflicts/{versionId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId).replace('{versionId}', versionId);
+            this.url = url
+                .replace('{usagePointId}', encodeURIComponent(usagePointId))
+                .replace('{customPropertySetId}', customPropertySetId)
+                .replace('{versionId}', versionId);
         }
     }
 });

@@ -10,7 +10,7 @@ Ext.define('Imt.devicemanagement.view.DeviceSideMenu', {
             {
                 text: Uni.I18n.translate('general.label.overview', 'IMT', 'Overview'),
                 itemId: 'device-overview-link',
-                href: me.router.getRoute('usagepoints/device').buildUrl({mRID: me.mRID})
+                href: me.router.getRoute('usagepoints/device').buildUrl({usagePointId: me.usagePointId})
             }
         ];
         me.callParent(arguments);
