@@ -114,7 +114,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     listeners: {
                         click: function(){
                             me.model.load(me.record.get('id'),{
-                                url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(me.parent.mRID)),
+                                url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(me.parent.name)),
                                 success: function(record){
                                     me.record = record;
                                     me.toEditMode(false);
@@ -185,7 +185,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         Ext.each(cancelBtnArray, function (item) {
             if(item.editMode){
                 item.model.load(item.record.get('id'),{
-                    url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(item.parent.mRID)),
+                    url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(item.parent.name)),
                     success: function(record){
                         item.record = record;
                         item.down('property-form').makeNotEditable(item.record);

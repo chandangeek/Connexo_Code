@@ -17,7 +17,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             serviceCategory,
             connectionState;
 
-        me.title = me.usagePoint ? me.usagePoint.get('mRID') : me.router.arguments.mRID;
+        me.title = me.usagePoint ? me.usagePoint.get('name') : me.router.arguments.usagePointId;
 
         me.menuItems = [
             {

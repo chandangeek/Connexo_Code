@@ -51,7 +51,7 @@ Ext.define('Imt.servicecategories.controller.ServiceCategories', {
         serviceCategoryPreview.setTitle(record.get('displayName'));
         serviceCategoryPreview.loadRecord(record);
         Ext.resumeLayouts(true);
-        store.getProxy().setUrl(record.getId());
+        store.getProxy().setExtraParam('serviceCategoryId', record.getId());
         store.load();
     },
 

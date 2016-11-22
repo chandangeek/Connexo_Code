@@ -50,8 +50,8 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                         multiSelect: false,
                         emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                         store: 'Imt.usagepointsetup.store.Devices',
-                        displayField: 'mRID',
-                        valueField: 'mRID',
+                        displayField: 'name',
+                        valueField: 'name',
                         anyMatch: true,
                         queryMode: 'remote',
                         queryParam: 'like',
@@ -65,9 +65,9 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                             },
                             change: {
                                 fn: function (combo, newValue) {
-                                    var index = combo.getStore().findExact('mRID', newValue);
+                                    var index = combo.getStore().findExact('name', newValue);
                                     if (index >= 0) {
-                                        combo.meterData = combo.getStore().getAt(index).getData()
+                                        combo.meterData = combo.getStore().getAt(index).getData();
                                     } else {
                                         combo.meterData = null
                                     }
@@ -86,7 +86,7 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                             meterActivations.push(
                                 {
                                     meter: {
-                                        mRID: combo.getValue()
+                                        name: combo.getValue()
                                     },
                                     meterRole: {
                                         id: combo.name,
