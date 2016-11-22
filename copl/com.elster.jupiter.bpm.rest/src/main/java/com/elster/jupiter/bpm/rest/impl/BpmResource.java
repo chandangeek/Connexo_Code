@@ -85,6 +85,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -457,7 +459,8 @@ public class BpmResource {
     @Path("tasks/{id}/{optLock}/assign")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @PathParam("optLock") long optLock, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @PathParam("optLock") long optLock, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) throws
+            UnsupportedEncodingException {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String response;
         String userId = getQueryValue(uriInfo, "userId");
@@ -482,7 +485,7 @@ public class BpmResource {
         rest += String.valueOf(id) + "/";
         rest += String.valueOf(optLock);
         if (userName != null || date != null || priority != null || workGroupName != null) {
-            rest += "/assign/" + "?username=" + userName + "&workgroupname=" + workGroupName;
+            rest += "/assign/" + "?username=" + URLEncoder.encode(userName, "UTF-8") + "&workgroupname=" + URLEncoder.encode(workGroupName, "UTF-8");
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
                 response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
