@@ -2,6 +2,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceSetup',
     device: null,
+    router: undefined,
+    actionsStore: undefined,
     itemId: 'deviceSetup',
 
     requires: [
@@ -219,7 +221,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     {
                         xtype: 'uni-button-action',
                         itemId: 'device-landing-actions-btn',
-                        hidden: true,
                         style: {
                             'background-color': '#71adc7'
                         },
@@ -227,7 +228,9 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                             xtype: 'device-action-menu',
                             itemId: 'deviceActionMenu',
                             router: me.router,
-                            disableChangeConfigSinceDataLoggerOrSlave: disableChangeConfigSinceDataLoggerOrSlave
+                            disableChangeConfigSinceDataLoggerOrSlave: disableChangeConfigSinceDataLoggerOrSlave,
+                            deviceMRID: me.device.get('mRID'),
+                            actionsStore: me.actionsStore
                         }
                     }
                 ]

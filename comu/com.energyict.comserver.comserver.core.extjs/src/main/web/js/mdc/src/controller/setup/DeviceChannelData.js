@@ -99,7 +99,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 tabchange: this.onTabChange
             },
             'deviceLoadProfileChannelDataActionMenu': {
-                beforeshow: this.checkSuspect,
                 click: this.chooseAction
             },
             '#deviceLoadProfileChannelData #save-changes-button': {
@@ -349,11 +348,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     chooseAction: function (menu, item) {
-        var me = this,
-            point,
-            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
-            chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
-
+        var me = this;
         switch (item.action) {
             case 'editValue':
                 me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
@@ -685,28 +680,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             record: reading
         });
         reading.get('confirmed') && reading.set('confirmed', false);
-    },
-
-    checkSuspect: function (menu) {
-        var validationResult = menu.record.get('validationResult'),
-            mainStatus = false,
-            bulkStatus = false;
-
-        if (validationResult) {
-            mainStatus = validationResult.main == 'suspect';
-            bulkStatus = validationResult.bulk == 'suspect';
-        }
-
-        menu.down('#estimate-value').setVisible(mainStatus || bulkStatus);
-        if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
-            menu.down('#confirm-value').hide();
-        } else {
-            menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
-        }
-
-        if (menu.down('#remove-reading')) {
-            menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
-        }
     },
 
     chooseBulkAction: function (menu, item) {

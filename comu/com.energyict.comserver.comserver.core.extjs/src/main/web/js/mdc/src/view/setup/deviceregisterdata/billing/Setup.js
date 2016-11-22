@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainSetup',
     alias: 'widget.deviceregisterreportsetup-billing',
     itemId: 'deviceregisterreportsetup',
+    useMultiplier: false,
 
     initComponent: function () {
         var me = this;
@@ -21,7 +22,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                                 grid: {
                                     xtype: 'deviceregisterreportgrid-billing',
                                     mRID: me.mRID,
-                                    registerId: me.registerId
+                                    registerId: me.registerId,
+                                    useMultiplier: me.useMultiplier
                                 },
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',

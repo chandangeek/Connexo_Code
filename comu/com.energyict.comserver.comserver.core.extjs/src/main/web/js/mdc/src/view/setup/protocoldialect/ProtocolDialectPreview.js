@@ -5,10 +5,11 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
     requires: [
         'Mdc.model.ProtocolDialect',
         'Uni.property.form.Property',
+        'Uni.button.Action',
         'Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu'
     ],
     frame: true,
-    title: "Details",
+    title: '',
 
     tools: [
         {

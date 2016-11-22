@@ -88,6 +88,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
                             mRID: mRID,
                             registerId: registerId,
+                            useMultiplier: registerBeingViewed.get('useMultiplier'),
                             unitOfMeasureCollected: collectedUnit,
                             mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
                             router: router

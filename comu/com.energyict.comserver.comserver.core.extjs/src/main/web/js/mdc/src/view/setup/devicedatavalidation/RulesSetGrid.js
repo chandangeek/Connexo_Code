@@ -49,7 +49,9 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges:Cfg.privileges.Validation.device,
-                items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu',
+                menu: {
+                    xtype: 'deviceDataValidationRulesSetActionMenu'
+                },
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationRuleSetsActions
             }
         ];

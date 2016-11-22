@@ -1,14 +1,9 @@
 Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-attributes-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [],
 
     initComponent: function() {
         var me = this;
-
         me.items = [
             {
                 itemId: 'deviceDeviceAttributesShowEdit',
@@ -16,7 +11,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesActionMenu', {
                 text: Uni.I18n.translate('deviceAttributes.edit', 'MDC', 'Edit device attributes'),
                 handler: function() {
                     me.router.getRoute('devices/device/attributes/edit').forward();
-                }
+                },
+                section: this.SECTION_EDIT
             }
         ];
         me.callParent(arguments);

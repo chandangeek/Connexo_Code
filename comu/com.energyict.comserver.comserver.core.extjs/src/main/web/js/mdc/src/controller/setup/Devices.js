@@ -244,55 +244,57 @@ Ext.define('Mdc.controller.setup.Devices', {
         transitionsStore.getProxy().setUrl(mRID);
         attributesModel.getProxy().setUrl(mRID);
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                me.getApplication().fireEvent('loadDevice', device);
+        transitionsStore.load({
+            callback: function () {
+                Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+                    success: function (device) {
+                        me.getApplication().fireEvent('loadDevice', device);
 
-                var widget = Ext.widget('deviceSetup', {router: router, device: device});
-                var deviceLabelsStore = device.labels();
-                deviceLabelsStore.getProxy().setUrl(mRID);
-                deviceLabelsStore.load(function () {
-                    widget.renderFlag(deviceLabelsStore);
-                });
+                        var widget = Ext.widget('deviceSetup', {
+                            router: router,
+                            device: device,
+                            actionsStore: transitionsStore
+                        });
+                        var deviceLabelsStore = device.labels();
+                        deviceLabelsStore.getProxy().setUrl(mRID);
+                        deviceLabelsStore.load(function () {
+                            widget.renderFlag(deviceLabelsStore);
+                        });
 
-                me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
 
-                me.doRefresh();
-                transitionsStore.load({
-                    callback: function () {
-                        me.getDeviceActionsMenu().setActions(this, router);
-                        me.getDeviceActionsMenu().setProcessMenu(mRID, router);
+                        me.doRefresh();
+
+                        attributesModel.load('attributes', {
+                            success: function (attributes) {
+                                me.getDeviceGeneralInformationForm().loadRecord(attributes);
+                                me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
+                                    .update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', Uni.DateTime.formatTimeShort(new Date())));
+                            }
+                        });
+                        if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
+                            if (device.get('isDataLoggerSlave')) {
+                                me.getDeviceCommunicationTopologyPanel().hide();
+                            } else {
+                                me.getDeviceCommunicationTopologyPanel().setRecord(device);
+                            }
+                        }
+                        if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
+                            me.getDataLoggerSlavesPanel().setSlaveStore(me.createDataLoggerSlavesStore(device));
+                        }
+                        if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
+                            me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
+                        }
+                        if ( (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
+                            && Cfg.privileges.Validation.canUpdateDeviceValidation() ) {
+                            me.updateDataValidationStatusSection(mRID, widget);
+                        } else {
+                            !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
+                        }
+                        viewport.setLoading(false);
+
                     }
                 });
-
-                attributesModel.load('attributes', {
-                    success: function (attributes) {
-                        me.getDeviceGeneralInformationForm().loadRecord(attributes);
-                        me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
-                            .update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
-                    }
-                });
-                if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
-                    if (device.get('isDataLoggerSlave')) {
-                        me.getDeviceCommunicationTopologyPanel().hide();
-                    } else {
-                        me.getDeviceCommunicationTopologyPanel().setRecord(device);
-                    }
-                }
-                if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
-                    me.getDataLoggerSlavesPanel().setSlaveStore(me.createDataLoggerSlavesStore(device));
-                }
-                if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
-                    me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
-                }
-                if ( (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                     && Cfg.privileges.Validation.canUpdateDeviceValidation() ) {
-                    me.updateDataValidationStatusSection(mRID, widget);
-                } else {
-                    !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
-                }
-                viewport.setLoading(false);
-
             }
         });
     },
@@ -357,11 +359,11 @@ Ext.define('Mdc.controller.setup.Devices', {
     },
 
     refreshConnections: function () {
-        var widget = this.getDeviceSetup();
-        var device = widget.device;
-        var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
-        var deviceConnectionsStore = device.connections();
-        var connectionsList = widget.down('device-connections-list');
+        var widget = this.getDeviceSetup(),
+            device = widget.device,
+            lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field'),
+            deviceConnectionsStore = device.connections(),
+            connectionsList = widget.down('device-connections-list');
 
         if (connectionsList) {
             connectionsList.bindStore(deviceConnectionsStore);
@@ -369,7 +371,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
             deviceConnectionsStore.load(function (records) {
                 if (!widget.isDestroyed) {
-                    !!widget.down('#connectionslist') && widget.down('#connectionslist').setTitle(Ext.String.format(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})'), records.length));
+                    !!widget.down('#connectionslist') && widget.down('#connectionslist').setTitle(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})', records.length));
                 }
             });
         }
