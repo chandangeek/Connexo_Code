@@ -15,6 +15,8 @@ import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.itron.fulcrum.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
 
@@ -58,10 +60,18 @@ public class RealTimeBasePage extends AbstractBasePage {
     }
     
     protected void parse(byte[] data) throws IOException {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing RealTimeBasePage: " + ProtocolUtils.outputHexString(data));
+        }
+
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
         
-        if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
+        if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled()) {
             tz = ProtocolUtils.getWinterTimeZone(tz);
+            getLogger().info(" - DST is not enabled, using winter tz: "+tz.toString());
+        } else {
+            getLogger().info(" - DST is enabled, using summer tz: "+tz.toString());
+        }
         
         setCalendar(ProtocolUtils.getCleanCalendar(tz));
         getCalendar().set(Calendar.DAY_OF_WEEK,(int)ParseUtils.getBCD2Long(data,6,1));
@@ -72,6 +82,8 @@ public class RealTimeBasePage extends AbstractBasePage {
         getCalendar().set(Calendar.MONTH,(int)ParseUtils.getBCD2Long(data,1, 1)-1);
         int year = (int)ParseUtils.getBCD2Long(data,0, 1);
         getCalendar().set(Calendar.YEAR,year>50?year+1900:year+2000);
+
+        getLogger().info(this.toString());
     }
 
     public Calendar getCalendar() {

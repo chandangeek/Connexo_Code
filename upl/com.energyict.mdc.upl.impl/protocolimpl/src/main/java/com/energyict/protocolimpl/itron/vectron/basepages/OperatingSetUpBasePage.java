@@ -14,6 +14,8 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.itron.fulcrum.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
 
@@ -75,9 +77,13 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
     }
     
     protected void parse(byte[] data) throws IOException {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing OperatingSetUpBasePage: " + ProtocolUtils.outputHexString(data));
+        }
         int offset = 0;
         setFlags((int)data[0]&0xff);
         setDstEnabled((getFlags() & 0x20) == 0x20);
+        getLogger().info(this.toString());
     }
     
     public boolean isDstEnabled() {

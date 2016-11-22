@@ -80,7 +80,34 @@ public class MassMemoryRecordBasePageTest {
 
 
     @Test
-    public void testParse() throws Exception {
+    public void testParseMemoryBaseRecord() throws Exception {
+        when(protocolLink.getTimeZone()).thenReturn(timeZone);
+        when(basePagesFactory.getProtocolLink()).thenReturn(protocolLink);
+
+        when(massMemoryBasePages.getNrOfChannels()).thenReturn(2);
+        when(basePagesFactory.getMassMemoryBasePages()).thenReturn(massMemoryBasePages);
+
+        when(operatingSetUpBasePage.isDstEnabled()).thenReturn(false);
+        when(basePagesFactory.getOperatingSetUpBasePage()).thenReturn(operatingSetUpBasePage);
+
+        MassMemoryBasePages pageGood = new MassMemoryBasePages(basePagesFactory);
+        byte[] dataGood = ProtocolTools.getBytesFromHexString("$00$00$00$50$05$2A$00$A8$FF$00$0F$00$39$33$31$36$52$35$20$20$20$20$20$20$20$20$00$90$14$00$00$00$00$00$73$C0$00$00$00$00$00$00$00$00$10$07$21$07$25$24$03$00$00$02$2E$4E$00$00$00$50$50$00$00$00$00");
+        pageGood.parse(dataGood);
+       // getLogger().info(pageGood.toString());
+
+        MassMemoryBasePages pageBad = new MassMemoryBasePages(basePagesFactory);
+        byte[] dataBad = ProtocolTools.getBytesFromHexString("$00$00$00$50$05$2A$00$A8$FF$00$0F$00$39$33$39$36$52$35$20$20$20$20$20$20$20$20$00$00$04$00$00$00$00$00$01$00$00$00$00$00$00$00$00$00$03$06$20$12$04$37$05$00$00$02$2E$4E$00$00$00$50$40$00$00$00$00");
+        pageBad.parse(dataBad);
+     //   getLogger().info(pageBad.toString());
+
+        RealTimeBasePage realTimeBasePage1 = new RealTimeBasePage(basePagesFactory);
+        byte[] realTimeData = ProtocolTools.getBytesFromHexString("$16$11$20$23$26$33$07");
+        realTimeBasePage1.parse(realTimeData);
+    }
+
+
+    @Test
+    public void testParseMassMemoryRecord() throws Exception {
         when(protocolLink.getTimeZone()).thenReturn(timeZone);
         when(basePagesFactory.getProtocolLink()).thenReturn(protocolLink);
 
@@ -97,8 +124,6 @@ public class MassMemoryRecordBasePageTest {
         getLogger().info(page.toString());
         //TODO: check what's in here, get a reliable reference
     }
-
-
 
 
     @Test
