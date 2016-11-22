@@ -32,7 +32,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                     itemId: 'step3-errors',
                     xtype: 'uni-form-error-message',
                     hidden: true,
-                    text: Uni.I18n.translate('searchItems.bulk.devicesError', 'IMT', 'It is required to select a calendar to go to the next step.')
+                    text: Uni.I18n.translate('searchItems.bulk.calendarError', 'IMT', 'It is required to select a calendar to go to the next step.')
                 }
             ]
         },
