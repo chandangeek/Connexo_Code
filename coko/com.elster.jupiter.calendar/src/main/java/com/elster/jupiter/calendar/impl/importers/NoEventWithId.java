@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
 class NoEventWithId extends LocalizedException {
-    NoEventWithId(Thesaurus thesaurus, int id) {
-        super(thesaurus, MessageSeeds.NO_EVENT_DEFINED_WITH_ID, id);
+    NoEventWithId(Thesaurus thesaurus, String eventId) {
+        super(thesaurus, MessageSeeds.NO_EVENT_DEFINED_WITH_ID, eventId);
     }
 }
