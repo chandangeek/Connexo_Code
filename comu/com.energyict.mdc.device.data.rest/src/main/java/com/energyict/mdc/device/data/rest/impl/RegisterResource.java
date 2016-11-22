@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -11,10 +13,17 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BillingReading;
+import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
 
 import com.google.common.collect.Range;
 
@@ -35,6 +44,7 @@ import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,10 +58,11 @@ public class RegisterResource {
     private final ValidationInfoHelper validationInfoHelper;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final TopologyService topologyService;
+    private final MasterDataService masterDataService;
     private final Clock clock;
 
     @Inject
-    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService) {
+    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService, MasterDataService masterDataService) {
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
@@ -59,17 +70,55 @@ public class RegisterResource {
         this.validationInfoHelper = validationInfoHelper;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.topologyService = topologyService;
+        this.masterDataService = masterDataService;
     }
 
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
+                .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
+        Collections.sort(registerInfos, this::compareRegisterInfos);
         return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
+    }
+
+    private int compareRegisterInfos(RegisterInfo ri1, RegisterInfo ri2) {
+        return ri1.readingType.fullAliasName.compareTo(ri2.readingType.fullAliasName);
+    }
+
+    private List<ReadingType> getElegibleReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, Device device) {
+        List<Register> registers = device.getRegisters()
+                .stream()
+                .filter(register -> !(jsonQueryFilter.hasProperty("toTimeStart") || jsonQueryFilter.hasProperty("toTimeEnd")) || register instanceof BillingRegister)
+                .collect(Collectors.toList());
+        if (jsonQueryFilter.hasProperty("registers")) {
+            List<Long> registerTypes = jsonQueryFilter.getLongList("registers").stream()
+                    .collect(Collectors.toList());
+            registers = registers
+                    .stream()
+                    .filter(register -> registerTypes.contains(register.getRegisterSpecId()))
+                    .collect(Collectors.toList());
+        } else if (jsonQueryFilter.hasProperty("groups")) {
+            final List<Long> finalGroups = jsonQueryFilter.getLongList("groups").stream()
+                    .collect(Collectors.toList());
+            List<ReadingType> allowedReadingTypes = masterDataService.findAllRegisterGroups().find().stream()
+                    .filter(registerGroup -> finalGroups.contains(registerGroup.getId()))
+                    .flatMap(registerGroup -> registerGroup.getRegisterTypes().stream())
+                    .map(MeasurementType::getReadingType)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            registers = registers
+                    .stream()
+                    .filter(register -> allowedReadingTypes.contains(register.getReadingType()))
+                    .collect(Collectors.toList());
+        }
+        return registers.stream().map(Register::getReadingType).collect(Collectors.toList());
     }
 
     private int compareRegisters(Register r1, Register r2) {
@@ -106,6 +155,112 @@ public class RegisterResource {
         registerUpdater.setObisCode(registerInfo.overruledObisCode);
         registerUpdater.update();
         return Response.ok().build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/registergroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getRegisterGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<Register> registers = device.getRegisters();
+        List<RegisterGroup> allRegisterGroups = masterDataService.findAllRegisterGroups().find();
+        List<IdWithNameInfo> filteredRegisterGroups = allRegisterGroups.stream()
+                .filter(registerGroup -> registerGroupContainsAtLeastOneReadingType(registerGroup.getRegisterTypes(), registers))
+                .map(registerGroup -> new IdWithNameInfo(registerGroup.getId(), registerGroup.getName()))
+                .collect(Collectors.toList());
+
+        return Response.ok(filteredRegisterGroups).build();
+    }
+
+
+    @GET
+    @Transactional
+    @Path("/registersforgroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getRegistersForGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
+        List<SummarizedRegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
+                .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
+                .map(register -> new SummarizedRegisterInfo(register.getRegisterSpecId(), register.getReadingType().getFullAliasName(), register instanceof BillingRegister))
+                .collect(Collectors.toList());
+        Collections.sort(registerInfos, this::compareSummarizedRegisterInfos);
+        return Response.ok(registerInfos).build();
+    }
+
+    private int compareSummarizedRegisterInfos(SummarizedRegisterInfo ri1, SummarizedRegisterInfo ri2) {
+        return ri1.name.compareTo(ri2.name);
+    }
+
+    private boolean registerGroupContainsAtLeastOneReadingType(List<RegisterType> registerTypes, List<Register> registers) {
+        List<ReadingType> readingTypesInGroup = registerTypes.stream().map(RegisterType::getReadingType)
+                .collect(Collectors.toList());
+        List<ReadingType> readingTypesOnDevice = registers.stream()
+                .map(Register::getReadingType)
+                .collect(Collectors.toList());
+
+        return !Collections.disjoint(readingTypesInGroup, readingTypesOnDevice);
+    }
+
+    @GET
+    @Transactional
+    @Path("/registerreadings")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public PagedInfoList getRegisterReadings(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
+        List<Register> registers = device.getRegisters().stream()
+                .filter(register -> filteredReadingTypes.contains(register.getReadingType()))
+                .collect(Collectors.toList());
+
+        Instant measurementTimeStart = jsonQueryFilter.getInstant("measurementTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("measurementTimeStart");
+        Instant measurementTimeEnd = jsonQueryFilter.getInstant("measurementTimeEnd") == null ? null : jsonQueryFilter.getInstant("measurementTimeEnd");
+        boolean toTimeFilterAvailable = jsonQueryFilter.getInstant("toTimeStart") != null || jsonQueryFilter.getInstant("toTimeEnd") != null;
+        Instant toTimeStart = jsonQueryFilter.getInstant("toTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("toTimeStart");
+        Instant toTimeEnd = jsonQueryFilter.getInstant("toTimeEnd") == null ? null : jsonQueryFilter.getInstant("toTimeEnd");
+
+        Range<Instant> intervalReg = measurementTimeEnd==null ? Range.atLeast(measurementTimeStart) : Range.openClosed(measurementTimeStart, measurementTimeEnd);
+        Range<Instant> toTimeRange = toTimeEnd==null ? Range.atLeast(toTimeStart) : Range.openClosed(toTimeStart, toTimeEnd);
+
+        List<ReadingInfo> readingInfos = registers.stream()
+                .map(register -> topologyService.getDataLoggerRegisterTimeLine(register, intervalReg))
+                .flatMap(Collection::stream)
+                .map(registerRangePair -> {
+                    Register<?, ?> register1 = registerRangePair.getFirst();
+                    List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()))
+                            .stream()
+                            .filter(reading -> {
+                                if ( toTimeFilterAvailable && !(register1 instanceof BillingRegister) ) {
+                                     return false;
+                                }
+                                if (!toTimeFilterAvailable || !(register1 instanceof BillingRegister)) {
+                                    return true;
+                                }
+                                BillingReading billingReading = (BillingReading) reading;
+                                return billingReading.getRange().isPresent() && toTimeRange.contains(billingReading.getRange().get().upperEndpoint());
+                            })
+                            .collect(Collectors.toList());
+                    List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
+                            .isValidationActive(register1, this.clock.instant()), registers.contains(register1) ? null : register1.getDevice());
+                    infoList.stream().forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(register1.getRegisterSpecId(), register1.getReadingType().getFullAliasName()));
+                    return infoList;
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        Collections.sort(readingInfos, this::compareReadingInfos);
+
+        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
+        return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
+    }
+
+    private int compareReadingInfos(ReadingInfo ri1, ReadingInfo ri2) {
+        int result = ri2.timeStamp.compareTo(ri1.timeStamp);
+        return result != 0 ? result : ri1.register.name.compareTo(ri2.register.name);
     }
 
     @GET
