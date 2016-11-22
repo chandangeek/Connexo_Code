@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 public enum Privileges implements TranslationKey {
 
     VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION(Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, "View validation on metrology configuration"),
-    ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION(Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, "Administer validation on metrology configuration");
+    ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION(Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, "Administer validation on metrology configuration"),
+    VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION(Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION, "View estimation on metrology configuration"),
+    ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION, "Administer estimation on metrology configuration");
 
     private final String key;
     private final String description;
@@ -44,5 +46,7 @@ public enum Privileges implements TranslationKey {
     public interface Constants {
         String VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION = "privilege.view.metrologyConfiguration.validation";
         String ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION = "privilege.administrate.metrologyConfiguration.validation";
+        String VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION = "privilege.view.metrologyConfiguration.estimation";
+        String ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION = "privilege.administrate.metrologyConfiguration.estimation";
     }
 }
