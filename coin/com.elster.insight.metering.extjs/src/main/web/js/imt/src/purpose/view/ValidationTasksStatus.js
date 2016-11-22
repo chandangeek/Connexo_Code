@@ -68,7 +68,7 @@ Ext.define('Imt.purpose.view.ValidationTasksStatus', {
             interval: 50,
             increment: 20
         });
-        store.getProxy().setUrl(me.usagePoint.get('mRID'));
+        store.getProxy().setUrl(me.usagePoint.get('name'));
         store.load(function(records, operation, success) {
             isEmpty = Ext.isDefined(success)
                 ? !(success && store.getCount() && store.getTotalCount())
