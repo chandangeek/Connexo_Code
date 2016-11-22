@@ -58,7 +58,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
         startOn = startOn.withSecond(0).withMinute(0).withHour(11);
         com.elster.jupiter.export.DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(getName())
-                .setApplication("Admin")
+                .setApplication("MultiSense")
                 .setDataFormatterFactoryName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
                 .setNextExecution(startOn.toInstant(ZoneOffset.UTC))
