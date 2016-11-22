@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
@@ -113,6 +114,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ThreadPrincipalService threadPrincipalService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    SearchService searchService;
 
     @Override
     protected Application getApplication() {
@@ -148,6 +151,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setSearchService(searchService);
         return application;
     }
 

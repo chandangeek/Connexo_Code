@@ -45,10 +45,9 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters,
+    public Response getGoingOn(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters,
                                @HeaderParam("authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
-
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
 
         GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory();
 
@@ -80,7 +79,6 @@ public class GoingOnResource {
     private final class GoingOnInfoFactory {
 
         private GoingOnInfoFactory() {
-
         }
 
         private GoingOnInfo toGoingOnInfo(ServiceCall serviceCall) {
