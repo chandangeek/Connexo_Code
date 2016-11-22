@@ -142,6 +142,7 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_ENABLEMENT_DOES_NOT_EXIST(14008, Keys.COM_TASK_ENABLEMENT_DOES_NOT_EXIST, "The communication task ''{0}'' is not enabled on the device configuration ''{1}'' and can therefore not be disabled"),
     INCORRECT_GATEWAY_TYPE(14009, Keys.INCORRECT_GATEWAY_TYPE, "You must specify the gateway type if your configuration can act as gateway"),
     VETO_COMTASK_DELETION(14010, "comTaskXstillInUse", "ComTask {0} is still in use by at least one device configuration"),
+    VETO_CALENDAR_DELETION(14011, "calendarXStillInUse", "Calendar {0} is still in use by at least one device type"),
     PARTIAL_CONNECTION_TASK_NAME_DOES_NOT_EXIST(15001, "partialConnectionTask.doesNotExistName", "There is no Partial Connection Task by name {0}"),
     PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(15002, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}"),
     PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC(15003, Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC, "There is no spec for connection type property with name {0}"),
@@ -162,6 +163,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(15016, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
     DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS(15017, Keys.DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS, "You cannot change this property because you already have connection tasks"),
     CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You cannot remove the connection method because it is used by a communication task"),
+    TIME_OF_USE_CALENDAR_ONLY(15019, Keys.TIME_OF_USE_CALENDAR_ONLY, "You can only add Time of Use calendars to a device type"),
     ;
 
     private final int number;
@@ -282,6 +284,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "datalogger.enablements.at.least.one.datasource";
         public static final String DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS = "deviceConfig.active.directly.addressable.with.connectiontasks";
         public static final String CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT = "connection.task.used.by.comtask.enablement";
+        public static final String TIME_OF_USE_CALENDAR_ONLY = "devicetype.tou.calendar.only";
     }
 
 }

@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -488,6 +489,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<AllowedCalendar> findAllowedCalendars(String name) {
         return dataModel.query(AllowedCalendar.class).select(where("name").isEqualTo(name));
+    }
+
+    @Override
+    public QueryStream<AllowedCalendar> getAllowedCalendarsQuery() {
+        return dataModel.stream(AllowedCalendar.class);
     }
 
     @Override
