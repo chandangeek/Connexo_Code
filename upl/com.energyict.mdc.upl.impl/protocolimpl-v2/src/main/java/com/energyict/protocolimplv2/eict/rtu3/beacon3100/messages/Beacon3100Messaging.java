@@ -156,6 +156,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfacesForWebPortal);
+        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfacesForSetupObject);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpPort);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpsPort);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
@@ -605,6 +606,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = readMulticastProgress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfacesForWebPortal)) {
                         enableNetworkInterfaces(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfacesForSetupObject)) {
+                        enableInterfacesForSetupObject(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetMainLogbook)) {
                         this.resetLogbook(Beacon3100LogBookFactory.MAIN_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityLogbook)) {
@@ -1550,6 +1553,25 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getDeviceMessageAttributeValue());
         boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
 
+        Array interfacesArray = getInterfacesToEnable(isEthernetWanEnabled, isEthernetLanEnabled, isWirelessWanEnabled, isIp6_TunnelEnabled, isPlc_NetworkEnabled, allInterfacesEnabled);
+        getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
+    }
+
+    private void enableInterfacesForSetupObject(OfflineDeviceMessage pendingMessage) throws IOException {
+        final ObisCode setupObis = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.setupObjectAttributeName).getDeviceMessageAttributeValue());
+        NetworkConnectivityMessage.BeaconSetupObject beaconSetupObject = NetworkConnectivityMessage.BeaconSetupObject.valueOf(setupObis.getValue());
+        boolean isEthernetWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_WAN).getDeviceMessageAttributeValue());
+        boolean isEthernetLanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_LAN).getDeviceMessageAttributeValue());
+        boolean isWirelessWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.WIRELESS_WAN).getDeviceMessageAttributeValue());
+        boolean isIp6_TunnelEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.IP6_TUNNEL).getDeviceMessageAttributeValue());
+        boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getDeviceMessageAttributeValue());
+        boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
+
+        Array interfacesArray = getInterfacesToEnable(isEthernetWanEnabled, isEthernetLanEnabled, isWirelessWanEnabled, isIp6_TunnelEnabled, isPlc_NetworkEnabled, allInterfacesEnabled);
+        enableInterfacesOnBeaconSetupObject(beaconSetupObject, interfacesArray);
+    }
+
+    private Array getInterfacesToEnable(boolean isEthernetWanEnabled, boolean isEthernetLanEnabled, boolean isWirelessWanEnabled, boolean isIp6_TunnelEnabled, boolean isPlc_NetworkEnabled, boolean allInterfacesEnabled) {
         Array interfacesArray = new Array();
         if (allInterfacesEnabled) {
             interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ALL.getNetworkType()));
@@ -1570,7 +1592,24 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.PLC_NETWORK.getNetworkType()));
             }
         }
-        getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
+        return interfacesArray;
+    }
+
+    private void enableInterfacesOnBeaconSetupObject(NetworkConnectivityMessage.BeaconSetupObject beaconSetupObject, Array interfacesArray) throws IOException {
+        switch (beaconSetupObject){
+            case Remote_Shell:
+                getCosemObjectFactory().getRemoteShellSetup().enableInterfaces(interfacesArray);
+                break;
+            case SNMP:
+                getCosemObjectFactory().getSNMPSetup().enableInterfaces(interfacesArray);
+                break;
+            case RTU_Discovery:
+                getCosemObjectFactory().getRtuDiscoverySetup().enableInterfaces(interfacesArray);
+                break;
+            case Web_Portal_Config:
+                getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
+                break;
+        }
     }
 
     protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {

@@ -762,4 +762,6 @@ public class DeviceMessageConstants {
     public static final String DecipherMeterNotifications = "DLMSGatewayMessage.DecipherMeterNotifications";
     public static final String DropUnencryptedMeterNotifications = "DLMSGatewayMessage.DropUnencryptedMeterNotifications";
 
+    public static final String setupObjectAttributeName = "NetworkConnectivityMessage.setupObjectAttributeName";
+
 }
