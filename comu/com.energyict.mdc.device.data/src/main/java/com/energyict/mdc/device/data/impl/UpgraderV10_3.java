@@ -58,7 +58,7 @@ class UpgraderV10_3 implements Upgrader {
 
     private void doSQL(List<ComTaskEnablement> validEnablementsForSchedule, ComTaskExecution comTaskExecution) {
         List<String> sql = new ArrayList<>();
-        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + ", PROTOCOLDIALECTCONFIGPROPS = '" + validEnablementsForSchedule.get(0).getProtocolDialectConfigurationProperties().getId() + "' WHERE ID='" + comTaskExecution.getId() + "'";
+        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + "', PROTOCOLDIALECTCONFIGPROPS = '" + validEnablementsForSchedule.get(0).getProtocolDialectConfigurationProperties().getId() + "' WHERE ID='" + comTaskExecution.getId() + "'";
         sql.add(updateSQL);
 
         for (int i = 1; i < validEnablementsForSchedule.size(); i++) {
