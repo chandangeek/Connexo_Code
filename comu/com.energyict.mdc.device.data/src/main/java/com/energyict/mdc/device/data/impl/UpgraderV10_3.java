@@ -71,8 +71,8 @@ class UpgraderV10_3 implements Upgrader {
                     "SELECT DDC_COMTASKEXECID.nextval, '0', CREATETIME, MODTIME, DISCRIMINATOR, DEVICE, '" + comTaskEnablement.getComTask()
                     .getId() + "', COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
                     "NEXTEXECUTIONTIMESTAMP, COMPORT, OBSOLETE_DATE, PRIORITY, USEDEFAULTCONNECTIONTASK, CURRENTRETRYCOUNT, PLANNEDNEXTEXECUTIONTIMESTAMP, EXECUTIONPRIORITY, EXECUTIONSTART, LASTSUCCESSFULCOMPLETION, " +
-                    "LASTEXECUTIONFAILED, CONNECTIONTASK, " + comTaskEnablement.getProtocolDialectConfigurationProperties()
-                    .getId() + ", IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
+                    "LASTEXECUTIONFAILED, CONNECTIONTASK, '" + comTaskEnablement.getProtocolDialectConfigurationProperties()
+                    .getId() + "', IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
                     "FROM DDC_COMTASKEXEC " +
                     "WHERE ID='" + comTaskExecution.getId() + "'";
             sql.add(insertSQL);
