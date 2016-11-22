@@ -294,7 +294,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         if (Ext.isEmpty(slaveChannel)) {
                             return '-';
                         }
-                        var slaveId = slaveChannel.name,
+                        var slaveId = slaveChannel.deviceName,
                             channelId = slaveChannel.channelId;
                         return Ext.String.format('<a href="{0}">{1}</a>',
                             me.router.getRoute('devices/device/channels/channeldata').buildUrl(
