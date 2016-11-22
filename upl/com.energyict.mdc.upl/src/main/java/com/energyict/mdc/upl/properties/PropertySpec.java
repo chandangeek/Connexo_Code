@@ -2,7 +2,6 @@ package com.energyict.mdc.upl.properties;
 
 import aQute.bnd.annotation.ConsumerType;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -64,7 +63,7 @@ public interface PropertySpec<T> {
      * @return <code>true</code> iff the value is valid, all other cases will throw an InvalidValueException
      * @throws PropertyValidationException Thrown if the value is not valid for this attribute specification.
      */
-    boolean validateValue(Object value) throws PropertyValidationException;
+    boolean validateValue(T value) throws PropertyValidationException;
 
     /**
      * @return the Default value defined for this PropertySpec
@@ -78,6 +77,20 @@ public interface PropertySpec<T> {
      *
      * @return the list of possible values for this PropertySpec
      */
-    List<T> getPossibleValues();
+    PropertySpecPossibleValues<T> getPossibleValues();
+
+    /**
+     * Tests if this PropertySpec has support for
+     * multiple values at the same time, i.e. client
+     * code can specify a Collection of its value type
+     * instead of a single value.
+     * The class returning a PropertySpec that has
+     * support for multi values should be prepared
+     * to accept both Collection&lt;ValueType&gt;
+     * and ValueType when receiving values for that PropertySpec.
+     *
+     * @return A flag that indicates if this PropertySpec supports multi values
+     */
+    boolean supportsMultiValues();
 
 }
