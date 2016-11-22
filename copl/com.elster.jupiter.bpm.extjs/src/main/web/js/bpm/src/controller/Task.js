@@ -140,14 +140,14 @@ Ext.define('Bpm.controller.Task', {
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else if (queryString.param === 'myworkgroups') {
             Ext.Ajax.request({
-                url: '/api/bpm/runtime/workgroups?myworkgroups=true',
+                url: '/api/bpm/workgroups?myworkgroups=true',
                 method: 'GET',
                 success: function (response) {
                     var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                     if (decoded && decoded.workgroups) {
                         queryString.param = undefined;
-                        queryString.userAssignee = [-1];
-                        queryString.workgroup = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
+                        queryString.user = [Uni.I18n.translate('general.userUnassigned', 'BPM', 'Unassigned')];
+                        queryString.workgroup = decoded.workgroups.length == 0 ? [Uni.I18n.translate('general.workgroupUnassigned', 'BPM', 'Unassigned')] : decoded.workgroups.map(function (wg) {
                             return wg.name;
                         });
                         queryString.status = ['ASSIGNED', 'CREATED'];
