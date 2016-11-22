@@ -1,13 +1,12 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.modem.PostDialCommand.AbstractAtPostDialCommand;
-import com.energyict.mdc.channels.serial.modem.PostDialCommand.AtDelayCommand;
-import com.energyict.mdc.channels.serial.modem.PostDialCommand.AtFlushCommand;
-import com.energyict.mdc.channels.serial.modem.PostDialCommand.AtSerialCommunicationSettingsCommand;
-import com.energyict.mdc.channels.serial.modem.PostDialCommand.AtWriteCommand;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.AbstractAtPostDialCommand;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.AtDelayCommand;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.AtFlushCommand;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.AtSerialCommunicationSettingsCommand;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.AtWriteCommand;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.comserver.tools.Strings;
+import com.google.common.base.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,10 @@ public abstract class AbstractAtModemProperties extends AbstractModemProperties 
     protected abstract String getPostDialCommands();
 
     // --- COMMON PARSING METHODS ---
+
     /**
      * Parse the given commands string, split it up in separate {@link AbstractAtPostDialCommand PostDialCommands} and validate them.
+     *
      * @param commands the complete commands string, to be splitted into AbstractAtPostDialCommands.
      * @return the list of AbstractAtPostDialCommands
      */
@@ -61,7 +62,7 @@ public abstract class AbstractAtModemProperties extends AbstractModemProperties 
             case AtSerialCommunicationSettingsCommand.SERIAL_COMMUNICATION_SETTINGS_COMMAND:
                 return new AtSerialCommunicationSettingsCommand(splittedCommand);
             default:
-                throw new ApplicationException("The provided post dial commands string is not valid.");
+                throw new IllegalArgumentException("The provided post dial commands string is not valid.");
         }
     }
 
@@ -84,14 +85,14 @@ public abstract class AbstractAtModemProperties extends AbstractModemProperties 
     private String[] unEscapeCommands(String[] commands) {
         List<String> unEscapedCommands = new ArrayList<>();
         for (String command : commands) {
-            if (!Strings.isEmpty(command)) {
+            if (!Strings.isNullOrEmpty(command)) {
                 unEscapedCommands.add(this.unEscapeCommand(command));
             }
         }
         return unEscapedCommands.toArray(new String[unEscapedCommands.size()]);
     }
 
-    private String unEscapeCommand (String command) {
+    private String unEscapeCommand(String command) {
         StringBuilder newValueBuilder = new StringBuilder();
         for (int i = 0; i < command.length(); i++) {
             char c = command.charAt(i);
@@ -107,26 +108,44 @@ public abstract class AbstractAtModemProperties extends AbstractModemProperties 
         return newValueBuilder.toString();
     }
 
-    private String unEscape (char escaped) {
+    private String unEscape(char escaped) {
         switch (escaped) {
-            case '0':  return "\0";
-            case '1':  return "\1";
-            case '2':  return "\2";
-            case '3':  return "\3";
-            case '4':  return "\4";
-            case '5':  return "\5";
-            case '6':  return "\6";
-            case '7':  return "\7";
-            case 'b':  return "\b";
-            case 't':  return "\t";
-            case 'n':  return "\n";
-            case 'f':  return "\f";
-            case 'r':  return "\r";
-            case '(':  return "(";
-            case ')':  return ")";
-            case ':':  return ":";
-            case '\\':  return "\\";
-            default:  throw new ApplicationException("The provided post dial commands string is not valid.");
+            case '0':
+                return "\0";
+            case '1':
+                return "\1";
+            case '2':
+                return "\2";
+            case '3':
+                return "\3";
+            case '4':
+                return "\4";
+            case '5':
+                return "\5";
+            case '6':
+                return "\6";
+            case '7':
+                return "\7";
+            case 'b':
+                return "\b";
+            case 't':
+                return "\t";
+            case 'n':
+                return "\n";
+            case 'f':
+                return "\f";
+            case 'r':
+                return "\r";
+            case '(':
+                return "(";
+            case ')':
+                return ")";
+            case ':':
+                return ":";
+            case '\\':
+                return "\\";
+            default:
+                throw new IllegalArgumentException("The provided post dial commands string is not valid.");
         }
     }
 

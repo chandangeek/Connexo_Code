@@ -1,10 +1,11 @@
 package com.energyict.mdc.channels.serial;
 
-import com.energyict.cbo.TimeDuration;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 
 /**
  * Groups relevant serial port configuration options
@@ -22,8 +23,8 @@ public class SerialPortConfiguration {
     public static final String PARITY_NAME = "serialconfig_parity";
     public static final String FLOW_CONTROL_NAME = "serialconfig_flowcontrol";
 
-    public static final TimeDuration DEFAULT_SERIAL_PORT_OPEN_TIMEOUT = new TimeDuration(2);
-    public static final TimeDuration DEFAULT_SERIAL_PORT_READ_TIMEOUT = new TimeDuration(10);
+    public static final TemporalAmount DEFAULT_SERIAL_PORT_OPEN_TIMEOUT = Duration.ofSeconds(2);
+    public static final TemporalAmount DEFAULT_SERIAL_PORT_READ_TIMEOUT = Duration.ofSeconds(10);
 
     private String comPortName;
     private BaudrateValue baudrate;
@@ -32,8 +33,8 @@ public class SerialPortConfiguration {
     private FlowControl flowControl;
     private Parities parity;
 
-    private BigDecimal serialPortOpenTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_OPEN_TIMEOUT.getMilliSeconds());
-    private BigDecimal serialPortReadTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_READ_TIMEOUT.getMilliSeconds());
+    private BigDecimal serialPortOpenTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_OPEN_TIMEOUT.get(ChronoUnit.MILLIS));
+    private BigDecimal serialPortReadTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_READ_TIMEOUT.get(ChronoUnit.MILLIS));
 
     // For XML serialization only
     private SerialPortConfiguration() {

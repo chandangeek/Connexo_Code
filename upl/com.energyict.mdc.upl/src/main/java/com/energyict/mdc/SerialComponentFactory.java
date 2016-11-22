@@ -12,6 +12,8 @@ import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Provides factory services for serial IO components.
  *
@@ -20,18 +22,24 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
  */
 public interface SerialComponentFactory {
 
-    public ServerSerialPort newSioSerialPort (SerialPortConfiguration configuration);
+    /**
+     * Holds the instance for the SerialComponentFactory.
+     * Users of this library should provide a value according to their own specifications
+     */
+    AtomicReference<SerialComponentFactory> instance = new AtomicReference<>();
 
-    public ServerSerialPort newRxTxSerialPort (SerialPortConfiguration configuration);
+    public ServerSerialPort newSioSerialPort(SerialPortConfiguration configuration);
 
-    public SerialPortComChannel newSerialComChannel (ServerSerialPort serialPort);
+    public ServerSerialPort newRxTxSerialPort(SerialPortConfiguration configuration);
 
-    public AtModemComponent newAtModemComponent (AbstractAtModemProperties properties);
+    public SerialPortComChannel newSerialComChannel(ServerSerialPort serialPort);
 
-    public PaknetModemComponent newPaknetModemComponent (AbstractPaknetModemProperties properties);
+    public AtModemComponent newAtModemComponent(AbstractAtModemProperties properties);
 
-    public PEMPModemComponent newPEMPModemComponent (AbstractPEMPModemProperties properties);
+    public PaknetModemComponent newPaknetModemComponent(AbstractPaknetModemProperties properties);
 
-    public CaseModemComponent newCaseModemComponent (AbstractCaseModemProperties properties);
+    public PEMPModemComponent newPEMPModemComponent(AbstractPEMPModemProperties properties);
+
+    public CaseModemComponent newCaseModemComponent(AbstractCaseModemProperties properties);
 
 }
