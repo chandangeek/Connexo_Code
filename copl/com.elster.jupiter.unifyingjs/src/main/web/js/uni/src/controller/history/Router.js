@@ -16,6 +16,9 @@
  * {
  *      route: 'route/to/redirect/{paramId}',
  *      params: {paramId: 42}
+ *      locationReplace: true    <<<< [Optional] To indicate you want a window.location.replace() instead of a route.forward()
+ *                                               This way, the original route is NOT stored in browser history
+ *                                               and hence doesn't introduce browser back-button problems
  * }
  *
  * For creating URL in the application use the following example:
@@ -248,6 +251,10 @@ Ext.define('Uni.controller.history.Router', {
                             var url = Uni.store.Apps.findRecord('name', config.redirect.app).get('url'),
                                 route = me.getRoute(config.redirect.route || me.route);
                             url = url + route.buildUrl(redirectParams).substring(1);
+                            window.location.replace(url);
+                        } else if (!Ext.isEmpty(config.redirect.locationReplace) && config.redirect.locationReplace) {
+                            var route = me.getRoute(config.redirect.route || me.route),
+                                url = route.buildUrl(redirectParams);
                             window.location.replace(url);
                         } else {
                             me.getRoute(config.redirect.route).forward(redirectParams);

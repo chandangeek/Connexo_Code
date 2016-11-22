@@ -68,16 +68,16 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         minValue: 0,
                         maxValue: 23,
                         maxLength: 2,
+                        enforceMaxLength: true,
                         allowExponential: false,
                         allowDecimals: false,
                         editable: true,
-                        emptyText: '00',
+                        emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
                         width: 57,
                         valueToRaw: function (value) {
                             if (!Ext.isDefined(value)) {
                                 return null;
                             }
-
                             value = value || 0;
                             return (value < 10 ? '0' : '') + value;
                         },
@@ -100,16 +100,16 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         minValue: 0,
                         maxValue: 59,
                         maxLength: 2,
+                        enforceMaxLength: true,
                         allowExponential: false,
                         allowDecimals: false,
                         editable: true,
-                        emptyText: '00',
+                        emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
                         width: 57,
                         valueToRaw: function (value) {
                             if (!Ext.isDefined(value)) {
                                 return null;
                             }
-
                             value = value || 0;
                             return (value < 10 ? '0' : '') + value;
                         },
