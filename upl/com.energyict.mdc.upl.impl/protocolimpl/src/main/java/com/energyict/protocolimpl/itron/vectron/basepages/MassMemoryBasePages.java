@@ -16,6 +16,8 @@ import com.energyict.protocolimpl.itron.vectron.*;
 import java.io.*;
 import java.math.*;
 import java.util.*;
+import java.util.logging.Level;
+
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.base.*;
 /**
@@ -84,6 +86,10 @@ public class MassMemoryBasePages extends AbstractBasePage {
     }
     
     protected void parse(byte[] data) throws IOException {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing MassMemoryBasePages: " + ProtocolUtils.outputHexString(data));
+        }
+
         int offset = 0;
         getChannelPulseWidths()[0] = ParseUtils.convertBCDFixedPoint(data,offset,4,8);
         offset+=4;
@@ -124,6 +130,9 @@ public class MassMemoryBasePages extends AbstractBasePage {
         setIntervalTimer(((temp<<4)&0xF0) + ((temp>>4)&0x0F));
         offset+=2; // skip 2 bytes address 253D
         offset+=2; // skip 2 bytes address 253F
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("Parsing MassMemoryBasePages results:" + this.toString());
+        }
     }
 
     
