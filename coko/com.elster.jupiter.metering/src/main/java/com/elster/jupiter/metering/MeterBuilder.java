@@ -9,13 +9,17 @@ public interface MeterBuilder {
 
     Meter create();
 
+    /**
+     * Sets custom MRID for this builder.
+     * @param mRID A Java-formatted {@link String} representation of {@link java.util.UUID UUID},
+     * i.e. one that can be obtained as {@code UUID.randomUUID().toString()}.
+     * @return The self.
+     */
     MeterBuilder setMRID(String mRID);
 
     MeterBuilder setAmrId(String amrId);
 
     MeterBuilder setStateMachine(FiniteStateMachine finiteStateMachine);
-
-    MeterBuilder setName(String name);
 
     MeterBuilder setSerialNumber(String serialNumber);
 

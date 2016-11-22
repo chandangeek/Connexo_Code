@@ -77,7 +77,8 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
                 .specForValuesOf(new TypeValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_TYPE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(UsagePointTypeInfo.UsagePointType.values())
+                .addValues(UsagePointTypeInfo.UsagePointType.PHYSICAL_NON_SDP,
+                        UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP) //Virtual usage points are not available in search
                 .markExhaustive()
                 .finish();
     }
@@ -99,16 +100,16 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
         return (((Contains) specification).getCollection()).stream()
                 .map(UsagePointTypeInfo.UsagePointType.class::cast).map(result -> {
                     switch (result) {
-                        case UNMEASURED_SDP:
+                        case VIRTUAL_SDP:
                             return Where.where("isVirtual").isEqualTo(true)
                                     .and(Where.where("isSdp").isEqualTo(true));
-                        case UNMEASURED_NON_SDP:
+                        case VIRTUAL_NON_SDP:
                             return Where.where("isVirtual").isEqualTo(true)
                                     .and(Where.where("isSdp").isEqualTo(false));
-                        case MEASURED_SDP:
+                        case PHYSICAL_SDP:
                             return Where.where("isVirtual").isEqualTo(false)
                                     .and(Where.where("isSdp").isEqualTo(true));
-                        case MEASURED_NON_SDP:
+                        case PHYSICAL_NON_SDP:
                             return Where.where("isVirtual").isEqualTo(false)
                                     .and(Where.where("isSdp").isEqualTo(false));
                         default:

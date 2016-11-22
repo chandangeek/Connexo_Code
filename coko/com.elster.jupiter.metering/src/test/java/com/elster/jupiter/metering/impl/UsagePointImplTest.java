@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +62,6 @@ public class UsagePointImplTest {
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
-    private static final String MR_ID = "mrID";
     private static final String ALIAS_NAME = "aliasName";
     private static final String DESCRIPTION = "description";
     private static final String NAME = "name";
@@ -148,8 +148,9 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
-        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService, metrologyConfigurationService, dataAggregationService)
-                .init(MR_ID, serviceCategory);
+        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider,
+                customPropertySetService, metrologyConfigurationService, dataAggregationService)
+                .init(NAME, serviceCategory);
         usagePoint.setInstallationTime(Instant.EPOCH);
     }
 
@@ -159,7 +160,9 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetMrId() {
-        assertThat(usagePoint.getMRID()).isEqualTo(MR_ID);
+        String mRID = usagePoint.getMRID();
+        assertThat(mRID).isNotNull().isNotEmpty();
+        assertThat(UUID.fromString(mRID).toString()).isEqualTo(mRID);
     }
 
     @Test
@@ -168,10 +171,10 @@ public class UsagePointImplTest {
     }
 
     @Test
-    public void testGetName() {
-        usagePoint.setName(NAME);
-
+    public void testGetSetName() {
         assertThat(usagePoint.getName()).isEqualTo(NAME);
+        usagePoint.setName("newname");
+        assertThat(usagePoint.getName()).isEqualTo("newname");
     }
 
     @Test

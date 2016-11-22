@@ -60,7 +60,7 @@ public class ChannelDeleteAfterIT {
     public static final String BULK_IRRREGULAR = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String BILLING_PERIOD_IRRREGULAR = "8.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String PULSE_COUNT_REGULAR = "0.0.2.1.0.0.142.0.0.1.1.0.0.0.0.0.111.0";
-    public static final String METER_MRID = "mRID";
+    public static final String METER_NAME = "myName";
     public static final String DEVICE_READING_QUALITY_CODE = "1.3.4";
     public static final String DEVICE_READING_QUALITY_COMMENT = "Device reading quality";
 
@@ -85,8 +85,7 @@ public class ChannelDeleteAfterIT {
         inMemoryBootstrapModule.getTransactionService().run(() -> {
             MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             Meter meter = meteringService.findAmrSystem(1).get()
-                    .newMeter("amrID")
-                    .setMRID(METER_MRID)
+                    .newMeter("amrID", METER_NAME)
                     .create();
 
             MultiplierType multiplierType = meteringService.createMultiplierType("Pulse multiplier");
@@ -142,9 +141,8 @@ public class ChannelDeleteAfterIT {
         inMemoryBootstrapModule.deactivate();
     }
 
-
     private Optional<ChannelImpl> getChannelFor(String readingType) {
-        Meter meter = inMemoryBootstrapModule.getMeteringService().findMeter(METER_MRID).get();
+        Meter meter = inMemoryBootstrapModule.getMeteringService().findMeterByName(METER_NAME).get();
 
         MeterActivation meterActivation = meter.getMeterActivation(ZONED_DATE_TIME.toInstant()).get();
         return meterActivation.getChannelsContainer()
