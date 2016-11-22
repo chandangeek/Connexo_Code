@@ -3,6 +3,10 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
     alias: 'widget.device-group-filter',
     layout: 'hbox',
 
+    requires: [
+        'Uni.view.menu.ActionsMenu'
+    ],
+
     initComponent: function () {
         var me = this;
         var store = Ext.getStore('Dsh.store.filter.DeviceGroup' || 'ext-empty-store');
@@ -25,8 +29,9 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                 label: Uni.I18n.translate('general.deviceGroup', 'DSH', 'Device group') + ': ',
                 arrowAlign: 'right',
                 groupName:null, // yellowfin reports use names instead of id
-                menuAlign: 'tl-bl',
+                menuAlign: 'tr-br',
                 menu: {
+                    xtype: 'uni-actions-menu',
                     enableScrolling: true,
                     maxHeight: 350,
                     itemId: 'mnu-device-group-filter',
