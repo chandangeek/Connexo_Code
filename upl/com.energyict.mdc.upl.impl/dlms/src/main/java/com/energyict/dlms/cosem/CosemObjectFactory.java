@@ -244,6 +244,18 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new WebPortalConfig(protocolLink, getObjectReference(WebPortalConfig.getDefaultObisCode()));
     }
 
+    public RemoteShellSetup getRemoteShellSetup() throws NotInObjectListException {
+        return new RemoteShellSetup(protocolLink, getObjectReference(RemoteShellSetup.getDefaultObisCode()));
+    }
+
+    public RTUDiscoverySetup getRtuDiscoverySetup() throws NotInObjectListException {
+        return new RTUDiscoverySetup(protocolLink, getObjectReference(RTUDiscoverySetup.getDefaultObisCode()));
+    }
+
+    public SNMPSetup getSNMPSetup() throws NotInObjectListException {
+        return new SNMPSetup(protocolLink, getObjectReference(SNMPSetup.getDefaultObisCode()));
+    }
+
     public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws NotInObjectListException {
         return new PrivacyEnhancingDataAggregation(protocolLink, getObjectReference(obisCode));
     }

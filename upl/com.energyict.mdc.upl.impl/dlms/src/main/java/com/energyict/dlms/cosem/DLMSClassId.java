@@ -103,7 +103,11 @@ public enum DLMSClassId {
     DLMS_GATEWAY_SETUP(20019),
     MEMORY_MANAGEMENT(20021),
     MULTICAST_IC(20022),
-    USB_SETUP(20028);
+    USB_SETUP(20028),
+    REMOTE_SHELL_SETUP(20030),
+    SNMP_SETUP(20032),
+    RTU_DISCOVERY_SETUP(20033),
+    ;
 
     /**
      * The dlms class identifier

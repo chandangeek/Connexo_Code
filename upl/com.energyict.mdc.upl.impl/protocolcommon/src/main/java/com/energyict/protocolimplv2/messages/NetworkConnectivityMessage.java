@@ -6,6 +6,7 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -150,7 +151,16 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     ),
     SetHttpsPort(52,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpsPortAttributeName)
-    );
+    ),
+    EnableNetworkInterfacesForSetupObject(53,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.setupObjectAttributeName, BeaconSetupObject.getSetupObjectValues()),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ETHERNET_WAN),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ETHERNET_LAN),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WIRELESS_WAN),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.IP6_TUNNEL),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.PLC_NETWORK)
+    ),
+    ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
@@ -249,6 +259,32 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
 
         public String getDescription() {
             return description;
+        }
+    }
+
+    public enum BeaconSetupObject {
+        Remote_Shell("0.16.128.0.0.255"),
+        SNMP("0.17.128.0.0.255"),
+        RTU_Discovery("0.18.128.0.0.255"),
+        Web_Portal_Config("0.0.128.0.13.255");
+
+        private final String obis;
+
+        private BeaconSetupObject(String obis) {
+            this.obis = obis;
+        }
+
+        public static String[] getSetupObjectValues() {
+            BeaconSetupObject[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].name();
+            }
+            return result;
+        }
+
+        public ObisCode getObisCode() {
+            return ObisCode.fromString(obis);
         }
     }
 }
