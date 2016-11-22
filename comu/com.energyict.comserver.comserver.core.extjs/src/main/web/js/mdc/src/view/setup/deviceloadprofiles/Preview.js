@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Preview', {
     frame: true,
     router: null,
 
-    mRID: null,
+    deviceId: null,
 
     tools: [
         {
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Preview', {
 
         me.items = {
             xtype: 'deviceLoadProfilesPreviewForm',
-            mRID: me.mRID,
+            deviceId: me.deviceId,
             router: me.router
         };
 

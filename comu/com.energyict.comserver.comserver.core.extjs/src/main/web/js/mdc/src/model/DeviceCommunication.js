@@ -49,17 +49,13 @@ Ext.define('Mdc.model.DeviceCommunication', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/comtasks',
+        url: '/api/ddr/devices/{deviceId}/comtasks',
         reader: {
             type: 'json',
             root: 'comTasks'
         },
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
-        }
+        limitParam: false
     }
 });

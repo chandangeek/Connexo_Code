@@ -7,6 +7,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
         'Mdc.store.RegisterTypes',
         'Uni.view.container.PreviewContainer',
         'Uni.util.FormEmptyMessage',
+        'Uni.util.FormErrorMessage',
         'Uni.grid.column.Obis',
         'Uni.grid.column.ReadingType',
         'Ext.grid.plugin.BufferedRenderer'
@@ -50,15 +51,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                 },
                                 items: [
                                     {
-                                        name: 'errors',
-                                        ui: 'form-error-framed',
+                                        xtype: 'uni-form-error-message',
                                         itemId: 'registerGroupEditFormErrors',
-                                        layout: 'hbox',
+                                        name: 'errors',
                                         margin: '0 0 10 0',
                                         hidden: true,
-                                        defaults: {
-                                            xtype: 'container'
-                                        }
+                                        maxWidth: 650
                                     },
                                     {
                                         xtype: 'textfield',
@@ -75,13 +73,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 field.focus(false, 200);
                                             }
                                         }
-                                    },/*,
-                                    {
-                                        xtype: 'label',
-                                        itemId: 'separator',
-                                        margin: '0 0 0 265',
-                                        html: '<hr>'
-                                    },*/
+                                    },
                                     {
                                         xtype: 'displayfield',
                                         name: 'registerTypeInGroups',

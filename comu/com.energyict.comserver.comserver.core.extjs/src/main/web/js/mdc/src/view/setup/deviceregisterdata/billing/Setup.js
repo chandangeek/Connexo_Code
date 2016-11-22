@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                                 xtype: 'preview-container',
                                 grid: {
                                     xtype: 'deviceregisterreportgrid-billing',
-                                    mRID: me.mRID,
+                                    deviceId: me.deviceId,
                                     registerId: me.registerId,
                                     useMultiplier: me.useMultiplier
                                 },
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                                         {
                                             text:  Uni.I18n.translate('general.addReading','MDC','Add reading'),
                                             privileges: Mdc.privileges.Device.administrateDeviceData,
-                                            href: '#/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/data/add',
+                                            href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
                                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         }
                                     ]

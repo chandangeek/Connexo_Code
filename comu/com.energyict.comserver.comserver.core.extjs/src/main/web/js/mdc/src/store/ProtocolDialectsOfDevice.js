@@ -7,7 +7,7 @@ Ext.define('Mdc.store.ProtocolDialectsOfDevice', {
     storeId: 'ProtocolDialectsOfDevice',
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/protocoldialects',
+        url: '/api/ddr/devices/{deviceId}/protocoldialects',
         reader: {
             type: 'json',
             root: 'protocolDialects'

@@ -27,12 +27,9 @@ Ext.define('Mdc.model.DeviceChannel', {
     proxy: {
         type: 'rest',
         timeout: 120000,
-        urlTpl: '/api/ddr/devices/{0}/channels/',
+        url: '/api/ddr/devices/{deviceId}/channels/',
         reader: {
             type: 'json'
-        },
-        setUrl: function (mRID) {
-            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(mRID));
         }
     }
 });

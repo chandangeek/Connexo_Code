@@ -13,7 +13,6 @@ Ext.define('Mdc.model.DeviceGeneralAttributes', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{mRID}/protocols'
+        url: '/api/ddr/devices/{deviceId}/protocols'
     }
-
 });

@@ -38,7 +38,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     secId: -1,
 
     init: function () {
-        me = this;
         this.control({
             'securitySettingSetup securitySettingGrid': {
                 select: this.loadGridItemDetail
@@ -319,11 +318,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     onSubmit: function (btn) {
         var me = this,
             formPanel = me.getFormPanel(),
-            form = formPanel.down('form#myForm').getForm(),
-            formErrorsPanel = formPanel.down('panel[name=errors]');
+            form = formPanel.down('form#myForm').getForm();
 
         if (form.isValid()) {
-            formErrorsPanel.hide();
+            me.hideErrorPanel();
             var preloader = Ext.create('Ext.LoadMask', {
                 msg: Uni.I18n.translate('general.saving','MDC','Saving...'),
                 target: formPanel
@@ -356,17 +354,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     showErrorPanel: function () {
-        var me = this,
-            formErrorsPanel = me.getFormPanel().down('panel[name=errors]');
+        this.getFormPanel().down('#mdc-security-settings-form-errors').show();
+    },
 
-        formErrorsPanel.hide();
-        Ext.suspendLayouts();
-        formErrorsPanel.removeAll();
-        formErrorsPanel.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        Ext.resumeLayouts();
-        formErrorsPanel.show();
+    hideErrorPanel: function () {
+        this.getFormPanel().down('#mdc-security-settings-form-errors').hide();
     },
 
     handleSuccessRequest: function (response, headerText) {

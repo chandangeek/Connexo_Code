@@ -19,7 +19,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
 
     router: null,
     channel: null,
-    mRID: null,
+    usagePointId: null,
     filter: null,
     idProperty: 'interval_end',
 
@@ -128,7 +128,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID
+                        usagePointId: me.usagePointId
                     }
                 ]
             }

@@ -73,14 +73,14 @@ Ext.define('Mdc.controller.history.Setup', {
                 },
                 device: {
                     title: Uni.I18n.translate('general.device', 'MDC', 'Device'),
-                    route: '{mRID}',
+                    route: '{deviceId}',
                     controller: 'Mdc.controller.setup.Devices',
                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                     action: 'showDeviceDetailsView',
                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                     callback: function (route) {
                         this.getApplication().on('loadDevice', function (record) {
-                            route.setTitle(record.get('mRID'));
+                            route.setTitle(record.get('name'));
                             return true;
                         }, {single: true});
 
@@ -2217,7 +2217,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         callback: function (route) {
                             me.checkInsightRedirect(route);
                             this.getApplication().on('usagePointLoaded', function (record) {
-                                route.setTitle(record.get('mRID'));
+                                route.setTitle(record.get('name'));
                                 return true;
                             }, {single: true});
 
@@ -2233,7 +2233,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 callback: function (route) {
                                     me.checkInsightRedirect(route);
                                     this.getApplication().on('editUsagePointLoaded', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
+                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('name')));
                                         return true;
                                     }, {single: true});
 

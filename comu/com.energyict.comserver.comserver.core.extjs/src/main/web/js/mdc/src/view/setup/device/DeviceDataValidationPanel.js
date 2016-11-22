@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
 
     overflowY: 'auto',
     itemId: 'deviceDataValidationPanel',
-    mRID: null,
+    deviceId: null,
     ui: 'tile',
     title: Uni.I18n.translate('device.dataValidation', 'MDC', 'Data validation'),
     layout: 'fit',

@@ -14,13 +14,9 @@ Ext.define('Mdc.store.DataLoggerSlaveChannelHistory', {
             type: 'json',
             root: 'channelHistory'
         },
+        url: '/api/ddr/devices/{deviceId}/channels/{channelId}/history',
         pageParam: undefined,
         limitParam: undefined,
-        startParam: undefined,
-
-        setUrl: function(mRID, channelId) {
-            this.url = '/api/ddr/devices/' + encodeURIComponent(mRID) + '/channels/' + channelId + '/history'
-        }
+        startParam: undefined
     }
-
 });

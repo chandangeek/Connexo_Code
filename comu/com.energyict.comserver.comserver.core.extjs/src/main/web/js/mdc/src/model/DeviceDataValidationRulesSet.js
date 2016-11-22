@@ -54,7 +54,7 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/validationrulesets',
+        url: '/api/ddr/devices/{deviceId}/validationrulesets',
         timeout: 60000,
         reader: {
             type: 'json',
