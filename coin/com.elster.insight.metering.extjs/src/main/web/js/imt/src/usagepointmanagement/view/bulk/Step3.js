@@ -155,12 +155,6 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                             }
                         ]
                     }
-                    //{
-                    //    xtype: 'textfield',
-                    //    name: 'backupUrl',
-                    //    itemId: 'txt-backupUrl',
-                    //    fieldLabel: Uni.I18n.translate('userDirectories.backupURL', 'POCPKG', 'Backup URL')
-                    //}
                 ]
             }
 

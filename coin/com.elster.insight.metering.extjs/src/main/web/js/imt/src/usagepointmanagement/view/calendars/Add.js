@@ -171,12 +171,6 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                 }
                             ]
                         }
-                        //{
-                        //    xtype: 'textfield',
-                        //    name: 'backupUrl',
-                        //    itemId: 'txt-backupUrl',
-                        //    fieldLabel: Uni.I18n.translate('userDirectories.backupURL', 'POCPKG', 'Backup URL')
-                        //}
                     ]
                 }
             }
