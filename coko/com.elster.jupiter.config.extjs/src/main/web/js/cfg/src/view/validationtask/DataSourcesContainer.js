@@ -50,67 +50,27 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                 break;
 
             case 'MdmApp':
+                me.fieldLabel = Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group');
                 me.items = [
                     {
                         xtype: 'combobox',
-                        itemId: 'cbo-validation-task-up-metrology-configuration',
+                        itemId: 'cbo-validation-task-usage-point-group',
                         required: true,
                         editable: false,
                         queryMode: 'local',
                         displayField: 'displayValue',
                         valueField: 'id',
-                        labelWidth: 250,
-                        width: 565,
-                        fieldLabel : Uni.I18n.translate('validationTasks.general.metrologyConfiguration', 'CFG', 'Metrology configuration'),
-                        name: 'metrologyConfiguration',
-                        store: 'Cfg.store.MetrologyConfigurations',
-                        emptyText: Uni.I18n.translate('validationTasks.addValidationTask.selectMetrologyConfiguration', 'CFG', 'Select a metrology configuration...'),
-                        setValue: setValue,
-                        listeners: {
-                            select: function (field, value) {
-                                var configCombo = field.nextSibling(),
-                                    valueId;
-
-                                if (Ext.isArray(value)) {
-                                    valueId = value[0].get('id');
-                                } else {
-                                    valueId = value.get('id');
-                                }
-                                configCombo.getStore().getProxy().setUrl(valueId);
-                                if (configCombo.isDisabled()) {
-                                    configCombo.enable();
-                                } else {
-                                    configCombo.reset();
-                                }
-                                configCombo.getStore().load();
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'combobox',
-                        itemId: 'cbo-validation-task-up-metrology-contract',
-                        disabled: !me.edit,
-                        editable: false,
-                        required: true,
-                        queryMode: 'local',
-                        displayField: 'displayValue',
-                        valueField: 'id',
-                        labelWidth: 250,
-                        width: 565,
-                        name: 'metrologyContract',
-                        store: 'Cfg.store.MetrologyContracts',
-                        fieldLabel : Uni.I18n.translate('validationTasks.general.purpose', 'CFG', 'Purpose'),
-                        emptyText: Uni.I18n.translate('validationTasks.addValidationTask.selectPurpose', 'CFG', 'Select a purpose...'),
-                        afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'
-                        + Uni.I18n.translate('deviceAdd.firstSelectMetrologyConfig', 'CFG', 'First select a metrology configuration.')
-                        + '</i></div>',
+                        name: 'usagePointGroup',
+                        store: 'Cfg.store.UsagePointGroups',
+                        emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...'),
+                        disabled: !Cfg.privileges.Validation.canAdministrate(),
                         setValue: setValue
                     },
                     {
                         xtype: 'displayfield',
                         itemId: 'no-items-defined',
                         hidden: true,
-                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noMetrologyConfigYet', 'CFG', 'No metrology configuration defined yet.') + '</div>',
+                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.') + '</div>',
                         htmlEncode: false
                     }
                 ];
@@ -129,8 +89,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
 
                 break;
             case 'MdmApp' :
-                me.down('#cbo-validation-task-up-metrology-configuration').hide();
-                me.down('#cbo-validation-task-up-metrology-contract').hide();
+                me.down('#cbo-validation-task-usage-point-group').hide();
                 break;
         }
         me.down('#no-items-defined').show();
@@ -150,8 +109,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                 setToRecord(me.down('#cbo-validation-task-device-group'));
                 break;
             case 'MdmApp' :
-                setToRecord(me.down('#cbo-validation-task-up-metrology-configuration'));
-                setToRecord(me.down('#cbo-validation-task-up-metrology-contract'));
+                setToRecord(me.down('#cbo-validation-task-usage-point-group'));
                 break;
         }
     }

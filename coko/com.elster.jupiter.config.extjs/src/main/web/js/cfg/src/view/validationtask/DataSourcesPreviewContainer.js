@@ -31,13 +31,8 @@ Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
             {
                 me.items = [
                     {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.metrologyConfiguration', 'CFG', 'Metrology configuration'),
-                        name: 'metrologyConfiguration',
-                        renderer: fieldRenderer
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.purpose', 'CFG', 'Purpose'),
-                        name: 'metrologyContract',
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group'),
+                        name: 'usagePointGroup',
                         renderer: fieldRenderer
                     }
                 ];
