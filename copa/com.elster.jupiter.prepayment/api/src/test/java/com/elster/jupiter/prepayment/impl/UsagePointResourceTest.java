@@ -83,8 +83,8 @@ public class UsagePointResourceTest {
         usagePointResource = new UsagePointResource(meteringService, exceptionFactory, transactionService, serviceCallCommands, headEndController);
 
         when(transactionService.getContext()).thenReturn(mock(TransactionContext.class));
-        when(meteringService.findUsagePoint(INVALID_USAGE_POINT_MRID)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID(INVALID_USAGE_POINT_MRID)).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(serviceCallCommands.createContactorOperationServiceCall(any(), any())).thenReturn(serviceCall);
         when(usagePoint.getCurrentMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
