@@ -484,8 +484,9 @@ public class BpmResource {
         String rest = "/rest/tasks/";
         rest += String.valueOf(id) + "/";
         rest += String.valueOf(optLock);
+        String req = getQueryParam(queryParameters);
         if (userName != null || date != null || priority != null || workGroupName != null) {
-            rest += "/assign/" + "?username=" + URLEncoder.encode(userName, "UTF-8") + "&workgroupname=" + URLEncoder.encode(workGroupName, "UTF-8");
+            rest += "/assign/" + req + "&workgroupname=" + URLEncoder.encode(workGroupName, "UTF-8") + "&username=" + URLEncoder.encode(userName, "UTF-8");
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
                 response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
@@ -1391,7 +1392,11 @@ public class BpmResource {
             } else {
                 req += "?";
             }
-            req += theKey + "=" + queryParam.getFirst(theKey);
+            try {
+                req += theKey + "=" +  URLEncoder.encode(queryParam.getFirst(theKey), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             i++;
         }
         return req;
