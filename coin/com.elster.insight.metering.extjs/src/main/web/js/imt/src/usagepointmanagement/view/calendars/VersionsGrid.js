@@ -50,7 +50,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.VersionsGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('Calendars.pagingtoolbarbottom.itemsPerPage', 'BPM', 'Calendars per page'),
+                itemsPerPageMsg: Uni.I18n.translate('Calendars.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Calendars per page'),
                 dock: 'bottom'
             }
         ];
