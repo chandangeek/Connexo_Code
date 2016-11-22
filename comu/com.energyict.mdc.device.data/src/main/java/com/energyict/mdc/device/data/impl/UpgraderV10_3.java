@@ -58,9 +58,7 @@ class UpgraderV10_3 implements Upgrader {
 
     private void doSQL(List<ComTaskEnablement> validEnablementsForSchedule, ComTaskExecution comTaskExecution) {
         List<String> sql = new ArrayList<>();
-        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + ", PROTOCOLDIALECTCONFIGPROPS = '" + validEnablementsForSchedule.get(0)
-                .getProtocolDialectConfigurationProperties()
-                .getId() + "' WHERE ID='" + comTaskExecution.getId() + "'";
+        String updateSQL = "UPDATE DDC_COMTASKEXEC SET COMTASK ='" + validEnablementsForSchedule.get(0).getComTask().getId() + ", PROTOCOLDIALECTCONFIGPROPS = '" + validEnablementsForSchedule.get(0).getProtocolDialectConfigurationProperties().getId() + "' WHERE ID='" + comTaskExecution.getId() + "'";
         sql.add(updateSQL);
 
         for (int i = 1; i < validEnablementsForSchedule.size(); i++) {
@@ -68,11 +66,9 @@ class UpgraderV10_3 implements Upgrader {
             String insertSQL = "INSERT INTO DDC_COMTASKEXEC (ID, VERSIONCOUNT, CREATETIME, MODTIME, DISCRIMINATOR, DEVICE, COMTASK, COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
                     "NEXTEXECUTIONTIMESTAMP, COMPORT, OBSOLETE_DATE, PRIORITY, USEDEFAULTCONNECTIONTASK, CURRENTRETRYCOUNT, PLANNEDNEXTEXECUTIONTIMESTAMP, EXECUTIONPRIORITY, EXECUTIONSTART, LASTSUCCESSFULCOMPLETION, " +
                     "LASTEXECUTIONFAILED, CONNECTIONTASK, PROTOCOLDIALECTCONFIGPROPS, IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD) " +
-                    "SELECT DDC_COMTASKEXECID.nextval, '0', CREATETIME, MODTIME, DISCRIMINATOR, DEVICE, '" + comTaskEnablement.getComTask()
-                    .getId() + "', COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
+                    "SELECT DDC_COMTASKEXECID.nextval, '0', CREATETIME, MODTIME, DISCRIMINATOR, DEVICE, '" + comTaskEnablement.getComTask().getId() + "', COMSCHEDULE, NEXTEXECUTIONSPECS, LASTEXECUTIONTIMESTAMP, " +
                     "NEXTEXECUTIONTIMESTAMP, COMPORT, OBSOLETE_DATE, PRIORITY, USEDEFAULTCONNECTIONTASK, CURRENTRETRYCOUNT, PLANNEDNEXTEXECUTIONTIMESTAMP, EXECUTIONPRIORITY, EXECUTIONSTART, LASTSUCCESSFULCOMPLETION, " +
-                    "LASTEXECUTIONFAILED, CONNECTIONTASK, '" + comTaskEnablement.getProtocolDialectConfigurationProperties()
-                    .getId() + "', IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
+                    "LASTEXECUTIONFAILED, CONNECTIONTASK, '" + comTaskEnablement.getProtocolDialectConfigurationProperties().getId() + "', IGNORENEXTEXECSPECS, LASTSESSION, LASTSESS_HIGHESTPRIOCOMPLCODE, LASTSESS_SUCCESSINDICATOR, ONHOLD " +
                     "FROM DDC_COMTASKEXEC " +
                     "WHERE ID='" + comTaskExecution.getId() + "'";
             sql.add(insertSQL);
