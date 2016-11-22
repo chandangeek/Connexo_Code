@@ -12,7 +12,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
         'Uni.grid.column.Obis',
         'Uni.form.field.ObisDisplay',
         'Uni.grid.column.RemoveAction',
-        'Uni.button.Action'
+        'Uni.button.Action',
+        'Uni.view.menu.ActionsMenu'
     ],
     content: [
         {
@@ -131,10 +132,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                 privileges: Mdc.privileges.DeviceType.admin,
                                 itemId: 'device-type-logbook-action-menu-button',
                                 menu: {
-                                    plain: true,
-                                    border: false,
+                                    xtype: 'uni-actions-menu',
                                     itemId: 'device-type-logbook-action-menu',
-                                    shadow: false,
                                     items: [
                                         {
                                             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
