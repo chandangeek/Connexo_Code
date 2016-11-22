@@ -27,14 +27,17 @@ Ext.define('Bpm.view.task.UserAssigneeCombo', {
         me.store.getProxy().url = me.checked ? me.allUsersUrl : Ext.String.format(me.workgroupUsersUrl, me.workgroupId);
         me.store.load(function (records) {
             var id = me.valueField;
-            if (Ext.isObject(records.filter(function (user) {
-                    return user[id] == value;
-                })) == false) {
+            var foundUsers = records.filter(function (user) {
+                return user.get(id) == value;
+            });
+
+            if (Ext.isArray(foundUsers) && foundUsers.length == 0){
                 var unassignedObject = records.filter(function (user) {
                     return user.get('id') == -1;
                 })[0];
                 me.select(unassignedObject.get(me.valueField));
             }
+
         });
     },
 
