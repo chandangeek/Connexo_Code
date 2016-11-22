@@ -7,8 +7,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -16,8 +16,8 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -131,11 +133,12 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(comTaskExecutionSession.getComSession()).thenReturn(comSession);
         when(comTaskExecutionSession.getDevice()).thenReturn(device);
         when(comTaskExecutionSession.getId()).thenReturn(222L);
-        ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("15 minutes"), new TimeDuration("10 seconds")));
         when(comSchedule.getName()).thenReturn("als ge eens tijd hebt");
-        when(comTaskExecution.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution.getComSchedule()).thenReturn(Optional.of(comSchedule));
+        when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
         when(comTaskExecution.isIgnoreNextExecutionSpecsForInbound()).thenReturn(true);
         when(comTaskExecution.getExecutionPriority()).thenReturn(-20);
         ComTask comTask2 = mock(ComTask.class);

@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -93,8 +92,8 @@ public class DeviceSchedulesInfo {
     public static DeviceSchedulesInfo fromScheduled(ComTaskExecution comTaskExecution) {
         DeviceSchedulesInfo deviceSchedulesInfo = new DeviceSchedulesInfo();
         deviceSchedulesInfo.id = comTaskExecution.getId();
-        deviceSchedulesInfo.masterScheduleId = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getId();
-        deviceSchedulesInfo.name =((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
+        deviceSchedulesInfo.masterScheduleId = comTaskExecution.getComSchedule().get().getId();
+        deviceSchedulesInfo.name =comTaskExecution.getComSchedule().get().getName();
         deviceSchedulesInfo.schedule = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         deviceSchedulesInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
