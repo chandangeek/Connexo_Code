@@ -20,7 +20,7 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
         },
         {
             itemId: 'menu-unassigned-task',
-            text: Uni.I18n.translate('bpm.menu.releaseTask', 'BPM', 'Unassigned'),
+            text: Uni.I18n.translate('bpm.menu.releaseTask', 'BPM', 'Unassign'),
             action: 'unassignedTask',
             privileges: Bpm.privileges.BpmManagement.assign,
             visible: false
