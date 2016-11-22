@@ -58,7 +58,6 @@ public class TaskSummary {
         this.processInstanceId = task.getTaskData().getProcessInstanceId();
         this.optLock = ((TaskImpl) task).getVersion();
         task.getPeopleAssignments().getPotentialOwners().stream().filter(group -> group instanceof Group).map(OrganizationalEntity::getId).findFirst().ifPresent(groupName -> workGroup = groupName);
-
     }
 
     public TaskSummary(Object[] obj){

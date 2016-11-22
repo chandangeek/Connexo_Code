@@ -882,7 +882,7 @@ public class JbpmTaskResource {
                 }
             }
         }
-        if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null){
+        if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null && getQueryValue(uriInfo, "workgroup") == null){
             if (getQueryValue(uriInfo, "currentuser") != null) {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                     for(Long taskId: taskGroup.taskIds){

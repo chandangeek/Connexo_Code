@@ -10,6 +10,7 @@ import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.cdi.producer.UserGroupInfoProducer;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
 import org.kie.api.runtime.query.QueryContext;
@@ -19,8 +20,10 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskData;
 import org.kie.internal.task.api.InternalTaskService;
+import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.internal.task.api.model.InternalTask;
 
+import javax.enterprise.inject.Instance;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
@@ -32,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,6 +73,12 @@ public class JbpmTaskResourceTest {
     RuntimeDataService runtimeDataService;
     @Mock
     FormManagerService formManagerService;
+    @Mock
+    Instance<UserGroupInfoProducer> userGroupInfoProducersInstance;
+    @Mock
+    UserGroupInfoProducer userGroupInfoProducers;
+    @Mock
+    UserGroupCallback userGroupCallback;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -135,9 +145,12 @@ public class JbpmTaskResourceTest {
     @Test
     public void testGetExistingTask() throws Exception {
         Task task = mock(TaskImpl.class);
+        PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
         when(task.getId()).thenReturn(1L);
         when(task.getName()).thenReturn("TestTask");
         when(task.getPriority()).thenReturn(5);
+        when(task.getPeopleAssignments()).thenReturn(peopleAssignments);
+        when(peopleAssignments.getPotentialOwners()).thenReturn(Collections.emptyList());
 
         Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
 
@@ -452,10 +465,14 @@ public class JbpmTaskResourceTest {
         when(task.getPeopleAssignments()).thenReturn(peopleAssignments);
         when(peopleAssignments.getBusinessAdministrators()).thenReturn(businessAdministrators);
         when(org.getId()).thenReturn("userName");
+        when(userGroupInfoProducersInstance.get()).thenReturn(userGroupInfoProducers);
+        when(userGroupInfoProducers.produceCallback()).thenReturn(userGroupCallback);
+        when(userGroupCallback.existsGroup(anyString())).thenReturn(true);
 
         ClientRequest request = new ClientRequest(baseUri + "/1/0/assign");
         request.queryParameter("username", "userName");
         request.queryParameter("currentuser", "currentUser");
+        request.queryParameter("workgroupname", "workgroupname");
 
         ClientResponse<Response> response = request.post(Response.class);
         assertEquals(200, response.getResponseStatus().getStatusCode());
