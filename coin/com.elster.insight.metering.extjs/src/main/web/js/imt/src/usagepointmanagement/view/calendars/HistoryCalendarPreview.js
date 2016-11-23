@@ -17,14 +17,14 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
             items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'IMT', 'Start of calculations'),
-                            name: 'startYear'
-                        },
-                        {
-                            xtype: 'displayfield',
                             fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period'),
                             itemId: 'fromUntil',
                             htmlEncode: false
+                        },
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'IMT', 'Start of calculations'),
+                            name: 'startYear'
                         },
                         {
                             xtype: 'fieldcontainer',
