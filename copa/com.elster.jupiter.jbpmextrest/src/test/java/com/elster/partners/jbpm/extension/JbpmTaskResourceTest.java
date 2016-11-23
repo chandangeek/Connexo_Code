@@ -479,6 +479,44 @@ public class JbpmTaskResourceTest {
     }
 
     @Test
+    public  void testAssignToMe() throws Exception{
+        Task task = mock(TaskImpl.class);
+        TaskData taskData = mock(TaskData.class);
+        PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
+        List<OrganizationalEntity> businessAdministrators = new ArrayList<>();
+        OrganizationalEntity org = mock(OrganizationalEntity.class);
+        businessAdministrators.add(org);
+
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(taskData.getStatus())
+                .thenReturn(Status.Created)
+                .thenReturn(Status.Ready);
+        when(task.getPeopleAssignments()).thenReturn(peopleAssignments);
+        when(peopleAssignments.getBusinessAdministrators()).thenReturn(businessAdministrators);
+        when(org.getId()).thenReturn("currentUser");
+
+        ClientRequest request = new ClientRequest(baseUri + "/assigntome/1");
+        request.queryParameter("currentuser", "currentUser");
+
+        ClientResponse<Response> response = request.post(Response.class);
+        assertEquals(200, response.getResponseStatus().getStatusCode());
+    }
+
+    @Test
+    public  void testReleaseTask() throws Exception{
+        Task task = mock(TaskImpl.class);
+
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+
+        ClientRequest request = new ClientRequest(baseUri + "/release/1");
+        request.queryParameter("currentuser", "currentUser");
+
+        ClientResponse<Response> response = request.post(Response.class);
+        assertEquals(200, response.getResponseStatus().getStatusCode());
+    }
+
+    @Test
     public  void testAssignTaskDifferentOptLock() throws Exception{
         Task task = mock(TaskImpl.class);
         when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
