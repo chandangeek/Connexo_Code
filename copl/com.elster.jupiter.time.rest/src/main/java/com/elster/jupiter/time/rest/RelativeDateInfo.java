@@ -39,60 +39,68 @@ public class RelativeDateInfo {
     public RelativeDateInfo() {}
 
     public RelativeDateInfo(RelativeDate relativeDate) {
-        List<RelativeOperation> relativeOperations = relativeDate.getOperations();
-        relativeOperations.forEach(ro -> {
-            RelativeField relativeField = ro.getField();
-            RelativeOperator relativeOperator = ro.getOperator();
-            switch (relativeField) {
-                case YEAR:
-                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
-                        setAgoOptions(ro);
-                      } else {
-                        startFixedYear = ro.getShift();
-                    }
-                    break;
-                case MONTH:
-                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
-                        setAgoOptions(ro);
-                    } else {
-                        startFixedMonth = ro.getShift();
-                    }
-                    break;
-                case WEEK:
-                    setAgoOptions(ro);
-                    break;
-                case DAY_OF_WEEK:
-                    onDayOfWeek = ro.getShift();
-                    break;
-                case DAY:
-                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
-                        setAgoOptions(ro);
-                    } else {
-                        onDayOfMonth = ro.getShift();
-                        startFixedDay = ro.getShift();
-                    }
-                    break;
-                case HOUR:
-                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
-                        setAgoOptions(ro);
-                    } else {
-                        atHour = ro.getShift();
-                    }
-                    break;
-                case MINUTES:
-                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
-                        setAgoOptions(ro);
-                    } else {
-                        atMinute = ro.getShift();
-                    }
-                    break;
-            }
-        });
+        this();
+        relativeDate.getOperations().forEach(this::setOptions);
         if (startPeriodAgo != null && startPeriodAgo.equals(RelativeField.MONTH.getChronoUnit().toString().toLowerCase()) && (onDayOfMonth == null && startFixedDay == null)) {
             onCurrentDay = true;
         }
         if (startPeriodAgo == null && startFixedYear == null) {
             startNow = true;
+        }
+    }
+
+    private void setOptions(RelativeOperation relativeOperation) {
+        RelativeField relativeField = relativeOperation.getField();
+        RelativeOperator relativeOperator = relativeOperation.getOperator();
+        switch (relativeField) {
+            case YEAR:
+                if (relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                    setAgoOptions(relativeOperation);
+                } else {
+                    startFixedYear = relativeOperation.getShift();
+                }
+                break;
+            case MONTH:
+                if (relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                    setAgoOptions(relativeOperation);
+                } else {
+                    startFixedMonth = relativeOperation.getShift();
+                    if (RelativeField.MONTH.getChronoUnit().toString().toLowerCase().equals(startPeriodAgo)) {
+                        this.clearAgoOptions();
+                    }
+                }
+                break;
+            case WEEK:
+                setAgoOptions(relativeOperation);
+                break;
+            case DAY_OF_WEEK:
+                onDayOfWeek = relativeOperation.getShift();
+                break;
+            case DAY:
+                if (relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                    setAgoOptions(relativeOperation);
+                } else {
+                    onDayOfMonth = relativeOperation.getShift();
+                    startFixedDay = relativeOperation.getShift();
+                }
+                break;
+            case HOUR:
+                if (relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                    setAgoOptions(relativeOperation);
+                } else {
+                    atHour = relativeOperation.getShift();
+                    if (RelativeField.HOUR.getChronoUnit().toString().toLowerCase().equals(startPeriodAgo)) {
+                        this.clearAgoOptions();
+                    }
+                }
+                break;
+            case MINUTES:
+                if (relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                    setAgoOptions(relativeOperation);
+                } else {
+                    atMinute = relativeOperation.getShift();
+                }
+                break;
         }
     }
 
@@ -102,8 +110,8 @@ public class RelativeDateInfo {
         boolean dayOfMonthEnabled = true;
         boolean hourEnabled = true;
         boolean minuteEnabled = true;
-        if(startPeriodAgo != null && startAmountAgo != null && startTimeMode != null) {
-            RelativeOperator operator = startTimeMode.equals("ago") ? RelativeOperator.MINUS : RelativeOperator.PLUS;
+        if (startPeriodAgo != null && startAmountAgo != null && startTimeMode != null) {
+            RelativeOperator operator = "ago".equals(startTimeMode) ? RelativeOperator.MINUS : RelativeOperator.PLUS;
             switch (startPeriodAgo) {
                 case "years":
                     operations.add(new RelativeOperation(RelativeField.YEAR, operator, startAmountAgo));
@@ -151,13 +159,13 @@ public class RelativeDateInfo {
         } else if (onDayOfMonth != null && dayOfMonthEnabled) {
             operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, onDayOfMonth));
         }
-        if(onDayOfWeek != null && dayOfWeekEnabled) {
+        if (onDayOfWeek != null && dayOfWeekEnabled) {
             operations.add(new RelativeOperation(RelativeField.DAY_OF_WEEK, RelativeOperator.EQUAL, onDayOfWeek));
         }
-        if(atHour != null && hourEnabled) {
+        if (atHour != null && hourEnabled) {
             operations.add(new RelativeOperation(RelativeField.HOUR, RelativeOperator.EQUAL, atHour));
         }
-        if(atMinute != null && minuteEnabled) {
+        if (atMinute != null && minuteEnabled) {
             operations.add(new RelativeOperation(RelativeField.MINUTES, RelativeOperator.EQUAL, atMinute));
         }
         return operations;
@@ -168,4 +176,11 @@ public class RelativeDateInfo {
         startAmountAgo = relativeOperation.getShift();
         startTimeMode = relativeOperation.getOperator().equals(RelativeOperator.PLUS) ? "ahead" : "ago";
     }
+
+    private void clearAgoOptions() {
+        startPeriodAgo = null;
+        startAmountAgo = null;
+        startTimeMode = null;
+    }
+
 }
