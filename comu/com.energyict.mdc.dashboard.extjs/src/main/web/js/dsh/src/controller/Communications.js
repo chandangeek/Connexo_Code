@@ -283,9 +283,8 @@ Ext.define('Dsh.controller.Communications', {
         });
     },
 
-    communicationRunNow: function (item) {
-        var me = item.action.me;
-        var record = item.action.record;
+    communicationRunNow: function (record) {
+        var me = this;
         record.runNow(function () {
             me.getApplication().fireEvent('acknowledge',
                 Uni.I18n.translate('device.communication.run.now', 'DSH', 'Run now succeeded')
