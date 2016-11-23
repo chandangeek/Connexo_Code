@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu
             {
                 text: Uni.I18n.translate('general.clone', 'MDC', 'Clone'),
                 itemId: 'cloneCommunicationSchedule',
-                action: 'cloneCommunicationSchedule'
+                action: 'cloneCommunicationSchedule',
                 section: this.SECTION_ACTION
             }
         ];
