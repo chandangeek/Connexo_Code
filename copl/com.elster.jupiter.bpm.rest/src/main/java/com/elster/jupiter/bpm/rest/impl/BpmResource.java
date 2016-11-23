@@ -1392,11 +1392,7 @@ public class BpmResource {
             } else {
                 req += "?";
             }
-            try {
-                req += theKey + "=" +  URLEncoder.encode(queryParam.getFirst(theKey), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            req += theKey + "=" +  queryParam.getFirst(theKey);
             i++;
         }
         return req;
