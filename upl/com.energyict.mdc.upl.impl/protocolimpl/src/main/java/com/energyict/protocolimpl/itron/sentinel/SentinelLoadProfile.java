@@ -10,29 +10,28 @@
 
 package com.energyict.protocolimpl.itron.sentinel;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import com.energyict.protocolimpl.itron.sentinel.logicalid.*;
-import com.energyict.protocolimpl.itron.sentinel.tables.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.itron.sentinel.tables.AbstractLoadProfileDataSetTable;
-import com.energyict.protocolimpl.meteridentification.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryLog;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalFormat;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.itron.sentinel.logicalid.LoadProfilePreliminaryDataRead;
+import com.energyict.protocolimpl.itron.sentinel.logicalid.LogicalID;
+import com.energyict.protocolimpl.itron.sentinel.tables.LoadProfileData;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.EventLogMfgCodeFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -58,7 +57,7 @@ public class SentinelLoadProfile {
 
     public ProfileData getProfileData(Date lastReading, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
-        
+
         /*
          * GET PROFILEDATA ONLY FOR SET 0! The Ansi C12 standard has 4 sets of load profile. KV meters only use set 0, table 64!
          */
@@ -78,17 +77,26 @@ public class SentinelLoadProfile {
         if (includeEvents) {
             sentinel.getLogger().warning("Not retrieving events, not supported by the protocol");
             //throw new UnsupportedException("Logbook reading is not supported in this protocolversion. Uncheck the read meter events checkbox!");
-//            try {
-//               buildHistoryLog(profileData,lastReading,to);
-//               //buildEventLog(profileData,lastReading,to);
-//               profileData.applyEvents(sentinel.getProfileInterval()/60);
-//            }
-//            catch(ResponseIOException e) {
-//                if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-//                   sentinel.getLogger().warning("No Logging available. Respective tables do not exist in the meter.");
-//                else 
-//                   throw e;
-//            }
+
+            /*
+            System.out.println("Including events");
+            try {
+               //buildHistoryLog(profileData,lastReading,to);
+               buildEventLog(profileData,lastReading,to);
+               profileData.applyEvents(sentinel.getProfileInterval()/60);
+            }
+            catch(ResponseIOException e) {
+                System.out.println("Events exception: " + e);
+                e.printStackTrace();
+                if (e.getReason()==AbstractResponse.IAR) // table does not exist!
+                   sentinel.getLogger().warning("No Logging available. Respective tables do not exist in the meter.");
+                else
+                   throw e;
+            } catch (Throwable t) {
+                System.out.println("Events exception: " + t);
+                t.printStackTrace();
+            }
+            */
         }
 
         if (DEBUG>=3) System.out.println(profileData);
@@ -97,140 +105,138 @@ public class SentinelLoadProfile {
     }
 
     private void buildHistoryLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
-        // oredr = 0 oldest -> newest
+       // oredr = 0 oldest -> newest
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogControlTable());
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogDataTableHeader());
-        //if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogDataTableHeader());
+       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogControlTable());
+       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
+       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogDataTableHeader());
+       //if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogDataTableHeader());
 
-        List meterHistorys = new ArrayList();
-        int validHistoryCount=0;
-        boolean futurelogcheck=true;
-        boolean leaveLoop=false;
+       List meterHistorys = new ArrayList();
+       int validHistoryCount=0;
+       boolean futurelogcheck=true;
+       boolean leaveLoop=false;
 
-        while(!leaveLoop) {
+       while(!leaveLoop) {
 
-            HistoryLog historyLog = sentinel.getStandardTableFactory().getHistoryLogDataTable().getHistoryLog();
-            if (historyLog.getEntries() == null) break;
-            int nrOfValidEntries = historyLog.getNrOfValidentries();
+           HistoryLog historyLog = sentinel.getStandardTableFactory().getHistoryLogDataTable().getHistoryLog();
+           if (historyLog.getEntries() == null) break;
+           int nrOfValidEntries = historyLog.getNrOfValidentries();
 
-            if (futurelogcheck) {
+           if (futurelogcheck) {
 
-                HistoryEntry[] historyEntries = historyLog.getEntries();
-                for (int i=0;i<historyEntries.length;i++) {
-                    if ((validHistoryCount++ >=(nrOfValidEntries-1)) || (historyEntries[i].getHistoryTime().before(to))) {
-                        futurelogcheck=false;
-                        break;
-                    }
-                    if (DEBUG>=1) System.out.println("KV_DEBUG>(1) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
-                }
-            }
+               HistoryEntry[] historyEntries = historyLog.getEntries();
+               for (int i=0;i<historyEntries.length;i++) {
+                   if ((validHistoryCount++ >=(nrOfValidEntries-1)) || (historyEntries[i].getHistoryTime().before(to))) {
+                       futurelogcheck=false;
+                       break;
+                   }
+                   if (DEBUG>=1) System.out.println("KV_DEBUG>(1) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
+               }
+           }
 
 
-            if (!futurelogcheck) {
-                HistoryEntry[] historyEntries = historyLog.getEntries();
-                for (int i=0;i<historyEntries.length;i++) {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG>(2) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
-                    if ((validHistoryCount++ >=(nrOfValidEntries-1)) || (historyEntries[i].getHistoryTime().before(lastReading))) {
-                        leaveLoop=true;
-                        break;
-                    }
+           if (!futurelogcheck) {
+               HistoryEntry[] historyEntries = historyLog.getEntries();
+               for (int i=0;i<historyEntries.length;i++) {
+                   if (DEBUG>=1) System.out.println("KV_DEBUG>(2) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
+                   if ((validHistoryCount++ >=(nrOfValidEntries-1)) || (historyEntries[i].getHistoryTime().before(lastReading))) {
+                       leaveLoop=true;
+                       break;
+                   }
 
-                    meterHistorys.add(createMeterEvent(historyEntries[i]));
-                    if (DEBUG>=1) System.out.println("KV_DEBUG>(3) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
-                }
+                   meterHistorys.add(createMeterEvent(historyEntries[i]));
+                   if (DEBUG>=1) System.out.println("KV_DEBUG>(3) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
+               }
 
-                //break; // KV_DEBUG
+               //break; // KV_DEBUG
 
-            }
+           }
 
-        } // while(true)
+       } // while(true)
 
-        profileData.setMeterEvents(meterHistorys);
+       profileData.setMeterEvents(meterHistorys);
 
     } // private void buildHistoryLog(ProfileData profileData, Date lastReading, Date to) throws IOException
 
     private void buildEventLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
-        // oredr = 0 oldest -> newest
+       // oredr = 0 oldest -> newest
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getEventLogControlTable());
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
+       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getEventLogControlTable());
+       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
 
-        List meterEvents = new ArrayList();
-        int validEventCount=0;
-        boolean futurelogcheck=true;
-        boolean leaveLoop=false;
+       List meterEvents = new ArrayList();
+       int validEventCount=0;
+       boolean futurelogcheck=true;
+       boolean leaveLoop=false;
 
-        while(!leaveLoop) {
+       while(!leaveLoop) {
 
-            EventLog eventLog = sentinel.getStandardTableFactory().getEventLogDataTable().getEventLog();
-            int nrOfValidEntries = eventLog.getNrOfValidentries();
+           EventLog eventLog = sentinel.getStandardTableFactory().getEventLogDataTable().getEventLog();
+           int nrOfValidEntries = eventLog.getNrOfValidentries();
 
-            if (DEBUG>=1) System.out.println("KV_DEBUG> eventLog="+eventLog);
-            if (DEBUG>=1) System.out.println("KV_DEBUG> nrOfValidEntries="+nrOfValidEntries);
+           if (DEBUG>=1) System.out.println("KV_DEBUG> events eventLog="+eventLog);
+           if (DEBUG>=1) System.out.println("KV_DEBUG> events nrOfValidEntries="+nrOfValidEntries);
 
-            if (futurelogcheck) {
+           if (futurelogcheck) {
 
-                EventEntry[] eventEntries = eventLog.getEntries();
+               EventEntry[] eventEntries = eventLog.getEntries();
 
-                if (DEBUG>=1) System.out.println("KV_DEBUG> eventLog.getEntries().length="+eventLog.getEntries().length);
+               if (DEBUG>=1) System.out.println("KV_DEBUG> events eventLog.getEntries().length="+eventLog.getEntries().length);
 
-                for (int i=0;i<eventEntries.length;i++) {
-                    if ((validEventCount++ >=(nrOfValidEntries-1)) || (eventEntries[i].getEventTime().before(to))) {
-                        futurelogcheck=false;
-                        break;
-                    }
-                    if (DEBUG>=1) System.out.println("KV_DEBUG>(1) historys "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
-                }
+               for (int i=0;i<eventEntries.length;i++) {
+                   if ((validEventCount++ >=(nrOfValidEntries-1)) || (eventEntries[i].getEventTime().before(to))) {
+                       futurelogcheck=false;
+                       break;
+                   }
+                   if (DEBUG>=1) System.out.println("KV_DEBUG>(1) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
+               }
 
-                futurelogcheck=false;
-                //break;
+               futurelogcheck=false;
+               //break;
 
-            } // if (futurelogcheck)
+           } // if (futurelogcheck)
 
 
-            if (!futurelogcheck) {
-                EventEntry[] eventEntries = eventLog.getEntries();
-                for (int i=0;i<eventEntries.length;i++) {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG>(2) historys "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
+           if (!futurelogcheck) {
+               EventEntry[] eventEntries = eventLog.getEntries();
+               for (int i=0;i<eventEntries.length;i++) {
+                   if (DEBUG>=1) System.out.println("KV_DEBUG>(2) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
 //                   if ((validEventCount++ >=(nrOfValidEntries-1)) || (eventEntries[i].getEventTime().before(lastReading))) {
 //                       leaveLoop=true;
 //                       break;
 //                   }
 
-                    meterEvents.add(createMeterEvent(eventEntries[i]));
-                    if (DEBUG>=1) System.out.println("KV_DEBUG>(3) historys "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
-                }
+                   meterEvents.add(createMeterEvent(eventEntries[i]));
+                   if (DEBUG>=1) System.out.println("KV_DEBUG>(3) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
+               }
 
-                break; // KV_DEBUG
+               break; // KV_DEBUG
 
-            } // if (!futurelogcheck)
+           } // if (!futurelogcheck)
 
-        } // while(!leaveLoop)
+       } // while(!leaveLoop)
 
-        profileData.setMeterEvents(meterEvents);
+       profileData.setMeterEvents(meterEvents);
     }
 
     private MeterEvent createMeterEvent(HistoryEntry historyEntry) {
-//        EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
-//        int eiCode = eventFact.getEICode(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag());
-//        String text = eventFact.getEvent(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag())+", "+
-//                      eventFact.getArgument(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag());
-//        int protocolCode = historyEntry.getHistoryCode().getProcedureNr() | (historyEntry.getHistoryCode().isStdVsMfgFlag()?0x8000:0);
-//        return new MeterEvent(historyEntry.getHistoryTime(),eiCode,protocolCode,text);
-        return null;
+        EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
+        int eiCode = eventFact.getEICode(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag());
+        String text = eventFact.getEvent(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag())+", "+
+                      eventFact.getArgument(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag());
+        int protocolCode = historyEntry.getHistoryCode().getProcedureNr() | (historyEntry.getHistoryCode().isStdVsMfgFlag()?0x8000:0);
+        return new MeterEvent(historyEntry.getHistoryTime(),eiCode,protocolCode,text);
     }
 
 
     private MeterEvent createMeterEvent(EventEntry eventEntry) {
-//        EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
-//        int eiCode = eventFact.getEICode(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag());
-//        String text = eventFact.getEvent(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag())+", "+
-//                      eventFact.getArgument(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag());
-//        int protocolCode = eventEntry.getEventCode().getProcedureNr() | (eventEntry.getEventCode().isStdVsMfgFlag()?0x8000:0);
-//        return new MeterEvent(eventEntry.getEventTime(),eiCode,protocolCode,text);
-        return null;
+        EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
+        int eiCode = eventFact.getEICode(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag());
+        String text = eventFact.getEvent(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag())+", "+
+                      eventFact.getArgument(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag());
+        int protocolCode = eventEntry.getEventCode().getProcedureNr() | (eventEntry.getEventCode().isStdVsMfgFlag()?0x8000:0);
+        return new MeterEvent(eventEntry.getEventTime(),eiCode,protocolCode,text);
     }
 
     // using manufacturer tables...
@@ -339,9 +345,7 @@ public class SentinelLoadProfile {
         IntervalSet intervalSet = intervalSet1;
         IntervalFormat[] values = intervalSet.getIntervalData();
         IntervalData intervalData = new IntervalData(cal.getTime(),intervalSet.getCommon2EIStatus(),intervalSet.getCommonStatus());
-//System.out.println("KV_DEBUG> "+cal.getTime()+", intervalSet.getCommonStatus=0x"+Integer.toHexString(intervalSet.getCommonStatus())+", ");
         for (int channel=0;channel<sentinel.getNumberOfChannels();channel++) {
-//System.out.print("channel="+channel+", intervalSet.getChannelStatus=0x"+Integer.toHexString(intervalSet.getChannelStatus(channel))+", ");
             int protocolStatus = intervalSet.getChannelStatus(channel);
             int eiStatus = intervalSet.getchannel2EIStatus(channel);
             BigDecimal bd = (BigDecimal)values[channel].getValue(); // raw value
@@ -379,6 +383,11 @@ public class SentinelLoadProfile {
         int intervalsPerBlock = sentinel.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().getNrOfBlockIntervalsSet()[0]; // intervals per block
         int currentBlock = lastBlock;
 
+        Date currentDate = new Date();
+
+        //int profileInterval = sentinel.getProfileInterval();
+        //Date newTo = new Date(to.getTime() + (long)(profileInterval*intervalsPerBlock*1000));
+
         List<List<LoadProfileBlockData>> blockData = new ArrayList<List<LoadProfileBlockData>>();
 
         try {
@@ -397,12 +406,14 @@ public class SentinelLoadProfile {
                 List<LoadProfileBlockData> aList = new ArrayList<LoadProfileBlockData>();
                 blockData.add(aList);
 
+                int count = 0;
                 while (!read) {
                     try {
                         if (numIntervals <= getChunkSize()) {
-                            lpbd = getLoadProfileDataSetTable(currentBlock, 1, numIntervals, 0, chunkSize).getLoadProfileDataSet().getLoadProfileDataSets()[0];
+                            lpbd = getLoadProfileDataSetTable(currentBlock, 1, numIntervals, count, getChunkSize()).getLoadProfileDataSet().getLoadProfileDataSets()[0];
                             aList.add(lpbd);
                             read = true;
+                            count++;
 
                             if (currentBlock == lastBlock) {
                                 currentBlock = startBlock;
@@ -410,7 +421,6 @@ public class SentinelLoadProfile {
                                 currentBlock++;
                             }
                         } else {
-                            int count = 0;
                             while (numIntervals > getChunkSize()) {
                                 // read chunk size intervals
                                 lpbd = getLoadProfileDataSetTable(currentBlock, 1, getChunkSize(), count, getChunkSize()).getLoadProfileDataSet().getLoadProfileDataSets()[0];
@@ -435,9 +445,35 @@ public class SentinelLoadProfile {
             throw t;
         }
 
+        List<List<LoadProfileBlockData>> filtered = new ArrayList<List<LoadProfileBlockData>>();
+
+        Calendar lastReadingCal = Calendar.getInstance();
+        lastReadingCal.setTime(lastReading);
+        Calendar currentCal = Calendar.getInstance();
+        currentCal.setTime(currentDate);
+
+        // Filter out any that are outside of the required range
+        for (List<LoadProfileBlockData> aList : blockData) {
+            List<LoadProfileBlockData> blah = new ArrayList<LoadProfileBlockData>();
+            inner: for (LoadProfileBlockData lpbd : aList) {
+                Calendar cal = Calendar.getInstance(sentinel.getTimeZone());
+                cal.setTime(lpbd.getBlockEndTime());
+                if (cal.before(lastReadingCal) || cal.after(currentCal)) {
+                    // Remove this, it is outside the time frame we are interested in
+                    System.out.println("Sentinel serial no. " + sentinel.getSerialNumber() +
+						", dropping block with end time out of read range: " + lpbd.getBlockEndTime());
+                    continue inner;
+                }
+                blah.add(lpbd);
+            }
+            if (!blah.isEmpty()) {
+                filtered.add(blah);
+            }
+        }
+
         try {
             List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
-            for (List<LoadProfileBlockData> aList : blockData) {
+            for (List<LoadProfileBlockData> aList : filtered) {
                 Calendar cal = Calendar.getInstance(sentinel.getTimeZone());
                 sentinel.getLogger().info("Set timezone to " + sentinel.getTimeZone());
                 boolean calSet = false;

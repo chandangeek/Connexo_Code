@@ -10,17 +10,27 @@
 
 package com.energyict.protocolimpl.itron.sentinel;
 
-import com.energyict.protocolimpl.base.ObisCodeExtensions;
-import java.util.*;
-import java.io.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.itron.sentinel.tables.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.cbo.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.ansi.c12.tables.ActualRegisterTable;
+import com.energyict.protocolimpl.ansi.c12.tables.DataBlock;
+import com.energyict.protocolimpl.ansi.c12.tables.RegisterData;
+import com.energyict.protocolimpl.ansi.c12.tables.RegisterInf;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+import com.energyict.protocolimpl.itron.sentinel.tables.ObisCodeDescriptor;
+import com.energyict.protocolimpl.itron.sentinel.tables.SourceInfo;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author Koen
@@ -30,18 +40,24 @@ public class ObisCodeInfoFactory {
     List obisCodeInfos;
     Sentinel sentinel;
     boolean convertRegisterReadsToKiloUnits;
+    boolean readDemandsAndCoincidents;
+    boolean readTiers;
+    boolean limitRegisterReadSize;
 
     /** Creates a new instance of ObisCodeInfoFactory */
-    public ObisCodeInfoFactory(Sentinel sentinel, boolean convertRegisterReadsToKiloUnits) throws IOException {
+    public ObisCodeInfoFactory(Sentinel sentinel, boolean convertRegisterReadsToKiloUnits, boolean readDemandsAndCoincidents, boolean readTiers, boolean limitRegisterReadSize) throws IOException {
         this.sentinel=sentinel;
         this.convertRegisterReadsToKiloUnits = convertRegisterReadsToKiloUnits;
+        this.readDemandsAndCoincidents = readDemandsAndCoincidents;
+        this.readTiers = readTiers;
+        this.limitRegisterReadSize = limitRegisterReadSize;
         buildObisCodeInfos();
     }
 
 //    public String registerInfo() throws IOException {
-//        
+//
 //        StringBuffer strBuff = new StringBuffer();
-//        
+//
 //        // current energy
 //        // current demand
 //        // current cumulative demand
@@ -55,7 +71,7 @@ public class ObisCodeInfoFactory {
 //        if (sentinel.getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
 //            // read last billing point demand TOU
 //        }
-//        
+//
 //        if (sentinel.getDataReadFactory().getCapabilitiesDataRead().getNumberOfTOURates() > 0) {
 //            // last season point energy
 //            // last season point demand
@@ -72,8 +88,8 @@ public class ObisCodeInfoFactory {
 //            if (sentinel.getDataReadFactory().getCapabilitiesDataRead().isMeterHasAClock()) {
 //                // read last selfread point demand TOU
 //            }
-//        }    
-//        
+//        }
+//
 //        return strBuff.toString();
 //    }
 
@@ -136,9 +152,9 @@ public class ObisCodeInfoFactory {
                 int dataControlEntryIndex = sentinel.getStandardTableFactory().getDataSelectionTable().getSummationSelects()[index];
                 if (dataControlEntryIndex != 255) {
                     ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
-                    if (obisCodeDescriptor != null) {
-                        obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getObisCode().getB(),obisCodeDescriptor.getObisCode().getC(),ObisCode.CODE_D_TIME_INTEGRAL,tier,fField),registerSetInfo+"summation register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getVolumeUnit(),index,dataControlEntryIndex));
-                    }
+                   if (obisCodeDescriptor != null) {
+                       obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getObisCode().getB(),obisCodeDescriptor.getObisCode().getC(),ObisCode.CODE_D_TIME_INTEGRAL,tier,fField),registerSetInfo+"summation register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getVolumeUnit(),index,dataControlEntryIndex));
+                   }
                 }
             }
 
@@ -182,8 +198,7 @@ public class ObisCodeInfoFactory {
         RegisterValue registerValue=null;
 
         if (obi.isCurrent()) { // F FIELD
-            System.out.println("Getting register for current");
-            RegisterData registerData = sentinel.getStandardTableFactory().getCurrentRegisterDataTable().getRegisterData();
+            RegisterData registerData = sentinel.getStandardTableFactory().getCurrentRegisterDataTable(false, readDemandsAndCoincidents, readTiers, limitRegisterReadSize).getRegisterData();
             if (obi.getTierIndex() == -1)  // E FIELD
                 registerValue = doGetRegister(obi, registerData.getTotDatablock());
             else
@@ -241,21 +256,21 @@ public class ObisCodeInfoFactory {
             int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getDemands()[registerIndex].getDemands()[obi.getOccurance()];
             if (dataBlock.getDemands()[registerIndex].getEventTimes() != null)
-                date = dataBlock.getDemands()[registerIndex].getEventTimes()[obi.getOccurance()];
+               date = dataBlock.getDemands()[registerIndex].getEventTimes()[obi.getOccurance()];
         }
         else if (obi.isCumulativeMaximumDemand()) {
             System.out.println("doGetRegister: cum max demand");
-            int registerIndex = obi.getRegisterIndex();// C 
+            int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getDemands()[registerIndex].getCumDemand();
         }
         else if (obi.isContCumulativeMaximumDemand()) {
             System.out.println("doGetRegister: cont cum max demand");
-            int registerIndex = obi.getRegisterIndex();// C 
+            int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getDemands()[registerIndex].getContinueCumDemand();
         }
         else if (obi.isCoinMaximumDemandDemand()) {
             System.out.println("doGetRegister: coin max demand");
-            int registerIndex = obi.getRegisterIndex();// C 
+            int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getCoincidents()[registerIndex].getCoincidentValues()[obi.getOccurance()];
         }
 

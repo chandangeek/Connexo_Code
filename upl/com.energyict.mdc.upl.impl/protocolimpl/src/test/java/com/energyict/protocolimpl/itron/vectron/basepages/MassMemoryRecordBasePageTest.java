@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -107,6 +108,28 @@ public class MassMemoryRecordBasePageTest {
 
 
     @Test
+    public void testParseRealTimeBasePage() throws Exception {
+        when(protocolLink.getTimeZone()).thenReturn(timeZone);
+        when(basePagesFactory.getProtocolLink()).thenReturn(protocolLink);
+
+        when(massMemoryBasePages.getNrOfChannels()).thenReturn(2);
+        when(basePagesFactory.getMassMemoryBasePages()).thenReturn(massMemoryBasePages);
+
+        when(operatingSetUpBasePage.isDstEnabled()).thenReturn(false);
+        when(basePagesFactory.getOperatingSetUpBasePage()).thenReturn(operatingSetUpBasePage);
+
+        RealTimeBasePage realTimeBasePageGood = new RealTimeBasePage(basePagesFactory);
+        byte[] realTimeDataGood = ProtocolTools.getBytesFromHexString("$16$11$22$02$32$33$02");
+        realTimeBasePageGood.parse(realTimeDataGood);
+
+
+        RealTimeBasePage realTimeBasePageBad = new RealTimeBasePage(basePagesFactory);
+        byte[] realTimeDataBad = ProtocolTools.getBytesFromHexString("$16$11$20$23$26$33$07");
+        realTimeBasePageBad.parse(realTimeDataBad);
+
+    }
+
+    @Test
     public void testParseMassMemoryRecord() throws Exception {
         when(protocolLink.getTimeZone()).thenReturn(timeZone);
         when(basePagesFactory.getProtocolLink()).thenReturn(protocolLink);
@@ -118,8 +141,10 @@ public class MassMemoryRecordBasePageTest {
         when(basePagesFactory.getOperatingSetUpBasePage()).thenReturn(operatingSetUpBasePage);
 
         MassMemoryRecordBasePage page = new MassMemoryRecordBasePage(basePagesFactory);
-        byte[] data = ProtocolTools.getBytesFromHexString("$11$16$19$00$00$00$00$00$00$00$00$00$09$53$70$69$10$00$04$66$21$61$30$00$02$10$39$FF$00$38$00$10$38$FD$00$39$02$10$3A$01$10$3B$FB$00$38$00$10$38$01$10$39$01$10$38$0B$10$3A$08$10$38$03$10$38$06$10$38$07$10$39$08$10$3A$05$10$39$F9$00$38$E4$00$34$D8$00$35$C5$00$33$C1$00$34$C3$00$35$C0$00$36$BB$00$37$B7$00$36$B3$00$36$B1$00$39$AA$00$38$A5$00$38$A2$00$3B$A0$00$39$9F$00$37$94$00$37$91$00$36$92$00$36$90$00$38$8C$00$36$8F$00$38$90$00$36$8E$00$37$8D$00$36$8C$00$38$8C$00$38$81$00$35$76$00$25$70$00$22$65$00$1D$63$00$1D$63$00$1E$61$00$1B$5F$00$1C$5B$00$1B$5B$00$1C$5A$00$1D$59$00$1D$58$00$1C$57$00$1C$57$00$1C$57$00$1D");
+        byte[] data = ProtocolTools.getBytesFromHexString("$11$20$20$00$00$00$00$00$00$00$00$00$00$53$80$99$70$00$00$12$01$91$10$00$15$00$05$12$00$04$10$00$04$10$00$03$0E$00$03$11$00$04$11$00$04$11$00$03$10$00$04$0B$00$02$11$00$04$0D$00$03$10$00$03$0F$00$04$0E$00$03$0D$00$02$11$00$04$11$00$04$16$00$05$10$00$03$0F$00$04$0F$00$03$0C$00$02$0E$00$03$10$00$04$0F$00$03$0D$00$03$0F$00$03$0F$00$03$11$00$04$0F$00$03$10$00$04$08$00$01$11$00$04$10$00$04$10$00$03$0D$00$03$0E$00$03$0D$00$03$16$00$05$10$00$03$09$00$02$0F$00$03$11$00$04$0E$00$03$0A$00$02$10$00$03$0C$00$03$11$00$03$0F$00$04$11$00$03$0F$00$04$09$00$02$0C$00$02$0E$00$03$0F$00$04$0B$00$02$0A$00$02$11$00$04$0A$00$02");
         page.parse(data);
+        assertTrue(page.getIntervalRecords()[0].getValues()[0].equals(BigDecimal.valueOf(21)));
+        assertTrue(page.getIntervalRecords()[0].getValues()[1].equals(BigDecimal.valueOf(5)));
 
         getLogger().info(page.toString());
         //TODO: check what's in here, get a reliable reference
@@ -128,6 +153,11 @@ public class MassMemoryRecordBasePageTest {
 
     @Test
     public void testDecode() throws IOException {
+        when(protocolLink.getTimeZone()).thenReturn(timeZone);
+        when(basePagesFactory.getProtocolLink()).thenReturn(protocolLink);
+
+        when(operatingSetUpBasePage.isDstEnabled()).thenReturn(true);
+        when(basePagesFactory.getOperatingSetUpBasePage()).thenReturn(operatingSetUpBasePage);
 
         when(vectron.getLogger()).thenReturn(getLogger());
         when(vectron.getTime()).thenReturn(new Date());
@@ -138,10 +168,9 @@ public class MassMemoryRecordBasePageTest {
         List massMemoryRecords = new ArrayList();
 
 
-        massMemoryRecords.add(getPage0());
-        massMemoryRecords.add(getPage1());
-        massMemoryRecords.add(getPage2());
 
+        //massMemoryRecords.add(getPage1());
+        //massMemoryRecords.add(getPage2());
 
         int profileInterval = 5;
         int nrOfChannels = 2;
@@ -152,6 +181,26 @@ public class MassMemoryRecordBasePageTest {
         logger.info(timeZone.toString());
         Calendar now = Calendar.getInstance(timeZone);
         logger.info(vectorProfile.format(now));
+
+        when(massMemoryBasePages.getNrOfChannels()).thenReturn(2);
+        when(basePagesFactory.getMassMemoryBasePages()).thenReturn(massMemoryBasePages);
+
+        MassMemoryRecordBasePage pageOK = new MassMemoryRecordBasePage(basePagesFactory);
+        byte[] data = ProtocolTools.getBytesFromHexString("$11$20$20$00$00$00$00$00$00$00$00$00$00$53$80$99$70$00$00$12$01$91$10$00$15$00$05$12$00$04$10$00$04$10$00$03$0E$00$03$11$00$04$11$00$04$11$00$03$10$00$04$0B$00$02$11$00$04$0D$00$03$10$00$03$0F$00$04$0E$00$03$0D$00$02$11$00$04$11$00$04$16$00$05$10$00$03$0F$00$04$0F$00$03$0C$00$02$0E$00$03$10$00$04$0F$00$03$0D$00$03$0F$00$03$0F$00$03$11$00$04$0F$00$03$10$00$04$08$00$01$11$00$04$10$00$04$10$00$03$0D$00$03$0E$00$03$0D$00$03$16$00$05$10$00$03$09$00$02$0F$00$03$11$00$04$0E$00$03$0A$00$02$10$00$03$0C$00$03$11$00$03$0F$00$04$11$00$03$0F$00$04$09$00$02$0C$00$02$0E$00$03$0F$00$04$0B$00$02$0A$00$02$11$00$04$0A$00$02");
+        pageOK.parse(data);
+        assertTrue(pageOK.getIntervalRecords()[0].getValues()[0].equals(BigDecimal.valueOf(21)));
+        assertTrue(pageOK.getIntervalRecords()[0].getValues()[1].equals(BigDecimal.valueOf(5)));
+        getLogger().info("OK page: "+pageOK.toString());
+
+        MassMemoryRecordBasePage pageBad = new MassMemoryRecordBasePage(basePagesFactory);
+        byte[] dataBad = ProtocolTools.getBytesFromHexString("$11$16$19$00$00$00$00$00$00$00$00$00$09$53$70$69$10$00$04$66$21$61$30$00$02$10$39$FF$00$38$00$10$38$FD$00$39$02$10$3A$01$10$3B$FB$00$38$00$10$38$01$10$39$01$10$38$0B$10$3A$08$10$38$03$10$38$06$10$38$07$10$39$08$10$3A$05$10$39$F9$00$38$E4$00$34$D8$00$35$C5$00$33$C1$00$34$C3$00$35$C0$00$36$BB$00$37$B7$00$36$B3$00$36$B1$00$39$AA$00$38$A5$00$38$A2$00$3B$A0$00$39$9F$00$37$94$00$37$91$00$36$92$00$36$90$00$38$8C$00$36$8F$00$38$90$00$36$8E$00$37$8D$00$36$8C$00$38$8C$00$38$81$00$35$76$00$25$70$00$22$65$00$1D$63$00$1D$63$00$1E$61$00$1B$5F$00$1C$5B$00$1B$5B$00$1C$5A$00$1D$59$00$1D$58$00$1C$57$00$1C$57$00$1C$57$00$1D");
+        pageBad.parse(dataBad);
+        getLogger().info("Bad page: " + pageBad.toString());
+
+        massMemoryRecords.add(pageOK);
+        massMemoryRecords.add(pageBad);
+        massMemoryRecords.add(pageOK);
+        //massMemoryRecords.add(getPage1());
 
         vectorProfile.parseMassMemoryRecords(massMemoryRecords, now, currentIntervalNr, profileInterval, nrOfChannels);
 

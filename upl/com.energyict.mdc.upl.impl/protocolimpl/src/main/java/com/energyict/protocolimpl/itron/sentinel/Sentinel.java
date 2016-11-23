@@ -11,9 +11,20 @@
 package com.energyict.protocolimpl.itron.sentinel;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
@@ -34,7 +45,11 @@ import com.energyict.protocolimpl.meteridentification.SentinelItron;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 /**
  *
@@ -52,6 +67,10 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     int maxNrPackets;
     boolean readLoadProfilesChunked = false;
     boolean convertRegisterReadsToKiloUnits = false;
+    boolean readDemandsAndCoincidents = true;
+    boolean readTiers = true;
+    boolean limitRegisterReadSize = false;
+    boolean readUomTableMinusOne;
     int chunkSize;
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
@@ -246,13 +265,13 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
             setInfoTypePassword(new String(new byte[]{0}));
 
-        //identify with node 1 before you can address other nodes
+      //identify with node 1 before you can address other nodes
         if (c12Layer2.getIdentity()!=1) {
-            int targetIdentity = c12Layer2.getIdentity();
+        	int targetIdentity = c12Layer2.getIdentity();
             c12Layer2.setIdentity(1);
             getPSEMServiceFactory().getIdentificationResponse().getIdentificationFeature0();
-            getPSEMServiceFactory().terminate();
-            c12Layer2.setIdentity(targetIdentity);
+        	getPSEMServiceFactory().terminate();
+        	c12Layer2.setIdentity(targetIdentity);
         }
         getPSEMServiceFactory().logOn(c12UserId,replaceSpaces(c12User),getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, 128, maxNrPackets);
     }
@@ -269,6 +288,10 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 //        return user.replace(' ', '\0');
     }
 
+    public boolean isReadUomTableMinusOne() {
+        return readUomTableMinusOne;
+    }
+
     protected void doDisConnect() throws IOException {
         getPSEMServiceFactory().logOff();
     }
@@ -282,6 +305,10 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         readLoadProfilesChunked = Boolean.parseBoolean(properties.getProperty("ReadLoadProfilesChunked", "false"));
         chunkSize = Integer.parseInt(properties.getProperty("ChunkSize", "19"));
         convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getProperty("ConvertRegisterReadsToKiloUnits", "false"));
+        readDemandsAndCoincidents = Boolean.parseBoolean(properties.getProperty("ReadDemandsAndCoincidents", "true"));
+        readTiers = Boolean.parseBoolean(properties.getProperty("ReadTiers", "true"));
+        limitRegisterReadSize = Boolean.parseBoolean(properties.getProperty("LimitRegisterReadSize", "false"));
+        readUomTableMinusOne = Boolean.parseBoolean(properties.getProperty("ReadUomTableMinusOne", "false"));
     }
 
     protected List doGetOptionalKeys() {
@@ -292,6 +319,10 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         result.add("ReadLoadProfilesChunked");
         result.add("ChunkSize");
         result.add("ConvertRegisterReadsToKiloUnits");
+        result.add("ReadDemandsAndCoincidents");
+        result.add("ReadTiers");
+        result.add("LimitRegisterReadSize");
+        result.add("ReadUomTableMinusOne");
         return result;
     }
 
@@ -332,14 +363,14 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2016-09-08 09:36:35 +0300 (Thu, 08 Sep 2016)$";
+        return "$Date: 2016-03-16 16:41:11 +0100 (Wed, 16 Mar 2016)$";
     }
 
     public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
-                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
-                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
-                "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
+               getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
+               "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
+               "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
     }
 
     /*
@@ -536,7 +567,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
         if (obisCodeInfoFactory == null)
-            obisCodeInfoFactory=new ObisCodeInfoFactory(this, convertRegisterReadsToKiloUnits);
+            obisCodeInfoFactory=new ObisCodeInfoFactory(this, convertRegisterReadsToKiloUnits, readDemandsAndCoincidents, readTiers, limitRegisterReadSize);
         return obisCodeInfoFactory;
     }
 

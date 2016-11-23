@@ -65,7 +65,7 @@ public class RealTimeBasePage extends AbstractBasePage {
         }
 
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
-        
+        getLogger().info(" - Protocol configured tz: "+tz.toString());
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled()) {
             tz = ProtocolUtils.getWinterTimeZone(tz);
             getLogger().info(" - DST is not enabled, using winter tz: "+tz.toString());
