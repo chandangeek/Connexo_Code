@@ -434,9 +434,6 @@ public class EstimationResource {
         try {
             EstimationTask task = findAndLockTask(info, qualityCodeSystem);
             taskName = task.getName();
-            if (!task.canBeDeleted()) {
-                throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
-            }
             task.delete();
             return Response.status(Response.Status.OK).build();
         } catch (UnderlyingSQLFailedException | CommitException ex) {

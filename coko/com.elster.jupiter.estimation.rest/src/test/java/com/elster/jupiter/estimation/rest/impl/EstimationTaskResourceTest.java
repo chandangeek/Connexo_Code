@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -186,18 +188,4 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).build(HttpMethod.DELETE, json).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
-
-    @Test
-    public void deleteTasksInUseTest() {
-        when(estimationTask.canBeDeleted()).thenReturn(false);
-        EstimationTaskInfo info = new EstimationTaskInfo();
-        info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 5;
-        info.version = 1L;
-        Entity<EstimationTaskInfo> json = Entity.json(info);
-        Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).build(HttpMethod.DELETE, json).invoke();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
 }
