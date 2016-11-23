@@ -3,7 +3,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
     requires: [
         'Ext.ux.window.Notification',
-        'Mdc.store.DeviceSchedules'
+        'Mdc.store.DeviceSchedules',
+        'Uni.util.Common'
     ],
 
     views: [
@@ -232,7 +233,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             scheduleIds = [],
             device = me.getAddSharedCommunicationSchedulePage().device,
             deviceId = device.get('name'),
-            backUrl = me.getController('Uni.controller.history.Router').getRoute('devices/device/communicationschedules').buildUrl({deviceId: deviceId});
+            backUrl = me.getController('Uni.controller.history.Router').getRoute('devices/device/communicationschedules').buildUrl({deviceId: Uni.util.Common.encodeURIComponent(deviceId)});
 
         if (this.checkValidSelection(communicationSchedules)) {
             Ext.each(communicationSchedules, function (communicationSchedule) {
@@ -240,7 +241,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             });
 
             Ext.Ajax.request({
-                url: '/api/ddr/devices/'+ deviceId +'/sharedschedules',
+                url: '/api/ddr/devices/' + Uni.util.Common.encodeURIComponent(deviceId) + '/sharedschedules',
                 method: 'PUT',
                 params: '',
                 jsonData: {

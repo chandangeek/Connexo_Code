@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.ConnectionMethodsOfDevice',
         'Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMenu',
-        'Uni.grid.column.Default'
+        'Uni.grid.column.Default',
+        'Uni.util.Common'
     ],
 
     store: 'ConnectionMethodsOfDevice',
@@ -120,7 +121,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 params: [
-                    {deviceId: me.deviceId}
+                    {deviceId: Uni.util.Common.decodeURIArguments(me.deviceId)}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connection methods per page'),
                 dock: 'bottom'

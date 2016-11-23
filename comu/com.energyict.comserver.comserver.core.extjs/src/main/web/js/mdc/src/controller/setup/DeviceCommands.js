@@ -2,7 +2,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     extend: 'Ext.app.Controller',
     requires: [
         'Uni.view.window.Acknowledgement',
-        'Uni.view.window.Confirmation'
+        'Uni.view.window.Confirmation',
+        'Uni.util.Common'
     ],
 
     views: [
@@ -178,7 +179,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     revokeCommand: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            deviceId = router.arguments.name,
+            deviceId = router.arguments.deviceId,
             title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?",[record.get('command').name]);
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
@@ -229,7 +230,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                     fn: function (newDate, record, oldDate) {
                         record.set('releaseDate', newDate);
                         record.save({
-                            url: me.getStore('Mdc.store.DeviceCommands').getProxy().url,
+                            url: me.getStore('Mdc.store.DeviceCommands').getProxy().url.replace('{deviceId}', Uni.util.Common.encodeURIComponent(device.get('name'))),
                             isNotEdit: true,
                             success: function () {
                                 router.getRoute().forward();
