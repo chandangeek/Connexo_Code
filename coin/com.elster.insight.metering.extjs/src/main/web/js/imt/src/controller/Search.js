@@ -145,6 +145,7 @@ Ext.define('Imt.controller.Search', {
             text: 'Bulk actions',
             itemId: 'search-bulk-actions-button',
             handler: me.showBulkAction,
+            privileges: Imt.privileges.UsagePoint.hasBulkActionPrivileges(),
             scope: me
         });
 

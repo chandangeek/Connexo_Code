@@ -25,5 +25,8 @@ Ext.define('Imt.privileges.UsagePoint', {
     },
     canAdministrateCalendars: function(){
         return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminCalendars) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin)
+    },
+    hasBulkActionPrivileges: function(){
+        return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminCalendars) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin)
     }
 });
