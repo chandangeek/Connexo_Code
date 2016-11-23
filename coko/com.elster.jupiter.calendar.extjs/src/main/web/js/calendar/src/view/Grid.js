@@ -54,7 +54,7 @@ Ext.define('Cal.view.Grid', {
                 store: me.store,
                 dock: 'top',
                 displayMoreMsg: Uni.I18n.translate('calendar.pagingtoolbartop.displayMoreMsg', 'CAL', '{0} - {1} of more than {2} calendars'),
-                displayMsg: Uni.I18n.translate('calendar.pagingtoolbartop.displayMsg', 'CAL', '{0} - {1} of {2}  calendars'),
+                displayMsg: Uni.I18n.translate('calendar.pagingtoolbartop.displayMsg', 'CAL', '{0} - {1} of {2} calendars'),
                 emptyMsg: Uni.I18n.translate('calendar.pagingtoolbartop.emptyMsg', 'CAL', 'There are no calendars to display')
             },
             {
