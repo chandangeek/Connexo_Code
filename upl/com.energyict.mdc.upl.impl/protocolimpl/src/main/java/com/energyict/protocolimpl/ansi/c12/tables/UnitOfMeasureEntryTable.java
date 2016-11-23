@@ -10,12 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -24,12 +21,19 @@ import com.energyict.protocol.*;
 public class UnitOfMeasureEntryTable extends AbstractTable {
     
     private UOMEntryBitField[] uomEntryBitField;
-    
+
+    boolean readUOMTableMinusOne = false;
+
     /** Creates a new instance of UnitOfMeasureEntryTable */
+    public UnitOfMeasureEntryTable(StandardTableFactory tableFactory, boolean readUOMTableMinusOne) {
+        this(tableFactory);
+        this.readUOMTableMinusOne = readUOMTableMinusOne;
+    }
+
     public UnitOfMeasureEntryTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(12));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("UnitOfMeasureEntryTable: \n");
@@ -37,9 +41,14 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
             strBuff.append("uomEntryBitField["+i+"]="+getUomEntryBitField()[i]+"\n");
         return strBuff.toString();
     }
-    
+
     protected void prepareBuild() throws IOException {
-        int size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() * UOMEntryBitField.getSize(); 
+        int size;
+        if (readUOMTableMinusOne) {
+            size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() - 1 * UOMEntryBitField.getSize();
+        } else {
+            size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() * UOMEntryBitField.getSize();
+        }
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,size);
         setPartialReadInfo(partialReadInfo);
     }
