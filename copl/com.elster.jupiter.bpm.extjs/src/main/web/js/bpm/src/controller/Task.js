@@ -176,7 +176,7 @@ Ext.define('Bpm.controller.Task', {
                 callback: function (records, operation, success) {
                     var rowIndex = usersStore.findExact('id', -1);
                     queryString.user = usersStore.getAt(rowIndex).get('name');
-
+                    queryString.workgroup = [Uni.I18n.translate('general.workgroupUnassigned', 'BPM', 'Unassigned')];
                     queryString.param = undefined;
                     queryString.sort = Ext.JSON.encode(sort);
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
