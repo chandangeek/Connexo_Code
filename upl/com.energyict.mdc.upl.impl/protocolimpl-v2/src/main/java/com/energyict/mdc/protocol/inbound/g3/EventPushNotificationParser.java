@@ -24,14 +24,12 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterAlarmParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.*;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
@@ -545,9 +543,20 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     //TODO this might change in the RTU3
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
-        String serialNumber = new String(systemTitle);
-        serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
-        return new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
+        String serverSystemTitle = null;
+        try {
+            byte[] mc = ProtocolTools.getSubArray(systemTitle, 0, 3);
+            String manufacturerCode = ProtocolTools.getAsciiFromBytes(mc);
+            byte[] remainingBytes = ProtocolTools.getSubArray(systemTitle, 3);
+            String remainingData = ProtocolTools.getHexStringFromBytes(remainingBytes, "");
+            serverSystemTitle = manufacturerCode+remainingData;
+            return new DeviceIdentifierBySystemTitle(serverSystemTitle);
+        } catch (NotFoundException e) {
+            log("Unable to find a device identified by system title: " + serverSystemTitle + ". Try to extract a serial number out of it and use that as identifier");
+            String serialNumber = new String(systemTitle);
+            serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
+            return new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
+        }
     }
 
     protected DlmsProperties getNewInstanceOfProperties() {
