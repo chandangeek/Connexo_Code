@@ -4,7 +4,7 @@ Ext.define('Dsh.view.widget.CommunicationsActionMenu', {
     initComponent: function () {
         this.items = [
             {
-                text: Uni.I18n.translate('general.viewHistory', 'DSH', 'Run'),
+                text: Uni.I18n.translate('general.run', 'DSH', 'Run'),
                 action: 'run',
                 itemId: 'dsh-communication-actions-menu-run',
                 section: this.SECTION_ACTION
