@@ -1,22 +1,26 @@
 Ext.define('Dsh.view.widget.ConnectionActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.connection-action-menu',
+    communicationViewMode: false,
     initComponent: function() {
         this.items = [
             {
                 text: Uni.I18n.translate('general.runNow', 'DSH', 'Run now'),
                 privileges : Mdc.privileges.Device.operateDeviceCommunication,
                 action: 'run',
+                itemId: 'dsh-connection-action-menu-run-now',
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.viewHistory', 'DSH', 'View history'),
                 action: 'viewHistory',
+                itemId: 'dsh-connection-action-menu-view-history',
                 section: this.SECTION_VIEW
             },
             {
                 text: Uni.I18n.translate('general.viewLog', 'DSH', 'View log'),
                 action: 'viewLog',
+                itemId: 'dsh-connection-action-menu-view-log',
                 section: this.SECTION_VIEW
             }
         ];
@@ -25,12 +29,22 @@ Ext.define('Dsh.view.widget.ConnectionActionMenu', {
 
     listeners: {
         beforeshow: function (menu) {
-            if (menu && menu.record) {
-                var viewLogMenuItem = menu.down('menuitem[action=viewLog]');
-                if (menu.record.get('comSessionId') !== 0 && menu.down('menuitem[action=viewLog]') !== null) {
-                    viewLogMenuItem.show();
+            if(menu.communicationViewMode) {
+                menu.down('#dsh-connection-action-menu-run-now').hide();
+                menu.down('#dsh-connection-action-menu-view-history').hide();
+                if(menu.record.get('connectionTask').comSessionId !== 0) {
+                    menu.down('#dsh-connection-action-menu-view-log').show();
                 } else {
-                    viewLogMenuItem.hide();
+                    menu.down('#dsh-connection-action-menu-view-log').hide();
+                }
+            } else {
+                if (menu && menu.record) {
+                    var viewLogMenuItem = menu.down('menuitem[action=viewLog]');
+                    if (menu.record.get('comSessionId') !== 0 && menu.down('menuitem[action=viewLog]') !== null) {
+                        viewLogMenuItem.show();
+                    } else {
+                        viewLogMenuItem.hide();
+                    }
                 }
             }
         }

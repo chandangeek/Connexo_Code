@@ -86,7 +86,7 @@ Ext.define('Dsh.controller.Connections', {
             'connections-details #communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
             },
-            'preview_connection #connectionsActionMenu': {
+            'connections-details preview_connection #connectionsActionMenu': {
                 click: this.chooseAction
             },
             '#connectionsDetailsActionMenu': {
@@ -108,6 +108,9 @@ Ext.define('Dsh.controller.Connections', {
             'dsh-view-widget-connectionstopfilter #finish-interval-filter': {
                 filterupdate: this.updateLatestStatusFilter,
                 filtervaluechange: this.updateLatestStatusFilter
+            },
+            'communication-action-menu': {
+                click: this.viewCommunicationLog
             }
 
         });
@@ -126,8 +129,7 @@ Ext.define('Dsh.controller.Connections', {
     onCommunicationSelectionChange: function (grid, selected) {
         var me = this,
             record = selected[0],
-            preview = me.getCommunicationPreview(),
-            menuItems = [];
+            preview = me.getCommunicationPreview();
 
         record.data.devConfig = {
             config: record.data.deviceConfiguration,
@@ -135,41 +137,8 @@ Ext.define('Dsh.controller.Connections', {
         };
 
         preview.loadRecord(record);
+        preview.down('communication-action-menu').record = record;
         preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('comTask').name, record.get('device').id]));
-        Ext.resumeLayouts(true);
-        me.initMenu(record, menuItems);
-    },
-
-    initMenu: function (record, menuItems) {
-        var me = this,
-            gridActionMenu = this.getCommunicationsGridActionMenu().menu,
-            previewActionMenu = this.getCommunicationPreviewActionMenu().menu;
-
-        Ext.suspendLayouts();
-
-        gridActionMenu.removeAll();
-        previewActionMenu.removeAll();
-
-        if (record.get('sessionId') !== 0) {
-            menuItems.push({
-                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), record.get('comTask').name),
-                action: {
-                    action: 'viewlog',
-                    comTask: {
-                        mRID: record.get('device').id,
-                        sessionId: record.get('id'),
-                        comTaskId: record.get('comTask').id
-                    }
-                },
-                listeners: {
-                    click: me.viewCommunicationLog
-                }
-            });
-        }
-
-        gridActionMenu.add(menuItems);
-        previewActionMenu.add(menuItems);
-
         Ext.resumeLayouts(true);
     },
 
@@ -198,12 +167,12 @@ Ext.define('Dsh.controller.Connections', {
         }
     },
 
-    viewCommunicationLog: function (item) {
-        location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
+    viewCommunicationLog: function (menu) {
+        location.href = '#/devices/' + menu.record.get('device').id
+            + '/communicationtasks/' + menu.record.get('comTask').id
+            + '/history/' + menu.record.get('id')
             + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+            '?logLevels=Error&logLevels=Warning&logLevels=Information';
     },
     onGenerateReport: function () {
         var me = this;

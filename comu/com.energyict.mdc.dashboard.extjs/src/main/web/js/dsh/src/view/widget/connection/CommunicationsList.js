@@ -9,7 +9,8 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Yfn.privileges.Yellowfin'
+        'Yfn.privileges.Yellowfin',
+        'Dsh.view.widget.connection.CommunicationActionMenu'
     ],
     columns: {
         defaults: {
@@ -84,7 +85,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 itemId: 'communicationsGridActionMenu',
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    //xtype: 'communications-action-menu'
+                    xtype: 'communication-action-menu'
                 }
             }
         ]

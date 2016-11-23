@@ -2,7 +2,8 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
     extend: 'Ext.form.Panel',
     alias: 'widget.preview_communication',
     requires: [
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Dsh.view.widget.CommunicationsActionMenu'
     ],
     title: '',
     frame: true,
@@ -14,7 +15,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
             xtype: 'uni-button-action',
             itemId: 'communicationPreviewActionMenu',
             menu: {
-//                xtype: 'communications-action-menu'
+                xtype: 'communications-action-menu'
             }
         }
     ],

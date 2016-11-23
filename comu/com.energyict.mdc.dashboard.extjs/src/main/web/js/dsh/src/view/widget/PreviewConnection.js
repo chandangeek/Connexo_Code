@@ -6,19 +6,26 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
     ],
     title: '',
     frame: true,
+    communicationViewMode: false,
     layout: {
         type: 'column'
     },
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            itemId: 'connectionsPreviewActionBtn',
-            menu: {
-                xtype: 'connection-action-menu',
-                itemId: 'connectionsActionMenu'
+
+    initComponent: function() {
+        var me = this;
+        me.tools =  [
+            {
+                xtype: 'uni-button-action',
+                itemId: 'connectionsPreviewActionBtn',
+                menu: {
+                    xtype: 'connection-action-menu',
+                    itemId: 'connectionsActionMenu',
+                    communicationViewMode: me.communicationViewMode
+                }
             }
-        }
-    ],
+        ];
+        me.callParent(arguments);
+    },
     items: [
         {
             columnWidth: 0.5,
@@ -193,10 +200,5 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        var me = this;
-        me.callParent(arguments);
-    }
+    ]
 });
