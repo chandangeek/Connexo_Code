@@ -6,8 +6,8 @@ package com.elster.jupiter.calendar.impl.importers;
 
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.impl.TranslationKeys;
-import com.elster.jupiter.calendar.impl.xmlbinding.Calendar;
 import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
+import com.elster.jupiter.calendar.impl.xmlbinding.XmlCalendar;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.LocalizedException;
@@ -68,7 +68,7 @@ class TimeOfUseCalendarImporter implements FileImporter {
     }
 
     Calendars getXmlContents(FileImportOccurrence fileImportOccurrence) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Calendar.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(XmlCalendar.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         unmarshaller.setSchema(getSchema());
         return unmarshall(unmarshaller, fileImportOccurrence.getContents());

@@ -30,7 +30,10 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.MonthDay;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,11 +122,13 @@ public class CalendarImpl implements Calendar {
 
     private final ServerCalendarService calendarService;
     private final EventService eventService;
+    private final Clock clock;
 
     @Inject
-    CalendarImpl(ServerCalendarService calendarService, EventService eventService) {
+    CalendarImpl(ServerCalendarService calendarService, EventService eventService, Clock clock) {
         this.calendarService = calendarService;
         this.eventService = eventService;
+        this.clock = clock;
     }
 
     static CalendarImpl from(DataModel dataModel, EventSet eventSet) {
@@ -214,6 +219,11 @@ public class CalendarImpl implements Calendar {
         }
     }
 
+    @Override
+    public boolean isActive() {
+        return Status.ACTIVE.equals(status);
+    }
+
     private void doSave() {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
         saveDayTypes();
@@ -256,11 +266,19 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public CalendarService.CalendarBuilder redefine(){
+        if (isActive()) {
+            throw new IllegalStateException("Cannot redefine an active calendar; calendar : " + this.getName());
+        }
         exceptionalOccurrences.clear();
         periodTransitionSpecs.clear();
         periods.clear();
         dayTypes.clear();
         return new CalendarBuilderImpl(calendarService.getDataModel(), this);
+    }
+
+    @Override
+    public CalendarService.StrictCalendarBuilder update() {
+        return new StrictCalendarBuilderImpl(clock, this);
     }
 
     private void saveDayTypes() {
@@ -409,17 +427,17 @@ public class CalendarImpl implements Calendar {
         return period;
     }
 
-    FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, int day, int month, int year) {
+    FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, LocalDate localDate) {
         FixedExceptionalOccurrenceImpl fixedExceptionalOccurrence =
-                calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, dayType, day, month, year);
+                calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, dayType, localDate);
         Save.CREATE.validate(calendarService.getDataModel(), fixedExceptionalOccurrence);
         this.exceptionalOccurrences.add(fixedExceptionalOccurrence);
         return fixedExceptionalOccurrence;
     }
 
-    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, int day, int month) {
+    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, MonthDay monthDay) {
         RecurrentExceptionalOccurrenceImpl recurrentExceptionalOccurrence =
-                calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, dayType, day, month);
+                calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, dayType, monthDay);
         Save.CREATE.validate(calendarService.getDataModel(), recurrentExceptionalOccurrence);
         this.exceptionalOccurrences.add(recurrentExceptionalOccurrence);
         return recurrentExceptionalOccurrence;

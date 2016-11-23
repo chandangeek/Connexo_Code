@@ -39,6 +39,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
@@ -64,6 +65,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
+    private volatile Clock clock;
 
     private final List<CalendarResolver> calendarResolvers = new CopyOnWriteArrayList<>();
 
@@ -115,6 +117,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -140,6 +147,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(Clock.class).toInstance(clock);
             }
         };
     }

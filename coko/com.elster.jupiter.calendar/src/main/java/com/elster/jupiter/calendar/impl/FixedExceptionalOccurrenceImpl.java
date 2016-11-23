@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.MessageSeeds;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.MonthDay;
 
 /**
  * Provides an implementation for the {@link com.elster.jupiter.calendar.FixedExceptionalOccurrence} interface.
@@ -37,10 +38,10 @@ class FixedExceptionalOccurrenceImpl extends ExceptionalOccurrenceImpl implement
         return super.occursAt(localDate) && year == localDate.getYear();
     }
 
-    public FixedExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, int day, int month, int year) {
+    FixedExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, LocalDate localDate) {
         FixedExceptionalOccurrenceImpl fixedExceptionalOccurrenceImpl =
-                (FixedExceptionalOccurrenceImpl) super.init(calendar, dayType, day, month);
-        fixedExceptionalOccurrenceImpl.year = year;
+                (FixedExceptionalOccurrenceImpl) super.init(calendar, dayType, MonthDay.from(localDate));
+        fixedExceptionalOccurrenceImpl.year = localDate.getYear();
         return fixedExceptionalOccurrenceImpl;
     }
 

@@ -15,6 +15,7 @@ import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 import com.elster.jupiter.calendar.impl.importers.CalendarImportResult;
 import com.elster.jupiter.calendar.impl.importers.CalendarProcessor;
 import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
+import com.elster.jupiter.calendar.impl.xmlbinding.XmlCalendar;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.nls.Thesaurus;
@@ -459,7 +460,7 @@ public class CalendarCrudTest {
     public void testFromXml() {
         InputStream in = null;
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(com.elster.jupiter.calendar.impl.xmlbinding.Calendar.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(XmlCalendar.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 

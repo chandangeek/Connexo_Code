@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.MonthDay;
 import java.util.Map;
 
 /**
@@ -67,11 +68,11 @@ abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence {
         this.calendarService = calendarService;
     }
 
-    public ExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, int day, int month) {
+    ExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, MonthDay monthDay) {
         this.calendar.set(calendar);
         this.dayType.set(dayType);
-        this.day = day;
-        this.month = month;
+        this.day = monthDay.getDayOfMonth();
+        this.month = monthDay.getMonthValue();
         return this;
     }
 
