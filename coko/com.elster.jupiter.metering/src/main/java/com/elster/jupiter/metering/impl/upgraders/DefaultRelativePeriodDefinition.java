@@ -48,7 +48,7 @@ public enum DefaultRelativePeriodDefinition {
             return atStartOfDay(
                     gasDayOptions,
                     MONTH.minus(1),
-                    HOUR.plus(gasDayOptions.getYearStart().getHour()),
+                    HOUR.equalTo(gasDayOptions.getYearStart().getHour()),
                     DAY.equalTo(1));
         }
 
@@ -60,7 +60,7 @@ public enum DefaultRelativePeriodDefinition {
     THIS_MONTH(GasDayOptions.RelativePeriodTranslationKey.THIS_MONTH) {
         @Override
         protected RelativeDate fromWith(GasDayOptions gasDayOptions) {
-            return atStartOfDay(gasDayOptions, DAY.equalTo(1));
+            return atStartOfDay(gasDayOptions, MONTH.minus(0), DAY.equalTo(1));
         }
 
         @Override
@@ -82,7 +82,7 @@ public enum DefaultRelativePeriodDefinition {
     THIS_WEEK(GasDayOptions.RelativePeriodTranslationKey.THIS_WEEK) {
         @Override
         protected RelativeDate fromWith(GasDayOptions gasDayOptions) {
-            return onFirstDayOfWeek(gasDayOptions);
+            return onFirstDayOfWeek(gasDayOptions, WEEK.minus(0));
         }
 
         @Override
