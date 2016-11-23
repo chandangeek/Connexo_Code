@@ -36,9 +36,9 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Details', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'no-calendars-found-panel',
-                        title: Uni.I18n.translate('general.noCalendars', 'IMT', 'No active time of use calendar found'),
+                        title: Uni.I18n.translate('general.noCalendars', 'IMT', 'No calendars found'),
                         reasons: [
-                            Uni.I18n.translate('usagePoint.calendars.empty.reason', 'IMT', 'There is no active calendar')
+                            Uni.I18n.translate('usagePoint.calendars.empty.reason', 'IMT', 'No calendars have been added yet.')
                         ],
                         stepItems: [
                             {

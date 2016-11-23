@@ -125,6 +125,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
 
     loadRecord: function (calendar) {
         Ext.suspendLayouts();
+        this.setTitle(calendar.getCalendar().get('category').displayName);
         this.down('form').removeAll();
         if(calendar.get('fromTime') < new Date()) {
             this.fillFieldContainers(calendar.getCalendar());
