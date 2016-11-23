@@ -166,11 +166,19 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             fromOverview = router.queryParams.fromOverview === 'true',
-            queryParamsForBackUrl = fromOverview ? router.queryParams : null;
+            queryParamsForBackUrl = fromOverview ? router.queryParams : null,
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            issueType = queryString.issueType;
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Idc.model.Issue').load(issueId, {
+        if (issueType === 'datacollection') {
+            issueModel = 'Idc.model.Issue';
+        } else if (issueType === 'datavalidation') {
+            issueModel = 'Idv.model.Issue';
+        }
+
+        Ext.ModelManager.getModel(issueModel).load(issueId, {
             success: function (issue) {
                 viewport.setLoading(false);
 
