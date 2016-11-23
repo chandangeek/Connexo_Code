@@ -21,6 +21,12 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
                             name: 'startYear'
                         },
                         {
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period'),
+                            itemId: 'fromUntil',
+                            htmlEncode: false
+                        },
+                        {
                             xtype: 'fieldcontainer',
                             fieldLabel: Uni.I18n.translate('general.periods', 'IMT', 'Periods'),
                             itemId: 'periodField'
@@ -44,9 +50,9 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
         var me = this;
         Ext.suspendLayouts();
 
-        me.down('form').loadRecord(calendarRecord);
+        me.down('form').loadRecord(calendarRecord.getCalendar());
         me.down('#periodField').removeAll();
-        calendarRecord.periods().each(function (record) {
+        calendarRecord.getCalendar().periods().each(function (record) {
             me.down('#periodField').add(
                 {
                     xtype: 'displayfield',
@@ -57,7 +63,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
             );
         });
         me.down('#dayTypesField').removeAll();
-        calendarRecord.dayTypes().each(function (record) {
+        calendarRecord.getCalendar().dayTypes().each(function (record) {
             me.down('#dayTypesField').add(
                 {
                     xtype: 'displayfield',
@@ -69,7 +75,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
         });
 
         this.down('#tariffsField').removeAll();
-        calendarRecord.events().each(function (record) {
+        calendarRecord.getCalendar().events().each(function (record) {
             me.down('#tariffsField').add(
                 {
                     xtype: 'displayfield',
@@ -79,6 +85,17 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
                 }
             );
         });
+
+            var from = calendarRecord.get('fromTime'),
+                to = calendarRecord.get('toTime');
+            var fromTo = to ? Uni.I18n.translate('general.period.fromUntil', 'IMT', 'From {0} until {1}', [
+                Uni.DateTime.formatDateTimeShort(from),
+                Uni.DateTime.formatDateTimeShort(to)
+            ])
+                : Uni.I18n.translate('general.period.from', 'IMT', 'From {0}', [
+                Uni.DateTime.formatDateTimeShort(from)
+            ]);
+        this.down('#fromUntil').setValue(fromTo);
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
@@ -86,7 +103,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
     },
 
     getDays: function (record, id) {
-        var days = record.daysPerType().findRecord('dayTypeId', id).get('days'),
+        var days = record.getCalendar().daysPerType().findRecord('dayTypeId', id).get('days'),
             response = "";
         if (days.length === 0) {
             return response;
@@ -110,7 +127,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
     },
 
     loadRecord: function (calendar) {
-        this.fillFieldContainers(calendar.getCalendar());
+        this.fillFieldContainers(calendar);
         this.setTitle(calendar.getCalendar().get('name'));
     }
 });
