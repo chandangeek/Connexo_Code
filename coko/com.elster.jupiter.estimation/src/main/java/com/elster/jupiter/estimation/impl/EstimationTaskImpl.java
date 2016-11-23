@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.estimation.CannotDeleteWhileBusyException;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -158,9 +159,18 @@ final class EstimationTaskImpl implements IEstimationTask {
         if (id == 0) {
             return;
         }
+        if (!canBeDeleted()) {
+            throw new CannotDeleteWhileBusy();
+        }
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
+        }
+    }
+
+    private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {
+        CannotDeleteWhileBusy() {
+            super(EstimationTaskImpl.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, EstimationTaskImpl.this);
         }
     }
 
