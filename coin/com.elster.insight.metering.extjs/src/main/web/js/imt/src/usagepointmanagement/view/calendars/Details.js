@@ -43,7 +43,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Details', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('usagePoint.calendars.define', 'IMT', 'Add calendar'),
-                                // privileges: Imt.privileges.UsagePoint.canAdministrate,
+                                privileges: Imt.privileges.UsagePoint.adminCalendars,
                                 href: me.router.getRoute('usagepoints/view/calendars/addcalendar').buildUrl({mRID: me.usagePoint.get('mRID')}),
                                 action: 'define',
                                 itemId: 'define-calendar-configuration'
