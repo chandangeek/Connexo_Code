@@ -41,6 +41,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
@@ -162,7 +163,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     dataModel,
                     InstallerImpl.class,
                     ImmutableMap.of(
-                            version(10, 2), UpgraderV10_2.class
+                            version(10, 2), UpgraderV10_2.class,
+                            version(10, 3), V10_3SimpleUpgrader.class
                     ));
         } catch (Exception e) {
             e.printStackTrace();
