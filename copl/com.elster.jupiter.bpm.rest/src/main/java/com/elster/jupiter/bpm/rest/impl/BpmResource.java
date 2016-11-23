@@ -303,6 +303,11 @@ public class BpmResource {
         if (total > 0) {
             infos.total = total;
         }
+        infos.getTasks().stream().forEach(info -> {
+            if(!userService.getWorkGroup(info.workgroup).isPresent()){
+                info.workgroup = "";
+            }
+        });
         return PagedInfoList.fromPagedList("tasks", ListPager.of(infos.getTasks()).from(queryParam).find(), queryParam);
     }
 
@@ -340,6 +345,8 @@ public class BpmResource {
         Optional<WorkGroup> workGroup = userService.getWorkGroup(taskInfo.workgroup);
         if(workGroup.isPresent()){
             taskInfo.workgroupId = workGroup.get().getId();
+        } else {
+            taskInfo.workgroup = "";
         }
         Optional<User> user = userService.findUser(taskInfo.actualOwner);
         if(user.isPresent()){
