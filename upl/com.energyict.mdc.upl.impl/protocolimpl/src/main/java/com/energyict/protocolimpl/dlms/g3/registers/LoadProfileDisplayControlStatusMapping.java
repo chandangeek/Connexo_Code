@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -10,6 +11,7 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -31,29 +33,30 @@ public class LoadProfileDisplayControlStatusMapping extends G3Mapping {
 
     @Override
     public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
-        return new RegisterValue(getObisCode(), getStatusString(abstractDataType));
+        if (abstractDataType.isUnsigned8()) {
+            int status = abstractDataType.getUnsigned8().getValue();
+            return new RegisterValue(getObisCode(),
+                    new Quantity(BigDecimal.valueOf(status), Unit.get("")),
+                    null, null, null, new Date(), 0,
+                    getStatusString(status));
+        } else {
+            return new RegisterValue(getObisCode(), abstractDataType.toString());
+        }
     }
 
-    public String getStatusString(AbstractDataType displayControlStatusAttribute) throws IOException {
+    public String getStatusString(int status) throws IOException {
         StringBuffer builder = new StringBuffer();
-
-        if (displayControlStatusAttribute.isUnsigned8()) {
-            int status = displayControlStatusAttribute.getUnsigned8().getValue();
-
-            switch (status) {
-                case 0:
-                    builder.append("LoadProfile1 readout via display enabled");
-                    break;
-                case 1:
-                    builder.append("LoadProfile1 readout via display disabled");
-                    break;
-                default:
-                    builder.append("Not supported value for LoadProfile Display Control Status: " + status);
-            }
-            return builder.toString();
-        } else {
-            throw new ProtocolException("Could not get correct LoadProfile Display Control Status attribute format.");
+        switch (status) {
+            case 0:
+                builder.append("LoadProfile1 readout via display enabled");
+                break;
+            case 1:
+                builder.append("LoadProfile1 readout via display disabled");
+                break;
+            default:
+                builder.append("Not supported value for LoadProfile Display Control Status: " + status);
         }
+        return builder.toString();
     }
 
     @Override
