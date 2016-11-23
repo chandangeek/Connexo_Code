@@ -398,9 +398,7 @@ public class JbpmTaskResource {
                     }
                 }
                 if(workGroupName != null){
-                    if(userGroupInfoProducers.get().produceCallback().existsGroup(workGroupName)) {
-                        taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, workGroupName));
-                    }
+                    taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, workGroupName));
                 }
             } else {
                 return Response.status(409).entity(task.getName()).build();
