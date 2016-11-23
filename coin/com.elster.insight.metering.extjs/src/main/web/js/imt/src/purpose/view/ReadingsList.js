@@ -5,7 +5,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     requires: [
         'Imt.purpose.store.Readings',
         'Uni.view.toolbar.PagingTop',
-        'Imt.purpose.view.DataBulkActionMenu'
+        'Imt.purpose.view.DataBulkActionMenu',
+        'Uni.grid.column.Edited'
     ],
     selModel: {
         mode: 'MULTI'
@@ -14,11 +15,6 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         loadMask: false,
         enableTextSelection: true
     },
-    // plugins: [
-    //     {
-    //         ptype: 'bufferedrenderer'
-    //     }
-    // ],
     store: 'Imt.purpose.store.Readings',
 
     initComponent: function () {
@@ -60,31 +56,36 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 header: unit
                     ? Uni.I18n.translate('general.valueOf', 'IMT', 'Value ({0})', [unit])
                     : Uni.I18n.translate('general.value.empty', 'IMT', 'Value'),
-                flex: 2,
-                renderer: function (v) {
-                    return Ext.isEmpty(v) ? '-' : v;
+                width: 200,
+                renderer: me.formatColumn,
+                editor: {
+                    xtype: 'textfield',
+                    stripCharsRe: /[^0-9\.]/,
+                    selectOnFocus: true,
+                    validateOnChange: true,
+                    fieldStyle: 'text-align: right'
                 },
                 align: 'right',
                 dataIndex: 'value'
             },
             {
-                flex: 1,
-                header: ' ',
-                renderer: function (v, metaData, record) {
-                    var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
-                        icon = '';
-
-                    if (status === 'notValidated') {
-                        icon = '<span class="icon-flag6" style="margin-left:-15px;" data-qtip="'
-                            + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
-                    } else if (status === 'suspect') {
-                        icon = '<span class="icon-flag5" style="margin-left:-15px; color:red;" data-qtip="'
-                            + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
-                    }
-                    return icon;
+                xtype: 'edited-column',
+                header: '',
+                dataIndex: 'modificationState',
+                width: 30,
+                emptyText: ' '
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                itemId: 'channel-data-grid-action-column',
+                menu: {
+                    xtype: 'purpose-readings-data-action-menu',
+                    itemId: 'purpose-readings-data-action-menu'
                 }
             }
         ];
+        
+        
         
         me.dockedItems = [
             {
@@ -95,7 +96,18 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 usesExactCount: true,
                 isFullTotalCount: true,
                 displayMsg: Uni.I18n.translate('reading.pagingtoolbartop.displayMsg', 'IMT', '{1} reading(s)'),
-                items: [
+                items: me.addTopToolbarButtons(me.output.get('outputType'))
+            }
+        ];
+
+        me.callParent(arguments);
+    },
+    
+    addTopToolbarButtons: function (outputType) {
+        var buttons;
+        switch(outputType){
+            case 'channel': {
+                buttons = [
                     {
                         xtype: 'button',
                         itemId: 'save-changes-button',
@@ -113,14 +125,40 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                         itemId: 'device-channel-data-bulk-action-button',
                         text: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
                         menu: {
-                            xtype: 'purpose-channel-data-bulk-action-menu',
-                            itemId: 'purpose-channel-data-bulk-action-menu'
+                            xtype: 'purpose-readings-data-action-menu',
+                            itemId: 'purpose-readings-data-bulk-action-menu'
                         }
                     }
                 ]
-            }
-        ];
+            } break;
+            case 'register':{
+                buttons = [
+                    {
+                        xtype: 'button',
+                        itemId: 'add-reading-button',
+                        text: Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'),
+                        disabled: true
+                    }
+                ]
+            } break;
+        }
+        return buttons;
+    },
 
-        me.callParent(arguments);
+    formatColumn: function (v, metaData, record) {
+        var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
+            value = Ext.isEmpty(v) ? '-' : v,
+            icon = '';
+
+        if (status === 'notValidated') {
+            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
+        } else if (record.get('confirmedNotSaved')) {
+            metaData.tdCls = 'x-grid-dirty-cell';
+        } else if (status === 'suspect') {
+            icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
+        }
+        return value + icon;
     }
 });

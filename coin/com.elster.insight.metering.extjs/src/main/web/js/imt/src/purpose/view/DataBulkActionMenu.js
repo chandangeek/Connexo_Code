@@ -1,6 +1,6 @@
 Ext.define('Imt.purpose.view.DataBulkActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.purpose-channel-data-bulk-action-menu',
+    alias: 'widget.purpose-readings-data-action-menu',
     plain: true,
     border: false,
     shadow: false,
@@ -12,16 +12,22 @@ Ext.define('Imt.purpose.view.DataBulkActionMenu', {
             action: 'confirmValue'
         },
         {
+            itemId: 'edit-value',
+            text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+            action: 'editValue',
+            // dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+        },
+        {
             itemId: 'estimate-value',
             hidden: true,
             text: Uni.I18n.translate('general.estimateValue', 'IMT', 'Estimate value'),
             action: 'estimateValue'
         },
         {
-            itemId: 'remove-value',
+            itemId: 'reset-value',
             hidden: true,
-            text: Uni.I18n.translate('general.removeReadings', 'IMT', 'Remove readings'),
-            action: 'removeValue'
+            text: Uni.I18n.translate('general.resetReadings', 'IMT', 'Reset readings'),
+            action: 'resetValue'
         }
     ]
 });

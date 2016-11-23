@@ -42,6 +42,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointmanagement.controller.Attributes',
         'Imt.usagepointsetup.controller.MetrologyConfig',
         'Imt.purpose.controller.Purpose',
+        'Imt.purpose.controller.Readings',
         'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails',
         'Imt.metrologyconfiguration.controller.ValidationConfiguration'
     ],
