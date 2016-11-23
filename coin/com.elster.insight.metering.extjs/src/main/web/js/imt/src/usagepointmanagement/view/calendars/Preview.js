@@ -67,7 +67,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name') + ' (' + Uni.I18n.translate('general.fromX', 'IMt', 'from {0}', [me.calculateDate(record.get('fromMonth'), record.get('fromDay'))]) + ')',
+                    value: record.get('name') + ' (' + Uni.I18n.translate('general.fromX', 'IMT', 'from {0}', [me.calculateDate(record.get('fromMonth'), record.get('fromDay'))]) + ')',
                     margin: '0 0 -10 0'
                 }
             );
