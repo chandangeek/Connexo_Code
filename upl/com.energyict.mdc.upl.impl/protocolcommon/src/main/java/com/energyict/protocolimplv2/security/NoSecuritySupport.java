@@ -1,17 +1,18 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -30,11 +31,6 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.NONE.toString();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.singletonList(new NoAuthenticationAccessLevel());
     }
@@ -45,7 +41,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return null;
     }
 
@@ -54,8 +50,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
         return TypedProperties.empty();
     }
 
-    @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {

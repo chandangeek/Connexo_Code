@@ -1,12 +1,15 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow;
 
-import com.energyict.cpo.*;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -63,8 +66,8 @@ public class WaveFlowProperties {
         return properties.getIntegerProperty(RETRIES, BigDecimal.valueOf(2)).intValue();
     }
 
-    public void addProperties(TypedProperties allProperties) {
-        properties.setAllProperties(allProperties);
+    public void addProperties(com.energyict.mdc.upl.properties.TypedProperties allProperties) {
+        properties.setAllProperties(TypedProperties.copyOf(allProperties));
     }
 
     public int getScaleA() {
@@ -120,7 +123,7 @@ public class WaveFlowProperties {
     }
 
     public int getWavenisBubbleUpInfo() {
-        String propertyValue = properties.<String>getTypedProperty(WAVENIS_BUBBLE_UP_INFO, "USED,1,28800,28800,1,000000000000");
+        String propertyValue = properties.getTypedProperty(WAVENIS_BUBBLE_UP_INFO, "USED,1,28800,28800,1,000000000000");
         String[] split = propertyValue.split(",");
         if (split.length != 6) {
             throw DeviceConfigurationException.invalidPropertyFormat(WAVENIS_BUBBLE_UP_INFO, propertyValue, "Should contain 6 comma separated parts.");
@@ -134,27 +137,23 @@ public class WaveFlowProperties {
         return startMoment;
     }
 
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+            UPLPropertySpecFactory.bigDecimal(TIMEOUT, false),
+            UPLPropertySpecFactory.bigDecimal(RETRIES, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_A, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_B, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_C, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_D, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_A, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_B, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_C, false),
+            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_D, false),
+            UPLPropertySpecFactory.bigDecimal(APPLICATION_STATUS_VARIANT, false),
+            UPLPropertySpecFactory.bigDecimal(INITIAL_RF_COMMAND, false),
+            UPLPropertySpecFactory.booleanValue(ROUND_DOWN_TO_NEAREST_INTERVAL, false),
+            UPLPropertySpecFactory.booleanValue(ENABLE_MULTI_FRAME_MODE, false),
+            UPLPropertySpecFactory.string(WAVENIS_BUBBLE_UP_INFO, false));
     }
 
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> required = new ArrayList<>();
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_SCALE_A));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_SCALE_B));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_SCALE_C));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_SCALE_D));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_MULTIPLIER_A));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_MULTIPLIER_B));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_MULTIPLIER_C));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_MULTIPLIER_D));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(APPLICATION_STATUS_VARIANT));
-        required.add(PropertySpecFactory.bigDecimalPropertySpec(INITIAL_RF_COMMAND));
-        required.add(PropertySpecFactory.notNullableBooleanPropertySpec(ROUND_DOWN_TO_NEAREST_INTERVAL));
-        required.add(PropertySpecFactory.notNullableBooleanPropertySpec(ENABLE_MULTI_FRAME_MODE));
-        required.add(PropertySpecFactory.stringPropertySpec(WAVENIS_BUBBLE_UP_INFO));
-        return required;
-    }
 }

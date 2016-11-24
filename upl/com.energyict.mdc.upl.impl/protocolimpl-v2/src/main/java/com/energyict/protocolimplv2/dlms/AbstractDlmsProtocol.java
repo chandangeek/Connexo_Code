@@ -1,24 +1,25 @@
 package com.energyict.protocolimplv2.dlms;
 
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.ProtocolLoggingSupport;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
@@ -30,6 +31,8 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -46,7 +49,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     protected DlmsProperties dlmsProperties;
     protected AbstractMeterTopology meterTopology;
     protected OfflineDevice offlineDevice;
-    protected ConfigurationSupport dlmsConfigurationSupport;
+    protected HasDynamicProperties dlmsConfigurationSupport;
     protected DLMSCache dlmsCache;
     protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
     private ComposedMeterInfo meterInfo;
@@ -87,14 +90,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         return getMeterInfo().getSerialNr();
     }
 
-    /**
-     * General device properties, add them to the DLMS session properties
-     *
-     * @param properties properties to add
-     */
     @Override
-    public void addProperties(TypedProperties properties) {
-        this.getDlmsSessionProperties().addProperties(properties);
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        this.getDlmsSessionProperties().setProperties(properties);
     }
 
     /**
@@ -131,11 +129,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getSecuritySupport().getAuthenticationAccessLevels();
     }
@@ -146,7 +139,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
     }
 
@@ -317,13 +310,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getDlmsConfigurationSupport().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getDlmsConfigurationSupport().getOptionalProperties();
+    public List<PropertySpec> getPropertySpecs() {
+        return getDlmsConfigurationSupport().getPropertySpecs();
     }
 
     public boolean hasBreaker() {
@@ -341,7 +329,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      * A collection of general DLMS properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = new DlmsConfigurationSupport();
         }

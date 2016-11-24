@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -15,15 +15,16 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
@@ -35,9 +36,11 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -71,12 +74,12 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
     }
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return new ArrayList<>(0);
+        return Collections.emptyList();
     }
 
     @Override
@@ -106,7 +109,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
     }
 
     /**
@@ -159,11 +162,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
         return getMeterProtocol().getSecurityProperties();
     }
 
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getMeterProtocol().getSecurityRelationTypeName();
-    }
-
     /**
      * Return the access levels of the master AND a dummy level that indicates that this device can also
      * simply inherit the security properties of the master device, instead of specifying the security properties again
@@ -190,7 +188,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getMeterProtocol().getSecurityPropertySpec(name);
     }
 
@@ -232,8 +230,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        throw CodingException.unsupportedMethod(this.getClass(), "addProperties");
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        throw CodingException.unsupportedMethod(this.getClass(), "setProperties");
     }
 
     @Override

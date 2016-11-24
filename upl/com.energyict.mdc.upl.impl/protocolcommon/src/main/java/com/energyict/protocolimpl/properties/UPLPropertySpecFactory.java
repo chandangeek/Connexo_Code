@@ -64,6 +64,14 @@ public final class UPLPropertySpecFactory {
         return specBuilder(name, required, () -> Services.propertySpecService().longSpec());
     }
 
+    public static PropertySpec<Boolean> booleanValue(String name, boolean required) {
+        return booleanSpecBuilder(name, required).finish();
+    }
+
+    private static PropertySpecBuilder<Boolean> booleanSpecBuilder(String name, boolean required) {
+        return specBuilder(name, required, () -> Services.propertySpecService().booleanSpec());
+    }
+
     public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required) {
         return bigDecimalSpecBuilder(name, required).finish();
     }

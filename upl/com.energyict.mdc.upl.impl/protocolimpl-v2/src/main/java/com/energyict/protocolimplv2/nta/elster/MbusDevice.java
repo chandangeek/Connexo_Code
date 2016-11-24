@@ -2,18 +2,17 @@ package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  *  The MBus device used for the AM100 implementation of the NTA spec
  *
- * @author: sva
- * @since: 2/11/12 (11:26)
+ * @author sva
+ * @since 2/11/12 (11:26)
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
@@ -38,12 +37,8 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>(0);
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>(0);
-    }
 }
