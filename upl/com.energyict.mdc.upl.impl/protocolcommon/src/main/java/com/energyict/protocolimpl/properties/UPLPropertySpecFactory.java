@@ -87,7 +87,7 @@ public final class UPLPropertySpecFactory {
         return string(name, required, Optional.empty(), possibleValues);
     }
 
-    public static PropertySpec<String> string(String name, boolean required, String defaultValue, String... possibleValues) {
+    public static PropertySpec<String> stringWithDefault(String name, boolean required, String defaultValue, String... possibleValues) {
         return string(name, required, Optional.of(defaultValue), possibleValues);
     }
 

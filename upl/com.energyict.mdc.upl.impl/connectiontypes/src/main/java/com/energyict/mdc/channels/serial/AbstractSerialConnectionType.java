@@ -65,7 +65,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected PropertySpec<String> flowControlPropertySpec() {
-        return  UPLPropertySpecFactory.string(SerialPortConfiguration.FLOW_CONTROL_NAME, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
+        return  UPLPropertySpecFactory.stringWithDefault(SerialPortConfiguration.FLOW_CONTROL_NAME, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
     }
 
     protected PropertySpec<BigDecimal> nrOfDataBitsPropertySpec() {
