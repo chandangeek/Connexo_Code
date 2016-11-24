@@ -1,7 +1,6 @@
 Ext.define('Imt.usagepointmanagement.model.Purpose', {
     extend: 'Uni.model.Version',
-    fields: [       
-        'dataValidationTasks',
+    fields: [
         {name: 'id', type: 'int'},
         {name: 'name', type: 'string'},
         {name: 'required', type: 'boolean', useNull: true},
@@ -11,7 +10,7 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{mRID}/purposes',
+        url: '/api/udr/usagepoints/{usagePointId}/purposes',
         reader: {
             type: 'json'
         }

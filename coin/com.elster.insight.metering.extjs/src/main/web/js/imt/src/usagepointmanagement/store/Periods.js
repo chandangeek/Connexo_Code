@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointmanagement.store.Periods', {
     model: 'Imt.usagepointmanagement.model.Period',
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{mRID}/validationSummaryPeriods',
+        url: '/api/udr/usagepoints/{usagePointId}/validationSummaryPeriods',
         reader: {
             type: 'json',
             root: 'relativePeriods'

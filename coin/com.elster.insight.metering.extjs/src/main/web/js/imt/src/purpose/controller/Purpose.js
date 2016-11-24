@@ -14,7 +14,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.Readings',
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.store.RegisterReadings',
-        'Imt.usagepointmanagement.store.UsagePointTypes'
+        'Imt.usagepointmanagement.store.UsagePointTypes',
+        'Imt.purpose.store.ValidationTasks'
     ],
 
     models: [
@@ -60,15 +61,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
         });
     },
 
-    loadOutputs: function (mRID, purposeId, callback) {
+    loadOutputs: function (usagePointId, purposeId, callback) {
         var me = this,
             outputsStore = me.getStore('Imt.purpose.store.Outputs');
 
-        outputsStore.getProxy().extraParams = {mRID: mRID, purposeId: purposeId};
+        outputsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
         outputsStore.load(callback);
     },
 
-    showOutputs: function (mRID, purposeId) {
+    showOutputs: function (usagePointId, purposeId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),            
@@ -79,12 +80,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
         
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
             if (success) {
-                me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+                me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
                     success: function (usagePoint) {
                         app.fireEvent('usagePointLoaded', usagePoint);
                         purposesStore.getProxy().extraParams = {
-                            mRID: mRID,
-                            withValidationTasks: true
+                            usagePointId: usagePointId
                         };
                         purposesStore.load(function(purposes) {
                             usagePoint.set('purposes', purposes);
@@ -105,7 +105,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                                 mainView.down('purpose-actions-menu').record = purpose;
                             }
                             mainView.setLoading(false);
-                            me.loadOutputs(mRID, purposeId);
+                            me.loadOutputs(usagePointId, purposeId);
                         });
                     }                    
                 });
@@ -120,7 +120,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         return Ext.String.format(link, router.getRoute('usagepoints/view/purpose').buildUrl());
     },
 
-    showOutputDefaultTab: function(mRID, purposeId, outputId, tab) {
+    showOutputDefaultTab: function(usagePointId, purposeId, outputId, tab) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
@@ -169,7 +169,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
             mainView.setLoading();
 
-            usagePointsController.loadUsagePoint(mRID, {
+            usagePointsController.loadUsagePoint(usagePointId, {
                 success: function (types, up, records) {
                     usagePoint = up;
                     purposes = records;
@@ -179,11 +179,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     displayPage();
                 }
             });
-            me.loadOutputs(mRID, purposeId, function (records) {
+            me.loadOutputs(usagePointId, purposeId, function (records) {
                 outputs = records;
                 displayPage();
             });
-            outputModel.getProxy().extraParams = {mRID: mRID, purposeId: purposeId};
+            outputModel.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
             outputModel.load(outputId, {
                 success: function (record) {
                     output = record;
@@ -235,7 +235,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         }
 
         readingsStore.getProxy().extraParams = {
-            mRID: panel.usagePoint.get('mRID'),
+            usagePointId: panel.usagePoint.get('name'),
             purposeId: panel.purpose.getId(),
             outputId: panel.output.getId()
         };
@@ -274,7 +274,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         confirmationWindow.insert(1, me.getActivationConfirmationContent(purpose));
         confirmationWindow.show({
             title: Uni.I18n.translate('purpose.validateNow', 'IMT', 'Validate data for "{0}" purpose on usage point "{1}"',
-                [purpose.get('name'), Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint.get('mRID')], false),
+                [purpose.get('name'), Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint.get('name')], false),
             icon: 'icon-question4',
             msg: ''
         });
@@ -400,7 +400,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         purpose.set('validationInfo', {lastChecked: lastChecked});
         purpose.getProxy().extraParams = {
-            mRID: usagePoint.get('mRID'),
+            usagePointId: usagePoint.get('name'),
             upVersion: usagePoint.get('version')
         };
         purpose.save({
