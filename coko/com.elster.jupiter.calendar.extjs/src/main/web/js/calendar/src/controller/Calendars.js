@@ -128,7 +128,6 @@ Ext.define('Cal.controller.Calendars', {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('calendar.remove.success.msg', 'CAL', 'Calendar removed'));
                                 var grid = me.getTimeOfUseGrid();
                                 grid.down('pagingtoolbartop').totalCount = 0;
-                                grid.down('pagingtoolbarbottom').resetPaging();
                                 grid.getStore().load();
                             }
                         });
