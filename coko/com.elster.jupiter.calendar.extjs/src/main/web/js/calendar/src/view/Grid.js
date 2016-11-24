@@ -15,7 +15,7 @@ Ext.define('Cal.view.Grid', {
             {
                 header: Uni.I18n.translate('general.name', 'CAL', 'Name'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.category', 'CAL', 'Category'),
