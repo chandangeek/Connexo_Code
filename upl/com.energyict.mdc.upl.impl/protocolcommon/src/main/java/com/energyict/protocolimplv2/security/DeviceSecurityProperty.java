@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dynamicattributes.BigDecimalFactory;
-import com.energyict.dynamicattributes.BooleanFactory;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+
 import com.energyict.dynamicattributes.EncryptedStringFactory;
-import com.energyict.dynamicattributes.StringFactory;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Summarizes all used DeviceSecurityProperty
@@ -23,33 +22,46 @@ public enum DeviceSecurityProperty {
     /**
      * A plain old password, can be a high- or low level password
      */
-    PASSWORD(PropertySpecBuilder
-            .forClass(String.class, new EncryptedStringFactory()).
-                    name(SecurityPropertySpecName.PASSWORD.toString()).
-                    finish()),
+    PASSWORD {
+        @Override
+        public PropertySpec getPropertySpec() {
+            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.PASSWORD).finish();
+        }
+    },
     /**
      * A key used for encryption of bytes
      */
-    ENCRYPTION_KEY(PropertySpecBuilder
-            .forClass(String.class, new EncryptedStringFactory())
-            .name(SecurityPropertySpecName.ENCRYPTION_KEY.toString())
-            .finish()),
+    ENCRYPTION_KEY {
+        @Override
+        public PropertySpec getPropertySpec() {
+            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.ENCRYPTION_KEY).finish();
+        }
+    },
     /**
      * A key used for authentication to a device
      */
-    AUTHENTICATION_KEY(PropertySpecBuilder
-            .forClass(String.class, new EncryptedStringFactory())
-            .name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-            .finish()),
+    AUTHENTICATION_KEY {
+        @Override
+        public PropertySpec getPropertySpec() {
+            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY).finish();
+        }
+    },
     /**
      * A DLMS clientMacAddress
      */
-    CLIENT_MAC_ADDRESS(PropertySpecFactory.boundedDecimalPropertySpecWithDefaultValue(
-            SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
-            BigDecimal.valueOf(1),
-            BigDecimal.valueOf(0x7F),
-            BigDecimal.valueOf(1),
-            getPossibleClientMacAddressValues(1, 0x7F))),
+    CLIENT_MAC_ADDRESS {
+        @Override
+        public PropertySpec getPropertySpec() {
+            return Services
+                    .propertySpecService()
+                    .boundedBigDecimalSpec(BigDecimal.valueOf(1), BigDecimal.valueOf(0x7F))
+                    .named(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+                    .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+                    .setDefaultValue(BigDecimal.valueOf(1))
+                    .addValues(getPossibleClientMacAddressValues(1, 0x7F))
+                    .finish();
+        }
+    },
 
     /**
      * The certificate that matches the private key of the server (the DLMS device) used for digital signature.
@@ -135,27 +147,25 @@ public enum DeviceSecurityProperty {
             .name(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString())
             .finish());
 
-    private final PropertySpec propertySpec;
-
-    DeviceSecurityProperty(PropertySpec propertySpec) {
-        this.propertySpec = propertySpec;
+    protected PropertySpecBuilder<String> encryptedStringSpecBuilder(SecurityPropertySpecName name) {
+        return Services
+                .propertySpecService()
+                .encryptedStringSpec()
+                .named(name.toString(), name.toString())
+                .describedAs("Description for" + name.toString());
     }
 
     /**
      * Generates a list of possible values for the client mac address property spec
      */
-    public static ArrayList<BigDecimal> getPossibleClientMacAddressValues(int lowerLimit, int upperLimit) {
-        ArrayList<BigDecimal> result = new ArrayList<>();
-        for (int index = lowerLimit; index <= upperLimit; index++) {
-            result.add(BigDecimal.valueOf(index));
-        }
-        return result;
+    public static BigDecimal[] getPossibleClientMacAddressValues(int lowerLimit, int upperLimit) {
+        return IntStream
+                .range(lowerLimit, upperLimit)
+                .mapToObj(BigDecimal::valueOf)
+                .collect(Collectors.toList())
+                .toArray(new BigDecimal[upperLimit - lowerLimit + 1]);
     }
 
-    /**
-     * @return the PropertySpec for this Enum value
-     */
-    public PropertySpec getPropertySpec() {
-        return propertySpec;
-    }
+    public abstract PropertySpec getPropertySpec();
+
 }
