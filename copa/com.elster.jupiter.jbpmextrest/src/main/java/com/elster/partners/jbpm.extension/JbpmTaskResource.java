@@ -964,6 +964,7 @@ public class JbpmTaskResource {
                 return check;
             }
             if (task.getTaskData().getStatus().equals(Status.Ready)) {
+                taskService.execute(new AddUserToPeopleAssigmentCommand(taskId, currentuser));
                 taskService.claim(taskId, currentuser);
                 taskService.delegate(taskId, currentuser, userName);
             }
