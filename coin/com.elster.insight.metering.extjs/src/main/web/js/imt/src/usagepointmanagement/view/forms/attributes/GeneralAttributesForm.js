@@ -20,20 +20,19 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                     return value ? Ext.htmlEncode(value) : '-';
                 }
             },
-
-            {
-                xtype: 'displayfieldwithicon',
-                name: 'serviceCategory',
-                itemId: 'fld-up-serviceCategory',
-                fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
-            },
             {
                 name: 'name',
                 itemId: 'fld-up-name',
                 fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                 renderer: function (value) {
-                    return value ? value : '-';
+                    return value ? Ext.htmlEncode(value) : '-';
                 }
+            },
+            {
+                xtype: 'displayfieldwithicon',
+                name: 'serviceCategory',
+                itemId: 'fld-up-serviceCategory',
+                fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
             },
             {
                 name: 'installationTime',
@@ -105,20 +104,24 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
             {
                 xtype: 'displayfield',
                 name: 'mRID',
-                itemId: 'up-mrid-textfield',
-                fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID')
+                itemId: 'fld-up-mRID',
+                fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID'),
+                renderer: function (value) {
+                    return value ? Ext.htmlEncode(value) : '-';
+                }
+            },
+            {
+                xtype: 'textfield',
+                name: 'name',
+                itemId: 'up-name-textfield',
+                required: true,
+                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
                 xtype: 'displayfieldwithicon',
                 name: 'serviceCategory',
                 itemId: 'up-service-category-combo',
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
-            },
-            {
-                xtype: 'textfield',
-                name: 'name',
-                itemId: 'up-name-textfield',
-                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
                 xtype: 'displayfield',

@@ -16,7 +16,7 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
         'Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionForm'
     ],
 
-    editCasVersion: function (mRID, customAttributeSetId, versionId) {
+    editCasVersion: function (usagePointId, customAttributeSetId, versionId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
@@ -26,8 +26,8 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
             widget,
             versionPeriod;
 
-        versionModel.getProxy().setUrl(mRID, customAttributeSetId);
-        overlapStore.getProxy()[Ext.isDefined(versionId) ? 'setUsagePointEditUrl' : 'setUsagePointUrl'](mRID, customAttributeSetId, versionId);
+        versionModel.getProxy().setParams(usagePointId, customAttributeSetId);
+        overlapStore.getProxy()[Ext.isDefined(versionId) ? 'setUsagePointEditUrl' : 'setUsagePointUrl'](usagePointId, customAttributeSetId, versionId);
         widget = Ext.widget('custom-attribute-set-version-form', {
             router: router,
             overlapStore: overlapStore,
@@ -38,13 +38,13 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
         app.fireEvent('changecontentevent', widget);
         widget.setLoading();
 
-        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
             success: function (record) {
                 //widget.down('#custom-attribute-set-version-start-date-field').setMinValue(record.get('installationTime'));
                 app.fireEvent('usagePointLoaded', record);
             }
         });
-        attributeSetModel.getProxy().setUrl(mRID);
+        attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
 
         if (Ext.isDefined(versionId)) {
             attributeSetModel.load(customAttributeSetId, {
@@ -64,7 +64,7 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
             });
         } else {
             versionPeriod = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetVersionPeriod');
-            versionPeriod.getProxy().setUsagePointUrl(mRID, customAttributeSetId);
+            versionPeriod.getProxy().setUsagePointUrl(usagePointId, customAttributeSetId);
             attributeSetModel.load(customAttributeSetId, {
                 success: function (customattributeset) {
                     app.fireEvent('loadCasOnUsagePoint', customattributeset);
@@ -83,7 +83,7 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
         }
     },
 
-    cloneCustomAttributeVersion: function (mRID, customAttributeSetId, versionId) {
+    cloneCustomAttributeVersion: function (usagePointId, customAttributeSetId, versionId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
@@ -93,9 +93,9 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
             overlapStore = me.getStore('Imt.customattributesonvaluesobjects.store.ConflictedAttributeSetVersions'),
             widget;
 
-        versionModel.getProxy().setUrl(mRID, customAttributeSetId);
-        versionPeriod.getProxy().setUsagePointUrl(mRID, customAttributeSetId);
-        overlapStore.getProxy().setUsagePointUrl(mRID, customAttributeSetId);
+        versionModel.getProxy().setParams(usagePointId, customAttributeSetId);
+        versionPeriod.getProxy().setUsagePointUrl(usagePointId, customAttributeSetId);
+        overlapStore.getProxy().setUsagePointUrl(usagePointId, customAttributeSetId);
         widget = Ext.widget('custom-attribute-set-version-form', {
             router: router,
             overlapStore: overlapStore,
@@ -106,12 +106,12 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
         me.getApplication().fireEvent('changecontentevent', widget);
 
         widget.setLoading();
-        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
             success: function (record) {
                 app.fireEvent('usagePointLoaded', record);
             }
         });
-        attributeSetModel.getProxy().setUrl(mRID);
+        attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
         attributeSetModel.load(customAttributeSetId, {
             success: function (customattributeset) {
                 app.fireEvent('loadCasOnUsagePoint', customattributeset);

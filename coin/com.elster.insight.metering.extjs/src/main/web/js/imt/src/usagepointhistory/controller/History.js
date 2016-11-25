@@ -35,7 +35,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         });
     },
 
-    showHistory: function (mRID) {
+    showHistory: function (usagePointId) {
         var me = this,
             app = me.getApplication(),
             viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -44,9 +44,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
         viewport.setLoading();
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
-                customAttributesStore.getProxy().setUrl(mRID);
+                customAttributesStore.getProxy().setExtraParam('usagePointId', usagePointId);
                 customAttributesStore.load(function () {
                     var widget, tabPanel;
 
@@ -76,7 +76,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             calendarStore = me.getStore('Imt.usagepointmanagement.store.CalendarHistory'),
-            mRID = router.arguments.mRID,
+            usagePointId = router.arguments.usagePointId,
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
             onVersionsStoreLoad,
@@ -110,7 +110,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 }
             }
 
-            versionsStore.getProxy().setUrl(mRID, customAttributeSetId);
+        versionsStore.getProxy().setParams(usagePointId, customAttributeSetId);
 
             Ext.suspendLayouts();
 
@@ -129,20 +129,20 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 onVersionsStoreLoad = function () {
                     var currentVersion = versionsStore.find('isActive', true);
 
-                    if (cardView.rendered) {
-                        cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
-                    }
-                };
-                versionsStore.on('load', onVersionsStoreLoad, me);
-                cardView.on('destroy', function () {
-                    versionsStore.un('load', onVersionsStoreLoad, me);
-                })
-            }
+                if (cardView.rendered) {
+                    cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
+                }
+            };
+            versionsStore.on('load', onVersionsStoreLoad, me);
+            cardView.on('destroy', function () {
+                versionsStore.un('load', onVersionsStoreLoad, me);
+            });
+        }
 
-            attributeSetModel.getProxy().setUrl(mRID);
-            attributeSetModel.load(customAttributeSetId, {
-                success: function (record) {
-                    var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
+        attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
+        attributeSetModel.load(customAttributeSetId, {
+            success: function (record) {
+                var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
 
                     if (newCard.rendered) {
                         Ext.suspendLayouts();

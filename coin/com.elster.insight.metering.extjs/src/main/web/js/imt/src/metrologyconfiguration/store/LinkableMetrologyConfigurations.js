@@ -4,7 +4,7 @@ Ext.define('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/metrologyconfiguration/linkable',
+        url: '/api/udr/usagepoints/{usagePointId}/metrologyconfiguration/linkable',
         timeout: 240000,
         reader: {
             type: 'json',
@@ -12,9 +12,6 @@ Ext.define('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations', {
         },
         pageParam: false,
         startParam: false,
-        limitParam: false,
-        setUrl: function(mRID){
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
-        }
+        limitParam: false
     }
 });

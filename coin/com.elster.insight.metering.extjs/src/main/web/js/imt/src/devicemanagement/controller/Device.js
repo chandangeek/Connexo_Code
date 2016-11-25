@@ -42,7 +42,7 @@ Ext.define('Imt.devicemanagement.controller.Device', {
   
 
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(actualModel.get('mRID'));
+                me.getOverviewLink().setText(actualModel.get('name'));
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
                 pageMainContent.setLoading(false);

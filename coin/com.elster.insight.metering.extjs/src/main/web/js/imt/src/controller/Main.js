@@ -44,6 +44,9 @@ Ext.define('Imt.controller.Main', {
         'Imt.purpose.controller.Purpose',
         'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails',
         'Imt.metrologyconfiguration.controller.ValidationConfiguration',
+        'Imt.usagepointgroups.controller.AddUsagePointGroupAction',
+        'Imt.metrologyconfiguration.controller.EstimationConfiguration',
+        'Imt.usagepointgroups.controller.UsagePointGroups',
         'Imt.usagepointmanagement.controller.Calendars',
         'Imt.controller.SearchItemsBulkAction'
     ],
@@ -96,6 +99,20 @@ Ext.define('Imt.controller.Main', {
 	        Uni.store.PortalItems.add(
 	            portalItem1
 	        );
+
+            if (Imt.privileges.UsagePointGroup.canView()) {
+                Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.usagePointGroup', 'IMT', 'Usage point group'),
+                    portal: 'usagepoints',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.usagePointGroups', 'IMT', 'Usage point groups'),
+                            href: '#/usagepoints/usagepointgroups',
+                            itemId: 'usage-point-groups'
+                        }
+                    ]
+                }));
+            }
     	}
 
         if (Imt.privileges.MetrologyConfig.canView()) {
