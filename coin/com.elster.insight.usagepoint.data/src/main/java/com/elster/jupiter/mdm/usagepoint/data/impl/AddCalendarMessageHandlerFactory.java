@@ -32,7 +32,7 @@ public class AddCalendarMessageHandlerFactory implements MessageHandlerFactory {
         return message -> {
             AddCalendarMessage addCalendarMessage = jsonService.deserialize(message.getPayload(), AddCalendarMessage.class);
 
-            UsagePoint usagePoint = meteringService.findUsagePoint(addCalendarMessage.getUsagePointId()).get();
+            UsagePoint usagePoint = meteringService.findUsagePointById(addCalendarMessage.getUsagePointId()).get();
             Calendar calendar = calendarService.findCalendar(addCalendarMessage.getCalendarId()).get();
             Instant startTime = Instant.ofEpochMilli(addCalendarMessage.getStartTime());
 

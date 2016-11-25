@@ -66,7 +66,7 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
     private Stream<UsagePoint> usagePointStream(List<String> usagePointMRIDs) {
         return usagePointMRIDs
                 .stream()
-                .map(meteringService::findUsagePoint)
+                .map(meteringService::findUsagePointByMRID)
                 .flatMap(Functions.asStream());
     }
 
