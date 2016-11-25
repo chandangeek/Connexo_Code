@@ -28,9 +28,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -67,7 +64,6 @@ public class MeterReadingEventHandlerTest {
     private Finder finder;
     private OnDemandReadServiceCallDomainExtension onDemandReadServiceCallDomainExtension;
 
-
     @Before
     public void setUp() throws Exception {
         when(serviceCall.getType()).thenReturn(serviceCallType);
@@ -84,10 +80,9 @@ public class MeterReadingEventHandlerTest {
         when(serviceCallService.findServiceCalls(eq(device), any())).thenReturn(Collections.singleton(serviceCall));
         when(serviceCallService.getServiceCallFinder(any())).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.singletonList(serviceCall));
-        when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
-        when(meteringService.findMeter(anyLong())).thenReturn(Optional.of(meter));
-        when(meter.getMRID()).thenReturn("meterMrid");
+        when(deviceService.findDeviceById(333)).thenReturn(Optional.of(device));
+        when(meteringService.findMeterById(1)).thenReturn(Optional.of(meter));
+        when(meter.getAmrId()).thenReturn("333");
     }
 
     @Test
@@ -109,10 +104,9 @@ public class MeterReadingEventHandlerTest {
         byte[] payloadComplete = new byte[1];
         when(messageComplete.getPayload()).thenReturn(payloadComplete);
         Map<String, String> messagePropertiesComplete = new HashMap<>();
-        messagePropertiesComplete.put("deviceIdentifier", "1");
+        messagePropertiesComplete.put("deviceIdentifier", "333");
         messagePropertiesComplete.put("timestamp", "1");
         when(jsonService.deserialize(eq(payloadComplete), any())).thenReturn(messagePropertiesComplete);
-        when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
 
         when(serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.FAILED)).thenReturn(true);
@@ -130,10 +124,9 @@ public class MeterReadingEventHandlerTest {
         byte[] payload = new byte[1];
         when(message.getPayload()).thenReturn(payload);
         Map<String, String> messageProperties = new HashMap<>();
-        messageProperties.put("deviceIdentifier", "1");
+        messageProperties.put("deviceIdentifier", "333");
         messageProperties.put("timestamp", "1");
         when(jsonService.deserialize(eq(payload), any())).thenReturn(messageProperties);
-        when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
 
         when(serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.FAILED)).thenReturn(true);

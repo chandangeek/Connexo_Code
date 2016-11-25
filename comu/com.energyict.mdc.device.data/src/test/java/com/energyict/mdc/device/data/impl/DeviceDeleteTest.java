@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
@@ -23,6 +24,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -167,7 +169,7 @@ public class DeviceDeleteTest {
     @Mock
     private EnumeratedEndDeviceGroup endDeviceGroup;
     @Mock
-    private EnumeratedEndDeviceGroup.Entry entry;
+    private EnumeratedGroup.Entry<EndDevice> entry;
     @Mock
     private MeterActivation currentActiveMeterActivation;
     @Mock
@@ -213,11 +215,10 @@ public class DeviceDeleteTest {
         when(defaultMultiplierType.getName()).thenReturn(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
 
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
-        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
 
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
-        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
@@ -323,7 +324,7 @@ public class DeviceDeleteTest {
         when(meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(meter)).thenReturn(Collections.singletonList(endDeviceGroup));
         when(meter.getId()).thenReturn(koreId);
         doReturn(Collections.singletonList(entry)).when(endDeviceGroup).getEntries();
-        when(entry.getEndDevice()).thenReturn(meter);
+        when(entry.getMember()).thenReturn(meter);
     }
 
     private void setupWithMessages(DeviceImpl device) {
@@ -347,7 +348,7 @@ public class DeviceDeleteTest {
 
     private DeviceImpl getNewDeviceWithMockedServices() {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
-        device.initialize(this.deviceConfiguration, "For testing purposes", "mRID", Instant.now());
+        device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;
     }

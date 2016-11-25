@@ -20,8 +20,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -56,8 +57,8 @@ public class SlaveDeviceSearchablePropertyTest {
     @Before
     public void initializeMocks() {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_SLAVE_MRID.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_SLAVE_MRID)).thenReturn(messageFormat);
+        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_SLAVE_NAME.getDefaultFormat());
+        when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_SLAVE_NAME)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
@@ -117,7 +118,7 @@ public class SlaveDeviceSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_SLAVE_MRID);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_SLAVE_NAME);
     }
 
     @Test
@@ -169,7 +170,7 @@ public class SlaveDeviceSearchablePropertyTest {
     public void testDisplayValue() {
         SlaveDeviceSearchableProperty property = this.getTestInstance();
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("Device");
+        when(device.getName()).thenReturn("Device");
 
         // Business method
         String displayValue = property.toDisplay(device);

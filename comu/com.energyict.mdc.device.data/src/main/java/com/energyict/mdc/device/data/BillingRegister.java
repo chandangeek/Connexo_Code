@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -17,4 +17,7 @@ import java.util.Optional;
 @ProviderType
 public interface BillingRegister extends Register<BillingReading, NumericalRegisterSpec> {
 
+    Optional<BigDecimal> getOverflow();
+
+    int getNumberOfFractionDigits();
 }

@@ -48,7 +48,7 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((Device) value).getmRID();
+        return ((Device) value).getName();
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
         sqlBuilder.closeBracket();
         sqlBuilder.append(" AND ");
         sqlBuilder.append(" gateway_ref.gatewayid in ( select id from DDC_DEVICE where ");
-        sqlBuilder.add(this.toSqlFragment("mrid", condition, now));
+        sqlBuilder.add(this.toSqlFragment("name", condition, now));
         sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
         return sqlBuilder;
@@ -111,7 +111,7 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
 
     @Override
     protected TranslationKey getNameTranslationKey() {
-        return PropertyTranslationKeys.DEVICE_MASTER_MRID;
+        return PropertyTranslationKeys.DEVICE_MASTER_NAME;
     }
 
     @Override

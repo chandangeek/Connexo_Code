@@ -24,8 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -38,13 +39,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link MasterResourceIdentifierSearchableProperty} component.
+ * Tests the {@link NameSearchableProperty} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-02 (10:40)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MasterResourceIdentifierSearchablePropertyTest {
+public class NameSearchablePropertyTest {
 
     @Mock
     private DeviceSearchDomain domain;
@@ -81,7 +82,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -92,7 +93,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void testNoGroup() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -103,7 +104,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void testStickyVisibility() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -114,7 +115,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void testSingleSelection() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -126,20 +127,20 @@ public class MasterResourceIdentifierSearchablePropertyTest {
     @Test
     public void testTranslation() {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_MRID.getDefaultFormat());
-        when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_MRID)).thenReturn(messageFormat);
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_NAME.getDefaultFormat());
+        when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_NAME)).thenReturn(messageFormat);
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_MRID);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_NAME);
     }
 
     @Test
     public void specificationIsNotAReference() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -152,7 +153,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void noPossibleValuesWithoutRefresh() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -163,7 +164,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void noConstraints() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -174,7 +175,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -186,7 +187,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithTooManyConstrictions() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
         SearchableProperty searchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
 
@@ -198,7 +199,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -208,7 +209,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
         String valueToDisplay = "displayString";
 
         // Business method
@@ -218,8 +219,8 @@ public class MasterResourceIdentifierSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay);
     }
 
-    private MasterResourceIdentifierSearchableProperty getTestInstance() {
-        return new MasterResourceIdentifierSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain);
+    private NameSearchableProperty getTestInstance() {
+        return new NameSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain);
     }
 
 }
