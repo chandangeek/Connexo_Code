@@ -34,6 +34,8 @@ import com.elster.jupiter.bpm.rest.TaskContentInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfos;
 import com.elster.jupiter.bpm.rest.TaskGroupsInfos;
 import com.elster.jupiter.bpm.rest.TaskOutputContentInfo;
+import com.elster.jupiter.bpm.rest.TopTaskInfo;
+import com.elster.jupiter.bpm.rest.TopTasksPayload;
 import com.elster.jupiter.bpm.rest.VariableInfos;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
@@ -267,6 +269,50 @@ public class BpmResource {
     }
 
     @GET
+    @Path("/toptasks")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
+    public TopTaskInfo getTask(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey, @Context SecurityContext securityContext) {
+        String jsonContent;
+        TopTaskInfo topTaskInfo = new TopTaskInfo();
+        JSONArray arr = null;
+        ObjectMapper mapper = new ObjectMapper();
+        Optional<User> currentUser = userService.findUser(securityContext.getUserPrincipal().getName());
+        if(currentUser.isPresent()) {
+            String payload;
+            try {
+                String rest = "/rest/tasks/toptasks";
+                payload = mapper.writeValueAsString(
+                        new TopTasksPayload(currentUser.get().getName(),
+                                currentUser.get().getWorkGroups().stream().map(WorkGroup::getName).collect(Collectors.toList()),
+                                getAvailableProcessesByAppKey(uriInfo, auth, appKey)));
+                jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
+                if (!"".equals(jsonContent)) {
+                    JSONObject obj = new JSONObject(jsonContent);
+                    topTaskInfo.totalUserAssigned = Long.valueOf(obj.get("totalUserAssigned").toString());
+                    topTaskInfo.totalWorkGroupAssigned = Long.valueOf(obj.get("workGroupAssigned").toString());
+                    arr = obj.getJSONArray("tasks");
+                    UserTaskInfos infos = new UserTaskInfos(arr, "");
+                    topTaskInfo.tasks = infos.getTasks();
+                    topTaskInfo.total = infos.total;
+                }
+            } catch (JSONException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(this.errorInvalidMessage)
+                        .build());
+            } catch (RuntimeException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(this.errorNotFoundMessage)
+                        .build());
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return topTaskInfo;
+    }
+
+    @GET
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
@@ -300,9 +346,6 @@ public class BpmResource {
             e.printStackTrace();
         }
         UserTaskInfos infos = new UserTaskInfos(arr, "");
-        if (total > 0) {
-            infos.total = total;
-        }
         infos.getTasks().stream().forEach(info -> {
             if(!userService.getWorkGroup(info.workgroup).isPresent()){
                 info.workgroup = "";

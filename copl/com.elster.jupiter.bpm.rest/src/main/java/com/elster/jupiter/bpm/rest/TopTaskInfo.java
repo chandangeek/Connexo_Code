@@ -1,0 +1,19 @@
+package com.elster.jupiter.bpm.rest;
+
+
+import com.elster.jupiter.bpm.UserTaskInfo;
+
+import java.util.List;
+
+public class TopTaskInfo {
+
+    public long totalUserAssigned;
+    public long totalWorkGroupAssigned;
+    public long total;
+    public List<UserTaskInfo> tasks;
+
+    public TopTaskInfo(){
+
+    }
+
+}
