@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
     ],
 
     store: 'Mdc.store.RegisterReadings',
-    deviceMRID: null,
+    deviceId: null,
     containsBillingRegisters: false,
 
     initComponent: function () {
@@ -16,8 +16,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
             registerGroupsStore = Ext.getStore('Mdc.store.filter.RegisterGroups') || Ext.create('Mdc.store.filter.RegisterGroups'),
             registerStore = Ext.getStore('Mdc.store.filter.RegistersOfDeviceForRegisterGroups') || Ext.create('Mdc.store.filter.RegistersOfDeviceForRegisterGroups');
 
-        registerGroupsStore.getProxy().setUrl(me.deviceMRID);
-        registerStore.getProxy().setUrl(me.deviceMRID);
+        registerGroupsStore.getProxy().setUrl(me.deviceId);
+        registerStore.getProxy().setUrl(me.deviceId);
         registerStore.on('load', function(store, records) {
             Ext.Array.forEach(records, function(record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');

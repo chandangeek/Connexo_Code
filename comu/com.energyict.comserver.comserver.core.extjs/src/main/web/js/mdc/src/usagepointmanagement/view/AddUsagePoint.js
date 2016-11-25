@@ -8,7 +8,7 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePoint', {
         'Mdc.usagepointmanagement.view.EditUsagePointForm'
     ],
     router: null,
-    mRID: null,
+    usagePointId: null,
 
     initComponent: function () {
         var me = this;
@@ -18,7 +18,7 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePoint', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'add-usage-point-panel',
-                title: me.edit ? Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", me.mRID) : Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
+                title: me.edit ? Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", me.usagePointId) : Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
                 items: [
                     {
                         xtype: 'uni-form-error-message',
@@ -31,7 +31,7 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePoint', {
                         xtype : me.edit ? 'edit-usage-point-form' : 'add-usage-point-form' ,
                         itemId: 'add-edit-form',
                         router: me.router,
-                        mRID: me.mRID
+                        usagePointId: me.usagePointId
                     }
                 ]
             }

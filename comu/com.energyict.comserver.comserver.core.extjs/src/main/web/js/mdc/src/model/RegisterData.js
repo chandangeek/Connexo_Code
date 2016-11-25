@@ -46,7 +46,7 @@ Ext.define('Mdc.model.RegisterData', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{mRID}/registers/{registerId}/data',
+        url: '/api/ddr/devices/{deviceId}/registers/{registerId}/data',
         timeout: 300000
     }
 });

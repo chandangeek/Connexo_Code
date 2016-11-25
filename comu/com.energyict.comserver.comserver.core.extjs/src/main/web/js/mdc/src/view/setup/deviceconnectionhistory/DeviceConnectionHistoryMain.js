@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                         //itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceConnectionHistoryGrid',
-                            mRID: this.mrid,
+                            deviceId: this.deviceId,
                             connectionId: this.connectionMethodId
                         },
                         emptyComponent: {
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                                             //itemId: 'previewContainer',
                                             grid: {
                                                 xtype: 'deviceCommunicationTaskExecutionGrid',
-                                                mrid: this.mrid
+                                                deviceId: this.deviceId
                                             },
                                             emptyComponent: {
                                                 xtype: 'uni-form-empty-message',

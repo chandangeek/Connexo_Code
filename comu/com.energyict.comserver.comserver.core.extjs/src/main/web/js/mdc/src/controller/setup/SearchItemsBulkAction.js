@@ -217,7 +217,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             finishBtn = wizard.down('#finishButton'),
             statusPage = me.getStatusPage(),
             scheduleIds = [],
-            devicesMRID = [],
+            deviceIds = [],
             url = '/api/ddr/devices/schedules',
             request = {},
             jsonData,
@@ -232,7 +232,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 scheduleIds.push(item.getId());
             });
             Ext.each(me.devices, function (item) {
-                devicesMRID.push(item.get('mRID'));
+                deviceIds.push(item.getId());
             });
             request.action = me.operation;
             request.scheduleIds = scheduleIds;
@@ -240,7 +240,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 var store = me.getDevicesGrid().getStore();
                 request.filter = store.getProxy().encodeFilters(store.filters.getRange());
             } else {
-                request.deviceMRIDs = devicesMRID;
+                request.deviceIds = deviceIds;
             }
             jsonData = Ext.encode(request);
             Ext.Ajax.request({
@@ -420,13 +420,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             url = '/api/ddr/devices/changedeviceconfig',
             jsonData = {
                 'action': 'ChangeDeviceConfiguration',
-                'deviceMRIDs': [],
-                'filter': store.getProxy().encodeFilters(store.filters.getRange()),
+                'deviceIds': [],
+                'filter' : store.getProxy().encodeFilters(store.filters.getRange()),
                 'newDeviceConfiguration': toConfig
             };
         if (!me.allDevices) {
             me.devices.forEach(function (item) {
-                jsonData['deviceMRIDs'].push(item.get('mRID'))
+                jsonData['deviceIds'].push(item.getId())
             });
         }
 

@@ -120,7 +120,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 params: [
-                    {mrid: me.mrid}
+                    {deviceId: me.deviceId}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connection methods per page'),
                 dock: 'bottom'

@@ -5,7 +5,7 @@ Ext.define('Mdc.store.LogbookOfDeviceData', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/logbooks{logbookId}data',
+        urlTpl: '/api/ddr/devices/{deviceId}/logbooks{logbookId}data',
         reader: {
             type: 'json',
             root: 'data'
@@ -14,9 +14,9 @@ Ext.define('Mdc.store.LogbookOfDeviceData', {
 
         setUrl: function (params) {
             if (Ext.isDefined(params.logbookId)) {
-                this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{logbookId}', '/' + params.logbookId + '/');
+                this.url = this.urlTpl.replace('{deviceId}', encodeURIComponent(params.deviceId)).replace('{logbookId}', '/' + params.logbookId + '/');
             } else {
-                this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{logbookId}', '/');
+                this.url = this.urlTpl.replace('{deviceId}', encodeURIComponent(params.deviceId)).replace('{logbookId}', '/');
             }
         }
     },

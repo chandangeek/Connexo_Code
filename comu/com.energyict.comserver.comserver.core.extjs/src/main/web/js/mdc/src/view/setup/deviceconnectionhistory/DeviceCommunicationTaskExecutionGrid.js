@@ -73,9 +73,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-//            params: [
-//                {mrid: me.mrid}
-//            ],
                 deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate('devicecommunicationhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),
                 dock: 'bottom'

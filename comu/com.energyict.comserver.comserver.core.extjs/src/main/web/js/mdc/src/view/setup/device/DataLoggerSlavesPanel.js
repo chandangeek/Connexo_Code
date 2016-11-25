@@ -35,12 +35,12 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
                 store: slaveStore,
                 columns: [
                     {
-                        header: Uni.I18n.translate('deviceCommunicationTopology.mRID', 'MDC', 'MRID'),
-                        dataIndex: 'mRID',
+                        header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                        dataIndex: 'name',
                         flex: 1,
                         renderer: function (value, meta, record) {
-                            var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
-                            return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
+                            var href = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(record.get('name'))});
+                            return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>';
                         }
                     },
                     {
@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
             manageSlavesLink = {
                 xtype: 'container',
                 margin: '0 0 4 7',
-                html: '<a href="' + me.router.getRoute('devices/device/dataloggerslaves').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('general.manageDataLoggerSlaves', 'MDC', 'Manage data logger slaves') + '</a>'
+                html: '<a href="' + me.router.getRoute('devices/device/dataloggerslaves').buildUrl() + '">' + Uni.I18n.translate('general.manageDataLoggerSlaves', 'MDC', 'Manage data logger slaves') + '</a>'
             };
 
         me.removeAll();

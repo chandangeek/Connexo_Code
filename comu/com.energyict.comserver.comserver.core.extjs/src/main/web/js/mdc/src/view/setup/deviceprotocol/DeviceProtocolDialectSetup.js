@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
                         itemId: 'protocolDialectsGridContainer',
                         grid: {
                             xtype: 'deviceProtocolDialectsGrid',
-                            mRID: encodeURIComponent(me.device.get('mRID'))
+                            deviceId: encodeURIComponent(me.device.get('name'))
                         },
                         emptyComponent: {
                             xtype: 'uni-form-empty-message',
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
                         },
                         previewComponent: {
                             xtype: 'deviceProtocolDialectPreview',
-                            mRID: me.device.get('mRID')
+                            deviceId: me.device.get('name')
                         }
                     }
                 ]

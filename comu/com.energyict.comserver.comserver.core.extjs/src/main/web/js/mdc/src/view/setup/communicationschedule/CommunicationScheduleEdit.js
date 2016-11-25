@@ -7,6 +7,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField',
         'Uni.util.FormInfoMessage',
+        'Uni.util.FormErrorMessage',
         'Uni.grid.column.RemoveAction'
     ],
     router: null,
@@ -35,15 +36,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         },
                         items: [
                             {
-                                name: 'errors',
-                                ui: 'form-error-framed',
+                                xtype: 'uni-form-error-message',
                                 itemId: 'communicationScheduleEditFormErrors',
-                                layout: 'hbox',
+                                name: 'errors',
                                 margin: '0 0 10 0',
-                                hidden: true,
-                                defaults: {
-                                    xtype: 'container'
-                                }
+                                hidden: true
                             },
                             {
                                 xtype: 'uni-form-info-message',
