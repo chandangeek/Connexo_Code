@@ -14,15 +14,16 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
@@ -37,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Place holder protocol for the transparent MUC Wavenis gateway.
@@ -82,7 +85,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void setProperties(Properties properties) throws PropertyValidationException {
         //Do nothing
     }
 
@@ -112,12 +115,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -222,11 +220,6 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getSecuritySupport().getAuthenticationAccessLevels();
     }
@@ -237,7 +230,8 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
     }
+
 }
