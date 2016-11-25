@@ -13,10 +13,10 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.mRID', 'MDC', 'MRID'),
-                dataIndex: 'mRID',
+                header: Uni.I18n.translate('deviceCommunicationTopology.name', 'MDC', 'Name'),
+                dataIndex: 'name',
                 renderer: function (value, meta, record) {
-                    var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
+                    var href = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(record.get('name'))});
                     return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                 },
                 flex: 1

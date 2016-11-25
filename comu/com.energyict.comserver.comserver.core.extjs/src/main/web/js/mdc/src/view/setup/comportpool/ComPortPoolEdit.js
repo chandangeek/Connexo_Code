@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
     extend: 'Uni.view.container.ContentContainer',
+    requires: [
+        'Uni.util.FormErrorMessage'
+    ],
     alias: 'widget.comPortPoolEdit',
     itemId: 'comPortPoolEdit',
 
@@ -12,7 +15,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
             ui: 'large',
             width: '100%',
             defaults: {
-                labelWidth: 150,
+                labelWidth: 250,
                 validateOnChange: false,
                 validateOnBlur: false
             },
@@ -21,6 +24,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     itemId: 'form-errors',
                     xtype: 'uni-form-error-message',
                     name: 'form-errors',
+                    width: 600,
                     hidden: true
                 },
                 {

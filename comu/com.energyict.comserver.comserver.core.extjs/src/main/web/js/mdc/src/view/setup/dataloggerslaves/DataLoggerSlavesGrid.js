@@ -14,10 +14,10 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('general.mRID', 'MDC', 'MRID'),
-                dataIndex: 'mRID',
+                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                dataIndex: 'name',
                 renderer: function (value, meta, record) {
-                    var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
+                    var href = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(record.get('name'))});
                     return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                 },
                 getSortParam: function() { Ext.emptyFn }, // We don't want a sort icon in the header

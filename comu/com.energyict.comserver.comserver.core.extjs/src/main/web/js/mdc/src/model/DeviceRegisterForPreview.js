@@ -22,18 +22,18 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
         {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},
         {name: 'detailedValidationInfo', type: 'auto'},
-        {name: 'dataloggerSlavemRID', type: 'string'},
+        {name: 'dataloggerSlaveName', type: 'string'},
         {
             name: 'value',
             useNull: true,
             convert: function (v, record) {
                 if (!Ext.isEmpty(record.data.lastReading)) {
-                    if (record.get('type') === 'billing') {
-                        return record.get('lastReading').value + ' ' + record.get('lastReading').unit;
-                    }
-                    if (record.get('type') === 'numerical') {
+                    if (record.get('type') === 'numerical' || record.get('type') === 'billing') {
                         if(!Ext.isEmpty(record.get('lastReading').value)) {
-                            return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('readingType').names.unitOfMeasure;
+                            return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('lastReading').unit;
+                        }
+                        if(!Ext.isEmpty(record.get('lastReading').calculatedValue)) {
+                            return Uni.Number.formatNumber(record.get('lastReading').calculatedValue, -1) + ' ' + record.get('lastReading').calculatedUnit;
                         }
                         return '-'
 
@@ -105,12 +105,9 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
     proxy: {
         type: 'rest',
         timeout: 120000,
-        urlTpl: '/api/ddr/devices/{0}/registers/',
+        url: '/api/ddr/devices/{deviceId}/registers/',
         reader: {
             type: 'json'
-        },
-        setUrl: function (mRID) {
-            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(mRID));
         }
     }
 });

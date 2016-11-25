@@ -6,11 +6,11 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsSetup', {
         'Mdc.view.setup.devicecommand.DeviceCommandsGrid',
         'Mdc.view.setup.devicecommand.DeviceCommandPreview'
     ],
-    mRID: null,
+    deviceId: null,
     device: null,
     initComponent: function () {
         var me = this;
-        me.mRID = me.device.get('mRID');
+        me.deviceId = me.device.get('name');
         me.content = [
             {
                 xtype: 'panel',
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsSetup', {
                                     text: Uni.I18n.translate('deviceCommand.overview.emptyStep', 'MDC', 'Add command'),
                                     privileges: Mdc.privileges.DeviceCommands.executeCommands,
                                     itemId: 'empty_grid_deviceAddCommandButton',
-                                    mRID: me.mRID,
+                                    deviceId: me.deviceId,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
                                 }
                             ]

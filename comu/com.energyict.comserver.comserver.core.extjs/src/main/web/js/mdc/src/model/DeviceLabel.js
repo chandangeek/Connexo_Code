@@ -14,15 +14,11 @@ Ext.define('Mdc.model.DeviceLabel', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/devicelabels',
+        url: '/api/ddr/devices/{deviceId}/devicelabels',
         reader: {
             type: 'json',
             root: 'deviceLabels',
             totalProperty: 'total'
-        },
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

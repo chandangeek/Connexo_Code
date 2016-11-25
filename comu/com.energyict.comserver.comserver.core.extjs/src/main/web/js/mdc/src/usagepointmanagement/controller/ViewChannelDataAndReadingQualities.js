@@ -35,12 +35,13 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
         });
     },
 
-    showOverview: function (mRID, channelId) {
+    showOverview: function (usagePointId, channelId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             channelModel = me.getModel('Mdc.usagepointmanagement.model.Channel'),
+            ChannelReading = me.getModel('Mdc.usagepointmanagement.model.ChannelReading'),
             channelsStore = me.getStore('Mdc.usagepointmanagement.store.Channels'),
             channelDataStore = me.getStore('Mdc.usagepointmanagement.store.ChannelData'),
             dependenciesCounter = 3,
@@ -51,12 +52,12 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
                     Ext.suspendLayouts();
                     app.fireEvent('usagePointLoaded', usagePoint);
                     app.fireEvent('usagePointChannelLoaded', channel);
-                    channelDataStore.getProxy().setUrl(mRID, channelId);
+                    channelDataStore.getProxy().setParams(usagePointId, channelId);
                     app.fireEvent('changecontentevent', Ext.widget('view-channel-data-and-reading-qualities', {
                         itemId: 'view-channel-data-and-reading-qualities',
                         router: router,
                         channel: channel,
-                        mRID: mRID,
+                        usagePointId: usagePointId,
                         filter: filter
                     }));
                     channelDataStore.load();
@@ -69,21 +70,21 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
 
         pageMainContent.setLoading();
 
-        channelsStore.getProxy().setUrl(mRID);
+        channelsStore.getProxy().setExtraParam('usagePointId', usagePointId);
         channelsStore.suspendEvent('beforeload');
         channelsStore.load(function () {
             channelsStore.resumeEvent('beforeload');
             onDependencyLoad();
         });
 
-        me.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(mRID, {
+        me.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(usagePointId, {
             success: function (record) {
                 usagePoint = record;
                 onDependencyLoad();
             }
         });
 
-        channelModel.getProxy().setUrl(mRID);
+        channelModel.getProxy().setExtraParam('usagePointId', usagePointId);
         channelModel.load(channelId, {
             success: function (record) {
                 channel = record;
@@ -92,7 +93,8 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
             }
         });
 
-        me.getModel('Mdc.usagepointmanagement.model.ChannelReading').getProxy().setUrl(mRID, channelId);
+        ChannelReading.getProxy().setExtraParam('usagePointId', usagePointId);
+        ChannelReading.getProxy().setExtraParam('channelId', channelId);
     },
 
     showPreview: function (selectionModel, record) {

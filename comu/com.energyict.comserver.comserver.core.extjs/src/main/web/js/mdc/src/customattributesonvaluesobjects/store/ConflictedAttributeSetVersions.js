@@ -15,40 +15,53 @@ Ext.define('Mdc.customattributesonvaluesobjects.store.ConflictedAttributeSetVers
         startParam: false,
         limitParam: false,
 
-        setChannelUrl: function (mRID, channelId, customPropertySetId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/channels/{channelId}/customproperties/{customPropertySetId}/conflicts';
+        setChannelUrl: function (deviceId, channelId, customPropertySetId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/channels/{channelId}/customproperties/{customPropertySetId}/conflicts';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId).replace('{customPropertySetId}', customPropertySetId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId))
+                .replace('{channelId}', channelId)
+                .replace('{customPropertySetId}', customPropertySetId);
         },
 
-        setChannelEditUrl: function (mRID, channelId, customPropertySetId, versionId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/channels/{channelId}/customproperties/{customPropertySetId}/conflicts/{versionId}';
+        setChannelEditUrl: function (deviceId, channelId, customPropertySetId, versionId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/channels/{channelId}/customproperties/{customPropertySetId}/conflicts/{versionId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId).replace('{customPropertySetId}', customPropertySetId).replace('{versionId}', versionId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId))
+                .replace('{channelId}', channelId)
+                .replace('{customPropertySetId}', customPropertySetId)
+                .replace('{versionId}', versionId);
         },
 
-        setRegisterUrl: function (mRID, registerId, customPropertySetId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/registers/{registerId}/customproperties/{customPropertySetId}/conflicts';
+        setRegisterUrl: function (deviceId, registerId, customPropertySetId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/registers/{registerId}/customproperties/{customPropertySetId}/conflicts';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{registerId}', registerId).replace('{customPropertySetId}', customPropertySetId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId))
+                .replace('{registerId}', registerId)
+                .replace('{customPropertySetId}', customPropertySetId);
         },
 
-        setRegisterEditUrl: function (mRID, registerId, customPropertySetId, versionId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/registers/{registerId}/customproperties/{customPropertySetId}/conflicts/{versionId}';
+        setRegisterEditUrl: function (deviceId, registerId, customPropertySetId, versionId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/registers/{registerId}/customproperties/{customPropertySetId}/conflicts/{versionId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{registerId}', registerId).replace('{customPropertySetId}', customPropertySetId).replace('{versionId}', versionId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId))
+                .replace('{registerId}', registerId)
+                .replace('{customPropertySetId}', customPropertySetId)
+                .replace('{versionId}', versionId);
         },
 
-        setDeviceUrl: function (mRID, customPropertySetId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/customproperties/{customPropertySetId}/conflicts';
+        setDeviceUrl: function (deviceId, customPropertySetId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/customproperties/{customPropertySetId}/conflicts';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId))
+                .replace('{customPropertySetId}', customPropertySetId);
         },
 
-        setDeviceEditUrl: function (mRID, customPropertySetId, versionId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/customproperties/{customPropertySetId}/conflicts/{versionId}';
+        setDeviceEditUrl: function (deviceId, customPropertySetId, versionId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/customproperties/{customPropertySetId}/conflicts/{versionId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId).replace('{versionId}', versionId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId))
+                .replace('{customPropertySetId}', customPropertySetId)
+                .replace('{versionId}', versionId);
         }
     }
 });

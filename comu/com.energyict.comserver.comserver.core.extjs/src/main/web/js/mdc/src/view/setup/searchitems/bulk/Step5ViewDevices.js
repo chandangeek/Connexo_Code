@@ -25,9 +25,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5ViewDevices', {
                 columns: {
                     items: [
                         {
-                            itemId: 'MRID',
-                            header: Uni.I18n.translate('searchItems.bulk.mrid', 'MDC', ' MRID'),
-                            dataIndex: 'mRID',
+                            itemId: 'name',
+                            header: Uni.I18n.translate('searchItems.bulk.name', 'MDC', ' Name'),
+                            dataIndex: 'name',
                             flex: 1,
                             renderer: function (value) {
                                 return '<a href="#devices/' + value + '">' + Ext.String.htmlEncode(value) + '</a>';

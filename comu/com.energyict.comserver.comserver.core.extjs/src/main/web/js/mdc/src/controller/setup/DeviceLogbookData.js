@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         this.control({});
     },
 
-    showOverview: function (mRID, logbookId, tabController) {
+    showOverview: function (deviceId, logbookId, tabController) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
@@ -51,12 +51,8 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             logbooksOfDeviceStore = me.getStore('Mdc.store.LogbooksOfDevice'),
             sideFilter;
 
-        dataStoreProxy.setUrl({
-            mRID: mRID,
-            logbookId: logbookId
-        });
-
-        me.getModel('Mdc.model.Device').load(mRID, {
+        dataStoreProxy.setUrl({deviceId: deviceId, logbookId: logbookId});
+        me.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
 
@@ -85,7 +81,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
                         // Do nothing.
                     });
 
-                    logbookModel.getProxy().setUrl(mRID);
+                    logbookModel.getProxy().setExtraParam('deviceId', deviceId);
                     logbookModel.load(logbookId, {
                         success: function (record) {
                             me.getApplication().fireEvent('logbookOfDeviceLoad', record);
@@ -95,7 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
                 };
 
                 if (logbooksOfDeviceStore.getTotalCount() === 0) {
-                    logbooksOfDeviceStore.getProxy().setUrl(mRID);
+                    logbooksOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);
                     logbooksOfDeviceStore.load(function () {
                         func();
                     });

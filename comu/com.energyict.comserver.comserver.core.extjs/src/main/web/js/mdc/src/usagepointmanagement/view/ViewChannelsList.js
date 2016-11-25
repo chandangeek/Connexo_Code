@@ -11,6 +11,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelsList', {
     ],
 
     router: null,
+    usagePointId: null,
 
     initComponent: function () {
         var me = this;
@@ -58,7 +59,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelsList', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID
+                        usagePointId: me.usagePointId
                     }
                 ]
             }
