@@ -1,7 +1,7 @@
 Ext.define('Mdc.model.RegisterReading', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'id', type:'number', useNull: true, persist: false},
+        {name: 'id', type:'string', useNull: true, persist: false},
         {name: 'timeStamp', type:'number', useNull: true},
         {name: 'reportedDateTime', type:'int'},
         {name: 'validationStatus', type:'auto', useNull: true, persist: false},
