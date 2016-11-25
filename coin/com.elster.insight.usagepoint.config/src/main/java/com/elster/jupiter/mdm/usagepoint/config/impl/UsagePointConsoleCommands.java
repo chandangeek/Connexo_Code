@@ -103,27 +103,23 @@ public class UsagePointConsoleCommands {
     }
 
     public void metrologyConfigurations() {
-        metrologyConfigurationService.findAllMetrologyConfigurations().stream().forEach(System.out::println);
+        metrologyConfigurationService.findAllMetrologyConfigurations().forEach(System.out::println);
     }
 
-    public void linkUsagePointToMetrologyConfiguration(String usagePointMRID, String metrologyConfigName) {
+    public void linkUsagePointToMetrologyConfiguration(String usagePointName, String metrologyConfigName) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
                         UsagePoint up = meteringService
-                                .findUsagePoint(usagePointMRID)
-                                .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointMRID + " not found."));
+                                .findUsagePointByName(usagePointName)
+                                .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointName + " not found."));
                         UsagePointMetrologyConfiguration mc = metrologyConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
                                 .filter(config -> config instanceof UsagePointMetrologyConfiguration)
                                 .map(UsagePointMetrologyConfiguration.class::cast)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
-                        if (mc instanceof UsagePointMetrologyConfiguration) {
-                            up.apply((UsagePointMetrologyConfiguration) mc);
-                        } else {
-                            throw new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found.");
-                        }
+                        up.apply(mc);
                     });
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,20 +159,19 @@ public class UsagePointConsoleCommands {
 
     @Descriptor("Create a usage point")
     public void createUsagePoint(@Descriptor("System id (usually 2)") long amrSystemId,
-                                 @Descriptor("Meter ID") String mrId,
-                                 @Descriptor("UsagePoint ID") String upId,
+                                 @Descriptor("Meter ID") String amrId,
                                  @Descriptor("Name") String name) {
         transactionService.builder()
                 .principal(() -> "console")
                 .run(() -> {
                     AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId)
                             .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                    Meter meter = amrSystem.findMeter(mrId)
-                            .orElseThrow(() -> new IllegalArgumentException("Usage Point not created : Meter not found " + mrId));
+                    Meter meter = amrSystem.findMeter(amrId)
+                            .orElseThrow(() -> new IllegalArgumentException("Usage Point not created : Meter not found " + amrId));
                     ServiceCategory category = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                             .orElseThrow(() -> new IllegalArgumentException("Could not get service"));
-                    UsagePointBuilder builder = category.newUsagePoint(upId, this.clock.instant());
-                    UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
+                    UsagePointBuilder builder = category.newUsagePoint(name, this.clock.instant());
+                    UsagePoint up = builder.withIsSdp(true).withIsVirtual(false).create();
                     up.newElectricityDetailBuilder(Instant.now(clock)).withGrounded(YesNoAnswer.YES).withPhaseCode(PhaseCode.UNKNOWN).create();
                     up.linkMeters().activate(meter, metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).complete();
                     meter.update();

@@ -1,7 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -18,6 +21,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -28,6 +32,8 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
@@ -43,7 +49,9 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,7 +64,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {UsagePointConfigurationService.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, TranslationKeyProvider {
+public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -64,6 +72,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile MeteringService meteringService;
     private volatile EventService eventService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private volatile UpgradeService upgradeService;
@@ -76,7 +85,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     // For testing purposes
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-                                              ValidationService validationService, NlsService nlsService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UpgradeService upgradeService) {
+                                              ValidationService validationService, EstimationService estimationService, NlsService nlsService,
+                                              MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UpgradeService upgradeService) {
         this();
         setClock(clock);
         setOrmService(ormService);
@@ -85,6 +95,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         setEventService(eventService);
         setUserService(userService);
         setValidationService(validationService);
+        setEstimationService(estimationService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
         activate();
@@ -117,7 +128,9 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 Installer.class,
                 ImmutableMap.of(
                     version(10, 2),
-                    UpgraderV10_2.class));
+                        UpgraderV10_2.class,
+                        version(10, 3),
+                        UpgraderV10_3.class));
     }
 
     @Reference
@@ -161,6 +174,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        // need to have explicit dependency to estimation component that installs estimation rule sets
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -221,7 +240,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                         .isEqualTo(metrologyContract))
                 .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
-                .sorted((ruleSet1, ruleSet2) -> ruleSet1.getName().compareToIgnoreCase(ruleSet2.getName()))
+                .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
 
@@ -285,6 +304,72 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
+    public void addEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+        this.dataModel
+                .getInstance(MetrologyContractEstimationRuleSetUsageImpl.class)
+                .initAndSave(metrologyContract, estimationRuleSet);
+        metrologyContract.update();
+    }
+
+    @Override
+    public List<EstimationRuleSet> getEstimationRuleSets(MetrologyContract metrologyContract) {
+        return this.dataModel
+                .query(MetrologyContractEstimationRuleSetUsage.class)
+                .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                        .isEqualTo(metrologyContract))
+                .stream()
+                .map(MetrologyContractEstimationRuleSetUsage::getEstimationRuleSet)
+                .sorted(Comparator.comparing(rs -> rs.getName().toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void removeEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+        this.dataModel
+                .mapper(MetrologyContractEstimationRuleSetUsage.class)
+                .getUnique(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName(), metrologyContract,
+                        MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName(), estimationRuleSet)
+                .ifPresent(metrologyContractEstimationRuleSetUsage -> {
+                    dataModel.remove(metrologyContractEstimationRuleSetUsage);
+                    metrologyContract.update();
+                });
+    }
+
+    @Override
+    public boolean isLinkableEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet, List<EstimationRuleSet> linkedEstimationRuleSets) {
+        if (linkedEstimationRuleSets.contains(estimationRuleSet)) {
+            return false;
+        }
+
+        if (!estimationRuleSet.getRules().isEmpty()) {
+            List<ReadingType> ruleSetReadingTypes = estimationRuleSet
+                    .getRules()
+                    .stream()
+                    .flatMap(rule -> rule.getReadingTypes().stream())
+                    .collect(Collectors.toList());
+            if (!metrologyContract.getDeliverables().isEmpty()) {
+                List<ReadingType> deliverableReadingTypes = metrologyContract.getDeliverables()
+                        .stream()
+                        .map(ReadingTypeDeliverable::getReadingType)
+                        .collect(Collectors.toList());
+                if (deliverableReadingTypes.stream().anyMatch(ruleSetReadingTypes::contains)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isEstimationRuleSetInUse(EstimationRuleSet ruleset) {
+        return !this.dataModel
+                .query(MetrologyContractEstimationRuleSetUsage.class)
+                .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.ESTIMATION_RULE_SET.fieldName())
+                        .isEqualTo(ruleset), Order.NOORDER, false, new String[0], 1, 1)
+                .isEmpty();
+    }
+
+    @Override
     public String getComponentName() {
         return UsagePointConfigurationService.COMPONENTNAME;
     }
@@ -295,8 +380,15 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
-        return Collections.emptyList();
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
+        return keys;
+    }
 }
