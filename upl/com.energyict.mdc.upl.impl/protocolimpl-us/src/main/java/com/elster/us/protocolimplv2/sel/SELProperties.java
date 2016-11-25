@@ -1,119 +1,107 @@
 package com.elster.us.protocolimplv2.sel;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.TimeZoneInUse;
 
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
+import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-public class SELProperties implements ConfigurationSupport {
-  
-  public final static String DEVICE_TIMEZONE = "deviceTimeZone";
-  public final static String TIMEZONE = "Timezone";
-  public final static String RETRIES = "Retries";
-  public final static String DEVICE_PWD = "Password";
+public class SELProperties {
 
-  private final static String DEFAULT_DEVICE_TIMEZONE = TimeZone.getDefault().getID();
-  private final static String DEFAULT_TIMEZONE = TimeZone.getDefault().getID();;
-  private final static int DEFAULT_RETRIES = 3;
-  private final static String DEFAULT_DEVICE_PWD = "SEL";
+    public static final String DEVICE_TIMEZONE = "deviceTimeZone";
+    public static final String TIMEZONE = "Timezone";
+    public static final String RETRIES = "Retries";
+    public static final String DEVICE_PWD = "Password";
 
-  private TypedProperties properties;
-  
-  public SELProperties() {
-    this(TypedProperties.empty());
-  }
+    private static final String DEFAULT_DEVICE_TIMEZONE = TimeZone.getDefault().getID();
+    private static final String DEFAULT_TIMEZONE = TimeZone.getDefault().getID();
+    ;
+    private static final int DEFAULT_RETRIES = 3;
+    private static final String DEFAULT_DEVICE_PWD = "SEL";
 
-  public SELProperties(TypedProperties properties) {
-    this.properties = properties;
-  }
-  
-//  public void setAllProperties(TypedProperties properties) {
-//    for (String propertyName : properties.propertyNames()) {
-//      this.properties.put(propertyName, properties.getProperty(propertyName));
-//    }
-//  }
-  
-  public void setAllProperties(TypedProperties other) {
-    properties.setAllProperties(other);
-  }
+    private TypedProperties properties;
 
-  public String getDevicePassword() {
-    String retVal = properties.getStringProperty(DEVICE_PWD);
-    if (retVal == null) {
-      retVal = DEFAULT_DEVICE_PWD;
+    public SELProperties() {
+        this(TypedProperties.empty());
     }
-    return retVal;
-  }
-  
-//  public String getDeviceTimezone() {
-//    try {
-//      String deviceTz = (String)properties.get(DEVICE_TIMEZONE);
-//      return (deviceTz != null  && !deviceTz.isEmpty()) ? deviceTz : DEFAULT_DEVICE_TIMEZONE;
-//    } catch (Throwable t) {
-//      return DEFAULT_DEVICE_TIMEZONE;
-//    }
-//  }
-  
-  public String getDeviceTimezone() {
-    try {
-      TimeZoneInUse deviceTz = properties.getTypedProperty(DEVICE_TIMEZONE);
-      return (deviceTz != null) ? deviceTz.getTimeZone().getID() : DEFAULT_DEVICE_TIMEZONE;
-    } catch (Throwable t) {
-      return DEFAULT_DEVICE_TIMEZONE;
+
+    public SELProperties(TypedProperties properties) {
+        this.properties = properties;
     }
-  }
-  
-  public String getTimezone() {
-    try {
-      String runningTz = properties.getStringProperty(TIMEZONE);
-      return (runningTz != null) ? runningTz : DEFAULT_TIMEZONE;
-    } catch (Throwable t) {
-      return DEFAULT_TIMEZONE;
+
+    public void setAllProperties(Properties other) {
+        this.setAllProperties(TypedProperties.copyOf(other));
     }
-  }
-  
-  public int getRetries() {
-    try {
-      String str = properties.getStringProperty(RETRIES);
-      return Integer.parseInt(str);
-    } catch (Throwable t) {
-      return DEFAULT_RETRIES;
+
+    public void setAllProperties(com.energyict.mdc.upl.properties.TypedProperties other) {
+        this.setAllProperties(TypedProperties.copyOf(other));
     }
-  }
-  
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("SELProperties").append(" = {\r\n");
-    sb.append("getRetries").append(" = {\r\n");
-    sb.append("getTimezone").append(" = {\r\n");
-    sb.append("getDeviceTimezone").append(" = {\r\n");
-    return sb.toString();
-  }
-  
-  @Override
-  public List<PropertySpec> getRequiredProperties() {
-    return Collections.EMPTY_LIST;
-  }
-  
-  @Override
-  public List<PropertySpec> getOptionalProperties() {
-    List<PropertySpec> retVal = new ArrayList<PropertySpec>();
-    //retVal.add(PropertySpecFactory.stringPropertySpec(DEVICE_TIMEZONE));
-    retVal.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES));
-    retVal.add(PropertySpecFactory.stringPropertySpec(TIMEZONE));
-    retVal.add(PropertySpecFactory.stringPropertySpec(DEVICE_PWD));
-    retVal.add(PropertySpecFactory.timeZoneInUseReferencePropertySpec(DEVICE_TIMEZONE));
-    return retVal;
-  }
+
+    public void setAllProperties(TypedProperties other) {
+        properties.setAllProperties(other);
+    }
+
+    public String getDevicePassword() {
+        String retVal = properties.getStringProperty(DEVICE_PWD);
+        if (retVal == null) {
+            retVal = DEFAULT_DEVICE_PWD;
+        }
+        return retVal;
+    }
+
+    public String getDeviceTimezone() {
+        try {
+            TimeZone deviceTz = properties.getTypedProperty(DEVICE_TIMEZONE);
+            return (deviceTz != null) ? deviceTz.getID() : DEFAULT_DEVICE_TIMEZONE;
+        } catch (Throwable t) {
+            return DEFAULT_DEVICE_TIMEZONE;
+        }
+    }
+
+    public String getTimezone() {
+        try {
+            String runningTz = properties.getStringProperty(TIMEZONE);
+            return (runningTz != null) ? runningTz : DEFAULT_TIMEZONE;
+        } catch (Throwable t) {
+            return DEFAULT_TIMEZONE;
+        }
+    }
+
+    public int getRetries() {
+        try {
+            String str = properties.getStringProperty(RETRIES);
+            return Integer.parseInt(str);
+        } catch (Throwable t) {
+            return DEFAULT_RETRIES;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "SELProperties" + " = {\r\n" +
+                "getRetries" + " = {\r\n" +
+                "getTimezone" + " = {\r\n" +
+                "getDeviceTimezone" + " = {\r\n";
+    }
+
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                    UPLPropertySpecFactory.bigDecimal(RETRIES, true),
+                    UPLPropertySpecFactory.string(TIMEZONE, true),
+                    UPLPropertySpecFactory.string(DEVICE_PWD, true),
+                    Services
+                        .propertySpecService()
+                        .timezoneSpec()
+                        .named(DEVICE_TIMEZONE, DEVICE_TIMEZONE)
+                        .describedAs("Description for " + TIMEZONE)
+                        .markRequired()
+                        .finish());
+    }
 
 }
