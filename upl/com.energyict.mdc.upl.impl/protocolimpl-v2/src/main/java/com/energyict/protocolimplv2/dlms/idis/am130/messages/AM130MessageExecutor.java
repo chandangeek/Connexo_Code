@@ -87,17 +87,17 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetAutoConnectMode)) {
             setAutoConnectMode(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
-            changeAuthenticationKeyAndUseNewKey(pendingMessage);
+            changeAuthenticationKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
-            changeEncryptionKeyAndUseNewKey(pendingMessage);
+            changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)) {
-            changeMasterKeyAndUseNewKey(pendingMessage);
+            changeMasterKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
-            changeAuthenticationKeyAndUseNewKey(pendingMessage);
+            changeAuthenticationKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
-            changeEncryptionKeyAndUseNewKey(pendingMessage);
+            changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
-            changeMasterKeyAndUseNewKey(pendingMessage);
+            changeMasterKeyAndUseNewKey(collectedMessage, pendingMessage);
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
@@ -206,23 +206,37 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         }
     }
 
-    protected void changeMasterKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newMasterKeyAttributeName, newWrappedMasterKeyAttributeName);
+    protected CollectedMessage changeMasterKeyAndUseNewKey(CollectedMessage collectedMessage,OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName);
+        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
+            return collectedMessage;
+        }
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newWrappedMasterKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        return collectedMessage;
     }
 
-    protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newAuthenticationKeyAttributeName, newWrappedAuthenticationKeyAttributeName);
+    protected CollectedMessage changeAuthenticationKeyAndUseNewKey(CollectedMessage collectedMessage,OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName);
+        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
+            return collectedMessage;
+        }
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newWrappedAuthenticationKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        return collectedMessage;
     }
 
-    protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected CollectedMessage changeEncryptionKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
         String oldEncryptionKey = ProtocolTools.getHexStringFromBytes(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
-        String newKey = changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newEncryptionKeyAttributeName, newWrappedEncryptionKeyAttributeName);
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
+        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
+            return collectedMessage;
+        }
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newWrappedEncryptionKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
@@ -233,10 +247,10 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
             securityContext.setFrameCounter(1);
             securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         }
+        return collectedMessage;
     }
 
-    private String changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String keyAttributeName, String wrappedKeyAttributeName) throws IOException {
-        String newKey = getDeviceMessageAttributeValue(pendingMessage, keyAttributeName);
+    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String wrappedKeyAttributeName) throws IOException {
         String newWrappedKey = getDeviceMessageAttributeValue(pendingMessage, wrappedKeyAttributeName);
         byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
         ObisCode clientSecuritySetupObis = getClientSecuritySetupObis(pendingMessage);
@@ -249,7 +263,6 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup(clientSecuritySetupObis);
         ss.transferGlobalKey(keyArray);
-        return newKey;
     }
 
     protected void clearWhiteList() throws IOException {
