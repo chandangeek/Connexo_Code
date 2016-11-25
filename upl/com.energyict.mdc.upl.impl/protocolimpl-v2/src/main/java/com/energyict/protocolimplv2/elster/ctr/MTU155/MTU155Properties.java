@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -71,51 +71,51 @@ public class MTU155Properties {
         this.typedProperties = typedProperties;
     }
 
-    public List<PropertySpec> getRequiredGeneralProperties() {
-        List<PropertySpec> required = new ArrayList<>();
-        required.add(timeZonePropertySpec());
-        return required;
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                this.timeZonePropertySpec(),
+                this.debugPropertySpec(),
+                this.channelBacklogPropertySpec(),
+                this.extractInstallationDatePropertySpec(),
+                this.removeDayProfileOffsetPropertySpec(),
+                this.callHomeIdPropertySpec());
     }
 
-    public List<PropertySpec> getOptionalGeneralProperties() {
-        List<PropertySpec> optional = new ArrayList<>();
-        optional.add(debugPropertySpec());
-        optional.add(channelBacklogPropertySpec());
-        optional.add(extractInstallationDatePropertySpec());
-        optional.add(removeDayProfileOffsetPropertySpec());
-        optional.add(callHomeIdPropertySpec());
-        return optional;
+    private PropertySpec<TimeZone> timeZonePropertySpec() {
+        return Services
+                .propertySpecService()
+                .timezoneSpec()
+                .named(TIMEZONE_PROPERTY_NAME, TIMEZONE_PROPERTY_NAME)
+                .describedAs("Description for " + TIMEZONE_PROPERTY_NAME)
+                .markRequired()
+                .finish();
     }
 
-    protected PropertySpec callHomeIdPropertySpec() {
-        return  PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
-    }
-
-    private PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE_PROPERTY_NAME);
-    }
-
-    private PropertySpec debugPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DEBUG_PROPERTY_NAME);
+    private PropertySpec<Boolean> debugPropertySpec() {
+        return UPLPropertySpecFactory.booleanValue(DEBUG_PROPERTY_NAME, false);
     }
 
     private PropertySpec channelBacklogPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CHANNEL_BACKLOG_PROPERTY_NAME);
+        return UPLPropertySpecFactory.bigDecimal(CHANNEL_BACKLOG_PROPERTY_NAME, false);
     }
 
     private PropertySpec extractInstallationDatePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME);
+        return UPLPropertySpecFactory.bigDecimal(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, false);
     }
 
     private PropertySpec removeDayProfileOffsetPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME);
+        return UPLPropertySpecFactory.bigDecimal(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, false);
+    }
+
+    protected PropertySpec callHomeIdPropertySpec() {
+        return  UPLPropertySpecFactory.string(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false);
     }
 
     public TimeZone getTimeZone() {
-        TimeZoneInUse timeZoneInUse = (TimeZoneInUse) typedProperties.getProperty(TIMEZONE_PROPERTY_NAME);
+        TimeZone timeZone = (TimeZone) typedProperties.getProperty(TIMEZONE_PROPERTY_NAME);
         String legacyTimeZone = (String) typedProperties.getProperty(LEGACY_TIMEZONE_PROPERTY_NAME);
-        if (timeZoneInUse != null) {
-            return timeZoneInUse.getTimeZone();
+        if (timeZone != null) {
+            return timeZone;
         } else if (legacyTimeZone != null) {
             return TimeZone.getTimeZone(legacyTimeZone);
         } else {
@@ -225,7 +225,7 @@ public class MTU155Properties {
 
     private String getKeyValue(String propertyName, String defaultValue) {
         String key = (String) typedProperties.getProperty(propertyName, defaultValue);
-        if (key.length() == 0) {
+        if (key.isEmpty()) {
             key = defaultValue;
         }
 

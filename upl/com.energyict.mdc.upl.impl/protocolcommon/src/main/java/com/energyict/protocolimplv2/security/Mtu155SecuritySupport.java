@@ -3,18 +3,19 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dynamicattributes.EncryptedStringFactory;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -27,8 +28,8 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     private static final String KEY_T_LEGACY_PROPERTY = "KeyT";
     private static final String KEY_C_LEGACY_PROPERTY = "KeyC";
     private static final String KEY_F_LEGACY_PROPERTY = "KeyF";
-    private final String authenticationTranslationKeyConstant = "Mtu155SecuritySupport.authenticationlevel.";
-    private final String encryptionTranslationKeyConstant = "Mtu155SecuritySupport.encryptionlevel.";
+    private static final String AUTHENTICATION_TRANSLATION_KEY_CONSTANT = "Mtu155SecuritySupport.authenticationlevel.";
+    private static final String ENCRYPTION_TRANSLATION_KEY_CONSTANT = "Mtu155SecuritySupport.encryptionlevel.";
 
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
@@ -40,11 +41,11 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         private final int accessLevel;
 
-        private AccessLevelIds(int accessLevel) {
+        AccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
+        private int getAccessLevel() {
             return this.accessLevel;
         }
     }
@@ -74,7 +75,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new SimpleAuthentication());
+        return Collections.<AuthenticationDeviceAccessLevel>singletonList(new SimpleAuthentication());
     }
 
     @Override
@@ -83,13 +84,13 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getSecurityPropertySpec(String name) {
         for (PropertySpec securityProperty : getSecurityProperties()) {
             if (securityProperty.getName().equals(name)) {
-                return securityProperty;
+                return Optional.of(securityProperty);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -97,8 +98,10 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
-            if (Password.class.isAssignableFrom(property.getClass())) {
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), null);
+            if (property == null) {
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
+            } else if (Password.class.isAssignableFrom(property.getClass())) {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
             } else {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
@@ -124,8 +127,10 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
             }
 
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = typedSecurityProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
-            if (Password.class.isAssignableFrom(property.getClass())) {
+            final Object property = typedSecurityProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString(), null);
+            if (property == null) {
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
+            } else if (Password.class.isAssignableFrom(property.getClass())) {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
             } else {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
@@ -152,7 +157,11 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        return this.convertFromTypedProperties(TypedProperties.copyOf(typedProperties));
+    }
+
+    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
         final int encryptionDeviceAccessLevel = securityLevelProperty != null ?
                 getSecurityLevelIntegerValue(securityLevelProperty) :
@@ -190,25 +199,23 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     }
 
     private PropertySpec<String> getEncryptionKeyTPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString())
-                .setDefaultValue("")
-                .finish();
+        return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_1);
     }
 
     private PropertySpec<String> getEncryptionKeyCPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString())
-                .setDefaultValue("")
-                .finish();
+        return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_2);
     }
 
     private PropertySpec<String> getEncryptionKeyFPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString())
+        return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_3);
+    }
+
+    private PropertySpec<String> encryptionkeyPropertySpec(SecurityPropertySpecName name) {
+        return Services
+                .propertySpecService()
+                .encryptedStringSpec()
+                .named(name.toString(), name.toString())
+                .describedAs("Description for " + name.toString())
                 .setDefaultValue("")
                 .finish();
     }
@@ -225,12 +232,12 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+            return AUTHENTICATION_TRANSLATION_KEY_CONSTANT + getId();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
 
@@ -243,12 +250,12 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+            return ENCRYPTION_TRANSLATION_KEY_CONSTANT + getId();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getEncryptionKeyCPropertySpec());
+            return Collections.<PropertySpec>singletonList(getEncryptionKeyCPropertySpec());
         }
     }
 
@@ -261,12 +268,12 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+            return ENCRYPTION_TRANSLATION_KEY_CONSTANT + getId();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getEncryptionKeyTPropertySpec());
+            return Collections.<PropertySpec>singletonList(getEncryptionKeyTPropertySpec());
         }
     }
 
@@ -279,12 +286,12 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+            return ENCRYPTION_TRANSLATION_KEY_CONSTANT + getId();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getEncryptionKeyFPropertySpec());
+            return Collections.<PropertySpec>singletonList(getEncryptionKeyFPropertySpec());
         }
     }
 }
