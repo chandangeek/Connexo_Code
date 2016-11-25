@@ -8,6 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
@@ -18,9 +21,13 @@ public class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final MessageService messageService;
     private final Thesaurus thesaurus;
+    private final UserService userService;
+    private final UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider;
 
     @Inject
-    public Installer(DataModel dataModel, MessageService messageService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, UserService userService, MessageService messageService, Thesaurus thesaurus, UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider) {
+        this.userService = userService;
+        this.usagePointGroupPrivilegesProvider = usagePointGroupPrivilegesProvider;
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.thesaurus = thesaurus;
@@ -28,6 +35,12 @@ public class Installer implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        doTry(
+                "Add module privileges",
+                () -> userService.addModulePrivileges(usagePointGroupPrivilegesProvider),
+                logger
+        );
+        userService.addModulePrivileges(usagePointGroupPrivilegesProvider);
         doTry(
                 "Create itemizer Queue and subscriber.",
                 () -> {

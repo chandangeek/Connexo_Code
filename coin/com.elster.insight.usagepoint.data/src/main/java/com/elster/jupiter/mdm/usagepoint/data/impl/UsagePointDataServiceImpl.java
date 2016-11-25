@@ -10,6 +10,7 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
@@ -27,14 +28,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
@@ -60,6 +62,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(
@@ -70,7 +73,6 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 public class UsagePointDataServiceImpl implements UsagePointDataService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile Clock clock;
-    private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;
@@ -78,6 +80,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile UpgradeService upgradeService;
     private volatile MessageService messageService;
+    private volatile UserService userService;
 
     @SuppressWarnings("unused")
     public UsagePointDataServiceImpl() {
@@ -86,21 +89,21 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
 
     @Inject
     public UsagePointDataServiceImpl(Clock clock,
-                                     OrmService ormService,
                                      MeteringService meteringService,
                                      ValidationService validationService,
                                      NlsService nlsService,
                                      CustomPropertySetService customPropertySetService,
                                      UsagePointConfigurationService usagePointConfigurationService,
-                                     UpgradeService upgradeService) {
+                                     UpgradeService upgradeService,
+                                     UserService userService) {
         setClock(clock);
-        setOrmService(ormService);
         setMeteringService(meteringService);
         setValidationService(validationService);
         setNlsService(nlsService);
         setCustomPropertySetService(customPropertySetService);
         setUsagePointConfigurationService(usagePointConfigurationService);
         setUpgradeService(upgradeService);
+        setUserService(userService);
         activate();
     }
 
@@ -108,7 +111,6 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         return new AbstractModule() {
             @Override
             public void configure() {
-                bind(DataModel.class).toInstance(dataModel);
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(Thesaurus.class).toInstance(thesaurus);
@@ -116,6 +118,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 bind(UsagePointDataService.class).toInstance(UsagePointDataServiceImpl.this);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(UserService.class).toInstance(userService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
                 bind(MessageService.class).toInstance(messageService);
             }
@@ -124,19 +128,19 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
 
     @Activate
     public void activate() {
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier("Insight", COMPONENT_NAME), dataModel, Installer.class, Collections
-                .emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("Insight", getComponentName()),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(version(10, 3), UpgraderV10_3.class)
+        );
     }
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(UsagePointDataService.COMPONENT_NAME, "Usage Point Data");
     }
 
     @Reference
@@ -170,6 +174,11 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     }
 
     @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
@@ -188,7 +197,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(ChannelDataValidationSummaryFlag.values()),
-                Arrays.stream(Subscribers.values()))
+                Arrays.stream(Subscribers.values()),
+                Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -196,10 +206,6 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    DataModel getDataModel() {
-        return dataModel;
     }
 
     /**
@@ -286,9 +292,9 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     public Map<ReadingTypeDeliverable, ChannelDataValidationSummary> getValidationSummary(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
                                                                                           MetrologyContract contract, Range<Instant> interval) {
         ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(contract)
-                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT,
-                        contract.getMetrologyPurpose().getId(), effectiveMetrologyConfiguration.getUsagePoint()
-                        .getMRID()) {
+                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT,
+                        contract.getId(), effectiveMetrologyConfiguration.getUsagePoint()
+                        .getName()) {
                 });
         Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
                 .map(Effectivity::getInterval)
