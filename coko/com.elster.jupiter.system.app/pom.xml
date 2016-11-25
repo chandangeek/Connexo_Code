@@ -174,7 +174,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.extjs</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>kore.api.rest</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

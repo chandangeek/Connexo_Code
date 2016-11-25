@@ -18,7 +18,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.app.SysAppService;
@@ -41,6 +40,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(
         name = "com.elster.jupiter.system.app",
@@ -118,9 +119,11 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
                     bind(UserService.class).toInstance(userService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", "SSA"), dataModel, Installer.class, ImmutableMap.of(
-                    Version.version(10, 2), Installer.class
-            ));
+            upgradeService.register(InstallIdentifier.identifier("Pulse", "SSA"), dataModel, Installer.class,
+                    ImmutableMap.of(
+                            version(10, 2), Installer.class,
+                            version(10, 3), UpgraderV10_3.class
+                    ));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
