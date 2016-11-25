@@ -10,28 +10,31 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.*;
+import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
+import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
+import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryLog;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalFormat;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.EventLogMfgCodeFactory;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.UnitOfMeasure;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.UnitOfMeasureFactory;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocol.HalfDuplexEnabler;  
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.meteridentification.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimplv2.MdcManager;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -254,16 +257,15 @@ public class S4LoadProfile {
             int nrOfIntervals = currentDayBlock?nrOfValidIntervals:intervalSets.length;
             int startInterval = currentDayBlock?nrOfIntervalsPerBlock-nrOfValidIntervals:0;
             if (DEBUG>=3) System.out.println("KV_DEBUG> nrOfIntervals="+nrOfIntervals+", startInterval="+startInterval+", nrOfIntervalsPerBlock="+nrOfIntervalsPerBlock+", nrOfValidIntervals="+nrOfValidIntervals); 
-            
+
+            int count = 0;
             for (int i=startInterval;i<nrOfIntervalsPerBlock;i++) {
-            
-                
-            
                 //if (!ParseUtils.isOnIntervalBoundary(cal,s4.getProfileInterval())) {
             
-                if (i==(nrOfIntervals-1)) {
-                     ParseUtils.roundDown2nearestInterval(cal,s4.getProfileInterval());
-                     continue;
+                if (count==(nrOfIntervals)) {
+                    ParseUtils.roundDown2nearestInterval(cal,s4.getProfileInterval());
+                    //System.out.println("Continuing, count is " + count);
+                    continue;
                 }
                 //}
 
@@ -280,10 +282,9 @@ public class S4LoadProfile {
                 } // for (int channel=0;channel<s4.getNumberOfChannels();channel++)
                 intervalDatas.add(intervalData);
 
-if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());                 
+                if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
                 cal.add(Calendar.SECOND,(-1)*s4.getProfileInterval());
-
-                
+                count++;
             } // for (int i=0;i<intervalSets.length;i++)
             profileData.setIntervalDatas(intervalDatas);
             currentDayBlock=false;

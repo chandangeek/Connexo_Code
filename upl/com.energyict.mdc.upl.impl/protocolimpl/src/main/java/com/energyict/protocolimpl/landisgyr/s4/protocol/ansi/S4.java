@@ -11,12 +11,28 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
+import com.energyict.protocolimpl.ansi.c12.C12Layer2;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
+import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
@@ -32,7 +48,11 @@ import com.energyict.protocolimpl.meteridentification.S4Fam;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 /**
  *
@@ -50,7 +70,8 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     private ManufacturerProcedureFactory manufacturerProcedureFactory;
     S4Fam s4Fam=new S4Fam();
     S4LoadProfile s4LoadProfile;
-    
+    boolean convertRegReads = true;
+
     String c12User;
     int c12UserId;
     
@@ -69,6 +90,10 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         return s4LoadProfile.getProfileData(from,to,includeEvents);
     }
     
+    public boolean convertRegReadsToEngineering() {
+        return convertRegReads;
+    }
+
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
 /*
         Properties properties = new Properties();
@@ -135,7 +160,7 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"0"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
-        
+        convertRegReads = Boolean.parseBoolean(properties.getProperty("ConvertRegReadsToEngineering", "true"));
     }
     
     protected List doGetOptionalKeys() {
@@ -143,7 +168,8 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         
         result.add("C12User");
         result.add("C12UserId");
-        
+        result.add("ConvertRegReadsToEngineering");
+
         return result;
     }
     

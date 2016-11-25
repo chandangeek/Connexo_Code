@@ -205,7 +205,6 @@ public class ObisCodeInfoFactory {
                 registerValue = doGetRegister(obi, registerData.getTierDataBlocks()[obi.getTierIndex()]);
         }
         else if (obi.isPreviousSeason()) {
-            System.out.println("Getting register for previous season");
             RegisterData registerData = sentinel.getStandardTableFactory().getPreviousSeasonDataTable().getPreviousSeasonRegisterData();
             RegisterInf registerInf = sentinel.getStandardTableFactory().getPreviousSeasonDataTable().getRegisterInfo();
             if (obi.getTierIndex() == -1)  // E FIELD
@@ -214,7 +213,6 @@ public class ObisCodeInfoFactory {
                 registerValue = doGetRegister(obi, registerData.getTierDataBlocks()[obi.getTierIndex()], registerInf.getEndDateTime());
         }
         else if (obi.isPreviousDemandReset()) {
-            System.out.println("Getting register for previous demand reset");
             RegisterData registerData = sentinel.getStandardTableFactory().getPreviousDemandResetDataTable().getPreviousDemandResetData();
             RegisterInf registerInf = sentinel.getStandardTableFactory().getPreviousDemandResetDataTable().getRegisterInfo();
             if (obi.getTierIndex() == -1)  // E FIELD
@@ -223,7 +221,6 @@ public class ObisCodeInfoFactory {
                 registerValue = doGetRegister(obi, registerData.getTierDataBlocks()[obi.getTierIndex()], registerInf.getEndDateTime());
         }
         else if (obi.isSelfRead()) {
-            System.out.println("Getting register for self read");
             int index = obi.getSelfReadIndex();
             RegisterData registerData = sentinel.getStandardTableFactory().getSelfReadDataTable().getSelfReadList().getSelfReadEntries()[index].getSelfReadRegisterData();
             RegisterInf registerInf = sentinel.getStandardTableFactory().getSelfReadDataTable().getSelfReadList().getSelfReadEntries()[index].getRegisterInfo();
@@ -246,43 +243,32 @@ public class ObisCodeInfoFactory {
         boolean energy=false;
 
         if (obi.isTimeIntegral()) { // D FIELD
-            System.out.println("doGetRegister: time integral");
             int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getSummations()[registerIndex];
             energy=true;
         }
         else if (obi.isMaximumDemand()) {
-            System.out.println("doGetRegister: maximum demand");
             int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getDemands()[registerIndex].getDemands()[obi.getOccurance()];
             if (dataBlock.getDemands()[registerIndex].getEventTimes() != null)
                date = dataBlock.getDemands()[registerIndex].getEventTimes()[obi.getOccurance()];
         }
         else if (obi.isCumulativeMaximumDemand()) {
-            System.out.println("doGetRegister: cum max demand");
             int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getDemands()[registerIndex].getCumDemand();
         }
         else if (obi.isContCumulativeMaximumDemand()) {
-            System.out.println("doGetRegister: cont cum max demand");
             int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getDemands()[registerIndex].getContinueCumDemand();
         }
         else if (obi.isCoinMaximumDemandDemand()) {
-            System.out.println("doGetRegister: coin max demand");
             int registerIndex = obi.getRegisterIndex();// C
             value = dataBlock.getCoincidents()[registerIndex].getCoincidentValues()[obi.getOccurance()];
         }
 
-        System.out.println("doGetRegister: unit is " + obi.getUnit());
-        System.out.println("doGetRegister: value is " + value);
-
         Unit unit = obi.getUnit();
 
-        System.out.println("doGetRegister: unit scale is " + unit.getScale());
-
         if (unit.getScale() == 0 && convertRegisterReadsToKiloUnits) {
-            System.out.println("doGetRegister: unit scale is 0, setting to 3");
             unit = Unit.get(unit.getDlmsCode(), 3);
             value = ((BigDecimal)value).divide(new BigDecimal(1000));
         }
