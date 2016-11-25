@@ -542,12 +542,12 @@ public class UsagePointResource {
         return usagePointCustomPropertySetResourceProvider.get();
     }
 
-    @Path("/{mrid}/calendars")
+    @Path("/{name}/calendars")
     public UsagePointCalendarResource getUsagePointCalendarResource() {
         return usagePointCalendarResourceProvider.get();
     }
 
-    @Path("/{mrid}/history/calendars")
+    @Path("/{name}/history/calendars")
     public UsagePointCalendarHistoryResource getUsagePointCalendarHistoryResource() {
         return usagePointCalendarHistoryResourceProvider.get();
     }

@@ -49,8 +49,8 @@ public class UsagePointCalendarHistoryResource {
     @GET
     @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getAllCalendars(@PathParam("mrid") String usagePointMrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+    public PagedInfoList getAllCalendars(@PathParam("name") String usagePointName, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
         return usagePointCalendarService.calendarsFor(usagePoint)
                 .getCalendars()
                 .entrySet()

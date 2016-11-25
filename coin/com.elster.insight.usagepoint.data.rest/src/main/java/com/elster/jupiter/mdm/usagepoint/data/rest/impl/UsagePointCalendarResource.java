@@ -68,8 +68,8 @@ public class UsagePointCalendarResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getCalendarsOnUsagePoint(@PathParam("mrid") String usagePointMrid, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+    public PagedInfoList getCalendarsOnUsagePoint(@PathParam("name") String usagePointName, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
         return usagePointCalendarService.calendarsFor(usagePoint)
                 .getCalendars()
                 .entrySet()
@@ -84,7 +84,7 @@ public class UsagePointCalendarResource {
     @GET
     @Path("/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public CalendarInfo getCalendar(@PathParam("mRID") String usagePointMrid, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+    public CalendarInfo getCalendar(@PathParam("name") String name, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
         if (milliseconds <= 0) {
             return calendarService.findCalendar(calendarId)
                     .map(calendarInfoFactory::detailedFromCalendar)
@@ -108,10 +108,10 @@ public class UsagePointCalendarResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS})
     public Response addCalendarToUsagePoint(
-            @PathParam("mrid") String usagePointMrid,
+            @PathParam("name") String usagePointName,
             @Context UriInfo uriInfo,
             CalendarOnUsagePointInfo calendarOnUsagePointInfo) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
         Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id)
                 .orElse(null);
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
