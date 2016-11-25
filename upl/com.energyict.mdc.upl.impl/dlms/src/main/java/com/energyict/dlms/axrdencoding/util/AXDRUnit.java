@@ -12,24 +12,16 @@ public final class AXDRUnit {
 	private AXDRUnit() {
 	}
 
-	/**
-	 * @param unit
-	 * @return
-	 */
 	public static OctetString encode(Unit unit) {
 		return unit != null ? OctetString.fromString(unit.dbString()) : null;
 	}
 
-	/**
-	 * @param dataType
-	 * @return
-	 */
 	public static Unit decode(AbstractDataType dataType) {
 		if ((dataType == null) || (dataType.isNullData())) {
 			return null;
 		} else {
 			String unitAsString = dataType.getOctetString().stringValue();
-			if ((unitAsString == null) || (unitAsString.length() == 0)) {
+			if ((unitAsString == null) || (unitAsString.isEmpty())) {
 				return null;
 			} else {
 				return Unit.fromDb(unitAsString);

@@ -337,11 +337,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     private TemporalAmount getTimeDeviationPropertyForRead() {
-        return this.typedProperties.getTypedProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToReadPropertyName, Duration.ofSeconds(0));
+        return this.typedProperties.getTypedProperty(SDKTimeDeviceProtocolDialectProperties.CLOCK_OFFSET_TO_READ_PROPERTY_NAME, Duration.ofSeconds(0));
     }
 
     private TemporalAmount getTimeDeviationPropertyForWrite() {
-        return this.typedProperties.getTypedProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, Duration.ofSeconds(0));
+        return this.typedProperties.getTypedProperty(SDKTimeDeviceProtocolDialectProperties.CLOCK_OFFSET_TO_WRITE_PROPERTY_NAME, Duration.ofSeconds(0));
     }
 
     private String getSlaveOneSerialNumber(){

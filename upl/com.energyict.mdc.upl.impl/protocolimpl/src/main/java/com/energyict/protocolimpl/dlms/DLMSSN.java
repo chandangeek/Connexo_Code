@@ -25,7 +25,6 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -893,11 +892,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
         if (deviceId != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
             RtuDLMS rtu = new RtuDLMS(deviceId);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-            } catch (NotFoundException e) {
-                return new DLMSCache(null, -1);
-            }
+            return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
         } else {
             throw new IllegalArgumentException("invalid RtuId!");
         }

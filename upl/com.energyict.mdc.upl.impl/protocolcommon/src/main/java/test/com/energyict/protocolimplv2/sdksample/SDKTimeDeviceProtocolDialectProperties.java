@@ -1,13 +1,13 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,9 +19,8 @@ import java.util.List;
  */
 public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtocolDialect {
 
-    public static final String clockOffsetToWritePropertyName = "ClockOffsetWhenReading";
-
-    public static final String clockOffsetToReadPropertyName = "ClockOffsetWhenWriting";
+    public static final String CLOCK_OFFSET_TO_WRITE_PROPERTY_NAME = "ClockOffsetWhenReading";
+    public static final String CLOCK_OFFSET_TO_READ_PROPERTY_NAME = "ClockOffsetWhenWriting";
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -34,34 +33,27 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case clockOffsetToWritePropertyName:
-                return getClockOffsetToWritePropertySpec();
-            case clockOffsetToReadPropertyName:
-                return getClockOffsetToReadPropertySpec();
-        }
-        return null;
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                    this.getClockOffsetToReadPropertySpec(),
+                    this.getClockOffsetToWritePropertySpec());
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredProperties = new ArrayList<>();
-        requiredProperties.add(getClockOffsetToReadPropertySpec());
-        requiredProperties.add(getClockOffsetToWritePropertySpec());
-        return requiredProperties;
+    private PropertySpec<Duration> getClockOffsetToWritePropertySpec() {
+        return this.durationPropertySpec(CLOCK_OFFSET_TO_WRITE_PROPERTY_NAME);
     }
 
-    private PropertySpec<TimeDuration> getClockOffsetToWritePropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(clockOffsetToWritePropertyName);
+    private PropertySpec<Duration> getClockOffsetToReadPropertySpec() {
+        return this.durationPropertySpec(CLOCK_OFFSET_TO_READ_PROPERTY_NAME);
     }
 
-    private PropertySpec<TimeDuration> getClockOffsetToReadPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(clockOffsetToReadPropertyName);
+    private PropertySpec<Duration> durationPropertySpec(String name) {
+        return Services
+                .propertySpecService()
+                .durationSpec()
+                .named(name, name)
+                .describedAs("Description for " + name)
+                .finish();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
-    }
 }

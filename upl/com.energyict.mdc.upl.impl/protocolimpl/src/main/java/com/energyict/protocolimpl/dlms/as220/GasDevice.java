@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -78,7 +77,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
     }
 
 	@Override
-	protected void doConnect() throws BusinessException {
+	protected void doConnect() {
 		// search for the channel of the Mbus Device
 		for(int i = 0; i < MAX_MBUS_CHANNELS; i++){
             String tempSerial = "";
@@ -94,7 +93,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 		}
 
         if (getGasSlotId() == -1) {
-            throw new BusinessException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
+            throw new IllegalArgumentException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
         }
     }
 

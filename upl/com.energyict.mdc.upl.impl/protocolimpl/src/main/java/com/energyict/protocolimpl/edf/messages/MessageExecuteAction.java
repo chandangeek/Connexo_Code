@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObject;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObjectFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class MessageExecuteAction extends MessageContent {
 
-	protected final static String ELEMENTNAME = "onDemandExecuteAction";
-	protected final static String OBISCODEELEMENTNAME = "obisCode";
-	protected final static String METHODELEMENTNAME = "MethodId";
-	protected final static String METHODDATAELEMENTNAME = "MethodData";
+	protected static final String ELEMENTNAME = "onDemandExecuteAction";
+	protected static final String OBISCODEELEMENTNAME = "obisCode";
+	protected static final String METHODELEMENTNAME = "MethodId";
+	protected static final String METHODDATAELEMENTNAME = "MethodData";
 
 	private String obisCode;
 	private int methodId;
@@ -26,21 +27,21 @@ public class MessageExecuteAction extends MessageContent {
 		this.methodId = methodId;
 		this.methodData = methodData;
 	}
-	
+
 	public MessageExecuteAction(Element element){
 		super(element);
 		NodeList obisCodes = element.getElementsByTagName(OBISCODEELEMENTNAME);
 		if (obisCodes.getLength() != 0){
 			obisCode = obisCodes.item(0).getFirstChild().getNodeValue();
 		} else {
-			throw new ApplicationException("Cannot create MessageExecuteAction");
+			throw new IllegalArgumentException("Cannot create MessageExecuteAction");
 		}
 		NodeList MethodIds = element.getElementsByTagName(METHODELEMENTNAME);
 		if (MethodIds.getLength() != 0){
 			String methodIdString = MethodIds.item(0).getFirstChild().getNodeValue();
 			methodId = Integer.parseInt(methodIdString);
 		} else {
-			throw new ApplicationException("Cannot create MessageExecuteAction");
+			throw new IllegalArgumentException("Cannot create MessageExecuteAction");
 		}
 		NodeList data = element.getElementsByTagName(METHODDATAELEMENTNAME);
 		if (data.getLength() != 0){
@@ -51,7 +52,7 @@ public class MessageExecuteAction extends MessageContent {
 				methodData = dataElement.getFirstChild().getNodeValue();
 			}
 		} else {
-			throw new ApplicationException("Cannot create MessageWriteRegister");
+			throw new IllegalArgumentException("Cannot create MessageWriteRegister");
 		}
 	}
 

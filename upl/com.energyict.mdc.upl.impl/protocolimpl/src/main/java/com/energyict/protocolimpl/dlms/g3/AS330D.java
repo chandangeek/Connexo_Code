@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.NotFoundException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -257,8 +256,6 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
             RTUCache rtuCache = new RTUCache(deviceId);
             try {
                 return rtuCache.getCacheObject(connection);
-            } catch (NotFoundException e) {
-                return new G3Cache();
             } catch (IOException e) {
                 return new G3Cache();
             }

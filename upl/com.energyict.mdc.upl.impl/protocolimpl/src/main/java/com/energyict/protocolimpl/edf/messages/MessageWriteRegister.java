@@ -1,15 +1,16 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObject;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObjectFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class MessageWriteRegister extends MessageContent{
-	
-	protected final static String ELEMENTNAME = "onDemandWriteRegister";
-	protected final static String OBISCODEELEMENTNAME = "obisCode";
-	protected final static String VALUEELEMENTNAME = "value";
+
+	protected static final String ELEMENTNAME = "onDemandWriteRegister";
+	protected static final String OBISCODEELEMENTNAME = "obisCode";
+	protected static final String VALUEELEMENTNAME = "value";
 
 	private String obisCode;
 	private Object value;
@@ -23,14 +24,14 @@ public class MessageWriteRegister extends MessageContent{
 		this.obisCode = obisCode;
 		this.value = value;
 	}
-	
+
 	public MessageWriteRegister(Element element){
 		super(element);
 		NodeList obisCodes = element.getElementsByTagName(OBISCODEELEMENTNAME);
 		if (obisCodes.getLength() != 0){
 			obisCode = obisCodes.item(0).getFirstChild().getNodeValue();
 		} else {
-			throw new ApplicationException("Cannot create MessageWriteRegister");
+			throw new IllegalArgumentException("Cannot create MessageWriteRegister");
 		}
 		NodeList values = element.getElementsByTagName(VALUEELEMENTNAME);
 		if (values.getLength() != 0){
@@ -45,7 +46,7 @@ public class MessageWriteRegister extends MessageContent{
 				value = null;
 			}
 		} else {
-			throw new ApplicationException("Cannot create MessageWriteRegister");
+			throw new IllegalArgumentException("Cannot create MessageWriteRegister");
 		}
 	}
 

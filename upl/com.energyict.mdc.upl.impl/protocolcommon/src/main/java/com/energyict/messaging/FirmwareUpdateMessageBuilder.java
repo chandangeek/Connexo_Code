@@ -95,9 +95,6 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
         return MESSAGETAG;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
 	protected String getMessageContent() throws BusinessException {
         if ((url == null) && (this.getUserFile() == null)) {

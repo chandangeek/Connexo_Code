@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSConnection;
@@ -526,134 +525,128 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         MessageHandler messageHandler = new MessageHandler();
         String content = messageEntry.getContent();
         boolean success = false;
-        try {
-            importMessage(content, messageHandler);
-            boolean disConnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-            boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-            boolean prepaidConfiguration = messageHandler.getType().equals(RtuMessageConstant.PREPAID_CONFIGURED);
-            boolean prepaidAdd = messageHandler.getType().equals(RtuMessageConstant.PREPAID_ADD);
-            boolean prepaidEnable = messageHandler.getType().equals(RtuMessageConstant.PREPAID_ENABLE);
-            boolean prepaidDisable = messageHandler.getType().equals(RtuMessageConstant.PREPAID_DISABLE);
-            boolean loadLimitConfiguration = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
-            boolean loadLimitEnable = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_ENABLE);
-            boolean loadLimitDisable = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
+        importMessage(content, messageHandler);
+        boolean disConnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+        boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+        boolean prepaidConfiguration = messageHandler.getType().equals(RtuMessageConstant.PREPAID_CONFIGURED);
+        boolean prepaidAdd = messageHandler.getType().equals(RtuMessageConstant.PREPAID_ADD);
+        boolean prepaidEnable = messageHandler.getType().equals(RtuMessageConstant.PREPAID_ENABLE);
+        boolean prepaidDisable = messageHandler.getType().equals(RtuMessageConstant.PREPAID_DISABLE);
+        boolean loadLimitConfiguration = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
+        boolean loadLimitEnable = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_ENABLE);
+        boolean loadLimitDisable = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
 
-            if (disConnect) {
-                // Execute the message
-                String digOut = messageHandler.getResult();
-                if ("1".equals(digOut) || "2".equals(digOut)) {
-                    getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(false));
-                    success = true;
-
-                } else {
-                    String error = "Disonnect message does not contain a valid digital output: " + digOut + ".";
-                    log(Level.INFO, error);
-                }
-            } else if (connect) {
-                // Execute the message
-                String digOut = messageHandler.getResult();
-                if ("1".equals(digOut) || "2".equals(digOut)) {
-                    getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(true));
-                    success = true;
-
-                } else {
-                    String error = "Disonnect message does not contain a valid digital output: " + digOut + ".";
-                    log(Level.INFO, error);
-                }
-            } else if (prepaidEnable) {
-                getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
+        if (disConnect) {
+            // Execute the message
+            String digOut = messageHandler.getResult();
+            if ("1".equals(digOut) || "2".equals(digOut)) {
+                getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(false));
                 success = true;
-            } else if (prepaidDisable) {
-                getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(false));
-                success = true;
-            } else if (prepaidConfiguration) {
-                /*
-                 * Note: after the configuration setting we also enable the prepaid configuration!
-                 */
-                // The Budget register
-                if (messageHandler.getBudget() != null) {
-                    getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getBudget()).intValue()));
-                }
 
-                // The Threshold register
-                getCosemObjectFactory().getRegister(prepaidThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getThreshold()).longValue()));
-
-                // The ReadFrequency register
-                getCosemObjectFactory().getRegister(prepaidReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getReadFrequency()).longValue()));
-
-                // The Multiplier registers
-                for (int i = 0; i < 8; i++) {
-                    if (messageHandler.getMultiplier(i) != null) {
-                        getCosemObjectFactory().getRegister(prepaidMultiplierObisCode[i]).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i)).intValue()));
-                    }
-                }
-
-                // Enabling the prepaid configuration
-                getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
-
-                success = true;
-            } else if (prepaidAdd) {
-                /*
-                 * Note: after the configuration setting we also enable the prepaid configuration!
-                 */
-
-                getCosemObjectFactory().getRegister(prepaidAddBudgetObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getBudget()).longValue()));
-
-                // Enabling the prepaid configuration
-                getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
-
-                success = true;
-            } else if (loadLimitConfiguration) {
-                // The Threshold register
-                getCosemObjectFactory().getRegister(loadLimitThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold()).longValue()));
-
-                // The ReadFrequency register
-                getCosemObjectFactory().getRegister(loadLimitReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLReadFrequency()).longValue()));
-
-                // The Duration register
-                getCosemObjectFactory().getRegister(loadLimitDurationObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLDuration()).longValue()));
-
-                if (messageHandler.getLLD1Invert() != null) {
-                    if ("1".equalsIgnoreCase(messageHandler.getLLD1Invert()) || "0".equalsIgnoreCase(messageHandler.getLLD1Invert())) {
-                        getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
-                    } else {
-                        String error = "Configure LoadLimit message does not contain a valid digital output inverter (1): " + messageHandler.getLLD1Invert() + ", only 1(true) or 0(false) alowed.";
-                        log(Level.INFO, error);
-                    }
-                }
-
-                if (messageHandler.getLLD2Invert() != null) {
-                    if ("1".equalsIgnoreCase(messageHandler.getLLD2Invert()) || "0".equalsIgnoreCase(messageHandler.getLLD2Invert())) {
-                        getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new BooleanObject(messageHandler.getLLD2Invert().equals(Integer.toString(1))));
-                    } else {
-                        String error = "Configure LoadLimit message does not contain a valid digital output inverter (2): " + messageHandler.getLLD2Invert() + ", only 1(true) or 0(false) alowed.";
-                        log(Level.INFO, error);
-                    }
-                }
-
-                if (messageHandler.getActivateNow() != null) {
-                    if ("1".equalsIgnoreCase(messageHandler.getActivateNow()) || "0".equalsIgnoreCase(messageHandler.getActivateNow())) {
-                        getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(messageHandler.getActivateNow().equals(Integer.toString(1))));
-                    } else {
-                        String error = "Configure LoadLimit message does not contain a valid activateNow value: " + messageHandler.getActivateNow() + ", only 1(true) or 0(false) alowed.";
-                        log(Level.INFO, error);
-                    }
-                }
-
-                success = true;
-            } else if (loadLimitEnable) {
-                getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(true));
-                success = true;
-            } else if (loadLimitDisable) {
-                getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(false));
-                success = true;
             } else {
-                success = false;
+                String error = "Disonnect message does not contain a valid digital output: " + digOut + ".";
+                log(Level.INFO, error);
             }
-        } catch (BusinessException e) {
-            e.printStackTrace();
-            log(Level.INFO, "Message " + messageEntry.getContent() + " has failed. " + e.getMessage());
-            return MessageResult.createFailed(messageEntry);
+        } else if (connect) {
+            // Execute the message
+            String digOut = messageHandler.getResult();
+            if ("1".equals(digOut) || "2".equals(digOut)) {
+                getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(true));
+                success = true;
+
+            } else {
+                String error = "Disonnect message does not contain a valid digital output: " + digOut + ".";
+                log(Level.INFO, error);
+            }
+        } else if (prepaidEnable) {
+            getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
+            success = true;
+        } else if (prepaidDisable) {
+            getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(false));
+            success = true;
+        } else if (prepaidConfiguration) {
+                /*
+                 * Note: after the configuration setting we also enable the prepaid configuration!
+                 */
+            // The Budget register
+            if (messageHandler.getBudget() != null) {
+                getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getBudget()).intValue()));
+            }
+
+            // The Threshold register
+            getCosemObjectFactory().getRegister(prepaidThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getThreshold()).longValue()));
+
+            // The ReadFrequency register
+            getCosemObjectFactory().getRegister(prepaidReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getReadFrequency()).longValue()));
+
+            // The Multiplier registers
+            for (int i = 0; i < 8; i++) {
+                if (messageHandler.getMultiplier(i) != null) {
+                    getCosemObjectFactory().getRegister(prepaidMultiplierObisCode[i]).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i)).intValue()));
+                }
+            }
+
+            // Enabling the prepaid configuration
+            getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
+
+            success = true;
+        } else if (prepaidAdd) {
+                /*
+                 * Note: after the configuration setting we also enable the prepaid configuration!
+                 */
+
+            getCosemObjectFactory().getRegister(prepaidAddBudgetObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getBudget()).longValue()));
+
+            // Enabling the prepaid configuration
+            getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
+
+            success = true;
+        } else if (loadLimitConfiguration) {
+            // The Threshold register
+            getCosemObjectFactory().getRegister(loadLimitThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold()).longValue()));
+
+            // The ReadFrequency register
+            getCosemObjectFactory().getRegister(loadLimitReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLReadFrequency()).longValue()));
+
+            // The Duration register
+            getCosemObjectFactory().getRegister(loadLimitDurationObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLDuration()).longValue()));
+
+            if (messageHandler.getLLD1Invert() != null) {
+                if ("1".equalsIgnoreCase(messageHandler.getLLD1Invert()) || "0".equalsIgnoreCase(messageHandler.getLLD1Invert())) {
+                    getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
+                } else {
+                    String error = "Configure LoadLimit message does not contain a valid digital output inverter (1): " + messageHandler.getLLD1Invert() + ", only 1(true) or 0(false) alowed.";
+                    log(Level.INFO, error);
+                }
+            }
+
+            if (messageHandler.getLLD2Invert() != null) {
+                if ("1".equalsIgnoreCase(messageHandler.getLLD2Invert()) || "0".equalsIgnoreCase(messageHandler.getLLD2Invert())) {
+                    getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new BooleanObject(messageHandler.getLLD2Invert().equals(Integer.toString(1))));
+                } else {
+                    String error = "Configure LoadLimit message does not contain a valid digital output inverter (2): " + messageHandler.getLLD2Invert() + ", only 1(true) or 0(false) alowed.";
+                    log(Level.INFO, error);
+                }
+            }
+
+            if (messageHandler.getActivateNow() != null) {
+                if ("1".equalsIgnoreCase(messageHandler.getActivateNow()) || "0".equalsIgnoreCase(messageHandler.getActivateNow())) {
+                    getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(messageHandler.getActivateNow().equals(Integer.toString(1))));
+                } else {
+                    String error = "Configure LoadLimit message does not contain a valid activateNow value: " + messageHandler.getActivateNow() + ", only 1(true) or 0(false) alowed.";
+                    log(Level.INFO, error);
+                }
+            }
+
+            success = true;
+        } else if (loadLimitEnable) {
+            getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(true));
+            success = true;
+        } else if (loadLimitDisable) {
+            getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(false));
+            success = true;
+        } else {
+            success = false;
         }
 
         if (success) {
@@ -663,7 +656,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         }
     }
 
-    private void importMessage(String message, DefaultHandler handler) throws BusinessException {
+    private void importMessage(String message, DefaultHandler handler) {
         try {
 
             byte[] bai = message.getBytes();
@@ -675,7 +668,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
         } catch (ParserConfigurationException | SAXException | IOException thrown) {
             thrown.printStackTrace();
-            throw new BusinessException(thrown);
+            throw new IllegalArgumentException(thrown);
         }
     }
 

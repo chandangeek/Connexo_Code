@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class MessageReadRegister extends MessageContent {
 
-	protected final static String ELEMENTNAME = "onDemandReadRegister";
-	protected final static String OBISCODEELEMENTNAME = "obisCode";
-	
+	protected static final String ELEMENTNAME = "onDemandReadRegister";
+	protected static final String OBISCODEELEMENTNAME = "obisCode";
+
 	private String obisCode;
 
 	public MessageReadRegister() {
@@ -25,7 +26,7 @@ public class MessageReadRegister extends MessageContent {
 		if (obisCodes.getLength() != 0){
 			obisCode = obisCodes.item(0).getFirstChild().getNodeValue();
 		} else {
-			throw new ApplicationException("Cannot create MessageReadRegister");
+			throw new IllegalArgumentException("Cannot create MessageReadRegister");
 		}
 	}
 

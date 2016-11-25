@@ -4,9 +4,6 @@ import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
@@ -14,7 +11,6 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -227,11 +223,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
         if (deviceId != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
             RtuDLMS rtu = new RtuDLMS(deviceId);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-            } catch (NotFoundException e) {
-                return new DLMSCache(null, -1);
-            }
+            return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
         } else {
             throw new IllegalArgumentException("invalid RtuId!");
         }

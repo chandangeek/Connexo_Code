@@ -8,9 +8,9 @@ package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.DialinScheduleProtocol;
@@ -25,7 +25,6 @@ import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.SmartMeterProtocol;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +36,7 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
     MeterProtocol meterProtocol = null;
     SmartMeterProtocol smartMeterProtocol = null;
     BulkRegisterProtocol bulkRegisterProtocol = null;
-    ConfigurationSupport configurationSupport;
+    HasDynamicProperties configurationSupport;
     HHUEnabler hhuEnabler = null;
     HalfDuplexEnabler halfDuplexEnabler = null;
     RegisterProtocol registerProtocol = null;
@@ -70,7 +69,7 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
             smartMeterProtocol = null;
         }
         try {
-            configurationSupport = (ConfigurationSupport) protocolInstance;
+            configurationSupport = (HasDynamicProperties) protocolInstance;
         } catch (ClassCastException e) {
             configurationSupport = null;
         }
@@ -201,24 +200,9 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
         return getMultipleLoadProfileSupport() != null;
     }
 
-    public List getOptionalKeys() {
-        List<String> result = new ArrayList<String>();
-        if (this.configurationSupport != null) {
-            for (PropertySpec propertySpec : this.configurationSupport.getOptionalProperties()) {
-                result.add(propertySpec.getKey());
-            }
-        }
-        return result;
-    }
-
-    public List getRequiredKeys() {
-        List<String> result = new ArrayList<String>();
-        if (this.configurationSupport != null) {
-            for (PropertySpec propertySpec : this.configurationSupport.getRequiredProperties()) {
-                result.add(propertySpec.getKey());
-            }
-        }
-        return result;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return this.configurationSupport.getPropertySpecs();
     }
 
     private Object getInstance(String className) throws IOException {
@@ -234,7 +218,7 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
             throw new ProtocolException("instantiateProtocol(), Exception, " + e.getMessage());
         }
 
-    } // private void instantiateProtocol(String className)
+    }
 
     public EventMapper getEventMapper() {
         return eventMapper;

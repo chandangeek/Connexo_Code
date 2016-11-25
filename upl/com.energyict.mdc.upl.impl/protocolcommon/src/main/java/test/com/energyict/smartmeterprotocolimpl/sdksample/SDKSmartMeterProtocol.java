@@ -2,7 +2,6 @@ package test.com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.mdc.upl.UnsupportedException;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -33,10 +32,9 @@ import test.com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -367,34 +365,26 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
      */
     public MessageResult queryMessage(final MessageEntry messageEntry) {
         MessageResult result = MessageResult.createFailed(messageEntry);
-        try {
-            if (messageEntry.getContent().contains(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag())) {
-                result = doReadPartialLoadProfile(messageEntry);
-            } else if (messageEntry.getContent().contains(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
-                result = doReadLoadProfileRegisters(messageEntry);
-            }
-        } catch (BusinessException e) {
-            result = MessageResult.createFailed(messageEntry);
-        } catch (SQLException e) {
-            result = MessageResult.createFailed(messageEntry);
-        } catch (IOException e) {
-            result = MessageResult.createFailed(messageEntry);
+        if (messageEntry.getContent().contains(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag())) {
+            result = doReadPartialLoadProfile(messageEntry);
+        } else if (messageEntry.getContent().contains(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
+            result = doReadLoadProfileRegisters(messageEntry);
         }
         return result;
     }
 
-    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) throws IOException, BusinessException, SQLException {
+    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             getLogger().info("Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder = (LegacyLoadProfileRegisterMessageBuilder) LegacyLoadProfileRegisterMessageBuilder.fromXml(msgEntry.getContent());
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
             }
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
-            final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            final List<ProfileData> profileDatas = getLoadProfileData(Arrays.asList(lpr));
+            final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Collections.singletonList(lpr));
+            final List<ProfileData> profileDatas = getLoadProfileData(Collections.singletonList(lpr));
 
             if (profileDatas.size() != 1) {
                 return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message.");
@@ -439,11 +429,11 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
         try {
             getLogger().info("Handling message Read Partial LoadProfile.");
             LegacyPartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder = (LegacyPartialLoadProfileMessageBuilder) LegacyPartialLoadProfileMessageBuilder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
-            final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            final List<ProfileData> profileDatas = getLoadProfileData(Arrays.asList(lpr));
+            final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Collections.singletonList(lpr));
+            final List<ProfileData> profileDatas = getLoadProfileData(Collections.singletonList(lpr));
             MeterData md = new MeterData();
             for (ProfileData data : profileDatas) {
                 data.sort();
