@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -42,6 +43,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,6 +78,8 @@ public class UsagePointReadingDataSelectorImplTest {
 
     private TransactionService transactionService;
 
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -125,13 +129,14 @@ public class UsagePointReadingDataSelectorImplTest {
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
         doAnswer(invocation -> new UsagePointReadingSelector(dataModel, transactionService, thesaurus))
                 .when(dataModel).getInstance(UsagePointReadingSelector.class);
-        doAnswer(invocation -> new UsagePointReadingItemDataSelector(clock, validationService, thesaurus, transactionService))
+        doAnswer(invocation -> new UsagePointReadingItemDataSelector(clock, validationService, thesaurus, transactionService, threadPrincipalService))
                 .when(dataModel).getInstance(UsagePointReadingItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
 
         mockThesaurus();
 
+        when(threadPrincipalService.getLocale()).thenReturn(Locale.US);
         doReturn(Optional.of(occurrence)).when(occurrence).getDefaultSelectorOccurrence();
         when(occurrence.getTask()).thenReturn(task);
         doReturn(EXPORT_INTERVAL).when((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();

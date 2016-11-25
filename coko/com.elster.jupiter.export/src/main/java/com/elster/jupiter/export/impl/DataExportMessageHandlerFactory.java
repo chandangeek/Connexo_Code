@@ -3,8 +3,10 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -17,10 +19,11 @@ public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, transactionService, dataExportService.getLocalFileWriter(), dataExportService.getThesaurus(), clock));
+        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, transactionService, dataExportService.getLocalFileWriter(), dataExportService.getThesaurus(), clock, threadPrincipalService));
     }
 
     @Reference
@@ -41,5 +44,10 @@ public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 }
