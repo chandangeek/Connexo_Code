@@ -12,7 +12,10 @@ Ext.define('MdmApp.Application', {
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
         'Fim.privileges.DataImport',
-        'Dxp.privileges.DataExport'
+        'Dxp.privileges.DataExport',
+        'Est.privileges.EstimationConfiguration',
+        'Imt.privileges.UsagePointGroup',
+        'Yfn.privileges.Yellowfin'
     ],
 
     controllers: [

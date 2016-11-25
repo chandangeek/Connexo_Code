@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.app.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.app.MdmAppService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -30,6 +31,7 @@ public class MdmAppInstaller {
     private volatile UpgradeService upgradeService;
     private volatile ValidationService validationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile UsagePointDataService usagePointDataService;
 
     @Activate
     public void activate() {
@@ -116,7 +118,15 @@ public class MdmAppInstaller {
                     com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
 
                     //Import services
-                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+
+                    //Usage point groups
+                    com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
+                    
+                    //estimation
+                    com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
+                    com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                    com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK
             };
         }
     }
@@ -139,5 +149,10 @@ public class MdmAppInstaller {
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setUsagePointDataService(UsagePointDataService usagePointDataService) {
+        this.usagePointDataService = usagePointDataService;
     }
 }
