@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -38,6 +39,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Basic implementation of the EIWeb DeviceProtocol.
@@ -199,11 +202,6 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return this.securitySupport.getSecurityRelationTypeName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return this.securitySupport.getAuthenticationAccessLevels();
     }
@@ -214,7 +212,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return this.securitySupport.getSecurityPropertySpec(name);
     }
 
@@ -239,7 +237,8 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void setProperties(Properties properties) throws PropertyValidationException {
         // nothing much to do
     }
+
 }

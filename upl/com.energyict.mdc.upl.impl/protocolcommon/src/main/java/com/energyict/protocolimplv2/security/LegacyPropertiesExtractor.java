@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.List;
 
@@ -14,17 +14,16 @@ import java.util.List;
  */
 public class LegacyPropertiesExtractor {
 
-    static public TypedProperties getSecurityRelatedProperties(TypedProperties oldTypedProperties, int currentDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {
+    public static TypedProperties getSecurityRelatedProperties(com.energyict.mdc.upl.properties.TypedProperties oldTypedProperties, int currentDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {
         TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        for (DeviceAccessLevel deviceAccessLevel : deviceAccessLevels) {
-            if (deviceAccessLevel.getId() == currentDeviceAccessLevel) {
-                for (PropertySpec propertySpec : deviceAccessLevel.getSecurityProperties()) {
-                    if (oldTypedProperties.hasValueFor(propertySpec.getName())) {
-                        securityRelatedTypedProperties.setProperty(propertySpec.getName(), oldTypedProperties.getProperty(propertySpec.getName()));
-                    }
-                }
-            }
-        }
+        deviceAccessLevels
+                .stream()
+                .filter(level -> level.getId() == currentDeviceAccessLevel)
+                .flatMap(level -> level.getSecurityProperties().stream())
+                .filter(propertySpec -> oldTypedProperties.hasValueFor(propertySpec.getName()))
+                .map(PropertySpec::getName)
+                .forEach(propertySpecName -> securityRelatedTypedProperties.setProperty(propertySpecName, oldTypedProperties.getProperty(propertySpecName)));
         return securityRelatedTypedProperties;
     }
+
 }
