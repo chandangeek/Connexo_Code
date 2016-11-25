@@ -338,6 +338,22 @@ public class JbpmTaskResource {
     }
 
     @POST
+    @Path("/toptasks")
+    @Produces("application/json")
+    public TopTasksInfo getTopTasks(TopTasksPayload topTasksPayload, @Context UriInfo uriInfo){
+        TopTasksInfo topTasksInfo = new TopTasksInfo();
+        Comparator<TaskSummary> priorityComparator = (task1, task2) -> Integer.compare(task1.getPriority(), task2.getPriority());
+        Comparator<TaskSummary> dueDateComparator = Comparator.comparing(TaskSummary::getDueDate, Comparator.nullsLast(Date::compareTo));
+        Comparator<TaskSummary> nameComparator = (task1, task2) -> task1.getName().compareTo(task2.getName());
+        TaskSummaryList tasks = getTasks(topTasksPayload.processDefinitionInfos, uriInfo);
+        topTasksInfo.totalUserAssigned = tasks.getTasks().stream().filter(taskSummary -> taskSummary.getActualOwner().equals(topTasksPayload.userName)).count();
+        topTasksInfo.workGroupAssigned = tasks.getTasks().stream().filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup())).count();
+        topTasksInfo.tasks = tasks.getTasks().stream().sorted(priorityComparator.thenComparing(dueDateComparator).thenComparing(nameComparator)).limit(5).collect(Collectors.toList());
+        return topTasksInfo;
+    }
+
+
+    @POST
     @Path("/release/{taskId: [0-9-]+}")
     public Response releaseTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
         String currentuser = getQueryValue(uriInfo, "currentuser");
