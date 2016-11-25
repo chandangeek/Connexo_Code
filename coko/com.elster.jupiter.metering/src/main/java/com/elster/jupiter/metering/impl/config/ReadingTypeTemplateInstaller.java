@@ -25,6 +25,7 @@ public class ReadingTypeTemplateInstaller {
         installElectricityTemplates();
         installGasTemplates();
         installWaterTemplates();
+        installTemplatesFor10_3();
     }
 
     private void installElectricityTemplates() {
