@@ -12,11 +12,15 @@ import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
-import com.elster.jupiter.calendar.impl.importers.CalendarFactory;
+import com.elster.jupiter.calendar.impl.importers.CalendarImportResult;
+import com.elster.jupiter.calendar.impl.importers.CalendarProcessor;
+import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+
+import com.google.common.collect.ImmutableMap;
 
 import javax.validation.ConstraintViolationException;
 import javax.xml.XMLConstants;
@@ -33,7 +37,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -94,38 +100,38 @@ public class CalendarCrudTest {
                 .endYear(Year.of(2018))
                 .mRID("Sample-TOU-rates")
                 .newDayType("Summer weekday")
-                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
-                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
-                    .add()
+                .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                .add()
                 .newDayType("Weekend")
-                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
-                    .add()
+                .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                .add()
                 .newDayType("Holiday")
-                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
-                    .add()
+                .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                .add()
                 .newDayType("Winter day")
-                    .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
-                    .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
-                    .add()
+                .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                .add()
                 .newDayType("Demand response")
-                    .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
-                    .add()
+                .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                .add()
                 .addPeriod("Summer", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
                 .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
                 .on(MonthDay.of(5, 1)).transitionTo("Summer")
                 .on(MonthDay.of(11, 1)).transitionTo("Winter")
                 .except("Holiday")
-                    .occursOnceOn(LocalDate.of(2016, 1, 18))
-                    .occursOnceOn(LocalDate.of(2016, 2, 15))
-                    .occursOnceOn(LocalDate.of(2016, 5, 30))
-                    .occursAlwaysOn(MonthDay.of(7, 4))
-                    .occursOnceOn(LocalDate.of(2016, 9, 5))
-                    .occursOnceOn(LocalDate.of(2016, 10, 10))
-                    .occursAlwaysOn(MonthDay.of(11, 11))
-                    .occursOnceOn(LocalDate.of(2016, 11, 24))
-                    .occursAlwaysOn(MonthDay.of(12, 25))
-                    .occursAlwaysOn(MonthDay.of(12, 26))
-                    .add()
+                .occursOnceOn(LocalDate.of(2016, 1, 18))
+                .occursOnceOn(LocalDate.of(2016, 2, 15))
+                .occursOnceOn(LocalDate.of(2016, 5, 30))
+                .occursAlwaysOn(MonthDay.of(7, 4))
+                .occursOnceOn(LocalDate.of(2016, 9, 5))
+                .occursOnceOn(LocalDate.of(2016, 10, 10))
+                .occursAlwaysOn(MonthDay.of(11, 11))
+                .occursOnceOn(LocalDate.of(2016, 11, 24))
+                .occursAlwaysOn(MonthDay.of(12, 25))
+                .occursAlwaysOn(MonthDay.of(12, 26))
+                .add()
                 .add();
 
 
@@ -453,33 +459,133 @@ public class CalendarCrudTest {
     public void testFromXml() {
         InputStream in = null;
         try {
-            JAXBContext jc = JAXBContext.newInstance(com.elster.jupiter.calendar.impl.xmlbinding.Calendar.class);
-            Unmarshaller u = jc.createUnmarshaller();
-            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            JAXBContext jaxbContext = JAXBContext.newInstance(com.elster.jupiter.calendar.impl.xmlbinding.Calendar.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
-            Schema schema =
-                    sf.newSchema(new File(getClass().getClassLoader().getResource("calendar-import-format.xsd").toURI()));
-            u.setSchema(schema);
-            in = new FileInputStream(new File(getClass().getClassLoader().getResource("com.elster.jupiter.calendar.impl/calendar-import-format.xml").toURI()));
-            com.elster.jupiter.calendar.impl.xmlbinding.Calendar result =
-                    (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(in);
-            CalendarFactory factory = new CalendarFactory(getCalendarService(), getCalendarService().getThesaurus());
-            Calendar calendar = factory.getCalendar(result);
-        }
-        catch (Exception e) {
+            Schema schema = schemaFactory.newSchema(new File(getClass().getClassLoader()
+                    .getResource("calendar-import-format.xsd")
+                    .toURI()));
+            unmarshaller.setSchema(schema);
+            in = new FileInputStream(new File(getClass().getClassLoader()
+                    .getResource("com.elster.jupiter.calendar.impl/calendar-import-format.xml")
+                    .toURI()));
+            Calendars xmlContent = (Calendars) unmarshaller.unmarshal(in);
+            CalendarProcessor processor = new CalendarProcessor(getCalendarService(), getCalendarService().getThesaurus());
+            CalendarImportResult calendarImportResult = processor.process(xmlContent);
+
+            assertThat(calendarImportResult.getEventSets()).hasSize(1);
+            EventSet eventSet = calendarImportResult.getEventSets().get(0);
+            assertThat(eventSet.getName()).isEqualTo("Residential TOU Example");
+            assertThat(eventSet.getEvents()).hasSize(3);
+            assertThat(eventSet.getEvents()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            Event::getName,
+                            Event::getCode
+                    ))
+            ).isEqualTo(
+                    ImmutableMap.of(
+                            "On Peak", 3L,
+                            "Off Peak", 5L,
+                            "Demand response", 97L
+                    )
+            );
+            assertThat(calendarImportResult.getCalendars()).hasSize(1);
+            Calendar calendar = calendarImportResult.getCalendars().get(0);
+            assertThat(calendar.getCategory()).isNotNull();
+            assertThat(calendar.getCategory().getName()).isEqualTo("TOU");
+            assertThat(calendar.getName()).isEqualTo("Residential TOU Example");
+            assertThat(calendar.getMRID()).isEqualTo("optional");
+            assertThat(calendar.getStartYear()).isEqualTo(Year.of(2010));
+            assertThat(calendar.getDayTypes()).hasSize(5);
+            DayType summerWeekday = calendar.getDayTypes().get(0);
+            assertThat(summerWeekday.getName()).isEqualTo("summer weekday");
+            assertThat(summerWeekday.getEventOccurrences()).hasSize(3);
+            assertThat(summerWeekday.getEventOccurrences()
+                    .stream()
+                    .map(EventOccurrence::getFrom)
+                    .collect(Collectors.toList())
+            ).isEqualTo(
+                    Arrays.asList(LocalTime.of(0, 0), LocalTime.of(13, 0), LocalTime.of(20, 0))
+            );
+            assertThat(summerWeekday.getEventOccurrences()
+                    .stream()
+                    .map(EventOccurrence::getEvent)
+                    .map(Event::getName)
+                    .collect(Collectors.toList())
+            ).isEqualTo(
+                    Arrays.asList("Off Peak", "On Peak", "Off Peak")
+            );
+            DayType weekend = calendar.getDayTypes().get(1);
+            assertThat(weekend.getName()).isEqualTo("weekend");
+            assertThat(weekend.getEventOccurrences()).hasSize(1);
+            assertThat(weekend.getEventOccurrences()
+                    .stream()
+                    .map(EventOccurrence::getFrom)
+                    .collect(Collectors.toList())
+            ).isEqualTo(
+                    Arrays.asList(LocalTime.of(0, 0))
+            );
+            assertThat(weekend.getEventOccurrences()
+                    .stream()
+                    .map(EventOccurrence::getEvent)
+                    .map(Event::getName)
+                    .collect(Collectors.toList())
+            ).isEqualTo(
+                    Arrays.asList("Off Peak")
+            );
+
+            assertThat(calendar.getPeriods()).hasSize(2);
+            Period summer = calendar.getPeriods().get(0);
+            assertThat(summer.getName()).isEqualTo("Summer");
+            assertThat(summer.getDayType(DayOfWeek.MONDAY).getName()).isEqualTo("summer weekday");
+            assertThat(summer.getDayType(DayOfWeek.TUESDAY).getName()).isEqualTo("summer weekday");
+            assertThat(summer.getDayType(DayOfWeek.WEDNESDAY).getName()).isEqualTo("summer weekday");
+            assertThat(summer.getDayType(DayOfWeek.THURSDAY).getName()).isEqualTo("summer weekday");
+            assertThat(summer.getDayType(DayOfWeek.FRIDAY).getName()).isEqualTo("summer weekday");
+            assertThat(summer.getDayType(DayOfWeek.SATURDAY).getName()).isEqualTo("weekend");
+            assertThat(summer.getDayType(DayOfWeek.SUNDAY).getName()).isEqualTo("weekend");
+
+            assertThat(calendar.getPeriodTransitionSpecs()).hasSize(2);
+            assertThat(calendar.getPeriodTransitionSpecs().get(0)).isInstanceOf(RecurrentPeriodTransitionSpec.class);
+            RecurrentPeriodTransitionSpec periodTransition1 = (RecurrentPeriodTransitionSpec) calendar.getPeriodTransitionSpecs().get(0);
+            assertThat(periodTransition1.getOccurrence()).isEqualTo(MonthDay.of(5, 1));
+            assertThat(periodTransition1.getPeriod().getName()).isEqualTo("Summer");
+            assertThat(calendar.getPeriodTransitionSpecs().get(1)).isInstanceOf(RecurrentPeriodTransitionSpec.class);
+            RecurrentPeriodTransitionSpec periodTransition2 = (RecurrentPeriodTransitionSpec) calendar.getPeriodTransitionSpecs().get(1);
+            assertThat(periodTransition2.getOccurrence()).isEqualTo(MonthDay.of(11, 1));
+            assertThat(periodTransition2.getPeriod().getName()).isEqualTo("Winter");
+
+            assertThat(calendar.getExceptionalOccurrences()).hasSize(12);
+            assertThat(calendar.getExceptionalOccurrences()
+                    .stream()
+                    .filter(RecurrentExceptionalOccurrence.class::isInstance)
+                    .map(RecurrentExceptionalOccurrence.class::cast)
+                    .map(RecurrentExceptionalOccurrence::getOccurrence)
+                    .anyMatch(MonthDay.of(11, 11)::equals)
+            ).isTrue();
+            assertThat(calendar.getExceptionalOccurrences()
+                    .stream()
+                    .filter(FixedExceptionalOccurrence.class::isInstance)
+                    .map(FixedExceptionalOccurrence.class::cast)
+                    .map(FixedExceptionalOccurrence::getOccurrence)
+                    .anyMatch(LocalDate.of(2016, 11, 24)::equals)
+            ).isTrue();
+
+        } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
-        }
-        finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        fail(e.getMessage());
-                        e.printStackTrace();
-                    }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    fail(e.getMessage());
+                    e.printStackTrace();
                 }
             }
+        }
     }
 
     @Test

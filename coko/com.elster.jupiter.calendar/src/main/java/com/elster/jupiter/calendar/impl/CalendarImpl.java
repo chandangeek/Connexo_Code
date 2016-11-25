@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_MRID + "}")
 @UniqueCalendarName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_NAME + "}")
 @ValidTransitions(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_TRANSITIONS + "}")
-class CalendarImpl implements Calendar {
+public class CalendarImpl implements Calendar {
 
     public enum Fields {
         ID("id"),
@@ -378,7 +378,7 @@ class CalendarImpl implements Calendar {
     private List<PeriodTransition> getRecurrentPeriodTransitions() {
         List<PeriodTransition> result = new ArrayList<>();
         int year = startYear;
-        int toYear = (endYear == 0) ? Year.now().getValue() : endYear;
+        int toYear = (endYear == null || endYear == 0) ? Year.now().getValue() : endYear;
         while (year <= toYear) {
             int finalYear = year;
             result.addAll(this.periodTransitionSpecs.stream()
@@ -390,6 +390,10 @@ class CalendarImpl implements Calendar {
             year ++;
         }
         return result;
+    }
+
+    public EventSet getEventSet() {
+        return eventSet.get();
     }
 
     DayType addDayType(DayType dayType) {

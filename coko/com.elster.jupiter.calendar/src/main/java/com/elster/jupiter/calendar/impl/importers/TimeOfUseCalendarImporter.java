@@ -6,6 +6,8 @@ package com.elster.jupiter.calendar.impl.importers;
 
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.impl.TranslationKeys;
+import com.elster.jupiter.calendar.impl.xmlbinding.Calendar;
+import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.LocalizedException;
@@ -19,7 +21,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.time.LocalDate;
+import java.io.InputStream;
 
 /**
  * Created by igh on 27/04/2016.
@@ -35,16 +37,23 @@ class TimeOfUseCalendarImporter implements FileImporter {
     @Override
     public void process(FileImportOccurrence fileImportOccurrence) {
         try {
-            JAXBContext jc = JAXBContext.newInstance(com.elster.jupiter.calendar.impl.xmlbinding.Calendar.class);
-            Unmarshaller u = jc.createUnmarshaller();
-            u.setSchema(getSchema());
-            CalendarFactory factory = new CalendarFactory(context.getCalendarService(), context.getThesaurus());
-            com.elster.jupiter.calendar.impl.xmlbinding.Calendar result =
-                    (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(fileImportOccurrence.getContents());
+            Calendars xmlContents = getXmlContents(fileImportOccurrence);
+            CalendarProcessor processor = new CalendarProcessor(context.getCalendarService(), context.getThesaurus());
             log(fileImportOccurrence, MessageSeeds.VALIDATION_OF_FILE_SUCCEEDED);
-            boolean isUpdate = context.getCalendarService().findCalendarByMRID(result.getMRID()).isPresent();
-            com.elster.jupiter.calendar.Calendar calendar = factory.getCalendar(result);
-            logCreationOrUpdate(fileImportOccurrence, isUpdate);
+
+            processor.addListener(new CalendarProcessor.ImportListener() {
+                @Override
+                public void created(String mrid) {
+                    logCreation(fileImportOccurrence);
+                }
+
+                @Override
+                public void updated(String mrid) {
+                    logUpdate(fileImportOccurrence);
+                }
+            });
+
+            processor.process(xmlContents);
             markSuccess(fileImportOccurrence);
         } catch (JAXBException e) {
             logValidationFailed(fileImportOccurrence, e);
@@ -58,12 +67,23 @@ class TimeOfUseCalendarImporter implements FileImporter {
         }
     }
 
-    private void logCreationOrUpdate(FileImportOccurrence fileImportOccurrence, boolean isUpdate) {
-        if (isUpdate) {
-            log(fileImportOccurrence, MessageSeeds.CALENDAR_UPDATED);
-        } else {
-            log(fileImportOccurrence, MessageSeeds.CALENDAR_CREATED);
-        }
+    Calendars getXmlContents(FileImportOccurrence fileImportOccurrence) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(Calendar.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        unmarshaller.setSchema(getSchema());
+        return unmarshall(unmarshaller, fileImportOccurrence.getContents());
+    }
+
+    private Calendars unmarshall(Unmarshaller unmarshaller, InputStream inputStream) throws JAXBException {
+        return (Calendars) unmarshaller.unmarshal(inputStream);
+    }
+
+    private void logCreation(FileImportOccurrence fileImportOccurrence) {
+        log(fileImportOccurrence, MessageSeeds.CALENDAR_CREATED);
+    }
+
+    private void logUpdate(FileImportOccurrence fileImportOccurrence) {
+        log(fileImportOccurrence, MessageSeeds.CALENDAR_UPDATED);
     }
 
     private void logValidationFailed(FileImportOccurrence fileImportOccurrence, JAXBException e) {
