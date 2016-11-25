@@ -8,6 +8,9 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
@@ -18,9 +21,14 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:06)
  */
+@Component(name = "com.energyict.mdc.device.data.impl.LoadProfileServiceImpl", service = LoadProfileFactory.class, immediate = true)
 public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadProfileFactory {
 
-    private final DeviceDataModelService deviceDataModelService;
+    private volatile DeviceDataModelService deviceDataModelService;
+
+    //Only testing purposes
+    public LoadProfileServiceImpl() {
+    }
 
     @Inject
     public LoadProfileServiceImpl(DeviceDataModelService deviceDataModelService) {
@@ -46,6 +54,11 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadPro
     @Override
     public List<BaseLoadProfile<BaseChannel>> findLoadProfilesByDevice(BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device) {
         return device.getLoadProfiles();
+    }
+
+    @Reference
+    public void setDataModelService(DeviceDataModelService deviceDataModelService){
+        this.deviceDataModelService = deviceDataModelService;
     }
 
 }

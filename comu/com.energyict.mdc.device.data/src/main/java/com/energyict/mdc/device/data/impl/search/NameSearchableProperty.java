@@ -20,24 +20,23 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Exposes the master resource identifier (mRID)
- * of a {@link Device} as a {@link SearchableProperty}.
+ * Exposes the name of a {@link Device} as a {@link SearchableProperty}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-26 (15:41)
  */
-public class MasterResourceIdentifierSearchableProperty extends AbstractSearchableDeviceProperty {
+public class NameSearchableProperty extends AbstractSearchableDeviceProperty {
 
     private DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
 
     @Inject
-    public MasterResourceIdentifierSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public NameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(thesaurus);
         this.propertySpecService = propertySpecService;
     }
 
-    MasterResourceIdentifierSearchableProperty init(DeviceSearchDomain domain) {
+    NameSearchableProperty init(DeviceSearchDomain domain) {
         this.domain = domain;
         return this;
     }
@@ -69,7 +68,7 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
 
     @Override
     protected TranslationKey getNameTranslationKey() {
-        return PropertyTranslationKeys.DEVICE_MRID;
+        return PropertyTranslationKeys.DEVICE_NAME;
     }
 
     @Override
@@ -86,7 +85,7 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .stringSpec()
-                .named(DeviceFields.MRID.fieldName(), this.getNameTranslationKey())
+                .named(DeviceFields.NAME.fieldName(), this.getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
                 .finish();
     }
@@ -110,7 +109,6 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("dev.mRID", condition, now);
+        return this.toSqlFragment("dev.name", condition, now);
     }
-
 }

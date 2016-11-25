@@ -170,7 +170,7 @@ public class DeviceSearchDomainTest {
         // Asserts
         verify(this.dataModel).getInstance(DeviceTypeSearchableProperty.class);
         verify(this.dataModel).getInstance(DeviceConfigurationSearchableProperty.class);
-        verify(this.dataModel).getInstance(MasterResourceIdentifierSearchableProperty.class);
+        verify(this.dataModel).getInstance(NameSearchableProperty.class);
         verify(this.dataModel).getInstance(SerialNumberSearchableProperty.class);
         verify(this.dataModel).getInstance(StateNameSearchableProperty.class);
         verify(this.dataModel).getInstance(DeviceGroupSearchableProperty.class);
@@ -254,7 +254,7 @@ public class DeviceSearchDomainTest {
         // Asserts
         verify(this.dataModel).getInstance(DeviceTypeSearchableProperty.class);
         verify(this.dataModel).getInstance(DeviceConfigurationSearchableProperty.class);
-        verify(this.dataModel).getInstance(MasterResourceIdentifierSearchableProperty.class);
+        verify(this.dataModel).getInstance(NameSearchableProperty.class);
         verify(this.dataModel).getInstance(SerialNumberSearchableProperty.class);
         verify(this.dataModel).getInstance(StateNameSearchableProperty.class);
     }
