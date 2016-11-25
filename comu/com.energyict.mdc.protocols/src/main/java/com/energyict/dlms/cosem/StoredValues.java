@@ -7,6 +7,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NotInObjectListException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -25,6 +26,6 @@ public interface StoredValues {
 
 	void retrieve() throws IOException;
 
-	ProfileGeneric getProfileGeneric();
+	ProfileGeneric getProfileGeneric() throws NotInObjectListException;
 
 }

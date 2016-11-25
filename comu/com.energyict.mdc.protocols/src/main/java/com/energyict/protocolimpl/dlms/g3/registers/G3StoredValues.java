@@ -1,18 +1,20 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.common.DLMSStoredValues;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -22,10 +24,12 @@ import java.util.Date;
  */
 public class G3StoredValues extends DLMSStoredValues {
 
-    private boolean daily;  //True: daily EOB. False: Monthly EOB
+    private final TimeZone timeZone;
+    private final boolean daily;  //True: daily EOB. False: Monthly EOB
 
-    public G3StoredValues(DlmsSession session, ObisCode profileObisCode, boolean daily) {
-        super(session, profileObisCode);
+    public G3StoredValues(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode profileObisCode, boolean daily) {
+        super(cosemObjectFactory, profileObisCode);
+        this.timeZone = timeZone;
         this.daily = daily;
     }
 
@@ -51,7 +55,7 @@ public class G3StoredValues extends DLMSStoredValues {
         DataStructure structure = intervalData.getStructure(0);
         Register register = getCosemObjectFactory().getRegister(baseObiscode);
         register.setValue(structure.getValue(channelIndex));
-        Date timestamp = structure.getOctetString(0).toDate(session.getTimeZone());
+        Date timestamp = structure.getOctetString(0).toDate(timeZone);
         historicalValue.setBillingDate(timestamp);
         historicalValue.setEventTime(timestamp);
         historicalValue.setCosemObject(register);
@@ -83,7 +87,7 @@ public class G3StoredValues extends DLMSStoredValues {
     }
 
     private Calendar getNow() {
-        Calendar cal = Calendar.getInstance(session.getTimeZone());
+        Calendar cal = Calendar.getInstance(timeZone);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MINUTE, 0);

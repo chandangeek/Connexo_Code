@@ -23,6 +23,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -120,6 +121,8 @@ public class AllDeviceProtocolsTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceMessageFileService deviceMessageFileService;
+    @Mock
+    private LoadProfileFactory loadProfileFactory;
 
     private InMemoryBootstrapModule bootstrapModule;
     private DeviceProtocolService deviceProtocolService;
@@ -228,6 +231,7 @@ public class AllDeviceProtocolsTest {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
+            bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

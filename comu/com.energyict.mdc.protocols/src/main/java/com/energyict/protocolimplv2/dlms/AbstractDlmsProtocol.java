@@ -24,25 +24,29 @@ import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
+import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
@@ -55,6 +59,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import javax.inject.Provider;
 import java.io.IOException;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -89,14 +94,22 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     protected DlmsProperties dlmsProperties;
     protected LoadProfileBuilder loadProfileBuilder;
     protected OfflineDevice offlineDevice;
+    protected ConfigurationSupport dlmsConfigurationSupport;
     protected Dsmr23RegisterFactory registerFactory = null;
     private ComposedMeterInfo meterInfo;
     private DlmsSession dlmsSession;
     private DLMSCache dlmsCache;
-    private MeterTopology meterTopology;
+    protected AbstractMeterTopology meterTopology;
     private Dsmr23LogBookFactory logBookFactory;
     private Dsmr23Messaging dsmr23Messaging;
-    private DlmsSecuritySupport dlmsSecuritySupport;
+    protected DlmsSecuritySupport dlmsSecuritySupport;
+    /**
+     * Indicating if the meter has a breaker.
+     * This implies whether or not we can control the breaker and read the control logbook.
+     * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
+     */
+    private boolean hasBreaker = true;
+    private Logger logger;
 
     protected AbstractDlmsProtocol(
             Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService,
@@ -120,43 +133,38 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         this.dsmrSecuritySupportProvider = dsmrSecuritySupportProvider;
     }
 
-    protected MeteringService getMeteringService() {
+    public MeteringService getMeteringService() {
         return meteringService;
     }
 
-    protected Clock getClock() {
+    public Clock getClock() {
         return clock;
     }
 
-    protected IssueService getIssueService() {
+    public IssueService getIssueService() {
         return issueService;
     }
 
-    protected MdcReadingTypeUtilService getReadingTypeUtilService() {
+    public MdcReadingTypeUtilService getReadingTypeUtilService() {
         return readingTypeUtilService;
     }
 
-    protected CollectedDataFactory getCollectedDataFactory() {
+    public CollectedDataFactory getCollectedDataFactory() {
         return collectedDataFactory;
     }
 
     /**
-     * Connect to the device, check the cached object lost and discover its Bus slaves.
+     * Connect to the device, check the cached object lost and discover its MBus slaves.
      */
     @Override
     public void logOn() {
         getDlmsSession().connect();
         checkCacheObjects();
-        getMeterTopology().searchForSlaveDevices();
     }
 
     @Override
     public Date getTime() {
-        try {
-            return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
-        } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
-        }
+        return getMeterInfo().getClock();
     }
 
     @Override
@@ -164,7 +172,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         try {
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet, getTimeZone()));
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsProperties().getRetries() + 1);
         }
     }
 
@@ -173,6 +181,15 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return getMeterInfo().getSerialNr();
     }
 
+//    /**
+//     * General device properties, add them to the DLMS session properties
+//     *
+//     * @param properties properties to add
+//     */
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        this.getDlmsSessionProperties().addProperties(properties);
+//    }
 
     /**
      * Dialect properties, add them to the DLMS session properties
@@ -195,7 +212,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         getDlmsProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
-    private DeviceProtocolSecurityCapabilities getSecuritySupport() {
+    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
             dlmsSecuritySupport = dsmrSecuritySupportProvider.get();
         }
@@ -231,14 +248,20 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return dsmr23Messaging;
     }
 
-    public MeterTopology getMeterTopology() {
+    @Override
+    public CollectedTopology getDeviceTopology() {
+        return getMeterTopology().getDeviceTopology();
+    }
+
+    public AbstractMeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
             this.meterTopology = new MeterTopology(this, issueService, identificationService, collectedDataFactory);
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }
 
-    protected Dsmr23RegisterFactory getRegisterFactory() {
+    protected DeviceRegisterSupport getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new Dsmr23RegisterFactory(this, this.issueService, this.readingTypeUtilService, collectedDataFactory, getDlmsProperties().isBulkRequest());
         }
@@ -279,7 +302,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
                 throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
             }
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsProperties().getRetries() + 1);
         }
     }
 
@@ -293,18 +316,18 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
             if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null) { // the dlmsCache exists
                 getDlmsSession().getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
 
-                getLogger().fine("Checking the configuration parameters.");
+                getLogger().info("Checking the configuration parameters.");
                 configNumber = getMeterInfo().getConfigurationChanges();
 
                 if (this.dlmsCache.getConfProgChange() != configNumber) {
-                    getLogger().fine("Meter configuration has changed, configuration is forced to be read.");
+                    getLogger().info("Meter configuration has changed, configuration is forced to be read.");
                     readObjectList();
                     changed = true;
                 }
 
             } else { // cache does not exist
                 this.dlmsCache = new DLMSCache();
-                getLogger().fine("Cache does not exist, configuration is forced to be read.");
+                getLogger().info("Cache does not exist, configuration is forced to be read.");
                 readObjectList();
                 configNumber = getMeterInfo().getConfigurationChanges();
                 changed = true;
@@ -339,12 +362,16 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
      */
     protected ComposedMeterInfo getMeterInfo() {
         if (meterInfo == null) {
-            meterInfo = new ComposedMeterInfo(getDlmsSession(), getDlmsProperties().isBulkRequest());
+            meterInfo = new ComposedMeterInfo(getDlmsSession(),
+                    getDlmsProperties().isBulkRequest(),
+                    getDlmsProperties().getRoundTripCorrection(),
+                    getDlmsProperties().getRetries()
+            );
         }
         return meterInfo;
     }
 
-    public DlmsProperties getDlmsProperties() {
+    public DlmsSessionProperties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new DlmsProperties(this.propertySpecService, this.thesaurus);
         }
@@ -358,27 +385,16 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     /**
      * Return a B-Field corrected ObisCode.
      *
-     * @param obisCode     the ObisCode to correct
+     * @param obisCode the ObisCode to correct
      * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
      * @return the corrected ObisCode
      */
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
-        int address;
-
-        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
-            address = 0;
+        if (obisCode.anyChannel()) {
+            return getMeterTopology().getPhysicalAddressCorrectedObisCode(obisCode, serialNumber);
         } else {
-            address = getPhysicalAddressFromSerialNumber(serialNumber);
-        }
-
-        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
             return obisCode;
         }
-
-        if (address != -1) {
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) address);
-        }
-        return null;
     }
 
     /**
@@ -416,10 +432,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         logOff();
     }
 
-    public Logger getLogger() { //TODO: usage of old logger should be prevented -> refactor/remove this
-        return Logger.getLogger(this.getClass().getName());
-    }
-
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
     }
@@ -435,7 +447,38 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return getDlmsProperties().getPropertySpecs();
+        List<PropertySpec> allProperties = new ArrayList<>(getDlmsConfigurationSupport().getOptionalProperties());
+        allProperties.addAll(getDlmsConfigurationSupport().getRequiredProperties());
+        return allProperties;
+    }
+
+    public boolean hasBreaker() {
+        return hasBreaker;
+    }
+
+    /**
+     * Setter is only called from the cryptoserver protocols to remove the breaker functionality
+     */
+    public void setHasBreaker(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
+    }
+
+    /**
+     * A collection of general DLMS properties.
+     * These properties are not related to the security or the protocol dialects.
+     */
+    protected ConfigurationSupport getDlmsConfigurationSupport() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new DlmsConfigurationSupport(propertySpecService);
+        }
+        return dlmsConfigurationSupport;
+    }
+
+    public Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(this.getClass().getName());
+        }
+        return logger;
     }
 
     @Override
@@ -524,5 +567,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     private OfflineRegister getCalendarRegister(ObisCode obisCode) {
         return new MyOwnPrivateRegister(this.getOfflineDevice(), obisCode);
+    }
+
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
     }
 }

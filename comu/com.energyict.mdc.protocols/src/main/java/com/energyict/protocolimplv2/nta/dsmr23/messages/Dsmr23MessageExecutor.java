@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -12,11 +8,57 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -25,7 +67,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -36,9 +77,43 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.DefaultResetWindowAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.normalThresholdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.p1InformationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.usernameAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.xmlConfigAttributeName;
 
 /**
  * @author sva
@@ -49,13 +124,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     public static final String SEPARATOR = ";";
     private static final byte[] DEFAULT_MONITORED_ATTRIBUTE = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
-    private final Clock clock;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, Clock clock, TopologyService topologyService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         super(protocol, issueService, readingTypeUtilService, collectedDataFactory);
-        this.clock = clock;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
     }
@@ -68,7 +141,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         List<OfflineDeviceMessage> mbusMessages = getMbusMessages(pendingMessages);
         if (!mbusMessages.isEmpty()) {
             // Execute messages for MBus devices
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), clock, this.getIssueService(), this.getReadingTypeUtilService(), this.topologyService, this.getCollectedDataFactory(), this.loadProfileFactory);
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), getClock(), this.getIssueService(), this.getReadingTypeUtilService(), this.topologyService, this.getCollectedDataFactory(), this.loadProfileFactory);
             mbusMessageExecutor
                     .executePendingMessages(mbusMessages)
                     .getCollectedMessages()
@@ -188,7 +261,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         Instant from = loadProfileReader.getStartReadingTime().minus(Duration.ofSeconds(5));
         Instant to = loadProfileReader.getEndReadingTime().plus(Duration.ofSeconds(5));
         return new LoadProfileReader(
-                this.clock,
+                getClock(),
                 loadProfileReader.getProfileObisCode(),
                 from, to,
                 loadProfileReader.getLoadProfileId(),
@@ -209,7 +282,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         );
         Instant fromDate = Instant.ofEpochMilli(Long.valueOf(fromDateEpoch));
         try {
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, loadProfileFactory);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(getClock(), this.topologyService, loadProfileFactory);
             builder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -222,9 +295,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
             LoadProfileReader fullLpr =
                     new LoadProfileReader(
-                            this.clock,
+                            getClock(),
                             lpr.getProfileObisCode(),
-                            fromDate, this.clock.instant(),
+                            fromDate, getClock().instant(),
                             lpr.getLoadProfileId(),
                             lpr.getDeviceIdentifier(),
                             lpr.getChannelInfos(),
@@ -301,13 +374,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             Instant fromDate = Instant.ofEpochMilli(Long.valueOf(fromDateEpoch));
             Instant toDate = Instant.ofEpochMilli(Long.valueOf(toDateEpoch));
 
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(clock, this.topologyService, loadProfileFactory);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(getClock(), this.topologyService, loadProfileFactory);
             builder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
             LoadProfileReader fullLpr =
                     new LoadProfileReader(
-                            this.clock,
+                            getClock(),
                             lpr.getProfileObisCode(),
                             fromDate, toDate,
                             lpr.getLoadProfileId(),
@@ -350,7 +423,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
             return new LoadProfileReader(
-                    this.clock,
+                    getClock(),
                     lpr.getProfileObisCode(),
                     lpr.getStartReadingTime(), lpr.getEndReadingTime(),
                     lpr.getLoadProfileId(),
@@ -802,10 +875,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             }
         }
         return mbusMessages;
-    }
-
-    public Clock getClock() {
-        return clock;
     }
 
     public TopologyService getTopologyService() {

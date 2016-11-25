@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issues.IssueService;
@@ -16,6 +12,11 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
@@ -33,7 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
 
 /**
  * @author sva
@@ -68,8 +71,10 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
                 collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
                 try {
-                    boolean messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
-                    if (!messageExecuted) { // if it was not a PLC message
+                    CollectedMessage messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+                    if (messageExecuted != null) {
+                        collectedMessage = messageExecuted;
+                    } else {
                         if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_CLOSE_RELAY)) {
                             closeRelay(pendingMessage);
                         } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_OPEN_RELAY)) {
@@ -124,8 +129,10 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
     @Override
     protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
         String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
-        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();   // Will return empty string if the MessageAttribute could not be found
-        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName)
+                .getDeviceMessageAttributeValue();   // Will return empty string if the MessageAttribute could not be found
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
+                .getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
 
@@ -181,7 +188,7 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
 
         int first = -1;
         int last = -1;
-        for (int i = 0; i < fileStart.length; i++)
+        for (int i = 0; i < fileStart.length; i++) {
             if (first == -1) {
                 if (isAsciiPrintable((char) (fileStart[i] & 0xFF))) {
                     first = i;
@@ -192,6 +199,7 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
                     i = fileStart.length;
                 }
             }
+        }
         if (first == -1) {
             return "";
         } else if (last == -1) {
