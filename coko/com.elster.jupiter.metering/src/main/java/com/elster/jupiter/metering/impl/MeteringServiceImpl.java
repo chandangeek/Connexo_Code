@@ -400,7 +400,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Finder<Meter> findMeters(MeterFilter filter) {
-        Condition condition = where("obsoleteTime").isNull();
+        Condition condition = Condition.TRUE;
         if (!Checks.is(filter.getName()).emptyOrOnlyWhiteSpace()) {
             condition = condition.and(where("name").likeIgnoreCase(filter.getName()));
         }
@@ -409,7 +409,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
                     where("state.name").in(filter.getExcludedStates())
                             .and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
         }
-        return DefaultFinder.of(Meter.class, condition, dataModel).defaultSortColumn("name");
+        return DefaultFinder.of(Meter.class, where("obsoleteTime").isNull().and(condition), dataModel).defaultSortColumn("name");
     }
 
     @Override
@@ -445,7 +445,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
         if (filter.isAccountabilityOnly()) {
             condition = condition.and(hasAccountability());
         }
-        return DefaultFinder.of(UsagePoint.class, condition, dataModel);
+        return DefaultFinder.of(UsagePoint.class, where("obsoleteTime").isNull().and(condition), dataModel);
     }
 
     @Override
