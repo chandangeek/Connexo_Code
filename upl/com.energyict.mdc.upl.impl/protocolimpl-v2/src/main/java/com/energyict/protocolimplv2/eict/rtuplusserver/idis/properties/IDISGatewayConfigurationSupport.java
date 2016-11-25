@@ -1,10 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,14 +16,8 @@ import java.util.List;
  */
 public class IDISGatewayConfigurationSupport extends DlmsConfigurationSupport {
 
-
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -35,4 +27,5 @@ public class IDISGatewayConfigurationSupport extends DlmsConfigurationSupport {
                 this.deviceId()
         );
     }
+
 }

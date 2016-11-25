@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 
@@ -10,6 +9,7 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,11 +42,10 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_I
  * Time: 15:41
  * Author: khe
  */
-public class DlmsConfigurationSupport implements HasDynamicProperties {
+public class DlmsConfigurationSupport {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
@@ -99,9 +98,13 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(
-                FORCED_DELAY,
-                new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000));
+        return Services
+                .propertySpecService()
+                .durationSpec()
+                .named(FORCED_DELAY, FORCED_DELAY)
+                .describedAs("Description for " + FORCED_DELAY)
+                .setDefaultValue(Duration.ofMillis(DEFAULT_FORCED_DELAY.longValue()))
+                .finish();
     }
 
     protected PropertySpec conformanceBlockValuePropertySpec() {
