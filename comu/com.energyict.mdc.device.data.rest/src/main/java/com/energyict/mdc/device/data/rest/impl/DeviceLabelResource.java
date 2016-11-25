@@ -58,8 +58,8 @@ public class DeviceLabelResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public PagedInfoList getDeviceLabels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getDeviceLabels(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         User user = (User) securityContext.getUserPrincipal();
         List<DeviceLabel> deviceLabels = favoritesService.getDeviceLabels(device, user);
         return PagedInfoList.fromPagedList("deviceLabels", deviceLabels.stream().map(dl -> new DeviceLabelInfo(dl, thesaurus)).collect(Collectors.toList()), queryParameters);
@@ -70,23 +70,23 @@ public class DeviceLabelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response createDeviceLabel(@PathParam("mRID") String mRID, DeviceLabelInfo info, @Context SecurityContext securityContext) {
+    public Response createDeviceLabel(@PathParam("name") String name, DeviceLabelInfo info, @Context SecurityContext securityContext) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(info.parent.id, info.parent.version)
-                .orElseThrow(buildCreateFlagConflictException(mRID, info));
+                .orElseThrow(buildCreateFlagConflictException(name, info));
         User user = (User) securityContext.getUserPrincipal();
         LabelCategory category = findLabelCategoryOrThrowException(info.category.id.toString());
         favoritesService.findDeviceLabel(device, user, category).ifPresent(label -> {
-            throw buildCreateFlagConflictException(mRID, info).get();
+            throw buildCreateFlagConflictException(name, info).get();
         });
         DeviceLabel deviceLabel = favoritesService.findOrCreateDeviceLabel(device, user, category, info.comment);
         return Response.ok(new DeviceLabelInfo(deviceLabel, thesaurus)).build();
     }
 
-    private Supplier<ConcurrentModificationException> buildCreateFlagConflictException(String mRID, DeviceLabelInfo info) {
+    private Supplier<ConcurrentModificationException> buildCreateFlagConflictException(String deviceName, DeviceLabelInfo info) {
         return conflictFactory.conflict()
-                .withActualParent(() -> resourceHelper.getCurrentDeviceVersion(mRID), info.parent.id)
-                .withMessageTitle(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE, mRID)
-                .withMessageBody(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY, mRID)
+                .withActualParent(() -> resourceHelper.getCurrentDeviceVersion(deviceName), info.parent.id)
+                .withMessageTitle(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE, deviceName)
+                .withMessageBody(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY, deviceName)
                 .supplier();
     }
 
@@ -96,20 +96,20 @@ public class DeviceLabelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response deleteDeviceLabel(@PathParam("mRID") String mRID, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext, DeviceLabelInfo info) {
+    public Response deleteDeviceLabel(@PathParam("name") String name, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext, DeviceLabelInfo info) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(info.parent.id, info.parent.version)
-                .orElseThrow(buildRemoveFlagConflictException(mRID, info));
+                .orElseThrow(buildRemoveFlagConflictException(name, info));
         User user = (User) securityContext.getUserPrincipal();
         LabelCategory category = findLabelCategoryOrThrowException(categoryId);
-        favoritesService.findDeviceLabel(device, user, category).ifPresent(label -> favoritesService.removeDeviceLabel(label));
+        favoritesService.findDeviceLabel(device, user, category).ifPresent(favoritesService::removeDeviceLabel);
         return Response.ok().build();
     }
 
-    private Supplier<ConcurrentModificationException> buildRemoveFlagConflictException(String mRID, DeviceLabelInfo info) {
+    private Supplier<ConcurrentModificationException> buildRemoveFlagConflictException(String deviceName, DeviceLabelInfo info) {
         return conflictFactory.conflict()
-                .withActualParent(() -> resourceHelper.getCurrentDeviceVersion(mRID), info.parent.id)
-                .withMessageTitle(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE, mRID)
-                .withMessageBody(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY, mRID)
+                .withActualParent(() -> resourceHelper.getCurrentDeviceVersion(deviceName), info.parent.id)
+                .withMessageTitle(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE, deviceName)
+                .withMessageBody(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY, deviceName)
                 .supplier();
     }
 

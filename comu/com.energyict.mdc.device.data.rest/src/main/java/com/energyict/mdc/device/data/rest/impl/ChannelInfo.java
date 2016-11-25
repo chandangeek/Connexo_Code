@@ -37,7 +37,7 @@ public class ChannelInfo {
     public VersionInfo<String> parent;
     public Boolean useMultiplier;
     public BigDecimal multiplier;
-    public String dataloggerSlavemRID;
+    public String dataloggerSlaveName;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;

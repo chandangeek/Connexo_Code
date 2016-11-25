@@ -1,6 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.util.Currency;
@@ -71,6 +81,7 @@ public final class ReadingTypeMockBuilder {
         when(readingTypeMockBuilder.mock.getUnit()).thenReturn(ReadingTypeUnit.get(Integer.valueOf(arguments[READING_TYPE_UNIT_INDEX])));
         Currency.getAvailableCurrencies().stream().filter(each -> each.getNumericCode() == Integer.valueOf(arguments[CURRENCY_INDEX])).forEach(each -> when(readingTypeMockBuilder.mock.getCurrency()).thenReturn(each));
         when(readingTypeMockBuilder.mock.getMRID()).thenReturn(mrid);
+        when(readingTypeMockBuilder.mock.getFullAliasName()).thenReturn(mrid);
         return readingTypeMockBuilder;
     }
 

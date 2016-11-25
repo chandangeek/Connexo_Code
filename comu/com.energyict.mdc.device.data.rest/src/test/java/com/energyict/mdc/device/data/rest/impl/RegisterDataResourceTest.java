@@ -123,14 +123,14 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(register.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(register.getLastReadingDate()).thenReturn(Optional.empty());
 
-        BillingReading billingReading = mockBillingReading(actualReading1);
+        NumericalReading numericalReading1 = mockNumericalReading(actualReading1);
         when(actualReading1.edited()).thenReturn(true);
 
         doReturn(Arrays.asList(mockReadingQuality("2.7.1"))).when(actualReading1).getReadingQualities();
-        when(billingReading.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        when(numericalReading1.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
 
-        NumericalReading numericalReading = mockNumericalReading(actualReading2);
-        when(numericalReading.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
+        NumericalReading numericalReading2 = mockNumericalReading(actualReading2);
+        when(numericalReading2.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
         when(actualReading2.edited()).thenReturn(true);
         NumericalReading numericalReadingConfirmed = mockNumericalReading(actualReading3);
         when(numericalReadingConfirmed.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
@@ -140,7 +140,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         ReadingQualityRecord readingQualityConfirmed = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED).getCode());
         doReturn(Arrays.asList(readingQualityConfirmed)).when(actualReading3).getReadingQualities();
 
-        when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(billingReading, numericalReading, numericalReadingConfirmed));
+        when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(numericalReading1, numericalReading2, numericalReadingConfirmed));
 
         doReturn(Arrays.asList(channelsContainer)).when(meter).getChannelsContainers();
         when(registerType.getReadingType()).thenReturn(readingType);
@@ -198,7 +198,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testGetRegisterData() throws Exception {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -218,7 +218,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
-        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
         assertThat(jsonModel.<String>get("$.data[0].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[0].editedInApp.name")).isEqualTo("MultiSense");
@@ -262,7 +262,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testGetRegisterDataSuspectsOnly() throws Exception {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -285,7 +285,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testPutRegisterData() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
         when(readingType.getMRID()).thenReturn("mRID");
@@ -306,7 +306,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testPutRegisterDataExceedsOverflow() throws IOException {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getOverflowValue()).thenReturn(Optional.of(BigDecimal.ONE));
         when(device.getId()).thenReturn(1L);
@@ -324,7 +324,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testPutConfirmRegisterData() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
         when(readingType.getMRID()).thenReturn("mRID");

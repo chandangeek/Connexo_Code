@@ -5,7 +5,6 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 public class MeterActivationInfoFactory {
@@ -17,8 +16,8 @@ public class MeterActivationInfoFactory {
         info.active = meterActivation.isCurrent();
         info.start = meterActivation.getStart();
         info.end = meterActivation.getEnd();
-        info.usagePoint = meterActivation.getUsagePoint().map(up -> new IdWithNameInfo(up.getId(), up.getMRID())).orElse(null);
-        info.multiplier = device.getMultiplierAt(meterActivation.getStart()).map(BigDecimal::longValue).orElse(null);
+        info.usagePoint = meterActivation.getUsagePoint().map(up -> new IdWithNameInfo(up.getId(), up.getName())).orElse(null);
+        info.multiplier = device.getMultiplierAt(meterActivation.getStart()).orElse(null);
         info.deviceConfiguration = getEffectiveDeviceConfigurationInfo(meterActivation, device);
         return info;
     }
