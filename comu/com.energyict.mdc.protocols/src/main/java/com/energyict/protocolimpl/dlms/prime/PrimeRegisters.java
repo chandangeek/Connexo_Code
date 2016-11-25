@@ -1,5 +1,13 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -16,13 +24,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MacAddressSetup;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.common.DLMSStoredValues;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.ActivityCalendarSerializer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -208,13 +209,13 @@ public class PrimeRegisters {
         this.session = session;
         this.meterInfo = meterInfo;
 
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.DAILY_CONTRACT1_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.DAILY_CONTRACT2_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.DAILY_CONTRACT3_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.DAILY_CONTRACT1_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.DAILY_CONTRACT2_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.DAILY_CONTRACT3_PROFILE));
 
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.MONTHLY_CONTRACT1_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.MONTHLY_CONTRACT2_PROFILE));
-        storedValuesList.add(new DLMSStoredValues(this.session, PrimeProfile.MONTHLY_CONTRACT3_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.MONTHLY_CONTRACT1_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.MONTHLY_CONTRACT2_PROFILE));
+        storedValuesList.add(new DLMSStoredValues(this.session.getCosemObjectFactory(), PrimeProfile.MONTHLY_CONTRACT3_PROFILE));
     }
 
     public static RegisterInfo translateRegister(ObisCode obisCode) {

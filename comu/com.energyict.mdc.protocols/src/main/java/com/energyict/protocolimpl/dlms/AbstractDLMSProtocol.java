@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
@@ -28,13 +29,11 @@ import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
-import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
-import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -44,7 +43,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -58,6 +56,33 @@ import java.util.logging.Logger;
 public abstract class AbstractDLMSProtocol extends AbstractProtocol implements ProtocolLink, HHUEnabler {
 
     private final OrmClient ormClient;
+    protected static final int CONNECTION_MODE_HDLC = 0;
+    protected static final int CONNECTION_MODE_TCPIP = 1;
+    protected static final int CONNECTION_MODE_COSEM_PDU = 2;
+    protected static final int CONNECTION_MODE_LLC = 3;
+    protected static final int PROPOSED_QOS = -1;
+    protected static final int PROPOSED_DLMS_VERSION = 6;
+    protected static final int MAX_PDU_SIZE = 200;
+    protected static final int DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = 10;
+    protected static final int DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD = 5000;
+    protected static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
+    protected static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
+    protected static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
+    protected static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
+    protected static final String PROPNAME_CIPHERING_TYPE = "CipheringType";
+    protected static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
+    protected static final String PROPNAME_CONNECTION = "Connection";
+    protected static final String PROPNAME_MANUFACTURER = "Manufacturer";
+    protected static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    protected static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+    protected static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
+    protected static final String PROPNAME_RETRIES = "Retries";
+    protected static final String PROPNAME_TIMEOUT = "Timeout";
+    protected static final String PROPNAME_FORCE_DELAY = "ForceDelay";
+    protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
+    protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
+    private static final String ISKRA_WRAPPER_DEFAULT = "1";
+    private static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT = "1";
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
     protected ConformanceBlock conformanceBlock;
@@ -69,7 +94,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected TimeZone timeZone = null;
     protected SecurityContext securityContext;
     protected String firmwareVersion;
-
     protected int connectionMode;
     protected int datatransportSecurityLevel;
     protected int authenticationSecurityLevel;
@@ -98,37 +122,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int profileInterval = -1;
     protected int clockSetRoundtripTreshold = 0;
     protected String maxTimeDifference;
-    private int iskraWrapper = 1;
-
-    protected static final int CONNECTION_MODE_HDLC = 0;
-    protected static final int CONNECTION_MODE_TCPIP = 1;
-    protected static final int CONNECTION_MODE_COSEM_PDU = 2;
-    protected static final int CONNECTION_MODE_LLC = 3;
-    protected static final int PROPOSED_QOS = -1;
-    protected static final int PROPOSED_DLMS_VERSION = 6;
-    protected static final int MAX_PDU_SIZE = 200;
-    protected static final int DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = 10;
-    protected static final int DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD = 5000;
-    private static final String ISKRA_WRAPPER_DEFAULT = "1";
-
-    protected static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
-    protected static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
-    protected static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
-    protected static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
-    protected static final String PROPNAME_CIPHERING_TYPE = "CipheringType";
-    protected static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
-    protected static final String PROPNAME_CONNECTION = "Connection";
-    protected static final String PROPNAME_MANUFACTURER = "Manufacturer";
-    protected static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
-    protected static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
-    protected static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
-    protected static final String PROPNAME_RETRIES = "Retries";
-    protected static final String PROPNAME_TIMEOUT = "Timeout";
-    protected static final String PROPNAME_FORCE_DELAY = "ForceDelay";
-    protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
-    protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
-
     protected int maxRecPduSize;
+    private int iskraWrapper = 1;
+    private boolean incrementFrameCounterForRetries;
+
 
     protected AbstractDLMSProtocol(PropertySpecService propertySpecService, OrmClient ormClient) {
         super(propertySpecService);
@@ -138,9 +135,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected OrmClient getOrmClient() {
         return ormClient;
     }
-
-    @Override
-    public abstract void validateSerialNumber() throws IOException;
 
     @Override
     protected void doConnect() throws IOException {
@@ -314,7 +308,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         updateConformanceBlock();
 
         XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, this.conformanceBlock, maxRecPduSize);
-        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId(), getCalledAPTitle(), null);
+        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId(), getCalledAPTitle(), null, null);
         dlmsConnection = new SecureConnection(aso, connection);
         this.dlmsConnection.setIskraWrapper(this.iskraWrapper);
         InvokeIdAndPriorityHandler iiapHandler = buildInvokeIdAndPriorityHandler();
@@ -424,10 +418,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         iiapInvokeId = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
         iiapPriority = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_PRIORITY, "1"));
         iiapServiceClass = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
-        cipheringType = Integer.parseInt(properties.getProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
+        cipheringType = Integer.parseInt(properties.getProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
         //roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
 
-        if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
+        if (cipheringType != CipheringType.GLOBAL.getType() && cipheringType != CipheringType.DEDICATED.getType()) {
             throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
         }
         try {
@@ -445,6 +439,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
         this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));
         this.iskraWrapper = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT));
+        this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
 
         doValidateProperties(properties);
     }
@@ -459,7 +454,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                 getDLMSConnection().connectMAC();
                 this.aso.createAssociation();
-                validateSerialNumber();
                 checkCacheObjects();
             }
         } catch (DLMSConnectionException e) {
@@ -571,32 +565,12 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException | DLMSConnectionException e) {
+        } catch (IOException e) {
+            //absorb -> trying to close communication
+            getLogger().log(Level.FINEST, e.getMessage());
+        } catch (DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }
     }
-
-    @Override
-    public Optional<String> getActiveCalendarName() throws IOException {
-        ActivityCalendar activityCalendar = this.getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
-        String calendarName = activityCalendar.readCalendarNameActive().stringValue();
-        if (calendarName != null && !calendarName.isEmpty()) {
-            return Optional.of(calendarName);
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<String> getPassiveCalendarName() throws IOException {
-        ActivityCalendar activityCalendar = this.getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
-        String calendarName = activityCalendar.readCalendarNamePassive().stringValue();
-        if (calendarName != null && !calendarName.isEmpty()) {
-            return Optional.of(calendarName);
-        } else {
-            return Optional.empty();
-        }
-    }
-
 }

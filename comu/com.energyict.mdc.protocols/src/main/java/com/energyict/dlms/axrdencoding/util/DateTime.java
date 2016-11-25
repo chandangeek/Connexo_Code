@@ -1,9 +1,10 @@
 package com.energyict.dlms.axrdencoding.util;
 
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -74,6 +75,7 @@ public class DateTime extends AbstractDataType {
 
 	private Calendar dateTime;
     private int status;
+    private short deviation;
 
     public DateTime( ) {
     }
@@ -135,15 +137,20 @@ public class DateTime extends AbstractDataType {
         dateTime.set(Calendar.SECOND, second);
         ptr = ptr + 1;
 
-        ptr = ptr + 1;
+        int hundredths = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+        ptr = ptr + 1;    // hundredths of second
 
+        deviation = (short) (ProtocolUtils.getByte2Int(berEncodedData, ptr) * 0x100);
         ptr = ptr + 1;    // deviation highbyte
 
+        deviation += ProtocolUtils.getByte2Int(berEncodedData, ptr) ;
         ptr = ptr + 1;    // deviation lowbyte
 
         status = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+    }
 
-
+    public int getDeviation(){
+        return deviation;
     }
 
     public int getStatus() {

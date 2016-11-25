@@ -10,7 +10,11 @@ import com.energyict.protocolimpl.dlms.common.ProfileCache;
  */
 public class G3Cache extends ProfileCache {
 
-    private long frameCounter = 1;
+    private long frameCounter;
+
+    public G3Cache() {
+        this.frameCounter = 1;
+    }
 
     public long getFrameCounter() {
         return frameCounter;

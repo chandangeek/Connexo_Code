@@ -6,6 +6,10 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -17,9 +21,6 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.attributes.ClockAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -141,7 +142,7 @@ public class Clock extends AbstractCosemObject {
         return getDateTime(responseData,-1);
     }
 
-    private Date getDateTime(byte[] responseData,int roundtripCorrection) throws IOException {
+    public Date getDateTime(byte[] responseData, int roundtripCorrection) throws IOException {
         Calendar gcalendarMeter=null;
 
         if ((responseData[13]&(byte)0x80)==(byte)0x80) {

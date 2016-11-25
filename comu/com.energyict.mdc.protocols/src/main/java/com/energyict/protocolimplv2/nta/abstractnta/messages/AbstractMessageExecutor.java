@@ -1,12 +1,5 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
@@ -21,11 +14,20 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Calendar;
 import java.util.List;
 
@@ -42,12 +44,14 @@ public abstract class AbstractMessageExecutor {
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final CollectedDataFactory collectedDataFactory;
+    private final Clock clock;
 
     public AbstractMessageExecutor(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.collectedDataFactory = collectedDataFactory;
+        this.clock = protocol.getClock();
     }
 
     protected IssueService getIssueService() {
@@ -230,5 +234,9 @@ public abstract class AbstractMessageExecutor {
 
     protected boolean getBooleanAttribute(OfflineDeviceMessage pendingMessage) {
         return Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    }
+
+    public Clock getClock() {
+        return clock;
     }
 }

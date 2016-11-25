@@ -1,5 +1,12 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -16,12 +23,10 @@ import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.HDLCConnection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
-import com.energyict.mdc.io.ComChannelType;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -37,26 +42,40 @@ public class DlmsSession implements ProtocolLink {
 
     private final ComChannel comChannel;
     private final DlmsSessionProperties properties;
-    private final ApplicationServiceObjectV2 aso;
-    private final DLMSMeterConfig dlmsMeterConfig;
-    private final SecureConnection dlmsConnection;
-    private final CosemObjectFactory cosemObjectFactory;
+    protected ApplicationServiceObjectV2 aso;
+    protected DLMSMeterConfig dlmsMeterConfig;
+    protected SecureConnection dlmsConnection;
+    protected CosemObjectFactory cosemObjectFactory;
 
     public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties) {
         this(comChannel, properties, null, "");
     }
 
+    public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, String calledSystemTitle) {
+        this.comChannel = comChannel;
+        this.properties = properties;
+        init(null, "", calledSystemTitle);
+    }
+
     public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, HHUSignOnV2 hhuSignOn, String deviceId) {
         this.comChannel = comChannel;
         this.properties = properties;
+        init(hhuSignOn, deviceId, null);
+    }
+
+    protected void init(HHUSignOnV2 hhuSignOn, String deviceId, String calledSystemTitle) {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.dlmsMeterConfig = DLMSMeterConfig.getInstance(getProperties().getManufacturer());
-        this.aso = buildAso();
+        this.aso = buildAso(calledSystemTitle);
         this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
         this.dlmsConnection.setInvokeIdAndPriorityHandler(getProperties().getInvokeIdAndPriorityHandler());
         if (hhuSignOn != null) {
             this.dlmsConnection.setHHUSignOn(hhuSignOn, deviceId);
         }
+    }
+
+    public ComChannel getComChannel() {
+        return comChannel;
     }
 
     /**
@@ -78,7 +97,7 @@ public class DlmsSession implements ProtocolLink {
         }
     }
 
-    public ApplicationServiceObject getAso() {
+    public ApplicationServiceObjectV2 getAso() {
         return aso;
     }
 
@@ -132,28 +151,70 @@ public class DlmsSession implements ProtocolLink {
     }
 
     /**
-     * Build a new ApplicationServiceObject, using the DlmsSessionProperties
+     * Build a new ApplicationServiceObject
      */
-    protected ApplicationServiceObjectV2 buildAso() {
-        if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null);
-        } else {
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
-        }
+    protected ApplicationServiceObjectV2 buildAso(String calledSystemTitleString) {
+        if (calledSystemTitleString == null && getProperties().isNtaSimulationTool()) {
+            calledSystemTitleString = getProperties().getSerialNumber();
     }
+
+        return new ApplicationServiceObjectV2(
+                buildXDlmsAse(),
+                this,
+                buildSecurityContext(),
+                getContextId(),
+                calledSystemTitleString == null ? null : calledSystemTitleString.getBytes(),
+                null,
+                getCallingAEQualifier());
+        }
+
+    /**
+     * We fill our (client) signing certificate in the calling-AE-qualifier field, but only
+     * if use digital signing (either for data transport security or for HLS7 authentication)
+     * in this session, and we don't know the server signing certificate yet.
+     * <p/>
+     * Note that this is the ASN.1 DER encoded version of the X.509 v3 certificate.
+     */
+    private byte[] getCallingAEQualifier() {
+        if (getProperties().isGeneralSigning() || getProperties().getAuthenticationSecurityLevel() == DlmsSecuritySuite1And2Support.AuthenticationAccessLevelIds.ECDSA_AUTHENTICATION.getAccessLevel()) {
+            if (getProperties().getSecurityProvider() instanceof GeneralCipheringSecurityProvider) {
+                GeneralCipheringSecurityProvider generalCipheringSecurityProvider = (GeneralCipheringSecurityProvider) getProperties().getSecurityProvider();
+                if (generalCipheringSecurityProvider.getServerSignatureCertificate() == null) {
+                    try {
+                        X509Certificate clientSigningCertificate = generalCipheringSecurityProvider.getClientSigningCertificate();
+                        if (clientSigningCertificate == null) {
+                            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+    }
+
+                        return clientSigningCertificate.getEncoded();
+                    } catch (CertificateEncodingException e) {
+                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+                    }
+                }
+            } else {
+                throw new DeviceConfigurationException(MessageSeeds.PROTOCOL_IO_PARSE_ERROR);
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Build a new xDLMSAse, using the DlmsSessionProperties
      */
     protected XdlmsAse buildXDlmsAse() {
         return new XdlmsAse(
-                (getProperties().getCipheringType() == CipheringType.DEDICATED) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
+                (isDedicated()) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
                 getProperties().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse(),
                 getProperties().getProposedQOS(),
                 getProperties().getProposedDLMSVersion(),
                 getProperties().getConformanceBlock(),
                 getProperties().getMaxRecPDUSize()
         );
+    }
+
+    private boolean isDedicated() {
+        return getProperties().getCipheringType() == CipheringType.DEDICATED || getProperties().getCipheringType() == CipheringType.GENERAL_DEDICATED;
     }
 
     /**
@@ -185,10 +246,11 @@ public class DlmsSession implements ProtocolLink {
         return new SecurityContext(
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
-                0,
+                0, // security suite 0
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
-                getProperties().getCipheringType().getType()
+                getProperties().getCipheringType().getType(),
+                getProperties().getGeneralCipheringKeyType()
         );
     }
 

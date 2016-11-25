@@ -15,4 +15,9 @@ public interface RespondingFrameCounterHandler {
      */
     public Integer checkRespondingFrameCounter(int receivedFrameCounter) throws DLMSConnectionException;
 
+
+    /**
+     * When the encryption key is changed, the frame counters reset.
+     */
+    void resetRespondingFrameCounter(int initialValue);
 }
