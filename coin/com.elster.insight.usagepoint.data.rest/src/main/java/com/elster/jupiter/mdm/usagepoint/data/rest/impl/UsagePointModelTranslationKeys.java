@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum UsagePointModelTranslationKeys implements TranslationKey {
-    MRID_MODEL("mRID", "MRID"),
+    NAME_MODEL("name", "Name"),
     SERVICE_CATEGORY_MODEL("displayServiceCategory", "Service category"),
     METROLOGY_CONFIGURATION_MODEL("displayMetrologyConfiguration", "Metrology configuration"),
     TYPE_MODEL("displayType", "Type"),

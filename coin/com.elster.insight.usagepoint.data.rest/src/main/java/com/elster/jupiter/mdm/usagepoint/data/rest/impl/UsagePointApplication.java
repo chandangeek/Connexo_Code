@@ -112,7 +112,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 RestValidationExceptionMapper.class,
                 UsagePointCalendarResource.class,
                 UsagePointCalendarHistoryResource.class,
-                BulkScheduleResource.class
+                BulkScheduleResource.class,
+                UsagePointGroupResource.class
         );
     }
 
@@ -367,6 +368,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(searchService).to(SearchService.class);
             bind(messageService).to(MessageService.class);
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
+            bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
         }
     }
 

@@ -105,13 +105,13 @@ public class UsagePointCustomPropertySetResource {
                 .collect(Collectors.toList());
     }
 
-    private PagedInfoList getConflictsInfo(String usagePointMrid,
+    private PagedInfoList getConflictsInfo(String usagePointName,
                                            long registeredCustomPropertySetId,
                                            Long versionStartTime, Long versionEndTime,
                                            JsonQueryParameters queryParameters,
                                            Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+                .findUsagePointByNameOrThrowException(usagePointName).forCustomProperties();
         UsagePointVersionedPropertySet versionedPropertySet = usagePointExtension.getVersionedPropertySet(registeredCustomPropertySetId);
         validateRangeSourceValues(versionStartTime, versionEndTime);
         List valuesRangeConflicts = conflictValuesSupplier.apply(customPropertySetService
@@ -138,10 +138,10 @@ public class UsagePointCustomPropertySetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getAllCustomPropertySets(@PathParam("mrid") String usagePointMrid,
+    public PagedInfoList getAllCustomPropertySets(@PathParam("name") String usagePointName,
                                                   @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+                .findUsagePointByNameOrThrowException(usagePointName).forCustomProperties();
         return getCustomPropertySetValues(usagePointExtension.getAllPropertySets(), queryParameters);
     }
 
@@ -149,10 +149,10 @@ public class UsagePointCustomPropertySetResource {
     @Path("/metrologyconfiguration")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public PagedInfoList getCustomPropertySetsOnMetrologyConfiguration(@PathParam("mrid") String usagePointMrid,
+    public PagedInfoList getCustomPropertySetsOnMetrologyConfiguration(@PathParam("name") String usagePointName,
                                                                        @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+                .findUsagePointByNameOrThrowException(usagePointName).forCustomProperties();
         return getCustomPropertySetValues(usagePointExtension.getPropertySetsOnMetrologyConfiguration(), queryParameters);
     }
 
@@ -160,10 +160,10 @@ public class UsagePointCustomPropertySetResource {
     @Path("/servicecategory")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public PagedInfoList getCustomPropertySetsOnServiceCategory(@PathParam("mrid") String usagePointMrid,
+    public PagedInfoList getCustomPropertySetsOnServiceCategory(@PathParam("name") String usagePointName,
                                                                 @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+                .findUsagePointByNameOrThrowException(usagePointName).forCustomProperties();
         return getCustomPropertySetValues(usagePointExtension.getPropertySetsOnServiceCategory(), queryParameters);
     }
 
@@ -171,10 +171,10 @@ public class UsagePointCustomPropertySetResource {
     @Path("/{rcpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public CustomPropertySetInfo getCustomPropertySetByRegisteredId(@PathParam("mrid") String usagePointMrid,
+    public CustomPropertySetInfo getCustomPropertySetByRegisteredId(@PathParam("name") String usagePointName,
                                                                     @PathParam("rcpsId") long rcpsId) {
         UsagePointPropertySet propertySet = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .findUsagePointByNameOrThrowException(usagePointName)
                 .forCustomProperties()
                 .getPropertySet(rcpsId);
         CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
@@ -185,11 +185,11 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("/{rcpsId}/privileges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getCustomPropertySetPrivileges(@PathParam("mrid") String usagePointMrid,
+    public Response getCustomPropertySetPrivileges(@PathParam("name") String usagePointName,
                                                    @PathParam("rcpsId") long rcpsId,
                                                    @BeanParam JsonQueryParameters queryParameters) {
         UsagePointPropertySet propertySet = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .findUsagePointByNameOrThrowException(usagePointName)
                 .forCustomProperties()
                 .getPropertySet(rcpsId);
 
@@ -224,10 +224,10 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public IntervalInfo getCurrentTimeSlicedCustomPropertySetInterval(@PathParam("mrid") String usagePointMrid,
+    public IntervalInfo getCurrentTimeSlicedCustomPropertySetInterval(@PathParam("name") String usagePointName,
                                                                       @PathParam("rcpsId") long rcpsId) {
         Range<Instant> versionInterval = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .findUsagePointByNameOrThrowException(usagePointName)
                 .forCustomProperties()
                 .getVersionedPropertySet(rcpsId)
                 .getNewVersionInterval();
@@ -238,11 +238,11 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public PagedInfoList getAllTimeSlicedCustomPropertySetVersions(@PathParam("mrid") String usagePointMrid,
+    public PagedInfoList getAllTimeSlicedCustomPropertySetVersions(@PathParam("name") String usagePointName,
                                                                    @PathParam("rcpsId") long rcpsId,
                                                                    @BeanParam JsonQueryParameters queryParameters) {
         UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .findUsagePointByNameOrThrowException(usagePointName)
                 .forCustomProperties()
                 .getVersionedPropertySet(rcpsId);
         List<CustomPropertySetInfo> versions = versionedPropertySet
@@ -260,7 +260,7 @@ public class UsagePointCustomPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response addNewVersionForTimeSlicedCustomAttributeSet(@PathParam("mrid") String usagePointMrid,
+    public Response addNewVersionForTimeSlicedCustomAttributeSet(@PathParam("name") String usagePointName,
                                                                  @PathParam("rcpsId") long rcpsId,
                                                                  @QueryParam("forced") boolean forced,
                                                                  @Context SecurityContext securityContext,
@@ -269,7 +269,7 @@ public class UsagePointCustomPropertySetResource {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
         info.isVersioned = true;
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
         UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
         validateRangeStart(info.startTime, usagePoint);
         validateRangeSourceValues(info.startTime, info.endTime);
@@ -291,11 +291,11 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public CustomPropertySetInfo getTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
+    public CustomPropertySetInfo getTimeSlicedCustomAttributeSetVersion(@PathParam("name") String usagePointName,
                                                                         @PathParam("rcpsId") long rcpsId,
                                                                         @PathParam("timestamp") long timestamp) {
         UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .findUsagePointByNameOrThrowException(usagePointName)
                 .forCustomProperties()
                 .getVersionedPropertySet(rcpsId);
         CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(versionedPropertySet,
@@ -310,13 +310,13 @@ public class UsagePointCustomPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response updateTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
+    public Response updateTimeSlicedCustomAttributeSetVersion(@PathParam("name") String usagePointName,
                                                               @PathParam("rcpsId") long rcpsId,
                                                               @BeanParam JsonQueryParameters queryParameters,
                                                               @QueryParam("forced") boolean forced,
                                                               @Context SecurityContext securityContext,
                                                               CustomPropertySetInfo<UsagePointInfo> info) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
         UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
         validateRangeStart(info.startTime, usagePoint);
         Instant versionStartTime = Instant.ofEpochMilli(info.versionId);
@@ -342,21 +342,21 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("mrid") String usagePointMrid,
+    public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("name") String usagePointName,
                                                                          @PathParam("rcpsId") long rcpsId,
                                                                          @BeanParam JsonQueryParameters queryParameters,
                                                                          @QueryParam("startTime") Long startTime,
                                                                          @QueryParam("endTime") Long endTime) {
         Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
                 builder -> builder.whenCreating(RangeInstantBuilder.closedOpenRange(startTime, endTime));
-        return getConflictsInfo(usagePointMrid, rcpsId, startTime, endTime, queryParameters, conflictValuesSupplier);
+        return getConflictsInfo(usagePointName, rcpsId, startTime, endTime, queryParameters, conflictValuesSupplier);
     }
 
     @GET
     @Path("{rcpsId}/conflicts/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("mrid") String usagePointMrid,
+    public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("name") String usagePointName,
                                                                          @PathParam("rcpsId") long rcpsId,
                                                                          @PathParam("timestamp") long timestamp,
                                                                          @BeanParam JsonQueryParameters queryParameters,
@@ -364,6 +364,6 @@ public class UsagePointCustomPropertySetResource {
                                                                          @QueryParam("endTime") Long endTime) {
         Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
                 builder -> builder.whenUpdating(Instant.ofEpochMilli(timestamp), RangeInstantBuilder.closedOpenRange(startTime, endTime));
-        return getConflictsInfo(usagePointMrid, rcpsId, startTime, endTime, queryParameters, conflictValuesSupplier);
+        return getConflictsInfo(usagePointName, rcpsId, startTime, endTime, queryParameters, conflictValuesSupplier);
     }
 }
