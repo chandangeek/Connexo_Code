@@ -1,18 +1,16 @@
 package com.elster.us.protocolimpl;
 
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -102,40 +100,9 @@ public class SampleProtocol implements MeterProtocol {
 
     }
 
-    public void setCache(Object cacheObject) {
-
-    }
-
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
-        return null;
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-
-    }
-
     @Override
-    public List<String> getRequiredKeys() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getVersion() {
-        return null;
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-
     }
 
 }
