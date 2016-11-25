@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -8,6 +9,7 @@ import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -49,7 +51,7 @@ public class MetrologyConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{metrologyConfigurationId}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public MetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("metrologyConfigurationId") long metrologyConfigurationId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return metrologyService.findMetrologyConfiguration(metrologyConfigurationId)
                 .map(ct -> metrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -67,7 +69,7 @@ public class MetrologyConfigurationResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<MetrologyConfigurationInfo> getMetrologys(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<MetrologyConfigurationInfo> infos = metrologyService.findAllMetrologyConfigurations().stream()
                 .map(ct -> metrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -96,7 +98,7 @@ public class MetrologyConfigurationResource {
      */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return metrologyConfigurationInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

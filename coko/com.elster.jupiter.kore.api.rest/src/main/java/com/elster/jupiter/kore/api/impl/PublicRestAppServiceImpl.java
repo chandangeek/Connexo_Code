@@ -1,7 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
-import com.elster.jupiter.kore.api.impl.security.Privileges;
 import com.elster.jupiter.kore.api.impl.servicecall.TranslationKeys;
+import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -47,5 +47,4 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
                     Stream.of(TranslationKeys.values()))
                 .collect(Collectors.toList());
     }
-
 }

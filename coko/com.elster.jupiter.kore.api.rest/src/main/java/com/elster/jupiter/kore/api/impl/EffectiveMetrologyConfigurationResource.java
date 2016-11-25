@@ -1,11 +1,13 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -46,7 +48,7 @@ public class EffectiveMetrologyConfigurationResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public EffectiveMetrologyConfigurationInfo getEffectiveMetrologyConfiguration(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
@@ -68,7 +70,7 @@ public class EffectiveMetrologyConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{timestamp}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public EffectiveMetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("mRID") String mRID, @PathParam("timestamp") long timestamp, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
@@ -96,7 +98,7 @@ public class EffectiveMetrologyConfigurationResource {
      */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return effectiveMetrologyConfigurationInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

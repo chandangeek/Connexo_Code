@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
@@ -11,6 +12,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -56,7 +58,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{cpsId}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public UsagePointCustomPropertySetInfo getUsagePointCustomPropertySet(@PathParam("mRID") String mRID,
                                                                           @PathParam("cpsId") long cpsId,
                                                                           @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
@@ -85,7 +87,7 @@ public class UsagePointCustomPropertySetResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<UsagePointCustomPropertySetInfo> getUsagePointCustomPropertySets(@PathParam("mRID") String mRID,
                                                                                           @BeanParam FieldSelection fieldSelection,
                                                                                           @Context UriInfo uriInfo,
@@ -116,7 +118,7 @@ public class UsagePointCustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{cpsId}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public UsagePointCustomPropertySetInfo updateUsagePointCustomPropertySet(@PathParam("mRID") String mRID,
                                                                              @PathParam("cpsId") long cpsId,
@@ -157,7 +159,7 @@ public class UsagePointCustomPropertySetResource {
      */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return usagePointCustomPropertySetInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

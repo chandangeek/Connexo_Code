@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -13,6 +14,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -59,7 +61,7 @@ public class MeterActivationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{meterActivationId}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public MeterActivationInfo getMeterActivation(@PathParam("mRID") String mRID, @PathParam("meterActivationId") long meterActivationId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         MeterActivation meterActivation = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
@@ -82,7 +84,7 @@ public class MeterActivationResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<MeterActivationInfo> getMeterActivations(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
@@ -110,7 +112,7 @@ public class MeterActivationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public MeterActivationInfo createMeterActivation(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
         if (meterActivationInfo == null) {
@@ -159,7 +161,7 @@ public class MeterActivationResource {
      */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return meterActivationInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

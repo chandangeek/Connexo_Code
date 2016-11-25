@@ -1,10 +1,10 @@
 package com.elster.jupiter.kore.api.impl;
 
-import com.elster.jupiter.kore.api.impl.security.Privileges;
 import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
@@ -88,7 +88,7 @@ public class UsagePointResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{mRID}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public UsagePointInfo getUsagePoint(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return meteringService.findUsagePointByMRID(mRID)
                 .map(ct -> usagePointInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -116,7 +116,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{mRID}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
         if (usagePointInfo.version == null) {
@@ -148,7 +148,7 @@ public class UsagePointResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<UsagePointInfo> getAllUsagePoints(@BeanParam FieldSelection fieldSelection,
                                                            @Context UriInfo uriInfo,
                                                            @BeanParam JsonQueryParameters queryParameters) {
@@ -184,7 +184,7 @@ public class UsagePointResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public Response createUsagePoint(UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
         if (usagePointInfo.serviceKind == null) {
@@ -219,7 +219,7 @@ public class UsagePointResource {
      */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API, Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         List<String> fields = usagePointInfoFactory.getAvailableFields().stream().sorted().collect(toList());
         fields.add("serviceKind"); // Jackson type property
@@ -230,7 +230,7 @@ public class UsagePointResource {
     @Path("/{mRID}/details")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Object getDetailsResource(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
@@ -252,7 +252,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{mRID}/commands")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public CommandRunStatusInfo runCommandOnUsagePoint(@PathParam("mRID") String mRID, UsagePointCommandInfo usagePointCommandInfo) {
         UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
@@ -270,9 +270,10 @@ public class UsagePointResource {
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{mRID}")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public Response deleteUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
-        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
+        UsagePoint usagePoint = meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, usagePointInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         usagePoint.makeObsolete();
         return Response.noContent().build();

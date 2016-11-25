@@ -26,6 +26,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableList;
@@ -74,6 +75,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile UpgradeService upgradeService;
     private volatile PropertySpecService propertySpecService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile UserService userService;
 
     @Activate
     public void activate() {
@@ -92,6 +94,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(OrmService.class).toInstance(ormService);
+                bind(UserService.class).toInstance(userService);
             }
         });
 
@@ -100,7 +103,8 @@ public class PublicRestApplication extends Application implements TranslationKey
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 3), UpgraderV10_3.class
                 ));
     }
 
@@ -205,6 +209,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     private Factory<Validator> getValidatorFactory() {

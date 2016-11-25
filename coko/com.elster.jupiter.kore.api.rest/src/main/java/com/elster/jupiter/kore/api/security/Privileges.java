@@ -1,11 +1,11 @@
-package com.elster.jupiter.kore.api.impl.security;
+package com.elster.jupiter.kore.api.security;
 
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum Privileges implements TranslationKey {
     //Resources
-    RESOURCE_PUBLIC_API("public.api", "Public API"),
-    RESOURCE_PUBLIC_API_DESCRIPTION("public.api.description", "Manage public API"),
+    RESOURCE_PUBLIC_API("pulse.public.api", "Public API"),
+    RESOURCE_PUBLIC_API_DESCRIPTION("pulse.public.api.description", "Manage public API"),
 
     //Privileges
     PUBLIC_REST_API(Constants.PUBLIC_REST_API, "Invoke");
@@ -32,6 +32,6 @@ public enum Privileges implements TranslationKey {
     }
 
     public interface Constants {
-        String PUBLIC_REST_API = "privilege.public.api.rest";
+        String PUBLIC_REST_API = "privilege.pulse.public.api.rest";
     }
 }

@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCustomPropertySet;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandDomainExtension;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHandler;
+import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -13,9 +14,12 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.rest.util.hypermedia.Roles;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -28,20 +32,23 @@ public class Installer implements FullInstaller {
     private final MessageService messageService;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
+    private final UserService userService;
 
     @Inject
-    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService, MessageService messageService, Thesaurus thesaurus) {
+    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService, MessageService messageService, Thesaurus thesaurus, UserService userService) {
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.messageService = messageService;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.userService = userService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         createUsagePointCommandServiceCallType();
         createUsagePointCommandDestinationSpec();
+        createDeveloperRoleWithPrivileges(logger);
     }
 
     private void createUsagePointCommandServiceCallType() {
@@ -86,4 +93,30 @@ public class Installer implements FullInstaller {
         }
     }
 
+    private void createDeveloperRoleWithPrivileges(Logger logger) {
+        doTry(
+                "Create default role: Developer",
+                this::createDeveloperRole,
+                logger
+        );
+        doTry(
+                "Assign privileges to Developer role",
+                this::assignPrivilegesToDeveloperRole,
+                logger
+        );
+        userService.addModulePrivileges(new PublicRestApplicationPrivilegesProvider(userService));
+    }
+
+    private void createDeveloperRole() {
+        Optional<Group> developer = userService.findGroup(Roles.DEVELOPER.value());
+        if (!developer.isPresent()) {
+            userService.createGroup(Roles.DEVELOPER.value(), Roles.DEVELOPER.description());
+        }
+    }
+
+    private void assignPrivilegesToDeveloperRole() {
+        userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
+        //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
+        userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.DEVELOPER.value())).findFirst().get()));
+    }
 }
