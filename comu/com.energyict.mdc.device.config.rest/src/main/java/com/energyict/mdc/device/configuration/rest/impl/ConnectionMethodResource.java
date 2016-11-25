@@ -34,10 +34,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -78,28 +78,22 @@ public class ConnectionMethodResource {
                                               @BeanParam JsonQueryParameters queryParameters,
                                               @Context UriInfo uriInfo,
                                               @QueryParam("available") Boolean available,
-                                              @QueryParam("mrId") String mrId) {
+                                              @QueryParam("deviceId") long deviceId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
-        List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
-        List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
+        List<PartialConnectionTask> partialConnectionTasks;
         if (available != null) {
-            Device device = deviceService.findByUniqueMrid(mrId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mrId));
+            Device device = deviceService.findDeviceById(deviceId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceId));
             if (device.getDeviceConfiguration().getId() != deviceConfigurationId) {
                 throw exceptionFactory.newException(MessageSeeds.DEVICE_DOES_NOT_MATCH_CONFIG);
             }
-            partialConnectionTasks.addAll(findAvailablePartialConnectionTasksByDevice(device, deviceConfiguration));
+            partialConnectionTasks = findAvailablePartialConnectionTasksByDevice(device, deviceConfiguration);
         } else {
-            partialConnectionTasks.addAll(deviceConfiguration.getPartialConnectionTasks());
+            partialConnectionTasks = deviceConfiguration.getPartialConnectionTasks();
         }
-        Collections.sort(partialConnectionTasks, new Comparator<PartialConnectionTask>() {
-            @Override
-            public int compare(PartialConnectionTask pct1, PartialConnectionTask pct2) {
-                return pct1.getName().compareToIgnoreCase(pct2.getName());
-            }
-        });
-        for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
-            connectionMethodInfos.add(connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo));
-        }
+        List<ConnectionMethodInfo<?>> connectionMethodInfos = partialConnectionTasks.stream()
+                .sorted(Comparator.comparing(PartialConnectionTask::getName, String.CASE_INSENSITIVE_ORDER))
+                .map(partialConnectionTask -> connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo))
+                .collect(Collectors.toList());
         List<ConnectionMethodInfo<?>> pagedConnectionMethodInfos = ListPager.of(connectionMethodInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("data", pagedConnectionMethodInfos, queryParameters);
     }
