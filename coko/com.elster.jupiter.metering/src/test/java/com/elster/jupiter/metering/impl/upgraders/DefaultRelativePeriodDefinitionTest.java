@@ -16,7 +16,6 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
 import java.time.ZonedDateTime;
-import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -57,7 +56,7 @@ public class DefaultRelativePeriodDefinitionTest {
         // Asserts
         assertThat(interval.lowerEndpoint()).isEqualTo(ZonedDateTime.of(2016, 11, 16, 4, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
         assertThat(interval.hasUpperBound()).isTrue();
-        assertThat(interval.upperEndpoint()).isEqualTo(ZonedDateTime.of(2016, 11, 23, 4, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
+        assertThat(interval.upperEndpoint()).isEqualTo(ZonedDateTime.of(2016, 11, 22, 4, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
     }
 
     @Test
@@ -70,7 +69,7 @@ public class DefaultRelativePeriodDefinitionTest {
         // Asserts
         assertThat(interval.lowerEndpoint()).isEqualTo(ZonedDateTime.of(2016, 11, 16, 4, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
         assertThat(interval.hasUpperBound()).isTrue();
-        assertThat(interval.upperEndpoint()).isEqualTo(ZonedDateTime.of(2016, 11, 24, 4, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
+        assertThat(interval.upperEndpoint()).isEqualTo(ZonedDateTime.of(2016, 11, 23, 4, 0, 0, 0, TimeZoneNeutral.getMcMurdo()));
     }
 
     @Test
@@ -218,7 +217,6 @@ public class DefaultRelativePeriodDefinitionTest {
 
     @Test
     public void previousWeekJustBeforeEndOfWeek() {
-        System.out.println(Locale.getDefault().toString());
         ZonedDateTime zonedDateTime = ZonedDateTime.of(2016, 11, 27, 3, 59, 59, 999, TimeZoneNeutral.getMcMurdo());
 
         // Business method

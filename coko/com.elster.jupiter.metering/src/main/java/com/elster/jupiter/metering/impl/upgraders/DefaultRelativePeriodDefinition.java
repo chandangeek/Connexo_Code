@@ -39,7 +39,7 @@ public enum DefaultRelativePeriodDefinition {
 
         @Override
         protected RelativeDate toWith(GasDayOptions gasDayOptions) {
-            return atStartOfDay(gasDayOptions, DAY.plus(1));
+            return atStartOfDay(gasDayOptions);
         }
     },
     PREVIOUS_MONTH(GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_MONTH) {
