@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl.properties;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.TimeZone;
 
 /**
@@ -116,6 +117,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Duration values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Duration> durationSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
