@@ -20,8 +20,8 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_SCHEDULE_PROPERTY_NOT_IN_SPEC(1005, Constants.IMPORT_SCHEDULE_PROPERTY_NOT_IN_SPEC_KEY, "The import schedule ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE(1006, Constants.IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE_KEY, "This property contains an invalid value", Level.SEVERE),
     IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING(1007, Constants.IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
-    FILE_IMPORT_STARTED(1008, Constants.FILE_IMPORT_STARTED, "Start importing file", Level.INFO),
-    FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Finish importing file", Level.INFO),
+    FILE_IMPORT_STARTED(1008, Constants.FILE_IMPORT_STARTED, "Import is started", Level.INFO),
+    FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Import is finished", Level.INFO),
     CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER(1009, Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER, "Import folder can not be the same as in process, success or failure folders", Level.INFO),
     VALID_PATH_REQUIRED(1010, Constants.VALID_PATH_REQUIRED, "This field requires a valid path.", Level.SEVERE)
         ;
