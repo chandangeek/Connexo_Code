@@ -13,6 +13,8 @@ public class TaskSummaryList {
     private int total = 0;
     private List<TaskSummary> tasks;
 
+    public TaskSummaryList(){}
+
     public TaskSummaryList(RuntimeDataService runtimeDataService, List<TaskSummary> tasks) {
         for (TaskSummary summary : tasks) {
             ProcessDefinition process = runtimeDataService.getProcessById(summary.getProcessName());
