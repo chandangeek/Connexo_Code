@@ -16,7 +16,6 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurat
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
-import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
 
@@ -64,7 +63,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT)) {
                 loadProfileOptInOUT(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.SET_DISPLAY_ON_OFF)) {
-                setDiplayOnOff(pendingMessage);
+                setDisplayOnOff(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.WRITE_MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES)) {
                 collectedMessage = writeMeasurementPeriod3ForInstantaneousValues(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects)) {
@@ -166,11 +165,18 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         scriptStruct.addDataType(new OctetString(LOAD_PROFILE_CONTROL_SCRIPT_TABLE.getLN()));
         scriptStruct.addDataType(new Unsigned16(scriptId));
 
+        getProtocol().getLogger().info("Writing Load profile control schedule in {"+LOAD_PROFILE_CONTROL_SCHEDULE_OBISCODE+"}: "+scriptStruct.toString());
         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(LOAD_PROFILE_CONTROL_SCHEDULE_OBISCODE);
         sas.writeExecutedScript(scriptStruct);
+
+        getProtocol().getLogger().info("Executing script activation in {"+LOAD_PROFILE_CONTROL_SCRIPT_TABLE+"}, scriptId="+scriptId);
+        ScriptTable loadProfileControlScriptTable = getCosemObjectFactory().getScriptTable(LOAD_PROFILE_CONTROL_SCRIPT_TABLE);
+        loadProfileControlScriptTable.execute(scriptId);
+
+        getProtocol().getLogger().info("Load Profile Opt In/Out ended successfully.");
     }
 
-    private void setDiplayOnOff(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    private void setDisplayOnOff(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String modeName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.setDisplayOnOffModeAttributeName).getDeviceMessageAttributeValue();
         int modeId = SetDisplayMode.fromModeName(modeName);
 
@@ -178,8 +184,15 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         scriptStruct.addDataType(new OctetString(LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE.getLN()));
         scriptStruct.addDataType(new Unsigned16(modeId));
 
+        getProtocol().getLogger().info("Writing Load profile display control {"+LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE+"}: "+scriptStruct.toString());
         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE);
         sas.writeExecutedScript(scriptStruct);
+
+        getProtocol().getLogger().info("Executing script activation in {"+LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE+"}, modeId="+modeId);
+        ScriptTable loadProfileControlScriptTable = getCosemObjectFactory().getScriptTable(LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE);
+        loadProfileControlScriptTable.execute(modeId);
+
+        getProtocol().getLogger().info("Load Profile On/Off ended successfully.");
     }
 
     private CollectedMessage resetSecurityEventCounterObjects(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
