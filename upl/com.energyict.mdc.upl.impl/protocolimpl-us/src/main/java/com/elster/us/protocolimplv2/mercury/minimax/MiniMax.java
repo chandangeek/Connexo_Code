@@ -1,18 +1,18 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -23,7 +23,11 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -40,9 +44,6 @@ import com.elster.us.protocolimplv2.mercury.minimax.utility.ObisCodeMapper;
 import com.elster.us.protocolimplv2.mercury.minimax.utility.UnitMapper;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -64,6 +65,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -565,15 +568,9 @@ public class MiniMax implements DeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties typedProperties) {
-        properties.setAllProperties(typedProperties);
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        this.properties.setAllProperties(properties);
     }
-
-    /*
-    public void resetDemand() throws IOException {
-        getConnection().writeSingleRegisterValue(OBJECT_MAX_DAY, "0");
-    }
-    */
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -593,23 +590,13 @@ public class MiniMax implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return properties.getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return properties.getOptionalProperties();
+    public List<PropertySpec> getPropertySpecs() {
+        return this.properties.getPropertySpecs();
     }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return securitySupport.getSecurityProperties();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return securitySupport.getSecurityRelationTypeName();
     }
 
     @Override
@@ -623,7 +610,7 @@ public class MiniMax implements DeviceProtocol {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String s) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String s) {
         return this.securitySupport.getSecurityPropertySpec(s);
     }
 
@@ -720,7 +707,7 @@ public class MiniMax implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        List<DeviceProtocolDialect> dialect = new ArrayList();
+        List<DeviceProtocolDialect> dialect = new ArrayList<>();
         dialect.add(new MiniMaxTcpDeviceProtocolDialect());
         return dialect;
     }
@@ -731,10 +718,10 @@ public class MiniMax implements DeviceProtocol {
     }
 
     /**
-     * Read multiple register values from the device
-     * @param list a {@List} of {@Register} representing the registers to be read
-     * @return a {@List} of {@RegisterValue} representing the register values
-     * @throws IOException
+     * Read multiple register values from the device.
+     *
+     * @param list The List of registers to be read
+     * @return The List of CollectedRegister
      */
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> list) {
@@ -768,7 +755,7 @@ public class MiniMax implements DeviceProtocol {
                     unit = UnitMapper.getUncVolUnits();
                 }
 
-                RegisterIdentifier registerIdentifier = new RegisterIdentifierById(list.get(i).getRegisterId(), list.get(i).getObisCode());
+                RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode());
                 CollectedRegister register = new DefaultDeviceRegister(registerIdentifier);
                 retVal.add(register);
 

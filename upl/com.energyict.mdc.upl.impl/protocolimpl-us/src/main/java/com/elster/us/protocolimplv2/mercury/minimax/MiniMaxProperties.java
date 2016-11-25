@@ -1,12 +1,11 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,20 +14,20 @@ import java.util.Properties;
  *
  * @author James Fox
  */
-public class MiniMaxProperties implements ConfigurationSupport {
+public class MiniMaxProperties {
 
-    public final static String DEVICE_PWD = "DevicePassword";
-    public final static String DEVICE_ID = "DevideId";
-    public final static String DEVICE_TIMEZONE = "DeviceTimezone";
-    public final static String TIMEZONE = "Timezone";
-    public final static String TIMEOUT = "Timeout";
-    public final static String RETRIES = "Retries";
+    public static final String DEVICE_PWD = "DevicePassword";
+    public static final String DEVICE_ID = "DevideId";
+    public static final String DEVICE_TIMEZONE = "DeviceTimezone";
+    public static final String TIMEZONE = "Timezone";
+    public static final String TIMEOUT = "Timeout";
+    public static final String RETRIES = "Retries";
 
-    private final static String DEFAULT_DEVICE_PWD = "33333";
-    private final static String DEFAULT_DEVICE_TIMEZONE = "US/Eastern";
-    private final static String DEFAULT_TIMEZONE = "US/Eastern";
-    private final static String DEFAULT_DEVICE_ID = "99";
-    private final static int DEFAULT_RETRIES = 3;
+    private static final String DEFAULT_DEVICE_PWD = "33333";
+    private static final String DEFAULT_DEVICE_TIMEZONE = "US/Eastern";
+    private static final String DEFAULT_TIMEZONE = "US/Eastern";
+    private static final String DEFAULT_DEVICE_ID = "99";
+    private static final int DEFAULT_RETRIES = 3;
 
     private Properties properties;
 
@@ -40,6 +39,13 @@ public class MiniMaxProperties implements ConfigurationSupport {
         this.properties = properties;
     }
 
+    public void setAllProperties(Properties properties) {
+        this.setAllProperties(TypedProperties.copyOf(properties));
+    }
+
+    public void setAllProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        this.setAllProperties(TypedProperties.copyOf(properties));
+    }
 
     public void setAllProperties(TypedProperties properties) {
         for (String propertyName : properties.propertyNames()) {
@@ -90,28 +96,19 @@ public class MiniMaxProperties implements ConfigurationSupport {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("MiniMaxProperties").append(" = {\r\n");
-        sb.append("getTimeout").append(" = {\r\n");
-        sb.append("getRetries").append(" = {\r\n");
-        return sb.toString();
+        return "MiniMaxProperties" + " = {\r\n" +
+                "getTimeout" + " = {\r\n" +
+                "getRetries" + " = {\r\n";
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> retVal = new ArrayList<PropertySpec>();
-        retVal.add(PropertySpecFactory.stringPropertySpec(DEVICE_ID));
-        retVal.add(PropertySpecFactory.stringPropertySpec(TIMEZONE));
-        retVal.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT));
-        retVal.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES));
-        retVal.add(PropertySpecFactory.stringPropertySpec(DEVICE_PWD));
-        retVal.add(PropertySpecFactory.stringPropertySpec(DEVICE_TIMEZONE));
-
-        return retVal;
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                    UPLPropertySpecFactory.string(DEVICE_ID, true),
+                    UPLPropertySpecFactory.string(TIMEZONE, true),
+                    UPLPropertySpecFactory.bigDecimal(TIMEOUT, true),
+                    UPLPropertySpecFactory.bigDecimal(RETRIES, true),
+                    UPLPropertySpecFactory.string(DEVICE_PWD, true),
+                    UPLPropertySpecFactory.string(DEVICE_TIMEZONE, true));
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.EMPTY_LIST;
-    }
 }
