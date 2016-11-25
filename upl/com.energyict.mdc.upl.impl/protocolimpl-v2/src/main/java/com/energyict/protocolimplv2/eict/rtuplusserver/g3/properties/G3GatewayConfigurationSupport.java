@@ -1,17 +1,23 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
 /**
  * A collection of general DLMS properties that are relevant for the G3 gateway protocol.
@@ -23,15 +29,9 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  * Time: 15:41
  * Author: khe
  */
-public class G3GatewayConfigurationSupport implements ConfigurationSupport {
+public class G3GatewayConfigurationSupport {
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -44,32 +44,48 @@ public class G3GatewayConfigurationSupport implements ConfigurationSupport {
     }
 
     private PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
     }
 
     private PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+        return Services
+                    .propertySpecService()
+                    .timezoneSpec()
+                    .named(TIMEZONE, TIMEZONE)
+                    .describedAs("Description for " + TIMEZONE)
+                    .finish();
     }
 
     private PropertySpec validateInvokeIdPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_INVOKE_ID, true);
+        return UPLPropertySpecFactory.booleanValue(VALIDATE_INVOKE_ID, true);
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(G3GatewayProperties.AARQ_TIMEOUT, G3GatewayProperties.AARQ_TIMEOUT_DEFAULT);
+        return this.durationPropertySpecBuilder(G3GatewayProperties.AARQ_TIMEOUT)
+                    .setDefaultValue(G3GatewayProperties.AARQ_TIMEOUT_DEFAULT)
+                    .finish();
     }
 
     private PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DlmsProtocolProperties.READCACHE_PROPERTY);
+        return UPLPropertySpecFactory.booleanValue(DlmsProtocolProperties.READCACHE_PROPERTY, false);
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(
-                FORCED_DELAY,
-                new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000));
+        return this.durationPropertySpecBuilder(FORCED_DELAY)
+                .setDefaultValue(Duration.ofMillis(DEFAULT_FORCED_DELAY.longValue()))
+                .finish();
     }
 
     private PropertySpec maxRecPduSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
     }
+
+    private PropertySpecBuilder<Duration> durationPropertySpecBuilder(String name) {
+        return Services
+                .propertySpecService()
+                .durationSpec()
+                .named(name, name)
+                .describedAs("Description for " + name);
+    }
+
 }

@@ -98,7 +98,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     public void setProperties(Properties properties) {
-
+        this.addProperties(TypedProperties.copyOf(properties));
     }
 
     @Override

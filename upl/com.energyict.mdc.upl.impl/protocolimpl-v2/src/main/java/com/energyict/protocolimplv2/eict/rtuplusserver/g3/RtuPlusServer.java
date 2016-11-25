@@ -2,17 +2,17 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -21,15 +21,16 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.LastSeenDateInfo;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.cbo.ObservationTimestampProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;
@@ -38,7 +39,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -67,6 +67,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -139,7 +141,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
      */
     protected void readFrameCounter() {
-        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        com.energyict.protocolimpl.properties.TypedProperties clone = com.energyict.protocolimpl.properties.TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);
@@ -238,7 +240,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                     //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
-                    LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, g3Node.getLastSeenDate());
+                    CollectedTopology.ObservationTimestampProperty lastSeenDateInfo = ObservationTimestampProperties.from(g3Node.getLastSeenDate(), G3Properties.PROP_LASTSEENDATE);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
                     deviceTopology.addAdditionalCollectedDeviceInfo(
                             MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
@@ -280,10 +282,10 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
      */
     private long getConfiguredLastSeenDate(String macAddress) {
         for (OfflineDevice slaveDevice : offlineDevice.getAllSlaveDevices()) {
-            String configuredCallHomeId = slaveDevice.getAllProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+            String configuredCallHomeId = slaveDevice.getAllProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
             configuredCallHomeId = configuredCallHomeId == null ? "" : configuredCallHomeId;
             if (macAddress.equals(configuredCallHomeId)) {
-                return slaveDevice.getAllProperties().getIntegerProperty(G3Properties.PROP_LASTSEENDATE, BigDecimal.ZERO).longValue();
+                return slaveDevice.getAllProperties().getTypedProperty(G3Properties.PROP_LASTSEENDATE, BigDecimal.ZERO).longValue();
             }
         }
         return 0L;
@@ -374,8 +376,8 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        getDlmsSessionProperties().addProperties(properties);
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        this.getDlmsSessionProperties().setProperties(properties);
     }
 
     @Override
@@ -390,16 +392,11 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getConfigurationSupport().getRequiredProperties();
+    public List<PropertySpec> getPropertySpecs() {
+        return getConfigurationSupport().getPropertySpecs();
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getConfigurationSupport().getOptionalProperties();
-    }
-
-    protected ConfigurationSupport getConfigurationSupport() {
+    protected G3GatewayConfigurationSupport getConfigurationSupport() {
         if (configurationSupport == null) {
             configurationSupport = new G3GatewayConfigurationSupport();
         }
@@ -409,11 +406,6 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return getSecuritySupport().getSecurityProperties();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
     }
 
     @Override
@@ -427,7 +419,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
     }
 
