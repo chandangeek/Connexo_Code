@@ -94,6 +94,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
 
     int forcedDelay;
     int MaxNrOfDaysProfileData;
+    protected int profileRequestBlockSize = 8;
 
     /**
      * Creates a new instance of Abba1500, empty constructor
@@ -227,8 +228,8 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getProperty("MaxNrOfDaysProfileData", "0").trim());
-
             strDateFormat = properties.getProperty("DateFormat", "yy/MM/dd").trim();
+            this.profileRequestBlockSize = Integer.parseInt(properties.getProperty("ProfileRequestBlockSize", "8"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -324,6 +325,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         result.add("Software7E1");
         result.add("DateFormat");
         result.add("MaxNrOfDaysProfileData");
+        result.add("ProfileRequestBlockSize");
         return result;
     }
 
@@ -331,7 +333,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Thu Nov 26 15:23:57 2015 +0200 $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -355,6 +357,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             abba1500Registry = new ABBA1500Registry(this, this, getDateFormat());
             abba1500Profile = new ABBA1500Profile(this, this, abba1500Registry);
             abba1500Profile.setFirmwareVersion(getIFirmwareVersion());
+            abba1500Profile.setProfileRequestBlockSize(profileRequestBlockSize);
         } catch (ConnectionException e) {
             logger.severe("ABBA1500: init(...), " + e.getMessage());
         }

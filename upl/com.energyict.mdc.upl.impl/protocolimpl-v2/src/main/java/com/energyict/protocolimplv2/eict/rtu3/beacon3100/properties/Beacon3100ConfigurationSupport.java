@@ -49,6 +49,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
         optionalProperties.add(serverTLSCertificate());
         optionalProperties.add(callingAPTitlePropertySpec());
+        optionalProperties.add(deviceSystemTitlePropertySpec());
         optionalProperties.add(publicClientPreEstablishedPropertySpec());
 
         optionalProperties.add(useCachedFrameCounter());
@@ -163,5 +164,9 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      */
     private PropertySpec pskEncryptionKeyPropertySpec() {
         return PropertySpecFactory.encryptedStringPropertySpec(PSK_ENCRYPTION_KEY);
+    }
+
+    public PropertySpec deviceSystemTitlePropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE);
     }
 }
