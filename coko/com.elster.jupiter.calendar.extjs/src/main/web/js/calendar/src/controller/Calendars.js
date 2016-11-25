@@ -119,20 +119,17 @@ Ext.define('Cal.controller.Calendars', {
         record.getProxy().setUrl('/api/cal/calendars');
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('calendar.remove.msg', 'CAL', 'This calendar will no longer be available.'),
+                msg: Uni.I18n.translate('calendar.remove.msg', 'CAL', 'You will not longer be able to use this calendar.'),
                 title: Uni.I18n.translate('general.removeX', 'CAL', "Remove '{0}'?", [record.data.name]),
                 fn: function (state) {
                     if (state === 'confirm') {
                         record.destroy({
                             success: function () {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('calendar.remove.success.msg', 'CAL', 'Calendar removed'));
-                                store.load( {
-                                    callback: function (records, operation, success) {
-                                        if(success === true) {
-             //                               me.updateCalendarsCounter();
-                                        }
-                                    }
-                                });
+                                var grid = me.getTimeOfUseGrid();
+                                grid.down('pagingtoolbartop').totalCount = 0;
+                                grid.down('pagingtoolbarbottom').resetPaging();
+                                grid.getStore().load();
                             }
                         });
                     }
