@@ -6,6 +6,6 @@ Ext.define('Uni.store.WhatsGoingOn', {
     ],
 
     storeId: 'whatsgoingon',
-    mrId: null
+    deviceId: null
 
 });
