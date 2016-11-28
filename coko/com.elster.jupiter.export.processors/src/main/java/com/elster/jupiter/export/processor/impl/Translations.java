@@ -44,7 +44,8 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
     }
 
     enum Labels implements TranslationKey {
-        CSV_FORMATTER(StandardCsvDataFormatterFactory.NAME, "CSV formatter"),
+        CSV_METER_DATA_FORMATTER(CsvMeterDataFormatterFactory.NAME, "CSV formatter"),
+        CSV_USAGEPOINT_DATA_FORMATTER(CsvUsagePointDataFormatterFactory.NAME, "CSV formatter"),
         CSV_EVENTS_FORMATTER(StandardCsvEventDataFormatterFactory.NAME, "CSV formatter"),
         AND("des.processor.and", "and");
 

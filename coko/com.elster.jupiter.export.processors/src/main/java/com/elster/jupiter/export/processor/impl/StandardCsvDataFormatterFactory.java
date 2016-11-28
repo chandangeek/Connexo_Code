@@ -13,25 +13,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.FancyJoiner;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
-        property = {
-                DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE,
-                DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_USAGE_POINT_DATA_TYPE
-        },
-        service = DataFormatterFactory.class, immediate = true)
-public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
+public abstract class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
-    static final String NAME = "standardCsvDataProcessorFactory";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
@@ -51,54 +40,55 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
         setThesaurus(nlsService);
     }
 
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
-    @Reference
-    public void setThesaurus(NlsService nlsService) {
+    void setThesaurus(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.REST);
     }
 
-    @Reference
-    public void setDataExportService(DataExportService dataExportService) {
+    void setDataExportService(DataExportService dataExportService) {
         this.dataExportService = dataExportService;
     }
 
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(
-                propertySpecService
-                        .stringSpec()
-                        .named(FormatterProperties.TAG)
-                        .fromThesaurus(this.thesaurus)
-                        .markRequired()
-                        .finish());
-        propertySpecs.add(
-                propertySpecService
-                        .stringSpec()
-                        .named(FormatterProperties.UPDATE_TAG)
-                        .fromThesaurus(this.thesaurus)
-                        .markRequired()
-                        .finish());
+    Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    PropertySpec getTagProperty() {
+        return propertySpecService
+                .stringSpec()
+                .named(FormatterProperties.TAG)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .finish();
+    }
+
+    PropertySpec getUpdateTagProperty() {
+        return propertySpecService
+                .stringSpec()
+                .named(FormatterProperties.UPDATE_TAG)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .finish();
+    }
+
+    PropertySpec getSeparatorProperty() {
         Stream<TranslatablePropertyValueInfo> separatorValues =
                 FormatterProperties
                         .separatorValues()
                         .stream()
                         .map(this::asInfo);
-        propertySpecs.add(
-                propertySpecService
-                        .specForValuesOf(new TranslatablePropertyValueInfoFactory(thesaurus))
-                        .named(FormatterProperties.SEPARATOR)
-                        .fromThesaurus(this.thesaurus)
-                        .markRequired()
-                        .addValues(separatorValues.toArray(TranslatablePropertyValueInfo[]::new))
-                        .markExhaustive(PropertySelectionMode.COMBOBOX)
-                        .setDefaultValue(this.asInfo(FormatterProperties.defaultSeparator()))
-                        .finish());
-        return propertySpecs;
+        return propertySpecService
+                .specForValuesOf(new TranslatablePropertyValueInfoFactory(thesaurus))
+                .named(FormatterProperties.SEPARATOR)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .addValues(separatorValues.toArray(TranslatablePropertyValueInfo[]::new))
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .setDefaultValue(this.asInfo(FormatterProperties.defaultSeparator()))
+                .finish();
     }
 
     private TranslatablePropertyValueInfo asInfo(FormatterProperties property) {
@@ -108,11 +98,6 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
         return new StandardCsvDataFormatter(properties, dataExportService);
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 
     @Override
@@ -140,10 +125,5 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     private String asString(String invalidCharacters) {
         String and = ' ' + thesaurus.getFormat(Translations.Labels.AND).format() + ' ';
         return Pattern.compile("").splitAsStream(invalidCharacters).collect(FancyJoiner.joining(", ", and));
-    }
-
-    @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(Translations.Labels.CSV_FORMATTER).format();
     }
 }
