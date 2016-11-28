@@ -59,7 +59,7 @@ public class DeviceShipmentImporterFactory extends AbstractDeviceDataFileImporte
         String dateFormat = (String) properties.get(DATE_FORMAT.getPropertyKey());
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
 
-        FileImportParser<DeviceShipmentImportRecord> parser = new FileImportDescriptionBasedParser(
+        FileImportParser<DeviceShipmentImportRecord> parser = new FileImportDescriptionBasedParser<>(
                 new DeviceShipmentImportDescription(dateFormat, timeZone));
         FileImportProcessor<DeviceShipmentImportRecord> processor = new DeviceShipmentImportProcessor(getContext());
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());

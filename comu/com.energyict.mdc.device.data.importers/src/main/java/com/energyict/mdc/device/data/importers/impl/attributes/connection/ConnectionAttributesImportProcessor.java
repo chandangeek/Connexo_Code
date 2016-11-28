@@ -1,13 +1,16 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
-import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
@@ -18,33 +21,28 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public class ConnectionAttributesImportProcessor implements FileImportProcessor<ConnectionAttributesImportRecord> {
+public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<ConnectionAttributesImportRecord> {
 
-    private final DeviceDataImporterContext context;
     private final PropertiesConverterConfig propertiesConverterConfig;
 
     private boolean isFirstRow = true;
     private String connectionMethod;
 
     ConnectionAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat) {
-        this.context = context;
+        super(context);
         this.propertiesConverterConfig = PropertiesConverterConfig.newConfig().withNumberFormat(numberFormat);
     }
 
     @Override
     public void process(ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
-        Device device = context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
+        Device device = findDeviceByIdentifier(data.getDeviceIdentifier())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         validateConnectionMethodUniquenessInFile(data);
         Optional<ConnectionTask<?, ?>> connectionTask = device.getConnectionTasks().stream()
                 .filter(task -> task.getName().equals(data.getConnectionMethod())).findFirst();
@@ -112,7 +110,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
             }
             parsedValue = valueFactory.fromStringValue(value);
         } catch (Exception e) {
-            String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(context.getThesaurus()) : valueFactory.getValueType().getName();
+            String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(getContext().getThesaurus()) : valueFactory.getValueType().getName();
             throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), propertySpec.getName(), expectedFormat);
         }
         try {
@@ -141,9 +139,9 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
                 InboundConnectionTask connectionTask = inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
                 logMissingPropertiesIfIncomplete(connectionTask, data, logger);
             } catch (ConstraintViolationException ex) {
-                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), buildConstraintViolationCause(ex));
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getName(), buildConstraintViolationCause(ex));
             } catch (Exception ex) {
-                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), ex.getLocalizedMessage());
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getName(), ex.getLocalizedMessage());
             }
         }
     }
@@ -158,9 +156,9 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
                 ScheduledConnectionTask connectionTask = scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
                 logMissingPropertiesIfIncomplete(connectionTask, data, logger);
             } catch (ConstraintViolationException ex) {
-                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), buildConstraintViolationCause(ex));
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getName(), buildConstraintViolationCause(ex));
             } catch (Exception ex) {
-                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), ex.getLocalizedMessage());
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getName(), ex.getLocalizedMessage());
             }
         }
     }

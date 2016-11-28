@@ -19,17 +19,17 @@ public class SecurityAttributesImportDescription implements FileImportDescriptio
     public List<FileImportField<?>> getFields(SecurityAttributesImportRecord record) {
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
-        //Device MRID
+        // Device mRID or name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setDeviceMRID)
+                .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
-        //Security settings name
+        // Security settings name
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setSecuritySettingsName)
                 .markMandatory()
                 .build());
-        //Security attributes
+        // Security attributes
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(new FieldSetter<String>() {
                     @Override

@@ -83,6 +83,7 @@ public class ConnectionAttributesImporterFactoryTest {
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -102,7 +103,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testMandatoryColumnsMissed() {
-        String csv = "Device MRID;Connection method name\n" +
+        String csv = "Device name;Connection method name\n" +
                 ";";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createConnectionAttributesImporter();
@@ -115,10 +116,10 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testNoSuchDevice() {
-        String csv = "Device MRID;Connection method name\n" +
+        String csv = "Device name;Connection method name\n" +
                 "VPB0001;Outbound TCP";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
 
         createConnectionAttributesImporter().process(importOccurrence);
 
@@ -130,7 +131,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testNoSuchConnectionMethodEvenOnConfiguration() {
-        String csv = "Device MRID;Connection method name\n" +
+        String csv = "Device name;Connection method name\n" +
                 "VPB0001;Outbound TCP";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -148,7 +149,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testConnectionMethodNameUniquenessThroughFile() {
-        String csv = "Device MRID;Connection method name\n" +
+        String csv = "Device name;Connection method name\n" +
                 "VPB0001;Outbound TCP1\n" +
                 "VPB0002;Outbound TCP2\n" +
                 "VPB0003;Outbound TCP1\n";
@@ -171,7 +172,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testSetAttributesButMandatoryOnesMissed() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;;;";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -198,7 +199,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testSetAttributesSuccessfully() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;100.25;false";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -225,8 +226,32 @@ public class ConnectionAttributesImporterFactoryTest {
     }
 
     @Test
-    public void testUnableToParseAttributes() {
+    public void testSetAttributesForDeviceIdentifiedByMrid() {
         String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+                "6a2632a4-6b73-4a13-bbcc-09c8bdd02308;Outbound TCP;string;100.25;false";
+
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mock(Device.class);
+        when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
+        List<PropertySpec> propertySpecs = Arrays.asList(
+                mockPropertySpec("attr1", new StringFactory(), true),
+                mockPropertySpec("attr2", new BigDecimalFactory(), true),
+                mockPropertySpec("attr3", new BooleanFactory(), false));
+        ConnectionTask connectionTask = mockConnectionTaskWithProperties(false, "Outbound TCP", propertySpecs);
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+
+        createConnectionAttributesImporter().process(importOccurrence);
+
+        verify(logger, never()).info(anyString());
+        verify(logger, never()).warning(anyString());
+        verify(logger, never()).severe(anyString());
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
+    }
+
+    @Test
+    public void testUnableToParseAttributes() {
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;string;string";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -251,7 +276,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testConnectionAttributeInvalidValue() throws Exception {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;string;string";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -277,7 +302,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testCreateNewConnectionMethodOutbound() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;100.25;true";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -309,7 +334,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testCreateNewConnectionMethodOutboundIncomplete() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;100.25;1";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -345,7 +370,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testCreateNewConnectionMethodOutboundCanNotBeCreated() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;100.25;1";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -374,7 +399,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testCreateNewConnectionMethodInbound() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;100.25;1";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -403,7 +428,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testCreateNewConnectionMethodInboundIncomplete() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;100.25;1";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -439,7 +464,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testCreateNewConnectionMethodInboundCanNotBeCreated() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;attr3\n" +
                 "VPB0001;Outbound TCP;string;100.25;1";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -468,7 +493,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
     @Test
     public void testUnknownConnectionMethodAttribute() {
-        String csv = "Device MRID;Connection method name;attr1;attr2;typo\n" +
+        String csv = "Device name;Connection method name;attr1;attr2;typo\n" +
                 "VPB0001;Outbound TCP;string;100.25;1\n" +
                 "VPB0002;Outbound TCP;string;100.25;1\n";
 
@@ -507,10 +532,10 @@ public class ConnectionAttributesImporterFactoryTest {
         return constraintViolationException;
     }
 
-    private Device mockDevice(String mRID) {
+    private Device mockDevice(String deviceName) {
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn(mRID);
-        when(deviceService.findByUniqueMrid(mRID)).thenReturn(Optional.of(device));
+        when(device.getName()).thenReturn(deviceName);
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         return device;
     }
 
