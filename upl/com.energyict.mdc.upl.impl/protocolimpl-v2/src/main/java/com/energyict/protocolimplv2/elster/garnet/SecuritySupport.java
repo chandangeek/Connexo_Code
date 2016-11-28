@@ -1,16 +1,16 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
-import com.energyict.protocolimplv2.security.SecurityRelationTypeName;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author sva
@@ -64,11 +64,6 @@ class SecuritySupport implements DeviceProtocolSecurityCapabilities {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.GARNET_SECURITY.toString();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.singletonList((AuthenticationDeviceAccessLevel) new NoAuthentication());
     }
@@ -79,13 +74,13 @@ class SecuritySupport implements DeviceProtocolSecurityCapabilities {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         for (PropertySpec securityProperty : getSecurityProperties()) {
             if (securityProperty.getName().equals(name)) {
-                return securityProperty;
+                return Optional.of(securityProperty);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

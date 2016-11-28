@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -13,15 +12,15 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
 public abstract class MessageContent {
-	
-	protected final static String ORDINALATTRIBUTENAME = "ordinal";
-	
+
+	protected static final String ORDINALATTRIBUTENAME = "ordinal";
+
 	private int ordinal;
 
 	public MessageContent() {
 		super();
 	}
-	
+
 	public MessageContent(int ordinal) {
 		super();
 		this.ordinal = ordinal;
@@ -53,7 +52,7 @@ public abstract class MessageContent {
 			return result.getWriter().toString();
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ApplicationException("Could not encode the document in xml");
+			throw new IllegalArgumentException("Could not encode the document in xml");
 		}
 	}
 

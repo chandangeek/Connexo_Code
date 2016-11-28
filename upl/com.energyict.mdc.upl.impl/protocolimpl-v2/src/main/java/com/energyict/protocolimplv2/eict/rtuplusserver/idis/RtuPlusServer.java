@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -17,18 +17,19 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -49,6 +50,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author sva
@@ -241,13 +244,8 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getConfigurationSupport().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getConfigurationSupport().getOptionalProperties();
+    public List<PropertySpec> getPropertySpecs() {
+        return this.getConfigurationSupport().getPropertySpecs();
     }
 
     @Override
@@ -261,8 +259,8 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        getDlmsSessionProperties().addProperties(properties);
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        this.getDlmsSessionProperties().setProperties(properties);
     }
 
     @Override
@@ -282,11 +280,6 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return getDlmsSecuritySupport().getSecurityRelationTypeName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getDlmsSecuritySupport().getAuthenticationAccessLevels();
     }
@@ -297,7 +290,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getDlmsSecuritySupport().getSecurityPropertySpec(name);
     }
 

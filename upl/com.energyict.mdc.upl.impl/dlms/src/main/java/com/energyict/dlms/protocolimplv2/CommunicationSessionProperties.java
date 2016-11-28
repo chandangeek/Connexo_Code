@@ -1,7 +1,10 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.TypedProperties;
+
+import java.util.Properties;
 
 /**
  * Contains access to all properties to configure a connection layer (TCP, HDLC,...)
@@ -36,6 +39,10 @@ public interface CommunicationSessionProperties {
      * Return all properties
      */
     TypedProperties getProperties();
+
+    default void setProperties(Properties properties) {
+        this.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties));
+    }
 
     /**
      * The client MAC address.

@@ -6,15 +6,15 @@ import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionTy
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ServerProximusSmsComChannel;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -25,21 +25,21 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.LogBookTypeFactory;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -51,12 +51,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * @author: sva
- * @since: 16/10/12 (10:10)
+ * @author sva
+ * @since 16/10/12 (10:10)
  */
 public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
@@ -95,7 +97,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        this.addProperties(offlineDevice.getAllProperties());
+        this.setProperties(offlineDevice.getAllProperties().toStringProperties());
         updateRequestFactory(comChannel);
     }
 
@@ -110,13 +112,8 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getMTU155Properties().getRequiredGeneralProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getMTU155Properties().getOptionalGeneralProperties();
+    public List<PropertySpec> getPropertySpecs() {
+        return this.getMTU155Properties().getPropertySpecs();
     }
 
     @Override
@@ -230,11 +227,11 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
         if (this.allProperties != null) {
             this.allProperties.setAllProperties(dialectProperties); // this will add the dialectProperties to the deviceProperties
         } else {
-            this.allProperties = dialectProperties;
+            this.allProperties = TypedProperties.copyOf(dialectProperties);
         }
     }
 
@@ -292,11 +289,11 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void setProperties(Properties properties) {
         if (this.allProperties != null) {
-            this.allProperties.setAllProperties(properties); // this will add the properties to the existing properties
+            this.allProperties.setAllProperties(TypedProperties.copyOf(properties)); // this will add the properties to the existing properties
         } else {
-            this.allProperties = properties;
+            this.allProperties = TypedProperties.copyOf(properties);
         }
     }
 
@@ -377,11 +374,6 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return this.getClass().getSimpleName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return securityCapabilities.getAuthenticationAccessLevels();
     }
@@ -392,7 +384,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return securityCapabilities.getSecurityPropertySpec(name);
     }
 

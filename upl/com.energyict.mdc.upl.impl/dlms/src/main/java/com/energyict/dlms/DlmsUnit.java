@@ -1,6 +1,7 @@
 package com.energyict.dlms;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 /**
  * This enum contains the mapping between DLMS unit codes and the EIServer event codes.
@@ -159,7 +160,7 @@ public enum DlmsUnit {
                 return dlmsUnit;
             }
         }
-        throw new ApplicationException("Invalid DLMS unit code [" + dlmsUnitCode + "]");
+        throw new IllegalArgumentException("Invalid DLMS unit code [" + dlmsUnitCode + "]");
     }
 
     /**

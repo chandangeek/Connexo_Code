@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -10,13 +10,12 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.BusinessObject;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BooleanObject;
@@ -41,10 +40,10 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
+import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -69,6 +68,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -640,7 +640,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+            return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.configUserFileAttributeName)) {
             return ProtocolTools.getHexStringFromBytes(((UserFile) propertySpec).loadFileInByteArray(), "");
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {

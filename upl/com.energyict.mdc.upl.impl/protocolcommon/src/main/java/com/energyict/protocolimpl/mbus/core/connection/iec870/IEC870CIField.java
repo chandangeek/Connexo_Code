@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
-import com.energyict.cbo.NotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,11 +14,11 @@ import java.util.List;
  * @author  Koen
  */
 public class IEC870CIField {
-    private static final List<IEC870CIField> typeids = new ArrayList<>();
+    private static final List<IEC870CIField> TYPEIDS = new ArrayList<>();
     static {
-        typeids.add(new IEC870CIField(0x51,"data send (master to slave)"));
-        typeids.add(new IEC870CIField(0x52,"selection of slaves"));
-        typeids.add(new IEC870CIField(0x72,"slave to master: 12 bytes header followed by variable format data"));
+        TYPEIDS.add(new IEC870CIField(0x51,"data send (master to slave)"));
+        TYPEIDS.add(new IEC870CIField(0x52,"selection of slaves"));
+        TYPEIDS.add(new IEC870CIField(0x72,"slave to master: 12 bytes header followed by variable format data"));
     }
 
     private int id;
@@ -48,12 +46,12 @@ public class IEC870CIField {
         if ((id>=41)&&(id<=44)) id=41;
         if ((id>=22)&&(id<=29)) id=22;
 
-        for (IEC870CIField tid : typeids) {
+        for (IEC870CIField tid : TYPEIDS) {
             if (tid.getId() == id) {
                 return tid;
             }
         }
-        throw new NotFoundException("IEC870CIField, id "+id+" not found");
+        throw new IllegalArgumentException("IEC870CIField, id "+id+" not found");
     }
 
 }

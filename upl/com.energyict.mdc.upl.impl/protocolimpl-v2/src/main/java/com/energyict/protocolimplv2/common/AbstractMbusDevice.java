@@ -1,10 +1,8 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -15,15 +13,15 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
@@ -33,7 +31,6 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -67,7 +64,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumber
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
     }
 
     @Override
@@ -91,18 +88,18 @@ public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumber
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         return getDeviceMessageSupport().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
     }
 
     /**
@@ -128,11 +125,6 @@ public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumber
         return getMeterProtocol().getSecurityProperties();
     }
 
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getMeterProtocol().getSecurityRelationTypeName();
-    }
-
     /**
      * Return the access levels of the master AND a dummy level that indicates that this device can also
      * simply inherit the security properties of the master device, instead of specifying the security properties again
@@ -155,11 +147,6 @@ public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumber
         encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
         encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
         return encryptionAccessLevels;
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return getMeterProtocol().getSecurityPropertySpec(name);
     }
 
     //############## Unsupported methods ##############//
@@ -197,11 +184,6 @@ public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumber
     @Override
     public void setTime(Date timeToSet) {
         throw CodingException.unsupportedMethod(this.getClass(), "setTime");
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        throw CodingException.unsupportedMethod(this.getClass(), "addProperties");
     }
 
     @Override

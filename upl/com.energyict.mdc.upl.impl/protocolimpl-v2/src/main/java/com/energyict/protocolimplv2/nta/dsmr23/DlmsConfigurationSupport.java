@@ -1,19 +1,36 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dlms.DlmsSessionProperties;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_CIPHERING_TYPE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_DEVICE_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MANUFACTURER;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEVICE_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FIX_MBUS_HEX_SHORT_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MANUFACTURER;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.NTA_SIMULATION_TOOL;
+import static com.energyict.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
 /**
  * A collection of general DLMS properties.
@@ -25,17 +42,11 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  * Time: 15:41
  * Author: khe
  */
-public class DlmsConfigurationSupport implements ConfigurationSupport {
+public class DlmsConfigurationSupport {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -54,69 +65,83 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
     }
 
     protected PropertySpec serverLowerMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
+        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, BigDecimal.ZERO);
     }
 
     protected PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+        return Services.propertySpecService().timezoneSpec().named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT).finish();
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
+        return this.booleanSpecBuilder(VALIDATE_INVOKE_ID)
+                .setDefaultValue(DEFAULT_VALIDATE_INVOKE_ID)
+                .finish();
+    }
+
+    private PropertySpecBuilder<Boolean> booleanSpecBuilder(String name) {
+        return Services
+                .propertySpecService()
+                .booleanSpec()
+                .named(name, name).describedAs("Description for " + name);
     }
 
     protected PropertySpec deviceId() {
-        return PropertySpecFactory.stringPropertySpec(DEVICE_ID, DEFAULT_DEVICE_ID);
+        return UPLPropertySpecFactory.stringWithDefault(DEVICE_ID, false, DEFAULT_DEVICE_ID);
     }
 
     protected PropertySpec requestTimeZonePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(REQUEST_TIMEZONE);
+        return this.booleanSpecBuilder(REQUEST_TIMEZONE).finish();
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(
-                FORCED_DELAY,
-                new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000));
+        return Services
+                .propertySpecService()
+                .durationSpec()
+                .named(FORCED_DELAY, FORCED_DELAY)
+                .describedAs("Description for " + FORCED_DELAY)
+                .setDefaultValue(Duration.ofMillis(DEFAULT_FORCED_DELAY.longValue()))
+                .finish();
     }
 
     protected PropertySpec conformanceBlockValuePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CONFORMANCE_BLOCK_VALUE, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
+        return UPLPropertySpecFactory.bigDecimal(CONFORMANCE_BLOCK_VALUE, false, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
     }
 
     protected PropertySpec manufacturerPropertySpec() {
-        return PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(MANUFACTURER, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
+        return UPLPropertySpecFactory.stringWithDefault(MANUFACTURER, false, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
     protected PropertySpec bulkRequestPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(BULK_REQUEST);
+        return this.booleanSpecBuilder(BULK_REQUEST).finish();
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CIPHERING_TYPE, DEFAULT_CIPHERING_TYPE);
+        return UPLPropertySpecFactory.bigDecimal(CIPHERING_TYPE, false, DEFAULT_CIPHERING_TYPE);
     }
 
     protected PropertySpec ntaSimulationToolPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(NTA_SIMULATION_TOOL);
+        return this.booleanSpecBuilder(NTA_SIMULATION_TOOL).finish();
     }
 
     protected PropertySpec fixMbusHexShortIdPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(FIX_MBUS_HEX_SHORT_ID);
+        return this.booleanSpecBuilder(FIX_MBUS_HEX_SHORT_ID).finish();
     }
-    
+
     /**
      * Property that can be used to indicate whether or not the public client has a pre-established association.
-     * 
+     *
      * @return	The property specification.
      */
     protected final PropertySpec<Boolean> publicClientPreEstablishedPropertySpec() {
-    	return PropertySpecFactory.notNullableBooleanPropertySpec(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED);
+        return this.booleanSpecBuilder(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
     }
+
 }

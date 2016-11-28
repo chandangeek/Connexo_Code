@@ -65,6 +65,18 @@ public final class UPLPropertySpecFactory {
         return specBuilder(name, required, () -> Services.propertySpecService().longSpec());
     }
 
+    public static PropertySpec<Boolean> booleanValue(String name, boolean required) {
+        return booleanSpecBuilder(name, required).finish();
+    }
+
+    public static PropertySpec<Boolean> booleanValue(String name, boolean required, boolean defaultValue) {
+        return booleanSpecBuilder(name, required).setDefaultValue(defaultValue).finish();
+    }
+
+    private static PropertySpecBuilder<Boolean> booleanSpecBuilder(String name, boolean required) {
+        return specBuilder(name, required, () -> Services.propertySpecService().booleanSpec());
+    }
+
     public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required) {
         return bigDecimalSpecBuilder(name, required).finish();
     }
@@ -72,6 +84,9 @@ public final class UPLPropertySpecFactory {
     public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required, BigDecimal defaultValue, BigDecimal... possibleValues) {
         PropertySpecBuilder<BigDecimal> builder = bigDecimalSpecBuilder(name, required);
         builder.addValues(Arrays.asList(possibleValues));
+        if (possibleValues.length > 0) {
+            builder.markExhaustive();
+        }
         builder.setDefaultValue(defaultValue);
         return builder.finish();
     }
@@ -88,13 +103,16 @@ public final class UPLPropertySpecFactory {
         return string(name, required, Optional.empty(), possibleValues);
     }
 
-    public static PropertySpec<String> string(String name, boolean required, String defaultValue, String... possibleValues) {
+    public static PropertySpec<String> stringWithDefault(String name, boolean required, String defaultValue, String... possibleValues) {
         return string(name, required, Optional.of(defaultValue), possibleValues);
     }
 
     private static PropertySpec<String> string(String name, boolean required, Optional<String> defaultValue, String... possibleValues) {
         PropertySpecBuilder<String> builder = stringSpecBuilder(name, required);
         builder.addValues(Arrays.asList(possibleValues));
+        if (possibleValues.length > 0) {
+            builder.markExhaustive();
+        }
         defaultValue.ifPresent(builder::setDefaultValue);
         return builder.finish();
     }

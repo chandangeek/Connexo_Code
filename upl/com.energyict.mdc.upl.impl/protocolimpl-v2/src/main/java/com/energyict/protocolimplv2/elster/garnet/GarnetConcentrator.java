@@ -3,13 +3,13 @@ package com.energyict.protocolimplv2.elster.garnet;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -19,14 +19,15 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
@@ -42,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author sva
@@ -75,13 +78,8 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getProperties().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getProperties().getOptionalProperties();
+    public List<PropertySpec> getPropertySpecs() {
+        return this.getProperties().getPropertySpecs();
     }
 
     @Override
@@ -215,8 +213,8 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        getRequestFactory().getProperties().addProperties(properties);
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        getRequestFactory().getProperties().setProperties(properties);
     }
 
     @Override
@@ -231,11 +229,6 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getSecuritySupport().getAuthenticationAccessLevels();
     }
@@ -246,7 +239,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
     }
 

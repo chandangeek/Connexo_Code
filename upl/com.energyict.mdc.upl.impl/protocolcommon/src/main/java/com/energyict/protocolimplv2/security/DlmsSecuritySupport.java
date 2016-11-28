@@ -2,19 +2,21 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for a DLMS protocol.
@@ -79,13 +81,13 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         for (PropertySpec securityProperty : getSecurityProperties()) {
             if (securityProperty.getName().equals(name)) {
-                return securityProperty;
+                return Optional.of(securityProperty);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -94,8 +96,10 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
-            if (Password.class.isAssignableFrom(property.getClass())) {
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), null);
+            if (property == null) {
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
+            } else if (Password.class.isAssignableFrom(property.getClass())) {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
             } else {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
@@ -121,7 +125,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(final TypedProperties oldTypedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        return this.convertFromTypedProperties(TypedProperties.copyOf(typedProperties));
+    }
+
+    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(final TypedProperties oldTypedProperties) {
         String securityLevelProperty = oldTypedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
         if (securityLevelProperty == null) {
             securityLevelProperty = getLegacySecurityLevelDefault();
@@ -255,12 +263,8 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
         private final int accessLevel;
 
-        private AuthenticationAccessLevelIds(int accessLevel) {
+        AuthenticationAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
-        }
-
-        protected int getAccessLevel() {
-            return this.accessLevel;
         }
 
     }
@@ -276,13 +280,10 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
         private final int accessLevel;
 
-        private EncryptionAccessLevelIds(int accessLevel) {
+        EncryptionAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
-            return this.accessLevel;
-        }
     }
 
     /**
@@ -302,7 +303,7 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(getClientMacAddressPropertySpec());
+            return Collections.singletonList(getClientMacAddressPropertySpec());
         }
     }
 
@@ -402,7 +403,7 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(getClientMacAddressPropertySpec());
+            return Collections.singletonList(getClientMacAddressPropertySpec());
         }
     }
 

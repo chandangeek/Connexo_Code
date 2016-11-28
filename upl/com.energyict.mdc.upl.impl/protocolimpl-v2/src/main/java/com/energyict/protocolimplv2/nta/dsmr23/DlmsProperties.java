@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -15,10 +14,12 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
+import java.util.Properties;
 import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.ADDRESSING_MODE;
@@ -96,17 +97,20 @@ public class DlmsProperties implements DlmsSessionProperties {
         this.properties = TypedProperties.empty();
     }
 
-    public void addProperties(TypedProperties properties) {
-        this.properties.setAllProperties(properties, true);
+    public void setProperties(Properties properties) {
+        this.addProperties(TypedProperties.copyOf(properties));
     }
 
-    public TypedProperties getProperties() {
+    @Override
+    public void addProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        this.properties.setAllProperties(properties);
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getProperties() {
         return properties;
     }
 
-    /**
-     * The device timezone
-     */
     @Override
     public TimeZone getTimeZone() {
         final Object object = properties.getTypedProperty(TIMEZONE);
@@ -132,10 +136,12 @@ public class DlmsProperties implements DlmsSessionProperties {
         return DLMSReference.LN;
     }
 
+    @Override
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         return securityPropertySet;
     }
 
+    @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet securityPropertySet) {
         this.securityPropertySet = securityPropertySet;
     }
@@ -328,6 +334,7 @@ public class DlmsProperties implements DlmsSessionProperties {
         return serialNumber;
     }
 
+    @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
@@ -383,14 +390,13 @@ public class DlmsProperties implements DlmsSessionProperties {
         return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE).intValue();
     }
 
-    /**
-     * Return the default value, 100 ms.
-     */
     @Override
     public TimeDuration getPollingDelay() {
+        // Return the default value, 100 ms.
         return new TimeDuration(100, TimeDuration.MILLISECONDS);
     }
 
+    @Override
     public GeneralCipheringKeyType getGeneralCipheringKeyType() {
         String keyTypeDescription = properties.getStringProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
 
@@ -407,12 +413,12 @@ public class DlmsProperties implements DlmsSessionProperties {
         return false;
     }
 
-    /**
-     * By default, for all protocols, a timeout means that the available connection to the DLMS device is broken and can no longer be used,
-     * not even for other physical slave devices that share the same connection.
-     */
     @Override
     public boolean timeoutMeansBrokenConnection() {
+        /*
+         * By default, for all protocols, a timeout means that the available connection to the DLMS device is broken and can no longer be used,
+         * not even for other physical slave devices that share the same connection.
+         */
         return true;
     }
 
@@ -421,11 +427,9 @@ public class DlmsProperties implements DlmsSessionProperties {
         return true;    // Protocols who don't want the frame counter to be increased for retries, can override this method
     }
 
-    /**
-     * {@inheritDoc}
-     */
 	@Override
 	public final boolean isPublicClientPreEstablished() {
 		return this.properties.getTypedProperty(PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT);
 	}
+
 }

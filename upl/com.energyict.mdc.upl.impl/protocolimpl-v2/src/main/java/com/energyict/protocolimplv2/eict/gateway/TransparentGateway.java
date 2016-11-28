@@ -13,18 +13,21 @@ import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocolimplv2.common.AbstractGateway;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author sva
@@ -71,11 +74,6 @@ public class TransparentGateway extends AbstractGateway {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getSecuritySupport().getAuthenticationAccessLevels();
     }
@@ -86,17 +84,12 @@ public class TransparentGateway extends AbstractGateway {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -116,7 +109,7 @@ public class TransparentGateway extends AbstractGateway {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void setProperties(Properties properties) throws PropertyValidationException {
         // Do nothing
     }
 

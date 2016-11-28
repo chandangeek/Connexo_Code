@@ -2,7 +2,6 @@ package com.energyict.dlms;
 
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -34,8 +33,6 @@ public abstract class AbstractDLMSProfile {
             ScalerUnit scalerUnit = capturedObject != null ? capturedObject.getScalerUnit() : null;
             unit = scalerUnit != null ? scalerUnit.getEisUnit() : null;
         } catch (IOException e) {
-            throw new ProtocolException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. " + e.getMessage());
-        } catch (ApplicationException e) {
             throw new ProtocolException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. " + e.getMessage());
         }
         if (unit == null) {

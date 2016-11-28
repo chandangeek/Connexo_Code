@@ -29,7 +29,7 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.LastSeenDateInfo;
+import com.energyict.cbo.ObservationTimestampPropertyImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
@@ -439,8 +439,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
-                    LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
-                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
+                    CollectedTopology.ObservationTimestampProperty observationTimestampProperty = new ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
 
                     if (persistedGatewayLogicalDeviceId == null || !gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(

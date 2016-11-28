@@ -42,7 +42,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
      * @return The xml string
      * @throws com.energyict.cbo.BusinessException
      */
-    private final String getCustomMessageContent() throws BusinessException {
+    private String getCustomMessageContent() throws BusinessException {
         try {
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder builder = factory.newDocumentBuilder();
@@ -73,7 +73,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
      * @param doc the {@link org.w3c.dom.Document} to converted
      * @return the XML String from the Document
      */
-    private final String getXmlWithoutDocType(Document doc) throws BusinessException {
+    private String getXmlWithoutDocType(Document doc) throws BusinessException {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             try {
@@ -90,7 +90,6 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
             throw new BusinessException(e);
         }
     }
-
 
     @Override
     public String getDescription() {
@@ -110,10 +109,8 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
         return sb.toString();
     }
 
+    @Override
     public void initFromXml(String xmlString) throws SAXException, IOException {
-
-        System.out.println(xmlString);
-
         try {
             final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -125,14 +122,10 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
             if (!tagName.equals(TAG_FIRMWARE_UPGRADE)) {
                 throw new ProtocolException("Expected tag [" + TAG_FIRMWARE_UPGRADE + "] but received [" + tagName + "]. Could not init from xml!");
             }
-
         } catch (ParserConfigurationException e) {
             throw new NestedIOException(e);
         }
-
-
     }
-
 
     @Override
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {

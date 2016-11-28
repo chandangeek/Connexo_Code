@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.upl.DeviceProtocol;
 
 import java.util.TimeZone;
 

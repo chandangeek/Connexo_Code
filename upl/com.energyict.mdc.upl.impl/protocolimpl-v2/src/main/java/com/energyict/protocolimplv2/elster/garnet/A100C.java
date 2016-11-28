@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.common.AbstractMbusDevice;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
@@ -12,6 +13,7 @@ import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLeve
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author sva
@@ -73,12 +75,13 @@ public class A100C extends AbstractMbusDevice {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        // Ignore since there are not properties
     }
+
 }

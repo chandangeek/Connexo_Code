@@ -3,13 +3,13 @@ package test.com.energyict.protocolimplv2.coronis.waveflow;
 import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -20,7 +20,10 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -31,13 +34,12 @@ import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.properties.Temporals;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
@@ -52,6 +54,8 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.Radi
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.TimeZone;
 
 /**
@@ -182,13 +186,8 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getWaveFlowProperties().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getWaveFlowProperties().getOptionalProperties();
+    public List<PropertySpec> getPropertySpecs() {
+        return this.getWaveFlowProperties().getPropertySpecs();
     }
 
     @Override
@@ -314,8 +313,8 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getWaveFlowProperties().addProperties(dialectProperties);
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
+        this.getWaveFlowProperties().addProperties(dialectProperties);
     }
 
     @Override
@@ -329,11 +328,6 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return getSecuritySupport().getSecurityRelationTypeName();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getSecuritySupport().getAuthenticationAccessLevels();
     }
@@ -344,7 +338,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
     }
 
@@ -370,8 +364,8 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        getWaveFlowProperties().addProperties(properties);
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        this.getWaveFlowProperties().addProperties(TypedProperties.copyOf(properties));
     }
 
     public int getNumberOfChannels() {
@@ -386,7 +380,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     public int getProfileInterval() {
-        return offlineDevice.getAllOfflineLoadProfiles().get(0).getInterval().getSeconds();
+        return (int) Temporals.toSeconds(offlineDevice.getAllOfflineLoadProfiles().get(0).getInterval());
     }
 
     public CommonObisCodeMapper getCommonObisCodeMapper() {
@@ -395,4 +389,5 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
         }
         return commonObisCodeMapper;
     }
+
 }

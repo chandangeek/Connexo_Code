@@ -1,21 +1,26 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.properties.Temporals;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
@@ -30,13 +35,13 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
  * @author sva
  * @since 17/06/2014 - 13:40
  */
-public class GarnetProperties implements ConfigurationSupport {
+public class GarnetProperties implements HasDynamicProperties {
 
     public static final String DEVICE_ID = "DeviceId";
     public static final BigDecimal DEFAULT_DEVICE_ID = new BigDecimal(0);
-    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.MILLISECONDS);
+    public static final TemporalAmount DEFAULT_TIMEOUT = Duration.ofSeconds(10);
+    public static final TemporalAmount DEFAULT_FORCED_DELAY = Duration.ofMillis(0);
+    public static final TemporalAmount DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(100);
 
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
@@ -88,7 +93,7 @@ public class GarnetProperties implements ConfigurationSupport {
      * The timeout interval of the communication session, expressed in milliseconds
      */
     public long getTimeout() {
-        return getProperties().getTypedProperty(TIMEOUT, DEFAULT_TIMEOUT).getMilliSeconds();
+        return Temporals.toMilliSeconds(getProperties().getTypedProperty(TIMEOUT, DEFAULT_TIMEOUT));
     }
 
     /**
@@ -102,11 +107,11 @@ public class GarnetProperties implements ConfigurationSupport {
      * The delay before sending the requests, expressed in milliseconds
      */
     public long getForcedDelay() {
-        return getProperties().getTypedProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY).getMilliSeconds();
+        return Temporals.toMilliSeconds(getProperties().getTypedProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY));
     }
 
     public long getDelayAfterError() {
-        return getProperties().getTypedProperty(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR).getMilliSeconds();
+        return Temporals.toMilliSeconds(getProperties().getTypedProperty(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR));
     }
 
     public byte[] getManufacturerKey() {
@@ -165,30 +170,31 @@ public class GarnetProperties implements ConfigurationSupport {
      */
     public TypedProperties getProperties() {
         if (this.properties == null) {
-            this.properties = TypedProperties.empty();
+            this.properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         }
         return this.properties;
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(
-                this.deviceIdPropertySpec()
-        );
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.timeZonePropertySpec()
-        );
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return Arrays.asList(this.deviceIdPropertySpec(), this.timeZonePropertySpec());
     }
 
     private PropertySpec deviceIdPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DEVICE_ID, DEFAULT_DEVICE_ID);
+        return UPLPropertySpecFactory.bigDecimal(DEVICE_ID, true, DEFAULT_DEVICE_ID);
     }
 
     private PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+        return Services
+                .propertySpecService()
+                .timezoneSpec()
+                .named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT)
+                .finish();
     }
+
+    @Override
+    public void setProperties(Properties properties) throws PropertyValidationException {
+        this.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties));
+    }
+
 }

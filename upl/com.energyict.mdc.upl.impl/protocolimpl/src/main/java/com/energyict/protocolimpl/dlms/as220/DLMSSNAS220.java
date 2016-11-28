@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -173,12 +172,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private int limitMaxNrOfDays;
     private boolean readPlcLogbook;
 
-    /**
-     * Do some extra connect settings
-     *
-     * @throws BusinessException if no correct MBus device is found
-     */
-    protected abstract void doConnect() throws BusinessException;
+    protected abstract void doConnect();
 
     protected abstract String getRegistersInfo() throws IOException;
 

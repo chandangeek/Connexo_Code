@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
