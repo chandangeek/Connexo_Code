@@ -76,7 +76,7 @@ Ext.define('Usr.controller.User', {
         page.down('userDetails').setTitle(Ext.String.htmlEncode(record.get('authenticationName')));
         form.loadRecord(record);
         for (var i = 0; i < currentGroups.length; i++) {
-            roles += Ext.String.htmlEncode(currentGroups[i].data.name) + '<br/>';
+            roles += '- ' + Ext.String.htmlEncode(currentGroups[i].data.name) + '<br/>';
         }
         detailsRoles.setValue(roles);
     },

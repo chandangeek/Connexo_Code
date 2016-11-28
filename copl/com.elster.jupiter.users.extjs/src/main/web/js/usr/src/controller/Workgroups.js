@@ -87,7 +87,7 @@ Ext.define('Usr.controller.Workgroups', {
             preview.down('usr-workgroup-action-menu').record = record;
         }
         record.users().each(function (user) {
-            usersList.push(Ext.htmlEncode(user.get('name')));
+            usersList.push('- ' + Ext.htmlEncode(user.get('name')));
         });
         usersField.setValue((usersList.length == 0) ? usersList = '-' : usersList.join('<br/>'));
         Ext.resumeLayouts();
