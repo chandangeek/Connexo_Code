@@ -7,6 +7,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionType;
@@ -60,7 +61,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-10 12:20:42 +0200 (Tue, 10 May 2016)$";
+        return "$Date: Fri Sep 2 11:39:06 2016 +0300 $";
     }
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
@@ -205,5 +206,10 @@ public class AM130 extends AM500 {
             this.registerFactory = new AM130RegisterFactory(this);
         }
         return registerFactory;
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return getIDISMessaging().prepareMessageContext(offlineDevice, deviceMessage);
     }
 }

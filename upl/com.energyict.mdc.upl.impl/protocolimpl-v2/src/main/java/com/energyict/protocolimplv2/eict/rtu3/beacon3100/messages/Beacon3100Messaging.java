@@ -38,6 +38,7 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.BeaconCache;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
@@ -54,6 +55,7 @@ import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.util.function.Consumer;
@@ -339,9 +341,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return MulticastSerializer.serialize(offlineDevice, deviceMessage);
         } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
             return MulticastSerializer.serialize(offlineDevice, deviceMessage);
-        } else {
-            return "";
+        } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)
+                || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+            new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.AUTHENTICATION_KEY);
+        } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)
+                || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+            new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.ENCRYPTION_KEY);
+        } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)
+                || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+            new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.MASTER_KEY);
         }
+
+        return "";
     }
 
     /**
@@ -1613,22 +1624,23 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     protected CollectedMessage changeEncryptionKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String oldEncryptionKey = ProtocolTools.getHexStringFromBytes(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
         String newKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
-        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
-            return collectedMessage;
-        }
         changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newWrappedEncryptionKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
 
-        //Reset frame counter, only if a different key has been written
-        if (!newKey.equalsIgnoreCase(oldEncryptionKey)) {
-            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        int clientToChangeKeyFor = getClientId(pendingMessage);
+
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        if(clientInUse == clientToChangeKeyFor){
             securityContext.setFrameCounter(1);
-            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+        } else {
+            ((BeaconCache)getProtocol().getDeviceCache()).setTXFrameCounter(clientToChangeKeyFor, 1);
         }
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+
         return collectedMessage;
     }
 
@@ -1668,9 +1680,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     protected CollectedMessage changeAuthKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
         String newKey = getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName);
-        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
-            return collectedMessage;
-        }
         changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newWrappedAuthenticationKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
@@ -1680,9 +1689,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     protected CollectedMessage changeMasterKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
         String newKey = getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName);
-        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
-            return collectedMessage;
-        }
         changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newWrappedMasterKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly

@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
  */
 public enum ClientSecuritySetup {
     Management(1, ObisCode.fromString("0.0.43.0.0.255")),
-    Consumer_Information(1, ObisCode.fromString("0.0.43.0.1.255")),
+    Consumer_Information(103, ObisCode.fromString("0.0.43.0.1.255")),
     Data_Readout(2, ObisCode.fromString("0.0.43.0.2.255")),
     Installation(5, ObisCode.fromString("0.0.43.0.3.255")),
     Maintenance(6, ObisCode.fromString("0.0.43.0.4.255")),
@@ -63,6 +63,10 @@ public enum ClientSecuritySetup {
             result[index] = clients[index].name();
         }
         return result;
+    }
+
+    public final int getID(){
+        return clientId;
     }
 
 }

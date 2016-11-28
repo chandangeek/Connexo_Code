@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
@@ -10,8 +11,10 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
+import com.energyict.protocolimplv2.dlms.idis.am540.AM540Cache;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
@@ -72,6 +75,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 collectedMessage = resetAllSecurityEventCounters(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_EXCEPT_EMERGENCY_ONES)) {
                 collectedMessage = configureLoadLimitParamteresExceptEmergencyOnes(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
+                changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
+                changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -300,5 +307,27 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         collectedMessage.setDeviceProtocolInformation(errorMsg);
         collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+    }
+
+    @Override
+    protected CollectedMessage changeEncryptionKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        String newKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newWrappedEncryptionKeyAttributeName);
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        int clientToChangeKeyFor = getClientId(pendingMessage);
+
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        if(clientInUse == clientToChangeKeyFor){
+            securityContext.setFrameCounter(1);
+        } else {
+            ((AM540Cache)getProtocol().getDeviceCache()).setTXFrameCounter(clientToChangeKeyFor, 1);
+        }
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+
+        return collectedMessage;
     }
 }

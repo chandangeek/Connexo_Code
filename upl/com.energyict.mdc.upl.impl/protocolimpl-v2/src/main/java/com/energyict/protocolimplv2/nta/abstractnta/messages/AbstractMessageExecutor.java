@@ -6,8 +6,10 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
@@ -360,30 +362,6 @@ public abstract class AbstractMessageExecutor {
         vdt.addDataType(os);
         vdt.addDataType(new Integer8(2));
         loadLimiter.writeMonitoredValue(vdt);
-    }
-
-    public CollectedMessage createLengthIncorrectMessage(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String key, int length) {
-        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-        String msg = "The length of the security key is incorrect. Expected " + length + " but was " + key.length();
-        collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, msg));
-        collectedMessage.setDeviceProtocolInformation(msg);
-        return collectedMessage;
-    }
-
-    public boolean isSecurityKeyLengthCorrect(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String key) {
-        int securitySuite = getProtocol().getDlmsSessionProperties().getSecuritySuite();
-        int suite2Length = 64;
-        int defaultLength = 32;
-        boolean isCorrectLength = true;
-        if(securitySuite == 2 && key.length() != suite2Length){
-            isCorrectLength = false;
-            createLengthIncorrectMessage(collectedMessage, pendingMessage, key, suite2Length);
-        } else if(key.length() != defaultLength) {
-            //for other suites use defaultLength
-            isCorrectLength = false;
-            createLengthIncorrectMessage(collectedMessage, pendingMessage, key, defaultLength);
-        }
-        return isCorrectLength;
     }
 
 }
