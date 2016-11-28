@@ -70,6 +70,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -252,7 +253,8 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
-                    UpgradeModule.FakeUpgradeService.getInstance());
+                    UpgradeModule.FakeUpgradeService.getInstance(),
+                    injector.getInstance(DeviceMessageSpecificationService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();

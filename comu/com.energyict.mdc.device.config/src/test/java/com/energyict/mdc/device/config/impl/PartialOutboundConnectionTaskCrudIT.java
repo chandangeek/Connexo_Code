@@ -83,6 +83,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -273,7 +274,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
-                    UpgradeModule.FakeUpgradeService.getInstance());
+                    UpgradeModule.FakeUpgradeService.getInstance(),
+                    injector.getInstance(DeviceMessageSpecificationService.class));
             ctx.commit();
         }
         setupMasterData();
