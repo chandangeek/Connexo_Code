@@ -15,16 +15,16 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-28 (11:02)
  */
-class ThesaurusAdapter implements com.elster.jupiter.nls.Thesaurus {
+class ConnexoThesaurusAdapter implements com.elster.jupiter.nls.Thesaurus {
     private final Thesaurus actual;
 
-    ThesaurusAdapter(Thesaurus actual) {
+    ConnexoThesaurusAdapter(Thesaurus actual) {
         this.actual = actual;
     }
 
     @Override
     public NlsMessageFormat getFormat(com.elster.jupiter.nls.TranslationKey key) {
-        return new NlsMessageFormatAdapter(this.actual.getFormat(new UPLTranslationKeyAdapter(key)));
+        return new ConnexoNlsMessageFormatAdapter(this.actual.getFormat(new UPLTranslationKeyAdapter(key)));
     }
 
     @Override

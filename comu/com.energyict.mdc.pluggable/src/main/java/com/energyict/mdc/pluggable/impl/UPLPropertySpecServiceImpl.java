@@ -34,12 +34,13 @@ import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link PropertySpecService universal protocol property spec service}
- * delegating as much as possible to the {@link PropertySpecServiceImpl multisense} property spec service.
+ * delegating as much as possible to the {@link PropertySpecService multisense} property spec service.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-28 (09:43)
  */
-@Component(name = "com.energyict.mdc.dynamic.upl.propertyspecservice", service = {UPLPropertySpecServiceImpl.class})
+@Component(name = "com.energyict.mdc.protocol.pluggable.upl.propertyspecservice", service = {UPLPropertySpecServiceImpl.class})
+@SuppressWarnings("unused")
 public class UPLPropertySpecServiceImpl implements PropertySpecService {
     private volatile com.energyict.mdc.dynamic.PropertySpecService actual;
     private DataVaultService dataVaultService;
@@ -172,12 +173,12 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<T> named(TranslationKey nameTranslationKey) {
-            return new ThesaurusBasedAdapter<>(this.actual.named(new NLSTranslationKeyAdapter(nameTranslationKey)));
+            return new ThesaurusBasedAdapter<>(this.actual.named(new ConnexoTranslationKeyAdapter(nameTranslationKey)));
         }
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<T> named(String name, TranslationKey displayNameTranslationKey) {
-            return new ThesaurusBasedAdapter<>(this.actual.named(name, new NLSTranslationKeyAdapter(displayNameTranslationKey)));
+            return new ThesaurusBasedAdapter<>(this.actual.named(name, new ConnexoTranslationKeyAdapter(displayNameTranslationKey)));
         }
 
         @Override
@@ -195,13 +196,13 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<T> describedAs(TranslationKey descriptionTranslationKey) {
-            this.actual.describedAs(new NLSTranslationKeyAdapter(descriptionTranslationKey));
+            this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
             return this;
         }
 
         @Override
         public PropertySpecBuilder<T> fromThesaurus(Thesaurus thesaurus) {
-            return new PropertySpecBuilderAdapter<>(this.actual.fromThesaurus(new ThesaurusAdapter(thesaurus)));
+            return new PropertySpecBuilderAdapter<>(this.actual.fromThesaurus(new ConnexoThesaurusAdapter(thesaurus)));
         }
     }
 
@@ -227,12 +228,12 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Password> named(TranslationKey nameTranslationKey) {
-            return new PasswordThesaurusBasedAdapter(this.actual.named(new NLSTranslationKeyAdapter(nameTranslationKey)));
+            return new PasswordThesaurusBasedAdapter(this.actual.named(new ConnexoTranslationKeyAdapter(nameTranslationKey)));
         }
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Password> named(String name, TranslationKey displayNameTranslationKey) {
-            return new PasswordThesaurusBasedAdapter(this.actual.named(name, new NLSTranslationKeyAdapter(displayNameTranslationKey)));
+            return new PasswordThesaurusBasedAdapter(this.actual.named(name, new ConnexoTranslationKeyAdapter(displayNameTranslationKey)));
         }
 
         @Override
@@ -250,13 +251,13 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Password> describedAs(TranslationKey descriptionTranslationKey) {
-            this.actual.describedAs(new NLSTranslationKeyAdapter(descriptionTranslationKey));
+            this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
             return this;
         }
 
         @Override
         public PropertySpecBuilder<Password> fromThesaurus(Thesaurus thesaurus) {
-            return new PasswordPropertySpecBuilderAdapter(this.actual.fromThesaurus(new ThesaurusAdapter(thesaurus)));
+            return new PasswordPropertySpecBuilderAdapter(this.actual.fromThesaurus(new ConnexoThesaurusAdapter(thesaurus)));
         }
     }
 
@@ -282,12 +283,12 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Duration> named(TranslationKey nameTranslationKey) {
-            return new DurationThesaurusBasedAdapter(this.actual.named(new NLSTranslationKeyAdapter(nameTranslationKey)));
+            return new DurationThesaurusBasedAdapter(this.actual.named(new ConnexoTranslationKeyAdapter(nameTranslationKey)));
         }
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Duration> named(String name, TranslationKey displayNameTranslationKey) {
-            return new DurationThesaurusBasedAdapter(this.actual.named(name, new NLSTranslationKeyAdapter(displayNameTranslationKey)));
+            return new DurationThesaurusBasedAdapter(this.actual.named(name, new ConnexoTranslationKeyAdapter(displayNameTranslationKey)));
         }
 
         @Override
@@ -305,13 +306,13 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Duration> describedAs(TranslationKey descriptionTranslationKey) {
-            this.actual.describedAs(new NLSTranslationKeyAdapter(descriptionTranslationKey));
+            this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
             return this;
         }
 
         @Override
         public PropertySpecBuilder<Duration> fromThesaurus(Thesaurus thesaurus) {
-            return new DurationPropertySpecBuilderAdapter(this.actual.fromThesaurus(new ThesaurusAdapter(thesaurus)));
+            return new DurationPropertySpecBuilderAdapter(this.actual.fromThesaurus(new ConnexoThesaurusAdapter(thesaurus)));
         }
     }
 

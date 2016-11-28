@@ -11,10 +11,10 @@ import java.util.Locale;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-28 (10:58)
  */
-class NlsMessageFormatAdapter implements NlsMessageFormat {
+class ConnexoNlsMessageFormatAdapter implements NlsMessageFormat {
     private final com.energyict.mdc.upl.nls.NlsMessageFormat actual;
 
-    NlsMessageFormatAdapter(com.energyict.mdc.upl.nls.NlsMessageFormat actual) {
+    ConnexoNlsMessageFormatAdapter(com.energyict.mdc.upl.nls.NlsMessageFormat actual) {
         this.actual = actual;
     }
 
