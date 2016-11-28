@@ -2,6 +2,7 @@ package com.energyict.mdc.upl.properties;
 
 import java.math.BigDecimal;
 import java.time.temporal.Temporal;
+import java.time.Duration;
 import java.util.TimeZone;
 
 /**
@@ -39,6 +40,22 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<String> stringSpecOfMaximumLength(int length);
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of encrypted String values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<String> encryptedStringSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link Password} values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Password> passwordSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -101,6 +118,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Duration values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Duration> durationSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom

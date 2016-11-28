@@ -3,8 +3,7 @@ package com.energyict.mdc.upl.meterdata;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
-import com.energyict.cbo.LastSeenDateInfo;
-
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ public interface CollectedTopology extends CollectedData {
      * <p/>
      * If this device has no attached slaves, the return list is empty.
      */
-    Map<DeviceIdentifier, LastSeenDateInfo> getSlaveDeviceIdentifiers();
+    Map<DeviceIdentifier, ObservationTimestampProperty> getSlaveDeviceIdentifiers();
 
     /**
      * Add a slave device to the topology, without any information on its "last seen date".
@@ -39,9 +38,9 @@ public interface CollectedTopology extends CollectedData {
      * Add a slave device to the topology
      *
      * @param slaveIdentifier  the device identifier of the slave device
-     * @param lastSeenDateInfo information on when this slave device was last seen by the gateway/DC.
+     * @param observationTimestampProperty information on when this slave device was last seen by the gateway/DC.
      */
-    void addSlaveDevice(DeviceIdentifier slaveIdentifier, LastSeenDateInfo lastSeenDateInfo);
+    void addSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty observationTimestampProperty);
 
     /**
      * Remove a slave device from the topology
@@ -72,5 +71,17 @@ public interface CollectedTopology extends CollectedData {
      * @param topologyAction The {@link TopologyAction}
      */
     void setTopologyAction(TopologyAction topologyAction);
+
+    /**
+     * Models the timestamp on which a slave device was last observed.
+     *
+     * @author Rudi Vankeirsbilck (rudi)
+     * @since 2016-11-25 (13:51)
+     */
+    interface ObservationTimestampProperty {
+        String getName();
+
+        Date getValue();
+    }
 
 }

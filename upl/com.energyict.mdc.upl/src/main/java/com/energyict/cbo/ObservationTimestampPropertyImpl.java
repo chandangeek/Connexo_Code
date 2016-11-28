@@ -1,5 +1,7 @@
 package com.energyict.cbo;
 
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -11,7 +13,7 @@ import java.util.Date;
  * @author khe
  * @since 5/04/2016 - 11:17
  */
-public class LastSeenDateInfo {
+public abstract class ObservationTimestampPropertyImpl implements CollectedTopology.ObservationTimestampProperty {
 
     /**
      * The name of the LastSeenDate general property
@@ -23,12 +25,13 @@ public class LastSeenDateInfo {
      */
     private Object propertyValue;
 
-    public LastSeenDateInfo(String propertyName, Object propertyValue) {
+    public ObservationTimestampPropertyImpl(String propertyName, Object propertyValue) {
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;
     }
 
-    public String getPropertyName() {
+    @Override
+    public String getName() {
         return propertyName;
     }
 
@@ -36,7 +39,8 @@ public class LastSeenDateInfo {
         return propertyValue;
     }
 
-    public Date toDate(){
+    @Override
+    public Date getValue(){
        return new Date(toLong());
     }
 
@@ -47,7 +51,7 @@ public class LastSeenDateInfo {
     @Override
     public String toString(){
         try {
-            return toDate().toString();
+            return getValue().toString();
         }catch (Exception ex){
             return ex.toString();
         }
