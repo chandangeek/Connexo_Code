@@ -173,10 +173,10 @@ Ext.define('Dsh.controller.Communications', {
         if (record) {
             me.initMenu(record, menuItems, me);
             preview.loadRecord(record);
-            preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('name'), record.get('device').id]));
+            preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('name'), record.get('device').name]));
             if (record.getData().connectionTask) {
                 var conTask = record.getConnectionTask();
-                connPreview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [conTask.get('connectionMethod').name, conTask.get('device').id]));
+                connPreview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [conTask.get('connectionMethod').name, conTask.get('device').name]));
                 connPreview.show();
                 connPreview.loadRecord(conTask);
             } else {

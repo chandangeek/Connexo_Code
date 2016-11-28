@@ -32,7 +32,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return val.id ? Ext.String.htmlEncode(val.id) : '';
+                    return val.name ? Ext.String.htmlEncode(val.name) : '';
                 }
             },
             {

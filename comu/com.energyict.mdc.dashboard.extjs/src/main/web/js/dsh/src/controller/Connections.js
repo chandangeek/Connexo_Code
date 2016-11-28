@@ -133,7 +133,7 @@ Ext.define('Dsh.controller.Connections', {
         };
 
         preview.loadRecord(record);
-        preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('comTask').name, record.get('device').id]));
+        preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('comTask').name, record.get('device').name]));
         Ext.resumeLayouts(true);
         me.initMenu(record, menuItems);
     },
