@@ -21,7 +21,12 @@ Ext.define('MdmApp.controller.Main', {
         'Dbp.privileges.DeviceProcesses',
         'Fim.controller.Main',
         'Fim.privileges.DataImport',
-        'Dxp.privileges.DataExport'
+        'Dxp.privileges.DataExport',
+        'Est.main.controller.Main',
+        'Est.privileges.EstimationConfiguration',
+        'Imt.privileges.UsagePointGroup',
+        'Yfn.privileges.Yellowfin',
+        'Yfn.controller.Main'
     ],
 
     applicationTitle: 'Connexo Insight',
@@ -37,11 +42,14 @@ Ext.define('MdmApp.controller.Main', {
         Scs.privileges.ServiceCall.all(),
         Imt.privileges.ServiceCategory.all(),
         Imt.privileges.UsagePoint.all(),
+        Imt.privileges.UsagePointGroup.all(),
         Imt.privileges.UsagePointLifeCycle.all(),
         Bpm.privileges.BpmManagement.all(),
         Dbp.privileges.DeviceProcesses.all(),
         Fim.privileges.DataImport.all(),
-        Dxp.privileges.DataExport.all()
+        Est.privileges.EstimationConfiguration.all(),
+        Dxp.privileges.DataExport.all(),
+        Yfn.privileges.Yellowfin.all()
     ),
 
     controllers: [
@@ -52,7 +60,9 @@ Ext.define('MdmApp.controller.Main', {
         'Bpm.controller.Main',
         'Dbp.controller.Main',
         'Fim.controller.Main',
-        'Dxp.controller.Main'
+        'Est.main.controller.Main',
+        'Dxp.controller.Main',
+        'Yfn.controller.Main'
     ],
     init: function () {
         var router = this.getController('Uni.controller.history.Router');

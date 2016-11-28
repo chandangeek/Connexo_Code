@@ -72,6 +72,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
         </dependency>
         <dependency>
@@ -109,6 +113,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.usagepoint.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.data</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

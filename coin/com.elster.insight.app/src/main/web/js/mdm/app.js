@@ -41,7 +41,16 @@ Ext.onReady(function () {
         {
             name: 'Fim',
             path: '../../apps/fim/src'
+        },
+        {
+            name: 'Est',
+            path: '../../apps/est/src'
+        },
+        {
+            name: 'Yfn',
+            path: '../../apps/yfn/src'
         }
+
     ];
 
     loader.initPackages(packages);
