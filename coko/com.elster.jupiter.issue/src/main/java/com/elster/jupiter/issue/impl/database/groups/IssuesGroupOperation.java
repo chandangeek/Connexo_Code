@@ -135,11 +135,8 @@ public abstract class IssuesGroupOperation {
     }
 
     String getMeterCondition() {
-        if (getFilter().getMeterMrid() != null) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("device.MRID = '").append(getFilter().getMeterMrid()).append("'");
-            builder.insert(0, " AND (").append(") ");
-            return builder.toString();
+        if (getFilter().getMeterName() != null) {
+            return " AND (device.name = '" + getFilter().getMeterName() + "') ";
         }
         return "";
     }

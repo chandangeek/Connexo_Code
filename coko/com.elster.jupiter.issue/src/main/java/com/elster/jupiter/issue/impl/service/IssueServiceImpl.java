@@ -57,6 +57,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -483,14 +484,14 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public Finder<OpenIssue> findOpenIssuesForDevices(List<String> mRID) {
-        Condition condition = ListOperator.IN.contains("device.mRID", mRID);
+    public Finder<OpenIssue> findOpenIssuesForDevices(List<String> deviceNames) {
+        Condition condition = ListOperator.IN.contains("device.name", deviceNames);
         return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
     }
 
     @Override
-    public Finder<OpenIssue> findOpenIssuesForDevice(String mRID) {
-        Condition condition = where("device.mRID").isEqualTo(mRID);
+    public Finder<OpenIssue> findOpenIssuesForDevice(String deviceName) {
+        Condition condition = where("device.name").isEqualTo(deviceName);
         return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
     }
 

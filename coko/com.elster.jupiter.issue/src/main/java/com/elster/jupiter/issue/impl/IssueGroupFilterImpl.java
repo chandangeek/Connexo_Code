@@ -21,7 +21,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private Set<String> statuses;
     private String groupBy;
     private List<AssigneeDetails> assignees;
-    private String mrid;
+    private String meterName;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
 
@@ -145,13 +145,13 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
-    public String getMeterMrid() {
-        return mrid;
+    public String getMeterName() {
+        return meterName;
     }
 
     @Override
-    public IssueGroupFilterImpl withMeterMrid(String mrid) {
-        this.mrid = mrid;
+    public IssueGroupFilterImpl withMeterName(String name) {
+        this.meterName = name;
         return this;
     }
 

@@ -43,9 +43,9 @@ public interface IssueGroupFilter {
 
     List<DueDateRange> getDueDates();
 
-    String getMeterMrid();
+    String getMeterName();
 
-    IssueGroupFilter withMeterMrid(String mrid);
+    IssueGroupFilter withMeterName(String name);
 
     IssueGroupFilter withIssueTypes(Collection<String> issueTypes);
 
