@@ -5,7 +5,7 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -16,7 +16,6 @@ public class UsagePointDataModule extends AbstractModule {
     @Override
     protected void configure() {
         requireBinding(Clock.class);
-        requireBinding(OrmService.class);
         requireBinding(NlsService.class);
         requireBinding(MeteringService.class);
         requireBinding(CustomPropertySetService.class);
