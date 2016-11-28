@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public abstract class StandardCsvDataFormatterFactory implements DataFormatterFactory {
+abstract class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
