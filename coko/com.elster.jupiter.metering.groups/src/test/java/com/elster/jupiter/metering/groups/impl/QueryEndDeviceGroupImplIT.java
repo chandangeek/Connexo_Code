@@ -12,9 +12,9 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -79,7 +79,7 @@ public class QueryEndDeviceGroupImplIT {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private ServiceRegistration serviceRegistration;
+    private ServiceRegistration<Object> serviceRegistration;
     @Mock
     private UserService userService;
     @Mock
@@ -90,7 +90,6 @@ public class QueryEndDeviceGroupImplIT {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
     private class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(UserService.class).toInstance(userService);
@@ -154,25 +153,25 @@ public class QueryEndDeviceGroupImplIT {
     public void testSaveQueryEndDeviceGroup() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
-            groupBuilder.setName("QueryEndDeviceGroup");
-            groupBuilder.setMRID("MRID");
-            groupBuilder.setQueryProviderName("DeviceQueryProvider");
-            groupBuilder.setSearchDomain(searchDomain);
-            groupBuilder.withConditions(mockSearchablePropertyValue("mRID", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")));
-            groupBuilder.withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")));
-            groupBuilder.create();
+            meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("QueryEndDeviceGroup")
+                    .setMRID("MRID")
+                    .setQueryProviderName("DeviceQueryProvider")
+                    .setSearchDomain(searchDomain)
+                    .withConditions(mockSearchablePropertyValue("name", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
+                    .withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")))
+                    .create();
 
             assertThat(meteringGroupsService.findEndDeviceGroups()).hasSize(1);
-            QueryEndDeviceGroupImpl endDeviceGroup = (QueryEndDeviceGroupImpl) meteringGroupsService.findEndDeviceGroups().get(0);
+            AbstractQueryGroup<EndDevice> endDeviceGroup = (AbstractQueryGroup<EndDevice>) meteringGroupsService.findEndDeviceGroups().get(0);
             assertThat(endDeviceGroup.getName()).isEqualTo("QueryEndDeviceGroup");
             assertThat(endDeviceGroup.getMRID()).isEqualTo("MRID");
             assertThat(endDeviceGroup.isDynamic()).isTrue();
             assertThat(endDeviceGroup.getSearchDomain().getId()).isEqualTo(searchDomain.getId());
-            List<QueryEndDeviceGroupCondition> conditions = endDeviceGroup.getConditions();
+            List<QueryGroupCondition> conditions = endDeviceGroup.getConditions();
             assertThat(conditions).hasSize(2);
 
-            assertThat(conditions.get(0).getSearchableProperty()).isEqualTo("mRID");
+            assertThat(conditions.get(0).getSearchableProperty()).isEqualTo("name");
             assertThat(conditions.get(0).getOperator()).isEqualTo(SearchablePropertyOperator.EQUAL);
             assertThat(conditions.get(0).getConditionValues()).hasSize(2);
             assertThat(conditions.get(0).getConditionValues().get(0).getValue()).isEqualTo("DME*");
@@ -191,24 +190,24 @@ public class QueryEndDeviceGroupImplIT {
     public void testSaveGroupWithDuplicateName() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
-            groupBuilder.setName("group");
-            groupBuilder.setMRID("MRID");
-            groupBuilder.setQueryProviderName("DeviceQueryProvider");
-            groupBuilder.setSearchDomain(searchDomain);
-            groupBuilder.create();
+            meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("group")
+                    .setMRID("MRID")
+                    .setQueryProviderName("DeviceQueryProvider")
+                    .setSearchDomain(searchDomain)
+                    .create();
 
             assertThat(meteringGroupsService.findEndDeviceGroups()).hasSize(1);
             Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName("group");
             assertThat(endDeviceGroup).isPresent();
 
-            //create the another group with the same name
-            groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
-            groupBuilder.setName("group");
-            groupBuilder.setMRID("MRID");
-            groupBuilder.setQueryProviderName("DeviceQueryProvider");
-            groupBuilder.setSearchDomain(searchDomain);
-            groupBuilder.create();
+            //create another group with the same name
+            meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("group")
+                    .setMRID("MRID")
+                    .setQueryProviderName("DeviceQueryProvider")
+                    .setSearchDomain(searchDomain)
+                    .create();
         }
     }
 
@@ -216,14 +215,14 @@ public class QueryEndDeviceGroupImplIT {
     public void testUpdateQueryEndDeviceGroup() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
-            groupBuilder.setName("QueryEndDeviceGroupV1");
-            groupBuilder.setMRID("MRID:V1");
-            groupBuilder.setQueryProviderName("DeviceQueryProvider");
-            groupBuilder.setSearchDomain(searchDomain);
-            groupBuilder.withConditions(mockSearchablePropertyValue("mRID", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")));
-            groupBuilder.withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")));
-            QueryEndDeviceGroup queryEndDeviceGroup = groupBuilder.create();
+            QueryEndDeviceGroup queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("QueryEndDeviceGroupV1")
+                    .setMRID("MRID:V1")
+                    .setQueryProviderName("DeviceQueryProvider")
+                    .setSearchDomain(searchDomain)
+                    .withConditions(mockSearchablePropertyValue("name", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
+                    .withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")))
+                    .create();
 
             //update of persisted group
             queryEndDeviceGroup.setName("QueryEndDeviceGroupV2");
@@ -232,12 +231,12 @@ public class QueryEndDeviceGroupImplIT {
             queryEndDeviceGroup.update();
 
             assertThat(meteringGroupsService.findEndDeviceGroups()).hasSize(1);
-            QueryEndDeviceGroupImpl endDeviceGroup = (QueryEndDeviceGroupImpl) meteringGroupsService.findEndDeviceGroups().get(0);
+            AbstractQueryGroup<EndDevice> endDeviceGroup = (AbstractQueryGroup<EndDevice>) meteringGroupsService.findEndDeviceGroups().get(0);
             assertThat(endDeviceGroup.getName()).isEqualTo("QueryEndDeviceGroupV2");
             assertThat(endDeviceGroup.getMRID()).isEqualTo("MRID:V2");
             assertThat(endDeviceGroup.isDynamic()).isTrue();
             assertThat(endDeviceGroup.getSearchDomain().getId()).isEqualTo(searchDomain.getId());
-            List<QueryEndDeviceGroupCondition> conditions = endDeviceGroup.getConditions();
+            List<QueryGroupCondition> conditions = endDeviceGroup.getConditions();
             assertThat(conditions).hasSize(1);
 
             assertThat(conditions.get(0).getSearchableProperty()).isEqualTo("deviceType");
@@ -251,14 +250,14 @@ public class QueryEndDeviceGroupImplIT {
     public void testRemoveQueryEndDeviceGroup() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
-            groupBuilder.setName("QueryEndDeviceGroupV1");
-            groupBuilder.setMRID("MRID:V1");
-            groupBuilder.setQueryProviderName("DeviceQueryProvider");
-            groupBuilder.setSearchDomain(searchDomain);
-            groupBuilder.withConditions(mockSearchablePropertyValue("mRID", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")));
-            groupBuilder.withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")));
-            QueryEndDeviceGroup queryEndDeviceGroup = groupBuilder.create();
+            QueryEndDeviceGroup queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("QueryEndDeviceGroupV1")
+                    .setMRID("MRID:V1")
+                    .setQueryProviderName("DeviceQueryProvider")
+                    .setSearchDomain(searchDomain)
+                    .withConditions(mockSearchablePropertyValue("name", SearchablePropertyOperator.EQUAL, Arrays.asList("DME*", "*000001")))
+                    .withConditions(mockSearchablePropertyValue("serialNumber", SearchablePropertyOperator.BETWEEN, Arrays.asList("1000", "2000")))
+                    .create();
 
             Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(queryEndDeviceGroup.getId());
             assertThat(found).isPresent();

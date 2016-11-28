@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.metering.groups.Group;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;
@@ -12,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(ElementType.TYPE)
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {UniqueEndDeviceGroupNameValidator.class})
+@Constraint(validatedBy = {UniqueGroupNameValidator.class})
 public @interface UniqueName {
 
     String message() default "";
@@ -20,4 +22,10 @@ public @interface UniqueName {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    /**
+     * @return The whole set of {@link Group} subtypes,
+     * that must have unique name but can share same names between each other.
+     */
+    Class<? extends Group<?>>[] groupApisToCheck() default {};
 }

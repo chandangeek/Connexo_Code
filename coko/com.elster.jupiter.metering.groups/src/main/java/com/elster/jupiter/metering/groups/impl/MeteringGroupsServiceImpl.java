@@ -5,16 +5,18 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
+import com.elster.jupiter.metering.groups.Group;
+import com.elster.jupiter.metering.groups.GroupBuilder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroupBuilder;
-import com.elster.jupiter.metering.groups.spi.EndDeviceQueryProvider;
+import com.elster.jupiter.metering.groups.impl.search.PropertyTranslationKeys;
+import com.elster.jupiter.metering.groups.spi.QueryProvider;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,6 +24,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -29,11 +32,11 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.ExecutionTimer;
 import com.elster.jupiter.util.time.ExecutionTimerService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -45,6 +48,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -72,14 +76,18 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     private volatile Thesaurus thesaurus;
     private volatile ExecutionTimerService executionTimerService;
     private volatile UpgradeService upgradeService;
+    private volatile PropertySpecService propertySpecService;
     private ExecutionTimer endDeviceGroupMemberCountTimer;
-    private final OptionalServiceContainer<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteServiceContainer<>();
+    private final OptionalServiceContainer<QueryProvider<?>> queryProviders = new CopyOnWriteServiceContainer<>();
 
     public MeteringGroupsServiceImpl() {
     }
 
     @Inject
-    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService, ExecutionTimerService executionTimerService, UpgradeService upgradeService) {
+    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService,
+                                     EventService eventService, SearchService searchService, NlsService nlsService,
+                                     ExecutionTimerService executionTimerService, UpgradeService upgradeService,
+                                     PropertySpecService propertySpecService) {
         this();
         setOrmService(ormService);
         setMeteringService(meteringService);
@@ -89,6 +97,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
         setNlsService(nlsService);
         setExecutionTimerService(executionTimerService);
         setUpgradeService(upgradeService);
+        setPropertySpecService(propertySpecService);
         activate();
     }
 
@@ -109,9 +118,12 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(ExecutionTimer.class).toInstance(endDeviceGroupMemberCountTimer);
+                    bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                    V10_2SimpleUpgrader.VERSION, V10_2SimpleUpgrader.class,
+                    UpgraderV10_3.VERSION, UpgraderV10_3.class));
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -124,8 +136,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
-    public UsagePointGroupBuilder.QueryUsagePointGroupBuilder createQueryUsagePointGroup(Condition condition) {
-        return getUsagePointGroupBuilder().withConditions(condition);
+    public GroupBuilder.QueryGroupBuilder<UsagePoint, ? extends QueryUsagePointGroup> createQueryUsagePointGroup(SearchablePropertyValue... conditions) {
+        return getUsagePointGroupBuilder().withConditions(conditions);
     }
 
     @Override
@@ -134,8 +146,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
-    public UsagePointGroupBuilder.EnumeratedUsagePointGroupBuilder createEnumeratedUsagePointGroup() {
-        return getUsagePointGroupBuilder().enumerated();
+    public GroupBuilder.EnumeratedGroupBuilder<UsagePoint, ? extends EnumeratedUsagePointGroup> createEnumeratedUsagePointGroup(UsagePoint... usagePoints) {
+        return getUsagePointGroupBuilder().containing(usagePoints);
     }
 
     @Override
@@ -155,29 +167,26 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
 
     @Override
     public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {
-        return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
+        return dataModel.stream(UsagePointGroup.class).filter(Operator.EQUAL.compare("mRID", mRID)).findFirst();
+    }
+
+    private GroupBuilder<EndDevice, ? extends EnumeratedEndDeviceGroup, ? extends QueryEndDeviceGroup> getEndDeviceGroupBuilder() {
+        return new GroupBuilderImpl<>(() -> dataModel.getInstance(EnumeratedEndDeviceGroupImpl.class),
+                () -> dataModel.getInstance(QueryEndDeviceGroupImpl.class));
+    }
+
+    private GroupBuilder<UsagePoint, ? extends EnumeratedUsagePointGroup, ? extends QueryUsagePointGroup> getUsagePointGroupBuilder() {
+        return new GroupBuilderImpl<>(() -> dataModel.getInstance(EnumeratedUsagePointGroupImpl.class),
+                () -> dataModel.getInstance(QueryUsagePointGroupImpl.class));
     }
 
     @Override
-    public Optional<UsagePointGroup> findUsagePointGroupByName(String name) {
-        return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUALIGNORECASE.compare("name", name)).stream().findFirst();
-    }
-
-    private EndDeviceGroupBuilderImpl getEndDeviceGroupBuilder() {
-        return dataModel.getInstance(EndDeviceGroupBuilderImpl.class);
-    }
-
-    private UsagePointGroupBuilderImpl getUsagePointGroupBuilder() {
-        return dataModel.getInstance(UsagePointGroupBuilderImpl.class);
-    }
-
-    @Override
-    public EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder createQueryEndDeviceGroup(SearchablePropertyValue... conditions) {
+    public GroupBuilder.QueryGroupBuilder<EndDevice, ? extends QueryEndDeviceGroup> createQueryEndDeviceGroup(SearchablePropertyValue... conditions) {
         return getEndDeviceGroupBuilder().withConditions(conditions);
     }
 
     @Override
-    public EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder createEnumeratedEndDeviceGroup(EndDevice... endDevices) {
+    public GroupBuilder.EnumeratedGroupBuilder<EndDevice, ? extends EnumeratedEndDeviceGroup> createEnumeratedEndDeviceGroup(EndDevice... endDevices) {
         return getEndDeviceGroupBuilder().containing(endDevices);
     }
 
@@ -189,12 +198,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     @Override
     public List<EnumeratedEndDeviceGroup> findEnumeratedEndDeviceGroupsContaining(EndDevice endDevice) {
         return this.dataModel
-                .query(EnumeratedEndDeviceGroupImpl.EntryImpl.class)
-                .select(
-                         where("endDevice").isEqualTo(endDevice)
-                    .and(where("interval").isEffective()))
+                .query(EnumeratedEndDeviceGroupImpl.EndDeviceEntryImpl.class)
+                .select(where("member").isEqualTo(endDevice)
+                        .and(where("interval").isEffective()))
                 .stream()
-                .map(EnumeratedEndDeviceGroupImpl.EntryImpl::getEndDeviceGroup)
+                .map(EnumeratedEndDeviceGroupImpl.EndDeviceEntryImpl::getGroup)
                 .collect(Collectors.toList());
     }
 
@@ -202,11 +210,6 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     public Optional<QueryEndDeviceGroup> findQueryEndDeviceGroup(long id) {
         return dataModel.mapper(QueryEndDeviceGroup.class).getOptional(id);
     }
-
-    /*@Override
-    public Finder<EndDeviceGroup> findAllEndDeviceGroups() {
-        return DefaultFinder.of(EndDeviceGroup.class, dataModel).defaultSortColumn("lower(name)");
-    }*/
 
     @Override
     public Query<EndDeviceGroup> getEndDeviceGroupQuery() {
@@ -226,13 +229,20 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
+    public Query<UsagePointGroup> getQueryUsagePointGroupQuery() {
+        Query<UsagePointGroup> usagePointGroupQuery = queryService.wrap(dataModel.query(UsagePointGroup.class));
+        usagePointGroupQuery.setRestriction(where("class").isEqualTo(QueryUsagePointGroup.TYPE_IDENTIFIER).and(where("label").isEqualTo("MDM")));
+        return usagePointGroupQuery;
+    }
+
+    @Override
     public List<EndDeviceGroup> findEndDeviceGroups() {
         return dataModel.mapper(EndDeviceGroup.class).find();
     }
 
     @Override
     public Optional<EndDeviceGroup> findEndDeviceGroup(String mRID) {
-        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
+        return dataModel.stream(EndDeviceGroup.class).filter(Operator.EQUAL.compare("mRID", mRID)).findFirst();
     }
 
     @Override
@@ -246,8 +256,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
-    public Optional<EndDeviceGroup> findEndDeviceGroupByName(String name) {
-        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUALIGNORECASE.compare("name", name)).stream().findFirst();
+    public Optional<UsagePointGroup> findAndLockUsagePointGroupByIdAndVersion(long id, long version) {
+        return dataModel.mapper(UsagePointGroup.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public <T extends Group<?>> Optional<T> findGroupByName(String name, Class<T> api) {
+        return dataModel.stream(api).filter(Operator.EQUALIGNORECASE.compare("name", name)).findFirst();
     }
 
     @Reference
@@ -295,20 +310,25 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider) {
-        endDeviceQueryProviders.register(endDeviceQueryProvider);
+    public void addQueryProvider(QueryProvider<?> queryProvider) {
+        queryProviders.register(queryProvider);
     }
 
-    public void removeEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider) {
-        endDeviceQueryProviders.unregister(endDeviceQueryProvider);
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    public void removeQueryProvider(QueryProvider<?> queryProvider) {
+        queryProviders.unregister(queryProvider);
     }
 
     @Override
-    public Optional<EndDeviceQueryProvider> pollEndDeviceQueryProvider(String name, Duration duration) throws InterruptedException {
-        return endDeviceQueryProviders.get(withName(name), duration);
+    public Optional<QueryProvider<?>> pollQueryProvider(String name, Duration duration) throws InterruptedException {
+        return queryProviders.get(withName(name), duration);
     }
 
-    private Predicate<EndDeviceQueryProvider> withName(String name) {
+    private Predicate<QueryProvider<?>> withName(String name) {
         return p -> p.getName().equals(name);
     }
 
@@ -324,6 +344,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
+        translationKeys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
+        return translationKeys;
+    }
+
+    public DataModel getDataModel() {
+        return dataModel;
     }
 }
