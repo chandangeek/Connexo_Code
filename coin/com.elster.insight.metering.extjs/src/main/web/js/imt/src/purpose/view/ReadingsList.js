@@ -5,7 +5,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     requires: [
         'Imt.purpose.store.Readings',
         'Uni.view.toolbar.PagingTop',
-        'Imt.purpose.view.DataBulkActionMenu',
+        'Imt.purpose.view.SingleReadingActionMenu',
+        'Imt.purpose.view.MultipleReadingsActionMenu',
         'Uni.grid.column.Edited'
     ],
     selModel: {
@@ -85,8 +86,6 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             }
         ];
         
-        
-        
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -102,7 +101,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
 
         me.callParent(arguments);
     },
-    
+
     addTopToolbarButtons: function (outputType) {
         var buttons;
         switch(outputType){
@@ -122,11 +121,11 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     },
                     {
                         xtype: 'button',
-                        itemId: 'device-channel-data-bulk-action-button',
+                        itemId: 'readings-bulk-action-button',
                         text: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
                         menu: {
-                            xtype: 'purpose-readings-data-action-menu',
-                            itemId: 'purpose-readings-data-bulk-action-menu'
+                            xtype: 'purpose-bulk-action-menu',
+                            itemId: 'purpose-bulk-action-menu'
                         }
                     }
                 ]

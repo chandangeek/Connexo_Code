@@ -8,7 +8,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.view.OutputChannelMain',
         'Imt.purpose.view.ReadingsList',
         'Uni.store.DataIntervalAndZoomLevels',
-        'Imt.purpose.view.DataBulkActionMenu'
+        'Imt.purpose.view.SingleReadingActionMenu',
+        'Imt.purpose.view.MultipleReadingsActionMenu'
     ],
 
     stores: [
@@ -52,6 +53,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 // beforeedit: this.beforeEditRecord,
                 edit: this.resumeEditorFieldValidation,
                 canceledit: this.resumeEditorFieldValidation,
+                selectionchange: this.onDataGridSelectionChange
                 // selectionchange: this.onDataGridSelectionChange
             },
             // '#readings-list #purpose-readings-data-bulk-action-menu': {
@@ -61,7 +63,12 @@ Ext.define('Imt.purpose.controller.Readings', {
                 beforeshow: this.checkSuspect,
                 click: this.chooseAction
             },
-
+            '#readings-list #undo-button': {
+                click: this.undoChannelDataChanges
+            },
+            '#readings-list #save-changes-button': {
+                click: this.saveChannelDataChanges
+            },
         });
     },
 
@@ -89,8 +96,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             case 'editValue':
                 me.getReadingsList().getPlugin('cellplugin').startEdit(menu.record, 1);
                 break;
-            case 'resetReading':
-                // me.removeReadings(menu.record);
+            case 'resetValue':
+                me.removeReadings(menu.record);
                 break;
             case 'estimateValue':
                 // me.estimateValue(menu.record);
@@ -225,5 +232,129 @@ Ext.define('Imt.purpose.controller.Readings', {
             me.getPage().down('#save-changes-button').disable();
             me.getPage().down('#undo-button').disable();
         }
+    },
+
+    undoChannelDataChanges: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        window.location.replace(router.getRoute().buildUrl());
+
+    },
+    saveChannelDataChanges: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        viewport.setLoading();
+        if (!Ext.isEmpty(changedData)) {
+            Ext.Ajax.request({
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.deviceId), router.arguments.channelId),
+                method: 'PUT',
+                jsonData: Ext.encode(changedData),
+                timeout: 300000,
+                success: function () {
+                    router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'IMT', 'Channel data have been saved'));
+                },
+                failure: function (response) {
+                    viewport.setLoading(false);
+                    // if (response.status == 400) {
+                    //     var failureResponseText = Ext.decode(response.responseText, true);
+                    //     if (failureResponseText && failureResponseText.error !== 'cannotAddChannelValueWhenLinkedToSlave') {
+                    //         Ext.create('Uni.view.window.Confirmation', {
+                    //             confirmText: Uni.I18n.translate('general.retry', 'MDC', 'Retry'),
+                    //             closeAction: 'destroy',
+                    //             confirmation: function () {
+                    //                 this.close();
+                    //                 me.saveChannelDataChanges();
+                    //             },
+                    //             cancellation: function () {
+                    //                 this.close();
+                    //                 router.getRoute().forward(router.arguments, router.queryParams);
+                    //             }
+                    //         }).show({
+                    //             msg: failureResponseText.message ? failureResponseText.message :
+                    //                 Uni.I18n.translate('general.emptyField', 'MDC', 'Value field can not be empty'),
+                    //             title: failureResponseText.error ? failureResponseText.error :
+                    //                 Uni.I18n.translate('general.during.editing', 'MDC', 'Error during editing')
+                    //         });
+                    //     }
+                    // }
+                }
+            });
+        }
+    },
+
+    getChangedData: function (store) {
+        var changedData = [],
+            confirmedObj;
+
+        Ext.Array.each(store.getUpdatedRecords(), function (record) {
+            if (record.get('confirmed')) {
+                confirmedObj = {
+                    interval: record.get('interval'),
+                    isConfirmed: record.get('confirmedNotSaved') || false
+                };
+                changedData.push(confirmedObj);
+            } else if (record.isModified('value')) {
+                changedData.push(_.pick(record.getData(), 'interval', 'value'));
+            } else if (record.isModified('collectedValue')) {
+                changedData.push(_.pick(record.getData(), 'interval', 'collectedValue'));
+            }
+        });
+
+        return changedData;
+    },
+
+    onDataGridSelectionChange: function (selectionModel, selectedRecords) {
+        var me = this,
+            button = me.getReadingsList().down('#readings-bulk-action-button'),
+            menu = button.down('menu');
+
+        Ext.suspendLayouts();
+        var suspects = selectedRecords.filter(function (record) {
+            return record.get('validationResult') == 'validationStatus.suspect';
+        });
+        menu.down('#estimate-value').setVisible(suspects.length);
+
+        var confirms = suspects.filter(function (record) {
+            return !record.get('confirmed') && !record.isModified('value')
+        });
+
+        menu.down('#confirm-value').setVisible(confirms.length);
+        menu.down('#reset-value').setVisible(_.find(selectedRecords, function (record) {
+            return record.get('value') || record.get('collectedValue')
+        }));
+        button.setDisabled(!menu.query('menuitem[hidden=false]').length);
+        Ext.resumeLayouts();
+    },
+
+    removeReadings: function (records) {
+        var me = this,
+            point,
+            grid = me.getReadingsList(),
+            store = grid.getStore(),
+            gridView = grid.getView(),
+            chart = me.getReadingsGraph().chart;
+
+        Ext.suspendLayouts();
+        Ext.Array.each(records, function (record) {
+            record.beginEdit();
+            record.set('value', null);
+            // if (record.get('intervalFlags').length) {
+            //     record.set('intervalFlags', []);
+            // }
+            if (record.get('confirmed')) {
+                record.set('confirmed', false);
+            }
+            record.set('validationResult','validationStatus.ok');
+            record.endEdit(true);
+            gridView.refreshNode(store.indexOf(record));
+            point = chart.get(record.get('interval').start);
+            point.update({y: null}, false);
+        });
+        chart.redraw();
+        me.showButtons();
+        Ext.resumeLayouts(true);
     },
 });
