@@ -5,9 +5,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
@@ -18,17 +15,15 @@ import java.util.logging.Logger;
 public class Installer implements FullInstaller {
 
     private static final int RETRY_DELAY = 60;
-    private final DataModel dataModel;
     private final MessageService messageService;
     private final Thesaurus thesaurus;
     private final UserService userService;
     private final UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, MessageService messageService, Thesaurus thesaurus, UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider) {
+    public Installer(UserService userService, MessageService messageService, Thesaurus thesaurus, UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider) {
         this.userService = userService;
         this.usagePointGroupPrivilegesProvider = usagePointGroupPrivilegesProvider;
-        this.dataModel = dataModel;
         this.messageService = messageService;
         this.thesaurus = thesaurus;
     }
