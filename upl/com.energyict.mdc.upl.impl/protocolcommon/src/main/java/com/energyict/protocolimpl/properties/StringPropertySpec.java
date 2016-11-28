@@ -3,7 +3,10 @@ package com.energyict.protocolimpl.properties;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
+import com.energyict.cpo.PropertySpecPossibleValuesImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +22,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-31 (09:01)
  */
-class StringPropertySpec extends AbstractPropertySpec<String> {
+class StringPropertySpec extends AbstractPropertySpec {
 
     private Constraint constraint;
     private Optional<String> defaultValue = Optional.empty();
@@ -29,7 +32,7 @@ class StringPropertySpec extends AbstractPropertySpec<String> {
         this.constraint = new NoConstraint();
     }
 
-    public StringPropertySpec(String name, boolean required, String... possibleValues) {
+    StringPropertySpec(String name, boolean required, String... possibleValues) {
         super(name, required);
         this.constraint = new PossibleValues(possibleValues);
     }
@@ -59,8 +62,8 @@ class StringPropertySpec extends AbstractPropertySpec<String> {
     }
 
     @Override
-    public List<String> getPossibleValues() {
-        return Collections.unmodifiableList(constraint.getPossibleValues());
+    public PropertySpecPossibleValues getPossibleValues() {
+        return new PropertySpecPossibleValuesImpl<>(true, constraint.getPossibleValues());
     }
 
     @Override

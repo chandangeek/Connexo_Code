@@ -2,10 +2,15 @@ package com.energyict.protocolimpl.coronis.core;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySelectionMode;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public final class WaveflowProtocolUtils {
 
@@ -137,6 +142,48 @@ public final class WaveflowProtocolUtils {
             } else {
                 throw InvalidPropertyException.forNameAndValue(this.getName(), value);
             }
+        }
+
+        @Override
+        public Optional<?> getDefaultValue() {
+            return Optional.empty();
+        }
+
+        @Override
+        public PropertySpecPossibleValues getPossibleValues() {
+            return new NoPossibleValues();
+        }
+
+        @Override
+        public boolean supportsMultiValues() {
+            return false;
+        }
+    }
+
+    private static class NoPossibleValues implements PropertySpecPossibleValues {
+        @Override
+        public PropertySelectionMode getSelectionMode() {
+            return PropertySelectionMode.NONE;
+        }
+
+        @Override
+        public List<?> getAllValues() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean isExhaustive() {
+            return true;
+        }
+
+        @Override
+        public boolean isEditable() {
+            return false;
+        }
+
+        @Override
+        public Object getDefault() {
+            return null;
         }
     }
 
