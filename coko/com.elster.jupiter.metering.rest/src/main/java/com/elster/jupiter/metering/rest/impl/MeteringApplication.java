@@ -199,6 +199,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(licenseService).to(LicenseService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(ReadingTypeFilterFactory.class).to(ReadingTypeFilterFactory.class);
         }
     }
 }

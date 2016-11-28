@@ -16,6 +16,8 @@ import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -23,6 +25,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
@@ -366,5 +369,39 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
                 .containsOnly(Arrays.stream(ServiceKind.values()).map(serviceKind -> serviceKind.name()).collect(toArray()));
         assertThat(jsonModel.<List>get("$.categories[*].displayValue"))
                 .containsOnly(Arrays.stream(ServiceKind.values()).map(serviceKind -> serviceKind.getDefaultFormat()).collect(toArray()));
+    }
+
+    @Test
+    public void testGetMetrologyConfigurations() {
+        MetrologyConfiguration metrologyConfiguration = mock(MetrologyConfiguration.class);
+        when(metrologyConfiguration.getId()).thenReturn(13L);
+        when(metrologyConfiguration.getName()).thenReturn("Metrology configuration");
+        when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Collections.singletonList(metrologyConfiguration));
+
+        // Business method
+        String response = target("/fields/metrologyconfigurations").request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<Number>>get("$.metrologyConfigurations[*].id")).containsExactly(13);
+        assertThat(jsonModel.<List<String>>get("$.metrologyConfigurations[*].name")).containsExactly("Metrology configuration");
+    }
+
+    @Test
+    public void testGetMetrologyPurposes() {
+        MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
+        when(metrologyPurpose.getId()).thenReturn(12L);
+        when(metrologyPurpose.getName()).thenReturn("Metrology purpose");
+        when(metrologyConfigurationService.getMetrologyPurposes()).thenReturn(Collections.singletonList(metrologyPurpose));
+
+        // Business method
+        String response = target("/fields/metrologypurposes").request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<Number>>get("$.metrologyPurposes[*].id")).containsExactly(12);
+        assertThat(jsonModel.<List<String>>get("$.metrologyPurposes[*].name")).containsExactly("Metrology purpose");
     }
 }
