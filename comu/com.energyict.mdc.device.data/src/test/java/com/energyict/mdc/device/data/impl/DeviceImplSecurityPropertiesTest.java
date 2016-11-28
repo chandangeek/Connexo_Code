@@ -147,7 +147,7 @@ public class DeviceImplSecurityPropertiesTest {
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         MeterBuilder meterBuilder = FakeBuilder.initBuilderStub(meter, MeterBuilder.class);
-        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
@@ -256,7 +256,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
                 this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService, lockService);
-        device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services", null);
+        device.initialize(this.deviceConfiguration, "Not persistent", null);
         return device;
     }
 

@@ -18,7 +18,7 @@ public class VetoUpdateObisCodeOnConfiguration extends LocalizedException {
     }
 
     private static String getProperDeviceNames(List<Device> deviceWithOverruledObisCodeForOtherReadingType) {
-        String s = deviceWithOverruledObisCodeForOtherReadingType.stream().map(Device::getmRID).collect(Collectors.joining(","));
+        String s = deviceWithOverruledObisCodeForOtherReadingType.stream().map(Device::getName).collect(Collectors.joining(","));
         return String.format("[%s]", s);
     }
 }

@@ -543,7 +543,7 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
                     .getMeteringGroupsService()
                     .createQueryEndDeviceGroup(createSearchablePropertyValue("deviceConfiguration.deviceType.name", Collections.singletonList("myType")))
                         .setMRID("dynamic")
-                        .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                        .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_END_DEVICE_QUERY_PROVIDER)
                         .create();
         }
     }

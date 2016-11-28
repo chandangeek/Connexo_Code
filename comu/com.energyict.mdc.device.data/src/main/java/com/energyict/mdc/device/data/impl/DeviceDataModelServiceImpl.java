@@ -581,7 +581,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class)
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 2, 1), UpgraderV10_2_1.class)
         );
         this.registerRealServices(bundleContext);
     }

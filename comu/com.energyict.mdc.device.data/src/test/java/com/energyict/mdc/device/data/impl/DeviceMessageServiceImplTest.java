@@ -79,7 +79,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     public void setUp() throws Exception {
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
         when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class)
                 .stream()
