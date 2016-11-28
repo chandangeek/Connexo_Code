@@ -3,6 +3,7 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -15,11 +16,12 @@ class StrictCalendarBuilderImpl implements CalendarService.StrictCalendarBuilder
     private final CalendarImpl updating;
     private final List<StrictExceptionBuilderImpl> exceptionsToAdd = new ArrayList<>();
     private final Clock clock;
+    private final Thesaurus thesaurus;
 
-    public StrictCalendarBuilderImpl(Clock clock, CalendarImpl calendar) {
+    public StrictCalendarBuilderImpl(Clock clock, CalendarImpl calendar, Thesaurus thesaurus) {
         this.clock = clock;
         this.updating = calendar;
-
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -47,11 +49,14 @@ class StrictCalendarBuilderImpl implements CalendarService.StrictCalendarBuilder
                     .stream()
                     .filter(on(DayType::getName).test(dayTypeName::equals))
                     .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("No dayType defined yet with name '" + dayTypeName + "'"));
+                    .orElseThrow(() -> new NoSuchDayType(thesaurus, dayTypeName));
         }
 
         @Override
         public CalendarService.StrictExceptionBuilder occursOnceOn(LocalDate date) {
+            if (LocalDate.now(clock).isBefore(date)) {
+                throw new CannotAddPastExceptionsToActiveCalendar(thesaurus, dayTypeImpl.getName(), date);
+            }
             this.localDate = date;
             exceptionsToAdd.add(this);
             return new StrictExceptionBuilderImpl(dayTypeImpl);

@@ -25,12 +25,15 @@ import com.elster.jupiter.calendar.impl.xmlbinding.Transitions;
 import com.elster.jupiter.calendar.impl.xmlbinding.XmlCalendar;
 import com.elster.jupiter.calendar.impl.xmlbinding.XmlDayType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.UpdatableHolder;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
@@ -41,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,9 +54,10 @@ import static com.elster.jupiter.util.streams.Currying.use;
 public class CalendarProcessor {
 
     private final CalendarService calendarService;
+    private final Clock clock;
     private final Thesaurus thesaurus;
 
-    private Set<ImportListener> importListeners = new HashSet<>();
+    private final Set<ImportListener> importListeners = new HashSet<>();
 
     static interface ImportListener {
 
@@ -63,8 +68,9 @@ public class CalendarProcessor {
     }
 
     @Inject
-    public CalendarProcessor(CalendarService calendarService, Thesaurus thesaurus) {
+    public CalendarProcessor(CalendarService calendarService, Clock clock, Thesaurus thesaurus) {
         this.calendarService = calendarService;
+        this.clock = clock;
         this.thesaurus = thesaurus;
     }
 
@@ -113,51 +119,66 @@ public class CalendarProcessor {
     private Calendar doStrictUpdate(XmlCalendar calendar, Calendar toUpdate) {
         CalendarService.StrictCalendarBuilder calendarBuilder = toUpdate.update();
 
-        Map<BigInteger, DayType> dayTypes = calendar.getDayTypes()
-                .getDayType()
-                .stream()
-                .collect(Collectors.toMap(
-                        XmlDayType::getId,
-                        xmlDayType -> toUpdate.getDayTypes()
-                                .stream()
-                                .filter(existingDayType -> existingDayType.getName().equals(xmlDayType.getName()))
-                                .findAny()
-                                .orElseThrow(() -> new IllegalArgumentException("dayType not found"))
-                ));
+        Map<BigInteger, DayType> dayTypes = mapDayTypes(calendar, toUpdate);
 
+        /* We must determine that no exceptions are added in the past,
+         * yet we allow for repeating existing definitions in the past,
+         * so for repeated definitions we remove them from this set.
+         * If it is a exception in the past, and we cannot remove it from this set, the processing should fail.
+         */
         HashSet<ExceptionalOccurrence> existingExceptions = toUpdate.getExceptionalOccurrences()
                 .stream()
                 .collect(Collectors.toCollection(HashSet::new));
+
+        Holder<CalendarService.StrictCalendarBuilder> lazyBuilder =  HolderBuilder.lazyInitialize(toUpdate::update);
+        UpdatableHolder<Function<Holder<CalendarService.StrictCalendarBuilder>, Calendar>> calendarUpdateFinisher = new UpdatableHolder<>(holder -> toUpdate);
 
         for (Exception exception : calendar.getExceptions().getException()) {
 
             exception.getOccurrences().getRecurringOccurrence()
                     .stream()
-                    .forEach(recurringOccurrence1 -> {
-                        if (!existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, recurringOccurrence1, exceptionalOccurrence))) {
-                            throw new IllegalArgumentException("no new recurring occurrences allowed for updating an active calendar");
+                    .forEach(recurringOccurrence -> {
+                        if (!existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, recurringOccurrence, exceptionalOccurrence))) {
+                            throw new IllegalArgumentException("No new recurring occurrences allowed for updating an active calendar");
                         }
                     });
 
+            DayType dayType = dayTypes.get(exception.getDayType());
+            Holder<CalendarService.StrictExceptionBuilder> lazyExceptionBuilder = HolderBuilder.lazyInitialize(() -> lazyBuilder.get().except(dayType.getName()));
+            UpdatableHolder<Consumer<Holder<CalendarService.StrictExceptionBuilder>>> exceptionFinisher = new UpdatableHolder<>(holder -> {});
             exception.getOccurrences().getFixedOccurrence()
                     .stream()
-                    .filter(fixedOccurrence -> !existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, fixedOccurrence, exceptionalOccurrence)));
-
-//            for (RecurringOccurrence recurringOccurrence : exception.getOccurrences().getRecurringOccurrence()) {
-//                exceptionBuilder.occursAlwaysOn(MonthDay.of(
-//                        recurringOccurrence.getMonth().intValue(),
-//                        recurringOccurrence.getDay().intValue()));
-//            }
-//            for (FixedOccurrence fixedOccurrence : exception.getOccurrences().getFixedOccurrence()) {
-//                exceptionBuilder.occursOnceOn(LocalDate.of(
-//                        fixedOccurrence.getYear().intValue(),
-//                        fixedOccurrence.getMonth().intValue(),
-//                        fixedOccurrence.getDay().intValue()));
-//            }
+                    .filter(fixedOccurrence -> !existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, fixedOccurrence, exceptionalOccurrence)))
+                    .forEach(newFixedOccurrence -> {
+                        lazyExceptionBuilder.get()
+                                .occursOnceOn(localDate(newFixedOccurrence));
+                        exceptionFinisher.update((Holder<CalendarService.StrictExceptionBuilder> holder) -> holder.get().add());
+                        calendarUpdateFinisher.update((Holder<CalendarService.StrictCalendarBuilder> holder) -> holder.get().add());
+                    });
+            exceptionFinisher.get().accept(lazyExceptionBuilder);
         }
 
+        return calendarUpdateFinisher.get().apply(lazyBuilder);
+    }
 
-        return null;
+    private LocalDate localDate(FixedOccurrence fixedOccurrence) {
+        return LocalDate.of(fixedOccurrence.getYear().intValue(), fixedOccurrence.getMonth().intValue(), fixedOccurrence
+                .getDay()
+                .intValue());
+    }
+
+    private Map<BigInteger, DayType> mapDayTypes(XmlCalendar calendar, Calendar toUpdate) {
+        return calendar.getDayTypes()
+                    .getDayType()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            XmlDayType::getId,
+                            xmlDayType -> toUpdate.getDayTypes()
+                                    .stream()
+                                    .filter(existingDayType -> existingDayType.getName().equals(xmlDayType.getName()))
+                                    .findAny()
+                                    .orElseThrow(() -> new IllegalArgumentException("dayType not found"))
+                    ));
     }
 
     private boolean matches(Map<BigInteger, DayType> dayTypes, Exception exception, RecurringOccurrence recurringOccurrence, ExceptionalOccurrence exceptionalOccurrence) {

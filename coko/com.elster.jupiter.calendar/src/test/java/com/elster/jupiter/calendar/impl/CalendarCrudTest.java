@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -472,7 +473,7 @@ public class CalendarCrudTest {
                     .getResource("com.elster.jupiter.calendar.impl/calendar-import-format.xml")
                     .toURI()));
             Calendars xmlContent = (Calendars) unmarshaller.unmarshal(in);
-            CalendarProcessor processor = new CalendarProcessor(getCalendarService(), getCalendarService().getThesaurus());
+            CalendarProcessor processor = new CalendarProcessor(getCalendarService(), Clock.systemDefaultZone(), getCalendarService().getThesaurus());
             CalendarImportResult calendarImportResult = processor.process(xmlContent);
 
             assertThat(calendarImportResult.getEventSets()).hasSize(1);

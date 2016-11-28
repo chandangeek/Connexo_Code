@@ -1,7 +1,6 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Category;
-import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;

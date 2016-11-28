@@ -3,7 +3,6 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
-import com.elster.jupiter.calendar.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;

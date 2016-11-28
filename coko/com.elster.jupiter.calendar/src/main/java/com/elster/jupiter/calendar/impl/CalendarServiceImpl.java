@@ -7,7 +7,6 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.CalendarStatusTranslationKeys;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.EventSet;
-import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
