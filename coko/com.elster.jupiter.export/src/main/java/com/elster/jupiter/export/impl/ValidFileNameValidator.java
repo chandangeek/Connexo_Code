@@ -38,7 +38,7 @@ public class ValidFileNameValidator implements ConstraintValidator<ValidFileName
             Pattern p = Pattern.compile(allowed.get(i));
             Matcher m = p.matcher(value);
             value = m.replaceAll("");
-            //value = value.replace(allowed.get(i), "");
+            //value = value.replace(allowed.et(i), "");
         }
         Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=\\/:\\\\@\\s]");
         Matcher m = p.matcher(value);

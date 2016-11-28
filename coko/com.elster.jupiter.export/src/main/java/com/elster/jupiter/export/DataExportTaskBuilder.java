@@ -2,6 +2,7 @@ package com.elster.jupiter.export;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -17,19 +18,21 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder scheduleImmediately();
 
-    ExportTask create();
-
     DataExportTaskBuilder setName(String string);
 
     DataExportTaskBuilder setDataFormatterFactoryName(String dataFormatter);
 
-    ReadingTypeSelectorBuilder selectingReadingTypes();
+    MeterReadingSelectorBuilder selectingMeterReadings();
+
+    UsagePointReadingSelectorBuilder selectingUsagePointReadings();
 
     EventSelectorBuilder selectingEventTypes();
 
     CustomSelectorBuilder selectingCustom(String dataSelector);
 
     PropertyBuilder<DataExportTaskBuilder> addProperty(String name);
+
+    ExportTask create();
 
     interface PropertyBuilder<T> {
 
@@ -38,34 +41,33 @@ public interface DataExportTaskBuilder {
     }
 
     interface CustomSelectorBuilder {
+
         PropertyBuilder<CustomSelectorBuilder> addProperty(String name);
 
         DataExportTaskBuilder endSelection();
     }
 
-    interface ReadingTypeSelectorBuilder {
+    interface MeterReadingSelectorBuilder {
 
-        ReadingTypeSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+        MeterReadingSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
 
-        ReadingTypeSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
+        MeterReadingSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
 
-        ReadingTypeSelectorBuilder fromReadingType(ReadingType readingType);
+        MeterReadingSelectorBuilder fromReadingType(ReadingType readingType);
 
-        ReadingTypeSelectorBuilder fromReadingType(String readingType);
+        MeterReadingSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
 
-        ReadingTypeSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
+        MeterReadingSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-        ReadingTypeSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+        MeterReadingSelectorBuilder exportUpdate(boolean exportUpdate);
 
-        ReadingTypeSelectorBuilder exportUpdate(boolean exportUpdate);
+        MeterReadingSelectorBuilder continuousData(boolean exportContinuousData);
 
-        ReadingTypeSelectorBuilder continuousData(boolean exportContinuousData);
+        MeterReadingSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
+
+        MeterReadingSelectorBuilder exportComplete(boolean exportComplete);
 
         DataExportTaskBuilder endSelection();
-
-        ReadingTypeSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
-
-        ReadingTypeSelectorBuilder exportComplete(boolean exportComplete);
     }
 
     interface EventSelectorBuilder {
@@ -75,6 +77,24 @@ public interface DataExportTaskBuilder {
         EventSelectorBuilder fromEventType(String filterCode);
 
         EventSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+        DataExportTaskBuilder endSelection();
+
+    }
+
+    interface UsagePointReadingSelectorBuilder {
+
+        UsagePointReadingSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+
+        UsagePointReadingSelectorBuilder fromUsagePointGroup(UsagePointGroup usagePointGroup);
+
+        UsagePointReadingSelectorBuilder fromReadingType(ReadingType readingType);
+
+        UsagePointReadingSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
+
+        UsagePointReadingSelectorBuilder continuousData(boolean exportContinuousData);
+
+        UsagePointReadingSelectorBuilder exportComplete(boolean exportComplete);
 
         DataExportTaskBuilder endSelection();
 

@@ -1,10 +1,13 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -12,6 +15,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -30,12 +34,11 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     private Instant lastExportedDate;
     private String readingTypeMRId;
     private RefAny readingContainer;
-    private Reference<IStandardDataSelector> selector = ValueReference.absent();
+    private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
 
     private transient DataModel dataModel;
     private transient ReadingType readingType;
-
 
     @Inject
     public ReadingTypeDataExportItemImpl(MeteringService meteringService, IDataExportService dataExportService, DataModel model) {
@@ -44,11 +47,11 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
         dataModel = model;
     }
 
-    static ReadingTypeDataExportItemImpl from(DataModel model, IStandardDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
+    static ReadingTypeDataExportItemImpl from(DataModel model, ReadingDataSelectorConfig dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
         return model.getInstance(ReadingTypeDataExportItemImpl.class).init(dataSelector, readingContainer, readingType);
     }
 
-    private ReadingTypeDataExportItemImpl init(IStandardDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
+    private ReadingTypeDataExportItemImpl init(ReadingDataSelectorConfig dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
         this.selector.set(dataSelector);
         this.readingTypeMRId = readingType.getMRID();
         this.readingType = readingType;
@@ -80,7 +83,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     }
 
     @Override
-    public StandardDataSelector getSelector() {
+    public ReadingDataSelectorConfig getSelector() {
         return selector.orElseThrow(IllegalStateException::new);
     }
 
@@ -127,5 +130,22 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
 
     private ExportTask getTask() {
         return getSelector().getExportTask();
+    }
+
+    @Override
+    public String getDescription() {
+        return getDomainObject().getName() + ":" + getReadingType().getFullAliasName();
+    }
+
+    @Override
+    public IdentifiedObject getDomainObject() {
+        ReadingContainer readingContainer = getReadingContainer();
+        if (readingContainer instanceof Meter) {
+            return (Meter) readingContainer;
+        } else if (readingContainer instanceof ChannelsContainer) {
+            return ((ChannelsContainer) readingContainer).getUsagePoint().get();
+        } else {
+            throw new IllegalStateException("Unexpected domain object linked to export item");
+        }
     }
 }

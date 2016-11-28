@@ -57,12 +57,12 @@ public class ConsoleCommands {
     public void createDataExportTask(String name, String dataFormatter, String exportPeriodName, long nextExecution, String scheduleExpression, long groupId, String... readingTypes) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
-            DataExportTaskBuilder.ReadingTypeSelectorBuilder builder = dataExportService.newBuilder()
+            DataExportTaskBuilder.MeterReadingSelectorBuilder builder = dataExportService.newBuilder()
                     .setName(name)
                     .setDataFormatterFactoryName(dataFormatter)
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setScheduleExpression(parse(scheduleExpression))
-                    .selectingReadingTypes()
+                    .selectingMeterReadings()
                     .fromExportPeriod(relativePeriodByName(exportPeriodName))
                     .fromEndDeviceGroup(endDeviceGroup(groupId));
             Arrays.stream(readingTypes)
