@@ -1,6 +1,8 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -10,6 +12,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -156,7 +159,8 @@ public class UsagePointOutputResource {
             if (requestedInterval != null) {
                 EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
                 ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
-                Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
+                AggregatedChannel channel = effectiveMetrologyConfiguration.getAggregatedChannel(metrologyContract, readingTypeDeliverable
+                        .getReadingType()).get();
                 TemporalAmount intervalLength = channel.getIntervalLength().get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 IntervalReadingWithValidationStatus.Builder builder = IntervalReadingWithValidationStatus.builder(
@@ -166,11 +170,17 @@ public class UsagePointOutputResource {
                         .collect(Collectors.toMap(Function.identity(), timeStamp -> builder.from(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
 
                 // add readings to pre filled channel data map
-                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(requestedInterval);
+                List<IntervalReadingRecord> intervalReadings = channel.getCalculatedIntervalReadings(requestedInterval);
+                Map<Instant, IntervalReadingRecord> persistedIntervalReadings = channel.getPersistedIntervalReadings(requestedInterval)
+                        .stream()
+                        .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                                .identity()));
                 for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
                     if (readingWithValidationStatus != null) {
                         readingWithValidationStatus.setIntervalReadingRecord(intervalReadingRecord);
+                        readingWithValidationStatus.setPersistedIntervalReadingRecord(persistedIntervalReadings.get(intervalReadingRecord
+                                .getTimeStamp()));
                     }
                 }
 
@@ -192,6 +202,64 @@ public class UsagePointOutputResource {
             }
         }
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{purposeId}/outputs/{outputId}/channelData")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public Response editChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                            @BeanParam JsonQueryParameters queryParameters, List<OutputChannelDataInfo> channelDataInfos) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
+
+        List<BaseReading> editedReadings = new ArrayList<>();
+        List<BaseReading> confirmedReadings = new ArrayList<>();
+        List<Instant> removeCandidates = new ArrayList<>();
+
+        channelDataInfos.forEach((channelDataInfo) -> {
+            if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
+                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
+            } else {
+                if (channelDataInfo.value != null) {
+                    editedReadings.add(channelDataInfo.createNew());
+                }
+                if (isToBeConfirmed(channelDataInfo)) {
+                    confirmedReadings.add(channelDataInfo.createConfirm());
+                }
+            }
+        });
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .get();
+        ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
+                .get();
+        Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
+
+        if (!editedReadings.isEmpty()) {
+            channel.editReadings(QualityCodeSystem.MDM, editedReadings);
+            validationService.updateLastChecked(channel, editedReadings.stream()
+                    .min((a, b) -> a.getTimeStamp().compareTo(b.getTimeStamp()))
+                    .map(r -> r.getTimeStamp().minusSeconds(1L))
+                    .get());
+        }
+        channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
+        channel.removeReadings(QualityCodeSystem.MDM, removeCandidates.stream()
+                .map(channel::getReading)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private boolean isToBeConfirmed(OutputChannelDataInfo channelDataInfo) {
+        return Boolean.TRUE.equals(channelDataInfo.isConfirmed);
     }
 
     private Range<Instant> getRequestedInterval(UsagePoint usagePoint, JsonQueryFilter filter) {

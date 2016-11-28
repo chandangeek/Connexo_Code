@@ -25,6 +25,8 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.readingTime = readingWithValidationStatus.getTimeStamp();
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
+        outputChannelDataInfo.editedValue = readingWithValidationStatus.getPersistedValue().orElse(null);
+        outputChannelDataInfo.isEdited = readingWithValidationStatus.getPersistedValue().isPresent();
 
         Optional<DataValidationStatus> validationStatus = readingWithValidationStatus.getValidationStatus();
         if (validationStatus.isPresent()) {
@@ -38,6 +40,11 @@ public class OutputChannelDataInfoFactory {
                     .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
+            outputChannelDataInfo.isConfirmed = status.getReadingQualities()
+                    .stream()
+                    .filter(quality -> quality.getType().isConfirmed())
+                    .findFirst()
+                    .isPresent();
             outputChannelDataInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
         } else {
             // Missing value
