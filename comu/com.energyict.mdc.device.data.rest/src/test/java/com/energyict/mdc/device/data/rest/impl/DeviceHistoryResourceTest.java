@@ -32,6 +32,8 @@ import static org.mockito.Mockito.when;
 
 public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTest {
 
+    private static final String DEVICE_NAME = "DeviceName";
+
     @Mock
     Device device;
     @Mock
@@ -56,7 +58,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     public void setUp() throws Exception {
         super.setUp();
         when(device.getCreateTime()).thenReturn(deviceCreationDate);
-        when(deviceService.findByUniqueMrid("DeviceMRID")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
         DeviceType deviceType = mock(DeviceType.class);
         when(device.getDeviceType()).thenReturn(deviceType);
         DeviceLifeCycle initialDeviceLifeCycle = mockDeviceLifeCycle(1L, "Standard life cycle");
@@ -70,7 +72,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getHistory(any(Instant.class))).thenReturn(Optional.of(device));
         when(device.getMultiplierAt(any(Instant.class))).thenReturn(Optional.of(BigDecimal.TEN));
         when(usagePoint.getId()).thenReturn(1L);
-        when(usagePoint.getMRID()).thenReturn("UsagePoint");
+        when(usagePoint.getName()).thenReturn("UsagePoint");
         when(meterActivation.getId()).thenReturn(1L);
         when(meterActivation.getVersion()).thenReturn(1L);
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
@@ -112,7 +114,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
 
         when(device.getDeviceLifeCycleChangeEvents()).thenReturn(Arrays.asList(event1, event2, event3));
 
-        String response = target("/devices/DeviceMRID/history/devicelifecyclechanges").request().get(String.class);
+        String response = target("/devices/" + DEVICE_NAME + "/history/devicelifecyclechanges").request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
 
@@ -130,7 +132,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     public void getDeviceStatesHistoryNoStates() {
         when(device.getDeviceLifeCycleChangeEvents()).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/DeviceMRID/history/devicelifecyclechanges").request().get(String.class);
+        String response = target("/devices/" + DEVICE_NAME + "/history/devicelifecyclechanges").request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
 
@@ -140,7 +142,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testMeterActivationsHistory() {
-        String json = target("/devices/DeviceMRID/history/meteractivations").request().get(String.class);
+        String json = target("/devices/" + DEVICE_NAME + "/history/meteractivations").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number> get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.meterActivations[0].id")).isEqualTo(1);
@@ -175,5 +177,4 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(user.getName()).thenReturn(name);
         return user;
     }
-
 }

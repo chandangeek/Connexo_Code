@@ -15,7 +15,7 @@ import java.util.Optional;
 public class ChannelHistoryInfo {
     public Long startDate;
     public Long endDate;
-    public String mrid;
+    public String deviceName;
     public Long channelId;
 
     public static ChannelHistoryInfo from(DataLoggerChannelUsage dataLoggerChannelUsage) {
@@ -29,7 +29,7 @@ public class ChannelHistoryInfo {
                 .findFirst();
         slaveChannel.ifPresent(channel -> {
             channelHistoryInfo.channelId = channel.getId();
-            channelHistoryInfo.mrid = dataLoggerChannelUsage.getDataLoggerReference().getOrigin().getmRID();
+            channelHistoryInfo.deviceName = dataLoggerChannelUsage.getDataLoggerReference().getOrigin().getName();
             if (dataLoggerChannelUsage.getRange().hasLowerBound()) {
                 channelHistoryInfo.startDate = dataLoggerChannelUsage.getRange().lowerEndpoint().toEpochMilli();
             }

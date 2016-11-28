@@ -5,11 +5,11 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ItemizeComScheduleQueueMessage;
@@ -56,7 +56,7 @@ public class BulkScheduleResource {
         }
         ItemizeComScheduleQueueMessage message = new ItemizeComScheduleQueueMessage();
         message.action = request.action.equalsIgnoreCase("add") ? ScheduleAction.Add : ScheduleAction.Remove;
-        message.deviceMRIDs = request.deviceMRIDs;
+        message.deviceIds = request.deviceIds;
         message.scheduleIds = request.scheduleIds;
         if (request.filter != null) {
             JsonQueryFilter filter = new JsonQueryFilter(request.filter);

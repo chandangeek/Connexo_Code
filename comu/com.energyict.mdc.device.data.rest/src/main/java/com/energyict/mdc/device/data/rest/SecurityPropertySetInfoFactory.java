@@ -88,7 +88,7 @@ public class SecurityPropertySetInfoFactory {
             }
         }
         info.version = securityPropertySet.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
     }
 
