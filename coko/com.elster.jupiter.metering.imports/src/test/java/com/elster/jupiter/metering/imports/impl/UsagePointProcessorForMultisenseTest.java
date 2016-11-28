@@ -116,7 +116,8 @@ public class UsagePointProcessorForMultisenseTest {
 
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(meteringService.findServiceLocation(anyLong())).thenReturn(Optional.ofNullable(servicelocation));
         when(usagePointBuilder.create()).thenReturn(usagePoint);
@@ -124,7 +125,7 @@ public class UsagePointProcessorForMultisenseTest {
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategoryTwo);
         when(serviceCategoryTwo.newUsagePointDetail(any(), any())).thenReturn(usagePointDetail);
-        when(serviceCategoryTwo.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
+        when(serviceCategoryTwo.newUsagePoint(eq("DOA_UPS1_UP001"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(serviceCategoryTwo.getId()).thenReturn(34L);
         when(thesaurus.getFormat((Matchers.any(MessageSeeds.class)))).thenReturn(nlsMessageFormat);
@@ -188,8 +189,8 @@ public class UsagePointProcessorForMultisenseTest {
 
     @Test
     public void testCanSetMetrologyConfiguration() throws IOException {
-        String content = "MRID;Name;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
-                "DOA_UPS1_UP001;;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
@@ -206,13 +207,13 @@ public class UsagePointProcessorForMultisenseTest {
 
     @Test
     public void testNoMetrologyConfigurationForUpdate() throws IOException {
-        String content = "MRID;Name;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
-                "DOA_UPS1_UP001;;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
-        when(meteringService.findUsagePoint("DOA_UPS1_UP001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(occurrence);
 
@@ -221,8 +222,8 @@ public class UsagePointProcessorForMultisenseTest {
 
     @Test
     public void testFailSetMetrologyConfigurationDefferentServiceCategory() throws IOException {
-        String content = "MRID;Name;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
-                "DOA_UPS1_UP001;;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
@@ -240,8 +241,8 @@ public class UsagePointProcessorForMultisenseTest {
 
     @Test
     public void testFailSetMetrologyConfigurationNoInstallationTime() throws IOException {
-        String content = "MRID;Name;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
-                "DOA_UPS1_UP001;;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;";
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
@@ -259,8 +260,8 @@ public class UsagePointProcessorForMultisenseTest {
 
     @Test
     public void testFailSetInactiveMetrologyConfiguration() throws IOException {
-        String content = "MRID;Name;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
-                "DOA_UPS1_UP001;;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
@@ -278,8 +279,8 @@ public class UsagePointProcessorForMultisenseTest {
 
     @Test
     public void testFailSetUnexistingMetrologyConfiguration() throws IOException {
-        String content = "MRID;Name;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
-                "DOA_UPS1_UP001;;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);

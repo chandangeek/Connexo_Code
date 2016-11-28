@@ -52,6 +52,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
@@ -209,7 +210,8 @@ public class UsagePointProcessorTest {
         when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
 
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.findServiceLocation(anyLong())).thenReturn(Optional.ofNullable(servicelocation));
@@ -217,9 +219,8 @@ public class UsagePointProcessorTest {
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategoryTwo);
         when(usagePoint.getDetail(any(Instant.class))).thenReturn(Optional.empty());
         when(serviceCategoryTwo.newUsagePointDetail(any(),any())).thenReturn(usagePointDetail);
-        when(serviceCategoryTwo.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
+        when(serviceCategoryTwo.newUsagePoint(eq("DOA_UPS1_UP001"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
-        when(usagePointBuilder.validate()).thenReturn(usagePoint);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
         when(usagePointBuilder.newLocationBuilder()).thenReturn(locationBuilder);
         when(serviceCategoryTwo.getId()).thenReturn(34L);

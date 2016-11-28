@@ -54,9 +54,9 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
     @Override
     public Map<String, FileImportField<?>> getFields(UsagePointImportRecord record) {
         Map<String, FileImportField<?>> fields = new HashMap<>();
-        fields.put("mRID", CommonField.withParser(stringParser)
-                .withSetter(record::setmRID)
-                .withName("mRID")
+        fields.put("id", CommonField.withParser(stringParser)
+                .withSetter(record::setUsagePointIdentifier)
+                .withName("id")
                 .markMandatory()
                 .build());
         fields.put("serviceKind", CommonField.withParser(stringParser)
@@ -71,10 +71,6 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
         fields.put("isVirtual", CommonField.withParser(booleanParser)
                 .withSetter(record::setVirtual)
                 .withName("isVirtual")
-                .build());
-        fields.put("name", CommonField.withParser(stringParser)
-                .withSetter(record::setName)
-                .withName("name")
                 .build());
         fields.put("installationTime", CommonField.withParser(instantParser)
                 .withSetter(record::setInstallationTime)

@@ -112,8 +112,7 @@ public enum DataImporterProperty {
                         .get()
                         .getValue()).getFormat();
                 if (delimiterValue == numberFormatValue.getDecimalSeparator() ||
-                        (numberFormatValue.getGroupSeparator() != null && delimiterValue == numberFormatValue.getGroupSeparator()
-                                .charValue())) {
+                        (numberFormatValue.getGroupSeparator() != null && delimiterValue == numberFormatValue.getGroupSeparator())) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER, "properties." + this
                             .getPropertyKey());
                 }

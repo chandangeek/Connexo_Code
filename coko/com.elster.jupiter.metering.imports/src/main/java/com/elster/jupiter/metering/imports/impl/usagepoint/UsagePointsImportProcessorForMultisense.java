@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
-import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
@@ -16,12 +15,10 @@ import javax.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class UsagePointsImportProcessorForMultisense implements FileImportProcessor<UsagePointImportRecord> {
-
-    private final MeteringDataImporterContext context;
+public class UsagePointsImportProcessorForMultisense extends AbstractImportProcessor<UsagePointImportRecord> {
 
     UsagePointsImportProcessorForMultisense(MeteringDataImporterContext context) {
-        this.context = context;
+        super(context);
     }
 
     @Override
@@ -38,49 +35,40 @@ public class UsagePointsImportProcessorForMultisense implements FileImportProces
     }
 
     private UsagePoint processUsagePoint(UsagePointImportRecord data) {
-        UsagePoint usagePoint;
-        String mRID = data.getmRID()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
+        String identifier = data.getUsagePointIdentifier()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_IDENTIFIER_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
         ServiceKind serviceKind = Arrays.stream(ServiceKind.values())
                 .filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString))
                 .findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
-        Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
-        Optional<ServiceCategory> serviceCategory = context.getMeteringService().getServiceCategory(serviceKind);
+        Optional<UsagePoint> usagePoint = findUsagePointByIdentifier(identifier);
+        Optional<ServiceCategory> serviceCategory = getContext().getMeteringService().getServiceCategory(serviceKind);
 
-        if (usagePointOptional.isPresent()) {
-            usagePoint = usagePointOptional.get();
-            if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
+        if (usagePoint.isPresent()) {
+            if (usagePoint.get().getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
-            return updateUsagePoint(usagePoint, data);
+            return usagePoint.get();
         } else {
-            return createUsagePoint(serviceCategory.get().newUsagePoint(mRID, data.getInstallationTime().orElse(context.getClock().instant())), data);
+            return createUsagePoint(serviceCategory.get().newUsagePoint(identifier, data.getInstallationTime().orElse(getClock().instant())), data);
         }
     }
 
     private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
         usagePointBuilder.withIsSdp(false);
         usagePointBuilder.withIsVirtual(true);
-        usagePointBuilder.withName(data.getName());
         UsagePoint usagePoint = usagePointBuilder.create();
-        usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, context.getClock().instant()));
+        usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, getClock().instant()));
         usagePoint.update();
         setMetrologyConfigurationForUsagePoint(data, usagePoint);
         return usagePoint;
     }
 
-    private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
-        usagePoint.setName(data.getName());
-        usagePoint.update();
-        return usagePoint;
-    }
-
     private void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
         data.getMetrologyConfiguration().ifPresent(metrologyConfigurationName -> {
-            UsagePointMetrologyConfiguration metrologyConfiguration = context.getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfigurationName)
+            UsagePointMetrologyConfiguration metrologyConfiguration = getContext().getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfigurationName)
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                     .map(UsagePointMetrologyConfiguration.class::cast)
                     .filter(UsagePointMetrologyConfiguration::isActive)

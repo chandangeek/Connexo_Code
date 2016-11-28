@@ -25,9 +25,9 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_USAGEPOINT_SERVICEKIND_INVALID(1014, Constants.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, " Can''t process line {0}: Invalid service kind", Level.SEVERE),
     IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND(1015, Constants.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, " Can''t process line {0}: No service kind found with name: {1}", Level.SEVERE),
     IMPORT_USAGEPOINT_SERVICELOCATION_INVALID(1016, Constants.IMPORT_USAGEPOINT_INVALID_SERVICELOCATION, " Invalid service location in line {0}. Attribute skipped.", Level.WARNING),
-    IMPORT_USAGEPOINT_MRID_INVALID(1017, Constants.IMPORT_USAGEPOINT_INVALID_MRID, " Can''t process line {0}: Invalid MRID", Level.SEVERE),
+    IMPORT_USAGEPOINT_IDENTIFIER_INVALID(1017, Constants.IMPORT_USAGEPOINT_INVALID_IDENTIFIER, " Can''t process line {0}: Invalid identifier (MRID or name)", Level.SEVERE),
     IMPORT_USAGEPOINT_PARSER_INVALID(1018, Constants.IMPORT_PARSER_INVALID, "Can''t process line {0}: Parser not found for {0}", Level.SEVERE),
-    IMPORT_USAGEPOINT_NOT_FOUND(1019, Constants.IMPORT_USAGEPOINT_NOT_FOUND, "Can''t process line {0}: No usage point found with MRID: {1}", Level.SEVERE),
+    IMPORT_USAGEPOINT_NOT_FOUND(1019, Constants.IMPORT_USAGEPOINT_NOT_FOUND, "Can''t process line {0}: No usage point found: {1}", Level.SEVERE),
     IMPORT_USAGEPOINT_CONSTRAINT_VOLATION(1020, Constants.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, " Can''t process line {0}: {1} - {2}", Level.SEVERE),
     IMPORT_QUANITITY_OUT_OF_BOUNDS(1021, Constants.IMPORT_QUANITITY_OUT_OF_BOUNDS, " Can''t process line {0}: Invalid data. Multiplier out of bounds", Level.SEVERE),
     IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID(1022, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, " Can''t process line {0}: No service category found with name: {1}", Level.SEVERE),
@@ -95,7 +95,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_SUCCEEDED = "up.import.succeeded";
         public static final String IMPORT_SUCCEEDED_WITH_FAILURES = "up.import.succeeded.with.failures";
         public static final String IMPORT_USAGEPOINT_EXCEPTION = "up.import.exception";
-        public static final String IMPORT_USAGEPOINT_INVALID_MRID = "up.invalid.mrid";
+        public static final String IMPORT_USAGEPOINT_INVALID_IDENTIFIER = "up.invalid.id";
         public static final String IMPORT_USAGEPOINT_INVALID_DATA = "up.invalid.date";
         public static final String IMPORT_USAGEPOINT_SERVICEKIND_INVALID = "up.no.service.kind";
         public static final String IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND = "up.invalid.service.kind";
