@@ -10,7 +10,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_TIME_OF_USE_CALENDAR(1, "NoSuchTimeOfUseCalendar", "Time of use calendar does not exist"),
     TIME_OF_USE_CALENDAR_IN_USE(2, "CalendarInUse", "Calendar is still in use"),
     NO_SUCH_CATEGORY(3, "NoSuchCategory", "Category does not exist"),
-    ACTIVE_CALENDAR_CANT_BE_REMOVED(4, "CalendarInActiveState", "Calendar is still in the active state");
+    ACTIVE_CALENDAR_CANT_BE_REMOVED(4, "CalendarInActiveState", "You can''t remove an active calendar");
 
     private final int number;
     private final String key;
