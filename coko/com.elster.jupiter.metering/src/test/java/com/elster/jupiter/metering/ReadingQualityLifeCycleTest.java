@@ -63,7 +63,7 @@ public class ReadingQualityLifeCycleTest {
 
         //step 1
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        meter = amrSystem.newMeter("myMeter").create();
+        meter = amrSystem.newMeter("myMeter", "myName").create();
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
                 .flow(FlowDirection.FORWARD)

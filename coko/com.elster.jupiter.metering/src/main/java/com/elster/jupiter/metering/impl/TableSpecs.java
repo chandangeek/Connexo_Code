@@ -268,11 +268,13 @@ public enum TableSpecs {
             table.map(UsagePointImpl.class);
             table.setJournalTableName("MTR_USAGEPOINTJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
+            Column mRIDColumn_10_2 = table.column("MRID").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").since(version(10, 2, 1)).previously(mRIDColumn_10_2).add();
             Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            Column nameColumn_10_2 = table.column("NAME").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").since(version(10, 2, 1)).previously(nameColumn_10_2).add();
             table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceLocationString").since(version(10, 2)).add();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ISSDP").bool().map("isSdp").add();
@@ -300,6 +302,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).since(version(10, 2, 1)).add();
             table.foreignKey("FK_MTR_USAGEPOINTSERVICECAT")
                     .on(serviceKindColumn)
                     .references(ServiceCategory.class)
@@ -345,18 +348,15 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDevice> table = dataModel.addTable(name(), EndDevice.class);
             table.map(EndDeviceImpl.IMPLEMENTERS);
-            table.setJournalTableName("MTR_ENDDEVICEJRNL");
+            table.setJournalTableName("MTR_ENDDEVICEJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
-            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            Column amrSystemIdColumn = table.column("AMRSYSTEMID")
-                    .number()
-                    .notNull()
-                    .conversion(NUMBER2INT)
-                    .map("amrSystemId")
-                    .add();
+            Column mRIDColumn_10_2 = table.column("MRID").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").since(version(10, 2, 1)).previously(mRIDColumn_10_2).add();
+            Column amrSystemIdColumn = table.column("AMRSYSTEMID").number().notNull().conversion(NUMBER2INT).map("amrSystemId").add();
             Column amrIdColumn = table.column("AMRID").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("amrId").add();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column nameColumn_10_2 = table.column("NAME").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").since(version(10, 2, 1)).previously(nameColumn_10_2).add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("SERIALNUMBER").varChar(NAME_LENGTH).map("serialNumber").add();
@@ -381,8 +381,6 @@ public enum TableSpecs {
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METER").on(idColumn).add();
-            table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
-            table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.foreignKey("FK_MTR_METERAMRSYSTEM")
                     .references(MTR_AMRSYSTEM.name())
                     .onDelete(RESTRICT)
@@ -401,7 +399,11 @@ public enum TableSpecs {
                     .map("location", LocationMember.class)
                     .since(version(10, 2))
                     .add();
+            table.unique("MTR_U_METER").on(mRIDColumn_10_2, obsoleteTime).upTo(version(10, 2, 1)).add();
+            table.unique("MTR_U_METER").on(mRIDColumn).since(version(10, 2, 1)).add();
+            table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
+            table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
         }
     },
     MTR_ENDDEVICESTATUS {

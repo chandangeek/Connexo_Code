@@ -3,26 +3,28 @@ package com.elster.jupiter.metering;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ProviderType
 public class MeterFilter {
-    private String mrid;
-    private List<String> states = new ArrayList<>();
 
-    public String getMrid() {
-        return mrid;
+    private String name;
+    private List<String> excludedStates = new ArrayList<>();
+
+    public String getName() {
+        return name;
     }
 
-    public void setMrid(String name) {
-        this.mrid = name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public List<String> getStates(){
-        return states;
+    public List<String> getExcludedStates() {
+        return excludedStates;
     }
 
-    public void addState(String status){
-        states.add(status);
+    public void setExcludedStates(String... excludedStates) {
+        this.excludedStates.addAll(Arrays.asList(excludedStates));
     }
 }

@@ -315,23 +315,23 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     private List<SearchableProperty> getMultisenseProperties() {
-        return Arrays.asList(new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+        return Arrays.asList(new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, meteringTranslationService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()));
+                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()));
     }
 
     private List<SearchableProperty> getInsightProperties() {
         return new ArrayList<>(Arrays.asList(
-                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, meteringTranslationService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new MetrologyPurposeSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
                 new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
                 new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),

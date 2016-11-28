@@ -33,9 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -132,6 +130,8 @@ public class ServiceCategoryImplTest {
         when(dataModel.getInstance(UsagePointStateTemporalImpl.class)).thenReturn(new UsagePointStateTemporalImpl(dataModel));
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
+        assertThat(usagePoint.getName()).isEqualTo("name");
+        assertThat(usagePoint.getInstallationTime()).isEqualTo(Instant.EPOCH);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
@@ -17,6 +18,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -60,8 +62,7 @@ public class MeterImplIT {
 
         // Business method
         Meter meter = meteringService.findAmrSystem(1).get()
-                .newMeter("amrID")
-                .setMRID("mRID")
+                .newMeter("amrID", "myName")
                 .setStateMachine(stateMachine)
                 .create();
 
@@ -82,12 +83,11 @@ public class MeterImplIT {
 
         // Business method
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
-                .newMeter("amrID")
-                .setMRID("mRID")
+                .newMeter("amrID", "name")
                 .setReceivedDate(twoHoursAgo)
                 .setStateMachine(stateMachine)
                 .create();
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
 
         // Asserts
         assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
@@ -107,12 +107,11 @@ public class MeterImplIT {
 
         // Business method
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
-                .newMeter("amrID")
-                .setMRID("mRID")
+                .newMeter("amrID", "name")
                 .setReceivedDate(twoHoursAfter)
                 .setStateMachine(stateMachine)
                 .create();
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
 
         // Asserts
         assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
@@ -130,26 +129,26 @@ public class MeterImplIT {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
 
         // activation
-        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
-                .setMRID("mRID")
+        Meter meter = meteringService.findAmrSystem(1).get()
+                .newMeter("amrID", "myName")
                 .create();
         meter.update();
         meter.activate(activation.toInstant());
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         MeterActivation meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
 
         // deactivation
         meterActivation.endAt(deactivation.toInstant());
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
 
         // reinstall
         meter.activate(reinstall.toInstant());
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(2);
         meterActivation = meter.getMeterActivations().get(1);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(reinstall.toInstant()));
@@ -163,26 +162,25 @@ public class MeterImplIT {
         ZonedDateTime reinstall = deactivation;
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         // activation
-        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
-                .setMRID("mRID")
+        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
                 .create();
         meter.update();
         meter.activate(activation.toInstant());
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         MeterActivation meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
 
         // deactivation
         meterActivation.endAt(deactivation.toInstant());
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
 
         // reinstall
         meter.activate(reinstall.toInstant());
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(2);
         meterActivation = meter.getMeterActivations().get(1);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(reinstall.toInstant()));
@@ -190,19 +188,53 @@ public class MeterImplIT {
 
     @Test
     @Transactional
-    public void testUpdateMRID() {
+    public void testCreateAndUpdateName() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+
         // activation
-        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
-                .setMRID("mRID")
+
+        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
                 .create();
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
 
-        meter.setMRID("newMRID");
+        String mRID = meter.getMRID();
+        assertThat(mRID).isNotNull().isNotEmpty();
+        assertThat(UUID.fromString(mRID).toString()).isEqualTo(mRID);
+        assertThat(meter.getName()).isEqualTo("myName");
+
+        meter.setName("newName");
         meter.update();
-        meter = meteringService.findMeter(meter.getId()).get();
 
-        assertThat(meter.getMRID()).isEqualTo("newMRID");
+        meter = meteringService.findMeterById(meter.getId()).get();
+
+        assertThat(meter.getMRID()).isEqualTo(mRID);
+        assertThat(meter.getName()).isEqualTo("newName");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithPrescribedMRID() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+
+        // activation
+        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
+                    .setMRID("00F000-0f7-0f00-f000-00ABCDE02ff")
+                    .create();
+
+        meter = meteringService.findMeterById(meter.getId()).get();
+        assertThat(meter.getMRID()).isEqualTo("0000f000-00f7-0f00-f000-000abcde02ff");
+    }
+
+    @Test
+    @Expected(IllegalArgumentException.class)
+    @Transactional
+    public void testCreateWithWrongMRID() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+
+        // activation
+        meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
+                .setMRID("00000000-0000-00000000-0000000000ff")
+                .create();
     }
 
     private FiniteStateMachine createTinyFiniteStateMachine() {

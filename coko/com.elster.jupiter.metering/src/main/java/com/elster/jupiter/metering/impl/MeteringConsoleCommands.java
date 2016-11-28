@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -138,11 +137,10 @@ public class MeteringConsoleCommands {
 
     public void printDdl() {
         try {
-            for (Table<?> table : dataModel.getTables()) {
-                for (Object s : table.getDdl()) {
-                    System.out.println(s);
-                }
-            }
+            dataModel.getTables().stream()
+                    .map(Table::getDdl)
+                    .flatMap(List::stream)
+                    .forEach(System.out::println);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -150,18 +148,18 @@ public class MeteringConsoleCommands {
 
     public void meters() {
         meteringService.getMeterQuery().select(Condition.TRUE).stream()
-                .map(meter -> meter.getId() + " " + meter.getMRID())
+                .map(meter -> meter.getId() + ' ' + meter.getName() + ' ' + meter.getMRID())
                 .forEach(System.out::println);
     }
 
     public void usagePoints() {
         meteringService.getUsagePointQuery().select(Condition.TRUE).stream()
-                .map(usagePoint -> usagePoint.getId() + " " + usagePoint.getMRID())
+                .map(usagePoint -> usagePoint.getId() + ' ' + usagePoint.getName() + ' ' + usagePoint.getMRID())
                 .forEach(System.out::println);
     }
 
     public void meterActivations(long meterId) {
-        Meter meter = meteringService.findMeter(meterId)
+        Meter meter = meteringService.findMeterById(meterId)
                 .orElseThrow(() -> new IllegalArgumentException("Meter not found."));
         System.out.println(meter.getMeterActivations().stream()
                 .map(this::toString)
@@ -181,29 +179,30 @@ public class MeteringConsoleCommands {
     }
 
     public void createMeter() {
-        System.out.println("Usage: createMeter <amrSystemId: usually 2> <amrId: EA_MS Meter ID> <mrId>");
+        System.out.println("Usage: createMeter <amrSystemId: usually 2> <amrId: EA_MS Meter ID> <name>");
     }
 
-    public void createMeter(long amrSystemId, String amrId, String mrId) {
+    public void createMeter(long amrSystemId, String amrId, String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId)
                     .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-            Meter meter = amrSystem.newMeter(amrId)
-                    .setName(amrId)
-                    .setMRID(mrId)
+            Meter meter = amrSystem.newMeter(amrId, name)
                     .create();
             context.commit();
-            System.out.println("Meter " + amrId + " created with ID: " + meter.getId());
+            System.out.println("Meter " + amrId
+                    + " created with ID: " + meter.getId()
+                    + ", MRID: " + meter.getMRID());
         } finally {
             threadPrincipalService.clear();
         }
     }
 
-    public void renameMeter(String mrId, String newName) {
+    public void renameMeter(String name, String newName) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("Meter " + name + " does not exist"));
             meter.setName(newName);
             meter.update();
             context.commit();
@@ -213,14 +212,16 @@ public class MeteringConsoleCommands {
     }
 
     public void activateMeter() {
-        System.out.println("Usage activateMeter <mRID> <epoch millis> [<meter role> <usage point mRID]");
-        System.out.println("       where meter role is one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+        System.out.println("Usage activateMeter <name> <epoch millis> [<meter role> <usage point name>]");
+        System.out.println("       where meter role is one of: "
+                + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
     }
 
-    public void activateMeter(String mrId, long epochMilli) {
+    public void activateMeter(String name, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("Meter " + name + " does not exist"));
             Instant activationDate = Instant.ofEpochMilli(epochMilli);
             meter.activate(activationDate);
             meter.update();
@@ -230,66 +231,71 @@ public class MeteringConsoleCommands {
         }
     }
 
-    public void activateMeter(String mrId, long epochMilli, String defaultMeterRoleName, String usagePointMRID) {
+    public void activateMeter(String meterName, long epochMilli, String defaultMeterRoleName, String usagePointName) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(defaultMeterRoleName);
             MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
-            Optional<Meter> meter = meteringService.findMeter(mrId);
-            if (meter.isPresent()) {
-                Optional<UsagePoint> usagePoint = this.meteringService.findUsagePoint(usagePointMRID);
-                if (usagePoint.isPresent()) {
-                    Instant activationDate = Instant.ofEpochMilli(epochMilli);
-                    meter.get().activate(usagePoint.get(), meterRole, activationDate);
-                    context.commit();
-                } else {
-                    throw new RuntimeException("Usagepoint with mRID " + usagePointMRID + " does not exist");
-                }
-            } else {
-                throw new RuntimeException("Meter with mRID " + mrId + " does not exist");
-            }
+            Meter meter = meteringService.findMeterByName(meterName)
+                    .orElseThrow(() -> new IllegalArgumentException("Meter " + meterName + " does not exist"));
+            UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
+            Instant activationDate = Instant.ofEpochMilli(epochMilli);
+            meter.activate(usagePoint, meterRole, activationDate);
+            context.commit();
         } finally {
             threadPrincipalService.clear();
         }
     }
 
     public void addUsagePointToCurrentMeterActivation() {
-        System.out.println("Usage: addUsagePointToCurrentMeterActivation <mRID> <usage point mRID>");
+        System.out.println("Usage: addUsagePointToCurrentMeterActivation <meter name> <usage point name>");
     }
 
-    public void addUsagePointToCurrentMeterActivation(String mrId, String usagePointmrId) {
+    public void addUsagePointToCurrentMeterActivation(String meterName, String usagePointName) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointmrId).get();
-            MeterActivation meterActivation = meter.getCurrentMeterActivation().get();
-            ((MeterActivationImpl) meterActivation).setUsagePoint(usagePoint);
-            ((MeterActivationImpl) meterActivation).save();
-            ((UsagePointImpl) usagePoint).adopt((MeterActivationImpl) meterActivation);
+            Meter meter = meteringService.findMeterByName(meterName)
+                    .orElseThrow(() -> new IllegalArgumentException("No meter with name " + meterName));
+            UsagePointImpl usagePoint = meteringService.findUsagePointByName(usagePointName)
+                    .map(UsagePointImpl.class::cast)
+                    .orElseThrow(() -> new IllegalArgumentException("No usage point with name " + usagePointName));
+            MeterActivationImpl meterActivation = meter.getCurrentMeterActivation()
+                    .map(MeterActivationImpl.class::cast)
+                    .orElseThrow(() -> new IllegalArgumentException("No current meter activation on meter " + meterName));
+            meterActivation.setUsagePoint(usagePoint);
+            meterActivation.save();
+            usagePoint.adopt(meterActivation);
             context.commit();
         } finally {
             threadPrincipalService.clear();
         }
     }
 
-    public void endCurrentMeterActivation(String mrId, long epochMilli) {
+    public void endCurrentMeterActivation(String name, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No meter with name " + name));
             Instant endDate = Instant.ofEpochMilli(epochMilli);
-            meter.getCurrentMeterActivation().get().endAt(endDate);
+            meter.getCurrentMeterActivation()
+                    .orElseThrow(() -> new IllegalArgumentException("No current meter activation on meter " + name))
+                    .endAt(endDate);
             context.commit();
         } finally {
             threadPrincipalService.clear();
         }
     }
 
-    public void advanceStartDate(String mrId, long epochMilli) {
+    public void advanceStartDate(String name, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No meter with name " + name));
             Instant newStartDate = Instant.ofEpochMilli(epochMilli);
-            meter.getCurrentMeterActivation().get().advanceStartDate(newStartDate);
+            meter.getCurrentMeterActivation()
+                    .orElseThrow(() -> new IllegalArgumentException("No current meter activation on meter " + name))
+                    .advanceStartDate(newStartDate);
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -297,15 +303,15 @@ public class MeteringConsoleCommands {
     }
 
     public void createUsagePoint() {
-        System.out.println("Usage: createUsagePoint <mRID> <installation datetime format 2011-12-03T10:15:30Z>");
+        System.out.println("Usage: createUsagePoint <name> <installation datetime format 2011-12-03T10:15:30Z>");
     }
 
-    public void createUsagePoint(String mrId, String timestamp) {
+    public void createUsagePoint(String name, String timestamp) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             meteringService.getServiceCategory(ServiceKind.WATER)
-                    .get()
-                    .newUsagePoint(mrId, Instant.parse(timestamp + "T00:00:00Z"))
+                    .orElseThrow(() -> new NoSuchElementException("No Water service category found"))
+                    .newUsagePoint(name, Instant.parse(timestamp + "T00:00:00Z"))
                     .create();
             context.commit();
         } finally {
@@ -315,11 +321,11 @@ public class MeteringConsoleCommands {
 
     public void readingTypes() {
         meteringService.getAvailableReadingTypes().stream()
-                .map(IdentifiedObject::getMRID)
+                .map(ReadingType::getMRID)
                 .forEach(System.out::println);
     }
 
-    public void addEvents(String mrId, String dataFile) {
+    public void addEvents(String name, String dataFile) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             File eventData = new File(dataFile);
@@ -331,13 +337,15 @@ public class MeteringConsoleCommands {
 
                 List<EndDeviceEventImpl> deviceEvents = lines.stream()
                         .map(line -> line.split(";"))
-                        .map(line -> EndDeviceEventImpl.of(line[1], ZonedDateTime.parse(line[0], DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx"))
-                                .toInstant()))
+                        .map(line -> EndDeviceEventImpl.of(line[1],
+                                ZonedDateTime.parse(line[0], DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx")).toInstant()))
                         .collect(Collectors.toList());
 
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                 meterReading.addAllEndDeviceEvents(deviceEvents);
-                meteringService.findMeter(mrId).get().store(QualityCodeSystem.MDC, meterReading);
+                meteringService.findMeterByName(name)
+                        .orElseThrow(() -> new IllegalArgumentException("No meter with name " + name))
+                        .store(QualityCodeSystem.MDC, meterReading);
 
                 context.commit();
             } catch (FileNotFoundException e) {
@@ -349,15 +357,14 @@ public class MeteringConsoleCommands {
     }
 
     public void locationTemplate() {
-        meteringService.getLocationTemplate().getTemplateElementsNames().stream()
-                .forEach(System.out::println);
+        meteringService.getLocationTemplate().getTemplateElementsNames().forEach(System.out::println);
     }
 
-    public void addDeviceLocation(String mRID, String... args) {
+    public void addDeviceLocation(String name, String... args) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findEndDevice(mRID)
-                    .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
+            EndDevice endDevice = meteringService.findEndDeviceByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No end device with name " + name + "!"));
             endDevice.setLocation(getLocationBuilder(args).create());
             endDevice.update();
             context.commit();
@@ -365,28 +372,20 @@ public class MeteringConsoleCommands {
     }
 
     public void addDeviceLocation() {
-        List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
-        System.out.print("Example : addDeviceLocation Device_mRID ");
-        templateElements.stream()
-                .forEach(element -> System.out.print(element + " "));
-        System.out.println();
-
+        System.out.println("Example : addDeviceLocation <end device name>");
+        locationTemplate();
     }
 
     public void addUsagePointLocation() {
-        List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
-        System.out.print("Example : addUsagePointLocation UsagePoint_mRID ");
-        templateElements.stream()
-                .forEach(element -> System.out.print(element + " "));
-        System.out.println();
-
+        System.out.println("Example : addUsagePointLocation <usagePointName>");
+        locationTemplate();
     }
 
-    public void addUsagePointLocation(String mRID, String... args) {
+    public void addUsagePointLocation(String name, String... args) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
-                    .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
+            UsagePoint usagePoint = meteringService.findUsagePointByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No usage point with name " + name + "!"));
             usagePoint.setLocation(getLocationBuilder(args).create().getId());
             usagePoint.update();
             context.commit();
@@ -394,15 +393,14 @@ public class MeteringConsoleCommands {
     }
 
     public void addDeviceGeoCoordinates() {
-        System.out.print("Example : addDeviceGeoCoordinates Device_mRID latitude longitude elevation");
-        System.out.println();
+        System.out.println("Example : addDeviceGeoCoordinates <end device name> <latitude> <longitude> <elevation>");
     }
 
-    public void addDeviceGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
+    public void addDeviceGeoCoordinates(String name, String latitude, String longitude, String elevation) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findEndDevice(mRID)
-                    .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
+            EndDevice endDevice = meteringService.findEndDeviceByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No device with name " + name + "!"));
 
             SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
             endDevice.setSpatialCoordinates(spatialCoordinates);
@@ -412,15 +410,14 @@ public class MeteringConsoleCommands {
     }
 
     public void addUsagePointGeoCoordinates() {
-        System.out.print("Example : addUsagePointGeoCoordinates UsagePoint_mRID latitude longitude elevation ");
-        System.out.println();
+        System.out.println("Example : addUsagePointGeoCoordinates <usagePointName> <latitude> <longitude> <elevation>");
     }
 
-    public void addUsagePointGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
+    public void addUsagePointGeoCoordinates(String name, String latitude, String longitude, String elevation) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
-                    .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
+            UsagePoint usagePoint = meteringService.findUsagePointByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No usage point with name " + name + "!"));
             SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
             usagePoint.setSpatialCoordinates(spatialCoordinates);
             usagePoint.update();
@@ -451,7 +448,7 @@ public class MeteringConsoleCommands {
         List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
         Map<String, String> location = new HashMap<>();
         if (templateElements.size() != args.length) {
-            throw new RuntimeException("Location provided does not meet template length !");
+            throw new IllegalArgumentException("Location provided does not meet template length!");
         } else {
             IntStream.range(0, args.length)
                     .forEach(i -> location.put(templateElements.get(i), args[i]));
@@ -459,11 +456,9 @@ public class MeteringConsoleCommands {
             Optional<LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(location.get("locale"));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), location);
-
             } else {
                 setLocationAttributes(builder.member(), location).add();
             }
-
             return builder;
         }
     }
@@ -493,7 +488,7 @@ public class MeteringConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             metrologyConfigurationService.findMetrologyConfiguration(id)
-                    .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
                     .delete();
             context.commit();
         }
@@ -551,9 +546,6 @@ public class MeteringConsoleCommands {
                 metrologyConfiguration.newReadingTypeRequirement(name).withReadingType(readingType);
             }
             context.commit();
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            throw e;
         }
     }
 
@@ -586,9 +578,6 @@ public class MeteringConsoleCommands {
                 metrologyConfiguration.newReadingTypeRequirement(name).withReadingTypeTemplate(template);
             }
             context.commit();
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            throw e;
         }
     }
 
@@ -604,7 +593,8 @@ public class MeteringConsoleCommands {
 
     private void printDeliverables(List<ReadingTypeDeliverable> deliverables) {
         deliverables.stream()
-                .map(del -> del.getId() + " " + del.getName() + " " + del.getReadingType().getMRID() + " root node: " + this.getExpressionNode(del).getId())
+                .map(del -> del.getId() + " " + del.getName() + " " + del.getReadingType().getMRID()
+                        + " root node: " + this.getExpressionNode(del).getId())
                 .forEach(System.out::println);
     }
 
@@ -628,7 +618,7 @@ public class MeteringConsoleCommands {
         doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
     }
 
-    public void doAddDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
+    private void doAddDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
@@ -636,7 +626,8 @@ public class MeteringConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, metrologyConfiguration, mode).parse(formulaString);
+            ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(),
+                    metrologyConfigurationService, customPropertySetService, metrologyConfiguration, mode).parse(formulaString);
 
             long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);
@@ -661,13 +652,12 @@ public class MeteringConsoleCommands {
                 .setReadingType(readingType)
                 .setFormula(formulaString)
                 .complete();
-
             context.commit();
         }
     }
 
     public void updateDeliverableReadingType() {
-        System.out.println("Usage: updateDeliverableReadingType  <deliverable id> <reading type>");
+        System.out.println("Usage: updateDeliverableReadingType <deliverable id> <reading type>");
     }
 
     public void updateDeliverableReadingType(long deliverableId, String readingTypeString) {
@@ -692,7 +682,6 @@ public class MeteringConsoleCommands {
     public void updateDeliverableFormula() {
         System.out.println("Usage: updateDeliverableFormula  <deliverable id> <formula string>");
     }
-
 
     public void updateDeliverableFormula(long deliverableId, String formulaString) {
         threadPrincipalService.set(() -> "Console");
@@ -732,7 +721,9 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(defaultPurpose))
                     .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
-            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId).get().addMetrologyContract(purpose);
+            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                    .addMetrologyContract(purpose);
             printDeliverables(contract.getDeliverables());
         }
     }
@@ -748,7 +739,9 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId).get().addMetrologyContract(purpose);
+            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                    .addMetrologyContract(purpose);
             contract.addDeliverable(deliverable);
             context.commit();
         }
@@ -765,7 +758,9 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId).get().addMetrologyContract(purpose);
+            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                    .addMetrologyContract(purpose);
             contract.removeDeliverable(deliverable);
             context.commit();
         }
@@ -813,7 +808,7 @@ public class MeteringConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             metrologyConfigurationService.findMetrologyConfiguration(name)
-                    .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
                     .activate();
             context.commit();
         }

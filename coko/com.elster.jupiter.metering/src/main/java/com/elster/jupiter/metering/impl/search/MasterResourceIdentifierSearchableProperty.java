@@ -52,7 +52,7 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override

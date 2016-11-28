@@ -45,7 +45,7 @@ public class UsagePointFinder implements Finder<UsagePoint> {
                         UsagePointConnectionState.class,
                         MetrologyContract.class,
                         UsagePointStateTemporalImpl.class)
-                .defaultSortColumn("mRID");
+                .defaultSortColumn("name");
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {

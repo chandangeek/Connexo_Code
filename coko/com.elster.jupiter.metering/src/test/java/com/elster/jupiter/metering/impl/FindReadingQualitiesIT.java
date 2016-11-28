@@ -60,7 +60,7 @@ public class FindReadingQualitiesIT {
         ReadingType deltaReadingType, bulkReadingType;
         try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            meter = system.newMeter("FindReadingQualitiesIT").create();
+            meter = system.newMeter("FindReadingQualitiesIT", "myName").create();
             meterActivation = meter.activate(START_TIME);
             deltaReadingType = meteringService.getReadingType(READING_TYPE_DELTA).get();
             bulkReadingType = meteringService.getReadingType(READING_TYPE_BULK).get();

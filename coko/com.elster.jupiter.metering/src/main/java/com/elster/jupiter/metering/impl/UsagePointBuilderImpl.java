@@ -20,7 +20,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     private String aliasName;
     private String description;
-    private String mRID;
     private String name;
     private boolean isSdp;
     private boolean isVirtual;
@@ -36,9 +35,9 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
 
-    public UsagePointBuilderImpl(DataModel dataModel, String mRID, Instant installationTime, ServiceCategory serviceCategory) {
+    public UsagePointBuilderImpl(DataModel dataModel, String name, Instant installationTime, ServiceCategory serviceCategory) {
         this.serviceCategory = serviceCategory;
-        this.mRID = mRID;
+        this.name = name;
         this.installationTime = installationTime;
         this.dataModel = dataModel;
     }
@@ -56,12 +55,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withMRID(String mRID) {
-        this.mRID = mRID;
-        return this;
-    }
-
-    @Override
     public UsagePointBuilder withLocation(Location location) {
         this.locationId = location.getId();
         return this;
@@ -70,12 +63,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates) {
         this.spatialCoordinates = geoCoordinates;
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder withName(String name) {
-        this.name = name;
         return this;
     }
 
@@ -146,9 +133,8 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         return usagePoint;
     }
 
-    private UsagePointImpl build() {
-        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
-        usagePoint.setName(name);
+    private UsagePointImpl build(){
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, serviceCategory);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
         usagePoint.setOutageRegion(outageRegion);

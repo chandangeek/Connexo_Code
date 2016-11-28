@@ -90,7 +90,7 @@ public class MeterConfigurationIT {
 
         assertThat(meter.getConfiguration(ACTIVE_DATE.toInstant())).contains(meterConfiguration);
 
-        meter = inMemoryBootstrapModule.getMeteringService().findMeter(meter.getId()).get();
+        meter = inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get();
         meterConfiguration = meter.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         assertThat(meterConfiguration.getRange()).isEqualTo(Range.closedOpen(ACTIVE_DATE.toInstant(), END_DATE.toInstant()));
@@ -123,11 +123,11 @@ public class MeterConfigurationIT {
 
         assertThat(meter.getConfiguration(ACTIVE_DATE.toInstant())).contains(meterConfiguration);
 
-        meter = inMemoryBootstrapModule.getMeteringService().findMeter(meter.getId()).get();
+        meter = inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get();
         meterConfiguration = meter.getConfiguration(ACTIVE_DATE.toInstant()).get();
         meterConfiguration.endAt(END_DATE.toInstant());
 
-        meter = inMemoryBootstrapModule.getMeteringService().findMeter(meter.getId()).get();
+        meter = inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get();
         meterConfiguration = meter.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         Range<Instant> range = meterConfiguration.getRange();
@@ -151,12 +151,11 @@ public class MeterConfigurationIT {
     }
 
     private void createAndActivateMeter() {
-        meter = inMemoryBootstrapModule.getMeteringService().findAmrSystem(1).get()
-                .newMeter("amrID")
-                .setMRID("mRID")
+         meter = meteringService.findAmrSystem(1).get()
+                .newMeter("amrID", "myName")
                 .create();
         meterActivation = meter.activate(ACTIVE_DATE.toInstant());
-        meter = inMemoryBootstrapModule.getMeteringService().findMeter(meter.getId()).get();
+        meter = inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get();
         meterActivation = meter.getMeterActivations().get(0);
     }
 }

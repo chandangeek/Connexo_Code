@@ -10,7 +10,7 @@ public class UsagePointManageException extends LocalizedException {
         super(thesaurus, messageSeed, args);
     }
 
-    public static UsagePointManageException incorrectState(Thesaurus thesaurus, String usagePointMrid) {
-        return new UsagePointManageException(thesaurus, MessageSeeds.USAGE_POINT_INCORRECT_STATE, usagePointMrid);
+    public static UsagePointManageException incorrectState(Thesaurus thesaurus, String usagePointName) {
+        return new UsagePointManageException(thesaurus, MessageSeeds.USAGE_POINT_INCORRECT_STATE, usagePointName);
     }
 }

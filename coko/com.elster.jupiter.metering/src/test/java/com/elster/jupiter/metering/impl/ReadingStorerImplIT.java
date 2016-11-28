@@ -429,9 +429,7 @@ public class ReadingStorerImplIT {
 
     private Channel createMeterAndChannelWithMultiplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {
         AmrSystem mdc = inMemoryBootstrapModule.getMeteringService().findAmrSystem(1L).get();
-        Meter meter = mdc.newMeter("AMR_ID")
-                .setMRID("meterMRID")
-                .setName("Meter")
+        Meter meter = mdc.newMeter("AMR_ID", "myName")
                 .create();
         MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
 
@@ -450,10 +448,8 @@ public class ReadingStorerImplIT {
 
     private Channel createMeterAndChannelWithDelta(ReadingType bulkReadingType) {
         AmrSystem mdc = inMemoryBootstrapModule.getMeteringService().findAmrSystem(1L).get();
-        Meter meter = mdc.newMeter("AMR_ID")
-                .setMRID("meterMRID")
-                .setName("Meter")
-                .create();
+            Meter meter = mdc.newMeter("AMR_ID", "myName")
+                    .create();
         MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
         return meterActivation.getChannelsContainer().createChannel(bulkReadingType);
     }

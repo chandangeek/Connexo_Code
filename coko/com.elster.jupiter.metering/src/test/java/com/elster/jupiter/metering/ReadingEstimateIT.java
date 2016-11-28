@@ -252,7 +252,7 @@ public class ReadingEstimateIT {
         Meter meter;
 
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        meter = amrSystem.newMeter("myMeter").create();
+        meter = amrSystem.newMeter("myMeter", "myName").create();
 
 
         return meter;

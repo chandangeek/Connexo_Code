@@ -65,57 +65,58 @@ public class UsagePointDetailImplIT {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
+
     @Test
     @Transactional
     public void testElectricityUsagePointDetails() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
+            UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
-            //add details valid from 1 january 2014
-            ElectricityDetail elecDetail = newElectricityDetail(usagePoint, JANUARY_2014);
-            usagePoint.addDetail(elecDetail);
+        //add details valid from 1 january 2014
+        ElectricityDetail elecDetail = newElectricityDetail(usagePoint, JANUARY_2014);
+        usagePoint.addDetail(elecDetail);
 
-            //add details valid from 1 february 2014 (this closes the previous detail on this date)
-            elecDetail = newElectricityDetail(usagePoint, FEBRUARY_2014);
-            usagePoint.addDetail(elecDetail);
+        //add details valid from 1 february 2014 (this closes the previous detail on this date)
+        elecDetail = newElectricityDetail(usagePoint, FEBRUARY_2014);
+        usagePoint.addDetail(elecDetail);
 
+        //get details valid from 1 january 2014
+        Optional optional =  usagePoint.getDetail(JANUARY_2014);
+        assertThat(optional.isPresent()).isTrue();
+        ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
+        //verify interval is closed because a second was added!
+        assertThat(foundElecDetail.getInterval().equals(Interval.of(JANUARY_2014, FEBRUARY_2014))).isTrue();
+        //check content
+        checkElectricityDetailContent(foundElecDetail);
 
-            //get details valid from 1 january 2014
-            Optional optional =  usagePoint.getDetail(JANUARY_2014);
-            assertThat(optional.isPresent()).isTrue();
-            ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
-            //verify interval is closed because a second was added!
-            assertThat(foundElecDetail.getInterval().equals(Interval.of(JANUARY_2014, FEBRUARY_2014))).isTrue();
-            //check content
-            checkElectricityDetailContent(foundElecDetail);
+        //update the detail rated power and check
+        ((ElectricityDetailImpl) foundElecDetail).setRatedPower(RATED_POWER2);
+        foundElecDetail.update();
 
-            //update the detail rated power and check
-            ((ElectricityDetailImpl) foundElecDetail).setRatedPower(RATED_POWER2);
-            foundElecDetail.update();
+        optional =  usagePoint.getDetail(JANUARY_2014);
+        assertThat(optional.isPresent()).isTrue();
+        ElectricityDetail updatedElecDetail = (ElectricityDetail) optional.get();
+        assertThat(updatedElecDetail.getRatedPower().equals(RATED_POWER2)).isTrue();
 
-            optional =  usagePoint.getDetail(JANUARY_2014);
-            assertThat(optional.isPresent()).isTrue();
-            ElectricityDetail updatedElecDetail = (ElectricityDetail) optional.get();
-            assertThat(updatedElecDetail.getRatedPower().equals(RATED_POWER2)).isTrue();
+        //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
+        optional =  usagePoint.getDetail(FEBRUARY_2014);
+        assertThat(optional.isPresent()).isTrue();
+        foundElecDetail = (ElectricityDetail) optional.get();
+        assertThat(foundElecDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
 
-            //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
-            optional =  usagePoint.getDetail(FEBRUARY_2014);
-            assertThat(optional.isPresent()).isTrue();
-            foundElecDetail = (ElectricityDetail) optional.get();
-            assertThat(foundElecDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
+        //no details to be found valid on 1 january 2013
+        optional =  usagePoint.getDetail(JANUARY_2013);
+        assertThat(optional.isPresent()).isFalse();
 
-            //no details to be found valid on 1 january 2013
-            optional =  usagePoint.getDetail(JANUARY_2013);
-            assertThat(optional.isPresent()).isFalse();
-
-
-            //2 details to be found in the period from 1 january 2014 to 1 march 2014
-            Range<Instant> range = Range.closedOpen(JANUARY_2014, MARCH_2014);
-            List details = usagePoint.getDetail(range);
-            assertThat(details.size() == 2).isTrue();
+        //2 details to be found in the period from 1 january 2014 to 1 march 2014
+        Range<Instant> range = Range.closedOpen(JANUARY_2014, MARCH_2014);
+        List details = usagePoint.getDetail(range);
+        assertThat(details.size() == 2).isTrue();
     }
 
     @Test
@@ -124,51 +125,48 @@ public class UsagePointDetailImplIT {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
+            UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
-            //add details valid from 1 january 2014
-            GasDetail gasDetail = newGasDetail(usagePoint, JANUARY_2014);
-            usagePoint.addDetail(gasDetail);
+        //add details valid from 1 january 2014
+        GasDetail gasDetail = newGasDetail(usagePoint, JANUARY_2014);
+        usagePoint.addDetail(gasDetail);
 
-            //add details valid from 1 february 2014 (this closes the previous detail on this date)
-            gasDetail = newGasDetail(usagePoint, FEBRUARY_2014);
-            usagePoint.addDetail(gasDetail);
+        //add details valid from 1 february 2014 (this closes the previous detail on this date)
+        gasDetail = newGasDetail(usagePoint, FEBRUARY_2014);
+        usagePoint.addDetail(gasDetail);
 
+        //get details valid from 1 january 2014
+        Optional optional =  usagePoint.getDetail(JANUARY_2014);
+        assertThat(optional.isPresent()).isTrue();
+        GasDetail foundGasDetail = (GasDetail) optional.get();
+        //verify interval is closed because a second was added!
+        assertThat(foundGasDetail.getInterval().equals(Interval.of(JANUARY_2014, FEBRUARY_2014))).isTrue();
+        //check content
+        checkGasDetailContent(foundGasDetail);
 
-            //get details valid from 1 january 2014
-            Optional optional =  usagePoint.getDetail(JANUARY_2014);
-            assertThat(optional.isPresent()).isTrue();
-            GasDetail foundGasDetail = (GasDetail) optional.get();
-            //verify interval is closed because a second was added!
-            assertThat(foundGasDetail.getInterval().equals(Interval.of(JANUARY_2014, FEBRUARY_2014))).isTrue();
-            //check content
-            checkGasDetailContent(foundGasDetail);
+        //update "check billing" and check
+        foundGasDetail.update();
 
-            //update "check billing" and check
-            foundGasDetail.update();
+        optional =  usagePoint.getDetail(JANUARY_2014);
+        assertThat(optional.isPresent()).isTrue();
+        GasDetail updatedGasDetail = (GasDetail) optional.get();
 
-            optional =  usagePoint.getDetail(JANUARY_2014);
-            assertThat(optional.isPresent()).isTrue();
-            GasDetail updatedGasDetail = (GasDetail) optional.get();
+        //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
+        optional =  usagePoint.getDetail(FEBRUARY_2014);
+        assertThat(optional.isPresent()).isTrue();
+        foundGasDetail = (GasDetail) optional.get();
+        assertThat(foundGasDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
 
-            //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
-            optional =  usagePoint.getDetail(FEBRUARY_2014);
-            assertThat(optional.isPresent()).isTrue();
-            foundGasDetail = (GasDetail) optional.get();
-            assertThat(foundGasDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
+        //no details to be found valid on 1 january 2013
+        optional =  usagePoint.getDetail(JANUARY_2013);
+        assertThat(optional.isPresent()).isFalse();
 
-            //no details to be found valid on 1 january 2013
-            optional =  usagePoint.getDetail(JANUARY_2013);
-            assertThat(optional.isPresent()).isFalse();
-
-
-            //2 details to be found in the period from 1 january 2014 to 1 march 2014
-            Range<Instant> range = Range.closedOpen(JANUARY_2014, MARCH_2014);
-            List<? extends UsagePointDetail> details = usagePoint.getDetail(range);
-            assertThat(details).hasSize(2);
+        //2 details to be found in the period from 1 january 2014 to 1 march 2014
+        Range<Instant> range = Range.closedOpen(JANUARY_2014, MARCH_2014);
+        List<? extends UsagePointDetail> details = usagePoint.getDetail(range);
+        assertThat(details).hasSize(2);
     }
-
 
     protected ElectricityDetail newElectricityDetail(UsagePoint usagePoint, Instant date) {
         ElectricityDetailImpl elecDetail = (ElectricityDetailImpl) usagePoint.getServiceCategory()
@@ -247,6 +245,4 @@ public class UsagePointDetailImplIT {
         assertThat(gasDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(gasDetail.getPressure().equals(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))).isTrue();
     }
-
 }
-
