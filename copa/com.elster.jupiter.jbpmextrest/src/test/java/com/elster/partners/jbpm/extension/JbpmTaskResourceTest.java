@@ -170,6 +170,30 @@ public class JbpmTaskResourceTest {
     }
 
     @Test
+    public void testBulkTasks() throws Exception {
+        TaskGroupsInfos taskGroupsInfos = new TaskGroupsInfos();
+        TaskGroupsInfo taskGroupsInfo = new TaskGroupsInfo();
+        List<Long> ids = new ArrayList<>();
+        ids.add(1L);
+        taskGroupsInfo.taskIds = ids;
+        taskGroupsInfos.taskGroups.add(taskGroupsInfo);
+
+        ClientRequest request = new ClientRequest(baseUri + "/managetasks");
+        request.body(MediaType.APPLICATION_JSON_TYPE, taskGroupsInfos);
+        request.queryParameter("variableid", "mrid");
+        request.queryParameter("assign", "newUser");
+        request.queryParameter("currentuser", "currentUser");
+        request.queryParameter("workgroup", "workgroup");
+        request.queryParameter("setPriority", "1");
+        request.queryParameter("setDueDate", "1");
+        request.queryParameter("setDueDate", "1");
+        ClientResponse<TaskBulkReportInfo> response = request.post(TaskBulkReportInfo.class);
+
+        assertEquals(1, response.getEntity().total);
+        assertEquals(0, response.getEntity().failed);
+    }
+
+    @Test
     public void testGetCompletedTask() throws Exception {
         Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
 
