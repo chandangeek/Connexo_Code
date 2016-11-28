@@ -330,7 +330,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         });
     },
 
-    showHistory: function(){
-        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/communicationtasks/' + encodeURIComponent(this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0].get('comTask').id) + '/history';
+    showHistory: function (menuItem) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('devices/device/communicationtasks/history').forward(Ext.merge({comTaskId: menuItem.up().record.get('comTask').id}, router.arguments));
     }
 });
