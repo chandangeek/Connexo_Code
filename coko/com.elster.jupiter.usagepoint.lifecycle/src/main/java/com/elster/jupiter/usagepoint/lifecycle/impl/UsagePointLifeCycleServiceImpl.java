@@ -209,7 +209,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
 
     @Override
     public void performTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
-        transition.doTransition(usagePoint.getMRID(), UsagePoint.class.getName(), transitionTime, Collections.emptyMap());
+        transition.doTransition(String.valueOf(usagePoint.getId()), UsagePoint.class.getName(), transitionTime, Collections.emptyMap());
     }
 
     @Override
