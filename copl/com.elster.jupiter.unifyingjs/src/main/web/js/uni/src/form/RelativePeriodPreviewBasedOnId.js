@@ -74,7 +74,7 @@ Ext.define('Uni.form.RelativePeriodPreviewBasedOnId', {
                         itemId: 'hour-field',
                         hideLabel: true,
                         valueToRaw: me.formatDisplayOfTime,
-                        value: 0,
+                        value: moment().hours(),
                         minValue: 0,
                         maxValue: 23,
                         allowBlank: false,
@@ -100,7 +100,7 @@ Ext.define('Uni.form.RelativePeriodPreviewBasedOnId', {
                         itemId: 'minute-field',
                         hideLabel: true,
                         valueToRaw: me.formatDisplayOfTime,
-                        value: 0,
+                        value: moment().minutes(),
                         minValue: 0,
                         maxValue: 59,
                         allowBlank: false,
@@ -187,6 +187,7 @@ Ext.define('Uni.form.RelativePeriodPreviewBasedOnId', {
     },
 
     updatePreviewLabel: function (startDate, endDate) {
+        if (Ext.isEmpty(this.getPreviewLabel())) return;
         if (typeof startDate !== 'undefined' && typeof endDate !== 'undefined') {
             var me = this,
                 startDateString = Uni.DateTime.formatDateTimeLong(startDate),
