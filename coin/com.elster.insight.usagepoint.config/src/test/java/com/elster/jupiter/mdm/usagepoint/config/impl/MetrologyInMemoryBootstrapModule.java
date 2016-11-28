@@ -5,6 +5,10 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -85,6 +89,7 @@ public class MetrologyInMemoryBootstrapModule {
                 new NlsModule(),
                 new KpiModule(),
                 new ValidationModule(),
+                new EstimationModule(),
                 new MeteringGroupsModule(),
                 new TaskModule(),
                 new BasicPropertiesModule(),
@@ -96,9 +101,11 @@ public class MetrologyInMemoryBootstrapModule {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
+            injector.getInstance(EstimationService.class);
             injector.getInstance(PropertySpecService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(UsagePointConfigurationService.class);
+            addMessageHandlers();
             ctx.commit();
         }
     }
@@ -123,6 +130,10 @@ public class MetrologyInMemoryBootstrapModule {
         return injector.getInstance(ValidationService.class);
     }
 
+    public EstimationService getEstimationService() {
+        return injector.getInstance(EstimationService.class);
+    }
+
     public PropertySpecService getPropertySpecService() {
         return injector.getInstance(PropertySpecService.class);
     }
@@ -133,6 +144,11 @@ public class MetrologyInMemoryBootstrapModule {
 
     public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return (ServerMetrologyConfigurationService) injector.getInstance(MetrologyConfigurationService.class);
+    }
+
+    private void addMessageHandlers() {
+        MetrologyContractDeletionEventHandler metrologyContractDeletionEventHandler = injector.getInstance(MetrologyContractDeletionEventHandler.class);
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(metrologyContractDeletionEventHandler);
     }
 
     private static class MockModule extends AbstractModule {

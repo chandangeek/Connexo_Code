@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.config;
 
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -51,4 +52,32 @@ public interface UsagePointConfigurationService {
     boolean isLinkableValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<ValidationRuleSet> linkedValidationRuleSets);
 
     boolean isValidationRuleSetInUse(ValidationRuleSet ruleset);
+
+    /**
+     * Gets the {@link EstimationRuleSet}s that are being used by the specified {@link MetrologyContract}.
+     *
+     * @param metrologyContract The MetrologyContract
+     * @return The List of EstimationRuleSet
+     */
+    List<EstimationRuleSet> getEstimationRuleSets(MetrologyContract metrologyContract);
+
+    /**
+     * Adds the specified {@link EstimationRuleSet} to the specified {@link MetrologyContract}.
+     *
+     * @param metrologyContract The MetrologyContract
+     * @param estimationRuleSet The EstimationRuleSet
+     */
+    void addEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet);
+
+    /**
+     * Removes the specified {@link EstimationRuleSet} from the specified {@link MetrologyConfiguration}.
+     *
+     * @param metrologyContract The MetrologyContract
+     * @param estimationRuleSet The EstimationRuleSet
+     */
+    void removeEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet);
+
+    boolean isLinkableEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet, List<EstimationRuleSet> linkedEstimationRuleSets);
+
+    boolean isEstimationRuleSetInUse(EstimationRuleSet ruleset);
 }
