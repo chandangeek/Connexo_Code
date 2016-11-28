@@ -208,9 +208,6 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
 
     protected CollectedMessage changeMasterKeyAndUseNewKey(CollectedMessage collectedMessage,OfflineDeviceMessage pendingMessage) throws IOException {
         String newKey = getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName);
-        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
-            return collectedMessage;
-        }
         changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newWrappedMasterKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
@@ -220,9 +217,6 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
 
     protected CollectedMessage changeAuthenticationKeyAndUseNewKey(CollectedMessage collectedMessage,OfflineDeviceMessage pendingMessage) throws IOException {
         String newKey = getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName);
-        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
-            return collectedMessage;
-        }
         changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newWrappedAuthenticationKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
@@ -231,26 +225,21 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     protected CollectedMessage changeEncryptionKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String oldEncryptionKey = ProtocolTools.getHexStringFromBytes(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
         String newKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
-        if(!isSecurityKeyLengthCorrect(collectedMessage, pendingMessage, newKey)){
-            return collectedMessage;
-        }
         changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newWrappedEncryptionKeyAttributeName);
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
 
         //Reset frame counter, only if a different key has been written
-        if (!newKey.equalsIgnoreCase(oldEncryptionKey)) {
-            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
-            securityContext.setFrameCounter(1);
-            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
-        }
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        securityContext.setFrameCounter(1);
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+
         return collectedMessage;
     }
 
-    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String wrappedKeyAttributeName) throws IOException {
+    protected void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String wrappedKeyAttributeName) throws IOException {
         String newWrappedKey = getDeviceMessageAttributeValue(pendingMessage, wrappedKeyAttributeName);
         byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
         ObisCode clientSecuritySetupObis = getClientSecuritySetupObis(pendingMessage);
@@ -479,6 +468,18 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
             }
         }
         return ClientSecuritySetup.Management.getSecuritySetupOBIS();
+    }
+
+    protected int getClientId(OfflineDeviceMessage pendingMessage){
+        String client = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.client).getDeviceMessageAttributeValue();
+        if (client!=null && !client.isEmpty()) {
+            try{
+                return ClientSecuritySetup.valueOf(client).getID();
+            } catch (Exception ex){
+                // ignore
+            }
+        }
+        return ClientSecuritySetup.Management.getID();
     }
 
 }
