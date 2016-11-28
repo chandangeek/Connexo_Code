@@ -6,9 +6,9 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_USAGE_POINT_FOR_MRID(1, "NoUsagePointWithSuchMrid", "No usage point with MRID {0}."),
-    NO_METROLOGY_CONFIG_FOR_USAGE_POINT(2, "NoMetrologyConfigForUsagePoint", "Usage point with MRID {0} doesn''t have a link to metrology configuration."),
-    NO_SUCH_CHANNEL_FOR_USAGE_POINT(3, "NoSuchChannelForUsagePoint", "Usage point with MRID {0} doesn''t have channel with {1}.");
+    NO_USAGE_POINT_WITH_NAME(1, "NoUsagePointWithSuchName", "No usage point with name {0}."),
+    NO_METROLOGY_CONFIG_FOR_USAGE_POINT(2, "NoMetrologyConfigForUsagePoint", "Usage point {0} doesn''t have a link to metrology configuration."),
+    NO_SUCH_CHANNEL_FOR_USAGE_POINT(3, "NoSuchChannelForUsagePoint", "Usage point {0} doesn''t have channel with id {1}.");
 
     private final int number;
     private final String key;
