@@ -9,8 +9,6 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,10 +23,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devices")
 public class DeviceResource {
@@ -81,27 +75,23 @@ public class DeviceResource {
         Integer limit = params.getLimit().orElse(50);
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
         MeterFilter filter = new MeterFilter();
-        filter.setMrid(dbSearchText);
-        filter.addState("dlc.default.removed");
-        filter.addState("dlc.default.decommissioned");
+        filter.setName(dbSearchText);
+        filter.setExcludedStates("dlc.default.decommissioned", "dlc.default.removed");
         Finder<Meter> finder = meteringService.findMeters(filter);
         return Response.ok().entity(toMeterInfos(params.getStart().isPresent()
                 && params.getLimit().isPresent() ? finder.from(params).find() : finder.paged(start, limit).find(), start, limit)).build();
     }
 
-
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    @Path("/{mRID}/")
+    @Path("/{name}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
-        MeterInfos result = null;
+    public MeterInfos getDevice(@PathParam("name") String name, @Context SecurityContext securityContext) {
         if (maySeeAny(securityContext)) {
-            Optional<Meter> ometer = meteringService.findMeter(mRID);
-            if (ometer.isPresent()) {
-                result = new MeterInfos(ometer.get());
-            }
+            return meteringService.findMeterByName(name)
+                    .map(MeterInfos::new)
+                    .orElse(null);
         }
-        return result;
+        return null;
     }
 }

@@ -109,6 +109,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>search.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
         </dependency>
         <dependency>
@@ -205,11 +209,6 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>search.rest</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
