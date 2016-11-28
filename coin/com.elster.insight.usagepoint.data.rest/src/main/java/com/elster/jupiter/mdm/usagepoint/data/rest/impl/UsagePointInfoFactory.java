@@ -192,6 +192,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.STATE, String.class));
         return propertyDescriptionInfoList;
     }
 
