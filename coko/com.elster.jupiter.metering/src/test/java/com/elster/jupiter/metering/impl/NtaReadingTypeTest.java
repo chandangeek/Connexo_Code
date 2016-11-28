@@ -56,7 +56,7 @@ public class NtaReadingTypeTest {
     public void test() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("myMeter").create();
+        Meter meter = amrSystem.newMeter("myMeter", "myMeter").create();
         MeterActivation meterActivation = meter.activate(Instant.now());
         for (String code : readingTypeCodes) {
             Optional<ReadingType> readingType = meteringService.getReadingType(code);

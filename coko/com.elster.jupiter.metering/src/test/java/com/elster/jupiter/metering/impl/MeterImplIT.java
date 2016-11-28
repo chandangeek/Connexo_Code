@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
@@ -225,8 +224,7 @@ public class MeterImplIT {
         assertThat(meter.getMRID()).isEqualTo("0000f000-00f7-0f00-f000-000abcde02ff");
     }
 
-    @Test
-    @Expected(IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     @Transactional
     public void testCreateWithWrongMRID() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();

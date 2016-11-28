@@ -65,9 +65,6 @@ public class UsagePointDetailImplIT {
         inMemoryBootstrapModule.deactivate();
     }
 
-    @Rule
-    public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
-
     @Test
     @Transactional
     public void testElectricityUsagePointDetails() {

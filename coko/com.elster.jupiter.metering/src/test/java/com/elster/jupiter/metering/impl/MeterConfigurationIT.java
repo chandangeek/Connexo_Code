@@ -151,7 +151,7 @@ public class MeterConfigurationIT {
     }
 
     private void createAndActivateMeter() {
-         meter = meteringService.findAmrSystem(1).get()
+        meter = inMemoryBootstrapModule.getMeteringService().findAmrSystem(1).get()
                 .newMeter("amrID", "myName")
                 .create();
         meterActivation = meter.activate(ACTIVE_DATE.toInstant());

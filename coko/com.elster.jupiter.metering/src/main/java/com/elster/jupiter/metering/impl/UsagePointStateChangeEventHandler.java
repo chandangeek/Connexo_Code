@@ -78,7 +78,7 @@ public class UsagePointStateChangeEventHandler implements TopicHandler {
 
     public void handleUsagePointStateChange(StateTransitionChangeEvent event) {
         String usagePointRef = event.getSourceId();
-        Optional<UsagePoint> usagePoint = this.meteringService.findUsagePoint(usagePointRef);
+        Optional<UsagePoint> usagePoint = this.meteringService.findUsagePointById(Long.parseLong(usagePointRef));
         if (usagePoint.isPresent()) {
             UsagePointState targetState = this.lifeCycleConfService.findUsagePointState(event.getNewState().getId()).get();
             ((UsagePointImpl) usagePoint.get()).setState(targetState, getTransitionTime(event));

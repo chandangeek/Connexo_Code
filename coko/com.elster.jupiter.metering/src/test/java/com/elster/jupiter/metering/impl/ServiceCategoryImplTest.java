@@ -113,13 +113,8 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, meteringService, metrologyConfigurationService, dataAggregationService));
-        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointConnectionStateImpl();
-            }
-        });
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService));
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl());
         UsagePointState usagePointState = mock(UsagePointState.class);
         when(usagePointState.isInitial()).thenReturn(true);
         UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);
@@ -130,7 +125,7 @@ public class ServiceCategoryImplTest {
         when(dataModel.getInstance(UsagePointStateTemporalImpl.class)).thenReturn(new UsagePointStateTemporalImpl(dataModel));
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
-        assertThat(usagePoint.getName()).isEqualTo("name");
+        assertThat(usagePoint.getName()).isEqualTo("mrId");
         assertThat(usagePoint.getInstallationTime()).isEqualTo(Instant.EPOCH);
     }
 

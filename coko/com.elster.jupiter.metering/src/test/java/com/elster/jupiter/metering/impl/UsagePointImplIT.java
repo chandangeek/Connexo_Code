@@ -207,7 +207,7 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanSetStateForUsagePoint", AUG_1ST_2016).create();
 
-        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint.getMRID()).get();
+        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
         assertThat(usagePoint.getState().isInitial()).isTrue();
         assertThat(usagePoint.getState(AUG_1ST_2016)).isEqualTo(usagePoint.getState());
     }
@@ -224,7 +224,7 @@ public class UsagePointImplIT {
         ((UsagePointImpl) usagePoint).setState(initialState, AUG_15TH_2016);
         ((UsagePointImpl) usagePoint).setState(state2, SEPT_1ST_2016);
 
-        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint.getMRID()).get();
+        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
         assertThat(usagePoint.getState()).isEqualTo(state2);
         assertThat(usagePoint.getState(AUG_15TH_2016)).isEqualTo(initialState);
     }
