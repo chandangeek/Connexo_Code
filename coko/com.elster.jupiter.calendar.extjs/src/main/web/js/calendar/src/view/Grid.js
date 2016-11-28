@@ -15,7 +15,7 @@ Ext.define('Cal.view.Grid', {
             {
                 header: Uni.I18n.translate('general.name', 'CAL', 'Name'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.category', 'CAL', 'Category'),
@@ -33,7 +33,7 @@ Ext.define('Cal.view.Grid', {
             {
                 header: Uni.I18n.translate('general.status', 'CAL', 'Status'),
                 dataIndex: 'status',
-                flex: 2,
+                flex: 1,
                 renderer: function(value){
                     return value.displayValue;
                 }
@@ -44,7 +44,7 @@ Ext.define('Cal.view.Grid', {
                     xtype: 'tou-action-menu'
                     //itemId: me.menuItemId
                 },
-                flex: 0.5
+                flex: 1
             }
         ];
 
