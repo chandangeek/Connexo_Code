@@ -1,13 +1,13 @@
 package com.energyict.mdc.channels.ip;
 
-import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +23,10 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     public static final String HOST_PROPERTY_NAME = "host";
     public static final String PORT_PROPERTY_NAME = "portNumber";
     public static final String CONNECTION_TIMEOUT_PROPERTY_NAME = "connectionTimeout";
-    private static final TimeDuration DEFAULT_CONNECTION_TIMEOUT = TimeDuration.seconds(10);
+    private static final TemporalAmount DEFAULT_CONNECTION_TIMEOUT = Duration.ofSeconds(10);
 
     private PropertySpec hostPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(HOST_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(HOST_PROPERTY_NAME, true);
     }
 
     protected String hostPropertyValue() {
@@ -34,10 +34,11 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec portNumberPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PORT_PROPERTY_NAME);
+        return UPLPropertySpecFactory.bigDecimal(PORT_PROPERTY_NAME, true);
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {
+        return UPLPropertySpecFactory.tim
         return PropertySpecFactory.timeDurationPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME, DEFAULT_CONNECTION_TIMEOUT);
     }
 
@@ -47,7 +48,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     protected int connectionTimeOutPropertyValue() {
-        TimeDuration value = (TimeDuration) this.getProperty(CONNECTION_TIMEOUT_PROPERTY_NAME);
+        TemporalAmount value = (TemporalAmount) this.getProperty(CONNECTION_TIMEOUT_PROPERTY_NAME);
         return value != null ? this.intProperty(value) : (int) DEFAULT_CONNECTION_TIMEOUT.getMilliSeconds();
     }
 
@@ -59,7 +60,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
         }
     }
 
-    protected int intProperty(TimeDuration value) {
+    protected int intProperty(TemporalAmount value) {
         if (value == null) {
             return 0;
         } else {

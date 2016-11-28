@@ -1,14 +1,12 @@
 package com.energyict.mdc.channels.ip;
 
-import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,23 +23,13 @@ public class InboundIpConnectionType extends ConnectionTypeImpl {
 
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return false;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
+    public ComChannel connect(TypedProperties connectionProperties) throws ConnectionException {
+        return new VoidComChannel();
     }
 
     @Override
@@ -57,11 +45,6 @@ public class InboundIpConnectionType extends ConnectionTypeImpl {
     @Override
     public Set<ComPortType> getSupportedComPortTypes() {
         return EnumSet.of(ComPortType.TCP, ComPortType.UDP);
-    }
-
-    @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        return new VoidComChannel();
     }
 
     @Override

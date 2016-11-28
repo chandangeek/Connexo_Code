@@ -85,8 +85,6 @@ public final class UPLPropertySpecFactory {
     }
 
     public static PropertySpec<String> string(String name, boolean required, String... possibleValues) {
-        return new StringPropertySpec(name, required, possibleValues);
-    public static PropertySpec<String> string(String name, boolean required, String... possibleValues) {
         return string(name, required, Optional.empty(), possibleValues);
     }
 
@@ -103,10 +101,6 @@ public final class UPLPropertySpecFactory {
 
     private static PropertySpecBuilder<String> stringSpecBuilder(String name, boolean required) {
         return specBuilder(name, required, () -> Services.propertySpecService().stringSpec());
-    public static PropertySpec<String> string(String name, String defaultValue, boolean required, String... possibleValues) {
-        StringPropertySpec stringPropertySpec = new StringPropertySpec(name, required, possibleValues);
-        stringPropertySpec.setDefaultValue(defaultValue);
-        return stringPropertySpec;
     }
 
     public static PropertySpec stringOfMaxLength(String name, boolean required, int maxLength) {

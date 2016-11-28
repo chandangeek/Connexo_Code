@@ -1,18 +1,16 @@
 package com.energyict.mdc.channels;
 
-import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +21,11 @@ import java.util.Set;
  */
 @XmlRootElement
 public class EmptyConnectionType extends ConnectionTypeImpl {
+
+    @Override
+    public ComChannel connect(TypedProperties connectionProperties) throws ConnectionException {
+        return new VoidComChannel();
+    }
 
     @Override
     public boolean allowsSimultaneousConnections() {
@@ -40,33 +43,13 @@ public class EmptyConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        return new VoidComChannel();
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return false;
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
     @Override
     public String getVersion() {
         return "$Date: 2013-03-15 15:45:35 +0100 (vr, 15 mrt 2013) $";
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>();
     }
 
     @Override
