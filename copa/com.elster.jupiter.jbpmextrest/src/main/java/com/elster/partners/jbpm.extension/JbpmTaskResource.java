@@ -313,6 +313,12 @@ public class JbpmTaskResource {
             }
 
             TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
+            taskSummaryList.getTasks().stream().forEach(taskSummary -> {
+                ProcessDefinition process = runtimeDataService.getProcessById(taskSummary.getProcessName());
+                if(process != null){
+                    taskSummary.setProcessName(process.getName());
+                }
+            });
             taskSummaryList.setTotal(tasks.size());
             return taskSummaryList;
 
