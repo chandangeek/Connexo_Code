@@ -10,7 +10,7 @@ public class TopTaskInfo {
     public long totalUserAssigned;
     public long totalWorkGroupAssigned;
     public long total;
-    public List<UserTaskInfo> tasks;
+    public List<UserTaskInfo> items;
 
     public TopTaskInfo(){
 
