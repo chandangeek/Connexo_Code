@@ -2,7 +2,10 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import org.junit.After;
+
+import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,17 +13,13 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.validation.ConstraintValidatorContext;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UniqueValidationRuleSetNameValidatorTest {
-
-    public static final String NAME = "name";
+    private static final String NAME = "name";
     @Mock
     private ValidationService validationService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -36,13 +35,9 @@ public class UniqueValidationRuleSetNameValidatorTest {
         when(validationRuleSet2.getId()).thenReturn(15L);
     }
 
-    @After
-    public void tearDown() {
-    }
-
     @Test
     public void testValidReturnsTrue() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.<ValidationRuleSet>empty());
+        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.empty());
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 
@@ -69,7 +64,7 @@ public class UniqueValidationRuleSetNameValidatorTest {
 
     @Test
     public void testValidDoesNotTouchContext() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.<ValidationRuleSet>empty());
+        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.empty());
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 
@@ -77,5 +72,4 @@ public class UniqueValidationRuleSetNameValidatorTest {
 
         verifyZeroInteractions(context);
     }
-
 }

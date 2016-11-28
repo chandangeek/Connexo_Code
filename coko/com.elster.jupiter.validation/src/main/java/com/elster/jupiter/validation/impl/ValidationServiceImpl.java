@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -27,6 +28,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -102,6 +104,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile SearchService searchService;
     private volatile Clock clock;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
@@ -124,9 +128,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Inject
     ValidationServiceImpl(BundleContext bundleContext, Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
-                          OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService, KpiService kpiService) {
+                          OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService, KpiService kpiService, MetrologyConfigurationService metrologyConfigurationService, SearchService searchService) {
         this.clock = clock;
         this.messageService = messageService;
+        this.setMetrologyConfigurationService(metrologyConfigurationService);
+        this.setSearchService(searchService);
         setMessageService(messageService);
         this.eventService = eventService;
         this.meteringService = meteringService;
@@ -169,6 +175,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(UserService.class).toInstance(userService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
                 bind(MessageService.class).toInstance(messageService);
+                bind(SearchService.class).toInstance(searchService);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
             }
         });
         this.registerDataValidationKpiService(context);
@@ -177,7 +185,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.of(
-                        Version.version(10, 2), UpgraderV10_2.class
+                        Version.version(10, 2), UpgraderV10_2.class, Version.version(10, 3), UpgraderV10_3.class
                 ));
     }
 
@@ -241,6 +249,16 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     @Override
@@ -329,8 +347,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
-    public List<Meter> validationEnabledMetersIn(List<String> meterMrids) {
-        Condition isActive = ListOperator.IN.contains("meter.mRID", meterMrids).and(where("isActive").isEqualTo(true));
+    public List<Meter> validationEnabledMetersIn(List<String> meterNames) {
+        Condition isActive = ListOperator.IN.contains("meter.name", meterNames).and(where("isActive").isEqualTo(true));
         QueryExecutor<MeterValidationImpl> query = dataModel.query(MeterValidationImpl.class, EndDevice.class);
         return query.select(isActive).stream()
                 .map(MeterValidationImpl::getMeter)

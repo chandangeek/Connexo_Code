@@ -3,6 +3,7 @@ package com.elster.jupiter.validation;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -36,11 +37,11 @@ public interface DataValidationTask extends HasAuditInfo {
 
     Optional<EndDeviceGroup> getEndDeviceGroup();
 
-    Optional<MetrologyContract> getMetrologyContract();
+    Optional<UsagePointGroup> getUsagePointGroup();
 
     void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-    void setMetrologyContract(MetrologyContract metrologyContract);
+    void setUsagePointGroup(UsagePointGroup usagePointGroup);
 
     long getId();
 

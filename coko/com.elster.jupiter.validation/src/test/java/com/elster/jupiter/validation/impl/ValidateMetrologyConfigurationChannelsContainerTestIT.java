@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -129,7 +128,6 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
 
                     @Override
                     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-
                     }
 
                     @Override

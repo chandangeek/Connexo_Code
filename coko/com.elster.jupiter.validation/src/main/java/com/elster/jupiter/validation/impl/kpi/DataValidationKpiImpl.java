@@ -141,7 +141,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     private DataValidationKpiChildImpl createValidationKpiMember(long endDeviceId) {
-        EndDevice endDevice = meteringService.findEndDevice(endDeviceId).get();
+        EndDevice endDevice = meteringService.findEndDeviceById(endDeviceId).get();
         return createValidationKpiMember(endDevice);
     }
 
@@ -228,6 +228,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public void dropDataValidationKpi() {
+        this.dataValidationKpiTask.setNull();
+        this.dataModel.update(this);
         this.dataValidationKpiTask.getOptional().ifPresent(task -> {
             task.suspend();
             task.delete();
