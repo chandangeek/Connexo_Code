@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -35,7 +36,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class AggregatedChannelImpl implements ChannelContract {
+public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
     private final DataAggregationService dataAggregationService;
 
@@ -122,7 +123,8 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, persistedChannel.getReading(record
+                .getTimeStamp()).orElse(record)));
     }
 
     @Override
@@ -160,7 +162,8 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public List<ReadingRecord> getRegisterReadings(Range<Instant> interval) {
-        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, persistedChannel.getReading(record
+                .getTimeStamp()).orElse(record)));
     }
 
     @Override
@@ -211,19 +214,19 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.editReadings(system, readings);
+        persistedChannel.editReadings(system, readings);
     }
 
     @Override
     public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.confirmReadings(system, readings);
+        persistedChannel.confirmReadings(system, readings);
     }
 
     @Override
     public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) {
         // TODO remove readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.removeReadings(system, readings);
+        persistedChannel.removeReadings(system, readings);
     }
 
     @Override
@@ -311,6 +314,26 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public List<IReadingType> getReadingTypes() {
         return persistedChannel.getReadingTypes();
+    }
+
+    @Override
+    public List<IntervalReadingRecord> getPersistedIntervalReadings(Range<Instant> interval) {
+        return persistedChannel.getIntervalReadings(interval);
+    }
+
+    @Override
+    public List<IntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
+        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+    }
+
+    @Override
+    public List<ReadingRecord> getPersistedRegisterReadings(Range<Instant> interval) {
+        return persistedChannel.getRegisterReadings(interval);
+    }
+
+    @Override
+    public List<ReadingRecord> getCalculatedRegisterReadings(Range<Instant> interval) {
+        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
     }
 
     private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {
