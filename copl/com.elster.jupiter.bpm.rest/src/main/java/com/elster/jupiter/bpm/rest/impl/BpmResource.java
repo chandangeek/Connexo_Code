@@ -293,7 +293,7 @@ public class BpmResource {
                     topTaskInfo.totalWorkGroupAssigned = Long.valueOf(obj.get("workGroupAssigned").toString());
                     arr = obj.getJSONArray("tasks");
                     UserTaskInfos infos = new UserTaskInfos(arr, "");
-                    topTaskInfo.tasks = infos.getTasks();
+                    topTaskInfo.items = infos.getTasks();
                     topTaskInfo.total = infos.total;
                 }
             } catch (JSONException e) {
