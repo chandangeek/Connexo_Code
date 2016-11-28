@@ -77,13 +77,13 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                             configuration: {
                                 title: Uni.I18n.translate('widget.myWorkList.title', 'IMT', 'My worklist'),
                                 assignedToMeLabel: Uni.I18n.translate('widget.myWorkList.assignedToMeLabel', 'IMT', 'Assigned to me ({0})'),
-                                myWorkgroupsLabel: Uni.I18n.translate('widget.myWorkList.myWorkgroupsLabel', 'IMT', 'In my workgroup ({0})'),
+                                myWorkgroupsLabel: Uni.I18n.translate('widget.myWorkList.myWorkgroupsLabel', 'IMT', 'In my workgroup(s) ({0})'),
                                 items: [
                                     {
                                         type: 'userTasks',
                                         name: Uni.I18n.translate('widget.myWorkList.userTasks', 'IMT', 'User tasks'),
                                         topLabel: Uni.I18n.translate('widget.myWorkList.topLabel', 'IMT', 'Top {0} most urgent user tasks'),
-                                        topZeroLabel: Uni.I18n.translate('widget.myWorkList.topZeroLabel', 'IMT', 'No urgent user tasks'),
+                                        topZeroLabel: Uni.I18n.translate('widget.myWorkList.topZeroLabel', 'IMT', 'No open user tasks assigned to me'),
                                         url: '/api/bpm/runtime/toptasks/',
                                         itemRoute: 'workspace/tasks/task',
                                         routeArguments: [{name: 'taskId', property: 'id'}],
@@ -116,7 +116,6 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                                             }
                                         ]
                                     }
-
                                 ]
                             }
                         }
