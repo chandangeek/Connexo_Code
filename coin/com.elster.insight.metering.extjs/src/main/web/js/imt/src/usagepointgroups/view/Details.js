@@ -13,7 +13,7 @@ Ext.define('Imt.usagepointgroups.view.Details', {
     ],
 
     router: null,
-    usagePointGroupId: null,
+    usagePointGroup: null,
 
     initComponent: function () {
         var me = this;
@@ -27,7 +27,7 @@ Ext.define('Imt.usagepointgroups.view.Details', {
                         xtype: 'usagepointgroups-menu',
                         itemId: 'usagepointgroups-details-menu',
                         router: me.router,
-                        usagePointGroupId: me.usagePointGroupId
+                        usagePointGroup: me.usagePointGroup
                     }
                 ]
             }
@@ -52,7 +52,7 @@ Ext.define('Imt.usagepointgroups.view.Details', {
                             items: {
                                 xtype: 'usagepointgroup-preview-form',
                                 itemId: 'usagepointgroup-details-preview-form',
-                                usagePointGroupId: this.usagePointGroupId
+                                usagePointGroupId: me.usagePointGroup.getId()
                             }
                         },
                         {
@@ -92,6 +92,11 @@ Ext.define('Imt.usagepointgroups.view.Details', {
         };
 
         me.callParent(arguments);
+
+        if (me.usagePointGroup) {
+            me.down('form').loadRecord(me.usagePointGroup);
+            me.down('usagepointgroup-action-menu').record = me.usagePointGroup;
+        }
     }
 });
 

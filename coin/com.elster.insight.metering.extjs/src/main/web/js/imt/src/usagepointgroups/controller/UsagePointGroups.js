@@ -117,14 +117,15 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
 
     showUsagePointGroupDetailsView: function (currentUsagePointGroupId) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Imt.usagepointgroups.model.UsagePointGroup'),
             addUsagePointGroupController = me.getApplication().getController('Imt.usagepointgroups.controller.AddUsagePointGroupAction'),
-            widget,
             service,
             usagePointsOfGroupStore = me.getStore('Imt.usagepointgroups.store.UsagePointsOfUsagePointGroup'),
             domainsStore;
 
+        mainView.setLoading();
         if (addUsagePointGroupController.router) {
             addUsagePointGroupController.router = null;
         }
@@ -145,22 +146,21 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
                 }]
             });
         });
-        widget = Ext.widget('usagepointgroup-details', {
-            router: router,
-            usagePointGroupId: currentUsagePointGroupId,
-            service: service
-        });
-        me.getApplication().fireEvent('changecontentevent', widget);
         model.load(currentUsagePointGroupId, {
             success: function (record) {
-                Ext.suspendLayouts();
-                widget.down('usagepointgroups-menu #usagepointgroups-view-link').setText(record.get('name'));
-                widget.down('form').loadRecord(record);
-                Ext.resumeLayouts(true);
-                widget.down('usagepointgroup-action-menu').record = record;
+                var widget = Ext.widget('usagepointgroup-details', {
+                    router: router,
+                    usagePointGroup: record,
+                    service: service
+                });
+
+                me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadUsagePointGroup', record);
                 me.updateCriteria(record);
                 me.updateActionMenuVisibility(record);
+            },
+            callback: function () {
+                mainView.setLoading(false);
             }
         });
     },
