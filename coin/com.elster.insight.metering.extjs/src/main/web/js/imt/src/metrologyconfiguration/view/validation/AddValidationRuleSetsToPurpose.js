@@ -55,7 +55,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPu
                                 text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                                 ui: 'action',
                                 action: 'add',
-                                width: 80,
+                                width: 47,
                                 margin: '80 0 -40 0',
                                 disabled: true
                             },

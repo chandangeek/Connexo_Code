@@ -110,7 +110,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'?", record.get('name')),
-            msg: Uni.I18n.translate('estimationruleset.deleteConfirmation.msg', 'IMT', 'This estimation rule set will no longer be available.'),
+            msg: Uni.I18n.translate('estimationruleset.deleteConfirmation.msg1', 'IMT', 'This estimation rule set will be removed from the metrology configuration.'),
             config: {
                 record: record
             },
