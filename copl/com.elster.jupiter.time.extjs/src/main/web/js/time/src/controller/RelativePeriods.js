@@ -165,11 +165,14 @@ Ext.define('Tme.controller.RelativePeriods', {
         var me = this,
             page = me.getPeriodsPage(),
             preview = page.down('relative-periods-preview'),
-            previewForm = page.down('relative-periods-preview-form');
+            previewForm = page.down('relative-periods-preview-form'),
+            relativePeriodPreview = page.down('uni-form-relativeperiodpreview-basedOnId');
 
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         preview.down('relative-periods-action-menu').record = record;
+        relativePeriodPreview.setRelativePeriodId(record.get('id'));
+        relativePeriodPreview.updatePreview();
     },
 
     chooseAction: function (menu, item) {

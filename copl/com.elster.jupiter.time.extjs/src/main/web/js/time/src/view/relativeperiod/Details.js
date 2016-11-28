@@ -21,21 +21,6 @@ Ext.define('Tme.view.relativeperiod.Details', {
                 items: [
                     {
                         xtype: 'relative-periods-preview-form'
-                    },
-                    {
-                        xtype: 'panel',
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                labelWidth: 250,
-                                fieldLabel: Uni.I18n.translate('relativeperiod.form.preview', 'TME', 'Preview'),
-                                emptyValueDisplay: ''
-                            },
-                            {
-                                xtype: 'uni-form-relativeperiodpreview-basedOnId'
-                            }
-                        ]
                     }
                 ]
             },
