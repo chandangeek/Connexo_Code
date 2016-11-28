@@ -394,8 +394,8 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
         }
     }
 
-    private Device createSimpleDevice(String mRID, Instant when) {
-        Device device =  createSimpleDeviceWithName(DEVICE_NAME, mRID, when);
+    private Device createSimpleDevice(String deviceName, Instant when) {
+        Device device = createSimpleDeviceWithName(deviceName, when);
         device.forValidation().activateValidation(when);
         device.forEstimation().activateEstimation();
         return device;
