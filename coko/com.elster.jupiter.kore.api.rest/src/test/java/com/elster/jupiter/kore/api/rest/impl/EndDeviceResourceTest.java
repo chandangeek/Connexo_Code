@@ -48,7 +48,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         when(meter.getId()).thenReturn(123L);
         when(meter.getName()).thenReturn("testName");
         when(meter.getVersion()).thenReturn(1L);
-        when(meteringService.findMeter(123)).thenReturn(Optional.of(meter));
+        when(meteringService.findMeterById(123)).thenReturn(Optional.of(meter));
         ReadingType readingType1 = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         when(readingType1.isRegular()).thenReturn(true);
         ReadingType readingType2 = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");

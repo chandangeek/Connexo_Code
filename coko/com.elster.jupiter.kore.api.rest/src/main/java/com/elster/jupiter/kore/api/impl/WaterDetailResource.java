@@ -91,7 +91,7 @@ public class WaterDetailResource {
                 path(UsagePointResource.class).
                 path(UsagePointResource.class, "getDetailsResource").
                 path(WaterDetailResource.class, "getWaterDetails").
-                build(usagePoint.getId(), detail.getRange().lowerEndpoint());
+                build(usagePoint.getMRID(), detail.getRange().lowerEndpoint());
 
         return Response.created(uri).build();
     }
@@ -102,6 +102,4 @@ public class WaterDetailResource {
     public List<String> getFields() {
         return waterDetailInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
 }

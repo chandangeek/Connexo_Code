@@ -31,7 +31,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/usagepoints/{id}/details")
+@Path("/usagepoints/{mRID}/details")
 // This tag exists for Miredot only. Is not required for production as this resource is obtained through sub-resource location
 public class ElectricityDetailResource {
 
@@ -135,7 +135,7 @@ public class ElectricityDetailResource {
                 path(UsagePointResource.class).
                 path(UsagePointResource.class, "getDetailsResource").
                 path(ElectricityDetailResource.class, "getElectricityDetails").
-                build(usagePoint.getId(), detail.getRange().lowerEndpoint().toEpochMilli());
+                build(usagePoint.getMRID(), detail.getRange().lowerEndpoint().toEpochMilli());
 
         return Response.created(uri).build();
     }
@@ -164,6 +164,4 @@ public class ElectricityDetailResource {
     public List<String> getFields() {
         return electricityDetailInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
 }

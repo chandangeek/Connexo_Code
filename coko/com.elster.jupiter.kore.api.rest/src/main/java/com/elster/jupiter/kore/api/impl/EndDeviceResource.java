@@ -59,7 +59,7 @@ public class EndDeviceResource {
     @Path("/{meterId}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public EndDeviceInfo getEndDevice(@PathParam("meterId") long meterId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Meter meter = meteringService.findMeter(meterId)
+        Meter meter = meteringService.findMeterById(meterId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
         return endDeviceInfoFactory.from(meter, uriInfo, fieldSelection.getFields());
     }
@@ -76,7 +76,7 @@ public class EndDeviceResource {
     @Path("/{meterId}/readings")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public MeterReadingsInfos getEndDeviceReadings(@PathParam("meterId") Long meterId, @QueryParam("from") Long from, @QueryParam("to") Long to, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Meter meter = meteringService.findMeter(meterId)
+        Meter meter = meteringService.findMeterById(meterId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_DEVICE));
 
         Range<Instant> range = Range.all();

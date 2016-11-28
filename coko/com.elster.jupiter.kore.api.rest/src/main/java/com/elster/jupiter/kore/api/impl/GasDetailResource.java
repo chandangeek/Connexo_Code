@@ -92,7 +92,7 @@ public class GasDetailResource {
                 path(UsagePointResource.class).
                 path(UsagePointResource.class, "getDetailsResource").
                 path(GasDetailResource.class, "getGasDetails").
-                build(usagePoint.getId(), detail.getRange().lowerEndpoint());
+                build(usagePoint.getMRID(), detail.getRange().lowerEndpoint());
 
         return Response.created(uri).build();
     }
@@ -103,6 +103,4 @@ public class GasDetailResource {
     public List<String> getFields() {
         return gasDetailInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
 }

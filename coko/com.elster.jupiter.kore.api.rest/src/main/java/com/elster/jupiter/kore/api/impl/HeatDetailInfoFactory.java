@@ -46,7 +46,7 @@ public class HeatDetailInfoFactory extends SelectableFieldFactory<HeatDetailInfo
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Heat details")
-                .build(heatDetail.getUsagePoint().getId(), heatDetail.getRange().lowerEndpoint().toEpochMilli());
+                .build(heatDetail.getUsagePoint().getMRID(), heatDetail.getRange().lowerEndpoint().toEpochMilli());
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {

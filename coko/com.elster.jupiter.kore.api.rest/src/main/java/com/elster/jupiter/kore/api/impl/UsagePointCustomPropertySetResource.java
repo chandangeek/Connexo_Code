@@ -29,7 +29,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/usagepoints/{usagePointId}/custompropertysets")
+@Path("/usagepoints/{mRID}/custompropertysets")
 public class UsagePointCustomPropertySetResource {
 
     private final UsagePointCustomPropertySetInfoFactory usagePointCustomPropertySetInfoFactory;
@@ -46,7 +46,7 @@ public class UsagePointCustomPropertySetResource {
     /**
      * Models named set of properties whose values are managed against a usage point.
      *
-     * @param usagePointId Id of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param cpsId Id of the custom property set
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
@@ -57,11 +57,11 @@ public class UsagePointCustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{cpsId}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public UsagePointCustomPropertySetInfo getUsagePointCustomPropertySet(@PathParam("usagePointId") long usagePointId,
+    public UsagePointCustomPropertySetInfo getUsagePointCustomPropertySet(@PathParam("mRID") String mRID,
                                                                           @PathParam("cpsId") long cpsId,
                                                                           @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         try {
-            UsagePointPropertySet propertySet = meteringService.findUsagePoint(usagePointId)
+            UsagePointPropertySet propertySet = meteringService.findUsagePointByMRID(mRID)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_USAGE_POINT))
                     .forCustomProperties()
                     .getPropertySet(cpsId);
@@ -75,7 +75,7 @@ public class UsagePointCustomPropertySetResource {
      * /**
      * Models named set of properties whose values are managed against a usage point.
      *
-     * @param usagePointId Id of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @param queryParameters queryParameters
@@ -86,11 +86,11 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<UsagePointCustomPropertySetInfo> getUsagePointCustomPropertySets(@PathParam("usagePointId") long usagePointId,
+    public PagedInfoList<UsagePointCustomPropertySetInfo> getUsagePointCustomPropertySets(@PathParam("mRID") String mRID,
                                                                                           @BeanParam FieldSelection fieldSelection,
                                                                                           @Context UriInfo uriInfo,
                                                                                           @BeanParam JsonQueryParameters queryParameters) {
-        List<UsagePointCustomPropertySetInfo> infos = meteringService.findUsagePoint(usagePointId)
+        List<UsagePointCustomPropertySetInfo> infos = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .forCustomProperties()
                 .getAllPropertySets().stream()
@@ -98,14 +98,14 @@ public class UsagePointCustomPropertySetResource {
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(UsagePointCustomPropertySetResource.class)
-                .resolveTemplate("usagePointId", usagePointId);
+                .resolveTemplate("mRID", mRID);
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     /**
      * Updates the values of the specified custom property set.
      *
-     * @param usagePointId Id of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param cpsId Id of the custom property set
      * @param propertySetInfo New property values
      * @param uriInfo uriInfo
@@ -118,7 +118,7 @@ public class UsagePointCustomPropertySetResource {
     @Path("/{cpsId}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
-    public UsagePointCustomPropertySetInfo updateUsagePointCustomPropertySet(@PathParam("usagePointId") long usagePointId,
+    public UsagePointCustomPropertySetInfo updateUsagePointCustomPropertySet(@PathParam("mRID") String mRID,
                                                                              @PathParam("cpsId") long cpsId,
                                                                              UsagePointCustomPropertySetInfo propertySetInfo,
                                                                              @Context UriInfo uriInfo) {
@@ -127,7 +127,7 @@ public class UsagePointCustomPropertySetResource {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
         try {
-            UsagePointPropertySet propertySet = meteringService.findAndLockUsagePointByIdAndVersion(usagePointId, propertySetInfo.version)
+            UsagePointPropertySet propertySet = meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, propertySetInfo.version)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_USAGE_POINT))
                     .forCustomProperties()
                     .getPropertySet(cpsId);
@@ -161,6 +161,4 @@ public class UsagePointCustomPropertySetResource {
     public List<String> getFields() {
         return usagePointCustomPropertySetInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
 }

@@ -64,7 +64,7 @@ public enum UsagePointCommand {
                     .map(MeterActivation::getMeter)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .map(meter -> new CommandRunStatusInfo(meter.getMRID(), CommandStatus.FAILED, meter.getHeadEndInterface()
+                    .map(meter -> new CommandRunStatusInfo(meter.getName(), CommandStatus.FAILED, meter.getHeadEndInterface()
                             .map(HeadEndInterface::getAmrSystem)
                             .orElse(null)))
                     .collect(Collectors.toList());
@@ -86,7 +86,7 @@ public enum UsagePointCommand {
                     .map(MeterActivation::getMeter)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .map(meter -> new CommandRunStatusInfo(meter.getMRID(), CommandStatus.SUCCESS, meter.getHeadEndInterface()
+                    .map(meter -> new CommandRunStatusInfo(meter.getName(), CommandStatus.SUCCESS, meter.getHeadEndInterface()
                             .map(HeadEndInterface::getAmrSystem)
                             .orElse(null)))
                     .collect(Collectors.toList());
