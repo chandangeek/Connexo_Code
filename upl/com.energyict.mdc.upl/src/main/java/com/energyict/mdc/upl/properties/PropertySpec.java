@@ -11,7 +11,8 @@ import java.util.Optional;
  * A PropertySpec is capable of validating a value,
  * likely against a type that is internally managed/known.
  * When a PropertySpec is "required", a value will need to be provided.
- * When a value is invalid, a
+ * When a value is invalid, an exception from the {@link PropertyValidationException}
+ * class hierarchy is thrown.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-28 (14:50)
