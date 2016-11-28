@@ -1,14 +1,12 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
-import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -25,7 +23,7 @@ public class CreateG3DemoBoardCommand {
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder;
+    private final Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder;
 
     private String gatewayMrid = "Demo_board_RTU_Server_G3";
 
@@ -35,7 +33,7 @@ public class CreateG3DemoBoardCommand {
                                      ConnectionTaskService connectionTaskService,
                                      Provider<DeviceBuilder> deviceBuilderProvider,
                                      Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                     Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder){
+                                     Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
@@ -56,7 +54,7 @@ public class CreateG3DemoBoardCommand {
                 deviceBuilderProvider,
                 connectionMethodsProvider,
                 activeLifeCyclestatePostBuilder);
-        gatewayCommand.setGatewayMrid(gatewayMrid);
+        gatewayCommand.setGatewayName(gatewayMrid);
         gatewayCommand.setSerialNumber("Demo board RTU+Server G3");
 
         CreateG3SlaveCommand firstSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);

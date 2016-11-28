@@ -60,10 +60,10 @@ public abstract class ReadDataFromFileCommand {
         this.source = source;
     }
 
-    public void setMeter(String mrid){
-        Optional<Meter> meterRef = meteringService.findMeter(mrid);
+    public void setMeter(String name) {
+        Optional<Meter> meterRef = meteringService.findMeterByName(name);
         if (!meterRef.isPresent()) {
-            throw new UnableToCreate("Unable to find meter with mrid = " + mrid);
+            throw new UnableToCreate("Unable to find meter with name " + name);
         }
         this.meter = meterRef.get();
     }

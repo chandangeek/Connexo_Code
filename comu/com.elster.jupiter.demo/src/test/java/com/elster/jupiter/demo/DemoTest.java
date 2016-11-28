@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
+import com.elster.jupiter.calendar.impl.importers.CalendarImporterFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -47,6 +48,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -94,6 +96,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.cps.ChannelSAPInfoCustomPropertySet;
+import com.energyict.mdc.device.config.cps.DeviceEMeterInfoCustomPropertySet;
+import com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.Device;
@@ -102,6 +107,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
@@ -148,6 +154,7 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
@@ -236,6 +243,7 @@ public class DemoTest {
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(LoadProfileFactory.class).toInstance(mock(LoadProfileFactory.class));
         }
 
         private License mockLicense() {
@@ -289,7 +297,39 @@ public class DemoTest {
                         "13.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0",
                         "13.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0",
                         "13.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0",
-                        "13.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"
+                        "13.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0",
+                        "0.0.0.1.0.0.142.0.0.1.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.2.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.3.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.4.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.5.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.6.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.7.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.8.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.9.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.10.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.11.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.12.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.13.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.14.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.15.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.16.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.17.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.18.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.19.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.20.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.21.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.22.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.23.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.24.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.25.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.26.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.27.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.28.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.29.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.30.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.31.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0"
                 ),
                 new ServiceCallModule(),
                 new CustomPropertySetsModule(),
@@ -372,7 +412,7 @@ public class DemoTest {
         // Business method
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
     }
 
@@ -384,7 +424,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
     }
 
@@ -405,18 +445,18 @@ public class DemoTest {
 
     @Test
     public void testCreateG3Devices() {
-        String MRID_GATEWAY = "123-4567-89";
-        String MRID_SLAVE1 = "Demo board AS3000";
-        String MRID_SLAVE2 = "Demo board AS220";
+        String GATEWAY_NAME = "123-4567-89";
+        String SLAVE1_NAME = "Demo board AS3000";
+        String SLAVE2_NAME = "Demo board AS220";
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveAS3000(MRID_SLAVE1);
-        demoService.createG3SlaveAS220(MRID_SLAVE2);
+        demoService.createG3Gateway(GATEWAY_NAME);
+        demoService.createG3SlaveAS3000(SLAVE1_NAME);
+        demoService.createG3SlaveAS220(SLAVE2_NAME);
 
         this.setPrincipal();
-        checkCreatedG3Gateway(MRID_GATEWAY);
-        checkCreatedG3SlaveDevice(MRID_SLAVE1);
-        checkCreatedG3SlaveDevice(MRID_SLAVE2);
+        checkCreatedG3Gateway(GATEWAY_NAME);
+        checkCreatedG3SlaveDevice(SLAVE1_NAME);
+        checkCreatedG3SlaveDevice(SLAVE2_NAME);
     }
 
     private void setPrincipal() {
@@ -427,17 +467,17 @@ public class DemoTest {
         return new ConsoleUser();
     }
 
-    private void checkCreatedG3Gateway(String mridGateway) {
+    private void checkCreatedG3Gateway(String gatewayName) {
         String DEVICE_CONFIG_NAME = "Default";
         String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
         String CONNECTION_METHOD_NAME = "Outbound TCP";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> gatewayOptional = deviceService.findByUniqueMrid(mridGateway);
+        Optional<Device> gatewayOptional = deviceService.findDeviceByName(gatewayName);
         assertThat(gatewayOptional.isPresent()).isTrue();
         Device gateway = gatewayOptional.get();
         DeviceType deviceType = gateway.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getLongName());
+        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getName());
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterTypes()).isEmpty();
         assertThat(deviceType.getLogBookTypes()).isEmpty();
@@ -495,19 +535,19 @@ public class DemoTest {
         assertThat(gateway.getComTaskExecutions()).hasSize(1);
     }
 
-    private void checkCreatedG3SlaveDevice(String mridDevice) {
-        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "E0023000520685414" : "123457S";
-        String MAC_ADDRESS = "Demo board AS3000".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
+    private void checkCreatedG3SlaveDevice(String deviceName) {
+        String SERIAL_NUMBER = "Demo board AS3000".equals(deviceName) ? "E0023000520685414" : "123457S";
+        String MAC_ADDRESS = "Demo board AS3000".equals(deviceName) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> deviceOptional = deviceService.findByUniqueMrid(mridDevice);
+        Optional<Device> deviceOptional = deviceService.findDeviceByName(deviceName);
         assertThat(deviceOptional.isPresent()).isTrue();
         Device device = deviceOptional.get();
         assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
 
         DeviceType deviceType = device.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getLongName() : DeviceTypeTpl.AS220.getLongName());
+        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(deviceName) ? DeviceTypeTpl.AS3000.getName() : DeviceTypeTpl.AS220.getName());
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
         assertThat(loadProfileTypes).hasSize(3);
         for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -515,31 +555,31 @@ public class DemoTest {
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.minutes(15));
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E);
+                        RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS);
             } else if (LoadProfileTypeTpl.DAILY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.days(1));
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+                        RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2);
             } else if (LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.months(1));
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+                        RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2);
             } else {
-                fail("The device type of device with MRID = " + mridDevice + " contains an unwanted loadprofile: " + loadProfileType.getName());
+                fail("The device type of device with name = " + deviceName + " contains an unwanted loadprofile: " + loadProfileType.getName());
             }
         }
         List<RegisterType> registerTypes = deviceType.getRegisterTypes();
         assertThat(registerTypes).hasSize(6);
         for (RegisterType registerType : registerTypes) {
-            if (!RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString())) {
-                fail("The device type of device with MRID = " + mridDevice + " contains an unwanted register type: " + registerType.getObisCode());
+            if (!RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2.getObisCode().equals(registerType.getObisCode().toString())) {
+                fail("The device type of device with name = " + deviceName + " contains an unwanted register type: " + registerType.getObisCode());
             }
         }
         assertThat(deviceType.getLogBookTypes()).hasSize(1);
@@ -573,7 +613,7 @@ public class DemoTest {
                 assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isFalse();
                 assertThat(enablement.getPriority() == 100).isTrue();
             } else {
-                fail("The device type of device with MRID = " + mridDevice + " contains an unwanted com task configuration : " + enablement.getComTask().getName());
+                fail("The device type of device with name = " + deviceName + " contains an unwanted com task configuration : " + enablement.getComTask().getName());
             }
         }
 
@@ -587,7 +627,7 @@ public class DemoTest {
             } else if (LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName().equals(loadProfile.getLoadProfileSpec().getLoadProfileType().getName())) {
                 assertThat(loadProfile.getChannels()).hasSize(4);
             } else {
-                fail("The device with MRID = " + mridDevice + " contains an unwanted loadprofile: " + loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
+                fail("The device with name = " + deviceName + " contains an unwanted loadprofile: " + loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
             }
         }
         assertThat(device.getLogBooks()).hasSize(1);
@@ -597,13 +637,13 @@ public class DemoTest {
         List<Register> registers = device.getRegisters();
         assertThat(registers).hasSize(6);
         for (Register register : registers) {
-            if (!RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString())) {
-                fail("The device with MRID = " + mridDevice + " contains an unwanted register : " + register.getRegisterSpecObisCode());
+            if (!RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2.getObisCode().equals(register.getRegisterSpecObisCode().toString())) {
+                fail("The device with name = " + deviceName + " contains an unwanted register : " + register.getRegisterSpecObisCode());
             }
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -693,7 +733,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
-        assertThat(fileImportService.getImportSchedules()).hasSize(9);
+        assertThat(fileImportService.getImportSchedules()).hasSize(10);
     }
 
     @Test
@@ -713,7 +753,13 @@ public class DemoTest {
         assertThat(user.isPresent()).isTrue();
         assertThat(user.get().getGroups()).hasSize(1);
         assertThat(user.get().isMemberOf("Demo Users")).isTrue();
+    }
 
+    @Test
+    public void testCreateSPEDevice() {
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "1", true);
+        demoService.createSPEDevice("123");
     }
 
     protected void doPreparations() {
@@ -736,6 +782,9 @@ public class DemoTest {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceEMeterInfoCustomPropertySet.class));
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceSAPInfoCustomPropertySet.class));
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(ChannelSAPInfoCustomPropertySet.class));
     }
 
     private void createRequiredProtocols() {
@@ -779,10 +828,12 @@ public class DemoTest {
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(SecurityAttributesImportFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceInstallationImporterFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceRemoveImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(CalendarImporterFactory.class));
 
         ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
         ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
 
+        injector.getInstance(MeteringDataModelService.class).addHeadEndInterface(injector.getInstance(MultiSenseHeadEndInterfaceImpl.class));
         injector.getInstance(IssueDataCollectionService.class);
         injector.getInstance(IssueDataValidationService.class);
         fixIssueTemplates();
