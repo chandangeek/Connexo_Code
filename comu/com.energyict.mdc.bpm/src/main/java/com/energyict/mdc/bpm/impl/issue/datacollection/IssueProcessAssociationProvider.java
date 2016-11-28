@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,7 +114,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
         IssueReasonInfo[] possibleValues = issueService.query(IssueReason.class)
                 .select(where("issueType").isEqualTo(issueType))
                 .stream().map(IssueReasonInfo::new)
-                .sorted((info1, info2) -> info1.getName().compareToIgnoreCase(info2.getName()))
+                .sorted(Comparator.comparing(IssueReasonInfo::getName, String.CASE_INSENSITIVE_ORDER))
                 .toArray(IssueReasonInfo[]::new);
 
         return this.propertySpecService
