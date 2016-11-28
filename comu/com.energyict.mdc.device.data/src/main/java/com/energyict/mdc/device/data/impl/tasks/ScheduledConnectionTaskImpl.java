@@ -572,7 +572,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public int getMaxNumberOfTries() {
         if (getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
-            return Integer.MAX_VALUE;
+            return DEFAULT_MAX_NUMBER_OF_TRIES;
         } else {
             if (this.maxNumberOfTries == -1) {
                 this.maxNumberOfTries =
