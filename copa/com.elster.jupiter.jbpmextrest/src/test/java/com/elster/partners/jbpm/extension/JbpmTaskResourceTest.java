@@ -28,6 +28,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -99,6 +105,92 @@ public class JbpmTaskResourceTest {
     @AfterClass
     public static void afterClass() throws Exception {
         server.stop();
+    }
+
+    @Test
+    public void testGetTasks() throws Exception {
+        EntityManager em = mock(EntityManager.class);
+        CriteriaBuilder criteriaBuilder = mock(CriteriaBuilder.class);
+        CriteriaQuery criteriaQuery = mock(CriteriaQuery.class);
+        Root taskRoot = mock(Root.class);
+        Predicate genericPredicate = mock(Predicate.class);
+        Path path = mock(Path.class);
+        TypedQuery typedQuery = mock(TypedQuery.class);
+        TaskMinimal taskMinimal = new TaskMinimal(1L);
+        List<TaskMinimal> taskMinimals = new ArrayList<>();
+        taskMinimals.add(taskMinimal);
+        TaskImpl task = mock(TaskImpl.class);
+        TaskData taskData = mock(TaskData.class);
+        PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
+
+        when(em.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+        when(criteriaBuilder.createQuery(TaskMinimal.class)).thenReturn(criteriaQuery);
+        when(criteriaQuery.from(TaskImpl.class)).thenReturn(taskRoot);
+        when(emf.createEntityManager()).thenReturn(em);
+        when(criteriaBuilder.equal(any(),any())).thenReturn(genericPredicate);
+        when(taskRoot.get(anyString())).thenReturn(path);
+        when(taskRoot.get(anyString()).get(anyString())).thenReturn(path);
+        when(em.createQuery(criteriaQuery)).thenReturn(typedQuery);
+        when(typedQuery.getResultList()).thenReturn(taskMinimals);
+        when(internalTaskService.getTaskById(1L)).thenReturn(task);
+        when(task.getId()).thenReturn(1L);
+        when(task.getName()).thenReturn("TaskName");
+        when(task.getTaskData()).thenReturn(taskData);
+        when(task.getPriority()).thenReturn(0);
+        when(task.getPeopleAssignments()).thenReturn(peopleAssignments);
+        when(peopleAssignments.getPotentialOwners()).thenReturn(Collections.emptyList());
+        when(taskData.getProcessId()).thenReturn("TaskProcessId");
+        when(taskData.getDeploymentId()).thenReturn("TaskDeploymentId");
+        when(taskData.getExpirationTime()).thenReturn(null);
+        when(taskData.getCreatedOn()).thenReturn(null);
+        when(taskData.getStatus()).thenReturn(Status.Created);
+        when(taskData.getActualOwner()).thenReturn(null);
+        when(taskData.getProcessInstanceId()).thenReturn(10L);
+        when(task.getVersion()).thenReturn(1);
+
+
+        ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo("TestProcessId", "TestProcessId", "1.0", "Y", "device", "Device", "test:TestProcessId:1.0", new ArrayList<>(), new ArrayList<>());
+        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos();
+        processDefinitionInfos.total = 1;
+        processDefinitionInfos.processes.add(processDefinitionInfo);
+
+
+        ClientRequest request = new ClientRequest(baseUri);
+        request.body(MediaType.APPLICATION_JSON_TYPE, processDefinitionInfos);
+        ClientResponse<TaskSummaryList> response = request.post(TaskSummaryList.class);
+
+        assertEquals(1L, response.getEntity().getTasks().get(0).getId());
+        assertEquals("TaskName", response.getEntity().getTasks().get(0).getName());
+        assertEquals("TaskProcessId", response.getEntity().getTasks().get(0).getProcessName());
+        assertEquals("TaskDeploymentId", response.getEntity().getTasks().get(0).getDeploymentId());
+        assertEquals(Status.Created, response.getEntity().getTasks().get(0).getStatus());
+        assertEquals(10L, response.getEntity().getTasks().get(0).getProcessInstanceId());
+        assertEquals(1, response.getEntity().getTasks().get(0).getOptLock());
+
+    }
+
+    @Test
+    public void testBulkTasks() throws Exception {
+        TaskGroupsInfos taskGroupsInfos = new TaskGroupsInfos();
+        TaskGroupsInfo taskGroupsInfo = new TaskGroupsInfo();
+        List<Long> ids = new ArrayList<>();
+        ids.add(1L);
+        taskGroupsInfo.taskIds = ids;
+        taskGroupsInfos.taskGroups.add(taskGroupsInfo);
+
+        ClientRequest request = new ClientRequest(baseUri + "/managetasks");
+        request.body(MediaType.APPLICATION_JSON_TYPE, taskGroupsInfos);
+        request.queryParameter("variableid", "mrid");
+        request.queryParameter("assign", "newUser");
+        request.queryParameter("currentuser", "currentUser");
+        request.queryParameter("workgroup", "workgroup");
+        request.queryParameter("setPriority", "1");
+        request.queryParameter("setDueDate", "1");
+        request.queryParameter("setDueDate", "1");
+        ClientResponse<TaskBulkReportInfo> response = request.post(TaskBulkReportInfo.class);
+
+        assertEquals(1, response.getEntity().total);
+        assertEquals(0, response.getEntity().failed);
     }
 
     @Test
