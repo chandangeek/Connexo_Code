@@ -41,6 +41,7 @@ public class LoadProfileSetStatus {
     
     /** Creates a new instance of LoadProfileSetStatus */
     public LoadProfileSetStatus(byte[] data,int offset,TableFactory tableFactory) throws IOException {
+        tableFactory.getC12ProtocolLink().getLogger().info("LoadProfileSetStatus: "+ProtocolUtils.outputHexString(data));
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         
         setLoadProfileSetStatusflags(C12ParseUtils.getInt(data,offset++));
@@ -62,6 +63,7 @@ public class LoadProfileSetStatus {
         offset+=2;
         setNrOfValidIntervals(C12ParseUtils.getInt(data,offset, 2, dataOrder));
         offset+=2;
+        tableFactory.getC12ProtocolLink().getLogger().info(this.toString());
     }
     
     public String toString() {

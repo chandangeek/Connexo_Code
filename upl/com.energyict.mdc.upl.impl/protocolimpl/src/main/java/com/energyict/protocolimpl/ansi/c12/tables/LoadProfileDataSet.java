@@ -32,6 +32,8 @@ public class LoadProfileDataSet {
         this(data, offset, tableFactory, set,nrOfBlocksRequested,headerOnly?0:-1, nrOfIntervalsInBlock);
     }
     public LoadProfileDataSet(byte[] data,int offset,TableFactory tableFactory, int set, int nrOfBlocksRequested, int intervalsets,int nrOfIntervalsInBlock) throws IOException {
+        tableFactory.getC12ProtocolLink().getLogger().info("LoadProfileDataSet: "+ProtocolUtils.outputHexString(data));
+
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         //ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -44,8 +46,10 @@ public class LoadProfileDataSet {
         for(int i=0;i<getLoadProfileDataSets().length;i++) {
             getLoadProfileDataSets()[i]=new LoadProfileBlockData(data, offset, tableFactory, set, intervalsets, nrOfIntervalsInBlock);
             offset+=LoadProfileBlockData.getSize(tableFactory,set, intervalsets);
-            
+
         }
+
+        tableFactory.getC12ProtocolLink().getLogger().info(this.toString());
     }
     
     public String toString() {

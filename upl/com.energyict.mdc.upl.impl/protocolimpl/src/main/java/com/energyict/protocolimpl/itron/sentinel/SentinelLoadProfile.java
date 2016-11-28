@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -39,8 +40,6 @@ import java.util.List;
  * @author James Fox
  */
 public class SentinelLoadProfile {
-
-    private static final int DEBUG=0;
 
     Sentinel sentinel;
 
@@ -99,17 +98,21 @@ public class SentinelLoadProfile {
             */
         }
 
-        if (DEBUG>=3) System.out.println(profileData);
+        getLogger().info(profileData.toString());
         profileData.sort();
         return profileData;
+    }
+
+    private Logger getLogger() {
+        return sentinel.getLogger();
     }
 
     private void buildHistoryLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
        // oredr = 0 oldest -> newest
 
-       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogControlTable());
-       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
-       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogDataTableHeader());
+        getLogger().info("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogControlTable());
+        getLogger().info("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
+        getLogger().info("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogDataTableHeader());
        //if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getHistoryLogDataTableHeader());
 
        List meterHistorys = new ArrayList();
@@ -131,7 +134,7 @@ public class SentinelLoadProfile {
                        futurelogcheck=false;
                        break;
                    }
-                   if (DEBUG>=1) System.out.println("KV_DEBUG>(1) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
+                   getLogger().info("KV_DEBUG>(1) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
                }
            }
 
@@ -139,14 +142,14 @@ public class SentinelLoadProfile {
            if (!futurelogcheck) {
                HistoryEntry[] historyEntries = historyLog.getEntries();
                for (int i=0;i<historyEntries.length;i++) {
-                   if (DEBUG>=1) System.out.println("KV_DEBUG>(2) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
+                   getLogger().info("KV_DEBUG>(2) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
                    if ((validHistoryCount++ >=(nrOfValidEntries-1)) || (historyEntries[i].getHistoryTime().before(lastReading))) {
                        leaveLoop=true;
                        break;
                    }
 
                    meterHistorys.add(createMeterEvent(historyEntries[i]));
-                   if (DEBUG>=1) System.out.println("KV_DEBUG>(3) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
+                   getLogger().info("KV_DEBUG>(3) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
                }
 
                //break; // KV_DEBUG
@@ -162,8 +165,8 @@ public class SentinelLoadProfile {
     private void buildEventLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
        // oredr = 0 oldest -> newest
 
-       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getEventLogControlTable());
-       if (DEBUG>=1) System.out.println("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
+        getLogger().info("KV_DEBUG> "+sentinel.getStandardTableFactory().getEventLogControlTable());
+        getLogger().info("KV_DEBUG> "+sentinel.getStandardTableFactory().getActualLogTable());
 
        List meterEvents = new ArrayList();
        int validEventCount=0;
@@ -175,21 +178,21 @@ public class SentinelLoadProfile {
            EventLog eventLog = sentinel.getStandardTableFactory().getEventLogDataTable().getEventLog();
            int nrOfValidEntries = eventLog.getNrOfValidentries();
 
-           if (DEBUG>=1) System.out.println("KV_DEBUG> events eventLog="+eventLog);
-           if (DEBUG>=1) System.out.println("KV_DEBUG> events nrOfValidEntries="+nrOfValidEntries);
+           getLogger().info("KV_DEBUG> events eventLog="+eventLog);
+           getLogger().info("KV_DEBUG> events nrOfValidEntries="+nrOfValidEntries);
 
            if (futurelogcheck) {
 
                EventEntry[] eventEntries = eventLog.getEntries();
 
-               if (DEBUG>=1) System.out.println("KV_DEBUG> events eventLog.getEntries().length="+eventLog.getEntries().length);
+               getLogger().info("KV_DEBUG> events eventLog.getEntries().length="+eventLog.getEntries().length);
 
                for (int i=0;i<eventEntries.length;i++) {
                    if ((validEventCount++ >=(nrOfValidEntries-1)) || (eventEntries[i].getEventTime().before(to))) {
                        futurelogcheck=false;
                        break;
                    }
-                   if (DEBUG>=1) System.out.println("KV_DEBUG>(1) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
+                   getLogger().info("KV_DEBUG>(1) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
                }
 
                futurelogcheck=false;
@@ -201,14 +204,14 @@ public class SentinelLoadProfile {
            if (!futurelogcheck) {
                EventEntry[] eventEntries = eventLog.getEntries();
                for (int i=0;i<eventEntries.length;i++) {
-                   if (DEBUG>=1) System.out.println("KV_DEBUG>(2) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
+                   getLogger().info("KV_DEBUG>(2) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
 //                   if ((validEventCount++ >=(nrOfValidEntries-1)) || (eventEntries[i].getEventTime().before(lastReading))) {
 //                       leaveLoop=true;
 //                       break;
 //                   }
 
                    meterEvents.add(createMeterEvent(eventEntries[i]));
-                   if (DEBUG>=1) System.out.println("KV_DEBUG>(3) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
+                   getLogger().info("KV_DEBUG>(3) events "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
                }
 
                break; // KV_DEBUG
@@ -245,17 +248,17 @@ public class SentinelLoadProfile {
 
         LoadProfilePreliminaryDataRead lppdr = sentinel.getDataReadFactory().getLoadProfilePreliminaryDataRead();
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+lppdr);
+        getLogger().info("KV_DEBUG> "+lppdr);
         int startBlockOffset = sentinel.getManufacturerProcedureFactory().getLoadProfileStartBlock(lastReading).getStartingBlockOffset();
         int nrOfBlocks = lppdr.getIndexOfLastLoadProfileBlock()-startBlockOffset+1;
         int blockSize = (264 * sentinel.getNumberOfChannels())+260;
         int headersize = 8*sentinel.getNumberOfChannels()+4;
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> startBlockOffset="+startBlockOffset+", nrOfBlocks="+nrOfBlocks+", blockSize="+blockSize);
+        getLogger().info("KV_DEBUG> startBlockOffset="+startBlockOffset+", nrOfBlocks="+nrOfBlocks+", blockSize="+blockSize);
 
         for (int block=startBlockOffset;block<(startBlockOffset+nrOfBlocks);block++) {
             LoadProfileData lpd = sentinel.getManufacturerTableFactory().getLoadProfileDataHeaderOnly(block);
-            if (DEBUG>=1) System.out.println("KV_DEBUG> "+lpd);
+            getLogger().info("KV_DEBUG> "+lpd);
         }
 
     }
@@ -287,7 +290,7 @@ public class SentinelLoadProfile {
 
                 lpbd = sentinel.getStandardTableFactory().getLoadProfileDataSetTable(0,block,1).getLoadProfileDataSet().getLoadProfileDataSets()[0];
                 loadProfileBlockDatas.add(lpbd);
-                if (DEBUG>=2) System.out.println("KV_DEBUG> save block "+block+", lpbd end time="+lpbd.getBlockEndTime());
+                getLogger().info("KV_DEBUG> save block "+block+", lpbd end time="+lpbd.getBlockEndTime());
 
                 currentDayBlock=(block==lastBlock);
                 if  (currentDayBlock || (lpbd.getBlockEndTime().after(newTo))) break;
@@ -329,7 +332,7 @@ public class SentinelLoadProfile {
 
             Calendar cal = Calendar.getInstance(sentinel.getTimeZone());
             cal.setTime(lpbd.getBlockEndTime());
-            if (DEBUG>=2) System.out.println("KV_DEBUG> ************************ Block "+block+", EndTime="+lpbd.getBlockEndTime());
+            getLogger().info("KV_DEBUG> ************************ Block "+block+", EndTime="+lpbd.getBlockEndTime());
 
             IntervalSet[] intervalSets = lpbd.getLoadProfileInterval();
             int nrOfIntervals = currentDayBlock?nrOfValidIntervals:intervalSets.length;
@@ -353,7 +356,7 @@ public class SentinelLoadProfile {
         } // for (int channel=0;channel<sentinel.getNumberOfChannels();channel++)
         intervalDatas.add(intervalData);
         cal.add(Calendar.SECOND,(-1)*sentinel.getProfileInterval());
-        if (DEBUG>=2) System.out.println("KV_DEBUG> interval "+i+", time="+cal.getTime());
+        getLogger().info("KV_DEBUG> interval "+i+", time="+cal.getTime());
     }
 
     public com.energyict.protocolimpl.itron.sentinel.tables.AbstractLoadProfileDataSetTable getLoadProfileDataSetTable(int blockNrOffset, int nrOfBlocksToRequest, int intervalsets, int count, int chunkSize) throws IOException {

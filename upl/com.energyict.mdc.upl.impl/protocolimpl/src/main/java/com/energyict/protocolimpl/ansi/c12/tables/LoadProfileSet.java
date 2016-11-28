@@ -59,6 +59,7 @@ public class LoadProfileSet {
             
     /** Creates a new instance of LoadProfileSet */
     public LoadProfileSet(byte[] data,int offset,TableFactory tableFactory) throws IOException {
+        tableFactory.getC12ProtocolLink().getLogger().info("LoadProfileSet: "+ProtocolUtils.outputHexString(data));
        // ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
        // ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -107,7 +108,9 @@ public class LoadProfileSet {
                 getNrOfChannelsSet()[i] = C12ParseUtils.getInt(data,offset++);
                 getProfileIntervalSet()[i] = C12ParseUtils.getInt(data,offset++);
             }
-        } 
+        }
+
+        tableFactory.getC12ProtocolLink().getLogger().info(this.toString());
     }
     
     public String toString() {

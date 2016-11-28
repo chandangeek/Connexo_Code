@@ -11,6 +11,8 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 import java.io.*;
+import java.util.logging.Logger;
+
 import com.energyict.protocolimpl.ansi.c12.*;
 /**
  *
@@ -33,7 +35,11 @@ abstract public class AbstractTable {
         this.tableIdentification=tableIdentification;
         setForceFullRead(false);
     }
-    
+
+    protected Logger getLogger(){
+        return getTableFactory().getC12ProtocolLink().getLogger();
+    }
+
     protected TableFactory getTableFactory() {
         return tableFactory;
     }
