@@ -4,7 +4,6 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
     plain: true,
     border: false,
     shadow: false,
-    mRID: null,
     router: null,
 
     initComponent: function() {

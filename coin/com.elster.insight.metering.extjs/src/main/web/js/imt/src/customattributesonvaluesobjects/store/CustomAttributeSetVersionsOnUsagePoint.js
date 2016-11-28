@@ -7,14 +7,10 @@ Ext.define('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersions
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}/versions',
+        url: '/api/udr/usagepoints/{usagePointId}/customproperties/{customPropertySetId}/versions',
         reader: {
             type: 'json',
             root: 'versions'
-        },
-
-        setUrl: function (mRID, customPropertySetId) {
-            this.url = this.urlTpl.replace('{mRID}', Uni.util.Common.encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
         }
     }
 });

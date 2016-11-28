@@ -28,9 +28,6 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
                         name: 'name',
                         itemId: 'fld-up-name',
                         fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
-//                        renderer: function (value) {
-//                            return value ? value : '-';
-//                        }
                     },
                     {
                         name: 'description',
@@ -109,19 +106,18 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
                         fieldLabel: Uni.I18n.translate('general.label.amrSystemName', 'IMT', 'AMR system name')
                     },
                     {
-                        name: 'usagePointMRId',
-                        itemId: 'fld-up-usagePointMRId',
+                        name: 'usagePointName',
+                        itemId: 'fld-up-usagePointName',
                         fieldLabel: Uni.I18n.translate('general.label.usagePointName', 'IMT', 'Usage point'),
                         renderer: function (value) {
-                       		if (value) {
-                       		    var url = me.router.getRoute('usagepoints/view').buildUrl({mRID: value});
-                   				return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                      		} else {
-                       			return '-';
-                       		}
+                            if (value) {
+                                var url = me.router.getRoute('usagepoints/view').buildUrl({usagePointId: value});
+                                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                            }
+                            return '-';
                         }
                     }
-                 ]
+                ]
             }
         ];
         me.callParent();

@@ -58,6 +58,12 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
                         itemId: 'metrology-configuration-validation-link',
                         privileges: Imt.privileges.MetrologyConfig.viewValidation,
                         href: me.router.getRoute('administration/metrologyconfiguration/view/validation').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('usagepoint.dataValidation.estimationConfiguration', 'IMT', 'Estimation configuration'),
+                        itemId: 'metrology-configuration-estimation-link',
+                        privileges: Imt.privileges.MetrologyConfig.viewEstimation,
+                        href: me.router.getRoute('administration/metrologyconfiguration/view/estimation').buildUrl()
                     }
                 ]
             }
