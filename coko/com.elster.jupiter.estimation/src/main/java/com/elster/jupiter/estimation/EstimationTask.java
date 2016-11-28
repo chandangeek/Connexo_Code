@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -24,7 +25,9 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     QualityCodeSystem getQualityCodeSystem();
 
-    EndDeviceGroup getEndDeviceGroup();
+    Optional<EndDeviceGroup> getEndDeviceGroup();
+
+    Optional<UsagePointGroup> getUsagePointGroup();
 
     Optional<Instant> getLastRun();
 
@@ -47,6 +50,8 @@ public interface EstimationTask extends HasName, HasAuditInfo {
     void setNextExecution(Instant instant);
 
     void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+    void setUsagePointGroup(UsagePointGroup usagePointGroup);
 
     void setPeriod(RelativePeriod relativePeriod);
 

@@ -75,14 +75,19 @@ class EstimationTaskExecutor implements TaskExecutor {
         RelativePeriod relativePeriod = estimationTask.getPeriod().orElseGet(timeService::getAllRelativePeriod);
         QualityCodeSystem system = estimationTask.getQualityCodeSystem();
 
-        meteringService.getMeterWithReadingQualitiesQuery(relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(occurrence.getTriggerTime(), ZoneId.systemDefault())), ReadingQualityType.of(system, QualityCodeIndex.SUSPECT))
-                .select(ListOperator.IN.contains(estimationTask.getEndDeviceGroup().toSubQuery("id"), "id"))
-                .stream()
-                .filter(meter -> estimationService.getEstimationResolvers().stream().anyMatch(resolver -> resolver.isEstimationActive(meter)))
-                .map(meter -> meter.getMeterActivation(occurrence.getTriggerTime()))
-                .flatMap(Functions.asStream())
-                .forEach(meterActivation -> doEstimateTransactional(meterActivation, system, relativePeriod, occurrence.getTriggerTime(), taskLogger));
-
+        if(estimationTask.getEndDeviceGroup().isPresent()) {
+            meteringService.getMeterWithReadingQualitiesQuery(relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(occurrence
+                    .getTriggerTime(), ZoneId.systemDefault())), ReadingQualityType.of(system, QualityCodeIndex.SUSPECT))
+                    .select(ListOperator.IN.contains(estimationTask.getEndDeviceGroup().get().toSubQuery("id"), "id"))
+                    .stream()
+                    .filter(meter -> estimationService.getEstimationResolvers()
+                            .stream()
+                            .anyMatch(resolver -> resolver.isEstimationActive(meter)))
+                    .map(meter -> meter.getMeterActivation(occurrence.getTriggerTime()))
+                    .flatMap(Functions.asStream())
+                    .forEach(meterActivation -> doEstimateTransactional(meterActivation, system, relativePeriod, occurrence
+                            .getTriggerTime(), taskLogger));
+        }
     }
 
     private void doEstimateTransactional(MeterActivation meterActivation, QualityCodeSystem system, RelativePeriod relativePeriod, Instant triggerTime, Logger taskLogger) {
