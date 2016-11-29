@@ -22,6 +22,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_CLEARED_STATUS;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_EVENT_TYPE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_BASE_ALARM;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_DEVICE_MRID;
@@ -70,7 +71,7 @@ public enum TableSpecs {
             Table<DeviceAlarm> table = dataModel.addTable(name(), DeviceAlarm.class);
             table.map(DeviceAlarmImpl.class);
             table.since(version(10, 3));
-            table.doNotAutoInstall();
+            table.doNotAutoInstall(); // view
             Column idColumn = table.column(DAL_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
             TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ALARM_ALL", DAL_ALARM_PK,
                     // Foreign key
@@ -79,7 +80,7 @@ public enum TableSpecs {
         }
     },
 
-    DAL_ALARM_RELATED_EVENTS {
+    DAL_OPEN_ALARM_RELATED_EVENTS {
         @Override
         public void addTo(DataModel dataModel) {
             Table<AlarmRelatedEvents> table = dataModel.addTable(name(), AlarmRelatedEvents.class);
@@ -89,7 +90,7 @@ public enum TableSpecs {
             Column eventRecordColumn = table.column("EVENTRECORD").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.primaryKey("VAL_PK_ALARM_RELATED_EVENTS").on(alarmColumn, eventRecordColumn).add();
             table.foreignKey("VAL_FK_ALARM_RELATED_EVENTS")
-                    .references(DAL_ALARM_ALL.name())
+                    .references(DAL_ALARM_OPEN.name())
                     .on(alarmColumn)
                     .onDelete(CASCADE)
                     .map(AlarmRelatedEventsImpl.Fields.AlARM.fieldName())
@@ -97,6 +98,28 @@ public enum TableSpecs {
                     .composition().add();
             //NO FK for record
         }
+    },
+
+    DAL_HISTORY_ALARM_RELATED_EVENTS {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<AlarmRelatedEvents> table = dataModel.addTable(name(), AlarmRelatedEvents.class);
+            table.map(AlarmRelatedEventsImpl.class);
+            table.since(version(10, 3));
+            Column alarmColumn = table.column("ALARM").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column eventRecordColumn = table.column("EVENTRECORD").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.primaryKey("VAL_PK_ALARM_RELATED_EVENTS").on(alarmColumn, eventRecordColumn).add();
+            table.foreignKey("VAL_FK_ALARM_RELATED_EVENTS")
+                    .references(DAL_ALARM_HISTORY.name())
+                    .on(alarmColumn)
+                    .onDelete(CASCADE)
+                    .map(AlarmRelatedEventsImpl.Fields.AlARM.fieldName())
+                    .reverseMap(AlarmRelatedEventsImpl.Fields.EVENTRECORD.fieldName())
+                    .composition().add();
+            //NO FK for record
+        }
+
+
     };
 
 	public abstract void addTo(DataModel dataModel);
@@ -107,6 +130,7 @@ public enum TableSpecs {
         static void buildIssueTable(Table<?> table, Column idColumn, String issueTable, String pkKey, String... fkKeys){
             Column alarmColRef = table.column(DAL_BASE_ALARM).number().conversion(NUMBER2LONG).notNull().add();
             table.column(DAL_DEVICE_MRID).varChar(NAME_LENGTH).map("deviceMRID").add();
+            table.column(DAL_ALARM_CLEARED_STATUS).bool().map("clearedStatus").add();
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){
                 throw new IllegalArgumentException("Passed arguments don't match foreigen keys");

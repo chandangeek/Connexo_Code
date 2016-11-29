@@ -31,6 +31,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     private Reference<Issue> baseAlarm = ValueReference.absent();
     private String deviceMRID;
     private List<EndDeviceEventRecord> relatedEvents;
+    private Boolean clearedStatus = Boolean.FALSE;
 
 
     private long id;//do we need this id ? we have a reference to base issue instead...
@@ -150,8 +151,19 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     @Override
     public EndDeviceEventRecord getCurrentEventRecord() {
-        return Collections.max(relatedEvents, Comparator.comparing(eventRecord -> eventRecord.getCreateTime()));
+        return Collections.max(relatedEvents, Comparator.comparing(EndDeviceEventRecord::getCreateTime));
     }
+
+    @Override
+    public Boolean getClearedStatus() {
+        return clearedStatus;
+    }
+
+    @Override
+    public void setClearedStatus() {
+        clearedStatus = Boolean.TRUE;
+    }
+
 
     @Override
     public Optional<IssueComment> addComment(String body, User author) {

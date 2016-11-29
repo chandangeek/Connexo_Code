@@ -17,4 +17,5 @@ final class DatabaseConst {
 
     static final String DAL_DEVICE_MRID = "DAL_DEVICE_MRID_FK_TO_ALARM";//DEVICE
     static final String DAL_ALARM_EVENT_TYPE = "DAL_ALARM_EVENT_TYPE";
+    static final String DAL_ALARM_CLEARED_STATUS = "DAL_CLEARED_STATUS";
 }

@@ -16,4 +16,8 @@ public interface DeviceAlarm extends Issue {
     List<EndDeviceEventRecord> getRelatedEventRecords();
 
     EndDeviceEventRecord getCurrentEventRecord();
+
+    Boolean getClearedStatus();
+
+    void setClearedStatus();
 }
