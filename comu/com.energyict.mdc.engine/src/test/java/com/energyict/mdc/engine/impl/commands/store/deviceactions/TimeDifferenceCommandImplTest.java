@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
@@ -10,16 +11,20 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -34,6 +39,9 @@ import static org.mockito.Mockito.when;
  */
 public class TimeDifferenceCommandImplTest extends CommonCommandImplTests {
 
+    @Rule
+    public TestRule timeZone = Using.timeZone("Europe/Brussels");
+
     @Mock
     private OfflineDevice offlineDevice;
 
@@ -47,7 +55,6 @@ public class TimeDifferenceCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void largeTimeDifferenceTest() {
-
         Clock meterTime = Clock.fixed(new DateTime(2000, Calendar.FEBRUARY, 1, 0, 0, 0, 0).toDate().toInstant(), ZoneId.systemDefault());
         Clock systemTime = Clock.fixed(new DateTime(2015, Calendar.OCTOBER, 18, 15, 0, 0, 0).toDate().toInstant(), ZoneId.systemDefault());
         when(commandRootServiceProvider.clock()).thenReturn(systemTime);

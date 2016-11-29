@@ -144,9 +144,7 @@ public class InboundCommunicationHandler {
             } else {
                 this.handleUnknownDevice(inboundDeviceProtocol);
             }
-            this.complete();
         } catch (Exception e) {
-            this.complete();
             this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
         }
 
@@ -369,11 +367,7 @@ public class InboundCommunicationHandler {
         }
     }
 
-    public void complete() {
-        this.appendStatisticalInformationToComSession();
-    }
-
-    private void appendStatisticalInformationToComSession() {
+    public void appendStatisticalInformationToComSession() {
         ComSessionBuilder comSessionBuilder = this.context.getComSessionBuilder();
         if (comSessionBuilder != null) {
             comSessionBuilder.connectDuration(Duration.ofMillis(0));
@@ -503,7 +497,7 @@ public class InboundCommunicationHandler {
                         comServerDAO,
                         deviceCommandExecutor,
                         getContext(),
-                        this.serviceProvider);
+                        this.serviceProvider, this);
         inboundJobExecutionGroup.setToken(token);
         inboundJobExecutionGroup.setConnectionTask(this.connectionTask);
         inboundJobExecutionGroup.executeDeviceProtocol(this.deviceComTaskExecutions);

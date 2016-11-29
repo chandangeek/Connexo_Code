@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -25,18 +26,20 @@ import java.util.concurrent.TimeUnit;
 public class MultiThreadedComPortListener extends ComChannelBasedComPortListenerImpl {
 
     private static final TimeDuration RESOURCE_FREE_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
+    private final ThreadPrincipalService threadPrincipalService;
 
     private ResourceManager resourceManager;
     private ExecutorService executorService;
     private int numberOfThreads;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public MultiThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+    public MultiThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(runningComServer, comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
     }
 
     protected MultiThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, InboundComPortExecutorFactory inboundComPortExecutorFactory) {
         super(runningComServer, comPort, deviceCommandExecutor, serviceProvider);
+        this.threadPrincipalService = serviceProvider.threadPrincipalService();
         this.setThreadName("MultiThreaded listener for inbound ComPort " + comPort.getName());
         this.numberOfThreads = getComPort().getNumberOfSimultaneousConnections();
         this.resourceManager = new ResourceManager(getComPort().getNumberOfSimultaneousConnections());
@@ -152,6 +155,14 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     }
 
     /**
+     * Need to do this so the Kore knows who did what in the database.
+     */
+    private void assignThreadUser() {
+        User comServerUser = getComServerDAO().getComServerUser();
+        threadPrincipalService.set(comServerUser, "ComServer", "Store", comServerUser.getLocale().orElse(Locale.ENGLISH));
+    }
+
+    /**
      * Does the actual work of executing a {@link InboundComPortExecutor}.
      * A Worker is only created or activated
      * when a InboundComPortExecutor is ready to be executed.
@@ -169,6 +180,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
 
         @Override
         public void run() {
+            setThreadPrinciple();
             this.doRun();
         }
 

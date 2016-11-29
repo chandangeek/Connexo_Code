@@ -47,7 +47,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,14 +65,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.logging.Logger;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -396,6 +389,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         @Override
         public ConnectionTask getConnectionTask() {
             return null;
+        }
+
+        @Override
+        public void appendStatisticalInformationToComSession() {
+
         }
 
         @Override

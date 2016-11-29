@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.LastSeenDateInfo;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -18,14 +19,17 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -75,7 +79,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
     private DeviceCommand.ServiceProvider serviceProvider;
 
     @Before
-    public void setUp () {
+    public void setUp() {
         when(slave1Identifier.getIdentifier()).thenReturn(SLAVE_1_SERIAL_NUMBER);
         when(slave2Identifier.getIdentifier()).thenReturn(SLAVE_2_SERIAL_NUMBER);
         when(serviceProvider.issueService()).thenReturn(issueService);
@@ -96,13 +100,13 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      * EIServer topology:
      * Master
      * - No slave device
-     * <p/>
+     * <p>
      * Actual topology:
      * Master
      * - Slave_1 (id 1)
      * - Slav_2 (id 2)
      * TopologyAction = UPDATE
-     * <p/>
+     * <p>
      * Slave_1 is already known in EIServer
      * Slave_2 is not yet present in EIServer
      *
@@ -115,7 +119,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave1Identifier, slave2Identifier);
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave1Identifier, slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
@@ -132,18 +136,25 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         verify(mockedExecutionLogger).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
     }
 
+    private Map<DeviceIdentifier, LastSeenDateInfo> createSlaveIdentifiers(DeviceIdentifier... identifier) {
+        LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo("LastSeenDate", Instant.now());
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = new HashMap<>();
+        Stream.of(identifier).forEach(deviceIdentifier1 -> slaveDeviceIdentifiers.put(deviceIdentifier1, lastSeenDateInfo));
+        return slaveDeviceIdentifiers;
+    }
+
     /**
      * Test setup 2
      * EIServer topology:
      * Master
      * - No slave device
-     * <p/>
+     * <p>
      * Actual topology:
      * Master
      * - Slave_1 (id 1)
      * - Slave_2 (id 2)
      * TopologyAction = VERIFY
-     * <p/>
+     * <p>
      * Slave_1 is already known in EIServer
      * Slave_2 is not yet present in EIServer
      *
@@ -156,7 +167,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave1Identifier, slave2Identifier);
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave1Identifier, slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -180,13 +191,13 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      * EIServer topology:
      * Master
      * - No slave device
-     * <p/>
+     * <p>
      * Actual topology:
      * Master
      * - Slave_1 (id 1)
      * - Slave_2 (id 2)
      * TopologyAction = VERIFY
-     * <p/>
+     * <p>
      * Slave_1 is already known in EIServer
      * Slave_2 is not yet present in EIServer
      *
@@ -194,11 +205,12 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      */
     @Test
     public void testAddedSlave_VerifyWithFinderExceptionAction() throws Exception {
-        doThrow(CanNotFindForIdentifier.device(slave1Identifier, com.energyict.mdc.device.data.impl.MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER)).when(comServerDAO).findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class));
+        doThrow(CanNotFindForIdentifier.device(slave1Identifier, com.energyict.mdc.device.data.impl.MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER)).when(comServerDAO)
+                .findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class));
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave1Identifier, slave2Identifier);
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave1Identifier, slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -220,12 +232,12 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      * Master
      * - Slave_1 (id 1)
      * - Slave_2 (id 2)
-     * <p/>
+     * <p>
      * Actual topology:
      * Master
      * - Slave_2 (id 2)
      * TopologyAction = UPDATE
-     * <p/>
+     * <p>
      *
      * @throws Exception
      */
@@ -236,7 +248,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(offlineSlave_2);
         when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Collections.singletonList(slave2Identifier);
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
@@ -257,12 +269,12 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      * Master
      * - Slave_1 (id 1)
      * - Slave_2 (id 2)
-     * <p/>
+     * <p>
      * Actual topology:
      * Master
      * - Slave_2 (id 2)
      * TopologyAction = VERIFY
-     * <p/>
+     * <p>
      *
      * @throws Exception
      */
@@ -273,7 +285,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(offlineSlave_2);
         when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Collections.singletonList(slave2Identifier);
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -289,13 +301,13 @@ public class CollectedDeviceTopologyDeviceCommandTest {
     }
 
     @Test
-    public void testToJournalMessageDescription () {
+    public void testToJournalMessageDescription() {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(this.offlineSlave_1);
         slaveDevices.add(this.offlineSlave_2);
         when(this.offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Collections.singletonList(slave2Identifier);
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(this.deviceIdentifier, slaveDeviceIdentifiers);
         TopologyAction topologyAction = TopologyAction.VERIFY;

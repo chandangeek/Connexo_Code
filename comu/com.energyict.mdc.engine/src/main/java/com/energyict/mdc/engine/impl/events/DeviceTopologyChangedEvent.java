@@ -2,8 +2,6 @@ package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +16,7 @@ public class DeviceTopologyChangedEvent {
         super();
         masterDevice = masterDeviceIdentifier;
         this.masterDeviceId = masterDeviceIdentifier.getIdentifier();
-        slaveDevices = ImmutableList.copyOf(slaveIdentifiers);
+        slaveDevices = slaveIdentifiers;
         this.slaveIdentifiers = asString(slaveIdentifiers);
     }
 

@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
+import com.energyict.mdc.protocol.api.LastSeenDateInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -15,8 +16,9 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of a DeviceTopology, collected from a Device. If no data could be collected or the feature is not supported,
@@ -31,24 +33,22 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
      * The unique identifier of the Device.
      */
     private final DeviceIdentifier deviceIdentifier;
-
+    /**
+     * A list containing the unique device identifiers of all attached slave devices.
+     * If this device has no attached slaves, the list is empty.
+     */
+    private final Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers;
+    /**
+     * A list containing additional info that is collected for (some of) the devices
+     */
+    private final List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
     /**
      * The {@link TopologyAction action} that should be executed.
      * By default, topology action UPDATE will be used.
      */
     private TopologyAction topologyAction = TopologyAction.UPDATE;
 
-    /**
-     * A list containing the unique device identifiers of all attached slave devices.
-     * If this device has no attached slaves, the list is empty.
-     */
-    private List<DeviceIdentifier> slaveDeviceIdentifiers;
     private ComTaskExecution comTaskExecution;
-
-    /**
-     * A list containing additional info that is collected for (some of) the devices.
-     */
-    private List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
 
     private List<TopologyPathSegment> topologyPathSegments;
     private List<TopologyNeighbour> topologyNeighbours;
@@ -60,10 +60,10 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
      * @param deviceIdentifier unique identification of the device which need s to update his cache
      */
     public DeviceTopology(DeviceIdentifier deviceIdentifier) {
-        this(deviceIdentifier, new ArrayList<>());
+        this(deviceIdentifier, new HashMap<>());
     }
 
-    public DeviceTopology(DeviceIdentifier deviceIdentifier, List<DeviceIdentifier> slaveDeviceIdentifiers) {
+    public DeviceTopology(DeviceIdentifier deviceIdentifier, Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers) {
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.slaveDeviceIdentifiers = slaveDeviceIdentifiers;
@@ -89,12 +89,12 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
 
     @Override
     public List<DeviceIdentifier> getSlaveDeviceIdentifiers() {
-        return Collections.unmodifiableList(this.slaveDeviceIdentifiers);
+        return new ArrayList<>(slaveDeviceIdentifiers.keySet());
     }
 
     @Override
     public void addSlaveDevice(DeviceIdentifier slaveIdentifier) {
-        slaveDeviceIdentifiers.add(slaveIdentifier);
+        slaveDeviceIdentifiers.put(slaveIdentifier, null);
     }
 
     @Override

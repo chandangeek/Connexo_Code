@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 
 import java.util.logging.Logger;
@@ -48,6 +48,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, this.serviceProvider.connectionTaskService());
         // Todo: needs revision as soon as we get more experience with inbound protocols that need encryption
         context.setLogger(Logger.getAnonymousLogger());
+        context.setInboundDAO(comServerDAO);
         return context;
     }
 

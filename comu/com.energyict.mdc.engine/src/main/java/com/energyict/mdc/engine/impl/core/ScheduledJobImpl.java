@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
@@ -192,4 +193,17 @@ public abstract class ScheduledJobImpl extends JobExecution {
             return getServiceProvider().clock();
         }
     }
+
+    public void appendStatisticalInformationToComSession() {
+        ComSessionBuilder comSessionBuilder = getExecutionContext().getComSessionBuilder();
+        comSessionBuilder.connectDuration(getExecutionContext().getElapsedTimeInMillis());
+        comSessionBuilder.talkDuration(getExecutionContext().getComPortRelatedComChannel().talkTime());
+        Counters sessionCounters = getExecutionContext().getComPortRelatedComChannel().getSessionCounters();
+        comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
+        comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead());
+        comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent());
+        comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead());
+    }
+
+
 }
