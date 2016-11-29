@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
 
@@ -79,17 +78,6 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
     }
 
     abstract Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
-
-    Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer) {
-        return getReadingTypes().stream()
-                .map(r -> getExportItems().stream()
-                        .map(IReadingTypeDataExportItem.class::cast)
-                        .filter(item -> r.equals(item.getReadingType()))
-                        .filter(i -> i.getReadingContainer().is(readingContainer))
-                        .findAny()
-                        .orElseGet(() -> addExportItem(readingContainer, r))
-                );
-    }
 
     @Override
     public void delete() {
