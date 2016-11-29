@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
+    private static final String RESERVED_ALIAS = "SD";
     private final DataModel dataModel;
     private final SearchDomain searchDomain;
     private final Finder<T> domainFinder;
@@ -36,15 +37,18 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
     private Pagination pagination = new NoPagination();
     private List<Order> orders = new ArrayList<>();
 
-    public static Finder<?> getFinder(OrmService ormService, SearchDomain searchDomain, List<SearchablePropertyCondition> conditions) {
+    public static Finder<?> getFinder(OrmService ormService, SearchDomain searchDomain,
+                                      List<SearchablePropertyCondition> conditions) {
         List<SearchablePropertyCondition> domainConditions = new ArrayList<>(conditions);
         Map<SearchDomainExtension, List<SearchablePropertyCondition>> extensionsConditions = new HashMap<>();
         conditions.stream()
                 .filter(condition -> condition.getProperty() instanceof SearchDomainExtensionSearchableProperty)
                 .forEach(condition -> {
                     domainConditions.remove(condition);
-                    SearchDomainExtension domainExtension = ((SearchDomainExtensionSearchableProperty) condition.getProperty()).getDomainExtension();
-                    List<SearchablePropertyCondition> singleExtensionConditions = extensionsConditions.get(domainExtension);
+                    SearchDomainExtension domainExtension =
+                            ((SearchDomainExtensionSearchableProperty) condition.getProperty()).getDomainExtension();
+                    List<SearchablePropertyCondition> singleExtensionConditions =
+                            extensionsConditions.get(domainExtension);
                     if (singleExtensionConditions == null) {
                         singleExtensionConditions = new ArrayList<>();
                         extensionsConditions.put(domainExtension, singleExtensionConditions);
@@ -59,10 +63,12 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
                 .filter(dm -> dm.getTables().stream().anyMatch(table -> table.maps(searchDomain.getDomainClass())))
                 .findAny()
                 .get();
-        return new SearchDomainExtensionSupportFinder<>(dataModel, searchDomain, searchDomain.finderFor(domainConditions), extensionsConditions);
+        return new SearchDomainExtensionSupportFinder<>(dataModel, searchDomain,
+                searchDomain.finderFor(domainConditions), extensionsConditions);
     }
 
-    private SearchDomainExtensionSupportFinder(DataModel dataModel, SearchDomain searchDomain, Finder<T> domainFinder, Map<SearchDomainExtension, List<SearchablePropertyCondition>> extensionConditions) {
+    private SearchDomainExtensionSupportFinder(DataModel dataModel, SearchDomain searchDomain, Finder<T> domainFinder,
+                                               Map<SearchDomainExtension, List<SearchablePropertyCondition>> extensionConditions) {
         this.dataModel = dataModel;
         this.searchDomain = searchDomain;
         this.domainFinder = domainFinder;
@@ -71,20 +77,22 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
 
     @Override
     public Finder<T> paged(int from, int pageSize) {
-        this.pagination = new WithPagination(from, from + pageSize);
+        pagination = new WithPagination(from, from + pageSize);
         return this;
     }
 
     @Override
     public Finder<T> sorted(String sortColumn, boolean ascending) {
-        this.orders.add(ascending ? Order.ascending(sortColumn) : Order.descending(sortColumn));
+        orders.add(ascending ? Order.ascending(sortColumn) : Order.descending(sortColumn));
         return this;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<T> find() {
-        try (Fetcher<T> fetcher = (Fetcher<T>) this.dataModel.mapper(searchDomain.getDomainClass()).fetcher(asFragment("*"))) {
+        try (Fetcher<T> fetcher = (Fetcher<T>) dataModel
+                .mapper(searchDomain.getDomainClass())
+                .fetcher(asFragment("*"))) {
             return StreamSupport.stream(fetcher.spliterator(), false)
                     .collect(Collectors.toList());
         }
@@ -92,7 +100,7 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
 
     @Override
     public int count() {
-        try (Connection connection = this.dataModel.getConnection(false)) {
+        try (Connection connection = dataModel.getConnection(false)) {
             SqlBuilder countSqlBuilder = new SqlBuilder();
             countSqlBuilder.add(asFragment("count(*)"));
             try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
@@ -113,36 +121,43 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
 
     @Override
     public SqlBuilder asFragment(String... strings) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select " + Stream.of(strings).collect(Collectors.joining(", ")) + " from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select "
+                + Stream.of(strings).collect(Collectors.joining(", "))
+                + " from ");
         sqlBuilder.openBracket();
-        sqlBuilder.add(this.domainFinder.asFragment("*"));
+        String[] allFields = dataModel.mapper(searchDomain.getDomainClass())
+                .getQueryFields()
+                .stream()
+                .toArray(String[]::new);
+        sqlBuilder.add(domainFinder.asFragment(allFields));
         sqlBuilder.closeBracket();
-        sqlBuilder.append(" sd where ");
+        sqlBuilder.append(" " + RESERVED_ALIAS + " where ");
         Holder<String> holder = HolderBuilder.first("").andThen(" AND ");
-        for (Map.Entry<SearchDomainExtension, List<SearchablePropertyCondition>> extensionEntry : this.extensionConditions.entrySet()) {
+        for (Map.Entry<SearchDomainExtension, List<SearchablePropertyCondition>> extensionEntry :
+                extensionConditions.entrySet()) {
             sqlBuilder.append(holder.get());
             appendSearchDomainPrimaryKey(sqlBuilder);
             sqlBuilder.openBracket();
             sqlBuilder.add(extensionEntry.getKey().asFragment(extensionEntry.getValue()));
             sqlBuilder.closeBracket();
         }
-        if (!this.orders.isEmpty()) {
-            sqlBuilder.append(" order by " + this.orders.stream()
+        if (!orders.isEmpty()) {
+            sqlBuilder.append(" order by " + orders.stream()
                     .map(order -> order.getClause(order.getName()))
                     .collect(Collectors.joining(", ")));
         }
-        sqlBuilder = this.pagination.addPaging(sqlBuilder);
+        sqlBuilder = pagination.addPaging(sqlBuilder);
         return sqlBuilder;
     }
 
     private void appendSearchDomainPrimaryKey(SqlBuilder sqlBuilder) {
         sqlBuilder.openBracket();
-        sqlBuilder.append(this.dataModel.getTables()
+        sqlBuilder.append(dataModel.getTables()
                 .stream()
-                .filter(table -> table.maps(this.searchDomain.getDomainClass()))
+                .filter(table -> table.maps(searchDomain.getDomainClass()))
                 .flatMap(table -> table.getPrimaryKeyColumns().stream())
                 .map(Column::getName)
-                .collect(Collectors.joining(",", "sd.", "")));
+                .collect(Collectors.joining(", " + RESERVED_ALIAS + ".", RESERVED_ALIAS + ".", "")));
         sqlBuilder.closeBracket();
         sqlBuilder.append(" IN ");
     }
@@ -170,7 +185,7 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
 
         @Override
         public SqlBuilder addPaging(SqlBuilder sqlBuilder) {
-            return sqlBuilder.asPageBuilder(this.from + 1, this.to + 1);
+            return sqlBuilder.asPageBuilder(from + 1, to + 1);
         }
     }
 }
