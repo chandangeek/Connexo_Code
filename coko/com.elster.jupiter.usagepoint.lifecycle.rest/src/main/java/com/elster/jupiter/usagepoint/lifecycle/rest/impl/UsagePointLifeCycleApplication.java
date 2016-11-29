@@ -1,6 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -45,13 +46,15 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private UsagePointLifeCycleService usagePointLifeCycleService;
     private FiniteStateMachineService finiteStateMachineService;
+    private MeteringService meteringService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
                 UsagePointLifeCycleResource.class,
                 UsagePointLifeCycleStatesResource.class,
-                UsagePointLifeCycleTransitionsResource.class);
+                UsagePointLifeCycleTransitionsResource.class,
+                UsagePointStateChangeRequestResource.class);
     }
 
     @Override
@@ -88,6 +91,11 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
         this.finiteStateMachineService = finiteStateMachineService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -97,6 +105,8 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
             bind(UsagePointLifeCyclePrivilegeInfoFactory.class).to(UsagePointLifeCyclePrivilegeInfoFactory.class);
             bind(MicroActionAndCheckInfoFactory.class).to(MicroActionAndCheckInfoFactory.class);
             bind(UsagePointLifeCycleTransitionInfoFactory.class).to(UsagePointLifeCycleTransitionInfoFactory.class);
+            bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
+            bind(UsagePointStateChangeRequestInfoFactory.class).to(UsagePointStateChangeRequestInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
@@ -105,6 +115,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
             bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
             bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
+            bind(meteringService).to(MeteringService.class);
         }
     }
 

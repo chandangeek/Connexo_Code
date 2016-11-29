@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -26,6 +27,8 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
     protected UsagePointLifeCycleService usagePointLifeCycleService;
     @Mock
     protected FiniteStateMachineService finiteStateMachineService;
+    @Mock
+    protected MeteringService meteringService;
 
     @Override
     public void setupMocks() {
@@ -40,6 +43,7 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
         app.setUsagePointLifeCycleConfigurationService(this.usagePointLifeCycleConfigurationService);
         app.setUsagePointLifeCycleService(this.usagePointLifeCycleService);
         app.setFiniteStateMachineService(this.finiteStateMachineService);
+        app.setMeteringService(this.meteringService);
         return app;
     }
 

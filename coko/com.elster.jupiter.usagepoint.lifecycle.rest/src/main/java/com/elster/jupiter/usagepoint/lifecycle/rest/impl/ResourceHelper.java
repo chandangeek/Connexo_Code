@@ -2,6 +2,8 @@ package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -21,16 +23,19 @@ public class ResourceHelper {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final FiniteStateMachineService finiteStateMachineService;
+    private final MeteringService meteringService;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
-                          FiniteStateMachineService finiteStateMachineService) {
+                          FiniteStateMachineService finiteStateMachineService,
+                          MeteringService meteringService) {
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
+        this.meteringService = meteringService;
     }
 
     public UsagePointLifeCycle getLifeCycleByIdOrThrowException(long id) {
@@ -106,6 +111,22 @@ public class ResourceHelper {
                 .orElseThrow(this.conflictFactory.contextDependentConflictOn(transitionInfo.name)
                         .withActualVersion(() -> getCurrentTransitionVersion(transitionInfo.id))
                         .withActualParent(() -> getCurrentLifeCycleVersion(transitionInfo.parent.id))
+                        .supplier());
+    }
+
+    public UsagePoint getUsagePointOrThrowException(long id) {
+        return this.meteringService.findUsagePointById(id)
+                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_USAGE_POINT, id));
+    }
+
+    private Long getUsagePointVersion(long id) {
+        return this.meteringService.findUsagePointById(id).map(UsagePoint::getVersion).orElse(null);
+    }
+
+    public UsagePoint lockUsagePoint(UsagePointStateChangeRequestInfo.UsagePointInfo info) {
+        return this.meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
+                .orElseThrow(this.conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getUsagePointVersion(info.id))
                         .supplier());
     }
 }
