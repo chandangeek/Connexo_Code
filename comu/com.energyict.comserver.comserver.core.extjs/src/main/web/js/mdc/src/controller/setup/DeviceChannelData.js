@@ -129,38 +129,37 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    showSpecifications: function (mRID, channelId) {
+    showSpecifications: function (deviceId, channelId) {
         var me = this;
         me.fromSpecification = true;
         me.getController('Mdc.controller.setup.DeviceChannels').fromSpecification = true;
-        me.showOverview({mRID: mRID, channelId: channelId}, 'spec')
+        me.showOverview({deviceId: deviceId, channelId: channelId}, 'spec');
     },
 
-    showData: function (mRID, channelId) {
+    showData: function (deviceId, channelId) {
         var me = this;
-        me.showOverview({mRID: mRID, channelId: channelId}, 'data')
+        me.showOverview({deviceId: deviceId, channelId: channelId}, 'data');
     },
 
-    showValidationBlocks: function (mRID, channelId, issueId) {
+    showValidationBlocks: function (deviceId, channelId, issueId) {
         var me = this,
             validationBlocksStore = me.getStore('Mdc.store.ValidationBlocks');
 
-        validationBlocksStore.getProxy().setUrl(mRID, channelId, issueId);
+        validationBlocksStore.getProxy().setParams(deviceId, channelId, issueId);
         validationBlocksStore.load({
             callback: function () {
-                me.showOverview({mRID: mRID, channelId: channelId, issueId: issueId}, 'block');
+                me.showOverview({deviceId: deviceId, channelId: channelId, issueId: issueId}, 'block');
             }
         });
     },
 
     showOverview: function (params, contentName) {
         var me = this,
-            mRID = params['mRID'],
+            deviceId = params['deviceId'],
             channelId = params['channelId'],
             issueId = params['issueId'],
-            device = me.getModel('Mdc.model.Device'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            channel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
+            channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             prevNextstore = contentName === 'block' ? 'Mdc.store.ValidationBlocks' : 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
             prevNextListLink = contentName === 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
@@ -170,74 +169,86 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             activeTab = contentName === 'spec' ? 0 : 1,
             timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
             slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveChannelHistory'),
-            loadDevice = function() {
-                device.load(mRID, {
-                    scope: me,
-                    success: onDeviceLoad
-                });
-            },
-            onDeviceLoad = function(device) {
-                me.getApplication().fireEvent('loadDevice', device);
-                channel.getProxy().setUrl(mRID);
-                channel.load(channelId, {
-                    scope: me,
-                    success: function(channel) {
-                        onChannelLoad(channel, device);
+            dependencyCounter = 3,
+            onDependenciesLoad = function () {
+                dependencyCounter--;
+                if (!dependencyCounter) {
+                    var widget = Ext.widget('tabbedDeviceChannelsView', {
+                        title: channel.get('readingType').fullAliasName,
+                        router: router,
+                        channel: channel,
+                        device: device,
+                        contentName: contentName,
+                        indexLocation: indexLocation,
+                        prevNextListLink: prevNextListLink,
+                        activeTab: activeTab,
+                        prevNextstore: prevNextstore,
+                        routerIdArgument: routerIdArgument,
+                        isFullTotalCount: isFullTotalCount,
+                        filterDefault: activeTab === 1 ? me.getDataFilter(channel, contentName, gasDayYearStart, router) : {},
+                        mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                        dataLoggerSlaveHistoryStore: slaveHistoryStore
+                    });
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    viewport.setLoading(false);
+                    if (activeTab == 1) {
+                        me.setupReadingsTab(device, channel, widget);
+                    } else if (activeTab == 0) {
+                        me.setupSpecificationsTab(device, channel, widget);
                     }
-                });
+                }
             },
-            onChannelLoad = function(channel, device) {
+            device,
+            channel,
+            gasDayYearStart = undefined;
+
+        viewport.setLoading(true);
+
+        switch (prevNextstore) {
+            case 'Mdc.store.ValidationBlocks':
+                me.getStore(prevNextstore).getProxy().setParams(deviceId, channelId, issueId);
+                break;
+            case 'Mdc.store.ChannelsOfLoadProfilesOfDevice':
+                me.getStore(prevNextstore).getProxy().setExtraParam('deviceId', deviceId);
+                break;
+        }
+
+        me.getStore(prevNextstore).load(onDependenciesLoad);
+
+        if (contentName === 'spec') {
+            dependencyCounter = dependencyCounter + 2;
+            slaveHistoryStore.getProxy().setParams(deviceId, channelId);
+            slaveHistoryStore.load(onDependenciesLoad);
+            timeUnitsStore.load(onDependenciesLoad);
+        }
+
+        me.getModel('Mdc.model.Device').load(deviceId, {
+            success: function (record) {
+                me.getApplication().fireEvent('loadDevice', record);
+                device = record;
+                onDependenciesLoad();
+            }
+        });
+
+        channelModel.getProxy().setExtraParam('deviceId', deviceId);
+        channelModel.load(channelId, {
+            success: function (record) {
+                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                channel = record;
                 if (channel.get('readingType').isGasRelated) {
                     var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
                     yearStartStore.on('load',
                         function(store, records) {
-                            onChannelLoad2(channel, device, records[0]);
+                            gasDayYearStart = records[0];
+                            onDependenciesLoad();
                         },
                         me, {single: true});
                     yearStartStore.load();
                 } else {
-                    onChannelLoad2(channel, device);
+                    onDependenciesLoad();
                 }
-            },
-            onChannelLoad2 = function(channel, device, gasDayYearStart) {
-                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
-                var widget = Ext.widget('tabbedDeviceChannelsView', {
-                    title: channel.get('readingType').fullAliasName,
-                    router: router,
-                    channel: channel,
-                    device: device,
-                    contentName: contentName,
-                    indexLocation: indexLocation,
-                    prevNextListLink: prevNextListLink,
-                    activeTab: activeTab,
-                    prevNextstore: prevNextstore,
-                    routerIdArgument: routerIdArgument,
-                    isFullTotalCount: isFullTotalCount,
-                    filterDefault: activeTab === 1 ? me.getDataFilter(channel, contentName, gasDayYearStart, router) : {},
-                    mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                    dataLoggerSlaveHistoryStore: slaveHistoryStore
-                });
-
-                me.getApplication().fireEvent('changecontentevent', widget);
-                viewport.setLoading(false);
-                if (activeTab == 1) {
-                    me.setupReadingsTab(device, channel, widget);
-                } else if (activeTab == 0) {
-                    me.setupSpecificationsTab(device, channel, widget);
-                }
-            };
-
-        viewport.setLoading(true);
-        if (contentName === 'spec') {
-            slaveHistoryStore.getProxy().setUrl(mRID, channelId);
-            slaveHistoryStore.load(function() {
-                timeUnitsStore.load(function() {
-                    loadDevice();
-                });
-            });
-        } else {
-            loadDevice();
-        }
+            }
+        });
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
@@ -247,7 +258,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             multiplierField = widget.down('#mdc-channel-preview-multiplier'),
             menu = widget.down('#deviceLoadProfileChannelsActionMenu');
 
-        customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
+        customAttributesStore.getProxy().setParams(device.get('name'), channel.get('id'));
+        Ext.suspendLayouts();
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
         if (channel.get('calculatedReadingType')) {
             calculatedReadingTypeField.show();
@@ -261,7 +273,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         customAttributesStore.load(function () {
-            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+            if (widget.rendered) {
+                widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+            }
         });
         me.fromSpecification = true;
         me.getController('Mdc.controller.setup.DeviceChannels').fromSpecification = true;
@@ -272,16 +286,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 validateNowChannel.setVisible(channel.get('validationInfo').validationActive);
             }
         }
+        Ext.resumeLayouts(true);
     },
 
     setupReadingsTab: function (device, channel) {
         var me = this,
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData');
 
-        dataStore.getProxy().setUrl({
-            mRID: device.get('mRID'),
-            channelId: channel.getId()
-        });
+        dataStore.getProxy().setParams(device.get('name'), channel.getId());
         dataStore.loadData([], false);
         dataStore.load();
     },
@@ -289,7 +301,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     makeLinkToChannels: function (router) {
         var link = '<a href="{0}">' + Uni.I18n.translate('general.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
             filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter');
-        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl()+ '?'+ filter);
+
+        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl() + (filter ? '?' + filter : ''));
     },
 
     makeLinkToIssue: function (router, issueId) {
@@ -419,7 +432,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
-                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.deviceId), router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
@@ -649,7 +662,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setUrl(router.arguments);
+        record.getProxy().setParams(router.arguments);
         me.getReadingEstimationWindow().setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
@@ -836,15 +849,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         Ext.resumeLayouts();
     },
 
-    showEditChannelOfLoadProfileCustomAttributes: function (mRID, channelId, customAttributeSetId) {
+    showEditChannelOfLoadProfileCustomAttributes: function (deviceId, channelId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         viewport.setLoading(true);
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var model = Ext.ModelManager.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
-                model.getProxy().setUrl(mRID);
+                model.getProxy().setExtraParam('deviceId', deviceId);
                 model.load(channelId, {
                     success: function (channel) {
 
@@ -853,7 +866,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', device);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.loadPropertiesRecord(widget, mRID, channelId, customAttributeSetId);
+                        me.loadPropertiesRecord(widget, deviceId, channelId, customAttributeSetId);
                     },
                     failure: function () {
                         viewport.setLoading(false);
@@ -864,13 +877,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     },
 
-    loadPropertiesRecord: function (widget, mRID, channelId, customAttributeSetId) {
+    loadPropertiesRecord: function (widget, deviceId, channelId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'),
             form = widget.down('property-form');
 
-        model.getProxy().setUrl(mRID, channelId);
+        model.getProxy().setParams(deviceId, channelId);
 
         model.load(customAttributeSetId, {
             success: function (record) {

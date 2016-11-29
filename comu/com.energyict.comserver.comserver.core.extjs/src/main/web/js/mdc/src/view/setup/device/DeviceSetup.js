@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     openFlagWindow: function(button, flag) {
         var me = this;
         button.window = Ext.create('Ext.window.Window', {
-            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}',[me.device.get('mRID')], false),
+            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}',[me.device.get('name')], false),
             closable: false,
             height: 200,
             alignTarget: button,
@@ -185,7 +185,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [
                     {
                         xtype: 'displayfield',
-                        value: me.device.get('mRID'),
+                        value: me.device.get('name'),
                         fieldCls: 'x-panel-header-text-container-large',
                         style: 'margin-right: 10px'
                     },
@@ -275,7 +275,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         items: [
                             {
                                 xtype: 'whatsgoingon',
-                                mrId: me.device.get('mRID'),
+                                deviceId: me.device.get('name'),
                                 type: 'device',
                                 router: me.router,
                                 style: 'margin-bottom: 20px'
@@ -302,7 +302,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                     {
                                         xtype: 'device-data-validation-panel',
                                         privileges: Mdc.privileges.Device.deviceOperator,
-                                        mRID: me.device.get('mRID'),
+                                        deviceId: me.device.get('name'),
                                         router: me.router,
                                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget,
                                         hidden: !hasValidationRules

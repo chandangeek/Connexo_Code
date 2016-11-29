@@ -467,23 +467,11 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     showErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        formErrorsPlaceHolder.show();
+        this.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors').show();
     },
 
     hideErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        this.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors').hide();
     }
 
 });

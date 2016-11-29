@@ -33,10 +33,15 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
             },
             {
-                name: 'mrid',
-                itemId: 'mridEdit',
+                name: 'name',
+                itemId: 'nameView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name')
+            },
+            {
+                name: 'name',
+                itemId: 'nameEdit',
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name')
             },
             {
                 name: 'deviceType',

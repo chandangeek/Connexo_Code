@@ -14,13 +14,9 @@ Ext.define('Mdc.store.DataLoggerSlaveRegisterHistory', {
             type: 'json',
             root: 'registerHistory'
         },
+        url: '/api/ddr/devices/{deviceId}/registers/{registerId}/history',
         pageParam: undefined,
         limitParam: undefined,
-        startParam: undefined,
-
-        setUrl: function(mRID, registerId) {
-            this.url = '/api/ddr/devices/' + encodeURIComponent(mRID) + '/registers/' + registerId + '/history'
-        }
+        startParam: undefined
     }
-
 });

@@ -132,7 +132,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             status = !record.get('isOnHold'),
             widget = this.getDeviceCommunicationsList(),
             bodyDataForRequest = {
-                device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+                device: _.pick(me.getDevice().getRecordData(), 'name', 'version', 'parent')
             };
 
         widget.setLoading(true);
@@ -161,10 +161,10 @@ Ext.define('Mdc.controller.setup.Devices', {
         widget.setLoading(true);
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mRID}/comtasks/activate'.replace('{mRID}', router.arguments.mRID),
+            url: '/api/ddr/devices/{deviceId}/comtasks/activate'.replace('{deviceId}', router.arguments.deviceId),
             isNotEdit: true,
             jsonData: {
-                device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+                device: _.pick(me.getDevice().getRecordData(), 'name', 'version', 'parent')
             },
             success: function () {
                 me.updateDevice(me.refreshCommunications);
@@ -184,10 +184,10 @@ Ext.define('Mdc.controller.setup.Devices', {
         widget.setLoading(true);
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mRID}/comtasks/deactivate'.replace('{mRID}', router.arguments.mRID),
+            url: '/api/ddr/devices/{deviceId}/comtasks/deactivate'.replace('{deviceId}', router.arguments.deviceId),
             isNotEdit: true,
             jsonData: {
-                device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+                device: _.pick(me.getDevice().getRecordData(), 'name', 'version', 'parent')
             },
             success: function () {
                 me.updateDevice(me.refreshCommunications);
@@ -212,7 +212,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             me.updateDevice(me.doRefresh);
             widget.setLoading(false);
         }, {
-            device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+            device: _.pick(me.getDevice().getRecordData(), 'name', 'version', 'parent')
         });
     },
 
@@ -229,11 +229,11 @@ Ext.define('Mdc.controller.setup.Devices', {
             me.updateDevice(me.doRefresh);
             widget.setLoading(false);
         }, {
-            device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+            device: _.pick(me.getDevice().getRecordData(), 'name', 'version', 'parent')
         });
     },
 
-    showDeviceDetailsView: function (mRID) {
+    showDeviceDetailsView: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = this.getController('Uni.controller.history.Router'),
@@ -241,12 +241,12 @@ Ext.define('Mdc.controller.setup.Devices', {
             transitionsStore = Ext.StoreManager.get('Mdc.store.DeviceTransitions');
 
         viewport.setLoading();
-        transitionsStore.getProxy().setUrl(mRID);
-        attributesModel.getProxy().setUrl(mRID);
+        transitionsStore.getProxy().setExtraParam('deviceId', deviceId);
+        attributesModel.getProxy().setExtraParam('deviceId', deviceId);
 
         transitionsStore.load({
             callback: function () {
-                Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
                     success: function (device) {
                         me.getApplication().fireEvent('loadDevice', device);
 
@@ -256,7 +256,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                             actionsStore: transitionsStore
                         });
                         var deviceLabelsStore = device.labels();
-                        deviceLabelsStore.getProxy().setUrl(mRID);
+                        deviceLabelsStore.getProxy().setExtraParam('deviceId', deviceId);
                         deviceLabelsStore.load(function () {
                             widget.renderFlag(deviceLabelsStore);
                         });
@@ -285,9 +285,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                         if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
                             me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
                         }
-                        if ( (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                            && Cfg.privileges.Validation.canUpdateDeviceValidation() ) {
-                            me.updateDataValidationStatusSection(mRID, widget);
+                        if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
+                            && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
+                            me.updateDataValidationStatusSection(deviceId, widget);
                         } else {
                             !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
                         }
@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         Ext.define('DataLoggerSlave', {
             extend: 'Ext.data.Model',
             fields: [
-                {name: 'mRID', type: 'string'},
+                {name: 'name', type: 'string'},
                 {name: 'deviceTypeName', type: 'string'},
                 {name: 'deviceConfigurationName', type: 'string'},
                 {name: 'linkingTimeStamp', type: 'number'}
@@ -337,7 +337,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
         Ext.Array.forEach(slaves, function(slaveRecord){
             store.add({
-                mRID: slaveRecord.mRID,
+                name: slaveRecord.name,
                 deviceTypeName: slaveRecord.deviceTypeName,
                 deviceConfigurationName: slaveRecord.deviceConfigurationName,
                 linkingTimeStamp: slaveRecord.linkingTimeStamp
@@ -367,7 +367,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         if (connectionsList) {
             connectionsList.bindStore(deviceConnectionsStore);
-            deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
+            deviceConnectionsStore.getProxy().setExtraParam('deviceId', device.get('name'));
             lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
             deviceConnectionsStore.load(function (records) {
                 if (!widget.isDestroyed) {
@@ -386,7 +386,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         if (communicationsList) {
             communicationsList.bindStore(deviceCommunicationsStore);
-            deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
+            deviceCommunicationsStore.getProxy().setExtraParam('deviceId', device.get('name'));
             lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', Uni.DateTime.formatTimeShort(new Date())));
             deviceCommunicationsStore.load(function (records) {
                 if (!widget.isDestroyed && !Ext.isEmpty(widget.down('#communicationslist'))) {
@@ -424,8 +424,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         me.getAddDevicePage().setLoading();
         form.getRecord().save({
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', "Device '{0}' added.", record.get('mRID'), false));
-                location.href = "#/devices/" + encodeURIComponent(record.get('mRID'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', "Device '{0}' added.", record.get('name'), false));
+                location.href = "#/devices/" + encodeURIComponent(record.get('name'));
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
@@ -494,7 +494,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this,
             page = me.getDeviceSetup();
 
-        me.getModel('Mdc.model.Device').load(page.device.get('mRID'), {
+        me.getModel('Mdc.model.Device').load(page.device.get('name'), {
             success: function (record) {
                 if (page.rendered) {
                     page.device = record;

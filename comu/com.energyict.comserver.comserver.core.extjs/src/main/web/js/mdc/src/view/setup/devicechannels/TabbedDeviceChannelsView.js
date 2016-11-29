@@ -296,7 +296,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             }
 
             if (!Ext.isEmpty(slaveChannelInfo)) {
-                point.dataLoggerSlave = Ext.String.htmlEncode(slaveChannelInfo.mrid);
+                point.dataLoggerSlave = Ext.String.htmlEncode(slaveChannelInfo.name);
                 point.color = dataSlaveColor;
                 point.tooltipColor = tooltipDataSlaveColor;
             }

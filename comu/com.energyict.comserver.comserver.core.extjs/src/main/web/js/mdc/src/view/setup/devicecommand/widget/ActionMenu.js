@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.devicecommand.widget.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-command-action-menu',
-    mRID: null,
+    deviceId: null,
     record: null,
     device: null,
     itemId: 'device-command-action-menu',

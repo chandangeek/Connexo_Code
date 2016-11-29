@@ -8,15 +8,15 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
     ],
 
     store: 'Mdc.store.RegisterConfigsOfDevice',
-    deviceMRID: null,
+    deviceId: null,
 
     initComponent: function () {
         var me = this,
             registerGroupsStore = Ext.getStore('Mdc.store.filter.RegisterGroups') || Ext.create('Mdc.store.filter.RegisterGroups'),
             registerStore = Ext.getStore('Mdc.store.filter.RegistersOfDeviceForRegisterGroups') || Ext.create('Mdc.store.filter.RegistersOfDeviceForRegisterGroups');
 
-        registerGroupsStore.getProxy().setUrl(me.deviceMRID);
-        registerStore.getProxy().setUrl(me.deviceMRID);
+        registerGroupsStore.getProxy().setUrl(me.deviceId);
+        registerStore.getProxy().setUrl(me.deviceId);
 
         me.filters = [
             {
