@@ -17,7 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CHANNEL_SPEC_FOUND(9, "NoChannelSpecFound", "No channel specification with id {0}"),
     INVALID_REFERENCE_TO_REGISTER_TYPE(10, "NoSuchRegisterType", "Register type could not be found"),
     DUPLICATE_OBISCODE(11, "DuplicateObisCode", "A register mapping with obis code ''{0}'', unit ''{1}'' and time of use ''{2}'' already exists"),
-    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with MRID {0}"),
+    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with id {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_CONNECTION_TASK(16, "NoSuchConnectionTask", "No such connection task"),
     NO_DEVICECONFIG_ID_FOR_ADDING(17, "NoDeviceConfigurationIdForAdding", "User should specify ids of Device Configuration for adding"),
