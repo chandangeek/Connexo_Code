@@ -540,7 +540,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
         request.strategy = "keep";
-        request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
+        request.deviceIds = Arrays.asList(13L, 24L);
         request.scheduleIds = Arrays.asList(1L, 2L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
