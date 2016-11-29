@@ -118,6 +118,11 @@ Ext.define('Uni.controller.Navigation', {
         var breadcrumbs = me.getBreadcrumbs();
         var child, breadcrumb;
 
+        if(breadcrumbs.skipForNextCall === true) {
+            breadcrumbs.setSkipForNextCall(false);
+            return;
+        }
+
         _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
