@@ -24,7 +24,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -47,7 +46,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class NlsServiceIT {
 
-    private static final String COMPONENT = "DUM";
     private static final String COMPONENT_NAME = "DUM";
     private Injector injector;
 

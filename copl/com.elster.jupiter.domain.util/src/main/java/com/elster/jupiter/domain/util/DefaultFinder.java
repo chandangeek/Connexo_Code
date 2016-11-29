@@ -148,14 +148,14 @@ public final class DefaultFinder<T> implements Finder<T> {
     }
 
     /**
-     * This class iterates over an QueryExcuter's results, allowing a Stream to be build from it
+     * This class iterates over an QueryExecutor's results, allowing a Stream to be build from it
      * The iterator will use paging to avoid loading all results in a list
      */
-    private class PagingIterator<E> implements Iterator<E> {
+    private class PagingIterator implements Iterator<T> {
         private final int pageSize = maxPageSize == null ? DEFAULT_MAX_PAGE_SIZE : Math.min(DEFAULT_MAX_PAGE_SIZE, maxPageSize);
-        private int currentPage = 0;
-        private int currentItemInPage = 0;
-        private List<E> items = null;
+        private int currentPage;
+        private int currentItemInPage;
+        private List<T> items;
 
         @Override
         public boolean hasNext() {
@@ -166,7 +166,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
 
         @Override
-        public E next() {
+        public T next() {
             if (needsToLoadNewPage()) {
                 loadNextPage();
             }
@@ -178,7 +178,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
 
         private void loadNextPage() {
-            items = (List<E>) query.select(condition, getActualSortingColumns(), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
+            items = query.select(condition, getActualSortingColumns(), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
             currentPage += pageSize;
             currentItemInPage = 0;
         }
@@ -186,14 +186,14 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     static class MaxPageSizeExceeded extends LocalizedException {
 
-        protected MaxPageSizeExceeded(Thesaurus thesaurus, int size) {
+        MaxPageSizeExceeded(Thesaurus thesaurus, int size) {
             super(thesaurus, MessageSeeds.MAX_PAGE_SIZE_EXCEEDED, size);
         }
     }
 
     static class UnpagedNotAllowed extends LocalizedException {
 
-        protected UnpagedNotAllowed(Thesaurus thesaurus, int size) {
+        UnpagedNotAllowed(Thesaurus thesaurus, int size) {
             super(thesaurus, MessageSeeds.UNPAGED_NOT_ALLOWED, size);
         }
     }
