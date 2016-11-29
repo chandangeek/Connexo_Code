@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package:  \
-	com.energyict.mdc.firmware.rest.impl
+Export-Package: com.energyict.mdc.firmware.rest
+Private-Package: com.energyict.mdc.firmware.rest.impl
