@@ -183,7 +183,7 @@ public class UsagePointOutputResource {
                 for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
                     if (readingWithValidationStatus != null) {
-                        if(persistedIntervalReadings.containsKey(intervalReadingRecord.getTimeStamp())) {
+                        if(persistedIntervalReadings.containsKey(intervalReadingRecord.getTimeStamp()) && persistedIntervalReadings.get(intervalReadingRecord.getTimeStamp()).getValue()!=null) {
                             readingWithValidationStatus.setIntervalReadingRecord(persistedIntervalReadings.get(intervalReadingRecord.getTimeStamp()));
                             readingWithValidationStatus.setCalculatedIntervalReadingRecord(intervalReadingRecord);
                         } else {
