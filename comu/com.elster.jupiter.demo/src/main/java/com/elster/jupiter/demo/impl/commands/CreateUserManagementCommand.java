@@ -7,7 +7,7 @@ import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 
-public class CreateUserManagementCommand {
+public class CreateUserManagementCommand extends CommandWithTransaction{
     private final UserService userService;
 
     @Inject

@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -8,8 +9,6 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
-
-import com.elster.jupiter.demo.impl.UnableToCreate;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -25,7 +24,7 @@ import java.util.Set;
  * Date: 10/09/2015
  * Time: 14:28
  */
-public class SetupFirmwareManagementCommand {
+public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
     private final static String FIRMWARE_VERSION_V1 = "NTA-Sim_V_1.0.0";
     private final static String FIRMWARE_VERSION_V2 = "NTA-Sim_V_2.0.0";
@@ -55,7 +54,7 @@ public class SetupFirmwareManagementCommand {
     private void setUpDeviceTypeForFirmwareManagement(DeviceType deviceType){
         if (!isExcluded(deviceType)) {
             FirmwareVersion v1 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V1, FirmwareType.METER, deviceType)
-                                .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.GHOST, FirmwareType.METER).create());
+                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.GHOST, FirmwareType.METER).create());
             setFirmwareBytes(v1, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V1+".firm"));
 
             FirmwareVersion v2 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V2, FirmwareType.METER, deviceType)
@@ -72,6 +71,7 @@ public class SetupFirmwareManagementCommand {
 
     private void setFirmwareBytes(FirmwareVersion firmwareVersion, InputStream inputStream){
         try {
+            this.firmwareService.findAndLockFirmwareVersionByIdAndVersion(firmwareVersion.getId(), firmwareVersion.getVersion());
             firmwareVersion.setFirmwareFile(getBytes(inputStream));
             firmwareVersion.setFirmwareStatus(FirmwareStatus.FINAL);
             firmwareVersion.update();
