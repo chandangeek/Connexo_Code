@@ -1,16 +1,17 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -18,9 +19,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -120,12 +121,12 @@ public class RemoveDeviceFromStaticGroupsTest {
         RemoveDeviceFromStaticGroups microAction = this.getTestInstance();
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(this.amrSystem));
         when(this.amrSystem.findMeter(String.valueOf(DEVICE_ID))).thenReturn(Optional.of(this.endDevice));
-        EnumeratedEndDeviceGroup.Entry group1Entry = mock(EnumeratedEndDeviceGroup.Entry.class);
-        when(group1Entry.getEndDevice()).thenReturn(this.endDevice);
+        EnumeratedGroup.Entry<EndDevice> group1Entry = mock(EnumeratedGroup.Entry.class);
+        when(group1Entry.getMember()).thenReturn(this.endDevice);
         EnumeratedEndDeviceGroup group1 = mock(EnumeratedEndDeviceGroup.class);
         doReturn(Arrays.asList(group1Entry)).when(group1).getEntries();
-        EnumeratedEndDeviceGroup.Entry group2Entry = mock(EnumeratedEndDeviceGroup.Entry.class);
-        when(group2Entry.getEndDevice()).thenReturn(this.endDevice);
+        EnumeratedGroup.Entry<EndDevice> group2Entry = mock(EnumeratedGroup.Entry.class);
+        when(group2Entry.getMember()).thenReturn(this.endDevice);
         EnumeratedEndDeviceGroup group2 = mock(EnumeratedEndDeviceGroup.class);
         doReturn(Arrays.asList(group2Entry)).when(group2).getEntries();
         when(this.meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(this.endDevice)).thenReturn(Arrays.asList(group1, group2));
