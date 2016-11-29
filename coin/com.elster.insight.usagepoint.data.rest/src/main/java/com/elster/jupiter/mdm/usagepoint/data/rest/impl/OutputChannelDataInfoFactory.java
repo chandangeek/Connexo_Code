@@ -25,7 +25,7 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.readingTime = readingWithValidationStatus.getTimeStamp();
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
-        outputChannelDataInfo.editedValue = readingWithValidationStatus.getPersistedValue().orElse(null);
+        outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
         outputChannelDataInfo.isEdited = readingWithValidationStatus.getPersistedValue().isPresent();
 
         Optional<DataValidationStatus> validationStatus = readingWithValidationStatus.getValidationStatus();

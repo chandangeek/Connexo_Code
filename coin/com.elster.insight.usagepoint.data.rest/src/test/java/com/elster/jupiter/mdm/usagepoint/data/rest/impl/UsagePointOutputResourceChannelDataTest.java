@@ -283,6 +283,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(status.getChannelLastChecked()).thenReturn(Optional.of(timeStamp));
         when(status.isChannelValidationActive()).thenReturn(true);
         when(status.getPersistedValue()).thenReturn(Optional.empty());
+        when(status.getCalculatedValue()).thenReturn(Optional.empty());
         OutputChannelDataInfo info = factory.createChannelDataInfo(status);
         assertThat(info.dataValidated).isTrue();
         assertThat(info.validationResult).isEqualTo(ValidationStatus.OK);
@@ -299,6 +300,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(status.getChannelLastChecked()).thenReturn(Optional.of(timeStamp));
         when(status.isChannelValidationActive()).thenReturn(true);
         when(status.getPersistedValue()).thenReturn(Optional.empty());
+        when(status.getCalculatedValue()).thenReturn(Optional.empty());
         OutputChannelDataInfo info = factory.createChannelDataInfo(status);
         assertThat(info.dataValidated).isFalse();
         assertThat(info.validationResult).isEqualTo(ValidationStatus.NOT_VALIDATED);

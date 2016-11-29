@@ -20,7 +20,7 @@ public class OutputChannelDataInfo {
     public BigDecimal value;
 
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
-    public BigDecimal editedValue;
+    public BigDecimal calculatedValue;
 
     public Instant readingTime;
 

@@ -24,6 +24,7 @@ public class IntervalReadingWithValidationStatus {
     private TemporalAmount intervalLength;
 
     private Optional<IntervalReadingRecord> intervalReadingRecord = Optional.empty();
+    private Optional<IntervalReadingRecord> calculatedIntervalReadingRecord = Optional.empty();
     private Optional<IntervalReadingRecord> persistedIntervalReadingRecord = Optional.empty();
     private Optional<DataValidationStatus> validationStatus = Optional.empty();
 
@@ -44,6 +45,10 @@ public class IntervalReadingWithValidationStatus {
 
     public void setPersistedIntervalReadingRecord(IntervalReadingRecord intervalReadingRecord) {
         this.persistedIntervalReadingRecord = Optional.ofNullable(intervalReadingRecord);
+    }
+
+    public void setCalculatedIntervalReadingRecord(IntervalReadingRecord intervalReadingRecord) {
+        this.calculatedIntervalReadingRecord = Optional.ofNullable(intervalReadingRecord);
     }
 
     public void setValidationStatus(DataValidationStatus validationStatus) {
@@ -78,6 +83,10 @@ public class IntervalReadingWithValidationStatus {
 
     public Optional<BigDecimal> getPersistedValue() {
         return persistedIntervalReadingRecord.map(IntervalReadingRecord::getValue);
+    }
+
+    public Optional<BigDecimal> getCalculatedValue() {
+        return calculatedIntervalReadingRecord.map(IntervalReadingRecord::getValue);
     }
 
     public boolean isChannelValidationActive() {
