@@ -41,7 +41,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         itemId: 'form-errors',
                         xtype: 'uni-form-error-message',
                         name: 'form-errors',
-                        width: 400,
+                        width: 600,
                         margin: '0 0 10 0',
                         hidden: true
                     },
