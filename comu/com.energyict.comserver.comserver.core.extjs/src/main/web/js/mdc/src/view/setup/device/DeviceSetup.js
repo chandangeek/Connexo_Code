@@ -229,7 +229,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                             itemId: 'deviceActionMenu',
                             router: me.router,
                             disableChangeConfigSinceDataLoggerOrSlave: disableChangeConfigSinceDataLoggerOrSlave,
-                            deviceMRID: me.device.get('mRID'),
+                            deviceName: me.device.get('name'),
                             actionsStore: me.actionsStore
                         }
                     }
