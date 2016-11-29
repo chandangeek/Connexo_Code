@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -96,7 +97,12 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
     }
 
     private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, StandardDataSelectorImpl.class.getName());
+        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, StandardDataSelectorConfigImpl.class.getName());
+    }
+
+    @Override
+    public List<String> targetApplications() {
+        return Collections.emptyList();
     }
 
     private static enum DelegatingDataSelector implements DataSelector {

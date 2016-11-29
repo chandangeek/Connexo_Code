@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,8 +15,10 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -40,7 +43,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private IStandardDataSelector selector;
+    private EventSelectorConfig eventSelectorConfig;
 
     private EndDeviceEventType mockType(EndDeviceType endDeviceType, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventOrAction eventOrAction) {
         EndDeviceEventType type = mock(EndDeviceEventType.class);
@@ -64,7 +67,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testMatchAll() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, null, null, null, null);
+                .init(eventSelectorConfig, null, null, null, null);
 
         List<EndDeviceEventType> filtered = applyFilter(filter);
 
@@ -74,7 +77,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testMatchAllCode() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, null, null, null, null);
+                .init(eventSelectorConfig, null, null, null, null);
 
         assertThat(filter.getCode()).isEqualTo("*.*.*.*");
     }
@@ -82,7 +85,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testFilterOnVariableEndDeviceType() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, null, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
+                .init(eventSelectorConfig, null, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
 
         List<EndDeviceEventType> filtered = applyFilter(filter);
 
@@ -92,7 +95,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testFilterOnVariableEndDeviceTypeCode() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, null, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
+                .init(eventSelectorConfig, null, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
 
         assertThat(filter.getCode()).isEqualTo("*.11.124.60");
     }
@@ -100,7 +103,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testFilterOnEndDeviceTypeOnly() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, EndDeviceType.GAS_METER, null, null, null);
+                .init(eventSelectorConfig, EndDeviceType.GAS_METER, null, null, null);
 
         List<EndDeviceEventType> filtered = applyFilter(filter);
 
@@ -110,7 +113,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testFilterOnEndDeviceTypeOnlyCode() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, EndDeviceType.GAS_METER, null, null, null);
+                .init(eventSelectorConfig, EndDeviceType.GAS_METER, null, null, null);
 
         assertThat(filter.getCode()).isEqualTo("4.*.*.*");
     }
@@ -118,7 +121,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testFilterOnSpecificType() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, EndDeviceType.GAS_METER, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
+                .init(eventSelectorConfig, EndDeviceType.GAS_METER, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
 
         List<EndDeviceEventType> filtered = applyFilter(filter);
 
@@ -128,7 +131,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Test
     public void testFilterOnSpecificTypeCode() {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter(meteringService)
-                .init(selector, EndDeviceType.GAS_METER, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
+                .init(eventSelectorConfig, EndDeviceType.GAS_METER, EndDeviceDomain.FIRMWARE, EndDeviceSubDomain.VERSION, EndDeviceEventOrAction.UPLOADED);
 
         assertThat(filter.getCode()).isEqualTo("4.11.124.60");
     }
@@ -138,6 +141,4 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
                     .filter(filter.asEndDeviceEventTypePredicate())
                     .collect(Collectors.toList());
     }
-
-
 }

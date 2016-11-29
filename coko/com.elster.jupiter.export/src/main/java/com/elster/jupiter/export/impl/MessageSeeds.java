@@ -14,9 +14,9 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_SIZE_BETWEEN_MIN_AND_MAX(1003, Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX, "Field should be between {min} and {max} characters"),
     NO_SUCH_FORMATTER(1004, Keys.NO_SUCH_FORMATTER, "Formatter {0} does not exist."),
     NAME_MUST_BE_UNIQUE(1005, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists"),
-    ITEM_FAILED(1006, "dataexport.item.failed", "Item {0}:{1} failed to export", Level.WARNING),
-    ITEM_FATALLY_FAILED(1007, "dataexport.item.fatally.failed", "Item {0}:{1} fatally failed to export"),
-    ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0}:{1} exported successfully for period {2} - {3}", Level.INFO),
+    ITEM_FAILED(1006, "dataexport.item.failed", "Item {0} failed to export", Level.WARNING),
+    ITEM_FATALLY_FAILED(1007, "dataexport.item.fatally.failed", "Item {0} fatally failed to export"),
+    ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0} exported successfully for period {1} - {2}", Level.INFO),
     CANNOT_DELETE_WHILE_RUNNING(1009, "dataexport.cannot.delete", "Cannot delete a data export task (id = {0}) while it is running."),
     RELATIVE_PERIOD_USED(1010, "dataexport.using.relativeperiod", "Relative period is still in use by the following data export tasks: {0}"),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseByTask", "Device group {0} is still in use by an export task"),
@@ -35,8 +35,8 @@ public enum MessageSeeds implements MessageSeed {
     MUST_SELECT_EVENT_TYPE(1024, Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE, "At least one event type has to be selected"),
     DATA_EXPORTED_TO(1025, "dataexport.dataexportedto", "Data exported to {0}", Level.INFO),
     DATA_MAILED_TO(1026, "dataexport.datamailedto", "Data exported to {0} with attachment(s) {1} ", Level.INFO),
-    SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of {0} do not contain the selected reading type(s) that have to be exported.", Level.WARNING),
-    ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW(1028, "dataexport.item.nodata", "{0} and reading type {1} do not contain data for the selected export window.", Level.WARNING),
+    SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of device group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
+    ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW(1028, "dataexport.item.nodata", "Item {0} doesn''t contain data for the selected export window.", Level.WARNING),
     EXPORT_PERIOD_COVERS_FUTURE(1029, "dataexport.exportwindow.overlapsfuture", "The export window {0} overlaps with the future. As a result the exported data is incomplete.", Level.WARNING),
     NO_DATA_TOEXPORT(1030, "dataexport.nodata", "There is no data to export.", Level.INFO),
 
@@ -45,9 +45,9 @@ public enum MessageSeeds implements MessageSeed {
     FTP_DESTINATION_FAILED(1033, "dataexport.ftpDestinationFailed", "Failed to export to ftp(s) destination {0}, due to {1}", Level.SEVERE),
     FTP_DESTINATION_CREATE_FOLDER_FAILED(1034, "dataexport.ftpFolderCreationFailed", "failure creating the parent folder of the export file, due to {1}", Level.SEVERE),
 
-    DEFAULT_MESSAGE_EXPORT_FAILED(1035, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE);
-
-
+    DEFAULT_MESSAGE_EXPORT_FAILED(1035, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE),
+    SOME_USAGEPOINTS_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1036, "dataexport.usagepoint.mismatch", "Some usage points of usage point group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
+    VETO_USAGEPOINTGROUP_DELETION(1037, "usagePointGroupXstillInUseByTask", "Usage point group {0} is still in use by an export task"),;
 
     private final int number;
     private final String key;

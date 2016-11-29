@@ -8,7 +8,7 @@ public enum TranslationKeys implements TranslationKey {
     RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY(Installer.RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY, "Update window"),
     RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY(Installer.RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY, "Update timeframe"),
     STANDARD_DATA_SELECTOR_FACTORY(StandardDataSelectorFactory.class.getName(), DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR),
-    SUBSCRIBER_NAME(Installer.SUBSCRIBER_NAME, DataExportServiceImpl.SUBSCRIBER_DISPLAYNAME),
+    SUBSCRIBER_NAME(Installer.SUBSCRIBER_NAME, DataExportServiceImpl.SUBSCRIBER_DISPLAY_NAME),
 
     NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED("dataexport.dataSourcesSuccessfullyExported", "{0} data source(s) successfully exported"),
     NUMBER_OF_DATASOURCES_SKIPPED("dataexport.dataSourcesSkipped", "{0} data source(s) skipped"),

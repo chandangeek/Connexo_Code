@@ -5,12 +5,12 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterEventData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
@@ -19,6 +19,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -38,7 +39,7 @@ class EventSelector implements DataSelector {
     private final TransactionService transactionService;
     private final Clock clock;
 
-    private EventDataSelector selector;
+    private EventSelectorConfig selectorConfig;
     private Logger logger;
     private Counter devicesWithEvents = Counters.newStrictCounter();
     private Counter events = Counters.newStrictCounter();
@@ -51,12 +52,12 @@ class EventSelector implements DataSelector {
         this.thesaurus = thesaurus;
     }
 
-    static EventSelector from(DataModel dataModel, EventDataSelector readingTypeDataSelector, Logger logger) {
-        return dataModel.getInstance(EventSelector.class).init(readingTypeDataSelector, logger);
+    static EventSelector from(DataModel dataModel, EventSelectorConfig eventSelectorConfig, Logger logger) {
+        return dataModel.getInstance(EventSelector.class).init(eventSelectorConfig, logger);
     }
 
-    private EventSelector init(EventDataSelector selector, Logger logger) {
-        this.selector = selector;
+    EventSelector init(EventSelectorConfig selectorConfig, Logger logger) {
+        this.selectorConfig = selectorConfig;
         this.logger = logger;
         return this;
     }
@@ -67,7 +68,7 @@ class EventSelector implements DataSelector {
             Range<Instant> range = determineRange(occurrence);
             if (!range.hasUpperBound() || clock.instant().isBefore(range.upperEndpoint())) {
                 try (TransactionContext context = transactionService.getContext()) {
-                    MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, selector.getExportPeriod().getName());
+                    MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, selectorConfig.getExportPeriod().getName());
                     context.commit();
                 }
             }
@@ -94,12 +95,12 @@ class EventSelector implements DataSelector {
     }
 
     private Stream<ExportData> getExportDataStream(Range<Instant> range) {
-        Stream<ExportData> stream = selector.getEndDeviceGroup()
+        List<ExportData> result = selectorConfig.getEndDeviceGroup()
                 .getMembers(range)
                 .stream()
-                .map(EndDeviceMembership::getEndDevice)
-                .map(endDevice -> buildEventData(endDevice, range));
-        List<ExportData> result = stream.collect(Collectors.toList());
+                .map(Membership::getMember)
+                .map(endDevice -> buildEventData(endDevice, range))
+                .collect(Collectors.toList());
         return result.stream();
     }
 
@@ -110,13 +111,14 @@ class EventSelector implements DataSelector {
     }
 
     private StructureMarker buildStructureMarker(EndDevice endDevice, Range<Instant> range) {
-        return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range);
+        return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range)
+                .child(endDevice.getName()); // structure of both device identifiers to form two columns in the exported file
     }
 
     private MeterReadingImpl buildMeterReading(EndDevice endDevice, Range<Instant> range) {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addAllEndDeviceEvents(endDevice.getDeviceEvents(range).stream()
-                .filter(selector.getFilterPredicate())
+                .filter(selectorConfig.getFilterPredicate())
                 .map(endDeviceEventRecord -> EndDeviceEventImpl.of(endDeviceEventRecord.getEventTypeCode(), endDeviceEventRecord.getCreatedDateTime()))
                 .collect(Collectors.toList()));
         events.add(meterReading.getEvents().size());
@@ -126,7 +128,7 @@ class EventSelector implements DataSelector {
 
     private Range<Instant> determineRange(DataExportOccurrence occurrence) {
         Range<Instant> trivialRange = trivialRange(occurrence);
-        if (selector.getEventStrategy().isExportContinuousData()) {
+        if (selectorConfig.getStrategy().isExportContinuousData()) {
             return lastSuccessfulOccurrence(occurrence)
                     .flatMap(DataExportOccurrence::getDefaultSelectorOccurrence)
                     .map(DefaultSelectorOccurrence::getExportedDataInterval)
@@ -151,5 +153,4 @@ class EventSelector implements DataSelector {
                 .filter(occ -> DataExportStatus.SUCCESS.equals(occ.getStatus()))
                 .max(Comparator.comparing(occ -> occ.getDefaultSelectorOccurrence().get().getExportedDataInterval().upperEndpoint()));
     }
-
 }
