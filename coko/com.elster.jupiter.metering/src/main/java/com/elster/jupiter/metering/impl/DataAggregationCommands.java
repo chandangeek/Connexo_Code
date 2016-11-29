@@ -88,13 +88,13 @@ public class DataAggregationCommands {
     }
 
     public void aggregate() {
-        System.out.println("Usage: aggregate <usage point MRID> <contract purpose> <deliverable name> <start date>");
+        System.out.println("Usage: aggregate <usage point name> <contract purpose> <deliverable name> <start date>");
     }
 
-    public void aggregate(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
+    public void aggregate(String usagePointName, String contractPurpose, String deliverableName, String startDate) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             MetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -118,26 +118,26 @@ public class DataAggregationCommands {
     }
 
     public void showData() {
-        System.out.println("Usage: showData <usage point MRID> <contract purpose> <deliverable name> <start date> [<end date>]");
+        System.out.println("Usage: showData <usage point name> <contract purpose> <deliverable name> <start date> [<end date>]");
     }
 
-    public void showData(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
+    public void showData(String usagePointName, String contractPurpose, String deliverableName, String startDate) {
         Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         Range<Instant> period = Range.openClosed(start, Instant.now());
-        this.showData(usagePointMRID, contractPurpose, deliverableName, period);
+        this.showData(usagePointName, contractPurpose, deliverableName, period);
     }
 
-    public void showData(String usagePointMRID, String contractPurpose, String deliverableName, String startDate, String endDate) {
+    public void showData(String usagePointName, String contractPurpose, String deliverableName, String startDate, String endDate) {
         Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         Instant end = ZonedDateTime.ofInstant(Instant.parse(endDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         Range<Instant> period = Range.closedOpen(start, end);
-        this.showData(usagePointMRID, contractPurpose, deliverableName, period);
+        this.showData(usagePointName, contractPurpose, deliverableName, period);
     }
 
-    private void showData(String usagePointMRID, String contractPurpose, String deliverableName, Range<Instant> period) {
+    private void showData(String usagePointName, String contractPurpose, String deliverableName, Range<Instant> period) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -199,7 +199,6 @@ public class DataAggregationCommands {
         }
     }
 
-
     private String getValue(BaseReadingRecord reading) {
         Quantity quantity = reading.getQuantity(reading.getReadingType());
         if (quantity != null) {
@@ -220,10 +219,10 @@ public class DataAggregationCommands {
         }
     }
 
-    public void linkMetrologyConfig(String usagePointMRID, long metrologyConfigId) {
+    public void linkMetrologyConfig(String usagePointName, long metrologyConfigId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
@@ -234,23 +233,26 @@ public class DataAggregationCommands {
         }
     }
 
-    public void setMultiplierValue(String meterMRID, String standardMultiplierType, long value) {
+    public void setMultiplierValue(String meterName, String standardMultiplierType, long value) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            MeterActivation meterActivation = meteringService.findMeter(meterMRID).get().getCurrentMeterActivation().get();
+            MeterActivation meterActivation = meteringService.findMeterByName(meterName)
+                    .orElseThrow(() -> new NoSuchElementException("No such meter"))
+                    .getCurrentMeterActivation()
+                    .orElseThrow(() -> new NoSuchElementException("No current meter activation"));
             MultiplierType multiplierType = meteringService.getMultiplierType(MultiplierType.StandardType.valueOf(standardMultiplierType));
             meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(value));
             context.commit();
         }
     }
 
-    public void matchingChannels(String meterMRID, long metrologyConfigId, String requirementName) {
+    public void matchingChannels(String meterName, long metrologyConfigId, String requirementName) {
         metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                 .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
                 .getRequirements().stream()
                 .filter(rq -> rq.getName().equals(requirementName))
                 .findFirst().orElseThrow(() -> new NoSuchElementException("No such requirement"))
-                .getMatchingChannelsFor(meteringService.findMeter(meterMRID)
+                .getMatchingChannelsFor(meteringService.findMeterByName(meterName)
                         .orElseThrow(() -> new NoSuchElementException("No such meter"))
                         .getCurrentMeterActivation()
                         .map(MeterActivation::getChannelsContainer)

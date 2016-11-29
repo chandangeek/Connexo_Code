@@ -27,8 +27,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     long getVersion();
 
-    void setMRID(String mRID);
-
     boolean isSdp();
 
     void setSdp(boolean isSdp);

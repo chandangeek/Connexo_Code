@@ -8,13 +8,9 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withDescription(String description);
 
-    UsagePointBuilder withMRID(String mRID);
-
     UsagePointBuilder withLocation(Location location);
 
     UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates);
-
-    UsagePointBuilder withName(String name);
 
     UsagePointBuilder withIsSdp(boolean isSdp);
 

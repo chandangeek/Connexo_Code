@@ -121,7 +121,7 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
                 .map(channel -> {
                     Function<Interval, Range<Instant>> toRange = channel.isRegular() ? Interval::toOpenClosedRange : Interval::toClosedRange;
                     Range<Instant> active = range.intersection(toRange.apply(getInterval()));
-                    return channel.getReadings(readingType, active);
+                    return readingType.isRegular() ? channel.getIntervalReadings(readingType, active) : channel.getRegisterReadings(readingType, active);
                 })
                 .orElse(Collections.emptyList());
     }

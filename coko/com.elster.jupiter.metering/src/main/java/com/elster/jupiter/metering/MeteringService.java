@@ -46,17 +46,29 @@ public interface MeteringService {
 
     Optional<ServiceCategory> getServiceCategory(ServiceKind kind);
 
-    Optional<UsagePoint> findUsagePoint(long id);
+    Optional<UsagePoint> findUsagePointById(long id);
 
     Optional<UsagePoint> findAndLockUsagePointByIdAndVersion(long id, long version);
 
-    Optional<Meter> findMeter(long id);
+    Optional<UsagePoint> findAndLockUsagePointByMRIDAndVersion(String mRID, long version);
 
-    Optional<Meter> findMeter(String mRid);
+    Optional<UsagePoint> findUsagePointByMRID(String mRID);
 
-    Finder<Meter> findMeters (@NotNull  MeterFilter filter);
+    Optional<UsagePoint> findUsagePointByName(String name);
 
-    Optional<EndDevice> findEndDevice(String mRid);
+    Optional<Meter> findMeterById(long id);
+
+    Optional<Meter> findMeterByMRID(String mRID);
+
+    Optional<Meter> findMeterByName(String name);
+
+    Optional<EndDevice> findEndDeviceById(long id);
+
+    Optional<EndDevice> findEndDeviceByMRID(String mRID);
+
+    Optional<EndDevice> findEndDeviceByName(String name);
+
+    Finder<Meter> findMeters(MeterFilter filter);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 
@@ -98,11 +110,7 @@ public interface MeteringService {
      */
     Query<Meter> getMeterWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes);
 
-    Optional<UsagePoint> findUsagePoint(String mRID);
-
     Query<EndDevice> getEndDeviceQuery();
-
-    Optional<EndDevice> findEndDevice(long id);
 
     List<EndDeviceEventType> getAvailableEndDeviceEventTypes();
 

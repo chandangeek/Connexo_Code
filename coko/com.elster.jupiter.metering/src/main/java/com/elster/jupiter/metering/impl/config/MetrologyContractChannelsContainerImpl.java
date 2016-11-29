@@ -85,6 +85,13 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     }
 
     @Override
+    public Optional<UsagePoint> getUsagePoint() {
+        return this.effectiveMetrologyContract
+                .map(EffectiveMetrologyContractOnUsagePoint::getMetrologyConfigurationOnUsagePoint)
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getUsagePoint);
+    }
+
+    @Override
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = this.effectiveMetrologyContract.get().getMetrologyConfigurationOnUsagePoint();
         if (effectiveMetrologyConfiguration.getRange().contains(instant)) {
