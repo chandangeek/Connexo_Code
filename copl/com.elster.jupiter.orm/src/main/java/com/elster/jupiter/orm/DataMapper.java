@@ -1,8 +1,9 @@
 package com.elster.jupiter.orm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +64,8 @@ public interface DataMapper<T> extends Finder<T> {
 	Object getAttribute(Object target , String fieldName);
 	
 	Fetcher<T> fetcher(SqlBuilder builder);
+
 	SqlBuilder builder(String alias, String... hints);
-	
+
+    List<String> getQueryFields();
 }

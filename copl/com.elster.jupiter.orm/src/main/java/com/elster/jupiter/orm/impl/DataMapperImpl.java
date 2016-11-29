@@ -1,11 +1,13 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.Finder;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -104,6 +107,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		"ROW",
 		"SB4",
 		"SCN",
+		"SD",
 		"SET",
 		"SID",
 		"SIN",
@@ -155,12 +159,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             builder.append('X');
         }
         String result = builder.toString().toUpperCase();
-        if (Arrays.binarySearch(RESERVED_ALIAS_WORDS,result) >= 0) {
-        	return result + "1";
+        if (Arrays.binarySearch(RESERVED_ALIAS_WORDS, result) >= 0) {
+            return result + "1";
         } else {
-        	return result;
+            return result;
         }
-	}
+    }
 
 	public String getAlias() {
 		return alias;
@@ -315,7 +319,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		if (table.getAutoUpdateColumns().isEmpty()) {
 			throw new IllegalStateException("Nothing to touch");
 		} else {
-			update(object, Collections.<ColumnImpl>emptyList());
+			update(object, Collections.emptyList());
 		}
 	}
 
@@ -546,6 +550,43 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getJournal(values).stream()
 			.filter(journalEntry -> instant.isBefore(journalEntry.getJournalTime()))
 			.reduce( (previous, current) -> current);
+	}
+
+	@Override
+	public List<String> getQueryFields() {
+		List<String> result = new ArrayList<>();
+		Map<Column, Pair<List<ColumnImpl>, String>> constraintMapping = new HashMap<>();
+		getTable().getForeignKeyConstraints().stream()
+				.filter(foreignKey -> foreignKey.getFieldName() != null)
+				.forEach(constraint -> {
+							List<ColumnImpl> columns = constraint.getColumns();
+							columns.forEach(column ->
+									constraintMapping.put(column, Pair.of(columns, constraint.getFieldName())));
+						}
+				);
+		for (Column each : getTable().getColumns()) {
+			String fieldName = each.getFieldName();
+			if (fieldName == null) {
+				Pair<List<ColumnImpl>, String> mapping = constraintMapping.get(each);
+				if (mapping != null) {
+					fieldName = mapping.getLast();
+					mapping.getFirst().forEach(constraintMapping::remove);
+				}
+			}
+			if (fieldName != null) {
+				String[] parts = fieldName.split("\\.");
+				String part = "";
+				for (int i = 0 ; i < parts.length - 1 ; i++) {
+					part += parts[i];
+					if (!result.contains(part)) {
+						result.add(part);
+					}
+					part += ".";
+				}
+				result.add(fieldName);
+			}
+		}
+		return result;
 	}
 
 	class JournalFinderImpl implements Finder.JournalFinder<T> {
