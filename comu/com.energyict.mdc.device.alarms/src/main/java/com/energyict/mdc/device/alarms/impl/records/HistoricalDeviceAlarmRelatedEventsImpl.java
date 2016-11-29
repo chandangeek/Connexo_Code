@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.alarms.impl.records;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -13,9 +14,9 @@ public class HistoricalDeviceAlarmRelatedEventsImpl extends DeviceAlarmRelatedEv
     private Reference<DeviceAlarm> alarm = Reference.empty();
 
 
-    DeviceAlarmRelatedEventsImpl init(DeviceAlarm alarm, EndDeviceEventRecord eventRecord){
+    DeviceAlarmRelatedEventsImpl init(DeviceAlarm alarm, EndDeviceEvent event){
         this.alarm.set(alarm);
-        super.init(eventRecord);
+        super.init(event);
         return this;
     }
 

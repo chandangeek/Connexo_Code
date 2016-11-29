@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -163,15 +164,15 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public List<EndDeviceEventRecord> getRelatedEventRecords() {
+    public List<EndDeviceEvent> getRelatedEvent() {
         return deviceAlarmRelatedEvents.stream()
-                .map(DeviceAlarmRelatedEvents::getEventRecord)
+                .map(DeviceAlarmRelatedEvents::getEvent)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public EndDeviceEventRecord getCurrentEventRecord() {
-        return Collections.max(getRelatedEventRecords(), Comparator.comparing(EndDeviceEventRecord::getCreateTime));
+    public EndDeviceEvent getCurrentEvent() {
+        return Collections.max(getRelatedEvent(), Comparator.comparing(EndDeviceEvent::getCreatedDateTime));
     }
 
     @Override

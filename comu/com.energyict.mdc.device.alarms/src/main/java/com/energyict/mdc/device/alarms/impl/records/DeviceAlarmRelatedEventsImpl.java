@@ -2,20 +2,16 @@ package com.energyict.mdc.device.alarms.impl.records;
 
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-
-import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvents;
-
-import com.google.inject.Inject;
 
 public class DeviceAlarmRelatedEventsImpl implements DeviceAlarmRelatedEvents {
 
     public enum Fields {
         AlARM("alarm"),
-        EVENTRECORD("eventRecord")
+        EVENTRECORD("event")
         ;
 
         private final String javaFieldName;
@@ -31,17 +27,17 @@ public class DeviceAlarmRelatedEventsImpl implements DeviceAlarmRelatedEvents {
 
 
     @IsPresent
-    private Reference<EndDeviceEventRecord> eventRecord = Reference.empty();
+    private Reference<EndDeviceEvent> event = Reference.empty();
 
 
-    DeviceAlarmRelatedEventsImpl init(EndDeviceEventRecord eventRecord) {
-        this.eventRecord.set(eventRecord);
+    DeviceAlarmRelatedEventsImpl init(EndDeviceEvent event) {
+        this.event.set(event);
         return this;
     }
 
     @Override
-    public EndDeviceEventRecord getEventRecord() {
-        return eventRecord.get();
+    public EndDeviceEvent getEvent() {
+        return event.get();
     }
 
 }
