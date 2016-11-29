@@ -58,7 +58,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-        when(device.getmRID()).thenReturn("0c53c750-4d5a-11e4-916c-0800200c9a66");
+        when(device.getId()).thenReturn(13L);
         when(device.getName()).thenReturn("AX1");
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(123L);
@@ -69,13 +69,16 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(deviceType.getName()).thenReturn("type AX1");
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        when(deviceService.findByUniqueMrid("0c53c750-4d5a-11e4-916c-0800200c9a66")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("AX1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
         ComSession comSession1 = mockComSession(connectionTask, 61L, device);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
-        String response = target("/devices/0c53c750-4d5a-11e4-916c-0800200c9a66/connectionmethods/3/comsessions/61/comtaskexecutionsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/AX1/connectionmethods/3/comsessions/61/comtaskexecutionsessions").queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<String>get("$.device")).isEqualTo("AX1");
@@ -86,7 +89,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions[0].comTasks")).hasSize(1);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comTasks[0].name")).isEqualTo("Set clock");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comTasks[0].id")).isEqualTo(1002);
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo("0c53c750-4d5a-11e4-916c-0800200c9a66");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo(13);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.name")).isEqualTo("AX1");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.id")).isEqualTo(123);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].deviceConfiguration.name")).isEqualTo("config AX1");

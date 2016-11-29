@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
@@ -61,8 +61,8 @@ public class ComSessionResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public ComSessionsInfo getConnectionMethodHistory(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public ComSessionsInfo getConnectionMethodHistory(@PathParam("name") String name, @PathParam("connectionMethodId") long connectionMethodId, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c2.getStartDate().compareTo(c1.getStartDate())).collect(toList());
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream()
@@ -80,8 +80,8 @@ public class ComSessionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{comSessionId}")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public ComSessionInfo getComSession(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public ComSessionInfo getComSession(@PathParam("name") String name, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
         ComSessionInfo info = comSessionInfoFactory.from(comSession);
@@ -93,8 +93,8 @@ public class ComSessionResource {
     @Path("{comSessionId}/comtaskexecutionsessions")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public ComTaskExecutionSessionsInfo getComTaskExecutionSessions(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public ComTaskExecutionSessionsInfo getComTaskExecutionSessions(@PathParam("name") String name, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
         List<ComTaskExecutionSession> comTaskExecutionSessionsInPage = ListPager.of(comSession.getComTaskExecutionSessions()).from(queryParameters).find();
@@ -111,12 +111,12 @@ public class ComSessionResource {
     @Path("{comSessionId}/journals")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public PagedInfoList getHybridJournalEntries(@PathParam("mRID") String mrid,
+    public PagedInfoList getHybridJournalEntries(@PathParam("name") String name,
                                                  @PathParam("connectionMethodId") long connectionMethodId,
                                                  @PathParam("comSessionId") long comSessionId,
                                                  @BeanParam JsonQueryFilter jsonQueryFilter,
                                                  @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
         int start = 0;

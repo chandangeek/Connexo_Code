@@ -46,7 +46,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testAdditionalComTaskFields() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -70,7 +70,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
-        JsonModel jsonModel = JsonModel.model(target("/devices/mrid/comtasks/").request().get(String.class));
+        JsonModel jsonModel = JsonModel.model(target("/devices/name/comtasks/").request().get(String.class));
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Boolean>get("$.comTasks[0].isOnHold")).isTrue();
         assertThat(jsonModel.<Instant>get("$.comTasks[0].successfulFinishTime")).isNotNull();
@@ -80,8 +80,8 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testActivateComTask() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("mrid", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("name", 1L)).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -112,7 +112,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         info.device.mRID = "mrid";
         info.device.version = 1L;
         info.device.parent = new VersionInfo<>(1L, 1L);
-        Response response = target("/devices/mrid/comtasks/1/activate").request().put(Entity.json(info));
+        Response response = target("/devices/name/comtasks/1/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
