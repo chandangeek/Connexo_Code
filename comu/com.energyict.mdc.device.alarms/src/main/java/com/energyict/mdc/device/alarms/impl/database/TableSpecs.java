@@ -89,7 +89,7 @@ public enum TableSpecs {
             table.map(OpenDeviceAlarmRelatedEventsImpl.class);
             table.since(version(10, 3));
             Column alarmColumn = table.column(DAL_BASE_ALARM).number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column eventRecordColumn = table.column("EVENTRECORD").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column eventRecordColumn = table.column("EVENT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.primaryKey("VAL_PK_OPNALM_REL_EVTS").on(alarmColumn, eventRecordColumn).add();
             table.foreignKey("VAL_FK_OPNALM_REL_EVTS")
                     .references(DAL_ALARM_OPEN.name())
@@ -102,7 +102,7 @@ public enum TableSpecs {
                     .references(EndDeviceEventRecord.class)
                     .on(eventRecordColumn)
                     .onDelete(CASCADE)
-                    .map(DeviceAlarmRelatedEventsImpl.Fields.EVENTRECORD.fieldName())
+                    .map(DeviceAlarmRelatedEventsImpl.Fields.EVENT.fieldName())
                     .composition().add();
         }
     },
@@ -114,7 +114,7 @@ public enum TableSpecs {
             table.map(HistoricalDeviceAlarmRelatedEventsImpl.class);
             table.since(version(10, 3));
             Column alarmColumn = table.column(DAL_BASE_ALARM).number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column eventRecordColumn = table.column("EVENTRECORD").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column eventRecordColumn = table.column("EVENT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.primaryKey("VAL_PK_HSTALM_REL_EVTS").on(alarmColumn, eventRecordColumn).add();
             table.foreignKey("VAL_FK_HSTALM_REL_EVTSALM")
                     .references(DAL_ALARM_HISTORY.name())
@@ -125,7 +125,7 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_HSTALM_REL_EVTSEVT")
                     .references(EndDeviceEventRecord.class)
                     .on(eventRecordColumn)
-                    .map(DeviceAlarmRelatedEventsImpl.Fields.EVENTRECORD.fieldName())
+                    .map(DeviceAlarmRelatedEventsImpl.Fields.EVENT.fieldName())
                     .composition().onDelete(CASCADE).add();
         }
     };

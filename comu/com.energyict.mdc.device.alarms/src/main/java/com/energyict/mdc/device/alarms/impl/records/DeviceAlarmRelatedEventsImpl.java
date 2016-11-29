@@ -11,7 +11,7 @@ public class DeviceAlarmRelatedEventsImpl implements DeviceAlarmRelatedEvents {
 
     public enum Fields {
         AlARM("alarm"),
-        EVENTRECORD("event")
+        EVENT("event")
         ;
 
         private final String javaFieldName;
