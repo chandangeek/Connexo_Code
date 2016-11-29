@@ -44,10 +44,10 @@ public enum TranslationSeeds implements TranslationKey {
     BILLING_READY_DISPLAY("displayAmiBillingReady", "AMI billing ready"),
     LOCATION("location", "Location"),
 
-    MEASURED_SDP(UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name(), UsagePointTypeInfo.UsagePointType.MEASURED_SDP.displayName),
-    MEASURED_NON_SDP(UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.displayName),
-    UNMEASURED_NON_SDP(UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.displayName),
-    UNMEASURED_SDP(UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.displayName)
+    PHYSICAL_SDP(UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP.name(), UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP.displayName),
+    PHYSICAL_NON_SDP(UsagePointTypeInfo.UsagePointType.PHYSICAL_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.PHYSICAL_NON_SDP.displayName),
+    VIRTUAL_NON_SDP(UsagePointTypeInfo.UsagePointType.VIRTUAL_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.VIRTUAL_NON_SDP.displayName),
+    VIRTUAL_SDP(UsagePointTypeInfo.UsagePointType.VIRTUAL_SDP.name(), UsagePointTypeInfo.UsagePointType.VIRTUAL_SDP.displayName)
 ;
 
     private final String key;

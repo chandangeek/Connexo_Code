@@ -10,11 +10,13 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointTypeInfo;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.KorePagedInfoList;
@@ -45,12 +47,14 @@ import static java.util.stream.Collectors.toList;
 public class MeteringFieldResource {
 
     private final MeteringService meteringService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final Thesaurus thesaurus;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public MeteringFieldResource(MeteringService meteringService, Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public MeteringFieldResource(MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
@@ -187,7 +191,10 @@ public class MeteringFieldResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getPhaseCodes(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("phaseCodes", Arrays.stream(PhaseCode.values()).distinct().map(pc -> new IdWithDisplayValueInfo<>(pc.name(),pc.getValue())).collect(Collectors.toList()), queryParameters);
+        return PagedInfoList.fromCompleteList("phaseCodes", Arrays.stream(PhaseCode.values())
+                .distinct()
+                .map(pc -> new IdWithDisplayValueInfo<>(pc.name(), pc.getValue()))
+                .collect(Collectors.toList()), queryParameters);
     }
 
     @GET
@@ -196,7 +203,9 @@ public class MeteringFieldResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getBypassStatus(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("bypassStatus", Arrays.stream(BypassStatus.values()).map(bs -> new IdWithDisplayValueInfo<>(bs.name(),bs.getDisplayValue(thesaurus))).collect(Collectors.toList()), queryParameters);
+        return PagedInfoList.fromCompleteList("bypassStatus", Arrays.stream(BypassStatus.values())
+                .map(bs -> new IdWithDisplayValueInfo<>(bs.name(), bs.getDisplayValue(thesaurus)))
+                .collect(Collectors.toList()), queryParameters);
     }
 
     @GET
@@ -205,8 +214,33 @@ public class MeteringFieldResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePointType(@BeanParam JsonQueryParameters queryParameters) {
-        List<UsagePointTypeInfo> infos = Arrays.stream(UsagePointTypeInfo.UsagePointType.values()).map(t -> new UsagePointTypeInfo(t,thesaurus)).collect(Collectors.toList());
+        List<UsagePointTypeInfo> infos = Arrays.stream(UsagePointTypeInfo.UsagePointType.values())
+                .filter(t -> !t.isVirtual)  //Cannot create virtual usage point
+                .map(t -> new UsagePointTypeInfo(t,thesaurus))
+                .collect(Collectors.toList());
         infos.sort((type1, type2) -> type1.displayName.compareTo(type2.displayName));
         return PagedInfoList.fromCompleteList("usagePointTypes", infos, queryParameters);
+    }
+
+    @GET
+    @Path("/metrologyconfigurations")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getMetrologyConfigurations(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> infos = metrologyConfigurationService.findAllMetrologyConfigurations().stream()
+                .map(IdWithNameInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("metrologyConfigurations", infos, queryParameters);
+    }
+
+    @GET
+    @Path("/metrologypurposes")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getMetrologyPurposes(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> infos = metrologyConfigurationService.getMetrologyPurposes().stream()
+                .map(IdWithNameInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("metrologyPurposes", infos, queryParameters);
     }
 }

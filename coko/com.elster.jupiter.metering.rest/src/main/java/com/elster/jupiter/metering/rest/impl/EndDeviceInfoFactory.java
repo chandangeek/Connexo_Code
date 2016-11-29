@@ -14,7 +14,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Factory class to create Info objects. This class will register on the InfoFactoryWhiteboard and is used by DynamicSearch.
@@ -49,18 +48,9 @@ public class EndDeviceInfoFactory implements InfoFactory<EndDevice> {
         info.version = endDevice.getVersion();
         LifecycleDates lcd = endDevice.getLifecycleDates();
         if (lcd != null) {
-            Optional<Instant> mInstalledDate =lcd.getInstalledDate();
-            Optional<Instant> mRemovedDate =lcd.getRemovedDate();
-            Optional<Instant> mRetiredDate =lcd.getRetiredDate();
-            if (mInstalledDate.isPresent()) {
-                info.installedDate = mInstalledDate.get().getEpochSecond();
-            }
-            if (mRemovedDate.isPresent()) {
-                info.removedDate = mRemovedDate.get().getEpochSecond();
-            }
-            if (mRetiredDate.isPresent()) {
-                info.retiredDate = mRetiredDate.get().getEpochSecond();
-            }
+            lcd.getInstalledDate().map(Instant::getEpochSecond).ifPresent(date -> info.installedDate = date);
+            lcd.getRemovedDate().map(Instant::getEpochSecond).ifPresent(date -> info.removedDate = date);
+            lcd.getRetiredDate().map(Instant::getEpochSecond).ifPresent(date -> info.retiredDate = date);
         }
         return info;
     }
@@ -68,10 +58,10 @@ public class EndDeviceInfoFactory implements InfoFactory<EndDevice> {
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
-        infos.add(createDescription(TranslationSeeds.MRID, String.class));
+        infos.add(createDescription(TranslationSeeds.NAME, String.class));
         infos.add(createDescription(TranslationSeeds.ALIAS_NAME, String.class));
         infos.add(createDescription(TranslationSeeds.DESCRIPTION, String.class));
-        infos.add(createDescription(TranslationSeeds.NAME, String.class));
+        infos.add(createDescription(TranslationSeeds.MRID, String.class));
         infos.add(createDescription(TranslationSeeds.SERIALNUMBER, String.class));
         infos.add(createDescription(TranslationSeeds.UTCNUMBER, String.class));
         infos.add(createDescription(TranslationSeeds.EMAIL1, String.class));
@@ -86,7 +76,6 @@ public class EndDeviceInfoFactory implements InfoFactory<EndDevice> {
     private PropertyDescriptionInfo createDescription(TranslationSeeds propertyName, Class<?> aClass) {
         return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName.getDefaultFormat()));
     }
-
 
     @Override
     public Class<EndDevice> getDomainClass() {

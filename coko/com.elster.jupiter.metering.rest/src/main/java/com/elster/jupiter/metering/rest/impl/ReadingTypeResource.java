@@ -55,21 +55,25 @@ public class ReadingTypeResource {
     private final TransactionService transactionService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final ReadingTypeFilterFactory readingTypeFilterFactory;
 
     @Inject
-    public ReadingTypeResource(MeteringService meteringService, ExceptionFactory exceptionFactory, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public ReadingTypeResource(MeteringService meteringService, ExceptionFactory exceptionFactory, TransactionService transactionService,
+                               ConcurrentModificationExceptionFactory conflictFactory, ReadingTypeInfoFactory readingTypeInfoFactory,
+                               ReadingTypeFilterFactory readingTypeFilterFactory) {
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.transactionService = transactionService;
         this.conflictFactory = conflictFactory;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.readingTypeFilterFactory = readingTypeFilterFactory;
     }
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(ReadingTypeFilterFactory.from(jsonQueryFilter))
+        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(readingTypeFilterFactory.from(jsonQueryFilter))
                 .from(queryParameters)
                 .stream()
                 .map(readingTypeInfoFactory::from)
@@ -79,19 +83,19 @@ public class ReadingTypeResource {
     }
 
     @GET
-	@Path("/{mRID}/")
+    @Path("/{mRID}/")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-	public ReadingTypeInfos getReadingType(@PathParam("mRID") String mRID) {
-    	return meteringService.getReadingType(mRID)
-    		.map(readingType -> readingTypeInfoFactory.from(Collections.singletonList(readingType)))
-    		.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public ReadingTypeInfos getReadingType(@PathParam("mRID") String mRID) {
+        return meteringService.getReadingType(mRID)
+                .map(readingType -> readingTypeInfoFactory.from(Collections.singletonList(readingType)))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
     @Path("/{mRID}/calculated")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingTypeInfos getCalculatedReadingType(@PathParam("mRID") String mRID) {
         return meteringService.getReadingType(mRID)
                 .map(ReadingType::getCalculatedReadingType)
@@ -200,9 +204,10 @@ public class ReadingTypeResource {
     public ReadingType activateReadingType(@PathParam("mRID") String mRID, ReadingTypeInfo readingTypeInfo) {
         try (TransactionContext context = transactionService.getContext()) {
 
-            ReadingType readingType = meteringService.findAndLockReadingTypeByIdAndVersion(readingTypeInfo.mRID, readingTypeInfo.version).orElseThrow(conflictFactory.contextDependentConflictOn(readingTypeInfo.name)
-                    .withActualVersion(() -> meteringService.getReadingType(readingTypeInfo.mRID).map(ReadingType::getVersion).orElse(null))
-                    .supplier());
+            ReadingType readingType = meteringService.findAndLockReadingTypeByIdAndVersion(readingTypeInfo.mRID, readingTypeInfo.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(readingTypeInfo.name)
+                            .withActualVersion(() -> meteringService.getReadingType(readingTypeInfo.mRID).map(ReadingType::getVersion).orElse(null))
+                            .supplier());
 
             readingType = activate(readingType, readingTypeInfo.active);
 
@@ -223,7 +228,7 @@ public class ReadingTypeResource {
         if (readingTypeBulkEditInfo.mRIDs != null && !readingTypeBulkEditInfo.mRIDs.isEmpty()) {
             readingTypes = meteringService.findReadingTypes(readingTypeBulkEditInfo.mRIDs);
         } else {
-            readingTypes = meteringService.findReadingTypes(ReadingTypeFilterFactory.from(jsonQueryFilter)).find();
+            readingTypes = meteringService.findReadingTypes(readingTypeFilterFactory.from(jsonQueryFilter)).find();
         }
         try (TransactionContext context = transactionService.getContext()) {
             for (ReadingType readingType : readingTypes) {
@@ -255,9 +260,10 @@ public class ReadingTypeResource {
     public ReadingType updateReadingType(@PathParam("mRID") String mRID, ReadingTypeInfo readingTypeInfo) {
         try (TransactionContext context = transactionService.getContext()) {
 
-            ReadingType readingType = meteringService.findAndLockReadingTypeByIdAndVersion(readingTypeInfo.mRID, readingTypeInfo.version).orElseThrow(conflictFactory.contextDependentConflictOn(readingTypeInfo.name)
-                    .withActualVersion(() -> meteringService.getReadingType(readingTypeInfo.mRID).map(ReadingType::getVersion).orElse(null))
-                    .supplier());
+            ReadingType readingType = meteringService.findAndLockReadingTypeByIdAndVersion(readingTypeInfo.mRID, readingTypeInfo.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(readingTypeInfo.name)
+                            .withActualVersion(() -> meteringService.getReadingType(readingTypeInfo.mRID).map(ReadingType::getVersion).orElse(null))
+                            .supplier());
 
             readingType.setAliasName(readingTypeInfo.aliasName);
             readingType.update();
@@ -277,7 +283,7 @@ public class ReadingTypeResource {
         if (readingTypeBulkEditInfo.mRIDs != null && !readingTypeBulkEditInfo.mRIDs.isEmpty()) {
             readingTypes = meteringService.findReadingTypes(readingTypeBulkEditInfo.mRIDs);
         } else {
-            readingTypes = meteringService.findReadingTypes(ReadingTypeFilterFactory.from(jsonQueryFilter)).find();
+            readingTypes = meteringService.findReadingTypes(readingTypeFilterFactory.from(jsonQueryFilter)).find();
         }
         try (TransactionContext context = transactionService.getContext()) {
             for (ReadingType readingType : readingTypes) {

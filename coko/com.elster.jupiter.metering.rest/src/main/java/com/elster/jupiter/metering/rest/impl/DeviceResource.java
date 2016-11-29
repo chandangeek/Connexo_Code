@@ -84,12 +84,12 @@ public class DeviceResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    @Path("/{mRID}/")
+    @Path("/{name}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
+    public MeterInfos getDevice(@PathParam("name") String name, @Context SecurityContext securityContext) {
         MeterInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            Optional<Meter> foundMeter = meteringService.findMeterByName(name);
             if (foundMeter.isPresent()) {
                 result = new MeterInfos(foundMeter.get());
             }
@@ -99,12 +99,12 @@ public class DeviceResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
-    @Path("/{mRID}/location/{locale}")
+    @Path("/{name}/location/{locale}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public LocationMemberInfos getDeviceLocation(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
+    public LocationMemberInfos getDeviceLocation(@PathParam("name") String name, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
         LocationMemberInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            Optional<Meter> foundMeter = meteringService.findMeterByName(name);
             if (foundMeter.isPresent()) {
                 Optional<Location> location = foundMeter.get().getLocation();
                 if (location.isPresent()) {
@@ -121,12 +121,12 @@ public class DeviceResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
-    @Path("/{mRID}/locations")
+    @Path("/{name}/locations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public LocationMemberInfos getDeviceLocations(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
+    public LocationMemberInfos getDeviceLocations(@PathParam("name") String name, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
         LocationMemberInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            Optional<Meter> foundMeter = meteringService.findMeterByName(name);
             if (foundMeter.isPresent()) {
                 Optional<Location> location = foundMeter.get().getLocation();
                 if (location.isPresent()) {

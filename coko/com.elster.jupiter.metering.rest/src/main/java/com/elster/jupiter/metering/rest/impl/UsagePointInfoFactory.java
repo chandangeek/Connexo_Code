@@ -81,10 +81,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
-        infos.add(createDescription(TranslationSeeds.MRID, String.class));
+        infos.add(createDescription(TranslationSeeds.NAME, String.class));
         infos.add(createDescription(TranslationSeeds.SERVICECATEGORY_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.METROLOGY_CONFIGURATION_DISPLAY, String.class));
-        infos.add(createDescription(TranslationSeeds.NAME, String.class));
+        infos.add(createDescription(TranslationSeeds.MRID, String.class));
         infos.add(createDescription(TranslationSeeds.INSTALLATION_TIME, Instant.class));
         return infos;
     }
@@ -92,7 +92,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private PropertyDescriptionInfo createDescription(TranslationSeeds propertyName, Class<?> aClass) {
         return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName.getDefaultFormat()));
     }
-
 
     @Override
     public Class getDomainClass() {
@@ -106,9 +105,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return meteringService.getServiceCategory(usagePointInfo.serviceCategory)
                 .orElseThrow(IllegalArgumentException::new)
                 .newUsagePoint(
-                        usagePointInfo.mRID,
-                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
-                .withName(usagePointInfo.name);
+                        usagePointInfo.name,
+                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant());
     }
 
     static class EmptyDomain {
