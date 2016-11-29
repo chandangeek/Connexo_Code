@@ -77,6 +77,27 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
     private static final String APPLICATION = "Admin";
     private static final String FORMATTER = "formatter";
 
+    private static final RelativeDate startOfTheYearBeforeLastYear = new RelativeDate(
+            YEAR.minus(2),
+            MONTH.equalTo(1),
+            DAY.equalTo(1),
+            HOUR.equalTo(0),
+            MINUTES.equalTo(0)
+    );
+    private static final RelativeDate startOfLastYear = new RelativeDate(
+            YEAR.minus(1),
+            MONTH.equalTo(1),
+            DAY.equalTo(1),
+            HOUR.equalTo(0),
+            MINUTES.equalTo(0)
+    );
+    private static final RelativeDate startOfThisYear = new RelativeDate(
+            MONTH.equalTo(1),
+            DAY.equalTo(1),
+            HOUR.equalTo(0),
+            MINUTES.equalTo(0)
+    );
+
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
 
@@ -91,32 +112,11 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
     @Mock
     private PropertySpec propertySpec;
 
-    private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
-
-    private final RelativeDate startOfTheYearBeforeLastYear = new RelativeDate(
-            YEAR.minus(2),
-            MONTH.equalTo(1),
-            DAY.equalTo(1),
-            HOUR.equalTo(0),
-            MINUTES.equalTo(0)
-    );
-    private final RelativeDate startOfLastYear = new RelativeDate(
-            YEAR.minus(1),
-            MONTH.equalTo(1),
-            DAY.equalTo(1),
-            HOUR.equalTo(0),
-            MINUTES.equalTo(0)
-    );
-    private final RelativeDate startOfThisYear = new RelativeDate(
-            MONTH.equalTo(1),
-            DAY.equalTo(1),
-            HOUR.equalTo(0),
-            MINUTES.equalTo(0)
-    );
     private ReadingType readingType, anotherReadingType;
     private RelativePeriod lastYear;
     private RelativePeriod oneYearBeforeLastYear;
     private EndDeviceGroup endDeviceGroup;
+    private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
     private UsagePointGroup usagePointGroup;
 
     private DataExportServiceImpl dataExportService;
