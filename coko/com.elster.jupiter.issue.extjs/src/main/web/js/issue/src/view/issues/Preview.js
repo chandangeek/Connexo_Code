@@ -85,11 +85,11 @@ Ext.define('Isu.view.issues.Preview', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Isu.privileges.Device.canViewDeviceCommunication()) {
-                                    url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
-                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + ' ' + Ext.String.htmlEncode(value.serialNumber) + '</a>';
+                                if (value.name && Isu.privileges.Device.canViewDeviceCommunication()) {
+                                    url = me.router.getRoute('devices/device').buildUrl({deviceId: value.name});
+                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                                 } else {
-                                    result = value.name + ' ' + Ext.String.htmlEncode(value.serialNumber);
+                                    result = value.name;
                                 }
                             }
 
@@ -99,7 +99,7 @@ Ext.define('Isu.view.issues.Preview', {
                     {
                         itemId: 'issue-preview-device-no-filter',
                         fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
-                        name: 'deviceMRID',
+                        name: 'deviceName',
                         hidden: true,
                         renderer: function (value, field) {
                             if (value && me.getRecord()) {

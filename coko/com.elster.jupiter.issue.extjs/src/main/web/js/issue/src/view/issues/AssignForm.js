@@ -19,7 +19,8 @@ Ext.define('Isu.view.issues.AssignForm', {
                 itemId: 'form-errors',
                 xtype: 'uni-form-error-message',
                 name: 'form-errors',
-                hidden: true
+                hidden: true,
+                width: 500
             }
         },
         {

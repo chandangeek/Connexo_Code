@@ -174,7 +174,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                 }
                 break;
             case 'device':
-                filterToolbar.down('[dataIndex=meter]').setFilterValue(button.filterValue.serialNumber);
+                filterToolbar.down('[dataIndex=meter]').setFilterValue(button.filterValue.name);
                 break;
             case 'issueType':
                 filterToolbar.down('[dataIndex=issueType]').setFilterValue(button.filterValue.uid);
