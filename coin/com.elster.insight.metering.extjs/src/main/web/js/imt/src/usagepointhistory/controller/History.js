@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         });
     },
 
-    showHistory: function (mRID) {
+    showHistory: function (usagePointId) {
         var me = this,
             app = me.getApplication(),
             viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -42,9 +42,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
         viewport.setLoading();
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
-                customAttributesStore.getProxy().setUrl(mRID);
+                customAttributesStore.getProxy().setExtraParam('usagePointId', usagePointId);
                 customAttributesStore.load(function () {
                     var widget, tabPanel;
 
@@ -73,7 +73,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
-            mRID = router.arguments.mRID,
+            usagePointId = router.arguments.usagePointId,
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
             onVersionsStoreLoad,
@@ -93,7 +93,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             }
         }
 
-        versionsStore.getProxy().setUrl(mRID, customAttributeSetId);
+        versionsStore.getProxy().setParams(usagePointId, customAttributeSetId);
 
         Ext.suspendLayouts();
         if (oldCard) {
@@ -121,10 +121,10 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             versionsStore.on('load', onVersionsStoreLoad, me);
             cardView.on('destroy', function () {
                 versionsStore.un('load', onVersionsStoreLoad, me);
-            })
+            });
         }
 
-        attributeSetModel.getProxy().setUrl(mRID);
+        attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
         attributeSetModel.load(customAttributeSetId, {
             success: function (record) {
                 var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;

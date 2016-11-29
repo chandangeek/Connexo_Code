@@ -1,7 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.usage-point-setup-action-menu',
-    mRID: null,
     router: null,
 
     initComponent: function() {

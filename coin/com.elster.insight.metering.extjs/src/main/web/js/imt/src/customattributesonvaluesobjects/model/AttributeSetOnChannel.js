@@ -6,10 +6,6 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetOnChannel', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/channels/{channelId}/customproperties',
-
-        setUrl: function (mRID, channelId) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId);
-        }
+        url: '/api/udr/usagepoints/{usagePointId}/channels/{channelId}/customproperties'
     }
 });
