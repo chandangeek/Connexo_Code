@@ -84,7 +84,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MultisenseHeadEndInterfaceTest {
 
-    private static final String DEVICE_MRID = "deviceMRID";
+    private static final long DEVICE_ID = 13L;
+    private static final String DEVICE_NAME = "deviceName";
     private static final long COMTASK_ID = 1;
 
     private final String url = "https://demo.eict.local:8080/apps/multisense/index.html#";
@@ -149,13 +150,13 @@ public class MultisenseHeadEndInterfaceTest {
         headEndInterface.activate(context);
         when(serviceCallCommands.createOperationServiceCall(any(), any(), any(), any())).thenReturn(serviceCall);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(new CommandServiceCallDomainExtension()));
-        endDevice.setMRID(DEVICE_MRID);
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(endDevice.getAmrSystem()).thenReturn(amrSystem);
-        when(amrSystem.getId()).thenReturn(1);
+        when(endDevice.getAmrId()).thenReturn(String.valueOf(DEVICE_ID));
+        when(amrSystem.getId()).thenReturn(KnownAmrSystem.MDC.getId());
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
-        when(device.getmRID()).thenReturn(DEVICE_MRID);
+        when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
+        when(device.getName()).thenReturn(DEVICE_NAME);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         Set<DeviceMessageId> deviceMessageIds = new HashSet<>();
@@ -177,7 +178,7 @@ public class MultisenseHeadEndInterfaceTest {
     public void getURLForEndDevice() {
         Optional<URL> url = headEndInterface.getURLForEndDevice(endDevice);
         if (url.isPresent()) {
-            assertTrue(url.get().toString().equals(this.url + "/devices/" + DEVICE_MRID));
+            assertTrue(url.get().toString().equals(this.url + "/devices/" + DEVICE_NAME));
         } else {
             throw new AssertionError("URL not found");
         }
@@ -232,7 +233,6 @@ public class MultisenseHeadEndInterfaceTest {
 
     @Test
     public void readMeterTest() throws Exception {
-
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
@@ -241,7 +241,8 @@ public class MultisenseHeadEndInterfaceTest {
         when(comTaskExecution.getProtocolTasks()).thenReturn(Collections.singletonList(registersTask));
 
         Meter meter = mock(Meter.class);
-        when(deviceService.findByUniqueMrid(any())).thenReturn(Optional.of(device));
+        when(meter.getAmrId()).thenReturn(String.valueOf(DEVICE_ID));
+        when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
 
         RegisteredCustomPropertySet registredReadSet = mock(RegisteredCustomPropertySet.class);
         OnDemandReadServiceCallCustomPropertySet readSet = mock(OnDemandReadServiceCallCustomPropertySet.class);

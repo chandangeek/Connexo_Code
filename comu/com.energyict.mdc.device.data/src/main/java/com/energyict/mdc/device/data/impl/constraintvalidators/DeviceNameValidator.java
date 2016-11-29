@@ -10,31 +10,29 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
 
 /**
- * Validates that each device has a unique external name.
- * <p>
- * Copyrights EnergyICT
- * Date: 10/03/14
- * Time: 16:13
+ * Validates that each device has a unique internal name.
  */
-public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Device> {
+public class DeviceNameValidator implements ConstraintValidator<UniqueName, Device> {
 
     private final DeviceService deviceService;
 
     @Inject
-    public DeviceMridValidator(DeviceService deviceService) {
+    public DeviceNameValidator(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
     @Override
-    public void initialize(UniqueMrid uniqueName) {
+    public void initialize(UniqueName uniqueName) {
     }
 
     @Override
     public boolean isValid(Device device, ConstraintValidatorContext constraintValidatorContext) {
-        Optional<Device> other = this.deviceService.findDeviceByMrid(device.getmRID());
+        Optional<Device> other = this.deviceService.findDeviceByName(device.getName());
         if (other.isPresent() && other.get().getId() != device.getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.buildConstraintViolationWithTemplate(constraintValidatorContext.getDefaultConstraintMessageTemplate()).addPropertyNode(DeviceFields.MRID.fieldName()).addConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate(constraintValidatorContext.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode(DeviceFields.NAME.fieldName())
+                    .addConstraintViolation();
             return false;
         }
         return true;
