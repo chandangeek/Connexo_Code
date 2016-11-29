@@ -64,8 +64,8 @@ public class DeviceScheduleResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getComTask(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
