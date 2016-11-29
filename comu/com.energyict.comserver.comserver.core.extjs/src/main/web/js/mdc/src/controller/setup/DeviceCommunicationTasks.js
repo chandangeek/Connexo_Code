@@ -161,14 +161,17 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 
     showDeviceCommunicationTaskPreview: function (selectionModel, record) {
         var me = this,
-            preview = me.getDeviceCommunicationTaskPreview();
+            preview = me.getDeviceCommunicationTaskPreview(),
+            menu = preview.down('device-communication-task-action-menu');
 
         Ext.suspendLayouts();
         me.getDeviceCommunicationTaskPreviewForm().loadRecord(record);
         preview.getLayout().setActiveItem(1);
         preview.setTitle(Ext.String.htmlEncode(record.get('comTask').name));
-        preview.down('device-communication-task-action-menu').record = record;
         Ext.resumeLayouts(true);
+        if (menu) {
+            menu.record = record;
+        }
     },
 
     runDeviceComTask: function () {
