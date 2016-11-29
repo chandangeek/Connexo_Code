@@ -75,7 +75,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                     itemId: 'user-selection-error',
                     cls: 'x-form-invalid-under',
                     margin: '0 0 0 40',
-                    html: Uni.I18n.translate('task.bulk.MgmtAsignneSelectionError', 'BPM', 'You must choose user before you can proceed'),
+                    html: Uni.I18n.translate('task.bulk.MgmtAsignneSelectionError', 'BPM', 'You must choose a user before you can proceed'),
                     hidden: true
                 },
                 {
