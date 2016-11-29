@@ -97,7 +97,7 @@ public class SchedulingResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public PagedInfoList getUsedSchedules(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
-        Device device = deviceService.findByUniqueMrid(mrid)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid MRID"));
 
         List<ComSchedule> usedSchedules = device.getComTaskExecutions()
@@ -122,7 +122,7 @@ public class SchedulingResource {
                 Iterator<ComSchedule> iterator = comSchedules.iterator();
                 while(iterator.hasNext()) {
                     ComSchedule comSchedule = iterator.next();
-                    if (!isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
+                    if (!isValidComSchedule(comSchedule, comTaskEnablements, comTaskExecutions)) {
                         iterator.remove();
                     }
                 }
