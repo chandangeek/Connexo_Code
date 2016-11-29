@@ -22,7 +22,8 @@ Ext.define('Dbp.controller.History', {
                         user: '',
                         dueDate:'',
                         status:'',
-                        process: ''
+                        process: '',
+                        workgroup: ''
                     },
                     items: {
                         bulkaction: {
@@ -36,7 +37,8 @@ Ext.define('Dbp.controller.History', {
                                 user: '',
                                 dueDate:'',
                                 status:'',
-                                process: ''
+                                process: '',
+                                workgroup: ''
                             }
                         },
                         task: {
@@ -50,7 +52,8 @@ Ext.define('Dbp.controller.History', {
                                 user: '',
                                 dueDate:'',
                                 status:'',
-                                process: ''
+                                process: '',
+                                workgroup: ''
                             },
                             callback: function (route) {
                                 this.getApplication().on('task', function (record) {
@@ -72,7 +75,8 @@ Ext.define('Dbp.controller.History', {
                                         user: '',
                                         dueDate:'',
                                         status:'',
-                                        process: ''
+                                        process: '',
+                                        workgroup: ''
                                     }
                                 },
                                 performTask: {
@@ -86,7 +90,8 @@ Ext.define('Dbp.controller.History', {
                                         user: '',
                                         dueDate:'',
                                         status:'',
-                                        process: ''
+                                        process: '',
+                                        workgroup: ''
                                     }
                                 },
                                 completeTask: {
@@ -100,7 +105,8 @@ Ext.define('Dbp.controller.History', {
                                         user: '',
                                         dueDate:'',
                                         status:'',
-                                        process: ''
+                                        process: '',
+                                        workgroup: ''
                                     }
                                 }
                             }
