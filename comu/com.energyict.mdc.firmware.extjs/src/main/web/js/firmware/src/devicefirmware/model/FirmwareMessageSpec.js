@@ -11,11 +11,8 @@ Ext.define('Fwc.devicefirmware.model.FirmwareMessageSpec', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/fwc/device/{mRID}/firmwaremessagespecs',
-        reader: 'json',
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', mRID);
-        }
+        url: '/api/fwc/devices/{deviceId}/firmwaremessagespecs',
+        reader: 'json'
     },
     associations: [
         {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
