@@ -100,7 +100,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("obisCode")
             .containsKey("isLinkedByDeviceType")
             .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(24)
+        assertThat((Map)map.get("readingType")).hasSize(25)
             .containsKey("mRID")
             .containsKey("aliasName")
             .containsKey("active")
@@ -110,6 +110,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("accumulation")
             .containsKey("flowDirection")
             .containsKey("commodity")
+            .containsKey("isGasRelated")
             .containsKey("measurementKind")
             .containsKey("interHarmonicNumerator")
             .containsKey("interHarmonicDenominator")
