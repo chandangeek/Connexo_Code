@@ -22,7 +22,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -93,6 +95,7 @@ public class EstimationTaskImplIT {
 
     public static final String NAME = "NAME";
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
+    private EnumeratedUsagePointGroup anotherUsagePointGroup;
     private IEstimationService estimationService;
     private TaskService taskService;
     private ThreadPrincipalService threadPrincipalService;
@@ -166,6 +169,7 @@ public class EstimationTaskImplIT {
     private RelativePeriod lastYear;
     private RelativePeriod oneYearBeforeLastYear;
     private EndDeviceGroup endDeviceGroup;
+    private UsagePointGroup usagePointGroup;
 
     @Before
     public void setUp() throws SQLException {
@@ -227,6 +231,12 @@ public class EstimationTaskImplIT {
             anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
                     .setName("also none")
                     .create();
+            usagePointGroup = meteringGroupsService.createEnumeratedUsagePointGroup()
+                    .setName("none")
+                    .create();
+            anotherUsagePointGroup = meteringGroupsService.createEnumeratedUsagePointGroup()
+                    .setName("also none")
+                    .create();
             context.commit();
         }
         taskService = injector.getInstance(TaskService.class);
@@ -239,25 +249,25 @@ public class EstimationTaskImplIT {
 
 
     @Test
-    public void testCreation() {
+    public void testCreationTaskWithEndDeviceGroup() {
 
-        EstimationTask estimationTask = createAndSaveTask();
+        EstimationTask estimationTask = createAndSaveTaskWithEndDeviceGroup();
 
         Optional<? extends EstimationTask> found = estimationService.findEstimationTask(estimationTask.getId());
 
         assertThat(found).isPresent();
 
         EstimationTask readingTypeDataExportTask = found.get();
-
-        Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().isPresent()).isTrue();
+        Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().get().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         Assertions.assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
 
     @Test
-    public void testUpdate() {
+    public void testUpdateTaskWithEndDeviceGroup() {
 
-        EstimationTask estimationTask = createAndSaveTask();
+        EstimationTask estimationTask = createAndSaveTaskWithEndDeviceGroup();
 
         Optional<? extends EstimationTask> found = estimationService.findEstimationTask(estimationTask.getId());
 
@@ -281,24 +291,84 @@ public class EstimationTaskImplIT {
 
         Assertions.assertThat(found.get().getNextExecution()).isEqualTo(instant);
         Assertions.assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
-        Assertions.assertThat(found.get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
+        Assertions.assertThat(found.get().getEndDeviceGroup().isPresent()).isTrue();
+        Assertions.assertThat(found.get().getEndDeviceGroup().get().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         Assertions.assertThat(found.get().getName()).isEqualTo("New name!");
     }
 
+    @Test
+    public void testCreationTaskWithUsagePointGroup() {
 
-    private EstimationTask createAndSaveTask() {
-        return createAndSaveTask(NAME);
+        EstimationTask estimationTask = createAndSaveTaskWithUsagePointGroup();
+
+        Optional<? extends EstimationTask> found = estimationService.findEstimationTask(estimationTask.getId());
+
+        assertThat(found).isPresent();
+
+        EstimationTask readingTypeDataExportTask = found.get();
+        Assertions.assertThat(readingTypeDataExportTask.getUsagePointGroup().isPresent()).isTrue();
+        Assertions.assertThat(readingTypeDataExportTask.getUsagePointGroup().get().getId()).isEqualTo(usagePointGroup.getId());
+        assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
+        Assertions.assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
 
-    private EstimationTask createAndSaveTask(String name) {
-        EstimationTask exportTask = null;
+    @Test
+    public void testUpdateTaskWithUsagePointGroup() {
+
+        EstimationTask estimationTask = createAndSaveTaskWithUsagePointGroup();
+
+        Optional<? extends EstimationTask> found = estimationService.findEstimationTask(estimationTask.getId());
+
+        assertThat(found).isPresent();
+
+        Instant instant = ZonedDateTime.of(2019, 4, 18, 2, 47, 14, 124000000, ZoneId.of("UTC")).toInstant();
+
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = createEstimationTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
+            EstimationTask task = found.get();
+            task.setNextExecution(instant);
+            task.setScheduleExpression(Never.NEVER);
+            task.setUsagePointGroup(anotherUsagePointGroup);
+            task.setName("New name!");
+            task.update();
             context.commit();
         }
-        return exportTask;
+
+        found = estimationService.findEstimationTask(estimationTask.getId());
+
+        assertThat(found).isPresent();
+
+        Assertions.assertThat(found.get().getNextExecution()).isEqualTo(instant);
+        Assertions.assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
+        Assertions.assertThat(found.get().getUsagePointGroup().isPresent()).isTrue();
+        Assertions.assertThat(found.get().getUsagePointGroup().get().getId()).isEqualTo(anotherUsagePointGroup.getId());
+        Assertions.assertThat(found.get().getName()).isEqualTo("New name!");
     }
 
+    private EstimationTask createAndSaveTaskWithEndDeviceGroup() {
+        return createAndSaveTaskWithEndDeviceGroup(NAME);
+    }
+
+    private EstimationTask createAndSaveTaskWithEndDeviceGroup(String name) {
+        EstimationTask estimationTask = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            estimationTask = createEstimationTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
+            context.commit();
+        }
+        return estimationTask;
+    }
+
+    private EstimationTask createAndSaveTaskWithUsagePointGroup() {
+        return createAndSaveTaskWithUsagePointGroup(NAME);
+    }
+
+    private EstimationTask createAndSaveTaskWithUsagePointGroup(String name) {
+        EstimationTask estimationTask = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            estimationTask = createEstimationTask(lastYear, oneYearBeforeLastYear, usagePointGroup, name);
+            context.commit();
+        }
+        return estimationTask;
+    }
 
     private EstimationTask createEstimationTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return estimationService.newBuilder()
@@ -306,6 +376,16 @@ public class EstimationTaskImplIT {
                 .setName(name)
                 .setQualityCodeSystem(QualityCodeSystem.MDC)
                 .setEndDeviceGroup(endDeviceGroup)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .create();
+    }
+
+    private EstimationTask createEstimationTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, UsagePointGroup usagePointGroup, String name) {
+        return estimationService.newBuilder()
+                .scheduleImmediately()
+                .setName(name)
+                .setQualityCodeSystem(QualityCodeSystem.MDM)
+                .setUsagePointGroup(usagePointGroup)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .create();
     }

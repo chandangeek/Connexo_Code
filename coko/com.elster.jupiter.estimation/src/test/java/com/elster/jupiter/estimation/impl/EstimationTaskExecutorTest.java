@@ -6,6 +6,7 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationTask;
@@ -25,6 +26,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
 
 import com.google.common.collect.Range;
 
@@ -83,9 +85,9 @@ public class EstimationTaskExecutorTest {
     @Mock
     private TaskLogHandler taskLogger;
     @Mock
-    private com.elster.jupiter.util.conditions.Subquery endDeviceSubQuery;
+    private Subquery endDeviceSubQuery;
     @Mock
-    private com.elster.jupiter.domain.util.Query<com.elster.jupiter.metering.Meter> meterWithSuspectsQuery;
+    private Query<Meter> meterWithSuspectsQuery;
     @Mock
     private Meter meter1, meter2;
     @Mock
@@ -109,7 +111,7 @@ public class EstimationTaskExecutorTest {
         myHandler = new MyHandler();
         when(taskLogger.asHandler()).thenReturn(myHandler);
         doReturn(Optional.of(estimationTask)).when(estimationService).findEstimationTask(eq(task));
-        when(estimationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
         when(meteringService.getMeterWithReadingQualitiesQuery(any(Range.class), eq(ReadingQualityType.of(QUALITY_CODE_SYSTEM, QualityCodeIndex.SUSPECT)))).thenReturn(meterWithSuspectsQuery);
         when(endDeviceGroup.toSubQuery(eq("id"))).thenReturn(endDeviceSubQuery);
         when(meterWithSuspectsQuery.select(any(Condition.class))).thenReturn(Arrays.asList(meter1, meter2));

@@ -20,6 +20,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_ESTIMATION_RULE_SET(101, Constants.DUPLICATE_ESTIMATION_RULE_SET, "Name must be unique", Level.SEVERE),
     DUPLICATE_ESTIMATION_RULE(102, Constants.DUPLICATE_ESTIMATION_RULE, "Name must be unique", Level.SEVERE),
     DUPLICATE_ESTIMATION_TASK(103, Constants.DUPLICATE_ESTIMATION_TASK, "Name must be unique", Level.SEVERE),
+    CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "The estimation task can''t be removed because the task is running at this moment", Level.SEVERE),
 
     ESTIMATOR_PROPERTY_NOT_IN_SPEC(1005, Constants.ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY, "The estimator ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     ESTIMATOR_PROPERTY_INVALID_VALUE(1006, Constants.ESTIMATOR_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of estimator ''{2}''", Level.SEVERE),
@@ -83,6 +84,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DUPLICATE_ESTIMATION_RULE = "DuplicateEstimationRule";
         public static final String DUPLICATE_ESTIMATION_TASK = "DuplicateEstimationTask";
         public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
+        public static final String CANNOT_DELETE_WHILE_RUNNING = "CannotDeleteEstimationTask";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
         public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
         public static final String ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY = "EstimatorPropertyXIsNotInSpec";
