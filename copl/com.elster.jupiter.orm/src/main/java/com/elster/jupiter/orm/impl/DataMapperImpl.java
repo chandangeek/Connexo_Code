@@ -560,10 +560,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 				.filter(foreignKey -> foreignKey.getFieldName() != null)
 				.forEach(constraint -> {
 							List<ColumnImpl> columns = constraint.getColumns();
-							columns.forEach(column ->
-									constraintMapping.put(column, Pair.of(columns, constraint.getFieldName())));
-						}
-				);
+							Pair<List<ColumnImpl>, String> mapping = Pair.of(columns, constraint.getFieldName());
+							columns.forEach(column -> constraintMapping.put(column, mapping));
+						});
 		for (Column each : getTable().getColumns()) {
 			String fieldName = each.getFieldName();
 			if (fieldName == null) {
