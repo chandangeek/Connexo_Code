@@ -169,6 +169,16 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     @Override
+    public Type getType() {
+        return Type.STATE_CHANGE;
+    }
+
+    @Override
+    public String getTypeName() {
+        return this.thesaurus.getString(TranslationKeys.Keys.CHANGE_REQUEST_TYPE_PREFIX + getType(), getType().getKey());
+    }
+
+    @Override
     public UsagePoint getUsagePoint() {
         return this.usagePoint.get();
     }
@@ -225,8 +235,10 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
 
     @Override
     public void cancel() {
-        this.status = Status.CANCELLED;
-        this.dataModel.update(this);
+        if (this.status == Status.SCHEDULED) {
+            this.status = Status.CANCELLED;
+            this.dataModel.update(this);
+        }
     }
 
     UsagePointStateChangeRequest execute() {

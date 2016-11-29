@@ -8,8 +8,9 @@ public enum TranslationKeys implements TranslationKey {
     QUEUE_SUBSCRIBER(ServerUsagePointLifeCycleService.QUEUE_SUBSCRIBER, "Handle usage point life cycle changes"),
     USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_COMPLETED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.COMPLETED, "Completed"),
     USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_FAILED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.FAILED, "Failed"),
-    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_SCHEDULED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.SCHEDULED, "Scheduled"),
-    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_CANCELLED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.CANCELLED, "Canceled"),;
+    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_SCHEDULED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.SCHEDULED, "Planned"),
+    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_CANCELLED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.CANCELLED, "Canceled"),
+    USAGE_POINT_STATE_CHANGE_REQUEST_TYPE_STATE(Keys.CHANGE_REQUEST_TYPE_PREFIX + UsagePointStateChangeRequest.Type.STATE_CHANGE, "Canceled"),;
 
     private final String key;
     private final String defaultFormat;
@@ -34,5 +35,6 @@ public enum TranslationKeys implements TranslationKey {
         }
 
         public static final String CHANGE_REQUEST_STATUS_PREFIX = "usage.point.state.change.request.status.";
+        public static final String CHANGE_REQUEST_TYPE_PREFIX = "usage.point.state.change.request.type.";
     }
 }
