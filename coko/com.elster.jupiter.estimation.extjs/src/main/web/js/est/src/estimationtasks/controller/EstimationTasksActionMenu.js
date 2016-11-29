@@ -159,41 +159,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
                 if (operation.response.status === 409) {
                     return
                 }
-                var json = Ext.decode(operation.response.responseText, true);
-                var errorText = Uni.I18n.translate('estimationtasks.error.unknown', 'EST', 'Unknown error occurred');
-                if (json && json.errors) {
-                    errorText = json.errors[0].msg;
-                }
-
-                if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
-                    Ext.widget('messagebox', {
-                        itemId: 'remove-error-messagebox',
-                        buttons: [
-                            {
-                                text: 'Retry',
-                                ui: 'remove',
-                                handler: function (button, event) {
-                                    me.removeOperation(record);
-                                }
-                            },
-                            {
-                                text: 'Cancel',
-                                action: 'cancel',
-                                ui: 'link',
-                                href: '#/administration/estimationtasks/',
-                                handler: function (button, event) {
-                                    this.up('messagebox').destroy();
-                                }
-                            }
-                        ]
-                    }).show({
-                        ui: 'notification-error',
-                        title: Uni.I18n.translate('estimationtasks.general.remove.error.msg', 'EST', 'Remove operation failed'),
-                        msg: errorText,
-                        modal: false,
-                        icon: Ext.MessageBox.ERROR
-                    })
-                }
             },
             callback: function () {
                 pageMainContent.setLoading(false);

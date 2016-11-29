@@ -32,6 +32,7 @@ Ext.define('Est.estimationrules.view.Detail', {
                     {
                         xtype: 'estimation-rules-detail-form',
                         itemId: 'estimation-rules-detail-form',
+                        ui: 'large',
                         actionMenuItemId: me.actionMenuItemId,
                         staticTitle: true
                     }

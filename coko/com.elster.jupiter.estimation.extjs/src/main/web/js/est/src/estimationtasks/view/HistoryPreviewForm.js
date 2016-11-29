@@ -28,7 +28,13 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                 items: [
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.deviceGroup', 'EST', 'Device group'),
-                        name: 'deviceGroup'
+                        name: 'deviceGroup',
+                        hidden: typeof(MdcApp) == 'undefined'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.usagePointGroup', 'EST', 'Usage point group'),
+                        name: 'usagePointGroup',
+                        hidden: typeof(MdmApp) == 'undefined'
                     }
                 ]
             },

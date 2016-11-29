@@ -9,6 +9,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'recurrence', type: 'auto'},
         {name: 'period', type: 'auto', defaultValue: null},
         {name: 'deviceGroup', type: 'auto', defaultValue: null},
+        {name: 'usagePointGroup', type: 'auto', defaultValue: null},
         {name: 'lastEstimationOccurrence', type: 'auto', defaultValue: null},
         {name: 'nextRun', type: 'number', useNull: true},
         {name: 'lastRun', type: 'number', useNull: true},
@@ -18,6 +19,17 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             mapping: function (data) {
                 if (data.deviceGroup && data.deviceGroup.name) {
                     return data.deviceGroup.name;
+                } else {
+                    return '-'
+                }
+            }
+        },
+        {
+            name: 'usagePointGroup_name',
+            persist: false,
+            mapping: function (data) {
+                if (data.usagePointGroup && data.usagePointGroup.displayValue) {
+                    return data.usagePointGroup.displayValue;
                 } else {
                     return '-'
                 }

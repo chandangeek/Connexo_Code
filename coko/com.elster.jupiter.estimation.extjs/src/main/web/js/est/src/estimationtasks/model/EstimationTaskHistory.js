@@ -25,6 +25,19 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
             }
         },
         {
+            name: 'usagePointGroup',
+            persist: false,
+            mapping: function (data) {
+
+                if (data.task.usagePointGroup && data.task.usagePointGroup.displayValue) {
+                    return data.task.usagePointGroup.displayValue;
+                } else {
+                    return '-';
+                }
+
+            }
+        },
+        {
             name: 'name',
             persist: false,
             mapping: function (data) {

@@ -5,6 +5,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
     stores: [
         'Est.estimationtasks.store.DeviceGroups',
+        'Est.estimationtasks.store.UsagePointGroups',
         'Est.estimationtasks.store.DaysWeeksMonths'
     ],
 
@@ -15,7 +16,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     refs: [
         {ref: 'addEditEstimationtaskPage', selector: 'estimationtasks-addedit'},
         {ref: 'addEditEstimationtaskForm', selector: '#add-edit-estimationtask-form'},
-        {ref: 'deviceGroupCombo', selector: '#device-group-id'},
+        {ref: 'deviceGroupCombo', selector: '#device-group-combo'},
         {ref: 'estimationPeriodCombo', selector: '#estimationPeriod-id'},
         {ref: 'noDeviceGroupBlock', selector: '#no-device'},
         {ref: 'recurrenceTypeCombo', selector: '#recurrence-type'}
@@ -38,29 +39,30 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
     showAddEstimationTasksView: function () {
         var me = this,
-            widget = Ext.widget('estimationtasks-addedit');
+            widget = Ext.widget('estimationtasks-addedit',{
+                appName: Uni.util.Application.getAppName()
+            }),
+            dataSourcesContainer = widget.down('est-data-sources-container');
+        Ext.suspendLayouts();
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getEstimationPeriodCombo().store.load({
             params: {
                 category: 'relativeperiod.category.estimation'
             },
             callback: function () {
-                me.getDeviceGroupCombo().store.load(function () {
-                    if (this.getCount() === 0) {
-                        me.getDeviceGroupCombo().allowBlank = true;
-                        me.getDeviceGroupCombo().hide();
-                        me.getNoDeviceGroupBlock().show();
-                    }
-                });
+                dataSourcesContainer.loadGroupStore();
             }
         });
 
         me.getRecurrenceTypeCombo().setValue(me.getRecurrenceTypeCombo().store.getAt(2));
         me.recurrenceEnableDisable();
+        Ext.resumeLayouts(true);
     },
 
     createEstimationTask: function (button) {
-        var me = this, newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues(),
+        var me = this,
+            appName = Uni.util.Application.getAppName(),
+            newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues(),
             previousPath = me.getController('Uni.controller.history.EventBus').getPreviousPath();
 
         me.getAddEditEstimationtaskForm().down('#form-errors').hide();
@@ -71,13 +73,25 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             newEstimationTask.beginEdit();
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
-            newEstimationTask.set('application', Uni.util.Application.getAppName());
+            newEstimationTask.set('application', appName);
             newEstimationTask.set('active', true);
             newEstimationTask.set('lastEstimationOccurrence', null);
-            newEstimationTask.set('deviceGroup', {
-                id: newEstimationTaskDto.deviceGroupId,
-                name: me.getAddEditEstimationtaskForm().down('#device-group-id').getRawValue()
-            });
+            switch(appName){
+                case 'MultiSense':{
+                    newEstimationTask.set('deviceGroup', {
+                        id: me.getAddEditEstimationtaskForm().down('#device-group-combo').getValue(),
+                        name: me.getAddEditEstimationtaskForm().down('#device-group-combo').getRawValue()
+                    });
+                } break;
+                case 'MdmApp':{
+                    newEstimationTask.set('usagePointGroup', {
+                        id: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getValue(),
+                        displayValue: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getRawValue()
+                    });
+                } break;
+            }
+
+
 
             if (newEstimationTaskDto.recurrence) {
                 var startOnDate = moment(newEstimationTaskDto.startOn).valueOf(),
@@ -226,43 +240,38 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Est.estimationtasks.model.EstimationTask'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            widget;
+            widget = Ext.widget('estimationtasks-addedit', {
+                appName: Uni.util.Application.getAppName(),
+                edit: true
+            });
 
         me.taskId = currentTaskId;
 
         if (me.fromDetails) {
-            widget = Ext.widget('estimationtasks-addedit', {
-                edit: true,
-                returnLink: router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: currentTaskId})
-            })
+            widget.returnLink = router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: currentTaskId});
         } else {
-            widget = Ext.widget('estimationtasks-addedit', {
-                edit: true,
-                returnLink: router.getRoute('administration/estimationtasks').buildUrl()
-            })
+            widget.returnLink = router.getRoute('administration/estimationtasks').buildUrl();
         }
         pageMainContent.setLoading(true);
 
         var taskForm = widget.down('#add-edit-estimationtask-form'),
-            deviceGroupCombo = widget.down('#device-group-id'),
+            dataSourcesContainer = widget.down('est-data-sources-container'),
             recurrenceTypeCombo = widget.down('#recurrence-type');
 
+        Ext.suspendLayouts();
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var schedule = record.get('schedule'),
                     deviceGroup = record.get('deviceGroup'),
-                    period = record.get('period');
+                    usagePointGroup = record.get('usagePointGroup'),
+                    period = record.get('period'),
+                    groupId = deviceGroup ? deviceGroup.id : usagePointGroup ? usagePointGroup.id : null;
                 me.taskModel = record;
                 taskForm.loadRecord(record);
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'EST', "Edit '{0}'",[record.get('name')]));
-                deviceGroupCombo.store.load(function () {
-                    if (this.getCount() === 0) {
-                        deviceGroupCombo.allowBlank = true;
-                        deviceGroupCombo.hide();
-                        me.getNoDeviceGroupBlock().show();
-                    }
-                    deviceGroupCombo.setValue(deviceGroupCombo.store.getById(deviceGroup.id));
+                dataSourcesContainer.loadGroupStore(function(){
+                    dataSourcesContainer.setComboValue(groupId);
                     me.getEstimationPeriodCombo().store.load(function () {
                         if (period && (period.id !== 0)) {
                             widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});
@@ -270,7 +279,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                         }
                         pageMainContent.setLoading(false);
                     });
-
                 });
 
                 if (record.get('nextRun') && (record.get('nextRun') !== 0)) {
@@ -290,6 +298,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         me.recurrenceEnableDisable();
+        Ext.resumeLayouts(true);
     },
 
     recurrenceChange: function(field, newValue, oldValue) {
