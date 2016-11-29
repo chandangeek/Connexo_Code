@@ -19,7 +19,8 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGE_POINT").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("TRANSITION_ID").map(UsagePointStateChangeRequestImpl.Fields.TRANSITION_ID.fieldName()).number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("TRANSITION_NAME").map(UsagePointStateChangeRequestImpl.Fields.TRANSITION_NAME.fieldName()).varChar().notNull().add();
+            table.column("FROM_STATE_NAME").map(UsagePointStateChangeRequestImpl.Fields.FROM_STATE_NAME.fieldName()).varChar().notNull().add();
+            table.column("TO_STATE_NAME").map(UsagePointStateChangeRequestImpl.Fields.TO_STATE_NAME.fieldName()).varChar().notNull().add();
             table.column("TRANSITION_TIME").map(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName()).number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
             table.column("SCHEDULE_TIME").map(UsagePointStateChangeRequestImpl.Fields.SCHEDULE_TIME.fieldName()).number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
             Column originator = table.column("ORIGINATOR").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();

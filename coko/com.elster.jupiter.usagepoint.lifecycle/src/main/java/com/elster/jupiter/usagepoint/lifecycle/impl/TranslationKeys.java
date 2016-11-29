@@ -1,10 +1,15 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 
 public enum TranslationKeys implements TranslationKey {
 
-    QUEUE_SUBSCRIBER(ServerUsagePointLifeCycleService.QUEUE_SUBSCRIBER, "Handle usage point life cycle changes"),;
+    QUEUE_SUBSCRIBER(ServerUsagePointLifeCycleService.QUEUE_SUBSCRIBER, "Handle usage point life cycle changes"),
+    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_COMPLETED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.COMPLETED, "Completed"),
+    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_FAILED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.FAILED, "Failed"),
+    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_SCHEDULED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.SCHEDULED, "Scheduled"),
+    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_CANCELLED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.CANCELLED, "Canceled"),;
 
     private final String key;
     private final String defaultFormat;
@@ -22,5 +27,12 @@ public enum TranslationKeys implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return this.defaultFormat;
+    }
+
+    static class Keys {
+        private Keys() {
+        }
+
+        public static final String CHANGE_REQUEST_STATUS_PREFIX = "usage.point.state.change.request.status.";
     }
 }

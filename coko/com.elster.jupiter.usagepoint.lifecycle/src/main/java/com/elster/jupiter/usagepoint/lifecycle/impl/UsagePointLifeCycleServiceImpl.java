@@ -24,9 +24,11 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -38,6 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -188,6 +191,23 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     @Override
+    public List<UsagePointTransition> getAvailableTransitions(UsagePointState usagePointState, String application) {
+        Principal principal = this.threadPrincipalService.getPrincipal();
+        if (!(principal instanceof User)) {
+            return Collections.emptyList();
+        }
+        User user = (User) principal;
+        return usagePointState.getLifeCycle().getTransitions()
+                .stream()
+                .filter(transition -> transition.getFrom().equals(usagePointState))
+                .filter(transition -> transition.getLevels().isEmpty() || transition.getLevels()
+                        .stream()
+                        .map(UsagePointTransition.Level::getPrivilege)
+                        .anyMatch(privilege -> user.hasPrivilege(application, privilege)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
         List<ExecutableMicroCheckViolation> violations = transition.getChecks().stream()
                 .map(ExecutableMicroCheck.class::cast)
@@ -230,6 +250,12 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
             task.setNextExecution(nextExecution);
             task.save();
         });
+    }
+
+    @Override
+    public void createUsagePointInitialStateChangeRequest(UsagePoint usagePoint) {
+        this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
+                .initAsHistoryRecord(usagePoint, "-", usagePoint.getState().getName(), usagePoint.getInstallationTime());
     }
 
     @Override

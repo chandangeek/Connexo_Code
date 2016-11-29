@@ -1,6 +1,8 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -31,6 +33,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -61,19 +64,19 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     private User user;
 
     public void initializeCommonUsagePointStateChangeFields() {
-        UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Life cycle");
-        state1 = lifeCycle.newState("State 1").setInitial().complete();
-        state2 = lifeCycle.newState("State 2").complete();
-        transition = lifeCycle.newTransition("Transition", state1, state2).withLevels(EnumSet.of(UsagePointTransition.Level.FOUR)).complete();
-        lifeCycle.markAsDefault();
-        usagePoint = get(MeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint("Usage point", now().minus(2, ChronoUnit.HOURS)).create();
-
         UserService userService = get(UserService.class);
         group = userService.findOrCreateGroup("Test");
         userService.grantGroupWithPrivilege(group.getName(), APPLICATION, new String[]{UsagePointTransition.Level.FOUR.getPrivilege()});
         user = userService.findOrCreateUser("TestUser", "domain", "directoryType");
         user.join(group);
         get(ThreadPrincipalService.class).set(user);
+
+        UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Life cycle");
+        state1 = lifeCycle.newState("State 1").setInitial().complete();
+        state2 = lifeCycle.newState("State 2").complete();
+        transition = lifeCycle.newTransition("Transition", state1, state2).withLevels(EnumSet.of(UsagePointTransition.Level.FOUR)).complete();
+        lifeCycle.markAsDefault();
+        usagePoint = get(MeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint("Usage point", now().minus(2, ChronoUnit.HOURS)).create();
     }
 
     private Instant now() {
@@ -244,5 +247,40 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         assertThat(request.getGeneralFailReason()).contains(String.valueOf(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM.getNumber()));
         assertThat(request.getFailReasons().get(0).getKey()).isEqualTo(microAction.getKey());
         assertThat(request.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.FAILED);
+    }
+
+    @Test
+    @Transactional
+    public void testCreateInitialStateChangeRequestHistoryRecord() {
+        UsagePointInitialStateChangeRequestHandler changeRequestHandler = get(UsagePointInitialStateChangeRequestHandler.class);
+        ((EventServiceImpl) get(EventService.class)).addTopicHandler(changeRequestHandler);
+        initializeCommonUsagePointStateChangeFields();
+        ((EventServiceImpl) get(EventService.class)).removeTopicHandler(changeRequestHandler);
+
+        UsagePointStateChangeRequestImpl request = (UsagePointStateChangeRequestImpl) get(UsagePointLifeCycleService.class).getHistory(usagePoint).get(0);
+        assertThat(request.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.COMPLETED);
+        assertThat(request.getFromStateName()).isEqualTo("-");
+        assertThat(request.getToStateName()).isEqualTo(state1.getName());
+        assertThat(request.getTransitionTime()).isEqualTo(usagePoint.getInstallationTime());
+        assertThat(request.getGeneralFailReason()).isNull();
+        assertThat(request.getFailReasons()).isEmpty();
+        assertThat(request.getOriginator()).isEqualTo(user);
+    }
+
+    @Test
+    @Transactional
+    public void testCanGetTransitionsAvailableForCurrentUser() {
+        initializeCommonUsagePointStateChangeFields();
+
+        List<UsagePointTransition> transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(state1, APPLICATION);
+        assertThat(transitions.size()).isEqualTo(1);
+        assertThat(transitions).containsExactly(transition);
+
+        transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(state2, APPLICATION);
+        assertThat(transitions).isEmpty();
+
+        user.leave(group);
+        transitions = get(ServerUsagePointLifeCycleService.class).getAvailableTransitions(state1, APPLICATION);
+        assertThat(transitions).isEmpty();
     }
 }

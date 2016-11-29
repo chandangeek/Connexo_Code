@@ -18,9 +18,13 @@ public interface UsagePointStateChangeRequest extends HasId {
 
     Status getStatus();
 
+    String getStatusName();
+
     UsagePoint getUsagePoint();
 
-    String getUsagePointTransition();
+    String getFromStateName();
+
+    String getToStateName();
 
     User getOriginator();
 

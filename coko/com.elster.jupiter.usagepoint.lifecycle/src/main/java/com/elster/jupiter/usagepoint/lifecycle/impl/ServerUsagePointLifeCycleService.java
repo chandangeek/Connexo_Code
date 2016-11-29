@@ -25,4 +25,6 @@ public interface ServerUsagePointLifeCycleService extends UsagePointLifeCycleSer
     DataModel getDataModel();
 
     void rescheduleExecutor();
+
+    void createUsagePointInitialStateChangeRequest(UsagePoint usagePoint);
 }

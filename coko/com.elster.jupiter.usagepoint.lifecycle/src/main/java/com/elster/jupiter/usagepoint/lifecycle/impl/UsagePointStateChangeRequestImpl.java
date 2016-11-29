@@ -33,7 +33,8 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     public enum Fields {
         USAGE_POINT("usagePoint"),
         TRANSITION_ID("transitionId"),
-        TRANSITION_NAME("transitionName"),
+        FROM_STATE_NAME("fromStateName"),
+        TO_STATE_NAME("toStateName"),
         TRANSITION_TIME("transitionTime"),
         SCHEDULE_TIME("scheduleTime"),
         ORIGINATOR("originator"),
@@ -62,10 +63,10 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
 
     private long id;
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-    private long transitionId;
     @Size(max = Table.NAME_LENGTH)
-    private String transitionName;
-    private transient UsagePointTransition transition;
+    private String fromStateName;
+    @Size(max = Table.NAME_LENGTH)
+    private String toStateName;
     private Instant transitionTime;
     private Instant scheduleTime;
     private Reference<User> originator = ValueReference.absent();
@@ -75,6 +76,9 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     @Size(max = Table.MAX_STRING_LENGTH)
     private String generalFailReason;
     private List<UsagePointStateChangeFailImpl> fails = new ArrayList<>();
+
+    private long transitionId;
+    private transient UsagePointTransition transition;
 
     @Inject
     public UsagePointStateChangeRequestImpl(Clock clock,
@@ -92,14 +96,32 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     UsagePointStateChangeRequestImpl init(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
-        this.usagePoint.set(usagePoint);
         this.transitionId = transition.getId();
-        this.transitionName = transition.getName();
         this.transition = transition;
+        this.fromStateName = transition.getFrom().getName();
+        this.toStateName = transition.getTo().getName();
+        this.usagePoint.set(usagePoint);
         this.transitionTime = transitionTime;
         this.scheduleTime = this.clock.instant();
         initProperties(properties);
         initOriginator(transition, application);
+        this.dataModel.persist(this);
+        return this;
+    }
+
+    UsagePointStateChangeRequestImpl initAsHistoryRecord(UsagePoint usagePoint, String fromStateName, String toStateName, Instant transitionTime) {
+        this.status = Status.COMPLETED;
+        this.fromStateName = fromStateName;
+        this.toStateName = toStateName;
+        this.usagePoint.set(usagePoint);
+        this.transitionTime = transitionTime;
+        this.scheduleTime = this.clock.instant();
+        Principal currentUser = this.threadPrincipalService.getPrincipal();
+        if (currentUser instanceof User) {
+            this.originator.set((User) currentUser);
+        } else {
+            throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
+        }
         this.dataModel.persist(this);
         return this;
     }
@@ -124,7 +146,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         if (currentUser instanceof User) {
             User user = (User) currentUser;
             this.originator.set(user);
-            if (!transition.getLevels()
+            if (!transition.getLevels().isEmpty() && !transition.getLevels()
                     .stream()
                     .map(UsagePointTransition.Level::getPrivilege)
                     .anyMatch(privilege -> user.hasPrivilege(application, privilege))) {
@@ -142,13 +164,23 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     @Override
+    public String getStatusName() {
+        return this.thesaurus.getString(TranslationKeys.Keys.CHANGE_REQUEST_STATUS_PREFIX + getStatus(), getStatus().name());
+    }
+
+    @Override
     public UsagePoint getUsagePoint() {
         return this.usagePoint.get();
     }
 
     @Override
-    public String getUsagePointTransition() {
-        return this.transitionName;
+    public String getFromStateName() {
+        return this.fromStateName;
+    }
+
+    @Override
+    public String getToStateName() {
+        return this.toStateName;
     }
 
     @Override
@@ -208,10 +240,8 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
                     this.status = Status.COMPLETED;
                 } catch (ExecutableMicroCheckException cex) {
                     this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_CHECKS_FAILED_NO_PARAM).format();
-                    cex.getViolations().forEach(violation -> {
-                        this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
-                                .init(this, violation.getMicroCheck().getKey(), violation.getMicroCheck().getName(), violation.getLocalizedMessage()));
-                    });
+                    cex.getViolations().forEach(violation -> this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
+                            .init(this, violation.getMicroCheck().getKey(), violation.getMicroCheck().getName(), violation.getLocalizedMessage())));
                 } catch (ExecutableMicroActionException aex) {
                     this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM).format();
                     this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
@@ -240,7 +270,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     private boolean transitionIsActualForUsagePoint() {
         UsagePointState currentUsagePointState = this.usagePoint.get().getState(this.transitionTime);
         if (currentUsagePointState.getId() != this.transition.getFrom().getId()) {
-            this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_STATE_DOES_NOT_SUPPORT_TRANSITION).format(currentUsagePointState.getName(), this.transitionName);
+            this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_STATE_DOES_NOT_SUPPORT_TRANSITION).format(currentUsagePointState.getName(), this.toStateName);
             return false;
         }
         return true;
