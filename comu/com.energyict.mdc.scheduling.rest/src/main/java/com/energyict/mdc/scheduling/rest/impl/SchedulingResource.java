@@ -74,12 +74,12 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public PagedInfoList getSchedules(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
-        String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
+        String deviceName = queryFilter.hasProperty("deviceName") ? queryFilter.getString("deviceName") : null;
         boolean available = queryFilter.hasProperty("available") ? queryFilter.getBoolean("available") : false;
         List<ComSchedule> comSchedules = schedulingService.getAllSchedules();
         Collections.sort(comSchedules, (o1, o2) -> o1.getName().compareTo(o2.getName()));
-        if (mrid != null && available) {
-            filterAvailableSchedulesOnly(mrid, comSchedules);
+        if (deviceName != null && available) {
+            filterAvailableSchedulesOnly(deviceName, comSchedules);
         }
         comSchedules = ListPager.of(comSchedules).from(queryParameters).find();
 
@@ -115,38 +115,19 @@ public class SchedulingResource {
         return PagedInfoList.fromPagedList("schedules", comScheduleInfos, queryParameters);
     }
 
-    private void filterAvailableSchedulesOnly(String mrid, List<ComSchedule> comSchedules) {
-        deviceService
-                .findByUniqueMrid(mrid)
-                .ifPresent(device -> {
-                    List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-                    Iterator<ComSchedule> iterator = comSchedules.iterator();
-                    while (iterator.hasNext()) {
-                        ComSchedule comSchedule = iterator.next();
-                        if (!isValidComSchedule(comSchedule, comTaskEnablements, device.getComTaskExecutions())) {
-                            iterator.remove();
-                        }
+    private void filterAvailableSchedulesOnly(String deviceName, List<ComSchedule> comSchedules) {
+        deviceService.findDeviceByName(deviceName).ifPresent(device -> {
+                List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+                List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+                Iterator<ComSchedule> iterator = comSchedules.iterator();
+                while(iterator.hasNext()) {
+                    ComSchedule comSchedule = iterator.next();
+                    if (!isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
+                        iterator.remove();
                     }
-                });
+                }
+        });
     }
-
-    private static class CompareBySchedulingStatus implements Comparator<ComSchedule> {
-        @Override
-        public int compare(ComSchedule o1, ComSchedule o2) {
-            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                return 0;
-            }
-            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && !SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                return 1;
-            }
-            if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                return -1;
-            }
-            // Neither are paused so planned date is always there
-            return o1.getPlannedDate().get().compareTo(o2.getPlannedDate().get());
-        }
-    }
-
 
     private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements, List<ComTaskExecution> comTaskExecutions) {
         boolean alreadyScheduledExecutionForTaskInSchedule = comTaskExecutions.stream()
