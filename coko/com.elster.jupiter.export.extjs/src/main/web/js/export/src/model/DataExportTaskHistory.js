@@ -56,7 +56,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'eventTypes',
             persist: false,
             mapping: function (data) {
-                if ((data.task.standardDataSelector) && (data.task.standardDataSelector.eventTypeCodes)) {
+                if (data.task.standardDataSelector && data.task.standardDataSelector.eventTypeCodes) {
                     return data.task.standardDataSelector.eventTypeCodes;
                 } else {
                     return null;
@@ -74,7 +74,17 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 }
             }
         },
-
+        {
+            name: 'usagePointGroup',
+            persist: false,
+            mapping: function (data) {
+                if (data.task.standardDataSelector && data.task.standardDataSelector.usagePointGroup) {
+                    return data.task.standardDataSelector.usagePointGroup.name;
+                } else {
+                    return '-';
+                }
+            }
+        },
         {
             name: 'name',
             persist:false,

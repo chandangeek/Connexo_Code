@@ -262,6 +262,42 @@ Ext.define('Dxp.view.tasks.Add', {
 
                     {
                         xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.usagePointGroup', 'DES', 'Usage point group'),
+                        hidden: true,
+                        itemId: 'usage-point-group-container',
+                        msgTarget: 'under',
+                        required: true,
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                itemId: 'usage-point-group-combo',
+                                name: 'readingTypeDataSelector.value.usagePointGroup',
+                                width: 235,
+                                store: 'Dxp.store.UsagePointGroups',
+                                editable: false,
+                                disabled: false,
+                                emptyText: Uni.I18n.translate('addDataExportTask.usagePointGroupPrompt', 'DES', 'Select a usage point group...'),
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id'
+                            },
+                            {
+                                xtype: 'component',
+                                html: Uni.I18n.translate('general.noUsagePointGroup', 'DES', 'No usage point group defined yet'),
+                                itemId: 'no-usage-point',
+                                hidden: true,
+                                width: 235,
+                                style: {
+                                    'color': '#FF0000',
+                                    'margin': '6px 10px 6px 0px'
+                                }
+                            }
+                        ]
+                    },
+
+                    {
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
                         hidden: true,
                         itemId: 'readingTypesFieldContainer',

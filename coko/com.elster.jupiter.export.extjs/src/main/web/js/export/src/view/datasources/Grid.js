@@ -28,8 +28,8 @@ Ext.define('Dxp.view.datasources.Grid', {
     columnsPerApp: {
         MultiSense: [
             {
-                header: Uni.I18n.translate('general.mrid', 'DES', 'MRID'),
-                dataIndex: 'mRID',
+                header: Uni.I18n.translate('general.name', 'DES', 'Name'),
+                dataIndex: 'name',
                 flex: 1
             },
             {
