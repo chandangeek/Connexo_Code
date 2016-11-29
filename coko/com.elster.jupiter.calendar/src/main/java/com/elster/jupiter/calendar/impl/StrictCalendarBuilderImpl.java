@@ -32,6 +32,7 @@ class StrictCalendarBuilderImpl implements CalendarService.StrictCalendarBuilder
     @Override
     public Calendar add() {
         exceptionsToAdd.forEach(StrictExceptionBuilderImpl::build);
+        updating.save();
         return updating;
     }
 
@@ -54,7 +55,7 @@ class StrictCalendarBuilderImpl implements CalendarService.StrictCalendarBuilder
 
         @Override
         public CalendarService.StrictExceptionBuilder occursOnceOn(LocalDate date) {
-            if (LocalDate.now(clock).isBefore(date)) {
+            if (!LocalDate.now(clock).isBefore(date)) {
                 throw new CannotAddPastExceptionsToActiveCalendar(thesaurus, dayTypeImpl.getName(), date);
             }
             this.localDate = date;

@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
+
 /**
  * Provides an implementation for the {@link com.elster.jupiter.calendar.Calendar} interface.
  *
@@ -212,7 +214,11 @@ public class CalendarImpl implements Calendar {
     @Override
     public void save() {
         if (this.getId() > 0) {
-            doUpdate();
+            if (isActive()) {
+                doUpdate();
+            } else {
+                doRedefine();
+            }
         } else {
             doSave();
         }
@@ -232,7 +238,7 @@ public class CalendarImpl implements Calendar {
         eventService.postEvent(EventType.CALENDAR_CREATE.topic(), this);
     }
 
-    private void doUpdate() {
+    private void doRedefine() {
         Calendar savedCalendar = calendarService.findCalendar(this.getId()).get();
         for (ExceptionalOccurrence occurrence : savedCalendar.getExceptionalOccurrences()) {
             ((ExceptionalOccurrenceImpl) occurrence).delete();
@@ -255,6 +261,15 @@ public class CalendarImpl implements Calendar {
         savePeriods();
         savePeriodTransitionSpecs();
         saveExceptionalOccurrences();
+        eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
+    }
+
+    private void doUpdate() {
+        decorate(exceptionalOccurrences
+                .stream())
+                .filter(exceptionalOccurrence -> exceptionalOccurrence.getId() == 0)
+                .filterSubType(ExceptionalOccurrenceImpl.class)
+                .forEach(ExceptionalOccurrenceImpl::save);
         eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
     }
 

@@ -117,8 +117,6 @@ public class CalendarProcessor {
     }
 
     private Calendar doStrictUpdate(XmlCalendar calendar, Calendar toUpdate) {
-        CalendarService.StrictCalendarBuilder calendarBuilder = toUpdate.update();
-
         Map<BigInteger, DayType> dayTypes = mapDayTypes(calendar, toUpdate);
 
         /* We must determine that no exceptions are added in the past,
