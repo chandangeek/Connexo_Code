@@ -64,7 +64,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
                     var result = '';
                     if (!Ext.isEmpty(value)) {
-                        result = '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.workgroup', 'BPM', 'Workgroup') + '"></span> ';
+                        result = '<span class="icon-users" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.workgroup', 'BPM', 'Workgroup') + '"></span> ';
                         result += Ext.String.htmlEncode(value);
                     } else {
                         result = '-'
@@ -79,7 +79,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
                     var result = '';
                     if (!Ext.isEmpty(value)) {
-                        result = '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.user', 'BPM', 'User') + '"></span> ';
+                        result = '<span class="icon-user" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.user', 'BPM', 'User') + '"></span> ';
                         result += Ext.String.htmlEncode(value);
                     } else {
                         result = '-'

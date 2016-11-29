@@ -83,9 +83,11 @@ Ext.define('Bpm.view.task.AssigneeForm', {
                             render: function () {
                                 this.store.load();
                             },
-                            change: function (combo, newValue) {
-                                this.up('#frm-assignee-user').down('#cbo-user-assignee').workgroupId = newValue;
-                                this.up('#frm-assignee-user').down('#cbo-user-assignee').fireEvent('workgroupFirstChanged', newValue);
+                            change: function (combo, newValue, oldValue) {
+                                if (oldValue == undefined) {
+                                    this.up('#frm-assignee-user').down('#cbo-user-assignee').workgroupId = newValue;
+                                    this.up('#frm-assignee-user').down('#cbo-user-assignee').fireEvent('workgroupFirstChanged', newValue);
+                                }
                             },
                             select: function (combo, newValue) {
                                 this.up('#frm-assignee-user').down('#cbo-user-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));

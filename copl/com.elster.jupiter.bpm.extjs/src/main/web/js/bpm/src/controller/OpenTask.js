@@ -114,6 +114,8 @@ Ext.define('Bpm.controller.OpenTask', {
         dueDate = router.arguments.dueDate;
         taskStatus = router.arguments.status;
         process = router.arguments.process;
+        process = router.arguments.process;
+        workgroup = router.arguments.workgroup;
 
         var tasksRoute = router.getRoute('workspace/tasks');
         tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status =
@@ -125,6 +127,7 @@ Ext.define('Bpm.controller.OpenTask', {
         dueDate && (dueDate != '') && (queryParams.dueDate = tasksRoute.params.dueDate = dueDate);
         taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus);
         process && (process != '') && (queryParams.process = tasksRoute.params.process = process);
+        workgroup && (workgroup != '') && (queryParams.workgroup = tasksRoute.params.workgroup = workgroup);
 
         var task = me.getModel('Bpm.model.task.Task');
         task.load(taskId, {
@@ -165,6 +168,7 @@ Ext.define('Bpm.controller.OpenTask', {
         dueDate = router.arguments.dueDate;
         taskStatus = router.arguments.status;
         process = router.arguments.process;
+        workgroup = router.arguments.workgroup;
 
         var tasksRoute = router.getRoute('workspace/tasks');
         tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status =
@@ -176,6 +180,7 @@ Ext.define('Bpm.controller.OpenTask', {
         dueDate && (dueDate != '') && (queryParams.dueDate = tasksRoute.params.dueDate = dueDate);
         taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus);
         process && (process != '') && (queryParams.process = tasksRoute.params.process = process);
+        workgroup && (workgroup != '') && (queryParams.workgroup = tasksRoute.params.workgroup = workgroup);
 
         var task = me.getModel('Bpm.model.task.Task');
         task.load(taskId, {
@@ -296,6 +301,7 @@ Ext.define('Bpm.controller.OpenTask', {
         assignUser.getProxy().setUrl(taskRecord.get('id'), taskRecord.get('optLock'));
         assignUser.save({
             success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.saved', 'BPM', 'Task saved.'));
                 me.returnToPreviousPage();
             },
             failure: function (record, operation) {
