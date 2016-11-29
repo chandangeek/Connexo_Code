@@ -118,60 +118,12 @@ Ext.define('Dsh.controller.Communications', {
 
         Ext.suspendLayouts();
 
-        //Ext.each(record.get('comTasks'), function (item) {
-        //    if (record.get('sessionId') !== 0) {
-        //        menuItems.push({
-        //            text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), item.name),
-        //            action: {
-        //                action: 'viewlog',
-        //                comTask: {
-        //                    mRID: record.get('device').id,
-        //                    sessionId: record.get('sessionId'),
-        //                    comTaskId: item.id
-        //                }
-        //            },
-        //            listeners: {
-        //                click: me.viewCommunicationLog
-        //            }
-        //        });
-        //    }
-        //});
-        //
-        //if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
-        //    if (record.get('connectionTask').connectionStrategy.id === 'MINIMIZE_CONNECTIONS') {
-        //        menuItems.push({
-        //            text: Uni.I18n.translate('general.run', 'DSH', 'Run'),
-        //            action: {
-        //                action: 'run',
-        //                record: record,
-        //                me: me
-        //            },
-        //            listeners: {
-        //                click: me.communicationRun
-        //            }
-        //        });
-        //    }
-        //
-        //    menuItems.push({
-        //        text: Uni.I18n.translate('general.runNow', 'DSH', 'Run now'),
-        //        action: {
-        //            action: 'runNow',
-        //            record: record,
-        //            me: me
-        //        },
-        //        listeners: {
-        //            click: me.communicationRunNow
-        //        }
-        //    });
-        //
-        //}
-
         var connectionMenuItem = {
             text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'DSH', 'View connection log'),
             action: {
                 action: 'viewlog',
                 connection: {
-                    mRID: record.get('device').id,
+                    deviceId: record.get('device').name,
                     connectionMethodId: record.get('connectionTask').id,
                     sessionId: record.get('connectionTask').comSessionId
 

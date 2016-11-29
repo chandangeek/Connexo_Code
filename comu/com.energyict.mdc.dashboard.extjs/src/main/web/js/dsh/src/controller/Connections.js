@@ -271,7 +271,7 @@ Ext.define('Dsh.controller.Connections', {
             case 'viewLog':
                 router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
                     {
-                        mRID: encodeURIComponent(menu.record.get('device').id),
+                        deviceId: encodeURIComponent(menu.record.get('device').name),
                         connectionMethodId: menu.record.get('id'),
                         historyId: menu.record.get('comSessionId')
                     });
@@ -279,7 +279,7 @@ Ext.define('Dsh.controller.Connections', {
             case 'viewHistory':
                 router.getRoute('devices/device/connectionmethods/history').forward(
                     {
-                        mRID: encodeURIComponent(menu.record.get('device').id),
+                        deviceId: encodeURIComponent(menu.record.get('device').name),
                         connectionMethodId: menu.record.get('id')
                     }
                 );
