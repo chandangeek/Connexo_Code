@@ -65,12 +65,9 @@ public class UsagePointStateChangeRequestResource {
     }
 
     @GET
-    @Transactional
     @Path("/{tid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public UsagePointTransitionInfo getPropertiesForTransition(@PathParam("id") long usagePointId,
-                                                               @PathParam("tid") long transitionId,
-                                                               @BeanParam JsonQueryParameters queryParameters) {
+    public UsagePointTransitionInfo getPropertiesForTransition(@PathParam("tid") long transitionId) {
         return this.usagePointTransitionInfoFactory.from(this.resourceHelper.getTransitionByIdOrThrowException(transitionId));
     }
 
@@ -82,7 +79,6 @@ public class UsagePointStateChangeRequestResource {
     public Response performTransition(@PathParam("id") long usagePointId,
                                       @PathParam("tid") long transitionId,
                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String application,
-                                      @BeanParam JsonQueryParameters queryParameters,
                                       UsagePointTransitionInfo info) {
         UsagePoint usagePoint = this.resourceHelper.lockUsagePoint(info.usagePoint);
         UsagePointTransition transition = this.resourceHelper.getTransitionByIdOrThrowException(transitionId);
@@ -111,5 +107,21 @@ public class UsagePointStateChangeRequestResource {
                 .map(this.changeRequestInfoFactory::from)
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("history", history, queryParameters)).build();
+    }
+
+    @PUT
+    @Path("/history/{hid}/cancel")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response cancelScheduledChangeRequest(@PathParam("id") long usagePointId,
+                                                 @PathParam("hid") long historyId) {
+        UsagePoint usagePoint = this.resourceHelper.getUsagePointOrThrowException(usagePointId);
+        this.usagePointLifeCycleService.getHistory(usagePoint)
+                .stream()
+                .filter(record -> record.getId() == historyId)
+                .findFirst()
+                .ifPresent(UsagePointStateChangeRequest::cancel);
+        return Response.ok().build();
     }
 }

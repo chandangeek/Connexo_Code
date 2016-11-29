@@ -9,6 +9,7 @@ import java.util.List;
 
 public class UsagePointStateChangeRequestInfo {
     public long id;
+    public IdWithDisplayValueInfo<String> type;
     public String fromStateName;
     public String toStateName;
     public Instant transitionTime;
