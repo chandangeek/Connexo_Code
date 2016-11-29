@@ -32,7 +32,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
 
     public enum Fields {
-        BASEALARM("baseAlarm"),
+        BASEISSUE("baseIssue"),
         DEVICEALARMRELATEDEVENTS("deviceAlarmRelatedEvents"),;
 
         private final String javaFieldName;
@@ -46,7 +46,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
         }
     }
 
-    private Reference<Issue> baseAlarm = ValueReference.absent();
+    private Reference<Issue> baseIssue = ValueReference.absent();
     private String deviceMRID;
     private List<DeviceAlarmRelatedEvents> deviceAlarmRelatedEvents;
     private Boolean clearedStatus = Boolean.FALSE;
@@ -79,7 +79,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     protected Issue getBaseIssue() {
-        return baseAlarm.orNull();
+        return baseIssue.orNull();
     }
 
     @Override

@@ -145,7 +145,7 @@ public enum TableSpecs {
             }
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
             table.foreignKey(fkKeysIter.next())
-                    .map(DeviceAlarmImpl.Fields.BASEALARM.fieldName()).on(alarmColRef)
+                    .map(DeviceAlarmImpl.Fields.BASEISSUE.fieldName()).on(alarmColRef)
                     .references(IssueService.COMPONENT_NAME, alarmTable).add();
         }
     }
