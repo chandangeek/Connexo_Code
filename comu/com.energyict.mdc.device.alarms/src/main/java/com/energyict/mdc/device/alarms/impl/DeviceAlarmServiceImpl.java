@@ -64,7 +64,7 @@ import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.energyict.mdc.issue.datacollection",
+@Component(name = "com.energyict.mdc.device.alarms.DeviceAlarmServiceImpl",
         service = {TranslationKeyProvider.class, MessageSeedProvider.class, DeviceAlarmService.class, IssueProvider.class, IssueGroupTranslationProvider.class},
         property = "name=" + DeviceAlarmService.COMPONENT_NAME,
         immediate = true)
@@ -150,7 +150,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     @Reference
     public final void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(DeviceAlarmService.COMPONENT_NAME, "Issue Datacollection");
+        dataModel = ormService.newDataModel(DeviceAlarmService.COMPONENT_NAME, "Device Alarms");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }

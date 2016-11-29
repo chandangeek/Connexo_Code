@@ -84,20 +84,18 @@ public class Installer implements FullInstaller {
             destinationSpec.subscribe(
                     TranslationKeys.AQ_DEVICE_ALARM_EVENT_SUBSC,
                     DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN,
-                    whereCorrelationId()
-                            .like("com/energyict/mdc/connectiontask/%")
-                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
-                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE"))
-                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE"))));
+                    whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED"));
+
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
         }
     }
 
     private void setDeviceAlarmReasons(IssueType issueType) {
+        //TODO - reasons to be input by hand by user in UI
        /* issueService.createReason(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE, issueType,
                 TranslationKeys.ISSUE_REASON_UNKNOWN_INBOUND_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNKNOWN_INBOUND_DEVICE); */
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
+
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {
