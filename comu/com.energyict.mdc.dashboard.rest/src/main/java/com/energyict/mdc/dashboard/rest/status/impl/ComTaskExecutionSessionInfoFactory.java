@@ -45,7 +45,7 @@ public class ComTaskExecutionSessionInfoFactory {
         info.name = comTaskExecution.getComTask().getName();
         info.id = comTaskExecutionSession.getId();
         Device device = comTaskExecutionSession.getDevice();
-        info.device = new IdWithNameInfo(device.getmRID(), device.getName());
+        info.device = new IdWithNameInfo(device.getId(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution.usesSharedSchedule()) {

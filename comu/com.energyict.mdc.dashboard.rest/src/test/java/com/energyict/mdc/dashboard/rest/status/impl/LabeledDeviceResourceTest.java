@@ -4,15 +4,17 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.LabelCategory;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -56,7 +58,7 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
         assertThat(model.<List<Object>>get("$.myLabeledDevices")).hasSize(3);
         assertThat(model.<List<Long>>get("$.myLabeledDevices[*].deviceLabelInfo.creationDate")).isSortedAccordingTo((d1, d2) -> Long.compare(d2, d1));
 
-        assertThat(model.<List<String>>get("$.myLabeledDevices[*].mRID")).containsExactly("ZABF00200", "ZABF00100", "ZABF00300");
+        assertThat(model.<List<String>>get("$.myLabeledDevices[*].name")).containsExactly("ZABF00200", "ZABF00100", "ZABF00300");
         assertThat(model.<List<String>>get("$.myLabeledDevices[*].serialNumber")).containsExactly("200", "100", "300");
         assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceTypeName")).containsExactly("Elster AS700", "Elster AS1440", "Elster AS1440");
 
@@ -65,12 +67,12 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
         assertThat(model.<List<Long>>get("$.myLabeledDevices[*].deviceLabelInfo.creationDate")).containsExactly(now.toEpochMilli(), now.minusMillis(100).toEpochMilli(), now.minusMillis(300).toEpochMilli());
     }
 
-    private DeviceLabel mockDeviceLabel(Long deviceId, String deviceMRID, String serialNumber, String deviceTypeName, Instant creationDate, String comment) {
+    private DeviceLabel mockDeviceLabel(Long deviceId, String deviceName, String serialNumber, String deviceTypeName, Instant creationDate, String comment) {
         DeviceLabel deviceLabel = mock(DeviceLabel.class);
 
         Device device = mock(Device.class);
         when(deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(device.getmRID()).thenReturn(deviceMRID);
+        when(device.getName()).thenReturn(deviceName);
         when(device.getSerialNumber()).thenReturn(serialNumber);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn(deviceTypeName);
