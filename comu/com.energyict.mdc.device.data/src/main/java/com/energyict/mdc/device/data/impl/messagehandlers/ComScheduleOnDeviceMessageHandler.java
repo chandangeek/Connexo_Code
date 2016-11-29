@@ -100,7 +100,7 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
 
         device.newScheduledComTaskExecution(comSchedule).add();
 
-        LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
+        LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.deviceId));
     }
 
     private void removeSchedule(ComSchedule comSchedule, Device device, ComScheduleOnDeviceQueueMessage queueMessage) {
