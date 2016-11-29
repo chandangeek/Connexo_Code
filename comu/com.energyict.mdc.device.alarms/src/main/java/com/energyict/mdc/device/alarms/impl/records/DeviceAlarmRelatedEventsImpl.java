@@ -7,11 +7,11 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.alarms.event.AlarmRelatedEvents;
+import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvents;
 
 import com.google.inject.Inject;
 
-public class AlarmRelatedEventsImpl implements AlarmRelatedEvents{
+public class DeviceAlarmRelatedEventsImpl implements DeviceAlarmRelatedEvents {
 
     public enum Fields {
         AlARM("alarm"),
@@ -29,36 +29,19 @@ public class AlarmRelatedEventsImpl implements AlarmRelatedEvents{
         }
     }
 
-    @IsPresent
-    private Reference<DeviceAlarm> alarm = Reference.empty();
 
     @IsPresent
     private Reference<EndDeviceEventRecord> eventRecord = Reference.empty();
 
-    private final DataModel dataModel;
 
-    @Inject
-    AlarmRelatedEventsImpl(DataModel dataModel) {
-        this.dataModel = dataModel;
-    }
-
-    private AlarmRelatedEventsImpl init(DeviceAlarm alarm, EndDeviceEventRecord eventRecord) {
-        this.alarm.set(alarm);
+    DeviceAlarmRelatedEventsImpl init(EndDeviceEventRecord eventRecord) {
         this.eventRecord.set(eventRecord);
         return this;
     }
 
-    static AlarmRelatedEventsImpl from(DataModel dataModel,
-                                       DeviceAlarm alarm, EndDeviceEventRecord eventRecord) {
-        return dataModel.getInstance(AlarmRelatedEventsImpl.class).init(alarm, eventRecord);
-    }
-
     @Override
-    public EndDeviceEventRecord getEvent() {
+    public EndDeviceEventRecord getEventRecord() {
         return eventRecord.get();
     }
 
-    public DataModel getDataModel() {
-        return dataModel;
-    }
 }

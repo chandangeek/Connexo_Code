@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvents;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -23,14 +24,31 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
 
 public class DeviceAlarmImpl implements DeviceAlarm {
 
+
+    public enum Fields {
+        BASEALARM("baseAlarm"),
+        DEVICEALARMRELATEDEVENTS("deviceAlarmRelatedEvents"),;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private Reference<Issue> baseAlarm = ValueReference.absent();
     private String deviceMRID;
-    private List<EndDeviceEventRecord> relatedEvents;
+    private List<DeviceAlarmRelatedEvents> deviceAlarmRelatedEvents;
     private Boolean clearedStatus = Boolean.FALSE;
 
 
@@ -60,98 +78,100 @@ public class DeviceAlarmImpl implements DeviceAlarm {
         this.id = id;
     }
 
-    protected Issue getBaseAlarm() {
+    protected Issue getBaseIssue() {
         return baseAlarm.orNull();
     }
 
     @Override
     public String getIssueId() {
-        return getBaseAlarm().getIssueId();
+        return getBaseIssue().getIssueId();
     }
 
     @Override
     public String getTitle() {
-        return getBaseAlarm().getTitle();
+        return getBaseIssue().getTitle();
     }
 
     @Override
     public IssueReason getReason() {
-        return getBaseAlarm().getReason();
+        return getBaseIssue().getReason();
     }
 
     @Override
     public IssueStatus getStatus() {
-        return getBaseAlarm().getStatus();
+        return getBaseIssue().getStatus();
     }
 
     @Override
     public IssueAssignee getAssignee() {
-        return getBaseAlarm().getAssignee();
+        return getBaseIssue().getAssignee();
     }
 
     @Override
     public EndDevice getDevice() {
-        return getBaseAlarm().getDevice();
+        return getBaseIssue().getDevice();
     }
 
     @Override
     public Optional<UsagePoint> getUsagePoint() {
-        return getBaseAlarm().getUsagePoint();
+        return getBaseIssue().getUsagePoint();
     }
 
     @Override
     public Instant getDueDate() {
-        return getBaseAlarm().getDueDate();
+        return getBaseIssue().getDueDate();
     }
 
     @Override
     public boolean isOverdue() {
-        return getBaseAlarm().isOverdue();
+        return getBaseIssue().isOverdue();
     }
 
     @Override
     public CreationRule getRule() {
-        return getBaseAlarm().getRule();
+        return getBaseIssue().getRule();
     }
 
     @Override
     public void setReason(IssueReason reason) {
-        getBaseAlarm().setReason(reason);
+        getBaseIssue().setReason(reason);
     }
 
     @Override
     public void setStatus(IssueStatus status) {
-        getBaseAlarm().setStatus(status);
+        getBaseIssue().setStatus(status);
     }
 
     @Override
     public void setDevice(EndDevice device) {
-        getBaseAlarm().setDevice(device);
+        getBaseIssue().setDevice(device);
     }
 
     @Override
     public void setDueDate(Instant dueDate) {
-        getBaseAlarm().setDueDate(dueDate);
+        getBaseIssue().setDueDate(dueDate);
     }
 
     @Override
     public void setOverdue(boolean overdue) {
-        getBaseAlarm().setOverdue(overdue);
+        getBaseIssue().setOverdue(overdue);
     }
 
     @Override
     public void setRule(CreationRule rule) {
-        getBaseAlarm().setRule(rule);
+        getBaseIssue().setRule(rule);
     }
 
     @Override
     public List<EndDeviceEventRecord> getRelatedEventRecords() {
-        return relatedEvents;
+        return deviceAlarmRelatedEvents.stream()
+                .map(DeviceAlarmRelatedEvents::getEventRecord)
+                .collect(Collectors.toList());
     }
 
     @Override
     public EndDeviceEventRecord getCurrentEventRecord() {
-        return Collections.max(relatedEvents, Comparator.comparing(EndDeviceEventRecord::getCreateTime));
+        return Collections.max(getRelatedEventRecords(), Comparator.comparing(EndDeviceEventRecord::getCreateTime));
     }
 
     @Override
@@ -167,30 +187,30 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     @Override
     public Optional<IssueComment> addComment(String body, User author) {
-        return getBaseAlarm().addComment(body, author);
+        return getBaseIssue().addComment(body, author);
     }
 
     @Override
     public void assignTo(Long userId, Long workGroupId) {
-        getBaseAlarm().assignTo(userId, workGroupId);
+        getBaseIssue().assignTo(userId, workGroupId);
     }
 
     @Override
     public void assignTo(IssueAssignee assignee) {
-        getBaseAlarm().assignTo(assignee);
+        getBaseIssue().assignTo(assignee);
     }
 
     @Override
     public void autoAssign() {
-        getBaseAlarm().autoAssign();
+        getBaseIssue().autoAssign();
     }
 
     @Override
     public String getDeviceMRID() {
         if (!is(deviceMRID).emptyOrOnlyWhiteSpace()) {
             return deviceMRID;
-        } else if (getBaseAlarm() != null && getBaseAlarm().getDevice() != null) {
-            return getBaseAlarm().getDevice().getMRID();
+        } else if (getBaseIssue() != null && getBaseIssue().getDevice() != null) {
+            return getBaseIssue().getDevice().getMRID();
         }
         return "";
     }
@@ -202,15 +222,15 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
 
     public void save() {
-        if (getBaseAlarm() != null) {
-            this.setId(getBaseAlarm().getId());
+        if (getBaseIssue() != null) {
+            this.setId(getBaseIssue().getId());
         }
         Save.CREATE.save(dataModel, this);
     }
 
     @Override
     public void update() {
-        getBaseAlarm().update();
+        getBaseIssue().update();
         Save.UPDATE.save(dataModel, this);
     }
 
@@ -230,7 +250,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     @Override
     public long getVersion() {
-        return getBaseAlarm().getVersion();
+        return getBaseIssue().getVersion();
     }
 
     @Override

@@ -13,20 +13,19 @@ import javax.inject.Inject;
 public class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements HistoricalDeviceAlarm {
 
     @IsPresent
-    private Reference<HistoricalIssue> baseAlarm = ValueReference.absent();
+    private Reference<HistoricalIssue> baseIssue = ValueReference.absent();
 
     @Inject
     public HistoricalDeviceAlarmImpl(DataModel dataModel) {
         super(dataModel);
     }
 
-    @Override
-    protected HistoricalIssue getBaseAlarm(){
-        return baseAlarm.orNull();
+    protected HistoricalIssue getBaseIssue(){
+        return baseIssue.orNull();
     }
 
     void setIssue(HistoricalIssue issue) {
-        this.baseAlarm.set(issue);
+        this.baseIssue.set(issue);
     }
 
     void copy(OpenDeviceAlarm source) {

@@ -4,7 +4,7 @@ final class DatabaseConst {
     private DatabaseConst() {}
 
     static final String DAL_ALARM_HISTORY_PK = "DAL_ALARM_HISTORY_PK";
-    static final String DAL_ALARM_HISTORY_FK_TO_ALARM = "DAL_ALR_HIST_FK_TO_ALARM";
+    static final String DAL_ALARM_HISTORY_FK_TO_ALARM = "DAL_ALM_HST_FK_TO_ALM";
 
     static final String DAL_ID = "ID";
     static final String DAL_BASE_ALARM = "ALARM";
@@ -13,9 +13,9 @@ final class DatabaseConst {
     static final String DAL_ALARM_FK_TO_ALARM = "DAL_ALARM_FK_TO_ALARM";
 
     static final String DAL_ALARM_OPEN_PK = "DAL_ALARM_OPEN_PK";
-    static final String DAL_ALARM_OPEN_FK_TO_ALARM = "DAL_ALARM_OPEN_FK_TO_ALARM";
+    static final String DAL_ALARM_OPEN_FK_TO_ALARM = "DAL_ALM_OPEN_FK_TO_ALM";
 
-    static final String DAL_DEVICE_MRID = "DAL_DEVICE_MRID_FK_TO_ALARM";//DEVICE
+    static final String DAL_DEVICE_MRID = "DEVICE_MRID";//DEVICE
     static final String DAL_ALARM_EVENT_TYPE = "DAL_ALARM_EVENT_TYPE";
-    static final String DAL_ALARM_CLEARED_STATUS = "DAL_CLEARED_STATUS";
+    static final String DAL_ALARM_CLEARED_STATUS = "CLEARED_STATUS";
 }

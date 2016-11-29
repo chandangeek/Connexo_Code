@@ -15,25 +15,24 @@ import javax.inject.Inject;
 public class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDeviceAlarm {
 
     @IsPresent
-    private Reference<OpenIssue> baseAlarm = ValueReference.absent();
+    private Reference<OpenIssue> baseIssue = ValueReference.absent();
 
     @Inject
     public OpenDeviceAlarmImpl(DataModel dataModel) {
         super(dataModel);
     }
 
-    @Override
-    protected OpenIssue getBaseAlarm(){
-        return baseAlarm.orNull();
+    protected OpenIssue getBaseIssue(){
+        return baseIssue.orNull();
     }
 
     public void setIssue(OpenIssue baseAlarm) {
-        this.baseAlarm.set(baseAlarm);
+        this.baseIssue.set(baseAlarm);
     }
 
     public HistoricalDeviceAlarm close(IssueStatus status) {
-        this.delete(); // Remove reference to baseAlarm
-        HistoricalIssue historicalBaseAlarm = getBaseAlarm().closeInternal(status);
+        this.delete(); // Remove reference to baseIssue
+        HistoricalIssue historicalBaseAlarm = getBaseIssue().closeInternal(status);
         HistoricalDeviceAlarmImpl historicalDeviceAlarm = getDataModel().getInstance(HistoricalDeviceAlarmImpl.class);
         historicalDeviceAlarm.setIssue(historicalBaseAlarm);
         historicalDeviceAlarm.copy(this);
