@@ -3,8 +3,8 @@
     <xs:element name="calendars">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="eventset" type="eventset" maxOccurs="unbounded"/>
-                <xs:element name="calendar" type="xml-calendar" maxOccurs="unbounded"/>
+                <xs:element name="eventset" type="eventset" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="calendar" type="xml-calendar"  minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
