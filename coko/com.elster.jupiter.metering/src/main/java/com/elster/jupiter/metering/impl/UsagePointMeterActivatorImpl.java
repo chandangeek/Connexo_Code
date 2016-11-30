@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Location;
@@ -207,7 +206,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private void validate(ValidationReport validationReport) {
         // check that we can manage meter activations
-        if (this.usagePoint.getConnectionState() != ConnectionState.UNDER_CONSTRUCTION) {
+        if (this.usagePoint.getConnectionState().isPresent()) {
             throw UsagePointManageException.incorrectState(this.metrologyConfigurationService.getThesaurus(), this.usagePoint.getName());
         }
         // prepare time lines and virtualize all meter activations, so our changes will not have permanent effect

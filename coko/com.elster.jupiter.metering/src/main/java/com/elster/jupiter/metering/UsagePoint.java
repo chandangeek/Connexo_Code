@@ -172,9 +172,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointCustomPropertySetExtension forCustomProperties();
 
-    ConnectionState getConnectionState();
+    Optional<ConnectionState> getConnectionState();
 
-    String getConnectionStateDisplayName();
+    Optional<String> getConnectionStateDisplayName();
 
     void setConnectionState(ConnectionState connectionState);
 

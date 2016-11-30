@@ -51,6 +51,7 @@ import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -365,7 +366,6 @@ public class UsagePointImpl implements UsagePoint {
 
     void doSave() {
         if (id == 0) {
-            this.setConnectionState(ConnectionState.UNDER_CONSTRUCTION, installationTime);
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
@@ -649,13 +649,13 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public ConnectionState getConnectionState() {
-        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState).orElse(ConnectionState.UNDER_CONSTRUCTION);
+    public Optional<ConnectionState> getConnectionState() {
+        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState);
     }
 
     @Override
-    public String getConnectionStateDisplayName() {
-        return this.thesaurus.getFormat(this.getConnectionState()).format();
+    public Optional<String> getConnectionStateDisplayName() {
+        return getConnectionState().map(this.thesaurus::getFormat).map(NlsMessageFormat::format);
     }
 
     @Override
