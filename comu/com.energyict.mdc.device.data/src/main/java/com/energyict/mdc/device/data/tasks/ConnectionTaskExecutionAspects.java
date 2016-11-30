@@ -46,20 +46,4 @@ public interface ConnectionTaskExecutionAspects {
      */
     void executionFailed();
 
-    /**
-     * Notifies this OutboundConnectionTask that one of its
-     * {@link ComTaskExecution}s was rescheduled.
-     *
-     * @param comTask The ScheduledComTask that was rescheduled
-     */
-    void scheduledComTaskRescheduled(ComTaskExecution comTask);
-
-    /**
-     * Notifies this OutboundConnectionTask that the priority
-     * of one of its {@link ComTaskExecution}s changed.
-     *
-     * @param comTask The ScheduledComTask whose priority changed
-     */
-    void scheduledComTaskChangedPriority(ComTaskExecution comTask);
-
 }

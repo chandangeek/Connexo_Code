@@ -337,4 +337,11 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     void save();
 
     long getVersion();
+
+    /**
+     * Checks if the ConnectionTask is active
+     * @return true if the ConnectionTask is active,
+     *          false if the ConnectionTask is inactive
+     */
+    boolean isActive();
 }
