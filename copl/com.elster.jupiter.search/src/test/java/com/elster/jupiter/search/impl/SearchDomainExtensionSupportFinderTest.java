@@ -11,6 +11,8 @@ import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -73,7 +75,7 @@ public class SearchDomainExtensionSupportFinderTest {
         when(primaryColumn2.getName()).thenReturn("id2");
         doReturn(Arrays.asList(primaryColumn1, primaryColumn2)).when(table).getPrimaryKeyColumns();
         doReturn(Collections.singletonList(table)).when(dataModel).getTables();
-        when(dataMapper.getQueryFields()).thenReturn(Arrays.asList("id1", "id2", "mrid", "name"));
+        when(dataMapper.getQueryFields()).thenReturn(ImmutableSet.of("id1", "id2", "mrid", "name"));
         when(dataModel.mapper(Object.class)).thenReturn(dataMapper);
 
         List<SearchablePropertyCondition> conditions = Arrays.asList(condition1, condition2);
