@@ -11,7 +11,8 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
         'Imt.usagepointlifecyclestates.store.UsagePointLifeCycleStates',
         'Imt.usagepointlifecyclestates.store.AvailableTransitionBusinessProcesses',
         'Imt.usagepointlifecyclestates.store.TransitionBusinessProcessesOnEntry',
-        'Imt.usagepointlifecyclestates.store.TransitionBusinessProcessesOnExit'
+        'Imt.usagepointlifecyclestates.store.TransitionBusinessProcessesOnExit',
+        'Imt.usagepointlifecycle.store.Stages'
     ],
 
     models: [
@@ -291,34 +292,46 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
 
     showUsagePointLifeCycleStateEdit: function (usagePointLifeCycleId, stateId) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             widget = Ext.widget('usagepoint-life-cycle-state-edit'),
             stateModel = me.getModel('Imt.usagepointlifecyclestates.model.UsagePointLifeCycleState'),
             router = me.getController('Uni.controller.history.Router'),
             usagePointLifeCycleModel = me.getModel('Imt.usagepointlifecycle.model.UsagePointLifeCycle'),
-            form = widget.down('#lifeCycleStateEditForm');
+            form = widget.down('#lifeCycleStateEditForm'),
+            dependenciesCounter = 2,
+            onDependenciesLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    form.loadRecord(me.usagePointLifeCycleState);
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    mainView.setLoading(false);
+                }
+            };
+
+        mainView.setLoading();
 
         me.fromEditTransition = router.queryParams.fromEditTransitionPage === 'true';
         me.fromAddTransition = router.queryParams.fromEditTransitionPage === 'false';
         stateModel.getProxy().setUrl(router.arguments);
-        usagePointLifeCycleModel.load(usagePointLifeCycleId, {
-            success: function (usagePointLifeCycleRecord) {
-                me.getApplication().fireEvent('usagepointlifecycleload', usagePointLifeCycleRecord);
-                if (!Ext.isEmpty(stateId)) {
-                    stateModel.load(stateId, {
-                        success: function (record) {
-                            me.usagePointLifeCycleState = record;
-                            me.getApplication().fireEvent('loadlifecyclestate', record);
-                            form.loadRecord(record);
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                        }
-                    });
-                } else {
-                    if (!me.usagePointLifeCycleState) {
-                        me.usagePointLifeCycleState = Ext.create(stateModel);
-                    }
-                    form.loadRecord(me.usagePointLifeCycleState);
-                    me.getApplication().fireEvent('changecontentevent', widget);
+
+        if (!Ext.isEmpty(stateId)) {
+            dependenciesCounter++;
+            stateModel.load(stateId, {
+                success: function (record) {
+                    me.usagePointLifeCycleState = record;
+                    me.getApplication().fireEvent('loadlifecyclestate', record);
+                    onDependenciesLoad();
                 }
+            });
+        } else {
+            me.usagePointLifeCycleState = Ext.create(stateModel);
+        }
+
+        me.getStore('Imt.usagepointlifecycle.store.Stages').load(onDependenciesLoad);
+        usagePointLifeCycleModel.load(usagePointLifeCycleId, {
+            success: function (record) {
+                me.getApplication().fireEvent('usagepointlifecycleload', record);
+                onDependenciesLoad();
             }
         });
     },
