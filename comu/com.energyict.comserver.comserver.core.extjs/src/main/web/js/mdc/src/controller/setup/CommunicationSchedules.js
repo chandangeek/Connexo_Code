@@ -156,7 +156,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     initComTaskStore: function (widget) {
         this.comTaskStore = Ext.data.StoreManager.lookup('CommunicationTasksForCommunicationSchedule');
-        if (this.record.get('id') === null && me.mode !== 'clone') {
+        if (this.record.get('id') === null && this.mode !== 'clone') {
             this.comTaskStore.setProxy({
                 type: 'rest',
                 url: '/api/cts/comtasks',
