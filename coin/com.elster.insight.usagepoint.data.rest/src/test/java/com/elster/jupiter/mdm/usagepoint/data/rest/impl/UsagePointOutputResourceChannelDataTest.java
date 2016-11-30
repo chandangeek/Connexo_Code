@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -186,6 +188,11 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testGetChannelData() throws Exception {
         AggregatedChannel channel = mock(AggregatedChannel.class);
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
         when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
@@ -257,6 +264,11 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel.getPersistedIntervalReadings(any())).thenReturn(Collections.emptyList());
         ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
 
         String filter = ExtjsFilter.filter()
                 .property("intervalStart", time.toInstant().toEpochMilli())
@@ -284,6 +296,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(status.isChannelValidationActive()).thenReturn(true);
         when(status.getPersistedValue()).thenReturn(Optional.empty());
         when(status.getCalculatedValue()).thenReturn(Optional.empty());
+        when(status.getReadingModificationFlag()).thenReturn(Optional.empty());
         OutputChannelDataInfo info = factory.createChannelDataInfo(status);
         assertThat(info.dataValidated).isTrue();
         assertThat(info.validationResult).isEqualTo(ValidationStatus.OK);
@@ -301,6 +314,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(status.isChannelValidationActive()).thenReturn(true);
         when(status.getPersistedValue()).thenReturn(Optional.empty());
         when(status.getCalculatedValue()).thenReturn(Optional.empty());
+        when(status.getReadingModificationFlag()).thenReturn(Optional.empty());
         OutputChannelDataInfo info = factory.createChannelDataInfo(status);
         assertThat(info.dataValidated).isFalse();
         assertThat(info.validationResult).isEqualTo(ValidationStatus.NOT_VALIDATED);

@@ -26,7 +26,11 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
         outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
-        outputChannelDataInfo.isEdited = readingWithValidationStatus.getPersistedValue().isPresent();
+        readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
+            outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
+            outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
+            outputChannelDataInfo.modificationDate = modificationFlag.getLast().getTimestamp();
+        });
 
         Optional<DataValidationStatus> validationStatus = readingWithValidationStatus.getValidationStatus();
         if (validationStatus.isPresent()) {

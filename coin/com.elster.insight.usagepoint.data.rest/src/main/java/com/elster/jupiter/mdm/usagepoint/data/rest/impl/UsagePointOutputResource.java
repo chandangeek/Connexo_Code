@@ -33,10 +33,7 @@ import com.google.common.collect.TreeRangeSet;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -44,8 +41,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -59,6 +54,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UsagePointOutputResource {
 
@@ -169,6 +165,7 @@ public class UsagePointOutputResource {
                 TemporalAmount intervalLength = channel.getIntervalLength().get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 IntervalReadingWithValidationStatus.Builder builder = IntervalReadingWithValidationStatus.builder(
+                        channel,
                         validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
                 Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(requestedInterval).stream()
@@ -186,6 +183,8 @@ public class UsagePointOutputResource {
                         if(persistedIntervalReadings.containsKey(intervalReadingRecord.getTimeStamp()) && persistedIntervalReadings.get(intervalReadingRecord.getTimeStamp()).getValue()!=null) {
                             readingWithValidationStatus.setIntervalReadingRecord(persistedIntervalReadings.get(intervalReadingRecord.getTimeStamp()));
                             readingWithValidationStatus.setCalculatedIntervalReadingRecord(intervalReadingRecord);
+                            readingWithValidationStatus.setPersistedIntervalReadingRecord(persistedIntervalReadings.get(intervalReadingRecord
+                                    .getTimeStamp()));
                         } else {
                             readingWithValidationStatus.setIntervalReadingRecord(intervalReadingRecord);
                         }
@@ -250,19 +249,23 @@ public class UsagePointOutputResource {
                 .get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
 
-        if (!editedReadings.isEmpty()) {
-            channel.editReadings(QualityCodeSystem.MDM, editedReadings);
-            validationService.updateLastChecked(channel, editedReadings.stream()
-                    .min((a, b) -> a.getTimeStamp().compareTo(b.getTimeStamp()))
-                    .map(r -> r.getTimeStamp().minusSeconds(1L))
-                    .get());
-        }
+        Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
+        channel.editReadings(QualityCodeSystem.MDM, editedReadings);
         channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
         channel.removeReadings(QualityCodeSystem.MDM, removeCandidates.stream()
                 .map(channel::getReading)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList()));
+        if (!editedReadings.isEmpty() || !removeCandidates.isEmpty()) {
+            Instant lastChecked = Stream.concat(editedReadings.stream().map(BaseReading::getTimeStamp), removeCandidates
+                    .stream())
+                    .min(Instant::compareTo)
+                    .map(r -> r.minusSeconds(1L))
+                    .get();
+            validationService.updateLastChecked(channel, currentLastChecked
+                    .filter(lastChecked::isAfter).isPresent() ? currentLastChecked.get() : lastChecked);
+        }
         return Response.status(Response.Status.OK).build();
     }
 

@@ -1,6 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 
 import com.google.common.collect.Range;
@@ -20,6 +23,7 @@ public class IntervalReadingWithValidationStatus {
     private static final TemporalAmount YEAR_INTERVAL_LENGTH = Period.ofYears(1);
     private final OutputChannelGeneralValidation outputChannelGeneralValidation;
 
+    private Channel channel;
     private ZonedDateTime readingTimeStamp;
     private TemporalAmount intervalLength;
 
@@ -28,7 +32,8 @@ public class IntervalReadingWithValidationStatus {
     private Optional<IntervalReadingRecord> persistedIntervalReadingRecord = Optional.empty();
     private Optional<DataValidationStatus> validationStatus = Optional.empty();
 
-    private IntervalReadingWithValidationStatus(OutputChannelGeneralValidation outputChannelGeneralValidation, ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
+    private IntervalReadingWithValidationStatus(Channel channel, OutputChannelGeneralValidation outputChannelGeneralValidation, ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
+        this.channel = channel;
         this.outputChannelGeneralValidation = outputChannelGeneralValidation;
         this.readingTimeStamp = readingTimeStamp;
         this.intervalLength = intervalLength;
@@ -49,6 +54,10 @@ public class IntervalReadingWithValidationStatus {
 
     public void setCalculatedIntervalReadingRecord(IntervalReadingRecord intervalReadingRecord) {
         this.calculatedIntervalReadingRecord = Optional.ofNullable(intervalReadingRecord);
+    }
+
+    public static Builder builder(Channel channel, boolean validationIsActive, Instant lastChecked) {
+        return new Builder(channel, new OutputChannelGeneralValidation(validationIsActive, lastChecked));
     }
 
     public void setValidationStatus(DataValidationStatus validationStatus) {
@@ -97,19 +106,25 @@ public class IntervalReadingWithValidationStatus {
         return Optional.ofNullable(this.outputChannelGeneralValidation.lastChecked);
     }
 
-    public static Builder builder(boolean validationIsActive, Instant lastChecked) {
-        return new Builder(new OutputChannelGeneralValidation(validationIsActive, lastChecked));
+    public Optional<Pair<ReadingModificationFlag, ReadingQualityRecord>> getReadingModificationFlag() {
+        return Optional.ofNullable(intervalReadingRecord.map(record -> ReadingModificationFlag.getModificationFlag(record, channel
+                .findReadingQualities()
+                .atTimestamp(record.getTimeStamp())
+                .sorted()
+                .collect(), calculatedIntervalReadingRecord)).orElse(null));
     }
 
     public static class Builder {
         private final OutputChannelGeneralValidation outputChannelGeneralValidation;
+        private final Channel channel;
 
-        private Builder(OutputChannelGeneralValidation outputChannelGeneralValidation) {
+        private Builder(Channel channel, OutputChannelGeneralValidation outputChannelGeneralValidation) {
             this.outputChannelGeneralValidation = outputChannelGeneralValidation;
+            this.channel = channel;
         }
 
         public IntervalReadingWithValidationStatus from(ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
-            return new IntervalReadingWithValidationStatus(this.outputChannelGeneralValidation, readingTimeStamp, intervalLength);
+            return new IntervalReadingWithValidationStatus(this.channel, this.outputChannelGeneralValidation, readingTimeStamp, intervalLength);
         }
     }
 

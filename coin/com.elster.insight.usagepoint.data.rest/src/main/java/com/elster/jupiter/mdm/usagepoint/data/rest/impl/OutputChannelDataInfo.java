@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.mdm.common.rest.IntervalInfo;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
@@ -35,7 +36,12 @@ public class OutputChannelDataInfo {
 
     public Boolean isConfirmed;
 
-    public Boolean isEdited;
+    @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
+    public ReadingModificationFlag modificationFlag;
+
+    public Instant modificationDate;
+
+    public IdWithNameInfo editedInApp;
 
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
