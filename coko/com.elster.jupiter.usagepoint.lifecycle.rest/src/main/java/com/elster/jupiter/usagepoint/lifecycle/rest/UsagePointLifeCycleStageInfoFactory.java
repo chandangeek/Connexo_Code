@@ -6,7 +6,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 public class UsagePointLifeCycleStageInfoFactory {
     public IdWithNameInfo from(UsagePointStage stage) {
         IdWithNameInfo info = new IdWithNameInfo();
-        info.id = stage.getStage();
+        info.id = stage.getKey();
         info.name = stage.getDisplayName();
 
         return info;
