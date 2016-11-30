@@ -27,6 +27,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.UserService;
@@ -75,6 +76,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     private List<UsagePointMicroActionFactory> microActionFactories = new CopyOnWriteArrayList<>();
     private List<UsagePointMicroCheckFactory> microCheckFactories = new CopyOnWriteArrayList<>();
     private List<UsagePointLifeCycleBuilder> builders = new CopyOnWriteArrayList<>();
+    private UsagePointStage.Stage stage;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleConfigurationServiceImpl() {
@@ -162,6 +164,13 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         this.builders.remove(builder);
     }
 
+    @Override
+    public List<UsagePointStage> getStages() {
+        return Stream.of(UsagePointStage.Stage.values())
+                .map(stage -> new UsagePointStageImpl(stage, this.thesaurus))
+                .collect(Collectors.toList());
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -242,10 +251,10 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
         lifeCycle.setName(name);
         lifeCycle.setStateMachine(stateMachine);
-        UsagePointState underConstruction = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateUnderConstruction);
-        UsagePointState active = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateActive);
-        UsagePointState inactive = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateInactive);
-        UsagePointState demolished = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateDemolished);
+        UsagePointState underConstruction = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateUnderConstruction, this.stage);
+        UsagePointState active = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateActive, this.stage);
+        UsagePointState inactive = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateInactive, this.stage);
+        UsagePointState demolished = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateDemolished, this.stage);
         lifeCycle.save();
         lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_ACTIVE).format(), underConstruction, active).complete();
         lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_INACTIVE).format(), underConstruction, inactive).complete();
@@ -265,7 +274,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         FiniteStateMachine stateMachine = this.stateMachineService.cloneFiniteStateMachine(sourceImpl.getStateMachine(), name);
         lifeCycle.setStateMachine(stateMachine);
         lifeCycle.save();
-        stateMachine.getStates().forEach(fsmState -> this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmState));
+        stateMachine.getStates().forEach(fsmState -> this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmState, this.stage));
         cloneTransitions(sourceImpl, lifeCycle);
         return lifeCycle;
     }

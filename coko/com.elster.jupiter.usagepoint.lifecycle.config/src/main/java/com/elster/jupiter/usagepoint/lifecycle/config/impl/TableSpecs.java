@@ -42,6 +42,7 @@ public enum TableSpecs {
             Column idColumn = table.column("ID").map("id").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column stateColumn = table.column("STATE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column lifeCycleColumn = table.column("LIFE_CYCLE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            table.column("STAGE").map(UsagePointStateImpl.Fields.STAGE.fieldName()).varChar(Table.NAME_LENGTH).conversion(ColumnConversion.CHAR2ENUM).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey("PK_UPL_STATE").on(idColumn).add();

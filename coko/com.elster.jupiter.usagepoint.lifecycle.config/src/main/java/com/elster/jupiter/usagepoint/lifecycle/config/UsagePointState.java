@@ -31,6 +31,8 @@ public interface UsagePointState extends HasId, HasName {
 
     UsagePointLifeCycle getLifeCycle();
 
+    UsagePointStage getStage();
+
     @ProviderType
     interface UsagePointStateCreator<T extends UsagePointStateCreator> {
 
@@ -39,6 +41,8 @@ public interface UsagePointState extends HasId, HasName {
         T onExit(StateChangeBusinessProcess process);
 
         T setInitial();
+
+        T setStage(UsagePointStage.Stage stage);
 
         UsagePointState complete();
     }

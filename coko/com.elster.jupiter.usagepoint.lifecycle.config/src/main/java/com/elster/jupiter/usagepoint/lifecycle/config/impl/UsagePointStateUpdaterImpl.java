@@ -3,6 +3,7 @@ package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointStateUpdater {
@@ -10,6 +11,7 @@ public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointSta
     private final FiniteStateMachineUpdater stateMachineUpdater;
     private final FiniteStateMachineUpdater.StateUpdater stateUpdater;
     private boolean isInitial;
+    private UsagePointStage.Stage stage;
 
     public UsagePointStateUpdaterImpl(UsagePointStateImpl state) {
         this.state = state;
@@ -54,12 +56,21 @@ public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointSta
     }
 
     @Override
+    public UsagePointState.UsagePointStateUpdater setStage(UsagePointStage.Stage stage) {
+        this.stage = stage;
+        return this;
+    }
+
+    @Override
     public UsagePointState complete() {
         State updatedState = this.stateUpdater.complete();
         if (this.isInitial) {
             this.stateMachineUpdater.complete(updatedState);
         } else {
             this.stateMachineUpdater.complete();
+        }
+        if (this.state != null) {
+            this.state.setStage(this.stage);
         }
         return this.state;
     }

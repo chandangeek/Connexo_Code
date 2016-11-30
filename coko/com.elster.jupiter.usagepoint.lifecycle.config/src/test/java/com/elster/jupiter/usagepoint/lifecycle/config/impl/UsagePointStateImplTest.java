@@ -37,7 +37,7 @@ public class UsagePointStateImplTest {
     private ProcessReference process;
 
     private UsagePointState getTestInstance() {
-        return new UsagePointStateImpl(this.thesaurus, this.eventService).init(this.lifeCycle, this.fsmState);
+        return new UsagePointStateImpl(this.thesaurus, this.eventService).init(this.lifeCycle, this.fsmState, this.stage);
     }
 
     @Test

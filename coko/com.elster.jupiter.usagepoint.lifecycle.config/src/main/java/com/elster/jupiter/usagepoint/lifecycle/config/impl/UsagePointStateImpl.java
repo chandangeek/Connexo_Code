@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
@@ -22,7 +23,8 @@ public class UsagePointStateImpl implements UsagePointState {
 
     public enum Fields {
         LIFE_CYCLE("lifeCycle"),
-        STATE("fsmState"),;
+        STATE("fsmState"),
+        STAGE("stage"),;
 
         private final String javaFieldName;
 
@@ -41,7 +43,8 @@ public class UsagePointStateImpl implements UsagePointState {
     private Reference<State> fsmState = ValueReference.absent();
     private Reference<UsagePointLifeCycleImpl> lifeCycle = ValueReference.absent();
 
-    public long id;
+    private long id;
+    private UsagePointStage.Stage stage;
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -57,10 +60,11 @@ public class UsagePointStateImpl implements UsagePointState {
         this.eventService = eventService;
     }
 
-    public UsagePointStateImpl init(UsagePointLifeCycleImpl lifeCycle, State fsmState) {
+    public UsagePointStateImpl init(UsagePointLifeCycleImpl lifeCycle, State fsmState, UsagePointStage.Stage stage) {
         this.lifeCycle.set(lifeCycle);
         this.fsmState.set(fsmState);
         this.id = fsmState.getId();
+        this.stage = stage;
         lifeCycle.addState(this);
         return this;
     }
@@ -148,6 +152,15 @@ public class UsagePointStateImpl implements UsagePointState {
     @Override
     public UsagePointLifeCycle getLifeCycle() {
         return this.lifeCycle.get();
+    }
+
+    @Override
+    public UsagePointStage getStage() {
+        return new UsagePointStageImpl(this.stage, this.thesaurus);
+    }
+
+    void setStage(UsagePointStage.Stage stage) {
+        this.stage = stage;
     }
 
     State getState() {

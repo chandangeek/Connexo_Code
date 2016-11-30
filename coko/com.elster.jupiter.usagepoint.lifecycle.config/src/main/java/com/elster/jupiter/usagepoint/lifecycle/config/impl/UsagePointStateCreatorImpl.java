@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import javax.inject.Inject;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 public class UsagePointStateCreatorImpl implements UsagePointState.UsagePointStateCreator<UsagePointStateCreatorImpl> {
     private final DataModel dataModel;
 
+    private UsagePointStage.Stage stage;
     private UsagePointLifeCycleImpl lifeCycle;
     private FiniteStateMachineUpdater stateMachineUpdater;
     private FiniteStateMachineBuilder.StateBuilder stateBuilder;
@@ -49,12 +51,18 @@ public class UsagePointStateCreatorImpl implements UsagePointState.UsagePointSta
     }
 
     @Override
+    public UsagePointStateCreatorImpl setStage(UsagePointStage.Stage stage) {
+        this.stage = stage;
+        return this;
+    }
+
+    @Override
     public UsagePointState complete() {
         State state = this.stateBuilder.complete();
         FiniteStateMachine stateMachine = this.stateMachineUpdater.complete();
         if (this.isInitial) {
             stateMachine.startUpdate().complete(state); // Bug in fsm updater, can't set new state as initial
         }
-        return this.dataModel.getInstance(UsagePointStateImpl.class).init(this.lifeCycle, state);
+        return this.dataModel.getInstance(UsagePointStateImpl.class).init(this.lifeCycle, state, this.stage);
     }
 }

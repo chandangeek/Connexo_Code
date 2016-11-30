@@ -1,6 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -11,6 +12,9 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_ACTIVATE("usage.point.transition.activate", "Activate"),
     TRANSITION_DEMOLISH_FROM_ACTIVE("usage.point.transition.demolish.from.active", "Demolish"),
     TRANSITION_DEMOLISH_FROM_INACTIVE("usage.point.transition.demolish.from.inactive", "Demolish"),
+    USAGE_POINT_STAGE_PRE_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Stage.PRE_OPERATIONAL, "Preoperational"),
+    USAGE_POINT_STAGE_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Stage.OPERATIONAL, "Operational"),
+    USAGE_POINT_STAGE_POST_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Stage.POST_OPERATIONAL, "Post operational")
     ;
 
     private final String key;
@@ -29,5 +33,12 @@ public enum TranslationKeys implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return this.defaultFormat;
+    }
+
+    static class Keys {
+        private Keys() {
+        }
+
+        public static final String STAGE_PREFIX = "usage.point.stage.";
     }
 }
