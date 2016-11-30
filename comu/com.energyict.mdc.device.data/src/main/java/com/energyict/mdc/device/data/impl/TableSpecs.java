@@ -82,6 +82,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
 /**
@@ -112,26 +113,27 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
-            table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
+            Column name = table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
-            Column mRID = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
+            Column mRID_10_2 = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).upTo(version(10, 2, 1)).add();
+            Column mRID = table.column("MRID").varChar().notNull().map(DeviceFields.MRID.fieldName()).since(version(10, 2, 1)).previously(mRID_10_2).add();
             table.column("CERTIF_YEAR").number().map("yearOfCertification").conversion(ColumnConversion.NUMBER2INT).add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             Column meterId = table.column("METERID").number().since(version(10, 2)).add();
             Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
             table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).installValue("'N'").add();
-            table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
-                    on(configuration).
-                    references(DeviceConfiguration.class).
-                    map(DeviceFields.DEVICECONFIGURATION.fieldName(), DeviceType.class).
-                    add();
-            table.foreignKey("FK_DDC_DEVICE_DEVICETYPE").
-                    on(deviceType).
-                    references(DeviceType.class).
-                    map(DeviceFields.DEVICETYPE.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG")
+                    .on(configuration)
+                    .references(DeviceConfiguration.class)
+                    .map(DeviceFields.DEVICECONFIGURATION.fieldName(), DeviceType.class)
+                    .add();
+            table.foreignKey("FK_DDC_DEVICE_DEVICETYPE")
+                    .on(deviceType)
+                    .references(DeviceType.class)
+                    .map(DeviceFields.DEVICETYPE.fieldName())
+                    .add();
             table.foreignKey("FK_DDC_DEVICE_ENDDEVICE")
                     .on(meterId)
                     .references(EndDevice.class)
@@ -146,6 +148,7 @@ public enum TableSpecs {
                     .add();
 
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
+            table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }
     },

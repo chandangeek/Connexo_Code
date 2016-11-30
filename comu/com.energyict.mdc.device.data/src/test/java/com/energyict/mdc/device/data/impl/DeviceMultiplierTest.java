@@ -164,7 +164,6 @@ public class DeviceMultiplierTest {
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
 
-
     @Before
     public void setup() {
         when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> {
@@ -198,11 +197,10 @@ public class DeviceMultiplierTest {
         when(clock.instant()).thenReturn(now);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
-        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
 
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
-        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
@@ -235,7 +233,7 @@ public class DeviceMultiplierTest {
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
 //        setId(device, ID);
-        device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
+        device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();
         return device;
     }

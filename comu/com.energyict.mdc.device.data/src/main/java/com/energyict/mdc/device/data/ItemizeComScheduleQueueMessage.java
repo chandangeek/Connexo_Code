@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class ItemizeComScheduleQueueMessage implements QueueMessage {
     public ComScheduleOnDevicesFilterSpecification filter;
-    public List<String> deviceMRIDs;
+    public List<Long> deviceIds;
     public List<Long> scheduleIds;
     public ScheduleAction action;
     public ScheduleAddStrategy strategy;

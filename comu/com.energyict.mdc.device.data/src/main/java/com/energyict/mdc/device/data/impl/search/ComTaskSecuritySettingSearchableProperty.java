@@ -18,6 +18,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -140,7 +141,7 @@ public class ComTaskSecuritySettingSearchableProperty extends AbstractSearchable
                 .map(DeviceType.class::cast)
                 .flatMap(deviceType -> deviceType.getConfigurations().stream())
                 .flatMap(deviceConfiguration ->deviceConfiguration.getSecurityPropertySets().stream())
-                .sorted((sps1, pd2) -> sps1.getName().compareToIgnoreCase(pd2.getName()))
+                .sorted(Comparator.comparing(SecurityPropertySet::getName, String.CASE_INSENSITIVE_ORDER))
                 .toArray(SecurityPropertySet[]::new);
     }
 

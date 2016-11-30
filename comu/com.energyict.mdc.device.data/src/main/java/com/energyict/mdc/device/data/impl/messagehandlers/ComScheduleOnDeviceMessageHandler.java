@@ -47,9 +47,9 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
             LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_SCHEDULE).format(queueMessage.comScheduleId));
             return;
         }
-        Optional<Device> device = deviceService.findByUniqueMrid(queueMessage.mRID);
+        Optional<Device> device = deviceService.findDeviceById(queueMessage.deviceId);
         if (!device.isPresent()) {
-            LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.NO_SUCH_DEVICE).format(queueMessage.mRID));
+            LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.NO_SUCH_DEVICE).format(queueMessage.deviceId));
             return;
         }
 
@@ -80,7 +80,7 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
                     .collect(Collectors.toList());
 
             if(conflictingSchedules.size() > 0 && queueMessage.strategy.equals(ScheduleAddStrategy.KEEP_EXISTING)) {
-                LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_UNABLE_TO_ADD).format(queueMessage.comScheduleId, queueMessage.mRID));
+                LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_UNABLE_TO_ADD).format(queueMessage.comScheduleId, device.getName()));
             } else {
                 removeExistingSchedulesAndAddNewSchedule(comSchedule, device, queueMessage, conflictingSchedules);
             }
@@ -100,13 +100,13 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
 
         device.newScheduledComTaskExecution(comSchedule).add();
 
-        LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
+        LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.deviceId));
     }
 
     private void removeSchedule(ComSchedule comSchedule, Device device, ComScheduleOnDeviceQueueMessage queueMessage) {
         try {
             device.removeComSchedule(comSchedule);
-            LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_REMOVED).format(queueMessage.comScheduleId, queueMessage.mRID));
+            LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_REMOVED).format(queueMessage.comScheduleId, device.getName()));
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage());
         }

@@ -32,7 +32,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -342,21 +341,21 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             }
         }
     }
-
-    @Override
-    protected boolean doWeNeedToRetryTheConnectionTask() {
-        if (!(getLastSuccessIndicator().isPresent() && getLastSuccessIndicator().get().equals(ComSession.SuccessIndicator.SetupError))
-                && getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
-            Condition condition =
-                    where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull().
-                            and(comTaskNotExecutingCondition()).
-                            and(comTaskIsRetrying()).
-                            and(connectionTaskIsThisOne());
-            return !this.getDataModel().mapper(ComTaskExecution.class).select(condition).isEmpty();
-        } else {
-            return super.doWeNeedToRetryTheConnectionTask();
-        }
-    }
+//
+//    @Override
+//    protected boolean doWeNeedToRetryTheConnectionTask() {
+//        if (!(getLastSuccessIndicator().isPresent() && getLastSuccessIndicator().get().equals(ComSession.SuccessIndicator.SetupError))
+//                && getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
+//            Condition condition =
+//                    where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull().
+//                            and(comTaskNotExecutingCondition()).
+//                            and(comTaskIsRetrying()).
+//                            and(connectionTaskIsThisOne());
+//            return !this.getDataModel().mapper(ComTaskExecution.class).select(condition).isEmpty();
+//        } else {
+//            return super.doWeNeedToRetryTheConnectionTask();
+//        }
+//    }
 
     private Condition comTaskNotExecutingCondition() {
         return where(ComTaskExecutionFields.COMPORT.fieldName()).isNull();
