@@ -85,7 +85,7 @@ public class DeviceSchedulesInfo {
                 deviceSchedulesInfo.connectionStrategyKey = connectionStrategy.name();
             }
         }
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
