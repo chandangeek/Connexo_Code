@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.RemoveSharedCommunication
     store: null,
 
     side: [],
+    deviceName: undefined,
 
     initComponent: function () {
         var me = this;
@@ -50,13 +51,13 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.RemoveSharedCommunication
                                     xtype: 'button',
                                     ui: 'link',
                                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                    href: '#/devices/' + encodeURIComponent(me.mRID) + '/communicationplanning'
+                                    href: '#/devices/' + encodeURIComponent(me.deviceName) + '/communicationplanning'
                                 }
                             ]
                         },
                         previewComponent: {
                             xtype: 'sharedCommunicationSchedulePreview',
-                            itemId: 'sharedCommunicationSchedulePreview',
+                            itemId: 'sharedCommunicationSchedulePreview'
                         }
                     },
                     {

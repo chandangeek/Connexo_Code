@@ -89,7 +89,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
     viewCommunicationLog: function () {
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
-        location.href = '#/devices/' + communicationTaskHistory.get('device').id
+        location.href = '#/devices/' + communicationTaskHistory.get('device').name
         + '/communicationtasks/' + communicationTaskHistory.get('comTasks')[0].id
         + '/history/' + communicationTaskHistory.get('id')
         + '/viewlog' +
@@ -99,7 +99,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
     viewConnectionLog: function () {
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
-        location.href = '#/devices/' + communicationTaskHistory.getComSession().get('device').id
+        location.href = '#/devices/' + communicationTaskHistory.getComSession().get('device').name
         + '/connectionmethods/' + communicationTaskHistory.getComSession().get('connectionMethod').id
         + '/history/' + communicationTaskHistory.getComSession().get('id')
         + '/viewlog'

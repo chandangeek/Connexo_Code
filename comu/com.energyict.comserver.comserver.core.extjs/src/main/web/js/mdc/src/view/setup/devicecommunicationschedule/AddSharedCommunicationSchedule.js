@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
     store: null,
 
     side: [],
+    deviceName: undefined,
 
     initComponent: function () {
         var me = this;
@@ -61,7 +62,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                     xtype: 'button',
                                     ui: 'link',
                                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                    href: '#/devices/' + encodeURIComponent(this.deviceId) + '/communicationplanning'
+                                    href: '#/devices/' + encodeURIComponent(this.deviceName) + '/communicationplanning'
                                 }
                             ]
                         },

@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
     ],
 
     store: 'ConnectionMethodsOfDevice',
+    deviceId: undefined,
 
     initComponent: function () {
         var me = this;
@@ -120,7 +121,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 params: [
-                    {deviceId: me.deviceId}
+                    {deviceId: decodeURIComponent(me.deviceId)}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connection methods per page'),
                 dock: 'bottom'
