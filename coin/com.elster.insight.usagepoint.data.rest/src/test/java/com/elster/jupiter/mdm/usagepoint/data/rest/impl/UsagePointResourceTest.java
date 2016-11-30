@@ -12,7 +12,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
@@ -33,9 +32,9 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
-import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
@@ -161,7 +160,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getServiceLocationString()).thenReturn("serviceLocation");
-        when(usagePoint.getConnectionState()).thenReturn(ConnectionState.UNDER_CONSTRUCTION);
+        when(usagePoint.getConnectionState()).thenReturn(Optional.empty());
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getState()).thenReturn(usagePointState);
 

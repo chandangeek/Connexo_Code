@@ -489,7 +489,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         EnumeratedUsagePointGroup usagePointGroup = mock(EnumeratedUsagePointGroup.class);
         when(meteringGroupsService.findUsagePointGroup(111)).thenReturn(Optional.of(usagePointGroup));
         List<UsagePoint> usagePoints = Arrays.asList(
-                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.UNDER_CONSTRUCTION, "Cosmos"),
+                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.LOGICALLY_DISCONNECTED, "Cosmos"),
                 mockUsagePoint(2, ServiceKind.HEAT, "LivingHeatProsumer", true, false, ConnectionState.CONNECTED, "Earth"));
         when(usagePointGroup.getMembers(any(Instant.class))).thenReturn(usagePoints);
 
@@ -517,7 +517,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         doReturn(finder).when(searchDomain).finderFor(any());
 
         List<UsagePoint> usagePoints = Arrays.asList(
-                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.UNDER_CONSTRUCTION, "Cosmos"),
+                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.LOGICALLY_DISCONNECTED, "Cosmos"),
                 mockUsagePoint(2, ServiceKind.HEAT, "LivingHeatProsumer", true, false, ConnectionState.CONNECTED, "Earth"));
         when(finder.from(any())).thenReturn(finder);
         when(finder.stream()).thenReturn(usagePoints.stream());
@@ -663,7 +663,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
                 .thenReturn(effectiveMCOptional);
         when(usagePoint.isSdp()).thenReturn(isSdp);
         when(usagePoint.isVirtual()).thenReturn(isVirtual);
-        when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState.getDefaultFormat());
+        when(usagePoint.getConnectionStateDisplayName()).thenReturn(Optional.of(connectionState.getDefaultFormat()));
         Optional<Location> locationOptional = Optional.ofNullable(location).map(UsagePointGroupResourceTest::mockLocation);
         when(usagePoint.getLocation()).thenReturn(locationOptional);
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
