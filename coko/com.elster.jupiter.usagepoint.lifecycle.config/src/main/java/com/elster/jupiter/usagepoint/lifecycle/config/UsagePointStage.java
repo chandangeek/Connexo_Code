@@ -7,7 +7,7 @@ public interface UsagePointStage {
         POST_OPERATIONAL
     }
 
-    Stage getStage();
+    Stage getKey();
 
     String getDisplayName();
 }

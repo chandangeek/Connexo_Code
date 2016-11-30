@@ -14,12 +14,12 @@ public class UsagePointStageImpl implements UsagePointStage {
     }
 
     @Override
-    public Stage getStage() {
+    public Stage getKey() {
         return this.stage;
     }
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getString(TranslationKeys.Keys.STAGE_PREFIX + getStage(), getStage().name());
+        return this.thesaurus.getString(TranslationKeys.Keys.STAGE_PREFIX + getKey(), getKey().name());
     }
 }
