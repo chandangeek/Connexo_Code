@@ -10,7 +10,6 @@ import com.elster.jupiter.calendar.EventType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedPeriodTransitionSpec;
-import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
@@ -20,6 +19,7 @@ import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -30,13 +30,18 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.MonthDay;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 /**
  * Provides an implementation for the {@link com.elster.jupiter.calendar.Calendar} interface.
@@ -57,7 +62,6 @@ public class CalendarImpl implements Calendar {
         ENDYEAR("endYear"),
         ABSTRACT_CALENDAR("abstractCalendar"),
         DESCRIPTION("description"),
-        TIMEZONENAME("timeZoneName"),
         CATEGORY("category"),
         DAYTYPES("dayTypes"),
         PERIODS("periods"),
@@ -86,8 +90,6 @@ public class CalendarImpl implements Calendar {
     private String description;
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_MRID_FIELD_TOO_LONG + "}")
     private String mRID;
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_TIMEZONE_FIELD_TOO_LONG + "}")
-    private String timeZoneName;
     private boolean abstractCalendar = false;
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Integer startYear;
@@ -119,11 +121,15 @@ public class CalendarImpl implements Calendar {
 
     private final ServerCalendarService calendarService;
     private final EventService eventService;
+    private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    CalendarImpl(ServerCalendarService calendarService, EventService eventService) {
+    CalendarImpl(ServerCalendarService calendarService, EventService eventService, Clock clock, Thesaurus thesaurus) {
         this.calendarService = calendarService;
         this.eventService = eventService;
+        this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     static CalendarImpl from(DataModel dataModel, EventSet eventSet) {
@@ -208,10 +214,19 @@ public class CalendarImpl implements Calendar {
     @Override
     public void save() {
         if (this.getId() > 0) {
-            doUpdate();
+            if (isActive()) {
+                doUpdate();
+            } else {
+                doRedefine();
+            }
         } else {
             doSave();
         }
+    }
+
+    @Override
+    public boolean isActive() {
+        return Status.ACTIVE.equals(status);
     }
 
     private void doSave() {
@@ -223,7 +238,7 @@ public class CalendarImpl implements Calendar {
         eventService.postEvent(EventType.CALENDAR_CREATE.topic(), this);
     }
 
-    private void doUpdate() {
+    private void doRedefine() {
         Calendar savedCalendar = calendarService.findCalendar(this.getId()).get();
         for (ExceptionalOccurrence occurrence : savedCalendar.getExceptionalOccurrences()) {
             ((ExceptionalOccurrenceImpl) occurrence).delete();
@@ -249,6 +264,15 @@ public class CalendarImpl implements Calendar {
         eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
     }
 
+    private void doUpdate() {
+        decorate(exceptionalOccurrences
+                .stream())
+                .filter(exceptionalOccurrence -> exceptionalOccurrence.getId() == 0)
+                .filterSubType(ExceptionalOccurrenceImpl.class)
+                .forEach(ExceptionalOccurrenceImpl::save);
+        eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
+    }
+
     private void saveActivation() {
         Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
         eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
@@ -256,11 +280,19 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public CalendarService.CalendarBuilder redefine(){
+        if (isActive()) {
+            throw new IllegalStateException("Cannot redefine an active calendar; calendar : " + this.getName());
+        }
         exceptionalOccurrences.clear();
         periodTransitionSpecs.clear();
         periods.clear();
         dayTypes.clear();
         return new CalendarBuilderImpl(calendarService.getDataModel(), this);
+    }
+
+    @Override
+    public CalendarService.StrictCalendarBuilder update() {
+        return new StrictCalendarBuilderImpl(clock, this, thesaurus);
     }
 
     private void saveDayTypes() {
@@ -409,17 +441,17 @@ public class CalendarImpl implements Calendar {
         return period;
     }
 
-    FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, int day, int month, int year) {
+    FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, LocalDate localDate) {
         FixedExceptionalOccurrenceImpl fixedExceptionalOccurrence =
-                calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, dayType, day, month, year);
+                calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, dayType, localDate);
         Save.CREATE.validate(calendarService.getDataModel(), fixedExceptionalOccurrence);
         this.exceptionalOccurrences.add(fixedExceptionalOccurrence);
         return fixedExceptionalOccurrence;
     }
 
-    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, int day, int month) {
+    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, MonthDay monthDay) {
         RecurrentExceptionalOccurrenceImpl recurrentExceptionalOccurrence =
-                calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, dayType, day, month);
+                calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, dayType, monthDay);
         Save.CREATE.validate(calendarService.getDataModel(), recurrentExceptionalOccurrence);
         this.exceptionalOccurrences.add(recurrentExceptionalOccurrence);
         return recurrentExceptionalOccurrence;

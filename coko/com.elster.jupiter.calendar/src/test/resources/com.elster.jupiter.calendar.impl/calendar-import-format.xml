@@ -205,6 +205,26 @@
                         <month>1</month>
                         <day>1</day>
                     </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>7</month>
+                        <day>4</day>
+                    </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>11</month>
+                        <day>11</day>
+                    </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>12</month>
+                        <day>25</day>
+                    </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>12</month>
+                        <day>26</day>
+                    </recurring-occurrence>
                     <fixed-occurrence>
                         <day>18</day>
                         <month>1</month>
@@ -220,11 +240,6 @@
                         <month>5</month>
                         <year>2016</year>
                     </fixed-occurrence>
-                    <recurring-occurrence>
-                        <!-- maps to java class java.time.MonthDay -->
-                        <month>7</month>
-                        <day>4</day>
-                    </recurring-occurrence>
                     <fixed-occurrence>
                         <day>5</day>
                         <month>9</month>
@@ -235,26 +250,11 @@
                         <month>10</month>
                         <year>2016</year>
                     </fixed-occurrence>
-                    <recurring-occurrence>
-                        <!-- maps to java class java.time.MonthDay -->
-                        <month>11</month>
-                        <day>11</day>
-                    </recurring-occurrence>
                     <fixed-occurrence>
                         <day>24</day>
                         <month>11</month>
                         <year>2016</year>
                     </fixed-occurrence>
-                    <recurring-occurrence>
-                        <!-- maps to java class java.time.MonthDay -->
-                        <month>12</month>
-                        <day>25</day>
-                    </recurring-occurrence>
-                    <recurring-occurrence>
-                        <!-- maps to java class java.time.MonthDay -->
-                        <month>12</month>
-                        <day>26</day>
-                    </recurring-occurrence>
                 </occurrences>
             </exception>
             <exception day-type="5">

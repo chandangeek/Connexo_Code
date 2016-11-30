@@ -1,5 +1,6 @@
-package com.elster.jupiter.calendar;
+package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -30,7 +31,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_DAYTYPE_DEFINED_WITH_ID(2008, Constants.NO_DAYTYPE_DEFINED_WITH_ID, "There is no daytype defined with id \"{0}\"."),
     NO_PERIOD_DEFINED_WITH_ID(2009, Constants.NO_PERIOD_DEFINED_WITH_ID, "There is no period defined with id \"{0}\"."),
     INVALID_EVENT_ID(2010, Constants.INVALID_EVENT_ID, "Event id \"{0}\" should be numeric."),
-    NO_EVENT_DEFINED_WITH_ID(2011, Constants.NO_EVENT_DEFINED_WITH_ID, "There is no daytype defined with id \"{0}\"."),
+    NO_EVENT_DEFINED_WITH_ID(2011, Constants.NO_EVENT_DEFINED_WITH_ID, "There is no event defined with id \"{0}\"."),
     NO_TIMEZONE_FOUND_WITH_ID(2013, Constants.NO_TIMEZONE_FOUND_WITH_ID, "Timzone \"{0}\" does not exist."),
     YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS(2014, Constants.YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS, "\"year\" is not allowed for recurring transitions."),
     YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS(2015, Constants.YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS, "\"year\" is required for non recurring transitions."),
@@ -52,6 +53,8 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_CATEGORY_NAME(2031, Constants.DUPLICATE_CATEGORY_NAME, "The category name must be unique.", Level.SEVERE),
     CATEGORY_NOT_FOUND(2032, Constants.CATEGORY_NOT_FOUND, "The category {0} does not exist."),
     EVENTSET_NAME_FIELD_TOO_LONG(2033, Constants.EVENTSET_NAME_FIELD_TOO_LONG, "Event Set name is too long, it must not exceed 80 characters.", Level.SEVERE),
+    NO_DAYTYPE_DEFINED_WITH_NAME(2034, "calendar.import.no.daytype.defined.with.name", "There is no day type defined with name \"{0}\"."),
+    CANNOT_ADD_PAST_EXCEPTIONS_TO_ACTIVE_CALENDAR(2035, "calendar.update.no.past.exceptions.on.active.calendar", "You can't add fixed exceptional occurrences in the past to an active calendar"),
     ;
 
     private final int number;

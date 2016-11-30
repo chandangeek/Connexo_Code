@@ -34,13 +34,13 @@ public class ExceptionBuilderImpl implements CalendarService.ExceptionBuilder {
 
     @Override
     public CalendarService.ExceptionBuilder occursOnceOn(LocalDate date) {
-        this.calendarImpl.addFixedExceptionalOccurrence(this.dayTypeImpl, date.getDayOfMonth(), date.getMonthValue(), date.getYear());
+        this.calendarImpl.addFixedExceptionalOccurrence(this.dayTypeImpl, date);
         return this;
     }
 
     @Override
     public CalendarService.ExceptionBuilder occursAlwaysOn(MonthDay recurringDay) {
-        this.calendarImpl.addRecurrentExceptionalOccurrence(this.dayTypeImpl, recurringDay.getDayOfMonth(), recurringDay.getMonthValue());
+        this.calendarImpl.addRecurrentExceptionalOccurrence(this.dayTypeImpl, recurringDay);
         return this;
     }
 

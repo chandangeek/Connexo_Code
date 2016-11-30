@@ -11,8 +11,8 @@ class RecurrentExceptionalOccurrenceImpl extends ExceptionalOccurrenceImpl imple
 
     static final String TYPE_IDENTIFIER = "REC";
 
-    public RecurrentExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, int day, int month) {
-        return (RecurrentExceptionalOccurrenceImpl) super.init(calendar, dayType, day, month);
+    RecurrentExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, MonthDay monthDay) {
+        return (RecurrentExceptionalOccurrenceImpl) super.init(calendar, dayType, monthDay);
     }
 
     @Inject

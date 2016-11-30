@@ -4,13 +4,15 @@
 
 package com.elster.jupiter.calendar.impl.importers;
 
-import com.elster.jupiter.calendar.MessageSeeds;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.MessageSeeds;
 import com.elster.jupiter.calendar.impl.TranslationKeys;
-import com.elster.jupiter.calendar.impl.xmlbinding.Calendar;
 import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
+import com.elster.jupiter.calendar.impl.xmlbinding.XmlCalendar;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 
 import org.xml.sax.SAXException;
 
@@ -22,23 +24,25 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.InputStream;
+import java.time.Clock;
 
-/**
- * Created by igh on 27/04/2016.
- */
-class TimeOfUseCalendarImporter implements FileImporter {
+class CalendarImporter implements FileImporter {
 
-    private CalendarImporterContext context;
+    private final Thesaurus thesaurus;
+    private final CalendarService calendarService;
+    private final Clock clock;
 
-    TimeOfUseCalendarImporter(CalendarImporterContext context) {
-        this.context = context;
+    CalendarImporter(Thesaurus thesaurus, CalendarService calendarService, Clock clock) {
+        this.thesaurus = thesaurus;
+        this.calendarService = calendarService;
+        this.clock = clock;
     }
 
     @Override
     public void process(FileImportOccurrence fileImportOccurrence) {
         try {
             Calendars xmlContents = getXmlContents(fileImportOccurrence);
-            CalendarProcessor processor = new CalendarProcessor(context.getCalendarService(), context.getThesaurus());
+            CalendarProcessor processor = new CalendarProcessor(calendarService, clock, thesaurus);
             log(fileImportOccurrence, MessageSeeds.VALIDATION_OF_FILE_SUCCEEDED);
 
             processor.addListener(new CalendarProcessor.ImportListener() {
@@ -62,13 +66,13 @@ class TimeOfUseCalendarImporter implements FileImporter {
             logImportFailed(fileImportOccurrence, e);
             markFailure(fileImportOccurrence);
         } catch (ConstraintViolationException e) {
-            new ExceptionLogFormatter(context.getThesaurus(), fileImportOccurrence.getLogger()).log(e);
-            throw new RuntimeException(context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
+            new ExceptionLogFormatter(thesaurus, fileImportOccurrence.getLogger()).log(e);
+            throw new RuntimeException(thesaurus.getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
         }
     }
 
     Calendars getXmlContents(FileImportOccurrence fileImportOccurrence) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Calendar.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(XmlCalendar.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         unmarshaller.setSchema(getSchema());
         return unmarshall(unmarshaller, fileImportOccurrence.getContents());
@@ -90,9 +94,9 @@ class TimeOfUseCalendarImporter implements FileImporter {
         Throwable toLog = (e.getLinkedException() != null) ? e.getLinkedException() : e;
         String message = toLog.getLocalizedMessage();
         if ("Content is not allowed in prolog.".equals(message)) {
-            MessageSeeds.VALIDATION_OF_FILE_FAILED.log(fileImportOccurrence.getLogger(), context.getThesaurus());
+            MessageSeeds.VALIDATION_OF_FILE_FAILED.log(fileImportOccurrence.getLogger(), thesaurus);
         } else {
-            MessageSeeds.VALIDATION_OF_FILE_FAILED_WITH_DETAIL.log(fileImportOccurrence.getLogger(), context.getThesaurus(), message);
+            MessageSeeds.VALIDATION_OF_FILE_FAILED_WITH_DETAIL.log(fileImportOccurrence.getLogger(), thesaurus, message);
         }
     }
 
@@ -101,16 +105,16 @@ class TimeOfUseCalendarImporter implements FileImporter {
     }
 
     private void log(FileImportOccurrence fileImportOccurrence, MessageSeeds messageSeeds) {
-        messageSeeds.log(fileImportOccurrence.getLogger(), context.getThesaurus());
+        messageSeeds.log(fileImportOccurrence.getLogger(), thesaurus);
     }
 
     private void markFailure(FileImportOccurrence fileImportOccurrence) {
-        fileImportOccurrence.markFailure(context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
+        fileImportOccurrence.markFailure(thesaurus.getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
     }
 
     private void markSuccess(FileImportOccurrence fileImportOccurrence) {
         fileImportOccurrence.markSuccess(
-                context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORTED_SUCCESSFULLY).format());
+                thesaurus.getFormat(TranslationKeys.CALENDAR_IMPORTED_SUCCESSFULLY).format());
     }
 
     private Schema getSchema() {
@@ -118,7 +122,7 @@ class TimeOfUseCalendarImporter implements FileImporter {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             return sf.newSchema(getClass().getClassLoader().getResource("calendar-import-format.xsd"));
         } catch (SAXException e) {
-            throw new SchemaFailed(context.getThesaurus(), e);
+            throw new SchemaFailed(thesaurus, e);
         }
     }
 

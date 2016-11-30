@@ -79,6 +79,12 @@ public interface CalendarService {
     }
 
     @ProviderType
+    interface StrictCalendarBuilder {
+        StrictExceptionBuilder except(String dayTypeName);
+        Calendar add();
+    }
+
+    @ProviderType
     interface EventSetBuilder {
         EventBuilder addEvent(String name);
         EventSet add();
@@ -110,6 +116,12 @@ public interface CalendarService {
         ExceptionBuilder occursOnceOn(LocalDate date);
         ExceptionBuilder occursAlwaysOn(MonthDay recurringDay);
         CalendarBuilder add();
+    }
+
+    @ProviderType
+    interface StrictExceptionBuilder {
+        StrictExceptionBuilder occursOnceOn(LocalDate date);
+        StrictCalendarBuilder add();
     }
 
 }

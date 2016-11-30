@@ -3,7 +3,6 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventSet;
-import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
