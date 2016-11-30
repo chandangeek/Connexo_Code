@@ -73,8 +73,8 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Before
     public void setUpStubs() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getVersion()).thenReturn(1L);
         when(device.getmRID()).thenReturn("1");
         when(device.forValidation()).thenReturn(deviceValidation);
@@ -96,7 +96,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         RegisterType registerType = mock(RegisterType.class);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findAndLockRegisterSpecByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(registerSpec));
         when(masterDataService.findRegisterType(anyLong())).thenReturn(Optional.of(registerType));
         when(masterDataService.findAndLockRegisterTypeByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(registerType));

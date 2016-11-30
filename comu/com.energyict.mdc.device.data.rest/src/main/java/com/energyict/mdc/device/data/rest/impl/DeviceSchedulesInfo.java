@@ -85,7 +85,7 @@ public class DeviceSchedulesInfo {
                 deviceSchedulesInfo.connectionStrategyKey = connectionStrategy.name();
             }
         }
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
@@ -104,7 +104,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
@@ -121,7 +121,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
@@ -137,7 +137,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 

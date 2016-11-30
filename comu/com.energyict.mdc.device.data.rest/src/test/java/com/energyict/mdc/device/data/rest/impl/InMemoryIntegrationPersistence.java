@@ -329,7 +329,7 @@ public class InMemoryIntegrationPersistence {
             this.batchService = injector.getInstance(BatchService.class);
             this.deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
-            this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
+            this.meteringGroupsService.addQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);

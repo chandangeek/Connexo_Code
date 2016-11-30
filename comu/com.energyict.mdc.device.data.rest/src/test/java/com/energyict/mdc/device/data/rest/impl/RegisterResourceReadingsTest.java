@@ -219,7 +219,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
     @Test
     public void testGetRegisterData() throws Exception {
         when(clock.instant()).thenReturn(NOW);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -250,7 +250,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
     @Test
     public void testGetRegisterDataWithToTime() throws Exception {
         when(clock.instant()).thenReturn(NOW);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -278,7 +278,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
     @Test
     public void testGetRegisterFilterRegisters() throws Exception {
         when(clock.instant()).thenReturn(NOW);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -305,7 +305,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
     @Test
     public void testGetRegisterDataWithRegisterAndToTimeFilter() throws Exception {
         when(clock.instant()).thenReturn(NOW);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);
@@ -334,7 +334,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
     @Test
     public void testGetRegisterDataWithRegisterAndToTimeFilter2() throws Exception {
         when(clock.instant()).thenReturn(NOW);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device.getId()).thenReturn(1L);

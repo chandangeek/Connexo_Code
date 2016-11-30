@@ -49,8 +49,8 @@ public class DeviceScheduleResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getAllComTaskExecutions(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
@@ -64,8 +64,8 @@ public class DeviceScheduleResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getComTask(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
@@ -117,10 +117,10 @@ public class DeviceScheduleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response createComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo schedulingInfo) {
+    public Response createComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo schedulingInfo) {
         // In this method, id == id of comtask
         checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
             if (comTaskEnablement.getComTask().getId() == schedulingInfo.id) {
@@ -155,7 +155,7 @@ public class DeviceScheduleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo info) {
+    public Response updateComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo info) {
         // In this method, id == id of comtaskexec
         checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);

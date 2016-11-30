@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
-@Path("/devices/{mRID}/sharedschedules")
+@Path("/devices/{name}/sharedschedules")
 public class DeviceSharedScheduleResource {
 
     private final ResourceHelper resourceHelper;
@@ -45,7 +45,7 @@ public class DeviceSharedScheduleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, ScheduleIdsInfo info) {
+    public Response addComScheduleOnDevice(ScheduleIdsInfo info) {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComSchedule> comSchedules = info.scheduleIds.stream()
                 .map(schedulingService::findSchedule)
