@@ -10,7 +10,7 @@ Ext.define('Mdc.store.DeviceSchedules', {
         limitParam: false,
         pageParam: false,
         startParam: false,
-        url: '/api/ddr/devices/{deviceId}/schedules',
+        url: '/api/ddr/devices/{deviceName}/schedules',
         reader: {
             type: 'json',
             root: 'schedules'
