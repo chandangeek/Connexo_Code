@@ -168,7 +168,7 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     viewCommunicationLog: function (menu) {
-        location.href = '#/devices/' + menu.record.get('device').id
+        location.href = '#/devices/' + menu.record.get('device').name
             + '/communicationtasks/' + menu.record.get('comTask').id
             + '/history/' + menu.record.get('id')
             + '/viewlog' +

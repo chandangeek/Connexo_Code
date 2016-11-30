@@ -171,7 +171,7 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewCommunicationLog: function (record) {
-        location.href = '#/devices/' +record.get('device').id
+        location.href = '#/devices/' +record.get('device').name
         + '/communicationtasks/' + record.get('comTask').id
         + '/history/' + record.get('sessionId')
         + '/viewlog' +
@@ -179,7 +179,7 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewConnectionLog: function (record) {
-        location.href = '#/devices/' + record.get('device').id + '/connectionmethods/' + record.get('connectionTask').id + '/history/' + record.get('connectionTask').comSessionId + '/viewlog' +
+        location.href = '#/devices/' + record.get('device').name + '/connectionmethods/' + record.get('connectionTask').id + '/history/' + record.get('connectionTask').comSessionId + '/viewlog' +
         '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
