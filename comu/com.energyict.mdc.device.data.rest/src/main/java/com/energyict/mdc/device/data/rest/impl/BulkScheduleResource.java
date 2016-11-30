@@ -73,8 +73,9 @@ public class BulkScheduleResource {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
-        checkValidity(comSchedules);
+
         if(message.action.equals(ScheduleAction.Add)) {
+            checkValidity(comSchedules);
             message.strategy = request.strategy.equalsIgnoreCase("keep") ? ScheduleAddStrategy.KEEP_EXISTING : ScheduleAddStrategy.REMOVE_EXISTING;
         }
         if (request.filter != null) {
