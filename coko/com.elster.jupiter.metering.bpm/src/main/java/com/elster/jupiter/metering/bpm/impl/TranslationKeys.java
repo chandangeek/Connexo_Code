@@ -7,7 +7,6 @@ public enum TranslationKeys implements TranslationKey {
     USAGE_POINT_ASSOCIATION_PROVIDER(UsagePointProcessAssociationProvider.ASSOCIATION_TYPE, "Usage point"),
     METROLOGY_CONFIGURATION_PROPERTY("metrologyConfigurations", "Metrology configurations"),
     CONNECTION_STATE_PROPERTY("connectionStates", "Connection states"),
-    UNDER_CONSTRUCTION("connectionState." + ConnectionState.UNDER_CONSTRUCTION.getId(), "Under construction"),
     CONNECTED("connectionState." + ConnectionState.CONNECTED.getId(), "Connected"),
     PHYSICALLY_DISCONNECTED("connectionState." + ConnectionState.PHYSICALLY_DISCONNECTED.getId(), "Physically disconnected"),
     LOGICALLY_DISCONNECTED("connectionState." + ConnectionState.LOGICALLY_DISCONNECTED.getId(), "Logically disconnected"),
