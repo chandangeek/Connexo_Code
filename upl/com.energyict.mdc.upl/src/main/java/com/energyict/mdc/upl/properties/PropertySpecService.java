@@ -2,6 +2,7 @@ package com.energyict.mdc.upl.properties;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -39,6 +40,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<String> stringSpecOfMaximumLength(int length);
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link HexString} values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -109,6 +118,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<BigDecimal> positiveBigDecimalSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Date values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Date> dateTimeSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom

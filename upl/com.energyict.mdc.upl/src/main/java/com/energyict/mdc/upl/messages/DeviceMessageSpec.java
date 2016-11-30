@@ -32,11 +32,19 @@ public interface DeviceMessageSpec {
     DeviceMessageCategory getCategory();
 
     /**
-     * Returns the translatable name of this DeviceMessageSpec
+     * Returns the translatable name of this DeviceMessageSpec.
      *
      * @return the name of this DeviceMessageSpec
      */
     String getName();
+
+    /**
+     * Gets the resource key that determines the name
+     * of this category to the user's language settings.
+     *
+     * @return The resource key
+     */
+    String getNameResourceKey();
 
     /**
      * Gets the List of {@link PropertySpec propertySpecs} that
@@ -56,7 +64,7 @@ public interface DeviceMessageSpec {
     PropertySpec getPropertySpec(String name);
 
     /**
-     * Gets the PrimaryKey for this {@link DeviceMessageSpec}
+     * Gets the PrimaryKey for this {@link DeviceMessageSpec}.
      *
      * @return the primary key
      */
