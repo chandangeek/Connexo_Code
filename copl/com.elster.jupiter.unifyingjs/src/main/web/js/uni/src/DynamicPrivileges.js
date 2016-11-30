@@ -57,12 +57,13 @@ Ext.define('Uni.DynamicPrivileges', {
 
             // router.arguments are encoded at this point.
             // extraParams call expects non-encoded arguments, so we have to decode them here
+            var arguments = {};
             for (var property in router.arguments) {
                 if (router.arguments.hasOwnProperty(property)) {
-                    router.arguments[property] = decodeURIComponent(router.arguments[property]);
+                    arguments[property] = decodeURIComponent(router.arguments[property]);
                 }
             }
-            Ext.apply(store.getProxy().extraParams, router.arguments);
+            Ext.apply(store.getProxy().extraParams, arguments);
             store.load({
                 callback: function () {
                     this.each(function (record) {
