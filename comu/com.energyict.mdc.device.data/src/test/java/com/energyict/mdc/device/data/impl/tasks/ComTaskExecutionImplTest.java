@@ -233,13 +233,12 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ComTaskExecution comTaskExecution = device.newScheduledComTaskExecution(comSchedule).connectionTask(connectionTask).add();
 
         assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(plannedNextExecutionTimeStamp);
-        assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(plannedNextExecutionTimeStamp);
 
         comTaskExecution.runNow();
 
         ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
-//        reloadedComTaskExecution.runNow();
-//        reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        reloadedComTaskExecution.runNow();
+        reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ScheduledConnectionTask reloadedScheduledConnectionTask = inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(connectionTask.getId()).get();
 
         assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(frozenClock);
