@@ -47,7 +47,7 @@ public class DataSourceInfoFactory {
     private DataSourceInfo.UsagePointDataSource asDataSource(UsagePoint usagePoint) {
         DataSourceInfo.UsagePointDataSource usagePointDataSource = new DataSourceInfo.UsagePointDataSource();
         usagePointDataSource.name = usagePoint.getName();
-        usagePointDataSource.connectionState = usagePoint.getConnectionStateDisplayName();
+        usagePoint.getConnectionStateDisplayName().ifPresent(connectionStateName -> usagePointDataSource.connectionState = connectionStateName);
         return usagePointDataSource;
     }
 }

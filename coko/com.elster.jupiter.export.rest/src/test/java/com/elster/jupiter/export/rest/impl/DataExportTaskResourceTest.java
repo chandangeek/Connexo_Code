@@ -639,7 +639,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private IdentifiedObject mockUsagePoint(String name, String connectionState) {
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getName()).thenReturn(name);
-        when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState);
+        when(usagePoint.getConnectionStateDisplayName()).thenReturn(Optional.of(connectionState));
         return usagePoint;
     }
 
