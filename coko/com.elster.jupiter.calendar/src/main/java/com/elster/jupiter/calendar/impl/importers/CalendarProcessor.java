@@ -216,9 +216,10 @@ public class CalendarProcessor {
         UpdatableHolder<EventSet> eventSetHolder = new UpdatableHolder<>(null);
         Category category = calendarService.findCategoryByName(calendar.getCategory())
                 .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory()));
+        UpdatableHolder<Consumer<ImportListener>> listenerNotification = new UpdatableHolder<>(null);
         CalendarService.CalendarBuilder builder = calendarByMRID
                 .map(existingCalendar -> {
-                    importListeners.forEach(perform(ImportListener::updated).with(calendar.getMRID()));
+                    listenerNotification.update(perform(ImportListener::updated).with(calendar.getMRID()));
                     eventSetHolder.update(((CalendarImpl) existingCalendar).getEventSet());
                     return existingCalendar.redefine()
                             .name(getCalendarName(calendar))
@@ -227,7 +228,7 @@ public class CalendarProcessor {
                             .mRID(calendar.getMRID());
                 })
                 .orElseGet(() -> {
-                    importListeners.forEach(perform(ImportListener::created).with(calendar.getMRID()));
+                    listenerNotification.update(perform(ImportListener::created).with(calendar.getMRID()));
                     EventSet eventSet = calendarService.findEventSetByName(calendar.getEventset())
                             .orElseThrow(() -> new IllegalArgumentException("illegal eventset name " + calendar
                                     .getEventset()));
@@ -314,6 +315,7 @@ public class CalendarProcessor {
                         fixedOccurrence.getDay().intValue()));
             }
         }
+        importListeners.forEach(listenerNotification.get());
         return builder.add();
     }
 

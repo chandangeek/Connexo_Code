@@ -11,7 +11,6 @@ import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
 import com.elster.jupiter.calendar.impl.xmlbinding.XmlCalendar;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
 import org.xml.sax.SAXException;
@@ -60,11 +59,7 @@ class CalendarImporter implements FileImporter {
             processor.process(xmlContents);
             markSuccess(fileImportOccurrence);
         } catch (JAXBException e) {
-            logValidationFailed(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence);
-        } catch (LocalizedException e) {
-            logImportFailed(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence);
+            throw new RuntimeException(e);
         } catch (ConstraintViolationException e) {
             new ExceptionLogFormatter(thesaurus, fileImportOccurrence.getLogger()).log(e);
             throw new RuntimeException(thesaurus.getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
