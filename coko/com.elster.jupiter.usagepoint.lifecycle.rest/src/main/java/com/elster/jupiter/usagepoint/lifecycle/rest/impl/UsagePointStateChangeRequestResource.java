@@ -52,9 +52,9 @@ public class UsagePointStateChangeRequestResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getAvailableActionsForCurrentDevice(@PathParam("id") long id,
-                                                        @HeaderParam("X-CONNEXO-APPLICATION-NAME") String application,
-                                                        @BeanParam JsonQueryParameters queryParameters) {
+    public Response getAvailableTransitions(@PathParam("id") long id,
+                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String application,
+                                            @BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> transitions = this.usagePointLifeCycleService
                 .getAvailableTransitions(this.resourceHelper.getUsagePointOrThrowException(id).getState(), application)
                 .stream()
