@@ -7,6 +7,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * 
@@ -67,5 +68,5 @@ public interface DataMapper<T> extends Finder<T> {
 
 	SqlBuilder builder(String alias, String... hints);
 
-    List<String> getQueryFields();
+    Set<String> getQueryFields();
 }

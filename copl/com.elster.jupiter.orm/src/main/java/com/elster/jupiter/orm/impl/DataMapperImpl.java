@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -20,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -553,38 +554,25 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 
 	@Override
-	public List<String> getQueryFields() {
-		List<String> result = new ArrayList<>();
-		Map<Column, Pair<List<ColumnImpl>, String>> constraintMapping = new HashMap<>();
+	public Set<String> getQueryFields() {
+		Set<String> result = new LinkedHashSet<>();
+		Map<Column, String> constraintMapping = new HashMap<>();
 		getTable().getForeignKeyConstraints().stream()
 				.filter(foreignKey -> foreignKey.getFieldName() != null)
-				.forEach(constraint -> {
-							List<ColumnImpl> columns = constraint.getColumns();
-							Pair<List<ColumnImpl>, String> mapping = Pair.of(columns, constraint.getFieldName());
-							columns.forEach(column -> constraintMapping.put(column, mapping));
-						});
-		for (Column each : getTable().getColumns()) {
+				.forEach(constraint -> constraint.getColumns()
+						.forEach(column -> constraintMapping.put(column, constraint.getFieldName())));
+		getTable().getRealColumns().forEach(each -> {
 			String fieldName = each.getFieldName();
 			if (fieldName == null) {
-				Pair<List<ColumnImpl>, String> mapping = constraintMapping.get(each);
-				if (mapping != null) {
-					fieldName = mapping.getLast();
-					mapping.getFirst().forEach(constraintMapping::remove);
-				}
+				fieldName = constraintMapping.get(each);
 			}
 			if (fieldName != null) {
-				String[] parts = fieldName.split("\\.");
-				String part = "";
-				for (int i = 0 ; i < parts.length - 1 ; i++) {
-					part += parts[i];
-					if (!result.contains(part)) {
-						result.add(part);
-					}
-					part += ".";
+				for (int index = fieldName.indexOf('.'); index > -1; index = fieldName.indexOf('.', index + 1)) {
+					result.add(fieldName.substring(0, index));
 				}
 				result.add(fieldName);
 			}
-		}
+		});
 		return result;
 	}
 

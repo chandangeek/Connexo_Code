@@ -179,7 +179,7 @@ abstract class JoinDataMapper<T> {
 	}
 
 	final List<String> getQueryFields() {
-		return dataMapper.getQueryFields();
+		return new ArrayList<>(dataMapper.getQueryFields());
 	}
 
 	public abstract boolean isReachable();
