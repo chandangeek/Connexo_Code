@@ -654,7 +654,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.communications")).hasSize(1);
         assertThat(jsonModel.<String>get("$.communications[0].name")).isEqualTo("Read all");
-        assertThat(jsonModel.<String>get("$.communications[0].device.id")).isEqualTo(13);
+        assertThat(jsonModel.<Integer>get("$.communications[0].device.id")).isEqualTo(13);
         assertThat(jsonModel.<String>get("$.communications[0].device.name")).isEqualTo("some device");
         assertThat(jsonModel.<Integer>get("$.communications[0].deviceType.id")).isEqualTo(1010);
         assertThat(jsonModel.<String>get("$.communications[0].deviceType.name")).isEqualTo("device type");
